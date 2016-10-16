@@ -265,7 +265,6 @@ cv_gaussian_ = function(model, test_set, training_set, y_column, fold, random_ef
 
 
 cv_binomial_ = function(model, test_set, training_set, y_column, fold, random_effects, family, model_verbose){
-  # positive=x if the x level in y_column should be set as positive in confusion matrix (default=1)
   
   # Trains a given model on training_set and tests it on test_set
   # Returns list with 
@@ -774,7 +773,7 @@ cross_validate_list = function(model_list, data, id_column, cat_column,
     
   }
   
-  # we put the two dataframes together and returns it
+  # we put the two dataframes together and return it
   return(cbind(model_cvs_df, mixed_effects))
   
 }

@@ -8,3 +8,5 @@ Started in Oct. 2016
 Main functions:  
 * cross_validate()   
 * cross_validate_list()  
+  
+Please read using_cross_validation.pdf for further information on how to use the functions.  

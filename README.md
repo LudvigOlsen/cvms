@@ -8,4 +8,3 @@ Started in Oct. 2016
 Main functions:
  cross_validate()
  cross_validate_list()
-

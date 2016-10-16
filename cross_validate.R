@@ -748,17 +748,20 @@ cross_validate_list = function(model_list, data, id_column, cat_column,
     # Seperate model into dependent variable and predictors
     separate(model, into = c("dependent", "predictors"), sep = "~") %>%
     
-    # then we separate the model by "("  - because: diagnosis + (1|subject)
-    # the first part is placed in a column called "fixed"
+    # Then we separate the model by "("  - because: diagnosis + (1|subject)
+    # The first part is placed in a column called "fixed"
     # the other part in a column called "random"
-    separate(predictors, into = c("fixed", "random"), sep = "\\(") %>%
+    # We use "extra = 'merge'" to only split into the 2 given parts
+    # as it will elsewise split the string whenever "\\(" occurs
+    separate(predictors, into = c("fixed", "random"), sep = "\\(", extra = "merge") %>%
     
-    # then we clean up those strings a bit
-    # from fixed we remove the last "+"
-    # from random we remove the last ")"
+      
+    # Then we clean up those strings a bit
+    # From fixed we remove the last "+"
+    # From random we remove all "(" and ")"
     mutate(
            fixed = gsub("[+]$", "", fixed),
-           random = substr(random,1,nchar(random)-1) 
+           random = gsub('\\(|\\)','', random)
            
     )))
 
@@ -775,3 +778,4 @@ cross_validate_list = function(model_list, data, id_column, cat_column,
   return(cbind(model_cvs_df, mixed_effects))
   
 }
+

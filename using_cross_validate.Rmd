@@ -1,0 +1,285 @@
+---
+title: "Using cross_validate()"
+author: "Ludvig R. Olsen, Benjamin Zachariae"
+date: "10/13/2016"
+output:
+  pdf_document:
+    highlight: tango
+    toc: yes
+    toc_depth: 4
+  html_document:
+    depth: 4
+    fig_width: 14
+    highlight: tango
+    number_sections: no
+    theme: united
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+
+```
+
+# Setting up
+Start by setting the working directory. 
+
+## Importing cross_validate()
+Include cross_validate.R using source() so that we can use its functions  
+Change the path in source() to point to the file or put cross_validate.R in the working directory  
+
+```{r}
+
+source('cross_validate.R')
+
+```
+
+## Loading data
+
+```{r}
+
+require(graphics)
+df = mtcars
+
+df$am = as.factor(df$am)
+
+head(df)
+
+```
+
+# Using cross_validate() 
+
+## Arguments  
+
+model: 'y~a+b+(1|c)'  
+
+data: Dataframe  
+
+id_column: Unique identifiers (e.g. subject, ID, or likewise)  
+
+cat_col: categorical column for balancing folds  
+
+nfolds: number of folds  
+
+family: gaussian or binomial  
+
+REML: Restricted Maximum Likelihood  
+
+cutoff: For deciding prediction class from prediction (binomial)  
+
+positive: Level from dependent variable to predict (1/2) (Levels are alphabetically ordered) (binomial)  
+
+do.plot: ROC curve plot (binomial)  
+
+which_plot: choice between available plots  
+- 'all' plots  
+- single plot (e.g. 'RMSE')  
+- list of plots (e.g. c('RMSE', 'r2'))  
+
+plot_theme: which theme to use with ggplot2  
+
+seed: A number for setting seed. Makes sure the folds are the same for model comparison.  
+
+model_verbose: Printed feedback on the used model (lm() / lmer() / glm() / glmer()) (BOOL)  
+
+
+## lm()
+
+```{r}
+
+cross_validate(('mpg~am+cyl'), df, 1, 'am', nfolds=5, seed=1)
+
+```
+
+## lmer()
+
+```{r}
+
+cross_validate(('mpg~am+cyl+(1|disp)'), df, 1, 'am', 
+               nfolds=5, REML=FALSE, seed=1)
+
+```
+
+## glm()
+
+```{r}
+
+cross_validate(('am~mpg+cyl'), df, 1, 'am', nfolds=5, 
+               family='binomial', seed=1)
+
+```
+
+## glmer()
+
+```{r}
+
+cross_validate(('am~mpg+cyl+(1|disp)'), df, 1, 'am', 
+               nfolds=5, family='binomial', seed=1)
+
+```
+
+## model_verbose
+In order to ensure the user that cross_validate() chooses the right model type (lm,lmer,glm or glmer), it automatically prints the type used for every fold. This doesn't necessarily look pretty, so it's possible to turn off this feature by setting model_verbose to FALSE.
+
+```{r}
+
+cross_validate(('mpg~am+cyl'), df, 1, 'am', nfolds=5, 
+               seed=1, model_verbose = FALSE)
+
+```
+
+## Plotting
+The built-in plotting options allow the user to visualise the process. Depending on the family (gaussian or binomial) a variety of plots are available.  
+
+&nbsp;    
+  
+**Binomial** currently only plots the *ROC curve*  
+
+&nbsp;  
+  
+**Gaussian** allows for the following plot options: 
+
+'RMSE' - boxplot of the Root Mean Square Errors from each folds 
+
+'r2' - boxplot of the R-squared values (both marginal and conditional) from each fold  
+
+'IC' - boxplot of the Information Criterion (AIC and BIC) from each fold  
+
+'coefficients' - boxplot of the model estimates of the fixed effects for each fold  
+
+'all' prints all the available plots  
+
+Choose multiple plots with a list: c('RMSE', 'coefficients')
+ 
+&nbsp;  
+  
+**Arguments**  
+Set the do.plot argument to print the plots:  
+do.plot = TRUE  
+
+Choose the plots you want with which_plot:  
+which_plot = 'all' *(only used for gaussian models)*  
+
+Set your favourite ggplot2 theme:  
+plot_theme = theme_bw() *(only used for gaussian models)*    
+  
+&nbsp;  
+
+### Binomial plots
+
+```{r}
+
+cross_validate(('am~mpg+cyl'), df, 1, 'am', nfolds=5, 
+               family='binomial', seed=1, 
+               model_verbose = FALSE, do.plot = TRUE,
+               plot_theme = theme_bw())
+
+```
+
+
+### Gaussian plots
+
+```{r}
+
+cross_validate(('mpg~am+cyl'), df, 1, 'am', nfolds=5, 
+               seed=1, model_verbose = FALSE, 
+               do.plot = TRUE, which_plot = 'all',
+               plot_theme = theme_bw())
+
+```
+
+
+# Using cross_validate_list()
+If you have a list of models that you wish to compare, cross_validate_list() makes it really easy.  
+You pass it the list and it returns a dataframe with the results of the models.  
+**N.B.** remember to set the seed, so all models use the same folds.  
+
+## lm()
+
+```{r}
+
+models_lm = c("mpg~am", "mpg~am+cyl", "mpg~am+cyl+wt")
+
+models_lm_df = cross_validate_list(models_lm, df, 1, 'am', 
+                                   seed=1, model_verbose=FALSE)
+
+models_lm_df
+
+```
+
+## lmer()
+
+```{r}
+
+models_lmer = c("mpg~am+(1|disp)", "mpg~am+cyl+(1|disp)", "mpg~am+cyl+wt+(1|disp)")
+
+models_lmer_df = cross_validate_list(models_lmer, df, 1, 'am', 
+                                     seed=1, model_verbose=FALSE)
+
+models_lmer_df
+
+```
+
+## lm() and lmer() at once
+Notice that we get NA in the random column with the lm() model, as it doesn't contain random effects.  
+
+```{r}
+
+models_lm_mixed = c("mpg~am", "mpg~am+(1|disp)")
+
+models_lm_mixed_df = cross_validate_list(models_lm_mixed, df, 1, 'am', 
+                                         seed=1, model_verbose=FALSE)
+
+models_lm_mixed_df
+
+```
+
+## glm()
+Notice that we get warning messages.  
+If these are convergence warnings, they will be counted, so you can discard the model.  
+Else you will have to read the warning messages that specifies the model and the fold where the warning was issued.  
+
+```{r}
+
+models_glm = c("am~mpg", "am~mpg+cyl", "am~mpg+cyl+wt")
+
+models_glm_df = cross_validate_list(models_glm, df, 1, 'am', 
+                                    family='binomial', seed=1, 
+                                    model_verbose=FALSE)
+
+models_glm_df
+
+```
+
+## glmer()
+```{r}
+
+models_glmer = c("am~mpg+(1|disp)", "am~mpg+cyl+(1|disp)", "am~mpg+cyl+wt+(1|disp)")
+
+models_glmer_df = cross_validate_list(models_glmer, df, 1, 'am', 
+                                      family='binomial', seed=1, 
+                                      model_verbose=FALSE)
+
+models_glmer_df
+
+```
+
+
+# Convergence Warnings
+If we get convergence warnings while fitting our model on a fold, the values of that fold will return NA and we will count the warning (see convergence_warnings in the output).  
+The model and fold that didn't converge are messaged.  
+Whenever you are comparing models, consider discarding the ones with convergence warnings.  
+
+```{r}
+
+models_conv = c("am~cyl+wt+qsec+vs+carb+(1|disp)", "am~mpg+cyl+wt+(1|disp)")
+
+models_conv_df = cross_validate_list(models_conv, df, 1, 'am', 
+                                     family = 'binomial', seed=1, 
+                                     model_verbose=FALSE)
+
+models_conv_df
+```
+

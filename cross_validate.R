@@ -17,7 +17,7 @@
 
 # Libraries
 library("pacman")
-p_load(lmerTest, caret, tidyr, dplyr, plyr, hydroGOF, MuMIn, stats, pROC, broom, ggplot2)
+p_load(lmerTest, caret, tidyr, dplyr, plyr, hydroGOF, MuMIn, stats, pROC, broom, ggplot2, AICcmodavg)
 
 
 # Helper functions
@@ -233,6 +233,7 @@ cv_gaussian_ = function(model, test_set, training_set, y_column, fold, random_ef
     r2m = NA
     r2c = NA
     AIC = NA
+    AICc = NA
     BIC = NA
     converged = "No"
     
@@ -246,6 +247,7 @@ cv_gaussian_ = function(model, test_set, training_set, y_column, fold, random_ef
     r2m = r.squaredGLMM(model_temp)[1]
     r2c = r.squaredGLMM(model_temp)[2]
     AIC = AIC(model_temp)
+    AICc = AICc(model_temp, return.K = REML)
     BIC = BIC(model_temp)
     converged = "Yes"
     
@@ -258,7 +260,7 @@ cv_gaussian_ = function(model, test_set, training_set, y_column, fold, random_ef
   # .. a dataframe with the found values
   return(list(
     model_temp_tidied, 
-    data.frame('RMSE' = rmse, 'r2m' = r2m, 'r2c' = r2c, 'AIC' = AIC, 'BIC' = BIC, 'converged'= converged)
+    data.frame('RMSE' = rmse, 'r2m' = r2m, 'r2c' = r2c, 'AIC' = AIC, 'AICc' = AICc, 'BIC' = BIC, 'converged'= converged)
     ))
   
 }
@@ -597,8 +599,10 @@ cross_validate = function(model, data, id_column, cat_column,
       'r2m' = mean(na.omit(gaussian_return$r2m)),
       'r2c' = mean(na.omit(gaussian_return$r2c)),
       'AIC' = mean(na.omit(gaussian_return$AIC)),
+      'AICc' = mean(na.omit(gaussian_return$AICc)),
       'BIC' = mean(na.omit(gaussian_return$BIC)),
-      "Convergence_Warnings" = as.integer(conv_warns)
+      "Folds"=nfolds,
+      "Convergence Warnings" = as.integer(conv_warns)
     ))
     
     
@@ -698,14 +702,14 @@ cross_validate = function(model, data, id_column, cat_column,
     if (!(is.null(conf_mat)) && !(is.null(roc_curve))){
       return(c(c("AUC" = auc(roc_curve), "CI" = ci(roc_curve), 
                  (conf_mat$overall['Kappa'])), conf_mat$byClass, 
-               "folds"=nfolds, "convergence_warnings" = conv_warns)) 
+               "Folds"=nfolds, "Convergence Warnings " = conv_warns)) 
     } else {
       
       return(c(c("AUC" = NA, "CI1" = NA, "CI2" = NA, "CI3" = NA,
                  "Kappa" = NA, 'Sensitivity'=NA, 'Specificity'=NA, 'Pos Pred Value'=NA, 
                  "Neg Pred Value"=NA,"Precision"=NA,"Recall"=NA,"F1"=NA,"Prevalence"=NA,
                  "Detection Rate"=NA,"Detection Prevalence"=NA,"Balanced Accuracy"=NA), 
-               "folds"=nfolds, "convergence_warnings" = conv_warns)) 
+               "Folds"=nfolds, "Convergence Warnings " = conv_warns)) 
       
     }
     

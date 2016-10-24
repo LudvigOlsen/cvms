@@ -236,6 +236,7 @@ cv_gaussian_ = function(model, test_set, training_set, y_column, fold, random_ef
     AICc = NA
     BIC = NA
     converged = "No"
+    model_temp_tidied = data.frame('term'=NA, 'estimate'=NA, 'std.error'=NA, 'statistic'=NA)
     
   } else {
     
@@ -250,10 +251,11 @@ cv_gaussian_ = function(model, test_set, training_set, y_column, fold, random_ef
     AICc = AICc(model_temp, return.K = REML)
     BIC = BIC(model_temp)
     converged = "Yes"
+    model_temp_tidied = tidy(model_temp, effects = c("fixed"))
     
   }
   
-  model_temp_tidied = tidy(model_temp, effects = c("fixed"))
+  
   
   # Return a list with 
   # .. a tidied summary of the model 
@@ -504,6 +506,7 @@ cross_validate = function(model, data, id_column, cat_column,
       temp_gaussian_dataframe = temp_gaussian[[2]] 
       
       temp_gaussian_tidied_model = temp_gaussian[[1]]
+      
       
       # Add the current fold to the dataframes
       temp_gaussian_dataframe$fold = as.factor(fold)

@@ -30,7 +30,7 @@ add_fold_ids_ = function(data, col){
   # ... ranging from 1 to the count of unique values
   # Returns the dataframe ordered by the fold_id column
   
-  data$fold_id = as.numeric(interaction(data[,col], drop = T))
+  data$fold_id = as.numeric(interaction(data[[col]], drop = T))
   
   return(data[order(data$fold_id),])
   
@@ -46,13 +46,24 @@ folder_ = function(data, k){
 }
 
 
-create_balanced_folds_ = function(data, cat_col, id_col, k=5){
+create_balanced_folds_ = function(data, cat_col=NULL, id_col=NULL, k=5){
   
   # Creates balanced folds based on a given column (cat_col), 
   # that needs to be somewhat equally represented in all folds
+  # If cat_col is NULL, don't make the folds balanced
   
-  # Split data by cat_col 
-  subsets = split(data, data[,cat_col], drop=TRUE) 
+  if (!is.null(cat_col)){
+
+    # Split data by cat_col
+    subsets = split(data, data[[cat_col]], drop=TRUE) 
+
+  } else {
+    
+    # Split data to 1 list element to have it in the same format as 
+    # if it was splitted by cat_col
+    subsets = split(data, 1, drop=TRUE) 
+    
+  }
   
   # Create column fold_id in all subsets
   data_list = llply(subsets, function(d){add_fold_ids_(d, id_col)})
@@ -62,7 +73,8 @@ create_balanced_folds_ = function(data, cat_col, id_col, k=5){
   
   # Return a list with the 2 lists data_list and fold_list
   return(list(data_list=data_list, fold_lists=fold_lists))
-}
+
+  }
 
 
 fit_model_ = function(model, model_type, training_set, family, REML, model_verbose){
@@ -244,7 +256,7 @@ cv_gaussian_ = function(model, test_set, training_set, y_column, fold, random_ef
     predict_temp = predict(model_temp, test_set, allow.new.levels=TRUE)
     
     # Find the values rmse, r2m, r2c, AIC, and BIC
-    rmse = rmse(predict_temp, test_set[,y_column])
+    rmse = rmse(predict_temp, test_set[[y_column]])
     r2m = r.squaredGLMM(model_temp)[1]
     r2c = r.squaredGLMM(model_temp)[2]
     AIC = AIC(model_temp)
@@ -321,10 +333,10 @@ cv_binomial_ = function(model, test_set, training_set, y_column, fold, random_ef
   if (is.null(model_temp)){
     
     # Create a list of NA predictions the length of y_column
-    predict_temp = list(rep(NA, length(test_set[,y_column])))
+    predict_temp = list(rep(NA, length(test_set[[y_column]])))
     
     # Create a dataframe with the NA predictions and the observations
-    predictions_and_y_Temp = data.frame("prediction" = predict_temp[[1]], "y_column" = test_set[, y_column])
+    predictions_and_y_Temp = data.frame("prediction" = predict_temp[[1]], "y_column" = test_set[[y_column]])
     
     # Set converged to no
     converged = "No"  
@@ -335,7 +347,7 @@ cv_binomial_ = function(model, test_set, training_set, y_column, fold, random_ef
     predict_temp = predict(model_temp, test_set, type="response", allow.new.levels=TRUE) 
     
     # Create a dataframe with predictions and observations side by side
-    predictions_and_y_Temp = data.frame("prediction" = predict_temp, y_column = test_set[, y_column])
+    predictions_and_y_Temp = data.frame("prediction" = predict_temp, y_column = test_set[[ y_column]])
     
     # Set converged to yes
     converged = "Yes"
@@ -385,7 +397,7 @@ print_boxplot_ = function(data, var_start, var_end=NULL, plot_theme=theme_bw()){
 # Main functions 
 
 
-cross_validate = function(model, data, id_column, cat_column, 
+cross_validate = function(model, data, id_column, cat_column=NULL, 
                          nfolds=5, family='gaussian', REML=FALSE, 
                          cutoff=0.5, positive=1, do.plot=FALSE, 
                          which_plot = "all", plot_theme=theme_bw(), 
@@ -414,7 +426,6 @@ cross_validate = function(model, data, id_column, cat_column,
   stopifnot((!is.null(model)),
             is.data.frame(data), 
             (!is.null(id_column)),
-            (!is.null(cat_column)),
             nfolds > 1,
             positive %in% c(1,2)
             )
@@ -612,7 +623,7 @@ cross_validate = function(model, data, id_column, cat_column,
   } else if (family == 'binomial'){
     
     # Find the levels in the categorical dependent variable
-    cat_levels = c(as.character(levels(data[,y_column])[1]), as.character(levels(data[,y_column])[2]))
+    cat_levels = c(as.character(levels(data[[y_column]])[1]), as.character(levels(data[[y_column]])[2]))
     
     # Create a new dataframe based on the dataframe with predictions and observations
     # Create a column with the predicted class based on the chosen cutoff
@@ -721,7 +732,7 @@ cross_validate = function(model, data, id_column, cat_column,
 }
 
 
-cross_validate_list = function(model_list, data, id_column, cat_column, 
+cross_validate_list = function(model_list, data, id_column, cat_column=NULL, 
                               nfolds=5, family='gaussian', REML=FALSE, 
                               cutoff=0.5, positive=1, do.plot=FALSE, seed = NULL, model_verbose=TRUE){
   

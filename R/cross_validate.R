@@ -1,5 +1,5 @@
 
-
+#' @importFrom dplyr %>%
 cross_validate = function(model, data, id_column, cat_column=NULL,
                           nfolds=5, family='gaussian', REML=FALSE,
                           cutoff=0.5, positive=1, do.plot=FALSE,

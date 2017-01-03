@@ -1,6 +1,6 @@
 
 #' @importFrom plyr ldply
-#' @importFrom dplyr mutate
+#' @importFrom dplyr mutate %>%
 #' @importFrom tidyr separate
 cross_validate_list = function(model_list, data, id_column, cat_column=NULL,
                                nfolds=5, family='gaussian', REML=FALSE,

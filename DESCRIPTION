@@ -7,3 +7,16 @@ Depends: R (>= 3.3.1)
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
+Imports:
+    dplyr,
+    plyr,
+    ggplot2,
+    caret,
+    pROC,
+    tidyr,
+    stats,
+    lme4,
+    hydroGOF,
+    MuMIn,
+    AICcmodavg,
+    broom

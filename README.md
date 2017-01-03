@@ -1,6 +1,8 @@
 # R-cross_validate  
 A set of functions for cross-validating gaussian and binomial regression models.  
 
+**Notice:** Under development. Temporarily not working. 
+
 By Ludvig R. Olsen and Benjamin Zachariae  
 Cognitive Science, Aarhus University  
 Started in Oct. 2016  

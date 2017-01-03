@@ -18,7 +18,7 @@ folder_ = function(data, k){
 
   # This creates the list of folds without having to type unique() every time.
 
-  return(createFolds(unique(data), k))
+  return(caret::createFolds(unique(data), k))
 
 }
 
@@ -43,10 +43,10 @@ create_balanced_folds_ = function(data, cat_col=NULL, id_col=NULL, k=5){
   }
 
   # Create column fold_id in all subsets
-  data_list = llply(subsets, function(d){add_fold_ids_(d, id_col)})
+  data_list = plyr::llply(subsets, function(d){add_fold_ids_(d, id_col)})
 
   # Create lists of folds for all subsets
-  fold_lists = llply(data_list, function(d){folder_(d$fold_id, k)})
+  fold_lists = plyr::llply(data_list, function(d){folder_(d$fold_id, k)})
 
   # Return a list with the 2 lists data_list and fold_list
   return(list(data_list=data_list, fold_lists=fold_lists))

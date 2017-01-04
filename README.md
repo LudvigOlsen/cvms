@@ -1,4 +1,6 @@
-# R-cross_validate  
+# cvms
+**Cross-Validation for Model Selection**
+
 A set of functions for cross-validating gaussian and binomial regression models.  
 
 **Notice:** Under development. Needs testing.  

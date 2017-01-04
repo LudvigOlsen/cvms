@@ -1,7 +1,7 @@
 # cvms
 **Cross-Validation for Model Selection**
 
-A set of functions for cross-validating gaussian and binomial regression models.  
+R package: A set of functions for cross-validating gaussian and binomial regression models.  
 
 **Notice:** Under development. Needs testing.  
 Check Oldscript folder for working script and the old tutorial.  

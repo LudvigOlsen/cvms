@@ -1,4 +1,6 @@
 
+#' @title Cross-validate regression models for model selection
+#' @export
 #' @importFrom dplyr %>%
 cross_validate = function(model, data, id_column, cat_column=NULL,
                           nfolds=5, family='gaussian', REML=FALSE,
@@ -44,121 +46,69 @@ cross_validate = function(model, data, id_column, cat_column=NULL,
 
   # Creating balanced folds
 
-  # Set seed to create the same folds every time (for model comparison) (default is NULL)
+  # Set seed to create the same folds every time
+  # (for model comparison) (default is NULL)
   set.seed(seed)
+
   # Create balanced folds
-  balanced_folds = create_balanced_folds_(data, cat_column, id_column, k=nfolds)
-  # Extract the list of datasets created
-  data_list = balanced_folds$data_list
-  # Extract the list of lists of folds
-  fold_lists = balanced_folds$fold_lists
-
-
-  # Create empty dataframes
-  if (family == "gaussian"){
-
-    gaussian_return = data.frame()
-    gaussian_fold_models = data.frame()
-
-  } else if (family == 'binomial'){
-
-    binomial_predictions_and_observations = data.frame()
-
-  }
-
-  converged = c()
+  #balanced_folds = create_balanced_folds_(data, cat_column, id_column, k=nfolds)
+  data <- splitters::fold(data, nfolds, cat_column, id_column, method = 'n_dist')
 
   # Loop through the folds
   # .. Create a test_set and a training_set
   # .. Train the model on the training_set
   # .. Test the model on the test_set
-  # .. Gather results from all folds
 
-  for(fold in 1:nfolds){
+  #for(fold in 1:nfolds){
+  fold_lists_list <- plyr::llply(1:nfolds, function(fold){
 
-    # Remove the test_set and the training_set if they exist
-    if (exists ('test_set')){rm(test_set)}
-    if (exists ('training_set')){rm(training_set)}
-
-    # Initialise test_set and training_set dataframes
-    test_set = data.frame()
-    training_set = data.frame()
-
-    # Loop through the list of lists of folds
-    # For each split of the dataset
-    # .. (if folds were balanced by "diagnosis",
-    # .. and there are 2 diagnoses (i.e. factor levels),
-    # .. this means 2 splits / subsets)
-    # .. create a test_set and a training_set
-    # .... gather from all splits / subsets
-
-    for (fl in 1:length(fold_lists)){
-
-      # Get the rows from the chosen dataframe in data_list
-      # where the fold_id column matches with the current fold
-      temp_test_set = dplyr::filter(data_list[[fl]], fold_id %in% unlist(fold_lists[[1]][fold]))
-
-      # Get the rows from the chosen dataframe in data_list
-      # where the fold_id column does NOT match with the current fold
-      temp_training_set = dplyr::filter(data_list[[fl]], !(fold_id %in% unlist(fold_lists[[1]][fold])))
-
-      # Gather test_set and training_set from this and previous iterations
-      test_set = rbind(test_set,temp_test_set)
-      training_set = rbind(training_set,temp_training_set)
-
-    }
+    # Create training set for this iteration
+    training_set = data[data$.groups != fold,]
+    # Create test set for this iteration
+    test_set = data[data$.groups == fold,]
 
     # Train and test the model
 
     if (family=='gaussian'){
 
       # Call cv_gaussian_
-      # Returns the RMSE, r2m, r2c, AIC, BIC, and whether the model converged
-      temp_gaussian = cv_gaussian_(model, test_set, training_set, y_column,
-                                   fold, random_effects, REML=REML, model_verbose)
-
-      temp_gaussian_dataframe = temp_gaussian[[2]]
-
-      temp_gaussian_tidied_model = temp_gaussian[[1]]
-
-
-      # Add the current fold to the dataframes
-      temp_gaussian_dataframe$fold = as.factor(fold)
-      temp_gaussian_tidied_model$fold = as.factor(fold)
-
-      # Gather the tidied model summary with those from previously iterated folds
-      gaussian_fold_models = rbind(gaussian_fold_models, temp_gaussian_tidied_model)
-
-      # Gather the model comparison outputs with those from previously iterated folds
-      gaussian_return = rbind(gaussian_return, temp_gaussian_dataframe)
-
-
-
+      # Returns list with
+      # .. a results dataframe
+      # .. whether the model converged (yes / no)
+      gaussian_fold = cv_gaussian_(model, test_set, training_set,
+                                   y_column, fold, random_effects,
+                                   REML=REML, model_verbose)
 
     } else if (family == 'binomial'){
 
       # Call cv_binomial_
-      # Returns a list with 1. a dataframe with predictions and observations and 2. whether the model converged or not (yes/no)
-      temp_binomial = cv_binomial_(model, test_set, training_set, y_column,
-                                   fold, random_effects, family, model_verbose)
-
-      # Gather the dataframes from this and previous folds
-      binomial_predictions_and_observations = rbind(binomial_predictions_and_observations, temp_binomial$predictions_and_observations)
-
-      # Add whether or not the model converged to the list converged
-      converged = c(converged, temp_binomial$converged)
+      # Returns a list with
+      # .. a dataframe with predictions and observations
+      # .. whether the model converged (yes / no)
+      binomial_fold = cv_binomial_(model, test_set, training_set,
+                                   y_column, fold, random_effects,
+                                   family, model_verbose)
 
     }
 
-  }
+  })
 
   # Returning
 
   if (family == 'gaussian'){
 
+    # Extract model dataframe from fold_lists_list
+    models_list = fold_lists_list %c% 'model'
+    models = do.call("rbind", models_list)
+
+    # Extract result dataframe from fold_lists_list
+    results_list = fold_lists_list %c% 'result'
+    results = do.call("rbind", results_list)
+
+
     # Count the convergence warnings
 
-    conv_warns = as.integer(table(gaussian_return$converged)['No'])
+    conv_warns = as.integer(table(results$converged)['No'])
     if (is.na(conv_warns)){
       conv_warns = 0
     }
@@ -208,16 +158,17 @@ cross_validate = function(model, data, id_column, cat_column=NULL,
     }
 
     # Return a list with
-    # .. the means of the found RMSE, r2m, r2c, AIC, and BIC
+    # .. the means of the found RMSE, r2m, r2c, AIC, AICc, and BIC
+    # .. the used number of folds
     # .. the count of convergence warnings
 
     return(c(
-      'RMSE' = mean(na.omit(gaussian_return$RMSE)),
-      'r2m' = mean(na.omit(gaussian_return$r2m)),
-      'r2c' = mean(na.omit(gaussian_return$r2c)),
-      'AIC' = mean(na.omit(gaussian_return$AIC)),
-      'AICc' = mean(na.omit(gaussian_return$AICc)),
-      'BIC' = mean(na.omit(gaussian_return$BIC)),
+      'RMSE' = mean(na.omit(results$RMSE)),
+      'r2m' = mean(na.omit(results$r2m)),
+      'r2c' = mean(na.omit(results$r2c)),
+      'AIC' = mean(na.omit(results$AIC)),
+      'AICc' = mean(na.omit(results$AICc)),
+      'BIC' = mean(na.omit(results$BIC)),
       "Folds"=nfolds,
       "Convergence Warnings" = as.integer(conv_warns)
     ))
@@ -225,12 +176,32 @@ cross_validate = function(model, data, id_column, cat_column=NULL,
 
   } else if (family == 'binomial'){
 
+    # Extract model dataframe from fold_lists_list
+    pred_obs_list = fold_lists_list %c% 'predictions_and_observations'
+    pred_obs = do.call("rbind", pred_obs_list)
+
+    # Extract converged list from fold_lists_list
+    conv_list = unlist(fold_lists_list %c% 'converged')
+
+    # Count the convergence warnings
+
+    # Count how many 'No's are in conv_list
+    conv_warns = as.integer(table(conv_list)['No'])
+
+    # If conv_warns is NA, it means there were no 'No's in conv_warns
+    if (is.na(conv_warns)){
+
+      conv_warns = 0
+
+    }
+
     # Find the levels in the categorical dependent variable
-    cat_levels = c(as.character(levels(data[[y_column]])[1]), as.character(levels(data[[y_column]])[2]))
+    cat_levels = c(as.character(levels(data[[y_column]])[1]),
+                   as.character(levels(data[[y_column]])[2]))
 
     # Create a new dataframe based on the dataframe with predictions and observations
     # Create a column with the predicted class based on the chosen cutoff
-    binomial_pred_obs_class = binomial_predictions_and_observations %>%
+    binomial_pred_obs_class = pred_obs %>%
       dplyr::mutate(predicted_class = ifelse(.[[1]] < cutoff, cat_levels[1],
                                              cat_levels[2])) # e.g. "ASD", "TD"
 
@@ -267,7 +238,8 @@ cross_validate = function(model, data, id_column, cat_column=NULL,
     # This will fail if one of the folds didn't converge
 
     roc_curve = tryCatch({
-      pROC::roc(response =  binomial_pred_obs_class$y_column, predictor =  binomial_pred_obs_class$prediction)
+      pROC::roc(response =  binomial_pred_obs_class$y_column,
+                predictor =  binomial_pred_obs_class$prediction)
 
     }, error = function(e) {
 
@@ -296,15 +268,7 @@ cross_validate = function(model, data, id_column, cat_column=NULL,
       plot(roc_curve)
     }
 
-    # Count the convergence warnings
 
-    conv_warns = as.integer(table(converged)['No'])
-
-    if (is.na(conv_warns)){
-
-      conv_warns = 0
-
-    }
 
     # If both conf_mat and roc_curve are not NULL
     # .. Return
@@ -319,7 +283,8 @@ cross_validate = function(model, data, id_column, cat_column=NULL,
 
     if (!(is.null(conf_mat)) && !(is.null(roc_curve))){
 
-      return(c(c("AUC" = pROC::auc(roc_curve), "Lower CI" = pROC::ci(roc_curve)[1],
+      return(c(c("AUC" = pROC::auc(roc_curve),
+                 "Lower CI" = pROC::ci(roc_curve)[1],
                  "Upper CI" = pROC::ci(roc_curve)[3],
                  (conf_mat$overall['Kappa'])), conf_mat$byClass[-5:-6],
                "Folds"=nfolds, "Convergence Warnings " = conv_warns))

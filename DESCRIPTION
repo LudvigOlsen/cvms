@@ -4,17 +4,19 @@ Version: 0.0.0.9000
 Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
 Description: What the package does (one paragraph).
 Depends:
-    R (>= 3.3.1)
+    R (>= 3.3.1),
+    zoo
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
 Imports:
+    splitters,
     dplyr,
     plyr,
+    tidyr,
     ggplot2,
     caret,
     pROC,
-    tidyr,
     stats,
     lme4,
     hydroGOF,

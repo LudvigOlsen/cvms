@@ -6,6 +6,7 @@ load_dataset <- function(){
   data$ID <- as.factor(data$ID)
   data$Diagnosis <- as.factor(data$Diagnosis)
   data$Education <- as.integer(data$Education)
+  data$AQ <- as.integer(data$AQ)
   data = data[data$Gender != 'F/M',]
 
   return(data)

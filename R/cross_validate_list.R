@@ -1,4 +1,6 @@
 
+#' @title Cross-validate list of regression models for model selection
+#' @export
 #' @importFrom plyr ldply
 #' @importFrom dplyr mutate %>%
 #' @importFrom tidyr separate

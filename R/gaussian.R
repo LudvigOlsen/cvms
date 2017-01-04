@@ -1,5 +1,6 @@
+#library(hydroGOF)
 
-
+#' @import hydroGOF
 cv_gaussian_ = function(model, test_set, training_set, y_column, fold, random_effects, REML=REML, model_verbose){
 
   # Finds the RMSE, r2m, r2c, AIC, and BIC for the given model
@@ -76,8 +77,10 @@ cv_gaussian_ = function(model, test_set, training_set, y_column, fold, random_ef
   # .. a tidied summary of the model
   # .. a dataframe with the found values
   return(list(
-    model_temp_tidied,
-    data.frame('RMSE' = rmse, 'r2m' = r2m, 'r2c' = r2c, 'AIC' = AIC, 'AICc' = AICc, 'BIC' = BIC, 'converged'= converged)
+    'model' = cbind(model_temp_tidied, fold),
+    'result' = data.frame('RMSE' = rmse, 'r2m' = r2m, 'r2c' = r2c,
+                          'AIC' = AIC, 'AICc' = AICc, 'BIC' = BIC,
+                          'converged'= converged, fold)
   ))
 
 }

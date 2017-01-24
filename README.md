@@ -19,17 +19,17 @@ Main functions:
 
 ## Installation:
 
-You need to manually install the package splitters (which will be renamed in the near future).  
+You need to manually install the package groupdata2 (which will be renamed in the near future).  
 
-Run these lines to install cvms and splitters:  
+Run these lines to install cvms and groupdata2:  
 
 install.packages("devtools")   
-devtools::install_github("LudvigOlsen/R-splitters")  
+devtools::install_github("LudvigOlsen/groupdata2")  
 devtools::install_github("LudvigOlsen/R-cross_validate")  
 
   
 ## News:  
-* Implemented splitters::fold() for creating balanced folds  
+* Implemented groupdata2::fold() for creating balanced folds  
 * Replaced main for loop with llply for speed  
   
   

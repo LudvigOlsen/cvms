@@ -52,7 +52,7 @@ cross_validate = function(model, data, id_column, cat_column=NULL,
 
   # Create balanced folds
   #balanced_folds = create_balanced_folds_(data, cat_column, id_column, k=nfolds)
-  data <- splitters::fold(data, nfolds, cat_column, id_column, method = 'n_dist')
+  data <- groupdata2::fold(data, nfolds, cat_column, id_column, method = 'n_dist')
 
   # Loop through the folds
   # .. Create a test_set and a training_set

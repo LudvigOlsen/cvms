@@ -10,7 +10,6 @@ create_model_ = function(model, model_type, training_set, family, REML, fold, mo
   # ........ it issues the warning using warning()
   # ........ and returns the output of lm() / lmer()
 
-
   model_temp = tryCatch({
 
     # Fit model

@@ -1,36 +1,28 @@
-# cvms
-**Cross-Validation for Model Selection**  
 
-R package: A set of functions for cross-validating gaussian and binomial regression models.  
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+cvms
+====
 
+**Cross-Validation for Model Selection**
 
-**Notice:** Under development. Needs testing.  
-Check Oldscript folder for working script and the old tutorial.  
+R package: A set of functions for cross-validating gaussian and binomial regression models.
 
+By Ludvig R. Olsen and Benjamin Zachariae,
+Cognitive Science, Aarhus University.
+Started in Oct. 2016
 
-By Ludvig R. Olsen and Benjamin Zachariae  
-Cognitive Science, Aarhus University  
-Started in Oct. 2016  
+Contact at: <r-pkgs@ludvigolsen.dk>
 
-Main functions:  
-* cross_validate()
-* cross_validate_list()  
-  
+Main functions:
 
-## Installation:
+-   cross\_validate()
+-   cross\_validate\_list()
 
-You need to manually install the package groupdata2 (which will be renamed in the near future).  
+Installation
+------------
 
-Run these lines to install cvms and groupdata2:  
+Development version:
 
-install.packages("devtools")   
-devtools::install_github("LudvigOlsen/groupdata2")  
-devtools::install_github("LudvigOlsen/R-cross_validate")  
-
-  
-## News:  
-* Implemented groupdata2::fold() for creating balanced folds  
-* Replaced main for loop with llply for speed  
-  
-  
-Please read using_cross_validation.pdf in "Oldscript/" for further information on how to use the functions.  
+> install.packages("devtools")
+> devtools::install\_github("LudvigOlsen/groupdata2")
+> devtools::install\_github("LudvigOlsen/cvms")

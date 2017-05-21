@@ -1,0 +1,38 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "README-"
+)
+```
+
+# cvms
+**Cross-Validation for Model Selection**  
+
+R package: A set of functions for cross-validating gaussian and binomial regression models.  
+
+By Ludvig R. Olsen and Benjamin Zachariae,  
+Cognitive Science, Aarhus University.  
+Started in Oct. 2016 
+
+Contact at:
+r-pkgs@ludvigolsen.dk
+
+Main functions:  
+
+* cross_validate()
+* cross_validate_list()  
+
+## Installation  
+
+Development version:  
+
+> install.packages("devtools")  
+> devtools::install_github("LudvigOlsen/groupdata2")  
+> devtools::install_github("LudvigOlsen/cvms")  

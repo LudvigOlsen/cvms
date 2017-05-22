@@ -4,15 +4,20 @@
 #' @importFrom plyr ldply
 #' @importFrom dplyr mutate %>%
 #' @importFrom tidyr separate
-cross_validate_list = function(model_list, data, id_column, cat_column=NULL,
-                               nfolds=5, family='gaussian', REML=FALSE,
-                               cutoff=0.5, positive=1, do.plot=FALSE, seed = NULL, model_verbose=TRUE){
+cross_validate_list = function(data, model_list, folds_col = '.folds', family='gaussian', REML=FALSE,
+                               cutoff=0.5, positive=1, model_verbose=TRUE){
 
 
   # cross_validate() all the models using ldply()
-  model_cvs_df = ldply(model_list,.fun = function(x) cross_validate(x, data, id_column, cat_column,
-                                                                    nfolds=nfolds, family=family, REML=REML,
-                                                                    cutoff=cutoff, positive=positive, do.plot=do.plot, seed = seed, model_verbose=model_verbose))
+  model_cvs_df = ldply(model_list,.fun = function(x){
+
+    cross_validate(data, x, folds_col = folds_col,
+                   family=family, REML=REML,
+                   cutoff=cutoff, positive=positive,
+                   model_verbose=model_verbose)
+
+    }) %>% as_tibble()
+
 
 
   # Now we want to take the model from the model_list and split it up into
@@ -25,7 +30,7 @@ cross_validate_list = function(model_list, data, id_column, cat_column=NULL,
 
 
   # First we create a dataframe with the list of models
-  mixed_effects = data.frame("model" = as.character(model_list))
+  mixed_effects = tibble::tibble("model" = as.character(model_list))
 
   suppressWarnings((
     # Then we use tidyr() to create a pipeline
@@ -64,6 +69,6 @@ cross_validate_list = function(model_list, data, id_column, cat_column=NULL,
   }
 
   # we put the two dataframes together and return it
-  return(cbind(model_cvs_df, mixed_effects))
+  return(dplyr::bind_cols(model_cvs_df, mixed_effects))
 
 }

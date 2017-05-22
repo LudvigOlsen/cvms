@@ -2,25 +2,16 @@
 #' @title Cross-validate regression models for model selection
 #' @export
 #' @importFrom dplyr %>%
-cross_validate = function(data, model, folds_col = '.folds',family='gaussian', REML=FALSE,
-                          cutoff=0.5, positive=1, do.plot=FALSE,
-                          which_plot = "all",
+cross_validate = function(data, model, folds_col = '.folds',
+                          family='gaussian', REML=FALSE,
+                          cutoff=0.5, positive=1,
                           model_verbose=TRUE){
   # model: ("y~a+b+(1|c)")
   # data: Dataframe
-  # cat_col: categorical column for balancing folds
-  # nfolds: number of folds
   # family: gaussian or binomial
   # REML: Restricted maximum likelihood
   # cutoff: For deciding prediction class from prediction (binomial)
   # positive: Level from dependent variable to predict (1/2 - alphabetically) (binomial)
-  # do.plot: ROC curve plot (binomial)
-  # which_plot: choice between available plots
-  # .. 'all' plots
-  # .. single plot (e.g. 'RMSE')
-  # .. list of plots (e.g. c('RMSE', 'r2'))
-  # plot_theme: which theme to use with ggplot2
-  # seed: A number for setting seed. Makes sure the folds are the same for model comparison.
   # model_verbose: Printed feedback on the used model (lm() / lmer() / glm() / glmer()) (BOOL)
 
   # Set errors if input variables aren't what we expect / can handle
@@ -91,57 +82,11 @@ cross_validate = function(data, model, folds_col = '.folds',family='gaussian', R
     results_list = fold_lists_list %c% 'result'
     results = do.call("rbind", results_list)
 
-
     # Count the convergence warnings
 
     conv_warns = as.integer(table(results$converged)['No'])
     if (is.na(conv_warns)){
       conv_warns = 0
-    }
-
-    # Do plot(s) if requested by the user
-    # User can request 1 plot, a list of plots, or all plots
-    # Available plots:
-    # .. RMSE
-    # .. r2
-    # .... plots: r2m and r2c
-    # .. IC
-    # .... plots: AIC and BIC
-    # .. coefficients
-
-
-    plots_collection <- list()
-
-    if (do.plot == TRUE){
-
-      if (which_plot == 'all' || 'RMSE' %in% which_plot){
-
-        plots_collection[['RMSE']] <- create_boxplot_(results, 1)
-
-      }
-
-      if (which_plot == 'all' || 'r2' %in% which_plot){
-
-        plots_collection[['r2']] <- create_boxplot_(results, 2, 3)
-
-      }
-
-      if (which_plot == 'all' || 'IC' %in% which_plot){
-
-        plots_collection[['IC']] <- create_boxplot_(results, 4, 5)
-
-      }
-
-      if (which_plot == 'all' || 'coefficients' %in% which_plot){
-
-        plots_collection[['coefficients']] <- ggplot2::ggplot(models,
-                                                            ggplot2::aes(term, estimate)) +
-          ggplot2::geom_boxplot() +
-          ggplot2::labs(x = 'Fixed Effects', y = 'Estimate')
-
-      }
-
-
     }
 
     # Return a list with
@@ -150,7 +95,19 @@ cross_validate = function(data, model, folds_col = '.folds',family='gaussian', R
     # .. the count of convergence warnings
     # .. list of plot objects
 
-    return(list(
+    # Make results into a tibble
+    iter_results <- tibble::as_tibble(results)
+    rownames(iter_results) <- NULL
+    iter_results <- tidyr::nest(iter_results, 1:8) %>%
+      dplyr::rename(results = data)
+
+    # Make models into a tibble
+    iter_models <- tibble::as_tibble(models) %>%
+      tidyr::nest(1:6) %>%
+      dplyr::rename(coefficients = data)
+
+
+    return(tibble::tibble(
       'RMSE' = mean(na.omit(results$RMSE)),
       'r2m' = mean(na.omit(results$r2m)),
       'r2c' = mean(na.omit(results$r2c)),
@@ -159,8 +116,9 @@ cross_validate = function(data, model, folds_col = '.folds',family='gaussian', R
       'BIC' = mean(na.omit(results$BIC)),
       "Folds"=nfolds,
       "Convergence Warnings" = as.integer(conv_warns),
-      "Plots" = plots_collection
-    ))
+      "Family" = family,
+      "results" = iter_results$results,
+      "coefficients" = iter_models$coefficients))
 
 
   } else if (family == 'binomial'){
@@ -250,19 +208,6 @@ cross_validate = function(data, model, folds_col = '.folds',family='gaussian', R
     }
     )
 
-    # If chosen by the user, create plot of the roc_curve
-    if (do.plot == TRUE){
-
-      ROC_plot <- data.frame(y=roc_curve$sensitivities, x=roc_curve$specificities) %>%
-        ggplot2::ggplot(ggplot2::aes(x, y)) +
-        ggplot2::geom_line() +
-        ggplot2::scale_x_reverse() +
-        ggplot2::geom_abline(intercept=1, slope=1, linetype="dashed") +
-        ggplot2::xlab("Specificity") +
-        ggplot2::ylab("Sensitivity")
-
-    }
-
     # If both conf_mat and roc_curve are not NULL
     # .. Return
     # .... AUC, CI, Kappa, Sensitivity, Specificity
@@ -276,31 +221,48 @@ cross_validate = function(data, model, folds_col = '.folds',family='gaussian', R
 
     if (!(is.null(conf_mat)) && !(is.null(roc_curve))){
 
+      # Predictions and targets
+      predictions_ <- binomial_pred_obs_class %>%
+        dplyr::rename(target = y_column) %>%
+        dplyr::select(prediction, predicted_class, target) %>%
+        tibble::as_tibble() %>%
+        tidyr::nest(1:3) %>%
+        dplyr::rename(predictions = data)
 
-      return(list("AUC" = pROC::auc(roc_curve)[1],
-                 "Lower CI" = pROC::ci(roc_curve)[1],
-                 "Upper CI" = pROC::ci(roc_curve)[3],
-                 "kappa" = unname(conf_mat$overall['Kappa']),
-                 "Sensitivity" = unname(conf_mat$byClass['Sensitivity']),
-                 'Specificity' = unname(conf_mat$byClass['Specificity']),
-                 'Pos Pred Value' = unname(conf_mat$byClass['Pos Pred Value']),
-                 'Neg Pred Value' = unname(conf_mat$byClass['Neg Pred Value']),
-                 'F1' = unname(conf_mat$byClass['F1']),
-                 'Prevalence' = unname(conf_mat$byClass['Prevalence']),
-                 'Detection Rate' = unname(conf_mat$byClass['Detection Rate']),
-                 'Detection Prevalence' = unname(conf_mat$byClass['Detection Prevalence']),
-                 'Balanced Accuracy' = unname(conf_mat$byClass['Balanced Accuracy']),
-                 "Folds"=nfolds, "Convergence Warnings " = conv_warns,
-                 "ROC_plot" = ROC_plot))
+      # ROC sensitivities and specificities
+      roc_ <- tibble::tibble(sensitivities = roc_curve$sensitivities,
+                             specificities = roc_curve$specificities) %>%
+        tidyr::nest(1:2) %>%
+        dplyr::rename(roc = data)
+
+      return(tibble::tibble("AUC" = pROC::auc(roc_curve)[1],
+                           "Lower CI" = pROC::ci(roc_curve)[1],
+                           "Upper CI" = pROC::ci(roc_curve)[3],
+                           "kappa" = unname(conf_mat$overall['Kappa']),
+                           "Sensitivity" = unname(conf_mat$byClass['Sensitivity']),
+                           'Specificity' = unname(conf_mat$byClass['Specificity']),
+                           'Pos Pred Value' = unname(conf_mat$byClass['Pos Pred Value']),
+                           'Neg Pred Value' = unname(conf_mat$byClass['Neg Pred Value']),
+                           'F1' = unname(conf_mat$byClass['F1']),
+                           'Prevalence' = unname(conf_mat$byClass['Prevalence']),
+                           'Detection Rate' = unname(conf_mat$byClass['Detection Rate']),
+                           'Detection Prevalence' = unname(conf_mat$byClass['Detection Prevalence']),
+                           'Balanced Accuracy' = unname(conf_mat$byClass['Balanced Accuracy']),
+                           "Folds"=nfolds, "Convergence Warnings" = conv_warns,
+                           "Family" = family,
+                           "Predictions" = predictions_$predictions,
+                           "ROC" = roc_$roc))
     } else {
 
-      return(list("AUC" = NA, "Lower CI" = NA, "Upper CI" = NA,
-                 "Kappa" = NA, 'Sensitivity' = NA, 'Specificity' = NA,
-                 'Pos Pred Value' = NA,"Neg Pred Value"=NA,"F1" = NA,
-                 "Prevalence" = NA,"Detection Rate" = NA,
-                 "Detection Prevalence" = NA,"Balanced Accuracy" = NA,
-                 "Folds" = nfolds, "Convergence Warnings " = conv_warns,
-                 "ROC_plot" = NA))
+      return(tibble::tibble("AUC" = NA, "Lower CI" = NA, "Upper CI" = NA,
+                           "Kappa" = NA, 'Sensitivity' = NA, 'Specificity' = NA,
+                           'Pos Pred Value' = NA,"Neg Pred Value"=NA,"F1" = NA,
+                           "Prevalence" = NA,"Detection Rate" = NA,
+                           "Detection Prevalence" = NA,"Balanced Accuracy" = NA,
+                           "Folds" = nfolds, "Convergence Warnings" = conv_warns,
+                           "Family" = family,
+                           "Predictions" = NA,
+                           "ROC" = NA))
 
     }
 

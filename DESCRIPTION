@@ -24,3 +24,7 @@ Imports:
     AICcmodavg,
     broom
 RoxygenNote: 5.0.1
+Suggests: knitr,
+    rmarkdown,
+    testthat
+VignetteBuilder: knitr

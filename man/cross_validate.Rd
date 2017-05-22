@@ -4,9 +4,131 @@
 \alias{cross_validate}
 \title{Cross-validate regression models for model selection}
 \usage{
-cross_validate(model, data, id_column, cat_column = NULL, nfolds = 5,
-  family = "gaussian", REML = FALSE, cutoff = 0.5, positive = 1,
-  do.plot = FALSE, which_plot = "all", plot_theme = theme_bw(),
-  seed = NULL, model_verbose = TRUE)
+cross_validate(data, models, folds_col = ".folds", family = "gaussian",
+  REML = FALSE, cutoff = 0.5, positive = 1, model_verbose = FALSE)
 }
+\arguments{
+\item{data}{Dataframe. Must include grouping factor for identifying folds
+- as made with groupdata2's \link[groupdata2]{fold}().}
 
+\item{models}{Model formulas as strings. (Character)
+
+ E.g. c("y~x", "y~z").
+
+ Can contain random effects.
+
+ E.g. c("y~x+(1|r)", "y~z+(1|r)").}
+
+\item{folds_col}{Name of grouping factor for identifying folds. (Character)}
+
+\item{family}{Name of family ('gaussian' or 'binomial'). (Character)}
+
+\item{REML}{Restricted Maximum Likelihood. (Logical)}
+
+\item{cutoff}{Threshold for predicted classes. Binomial models only. (Numeric)}
+
+\item{positive}{Level from dependent variable to predict (1/2 - alphabetically)
+Binomial models only. (Integer)}
+
+\item{model_verbose}{Print name of used model function on each iteration. (Logical)}
+}
+\value{
+Tbl (tibble) with results for each model.
+
+ \subsection{Gaussian Results}{
+ Average \strong{RMSE}, \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
+ and \strong{BIC} of all the iterations,
+ omitting potential NAs from non-converged iterations.
+ Notice that the Information Criteria (AIC, AICc, and BIC) are also averages.
+
+ Count of \strong{convergence warnings}. Consider discarding models that did not converge on all
+ iterations. As we omit NAs before averaging the results, you might still see results,
+ but these should be taken with a grain of salt!
+
+ Specified \strong{family}.
+
+ A tibble of the non-averaged \strong{results} from all iterations.
+
+ A tibble with \strong{coefficients} of the models from all iterations.
+
+ Name of \strong{dependent} variable.
+
+ Names of \strong{fixed} predictors.
+
+ Names of \strong{random} predictors if any.
+
+ }
+
+ \subsection{Binomial Results}{
+ Based on predictions of the test folds,
+ a confusion matrix and ROC curve are used to get the following:
+
+ ROC:
+
+ \strong{AUC}, \strong{Lower CI}, and \strong{Upper CI}
+
+ Confusion Matrix:
+
+ \strong{Kappa}, \strong{Sensitivity},
+ \strong{Specificity}, \strong{Positive Prediction Value},
+ \strong{Negative Prediction Value},
+ \strong{F1}, \strong{Prevalence}, \strong{Detection Rate},
+ \strong{Detection Prevalence}, and
+ \strong{Balanced Accuracy}.
+
+ Count of \strong{convergence warnings}. Consider discarding models that did not converge on all
+ iterations!
+
+ Specified \strong{family}.
+
+ A tibble with \strong{predictions}, predicted classes (depends on \code{cutoff}), and the targets.
+
+ A tibble with the sensativities and specificities from the \strong{ROC} curve
+
+ Name of \strong{dependent} variable.
+
+ Names of \strong{fixed} predictors.
+
+ Names of \strong{random} predictors if any.
+
+ }
+}
+\description{
+Cross-validate one or multiple gaussian or binomial
+ models at once. Returns results in a tibble for easy comparison and
+ reporting.
+}
+\details{
+\subsection{Models}{
+
+ Gaussian: stats::lm, lme4::lmer
+
+ Binomial: stats::glm, lme4::glmer
+ }
+ \subsection{Results}{
+ \strong{Gaussian}:
+
+ RMSE : hydroGOF::rmse
+
+ r2m : MuMIn::r.squaredGLMM
+
+ r2c : MuMIn::r.squaredGLMM
+
+ AIC : stats::AIC
+
+ AICc : AICcmodavg::AICc
+
+ BIC : stats::BIC
+
+ \strong{Binomial}:
+
+ Confusion matrix: caret::confusionMatrix
+
+ ROC: pROC::roc
+ }
+}
+\author{
+Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
+
+Benjamin Hugh Zachariae
+}

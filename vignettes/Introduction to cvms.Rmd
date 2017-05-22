@@ -35,10 +35,10 @@ vignette: >
 
 # Attach packages
 
-```{r}
+```{r warning=FALSE, message=FALSE}
 library(cvms)
-library(groupdata2) # fold() 
-library(dplyr) # %>% 
+library(groupdata2) # fold()
+library(dplyr) # %>% arrange() mutate()
 library(knitr) # kable()
 
 ```
@@ -49,43 +49,103 @@ We will use the mtcars dataset from base R.
 ```{r}
 require(graphics)
 
-df = mtcars %>% 
-  mutate(am = as.factor(am))
+# Set seed for reproducibility
+set.seed(3)
 
-df %>% head() %>% kable()
+# Load mtcars dataset
+df <- mtcars %>% 
+  
+  # Convert am to factor
+  # and add car column
+  mutate(am = as.factor(am),
+         car = rownames(.)) %>% 
+  
+  # Fold data (see groupdata2::fold)
+  fold(k = 4, cat_col = 'am') %>% 
+  
+  # Order by the folds column
+  arrange(.folds) 
+
+# Remove the row names
+# as they are silly
+rownames(df) <- NULL
+
+df %>% head(15) %>% kable()
 ```
 
-# Using cross_validate() 
+## lm()
 
-## Arguments  
+```{r}
+cross_validate(df, 'mpg~am+cyl')
+```
 
-model: 'y~a+b+(1|c)'  
+## lmer()
 
-data: Dataframe  
+```{r}
+cross_validate(df, 'mpg~am+cyl+(1|disp)', REML=FALSE)
+```
 
-id_column: Unique identifiers (e.g. subject, ID, or likewise)  
+## glm()
 
-cat_col: categorical column for balancing folds  
+```{r}
+cross_validate(df, 'am~mpg+cyl', family='binomial')
+```
 
-nfolds: number of folds  
+## glmer()
 
-family: gaussian or binomial  
+```{r}
+cross_validate(df, 'am~mpg+cyl+(1|disp)', 
+               family='binomial', REML=FALSE)
+```
 
-REML: Restricted Maximum Likelihood  
 
-cutoff: For deciding prediction class from prediction (binomial)  
+## Mixing lm and lmer
 
-positive: Level from dependent variable to predict (1/2) (Levels are alphabetically ordered) (binomial)  
+```{r}
+cross_validate(df, c("mpg~am", "mpg~am+(1|disp)"), REML=FALSE)
+```
 
-do.plot: ROC curve plot (binomial)  
+## Mixing glm and glmer
 
-which_plot: choice between available plots  
-- 'all' plots  
-- single plot (e.g. 'RMSE')  
-- list of plots (e.g. c('RMSE', 'r2'))  
+Notice that we get a warning message.  
+If these are convergence warnings, they will be counted, so you can discard the model.  
+Else you will have to read the warning messages that specifies the model and the fold where the warning was issued.  
 
-plot_theme: which theme to use with ggplot2  
+```{r}
+cross_validate(df, c("am~mpg", "am~mpg+cyl", "am~mpg+cyl+wt"), 
+               family='binomial', REML=FALSE)
+```
 
-seed: A number for setting seed. Makes sure the folds are the same for model comparison.  
 
-model_verbose: Printed feedback on the used model (lm() / lmer() / glm() / glmer()) (BOOL)  
+# Convergence Warnings
+If we get convergence warnings while fitting our model on a fold, the values of that fold will return NA and we will count the warning (see `Convergence Warnings` in the output).  
+The model and fold that didn't converge are warned about.  
+Whenever you are comparing models, consider discarding the ones with convergence warnings.  
+
+```{r}
+models_conv = cross_validate(df, 
+                                models = c("am~cyl+gear","am~mpg", 
+                                           "am~mpg+cyl", "am~mpg+cyl+wt"),
+                                family = 'binomial')
+
+models_conv
+
+# Check convergence warnings
+models_conv$`Convergence Warnings`
+```
+
+We can also exclude models that didn't converge on all folds from the output by setting 'rmnc' (remove non-converged) to TRUE. 
+
+```{r}
+models_conv = cross_validate(df, 
+                             models = c("am~cyl+gear","am~mpg", 
+                                        "am~mpg+cyl", "am~mpg+cyl+wt"),
+                             family = 'binomial',
+                             rmnc = TRUE)
+
+models_conv
+
+```
+
+
+

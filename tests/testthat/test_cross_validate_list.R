@@ -23,7 +23,7 @@ test_that("binomial models work with cross_validate_list()",{
   expect_equal(CVbinomlist$AUC, c(0.7615741,0.8333333), tolerance=1e-3)
   expect_equal(CVbinomlist$`Lower CI`, c(0.5851154,0.6841541), tolerance=1e-3)
   expect_equal(CVbinomlist$`Upper CI`, c(0.9380328,0.9825126), tolerance=1e-3)
-  expect_equal(CVbinomlist$kappa, c(0.4927536, -0.3636364), tolerance=1e-3)
+  expect_equal(CVbinomlist$Kappa, c(0.4927536, -0.3636364), tolerance=1e-3)
   expect_equal(CVbinomlist$Sensitivity, c(0.5833333,0.0000000), tolerance=1e-3)
   expect_equal(CVbinomlist$Specificity, c(0.8888889,0.6666667), tolerance=1e-3)
   expect_equal(CVbinomlist$`Pos Pred Value`, c(0.7777778,0.0000000), tolerance=1e-3)
@@ -36,8 +36,8 @@ test_that("binomial models work with cross_validate_list()",{
   expect_equal(CVbinomlist$Folds, c(4,4))
   expect_equal(CVbinomlist$`Convergence Warnings`, c(0,0))
   expect_equal(CVbinomlist$Family, c('binomial','binomial'))
-  expect_equal(CVbinomlist$dependent, c('diagnosis','diagnosis'))
-  expect_equal(CVbinomlist$fixed, c('score','age'))
+  expect_equal(CVbinomlist$Dependent, c('diagnosis','diagnosis'))
+  expect_equal(CVbinomlist$Fixed, c('score','age'))
 
   # Enter sub tibbles
   expect_is(CVbinomlist$Predictions[[1]], "tbl_df")
@@ -69,7 +69,7 @@ test_that("binomial models work with cross_validate_list()",{
   expect_equal(CVbinomlistrand$AUC, c(0.8611111,0.8333333), tolerance=1e-3)
   expect_equal(CVbinomlistrand$`Lower CI`, c(0.7103334,0.6841541), tolerance=1e-3)
   expect_equal(CVbinomlistrand$`Upper CI`, c(1.0000000,0.9825126), tolerance=1e-3)
-  expect_equal(CVbinomlistrand$kappa, c(0.6575342, -0.3636364), tolerance=1e-3)
+  expect_equal(CVbinomlistrand$Kappa, c(0.6575342, -0.3636364), tolerance=1e-3)
   expect_equal(CVbinomlistrand$Sensitivity, c(0.8333333,0.0000000), tolerance=1e-3)
   expect_equal(CVbinomlistrand$Specificity, c(0.8333333,0.6666667), tolerance=1e-3)
   expect_equal(CVbinomlistrand$`Pos Pred Value`, c(0.7692308,0.0000000), tolerance=1e-3)
@@ -82,9 +82,9 @@ test_that("binomial models work with cross_validate_list()",{
   expect_equal(CVbinomlistrand$Folds, c(4,4))
   expect_equal(CVbinomlistrand$`Convergence Warnings`, c(0,0))
   expect_equal(CVbinomlistrand$Family, c('binomial','binomial'))
-  expect_equal(CVbinomlistrand$dependent, c('diagnosis','diagnosis'))
-  expect_equal(CVbinomlistrand$fixed, c('score','age'))
-  expect_equal(CVbinomlistrand$random, c('1|session','1|session'))
+  expect_equal(CVbinomlistrand$Dependent, c('diagnosis','diagnosis'))
+  expect_equal(CVbinomlistrand$Fixed, c('score','age'))
+  expect_equal(CVbinomlistrand$Random, c('1|session','1|session'))
 
 
   # Enter sub tibbles

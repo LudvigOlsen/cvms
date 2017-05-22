@@ -27,7 +27,6 @@ r-pkgs@ludvigolsen.dk
 Main functions:  
 
 * cross_validate()
-* cross_validate_list()  
 
 ## Installation  
 
@@ -38,3 +37,86 @@ Development version:
 > devtools::install_github("LudvigOlsen/groupdata2")  
 >
 > devtools::install_github("LudvigOlsen/cvms")  
+
+
+# Examples
+
+## Attach packages
+```{r warning=FALSE, message=FALSE}
+library(cvms)
+library(groupdata2) # fold()
+library(knitr) # kable()
+library(dplyr) # %>% arrange()
+```
+
+## Load data
+
+The dataset participant.scores comes with cvms.
+
+```{r}
+data <- participant.scores
+```
+
+## Fold data
+
+Create a grouping factor for subsetting in folds using groupdata2::fold(). Order the dataset by the folds.
+
+```{r}
+# Set seed for reproducibility
+set.seed(7)
+
+# Fold data 
+data <- fold(data, k = 4,
+             cat_col = 'diagnosis',
+             id_col = 'participant') %>% 
+  arrange(.folds)
+
+# Show first 15 rows of data
+data %>% head(15) %>% kable()
+```
+
+## Cross-validate a single model
+
+```{r}
+CV <- cross_validate(data, "score~diagnosis", 
+                     folds_col = '.folds', 
+                     family='gaussian', 
+                     REML = FALSE)
+
+# Show results
+CV
+```
+
+## Cross-validate multiple models
+
+### Describe model formulas
+
+```{r}
+models <- c("score~diagnosis","score~age")
+mixed_models <- c("score~diagnosis+(1|session)","score~age+(1|session)")
+```
+
+### Cross-validate fixed effects models
+
+```{r}
+CV <- cross_validate(data, models, 
+                     folds_col = '.folds', 
+                     family='gaussian', 
+                     REML = FALSE)
+
+# Show results
+CV
+```
+
+### Cross-validate mixed effects models
+
+```{r}
+CV <- cross_validate(data, mixed_models, 
+                     folds_col = '.folds', 
+                     family='gaussian', 
+                     REML = FALSE)
+
+# Show results
+CV
+```
+

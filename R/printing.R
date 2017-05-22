@@ -4,7 +4,6 @@ create_boxplot_ = function(data, var_start, var_end=NULL){
   # Vars (Variables to plot):
   # .. var_start: first in the var range (e.g. columns 1:3)
   # .. var_end: last in the var range (e.g. columns 1:3)
-  # plot_theme: The theme for the plot
 
   # gather() data by the chosen range of vars
   # .. This leaves us with a column for the chosen measure variables
@@ -12,7 +11,7 @@ create_boxplot_ = function(data, var_start, var_end=NULL){
   # If only var_start is given, it means that we only want to plot var_start
 
   if (is.null(var_end)){
-    data = data %>%
+    data <- data %>%
       tidyr::gather(key, value, var_start)
 
   } else {

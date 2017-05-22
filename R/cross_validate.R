@@ -2,10 +2,33 @@
 #' @title Cross-validate regression models for model selection
 #' @export
 #' @importFrom dplyr %>%
-cross_validate = function(data, model, folds_col = '.folds',
+cross_validate = function(data, models, folds_col = '.folds',
                           family='gaussian', REML=FALSE,
                           cutoff=0.5, positive=1,
                           model_verbose=FALSE){
+
+  # If more than one model formula is passed,
+  # call cross_validate_list that will then
+  # call cross_validate for each model
+  if (length(models) > 1) {
+
+    return(cross_validate_list(data = data,
+                               model_list = models,
+                               folds_col = folds_col,
+                               family = family,
+                               REML = REML,
+                               cutoff = cutoff,
+                               positive = positive,
+                               model_verbose = model_verbose))
+
+    }
+
+  # If working with a single model
+  # we will work with the variable model instead
+  # for compatibility reasons
+  model <- models
+  models <- NULL
+
   # model: ("y~a+b+(1|c)")
   # data: Dataframe
   # family: gaussian or binomial
@@ -119,8 +142,8 @@ cross_validate = function(data, model, folds_col = '.folds',
       "Folds"=nfolds,
       "Convergence Warnings" = as.integer(conv_warns),
       "Family" = family,
-      "results" = iter_results$results,
-      "coefficients" = iter_models$coefficients))
+      "Results" = iter_results$results,
+      "Coefficients" = iter_models$coefficients))
 
 
   } else if (family == 'binomial'){

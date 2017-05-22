@@ -22,7 +22,8 @@ Imports:
     hydroGOF,
     MuMIn,
     AICcmodavg,
-    broom
+    broom,
+    tibble
 RoxygenNote: 5.0.1
 Suggests: knitr,
     rmarkdown,

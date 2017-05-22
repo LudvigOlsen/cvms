@@ -3,7 +3,7 @@
 #' @importFrom dplyr mutate %>%
 #' @importFrom tidyr separate
 cross_validate_list = function(data, model_list, folds_col = '.folds', family='gaussian', REML=FALSE,
-                               cutoff=0.5, positive=1, model_verbose=FALSE){
+                               cutoff=0.5, positive=1, rmnc = FALSE, model_verbose=FALSE){
 
 
   # cross_validate() all the models using ldply()
@@ -65,7 +65,18 @@ cross_validate_list = function(data, model_list, folds_col = '.folds', family='g
 
   }
 
-  # we put the two dataframes together and return it
-  return(dplyr::bind_cols(model_cvs_df, mixed_effects))
+  # we put the two dataframes together
+  output <- dplyr::bind_cols(model_cvs_df, mixed_effects)
+
+  # If asked to remove non-converged models from output
+  if (isTRUE(rmnc)){
+
+    output <- output %>%
+      dplyr::filter(`Convergence Warnings` == 0)
+
+  }
+
+  #and return it
+  return(output)
 
 }

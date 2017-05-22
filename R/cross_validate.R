@@ -110,9 +110,10 @@
 #' @param cutoff Threshold for predicted classes. Binomial models only. (Numeric)
 #' @param positive Level from dependent variable to predict (1/2 - alphabetically)
 #'  Binomial models only. (Integer)
+#' @param rmnc Remove non-converged models from output. (Logical)
 #' @param model_verbose Print name of used model function on each iteration. (Logical)
 cross_validate <- function(data, models, folds_col = '.folds', family='gaussian', REML=FALSE,
-                           cutoff=0.5, positive=1, model_verbose=FALSE){
+                           cutoff=0.5, positive=1, rmnc = FALSE, model_verbose=FALSE){
 
 
   return(cross_validate_list(data = data,
@@ -122,6 +123,7 @@ cross_validate <- function(data, models, folds_col = '.folds', family='gaussian'
                              REML = REML,
                              cutoff = cutoff,
                              positive = positive,
+                             rmnc = rmnc,
                              model_verbose = model_verbose))
 
 

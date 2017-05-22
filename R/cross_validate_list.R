@@ -5,7 +5,7 @@
 #' @importFrom dplyr mutate %>%
 #' @importFrom tidyr separate
 cross_validate_list = function(data, model_list, folds_col = '.folds', family='gaussian', REML=FALSE,
-                               cutoff=0.5, positive=1, model_verbose=TRUE){
+                               cutoff=0.5, positive=1, model_verbose=FALSE){
 
 
   # cross_validate() all the models using ldply()
@@ -16,8 +16,7 @@ cross_validate_list = function(data, model_list, folds_col = '.folds', family='g
                    cutoff=cutoff, positive=positive,
                    model_verbose=model_verbose)
 
-    }) %>% as_tibble()
-
+    }) %>% tibble::as_tibble()
 
 
   # Now we want to take the model from the model_list and split it up into

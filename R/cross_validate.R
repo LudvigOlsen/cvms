@@ -5,7 +5,7 @@
 cross_validate = function(data, model, folds_col = '.folds',
                           family='gaussian', REML=FALSE,
                           cutoff=0.5, positive=1,
-                          model_verbose=TRUE){
+                          model_verbose=FALSE){
   # model: ("y~a+b+(1|c)")
   # data: Dataframe
   # family: gaussian or binomial

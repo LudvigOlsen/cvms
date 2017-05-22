@@ -2,14 +2,12 @@
 #' @title Cross-validate regression models for model selection
 #' @export
 #' @importFrom dplyr %>%
-cross_validate = function(model, data, id_column, cat_column=NULL,
-                          nfolds=5, family='gaussian', REML=FALSE,
+cross_validate = function(data, model, folds_col = '.folds',family='gaussian', REML=FALSE,
                           cutoff=0.5, positive=1, do.plot=FALSE,
-                          which_plot = "all", plot_theme=theme_bw(),
-                          seed = NULL, model_verbose=TRUE){
+                          which_plot = "all",
+                          model_verbose=TRUE){
   # model: ("y~a+b+(1|c)")
   # data: Dataframe
-  # id_column: Unique identifiers (e.g. subject, ID, or likewise)
   # cat_col: categorical column for balancing folds
   # nfolds: number of folds
   # family: gaussian or binomial
@@ -25,47 +23,35 @@ cross_validate = function(model, data, id_column, cat_column=NULL,
   # seed: A number for setting seed. Makes sure the folds are the same for model comparison.
   # model_verbose: Printed feedback on the used model (lm() / lmer() / glm() / glmer()) (BOOL)
 
-
   # Set errors if input variables aren't what we expect / can handle
   # WORK ON THIS SECTION!
-  stopifnot((!is.null(model)),
+  stopifnot(!is.null(model),
             is.data.frame(data),
-            (!is.null(id_column)),
-            nfolds > 1,
-            positive %in% c(1,2)
+            is.factor(data[[folds_col]]),
+            positive %in% c(1,2),
+            family %in% c("gaussian", "binomial")
   )
-
 
   # Extract y_column from model
   y_column = unlist(strsplit(model, '\\s*~'))[1]
 
-
   # Check if there are random effects (yields a list e.g. (False, False, True))
   random_effects = grepl('\\(\\d', model, perl=TRUE)
 
-
-  # Creating balanced folds
-
-  # Set seed to create the same folds every time
-  # (for model comparison) (default is NULL)
-  set.seed(seed)
-
-  # Create balanced folds
-  #balanced_folds = create_balanced_folds_(data, cat_column, id_column, k=nfolds)
-  data <- groupdata2::fold(data, nfolds, cat_column, id_column, method = 'n_dist')
+  # get number of folds - aka. number of levels in folds column
+  nfolds <- nlevels(data[[folds_col]])
 
   # Loop through the folds
   # .. Create a test_set and a training_set
   # .. Train the model on the training_set
   # .. Test the model on the test_set
 
-  #for(fold in 1:nfolds){
   fold_lists_list <- plyr::llply(1:nfolds, function(fold){
 
     # Create training set for this iteration
-    training_set = data[data$.groups != fold,]
+    training_set = data[data[[folds_col]] != fold,]
     # Create test set for this iteration
-    test_set = data[data$.groups == fold,]
+    test_set = data[data[[folds_col]] == fold,]
 
     # Train and test the model
 
@@ -124,33 +110,34 @@ cross_validate = function(model, data, id_column, cat_column=NULL,
     # .. coefficients
 
 
+    plots_collection <- list()
+
     if (do.plot == TRUE){
 
       if (which_plot == 'all' || 'RMSE' %in% which_plot){
 
-        print_boxplot_(gaussian_return, 1, plot_theme = theme_bw())
+        plots_collection[['RMSE']] <- create_boxplot_(results, 1)
 
       }
 
       if (which_plot == 'all' || 'r2' %in% which_plot){
 
-        print_boxplot_(gaussian_return, 2, 3, plot_theme = theme_bw())
+        plots_collection[['r2']] <- create_boxplot_(results, 2, 3)
 
       }
 
       if (which_plot == 'all' || 'IC' %in% which_plot){
 
-        print_boxplot_(gaussian_return, 4, 5, plot_theme = theme_bw())
+        plots_collection[['IC']] <- create_boxplot_(results, 4, 5)
 
       }
 
       if (which_plot == 'all' || 'coefficients' %in% which_plot){
 
-        gg = ggplot2::ggplot(gaussian_fold_models, aes(term, estimate))
-        print(gg +
-                ggplot2::geom_boxplot() +
-                ggplot2::labs(x = 'Fixed Effects', y = 'Estimate') +
-                ggplot2::theme_bw())
+        plots_collection[['coefficients']] <- ggplot2::ggplot(models,
+                                                            ggplot2::aes(term, estimate)) +
+          ggplot2::geom_boxplot() +
+          ggplot2::labs(x = 'Fixed Effects', y = 'Estimate')
 
       }
 
@@ -161,8 +148,9 @@ cross_validate = function(model, data, id_column, cat_column=NULL,
     # .. the means of the found RMSE, r2m, r2c, AIC, AICc, and BIC
     # .. the used number of folds
     # .. the count of convergence warnings
+    # .. list of plot objects
 
-    return(c(
+    return(list(
       'RMSE' = mean(na.omit(results$RMSE)),
       'r2m' = mean(na.omit(results$r2m)),
       'r2c' = mean(na.omit(results$r2c)),
@@ -170,7 +158,8 @@ cross_validate = function(model, data, id_column, cat_column=NULL,
       'AICc' = mean(na.omit(results$AICc)),
       'BIC' = mean(na.omit(results$BIC)),
       "Folds"=nfolds,
-      "Convergence Warnings" = as.integer(conv_warns)
+      "Convergence Warnings" = as.integer(conv_warns),
+      "Plots" = plots_collection
     ))
 
 
@@ -196,8 +185,8 @@ cross_validate = function(model, data, id_column, cat_column=NULL,
     }
 
     # Find the levels in the categorical dependent variable
-    cat_levels = c(as.character(levels(data[[y_column]])[1]),
-                   as.character(levels(data[[y_column]])[2]))
+    cat_levels = c(as.character(levels(factor(data[[y_column]]))[1]),
+                   as.character(levels(factor(data[[y_column]]))[2]))
 
     # Create a new dataframe based on the dataframe with predictions and observations
     # Create a column with the predicted class based on the chosen cutoff
@@ -209,7 +198,7 @@ cross_validate = function(model, data, id_column, cat_column=NULL,
     # This will fail if one of the folds didn't converge
     conf_mat = tryCatch({
       caret::confusionMatrix(binomial_pred_obs_class$predicted_class,
-                      binomial_pred_obs_class$y_column,
+                      factor(binomial_pred_obs_class$y_column),
                       positive=cat_levels[positive])
 
     }, error = function(e) {
@@ -220,12 +209,11 @@ cross_validate = function(model, data, id_column, cat_column=NULL,
 
       if (sum(is.na(binomial_pred_obs_class$prediction)) != 0){
 
-        message('Confusion Matrix error as the model didn\'t converge.')
+        warning('Confusion Matrix error as the model didn\'t converge.')
 
       } else {
 
-        message('Confusion matrix error:')
-        stop(e)
+        stop(paste0('Confusion matrix error: ',e))
 
       }
 
@@ -249,12 +237,11 @@ cross_validate = function(model, data, id_column, cat_column=NULL,
 
       if (sum(is.na(binomial_pred_obs_class$prediction)) != 0){
 
-        message('Receiver Operator Characteristic (ROC) Curve error as the model didn\'t converge.')
+        warning('Receiver Operator Characteristic (ROC) Curve error as the model didn\'t converge.')
 
       } else {
 
-        message('Receiver Operator Characteristic (ROC) Curve error:')
-        stop(e)
+        stop(paste0('Receiver Operator Characteristic (ROC) Curve error: ',e))
 
       }
 
@@ -263,12 +250,18 @@ cross_validate = function(model, data, id_column, cat_column=NULL,
     }
     )
 
-    # If chosen by the user, plot the roc_curve
+    # If chosen by the user, create plot of the roc_curve
     if (do.plot == TRUE){
-      plot(roc_curve)
+
+      ROC_plot <- data.frame(y=roc_curve$sensitivities, x=roc_curve$specificities) %>%
+        ggplot2::ggplot(ggplot2::aes(x, y)) +
+        ggplot2::geom_line() +
+        ggplot2::scale_x_reverse() +
+        ggplot2::geom_abline(intercept=1, slope=1, linetype="dashed") +
+        ggplot2::xlab("Specificity") +
+        ggplot2::ylab("Sensitivity")
+
     }
-
-
 
     # If both conf_mat and roc_curve are not NULL
     # .. Return
@@ -283,19 +276,31 @@ cross_validate = function(model, data, id_column, cat_column=NULL,
 
     if (!(is.null(conf_mat)) && !(is.null(roc_curve))){
 
-      return(c(c("AUC" = pROC::auc(roc_curve),
+
+      return(list("AUC" = pROC::auc(roc_curve)[1],
                  "Lower CI" = pROC::ci(roc_curve)[1],
                  "Upper CI" = pROC::ci(roc_curve)[3],
-                 (conf_mat$overall['Kappa'])), conf_mat$byClass[-5:-6],
-               "Folds"=nfolds, "Convergence Warnings " = conv_warns))
+                 "kappa" = unname(conf_mat$overall['Kappa']),
+                 "Sensitivity" = unname(conf_mat$byClass['Sensitivity']),
+                 'Specificity' = unname(conf_mat$byClass['Specificity']),
+                 'Pos Pred Value' = unname(conf_mat$byClass['Pos Pred Value']),
+                 'Neg Pred Value' = unname(conf_mat$byClass['Neg Pred Value']),
+                 'F1' = unname(conf_mat$byClass['F1']),
+                 'Prevalence' = unname(conf_mat$byClass['Prevalence']),
+                 'Detection Rate' = unname(conf_mat$byClass['Detection Rate']),
+                 'Detection Prevalence' = unname(conf_mat$byClass['Detection Prevalence']),
+                 'Balanced Accuracy' = unname(conf_mat$byClass['Balanced Accuracy']),
+                 "Folds"=nfolds, "Convergence Warnings " = conv_warns,
+                 "ROC_plot" = ROC_plot))
     } else {
 
-      return(c(c("AUC" = NA, "Lower CI" = NA, "Upper CI" = NA,
-                 "Kappa" = NA, 'Sensitivity'=NA, 'Specificity'=NA,
-                 'Pos Pred Value'=NA,"Neg Pred Value"=NA,"F1"=NA,
-                 "Prevalence"=NA,"Detection Rate"=NA,
-                 "Detection Prevalence"=NA,"Balanced Accuracy"=NA),
-                 "Folds"=nfolds, "Convergence Warnings " = conv_warns))
+      return(list("AUC" = NA, "Lower CI" = NA, "Upper CI" = NA,
+                 "Kappa" = NA, 'Sensitivity' = NA, 'Specificity' = NA,
+                 'Pos Pred Value' = NA,"Neg Pred Value"=NA,"F1" = NA,
+                 "Prevalence" = NA,"Detection Rate" = NA,
+                 "Detection Prevalence" = NA,"Balanced Accuracy" = NA,
+                 "Folds" = nfolds, "Convergence Warnings " = conv_warns,
+                 "ROC_plot" = NA))
 
     }
 

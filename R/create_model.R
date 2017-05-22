@@ -32,14 +32,14 @@ create_model_ = function(model, model_type, training_set, family, REML, fold, mo
       # .. issue the warning
       # .. and return NULL to model_temp
 
-      message('-------------------------------------')
-      message('cross_validate(): Convergence Warning:')
-      message('In model:')
-      message(model)
-      message('In fold:')
-      message(fold)
+      warning(paste('-------------------------------------',
+                    'cross_validate(): Convergence Warning:',
+                    'In model:',
+                    model,
+                    'In fold:',
+                    fold,
+                    w, sep = "\n"))
 
-      warning(w)
 
       return(NULL)
 
@@ -50,14 +50,13 @@ create_model_ = function(model, model_type, training_set, family, REML, fold, mo
       # .. issue the warning
       # .. and return the fitted model
 
-      message('-------------------------')
-      message('cross_validate(): Warning:')
-      message('In model:')
-      message(model)
-      message('In fold:')
-      message(fold)
-
-      warning(w)
+      warning(paste('-------------------------------------',
+                    'cross_validate(): Warning:',
+                    'In model:',
+                    model,
+                    'In fold:',
+                    fold,
+                    w, sep = "\n"))
 
       # Return the fitted model
       # model_verbose = FALSE; It printed the first time, so we don't need it again

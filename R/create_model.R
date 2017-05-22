@@ -32,7 +32,8 @@ create_model_ = function(model, model_type, training_set, family, REML, fold, mo
       # .. issue the warning
       # .. and return NULL to model_temp
 
-      warning(paste('-------------------------------------',
+      warning(paste('',
+                    '-------------------------------------',
                     'cross_validate(): Convergence Warning:',
                     'In model:',
                     model,
@@ -50,7 +51,8 @@ create_model_ = function(model, model_type, training_set, family, REML, fold, mo
       # .. issue the warning
       # .. and return the fitted model
 
-      warning(paste('-------------------------------------',
+      warning(paste('',
+                    '-------------------------------------',
                     'cross_validate(): Warning:',
                     'In model:',
                     model,

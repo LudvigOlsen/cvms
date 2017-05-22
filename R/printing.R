@@ -1,4 +1,4 @@
-print_boxplot_ = function(data, var_start, var_end=NULL, plot_theme=theme_bw()){
+create_boxplot_ = function(data, var_start, var_end=NULL){
 
   # Data: gaussian_return or likewise
   # Vars (Variables to plot):
@@ -17,16 +17,16 @@ print_boxplot_ = function(data, var_start, var_end=NULL, plot_theme=theme_bw()){
 
   } else {
 
-    data = data %>%
+    data <- data %>%
       tidyr::gather(key, value, var_start:var_end)
   }
 
   # Create and print plot
-  gg = ggplot2::ggplot(data, aes(key, value))
-  print(gg +
-          ggplot2::geom_boxplot() +
-          ggplot2::labs(x = 'Measure', y = 'Value') +
-          plot_theme)
+  gg <- ggplot2::ggplot(data, ggplot2::aes(key, value)) +
+    ggplot2::geom_boxplot() +
+    ggplot2::labs(x = 'Measure', y = 'Value')
+
+  return(gg)
 
 
 }

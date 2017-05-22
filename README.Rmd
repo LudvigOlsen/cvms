@@ -27,6 +27,7 @@ r-pkgs@ludvigolsen.dk
 Main functions:  
 
 * cross_validate()
+* cv_plot()
 
 ## Installation  
 
@@ -77,15 +78,30 @@ data %>% head(15) %>% kable()
 
 ## Cross-validate a single model
 
+### Gaussian
+
 ```{r}
-CV <- cross_validate(data, "score~diagnosis", 
+CV1 <- cross_validate(data, "score~diagnosis", 
                      folds_col = '.folds', 
                      family='gaussian', 
                      REML = FALSE)
 
 # Show results
-CV
+CV1
 ```
+
+### Binomial
+
+```{r}
+CV2 <- cross_validate(data, "diagnosis~score", 
+                     folds_col = '.folds', 
+                     family='binomial', 
+                     REML = FALSE)
+
+# Show results
+CV2
+```
+
 
 ## Cross-validate multiple models
 
@@ -99,24 +115,42 @@ mixed_models <- c("score~diagnosis+(1|session)","score~age+(1|session)")
 ### Cross-validate fixed effects models
 
 ```{r}
-CV <- cross_validate(data, models, 
+CV3 <- cross_validate(data, models, 
                      folds_col = '.folds', 
                      family='gaussian', 
                      REML = FALSE)
 
 # Show results
-CV
+CV3
 ```
 
 ### Cross-validate mixed effects models
 
 ```{r}
-CV <- cross_validate(data, mixed_models, 
+CV4 <- cross_validate(data, mixed_models, 
                      folds_col = '.folds', 
                      family='gaussian', 
                      REML = FALSE)
 
 # Show results
-CV
+CV4
 ```
+
+## Plot results
+
+### Gaussian
+
+```{r}
+cv_plot(CV1, type = "RMSE")
+cv_plot(CV1, type = "r2")
+cv_plot(CV1, type = "IC")
+cv_plot(CV1, type = "coefficients")
+```
+
+### Binomial
+
+```{r}
+cv_plot(CV2, type = "ROC")
+```
+
 

@@ -1,10 +1,34 @@
+
+#' @title Wrapper for plotting common plots using ggplot2
+#' @description Creates various types of plots based
+#'  the output of cvms::\link{cross_validate}()
+#' @param x Object returned by cvms::\link{cross_validate}() (tbl)
+#' @param type Type of plot.
+#'
+#'  \subsection{Gaussian}{
+#'
+#'  'RMSE' - boxplot
+#'
+#'  'r2' - boxplot
+#'
+#'  'IC' - boxplot
+#'
+#'  'coefficients' - boxplot
+#'  }
+#'
+#'  \subsection{Binomial}{
+#'
+#'  "ROC" - ROC curve
+#'
+#'  }
+#' @export
 cv_plot <- function(x, type){
 
   if (x$Family == 'gaussian'){
 
     if (type == 'RMSE'){
 
-      x_ <- data.frame("RMSE" = x$results[[1]]$RMSE)
+      x_ <- data.frame("RMSE" = x$Results[[1]]$RMSE)
 
       return(create_boxplot_(x_, 1))
 
@@ -12,8 +36,8 @@ cv_plot <- function(x, type){
 
     if (type == 'r2'){
 
-      x_ <- data.frame("r2m" = x$results[[1]]$r2m,
-                       "r2c" = x$results[[1]]$r2c)
+      x_ <- data.frame("r2m" = x$Results[[1]]$r2m,
+                       "r2c" = x$Results[[1]]$r2c)
 
       return(create_boxplot_(x_, 1, 2))
 
@@ -21,9 +45,9 @@ cv_plot <- function(x, type){
 
     if (type == 'IC'){
 
-      x_ <- data.frame("AIC" = x$results[[1]]$AIC,
-                       "AICc" = x$results[[1]]$AICc,
-                       "BIC" = x$results[[1]]$BIC)
+      x_ <- data.frame("AIC" = x$Results[[1]]$AIC,
+                       "AICc" = x$Results[[1]]$AICc,
+                       "BIC" = x$Results[[1]]$BIC)
 
       return(create_boxplot_(x_, 1, 3))
 
@@ -31,7 +55,7 @@ cv_plot <- function(x, type){
 
     if (type == 'coefficients'){
 
-      return(ggplot2::ggplot(x$coefficients[[1]], ggplot2::aes(term, estimate)) +
+      return(ggplot2::ggplot(x$Coefficients[[1]], ggplot2::aes(term, estimate)) +
         ggplot2::geom_boxplot() +
         ggplot2::labs(x = 'Fixed Effects', y = 'Estimate'))
 

@@ -1,0 +1,25 @@
+h1 {
+
+  font-size:190%;
+  padding-top:20px;
+
+}
+
+hr {
+  border-style: solid;
+  border: none;
+  border-top: 0.5px solid #777;
+  margin: 28px 0;
+}
+
+img {
+
+  margin-top: 20px;
+  margin-bottom: 20px;
+
+}
+
+p {
+
+  padding-bottom:7px;
+}

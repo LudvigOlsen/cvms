@@ -29,6 +29,41 @@ cv_plot(x, type)
  }}
 }
 \description{
-Creates various types of plots based
+Creates various plots based on
  the output of cvms::\link{cross_validate}()
+}
+\examples{
+# Attach packages
+library(cvms)
+library(groupdata2) # fold()
+
+# Load data (included in cvms)
+data <- participant.scores
+
+# Fold data
+data <- fold(data, k = 4,
+             cat_col = 'diagnosis',
+             id_col = 'participant')
+
+# Cross-validate a gaussian model
+CVgauss <- cross_validate(data,
+                          "score~diagnosis",
+                          family='gaussian')
+
+# Plot results for gaussian model
+cv_plot(CVgauss, type = 'RMSE')
+cv_plot(CVgauss, type = 'r2')
+cv_plot(CVgauss, type = 'IC')
+cv_plot(CVgauss, type = 'coefficients')
+
+# Cross-validate a binomial model
+CVbinom <- cross_validate(data,
+                          "diagnosis~score",
+                          family='binomial')
+
+# Plot results for binomial model
+cv_plot(CVbinom, type = 'ROC')
+}
+\author{
+Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
 }

@@ -5,7 +5,8 @@
 \title{Cross-validate regression models for model selection}
 \usage{
 cross_validate(data, models, folds_col = ".folds", family = "gaussian",
-  REML = FALSE, cutoff = 0.5, positive = 1, model_verbose = FALSE)
+  REML = FALSE, cutoff = 0.5, positive = 1, rmnc = FALSE,
+  model_verbose = FALSE)
 }
 \arguments{
 \item{data}{Dataframe. Must include grouping factor for identifying folds
@@ -29,6 +30,8 @@ cross_validate(data, models, folds_col = ".folds", family = "gaussian",
 
 \item{positive}{Level from dependent variable to predict (1/2 - alphabetically)
 Binomial models only. (Integer)}
+
+\item{rmnc}{Remove non-converged models from output. (Logical)}
 
 \item{model_verbose}{Print name of used model function on each iteration. (Logical)}
 }

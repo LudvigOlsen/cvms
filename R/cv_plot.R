@@ -1,6 +1,6 @@
 
 #' @title Wrapper for plotting common plots using ggplot2
-#' @description Creates various types of plots based
+#' @description Creates various plots based on
 #'  the output of cvms::\link{cross_validate}()
 #' @param x Object returned by cvms::\link{cross_validate}() (tbl)
 #' @param type Type of plot.
@@ -21,7 +21,39 @@
 #'  "ROC" - ROC curve
 #'
 #'  }
+#' @author Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
 #' @export
+#' @examples
+#' # Attach packages
+#' library(cvms)
+#' library(groupdata2) # fold()
+#'
+#' # Load data (included in cvms)
+#' data <- participant.scores
+#'
+#' # Fold data
+#' data <- fold(data, k = 4,
+#'              cat_col = 'diagnosis',
+#'              id_col = 'participant')
+#'
+#' # Cross-validate a gaussian model
+#' CVgauss <- cross_validate(data,
+#'                           "score~diagnosis",
+#'                           family='gaussian')
+#'
+#' # Plot results for gaussian model
+#' cv_plot(CVgauss, type = 'RMSE')
+#' cv_plot(CVgauss, type = 'r2')
+#' cv_plot(CVgauss, type = 'IC')
+#' cv_plot(CVgauss, type = 'coefficients')
+#'
+#' # Cross-validate a binomial model
+#' CVbinom <- cross_validate(data,
+#'                           "diagnosis~score",
+#'                           family='binomial')
+#'
+#' # Plot results for binomial model
+#' cv_plot(CVbinom, type = 'ROC')
 cv_plot <- function(x, type){
 
   if (x$Family == 'gaussian'){

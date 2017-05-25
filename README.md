@@ -115,8 +115,7 @@ CV1
 ``` r
 CV2 <- cross_validate(data, "diagnosis~score", 
                      folds_col = '.folds', 
-                     family='binomial', 
-                     REML = FALSE)
+                     family='binomial')
 
 # Show results
 CV2

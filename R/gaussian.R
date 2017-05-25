@@ -1,7 +1,8 @@
 #library(hydroGOF)
 
 #' @import hydroGOF
-cv_gaussian_ = function(model, test_set, training_set, y_column, fold, random_effects, REML=REML, model_verbose){
+cv_gaussian_ = function(model, test_set, training_set, y_column,
+                        fold, random_effects, REML, link, model_verbose){
 
   # Finds the RMSE, r2m, r2c, AIC, and BIC for the given model
   # Trains the model on training_set and tests it on test_set
@@ -34,7 +35,14 @@ cv_gaussian_ = function(model, test_set, training_set, y_column, fold, random_ef
   }
 
   # Create model_temp
-  model_temp = create_model_(model, model_type, training_set, family, REML=FALSE, fold, model_verbose)
+  model_temp = create_model_(model = model,
+                             model_type = model_type,
+                             training_set = training_set,
+                             family = 'gaussian',
+                             REML = REML,
+                             link = link,
+                             fold = fold,
+                             model_verbose = model_verbose)
 
   # If model_temp returned NULL
   # .. set the output variables to NA
@@ -60,12 +68,42 @@ cv_gaussian_ = function(model, test_set, training_set, y_column, fold, random_ef
     predict_temp = stats::predict(model_temp, test_set, allow.new.levels=TRUE)
 
     # Find the values rmse, r2m, r2c, AIC, and BIC
-    rmse = hydroGOF::rmse(predict_temp, test_set[[y_column]])
-    r2m = MuMIn::r.squaredGLMM(model_temp)[1]
-    r2c = MuMIn::r.squaredGLMM(model_temp)[2]
-    AIC = stats::AIC(model_temp)
-    AICc = AICcmodavg::AICc(model_temp, return.K = REML)
-    BIC = stats::BIC(model_temp)
+    rmse <- tryCatch({
+      hydroGOF::rmse(predict_temp, test_set[[y_column]])
+    }, error = function(e){
+      return(NA)
+    })
+
+    r2m <- tryCatch({
+      MuMIn::r.squaredGLMM(model_temp)[1]
+    }, error = function(e){
+      return(NA)
+    })
+
+    r2c <- tryCatch({
+      MuMIn::r.squaredGLMM(model_temp)[2]
+    }, error = function(e){
+      return(NA)
+    })
+
+    AIC <- tryCatch({
+      stats::AIC(model_temp)
+    }, error = function(e){
+      return(NA)
+    })
+
+    AICc <- tryCatch({
+      AICcmodavg::AICc(model_temp, return.K = REML)
+    }, error = function(e){
+      return(NA)
+    })
+
+    BIC <- tryCatch({
+      stats::BIC(model_temp)
+    }, error = function(e){
+      return(NA)
+    })
+
     converged = "Yes"
     model_temp_tidied = broom::tidy(model_temp, effects = c("fixed"))
 

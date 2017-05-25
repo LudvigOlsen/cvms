@@ -5,7 +5,7 @@
 \title{Cross-validate regression models for model selection}
 \usage{
 cross_validate(data, models, folds_col = ".folds", family = "gaussian",
-  REML = FALSE, cutoff = 0.5, positive = 1, rmnc = FALSE,
+  link = NULL, REML = FALSE, cutoff = 0.5, positive = 1, rmnc = FALSE,
   model_verbose = FALSE)
 }
 \arguments{
@@ -23,6 +23,18 @@ cross_validate(data, models, folds_col = ".folds", family = "gaussian",
 \item{folds_col}{Name of grouping factor for identifying folds. (Character)}
 
 \item{family}{Name of family ('gaussian' or 'binomial'). (Character)}
+
+\item{link}{Link function. (Character)
+
+ E.g. link = "log" with family = "gaussian" will use family = gaussian(link = "log").
+
+ See \link[stats]{family} for available link functions.
+
+ \subsection{Default link functions}{
+
+ Gaussian: 'identity'.
+
+ Binomial: 'logit'.}}
 
 \item{REML}{Restricted Maximum Likelihood. (Logical)}
 

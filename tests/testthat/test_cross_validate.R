@@ -1,12 +1,12 @@
 library(cvms)
-context("cross_validate_list()")
+context("cross_validate()")
 
 # NOTICE:
 # Numbers tested are the results I got and not "what should be"
 # This will allow me to see if something changes, but it shouldn't give false confidence.
 
 
-test_that("binomial models work with cross_validate_list()",{
+test_that("binomial models work with cross_validate()",{
 
 
   # Load data and fold it
@@ -16,9 +16,9 @@ test_that("binomial models work with cross_validate_list()",{
                           id_col = 'participant')
 
 
-  CVbinomlist <- cross_validate_list(dat, c("diagnosis~score","diagnosis~age"),
-                                     folds_col = '.folds', family='binomial',
-                                     REML = FALSE, model_verbose=FALSE)
+  CVbinomlist <- cross_validate(dat, models = c("diagnosis~score","diagnosis~age"),
+                                folds_col = '.folds', family='binomial',
+                                REML = FALSE, model_verbose=FALSE)
 
   expect_equal(CVbinomlist$AUC, c(0.7615741,0.8333333), tolerance=1e-3)
   expect_equal(CVbinomlist$`Lower CI`, c(0.5851154,0.6841541), tolerance=1e-3)
@@ -50,7 +50,7 @@ test_that("binomial models work with cross_validate_list()",{
 
 })
 
-test_that("binomial models work with cross_validate_list()",{
+test_that("binomial models work with cross_validate()",{
 
 
   # Load data and fold it
@@ -60,11 +60,13 @@ test_that("binomial models work with cross_validate_list()",{
                           id_col = 'participant')
 
 
-  CVbinomlistrand <- cross_validate_list(dat,
-                                         c("diagnosis~score + (1|session)","diagnosis~age + (1|session)"),
-                                         folds_col = '.folds',
-                                         family='binomial',
-                                         REML = FALSE)
+  CVbinomlistrand <- cross_validate(dat,
+                                    models = c("diagnosis~score + (1|session)","diagnosis~age + (1|session)"),
+                                    folds_col = '.folds',
+                                    family='binomial',
+                                    REML = FALSE,
+                                    link = NULL,
+                                    model_verbose=FALSE)
 
   expect_equal(CVbinomlistrand$AUC, c(0.8611111,0.8333333), tolerance=1e-3)
   expect_equal(CVbinomlistrand$`Lower CI`, c(0.7103334,0.6841541), tolerance=1e-3)

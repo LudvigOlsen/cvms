@@ -2,17 +2,9 @@
 
 #' @importFrom dplyr %>%
 cross_validate_single = function(data, model, folds_col = '.folds',
-                          family='gaussian', REML=FALSE,
-                          cutoff=0.5, positive=1,
-                          model_verbose=FALSE){
-
-  # model: ("y~a+b+(1|c)")
-  # data: Dataframe
-  # family: gaussian or binomial
-  # REML: Restricted maximum likelihood
-  # cutoff: For deciding prediction class from prediction (binomial)
-  # positive: Level from dependent variable to predict (1/2 - alphabetically) (binomial)
-  # model_verbose: Printed feedback on the used model (lm() / lmer() / glm() / glmer()) (BOOL)
+                                 family='gaussian', link = NULL,
+                                 REML=FALSE, cutoff=0.5, positive=1,
+                                 model_verbose=FALSE){
 
   # Set errors if input variables aren't what we expect / can handle
   # WORK ON THIS SECTION!
@@ -28,6 +20,10 @@ cross_validate_single = function(data, model, folds_col = '.folds',
 
   # Check if there are random effects (yields a list e.g. (False, False, True))
   random_effects = grepl('\\(\\d', model, perl=TRUE)
+
+  # If link is NULL we pass it
+  # the default link function for the family
+  link <- default_link(link, family)
 
   # get number of folds - aka. number of levels in folds column
   nfolds <- nlevels(data[[folds_col]])
@@ -52,9 +48,11 @@ cross_validate_single = function(data, model, folds_col = '.folds',
       # Returns list with
       # .. a results dataframe
       # .. whether the model converged (yes / no)
-      gaussian_fold = cv_gaussian_(model, test_set, training_set,
-                                   y_column, fold, random_effects,
-                                   REML=REML, model_verbose)
+      gaussian_fold = cv_gaussian_(model = model, test_set = test_set,
+                                   training_set = training_set,
+                                   y_column = y_column, fold = fold,
+                                   random_effects = random_effects,
+                                   REML=REML, link = link, model_verbose = model_verbose)
 
     } else if (family == 'binomial'){
 
@@ -62,9 +60,12 @@ cross_validate_single = function(data, model, folds_col = '.folds',
       # Returns a list with
       # .. a dataframe with predictions and observations
       # .. whether the model converged (yes / no)
-      binomial_fold = cv_binomial_(model, test_set, training_set,
-                                   y_column, fold, random_effects,
-                                   family, model_verbose)
+      binomial_fold = cv_binomial_(model = model, test_set = test_set,
+                                   training_set = training_set,
+                                   y_column = y_column, fold = fold,
+                                   random_effects = random_effects,
+                                   family = family, link = link, REML = REML,
+                                   model_verbose = model_verbose)
 
     }
 
@@ -119,6 +120,7 @@ cross_validate_single = function(data, model, folds_col = '.folds',
       "Folds"=nfolds,
       "Convergence Warnings" = as.integer(conv_warns),
       "Family" = family,
+      "Link" = link,
       "Results" = iter_results$results,
       "Coefficients" = iter_models$coefficients))
 
@@ -252,6 +254,7 @@ cross_validate_single = function(data, model, folds_col = '.folds',
                            'Balanced Accuracy' = unname(conf_mat$byClass['Balanced Accuracy']),
                            "Folds"=nfolds, "Convergence Warnings" = conv_warns,
                            "Family" = family,
+                           "Link" = link,
                            "Predictions" = predictions_$predictions,
                            "ROC" = roc_$roc))
     } else {
@@ -263,6 +266,7 @@ cross_validate_single = function(data, model, folds_col = '.folds',
                            "Detection Prevalence" = NA,"Balanced Accuracy" = NA,
                            "Folds" = nfolds, "Convergence Warnings" = conv_warns,
                            "Family" = family,
+                           "Link" = link,
                            "Predictions" = NA,
                            "ROC" = NA))
 

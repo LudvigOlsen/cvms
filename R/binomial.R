@@ -1,6 +1,7 @@
 
 
-cv_binomial_ = function(model, test_set, training_set, y_column, fold, random_effects, family, model_verbose){
+cv_binomial_ = function(model, test_set, training_set, y_column, fold,
+                        random_effects, family, link, REML, model_verbose){
 
   # Trains a given model on training_set and tests it on test_set
   # Returns list with
@@ -37,8 +38,14 @@ cv_binomial_ = function(model, test_set, training_set, y_column, fold, random_ef
   }
 
 
-  model_temp = create_model_(model, model_type, training_set, family, REML=FALSE, fold, model_verbose)
-
+  model_temp = create_model_(model = model,
+                             model_type = model_type,
+                             training_set = training_set,
+                             family = 'binomial',
+                             link = link,
+                             REML = REML,
+                             fold = fold,
+                             model_verbose = model_verbose)
 
 
   # If model_temp returned NULL

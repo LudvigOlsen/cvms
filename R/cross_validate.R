@@ -106,13 +106,25 @@
 #'  E.g. c("y~x+(1|r)", "y~z+(1|r)").
 #' @param folds_col Name of grouping factor for identifying folds. (Character)
 #' @param family Name of family ('gaussian' or 'binomial'). (Character)
+#' @param link Link function. (Character)
+#'
+#'  E.g. link = "log" with family = "gaussian" will use family = gaussian(link = "log").
+#'
+#'  See \link[stats]{family} for available link functions.
+#'
+#'  \subsection{Default link functions}{
+#'
+#'  Gaussian: 'identity'.
+#'
+#'  Binomial: 'logit'.}
 #' @param REML Restricted Maximum Likelihood. (Logical)
 #' @param cutoff Threshold for predicted classes. Binomial models only. (Numeric)
 #' @param positive Level from dependent variable to predict (1/2 - alphabetically)
 #'  Binomial models only. (Integer)
 #' @param rmnc Remove non-converged models from output. (Logical)
 #' @param model_verbose Print name of used model function on each iteration. (Logical)
-cross_validate <- function(data, models, folds_col = '.folds', family='gaussian', REML=FALSE,
+cross_validate <- function(data, models, folds_col = '.folds', family='gaussian',
+                           link = NULL, REML=FALSE,
                            cutoff=0.5, positive=1, rmnc = FALSE, model_verbose=FALSE){
 
 
@@ -120,6 +132,7 @@ cross_validate <- function(data, models, folds_col = '.folds', family='gaussian'
                              model_list = models,
                              folds_col = folds_col,
                              family = family,
+                             link = link,
                              REML = REML,
                              cutoff = cutoff,
                              positive = positive,

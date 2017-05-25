@@ -1,4 +1,4 @@
-create_model_ = function(model, model_type, training_set, family, REML, fold, model_verbose){
+create_model_ = function(model, model_type, training_set, family, link, REML, fold, model_verbose){
 
   # Tries to fit the given model with the given model_type
   # .. If it gives a warning
@@ -13,7 +13,7 @@ create_model_ = function(model, model_type, training_set, family, REML, fold, mo
   model_temp = tryCatch({
 
     # Fit model
-    fit_model_(model, model_type, training_set, family, REML, model_verbose)
+    fit_model_(model, model_type, training_set, family, link, REML, model_verbose)
 
   }, warning = function(w){
 
@@ -62,7 +62,7 @@ create_model_ = function(model, model_type, training_set, family, REML, fold, mo
 
       # Return the fitted model
       # model_verbose = FALSE; It printed the first time, so we don't need it again
-      return(fit_model_(model, model_type, training_set, family, REML, model_verbose=FALSE))
+      return(fit_model_(model, model_type, training_set, family, link, REML, model_verbose=FALSE))
 
     }
 

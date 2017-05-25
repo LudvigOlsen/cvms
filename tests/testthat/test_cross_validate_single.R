@@ -12,7 +12,8 @@ test_that("gaussian models with cross_validate_single()",{
   # Cross-validate the data
   CVed <- cross_validate_single(dat, "score~diagnosis",
                                folds_col = '.folds',
-                               family='gaussian', REML = FALSE,
+                               family='gaussian', link = NULL,
+                               REML = FALSE,
                                model_verbose=FALSE)
 
   expect_equal(CVed$RMSE, 17.16817, tolerance=1e-3)
@@ -38,7 +39,9 @@ test_that("binomial models with cross_validate_single()",{
   # Cross-validate the data
   CVbinom <- cross_validate_single(dat, "diagnosis~score",
                                   folds_col = '.folds',
-                                  family='binomial', REML = FALSE,
+                                  family='binomial',
+                                  link = NULL,
+                                  REML = FALSE,
                                   model_verbose=FALSE)
 
   expect_equal(CVbinom$AUC, 0.7615741, tolerance=1e-3)
@@ -68,9 +71,11 @@ test_that("convergence errors count works cross_validate_single()",{
                           cat_col = 'diagnosis',
                           id_col = 'participant')
 
-  expect_warning(cross_validate_single(dat, "score~diagnosis*age*session + (1+diagnosis|session) + (1+diagnosis|age)",
-                         folds_col = '.folds',
-                         family='gaussian'), "cross_validate(): Convergence Warning:", fixed = TRUE)
+  expect_warning(
+    cross_validate_single(data = dat,
+                          model = "score~diagnosis*age*session + (1+diagnosis|session) + (1+diagnosis|age)",
+                          folds_col = '.folds',
+                          family='gaussian'), "cross_validate(): Convergence Warning:", fixed = TRUE)
 
 })
 

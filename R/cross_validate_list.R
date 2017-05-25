@@ -2,17 +2,21 @@
 #' @importFrom plyr ldply
 #' @importFrom dplyr mutate %>%
 #' @importFrom tidyr separate
-cross_validate_list = function(data, model_list, folds_col = '.folds', family='gaussian', REML=FALSE,
+cross_validate_list = function(data, model_list, folds_col = '.folds', family='gaussian', link = NULL, REML=FALSE,
                                cutoff=0.5, positive=1, rmnc = FALSE, model_verbose=FALSE){
 
+  # If link is NULL we pass it
+  # the default link function for the family
+  link <- default_link(link, family)
 
   # cross_validate() all the models using ldply()
   model_cvs_df = ldply(model_list,.fun = function(x){
 
-    cross_validate_single(data, x, folds_col = folds_col,
-                          family=family, REML=REML,
-                          cutoff=cutoff, positive=positive,
-                          model_verbose=model_verbose)
+    cross_validate_single(data = data, model = x, folds_col = folds_col,
+                          family = family, link = link,
+                          REML = REML, cutoff = cutoff,
+                          positive = positive,
+                          model_verbose = model_verbose)
 
     }) %>% tibble::as_tibble()
 
@@ -75,6 +79,7 @@ cross_validate_list = function(data, model_list, folds_col = '.folds', family='g
       dplyr::filter(`Convergence Warnings` == 0)
 
   }
+
 
   #and return it
   return(output)

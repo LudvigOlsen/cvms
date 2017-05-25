@@ -9,8 +9,10 @@ cross_validate(data, models, folds_col = ".folds", family = "gaussian",
   model_verbose = FALSE)
 }
 \arguments{
-\item{data}{Dataframe. Must include grouping factor for identifying folds
-- as made with groupdata2's \link[groupdata2]{fold}().}
+\item{data}{Dataframe.
+
+ Must include grouping factor for identifying folds
+  - as made with groupdata2's \link[groupdata2]{fold}().}
 
 \item{models}{Model formulas as strings. (Character)
 
@@ -141,6 +143,55 @@ Cross-validate one or multiple gaussian or binomial
 
  ROC: pROC::roc
  }
+}
+\examples{
+# Attach libraries
+library(cvms)
+library(groupdata2) # fold()
+library(dplyr) # \%>\% arrange()
+
+# Data is part of cvms
+data <- participant.scores
+
+# Set seed for reproducibility
+set.seed(7)
+
+# Fold data
+data <- fold(data, k = 4,
+          cat_col = 'diagnosis',
+          id_col = 'participant') \%>\%
+        arrange(.folds)
+
+# Cross-validate a single model
+
+# Gaussian
+cross_validate(data,
+               models = "score~diagnosis",
+               family='gaussian',
+               REML = FALSE)
+
+# Binomial
+cross_validate(data,
+               models = "diagnosis~score",
+               family='binomial')
+
+# Cross-validate multiple models
+
+models <- c("score~diagnosis+(1|session)",
+            "score~age+(1|session)")
+
+cross_validate(data,
+               models = models,
+               family='gaussian',
+               REML = FALSE)
+
+# Use non-default link functions
+
+cross_validate(data,
+               models = "score~diagnosis",
+               family = 'gaussian',
+               link = 'log',
+               REML = FALSE)
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

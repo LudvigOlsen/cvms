@@ -95,7 +95,9 @@
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
 #' @author Benjamin Hugh Zachariae
 #' @export
-#' @param data Dataframe. Must include grouping factor for identifying folds
+#' @param data Dataframe.
+#'
+#'  Must include grouping factor for identifying folds
 #'   - as made with groupdata2's \link[groupdata2]{fold}().
 #' @param models Model formulas as strings. (Character)
 #'
@@ -123,6 +125,54 @@
 #'  Binomial models only. (Integer)
 #' @param rmnc Remove non-converged models from output. (Logical)
 #' @param model_verbose Print name of used model function on each iteration. (Logical)
+#' @examples
+#' # Attach libraries
+#' library(cvms)
+#' library(groupdata2) # fold()
+#' library(dplyr) # %>% arrange()
+#'
+#' # Data is part of cvms
+#' data <- participant.scores
+#'
+#' # Set seed for reproducibility
+#' set.seed(7)
+#'
+#' # Fold data
+#' data <- fold(data, k = 4,
+#'           cat_col = 'diagnosis',
+#'           id_col = 'participant') %>%
+#'         arrange(.folds)
+#'
+#' # Cross-validate a single model
+#'
+#' # Gaussian
+#' cross_validate(data,
+#'                models = "score~diagnosis",
+#'                family='gaussian',
+#'                REML = FALSE)
+#'
+#' # Binomial
+#' cross_validate(data,
+#'                models = "diagnosis~score",
+#'                family='binomial')
+#'
+#' # Cross-validate multiple models
+#'
+#' models <- c("score~diagnosis+(1|session)",
+#'             "score~age+(1|session)")
+#'
+#' cross_validate(data,
+#'                models = models,
+#'                family='gaussian',
+#'                REML = FALSE)
+#'
+#' # Use non-default link functions
+#'
+#' cross_validate(data,
+#'                models = "score~diagnosis",
+#'                family = 'gaussian',
+#'                link = 'log',
+#'                REML = FALSE)
 cross_validate <- function(data, models, folds_col = '.folds', family='gaussian',
                            link = NULL, REML=FALSE,
                            cutoff=0.5, positive=1, rmnc = FALSE, model_verbose=FALSE){

@@ -5,7 +5,7 @@ cvms
 
 **Cross-Validation for Model Selection**
 
-R package: A function for cross-validating gaussian and binomial regression models.
+R package: Cross-validating gaussian and binomial regression models.
 
 By Ludvig R. Olsen and Benjamin Zachariae,
 Cognitive Science, Aarhus University.
@@ -101,7 +101,7 @@ CV1 <- cross_validate(data, "score~diagnosis",
 
 # Show results
 CV1
-#> # A tibble: 1 × 14
+#> # A tibble: 1 x 14
 #>       RMSE       r2m       r2c      AIC     AICc      BIC Folds
 #>      <dbl>     <dbl>     <dbl>    <dbl>    <dbl>    <dbl> <int>
 #> 1 16.66528 0.2716369 0.2716369 194.6045 195.9104 197.9384     4
@@ -119,7 +119,7 @@ CV2 <- cross_validate(data, "diagnosis~score",
 
 # Show results
 CV2
-#> # A tibble: 1 × 21
+#> # A tibble: 1 x 21
 #>         AUC `Lower CI` `Upper CI`     Kappa Sensitivity Specificity
 #>       <dbl>      <dbl>      <dbl>     <dbl>       <dbl>       <dbl>
 #> 1 0.7476852  0.5621978  0.9331726 0.4285714   0.5833333   0.8333333
@@ -150,7 +150,7 @@ CV3 <- cross_validate(data, models,
 
 # Show results
 CV3
-#> # A tibble: 2 × 14
+#> # A tibble: 2 x 14
 #>       RMSE         r2m         r2c      AIC     AICc      BIC Folds
 #>      <dbl>       <dbl>       <dbl>    <dbl>    <dbl>    <dbl> <int>
 #> 1 16.66528 0.271636894 0.271636894 194.6045 195.9104 197.9384     4
@@ -170,7 +170,7 @@ CV4 <- cross_validate(data, mixed_models,
 
 # Show results
 CV4
-#> # A tibble: 2 × 15
+#> # A tibble: 2 x 15
 #>        RMSE         r2m       r2c      AIC     AICc      BIC Folds
 #>       <dbl>       <dbl>     <dbl>    <dbl>    <dbl>    <dbl> <int>
 #> 1  8.652038 0.289662640 0.8096362 175.2741 177.5768 179.7193     4

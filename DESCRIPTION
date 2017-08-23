@@ -1,19 +1,20 @@
 Package: cvms
-Title: What the Package Does (one line, title case)
+Title: Cross-validation for model selection
 Version: 0.0.0.9000
-Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Authors@R: person("Ludvig Renbo", "Olsen", email = "r-pkgs@ludvigolsen.dk", role = c("aut", "cre"))
+Description: Run cross-validation of one or multiple regression models with a tidy output. 
+  Currently supports gaussian and binomial regression.
 Depends:
     R (>= 3.3.1),
     zoo
-License: What license is it under?
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:
     groupdata2,
     dplyr,
     plyr,
-    tidyr,
+    tidyr (>= 0.7.0),
     ggplot2,
     caret,
     pROC,

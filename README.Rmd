@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 # cvms
 **Cross-Validation for Model Selection**  
 
-R package: A function for cross-validating gaussian and binomial regression models.  
+R package: Cross-validating gaussian and binomial regression models.  
 
 By Ludvig R. Olsen and Benjamin Zachariae,  
 Cognitive Science, Aarhus University.  

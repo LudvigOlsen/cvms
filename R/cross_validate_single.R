@@ -100,14 +100,14 @@ cross_validate_single = function(data, model, folds_col = '.folds',
     iter_results <- tibble::as_tibble(results)
     rownames(iter_results) <- NULL
     iter_results <- iter_results %>%
-      tidyr::nest(1:length(colnames(.))) %>%
+      tidyr::nest() %>% #1:length(colnames(.))) %>%
       dplyr::rename(results = data)
 
     # Make models into a tibble
     iter_models <- tibble::as_tibble(models)
     iter_models <- mutate(iter_models,
                           p.value = if (exists('p.value', where = iter_models)) p.value else NA) %>%
-      tidyr::nest(1:length(colnames(.))) %>%
+      tidyr::nest() %>% #1:length(colnames(.))) %>%
       dplyr::rename(coefficients = data)
 
     return(tibble::tibble(

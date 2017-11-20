@@ -16,11 +16,11 @@ cross_validate(data, models, folds_col = ".folds", family = "gaussian",
 
 \item{models}{Model formulas as strings. (Character)
 
- E.g. c("y~x", "y~z").
+ E.g. \code{c("y~x", "y~z")}.
 
  Can contain random effects.
 
- E.g. c("y~x+(1|r)", "y~z+(1|r)").}
+ E.g. \code{c("y~x+(1|r)", "y~z+(1|r)")}.}
 
 \item{folds_col}{Name of grouping factor for identifying folds. (Character)}
 
@@ -28,21 +28,23 @@ cross_validate(data, models, folds_col = ".folds", family = "gaussian",
 
 \item{link}{Link function. (Character)
 
- E.g. link = "log" with family = "gaussian" will use family = gaussian(link = "log").
+ E.g. \code{link = "log"} with \code{family = "gaussian"} will
+ use \code{family = gaussian(link = "log")}.
 
  See \link[stats]{family} for available link functions.
 
  \subsection{Default link functions}{
 
- Gaussian: 'identity'.
+ Gaussian: \code{'identity'}.
 
- Binomial: 'logit'.}}
+ Binomial: \code{'logit'}.}}
 
 \item{REML}{Restricted Maximum Likelihood. (Logical)}
 
 \item{cutoff}{Threshold for predicted classes. Binomial models only. (Numeric)}
 
-\item{positive}{Level from dependent variable to predict (1/2 - alphabetically)
+\item{positive}{Level from dependent variable to predict (1 or 2 - alphabetically).
+Used when creating confusion matrix.
 Binomial models only. (Integer)}
 
 \item{rmnc}{Remove non-converged models from output. (Logical)}
@@ -70,9 +72,9 @@ Tbl (tibble) with results for each model.
 
  Name of \strong{dependent} variable.
 
- Names of \strong{fixed} predictors.
+ Names of \strong{fixed} effects.
 
- Names of \strong{random} predictors if any.
+ Names of \strong{random} effects if any.
 
  }
 
@@ -100,13 +102,13 @@ Tbl (tibble) with results for each model.
 
  A tibble with \strong{predictions}, predicted classes (depends on \code{cutoff}), and the targets.
 
- A tibble with the sensativities and specificities from the \strong{ROC} curve
+ A tibble with the sensativities and specificities from the \strong{ROC} curve.
 
  Name of \strong{dependent} variable.
 
- Names of \strong{fixed} predictors.
+ Names of \strong{fixed} effects.
 
- Names of \strong{random} predictors if any.
+ Names of \strong{random} effects if any.
 
  }
 }

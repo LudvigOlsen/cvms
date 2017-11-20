@@ -2,6 +2,7 @@
 
 export(cross_validate)
 export(cv_plot)
+export(validate)
 import(hydroGOF)
 importFrom(dplyr,"%>%")
 importFrom(dplyr,mutate)

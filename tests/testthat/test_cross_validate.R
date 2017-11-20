@@ -107,3 +107,64 @@ test_that("binomial models work with cross_validate()",{
 })
 
 
+test_that("gaussian model with cross_validate()",{
+
+  # Load data and fold it
+  set.seed(1)
+  dat <- groupdata2::fold(participant.scores, k = 4,
+                          cat_col = 'diagnosis',
+                          id_col = 'participant')
+
+  # Cross-validate the data
+  CVed <- cross_validate(dat, "score~diagnosis",
+                          folds_col = '.folds',
+                          family='gaussian', link = NULL,
+                          REML = FALSE,
+                          model_verbose=FALSE)
+
+  expect_equal(CVed$RMSE, 17.16817, tolerance=1e-3)
+  expect_equal(CVed$r2m, 0.2640793, tolerance=1e-3)
+  expect_equal(CVed$r2c, 0.2640793, tolerance=1e-3)
+  expect_equal(CVed$AIC, 194.6904, tolerance=1e-3)
+  expect_equal(CVed$AICc, 195.9963, tolerance=1e-3)
+  expect_equal(CVed$BIC, 198.0243, tolerance=1e-3)
+  expect_equal(CVed$Folds, 4)
+  expect_equal(CVed$`Convergence Warnings`, 0)
+  expect_equal(CVed$Family, 'gaussian')
+  expect_equal(CVed$Dependent, 'score')
+  expect_equal(CVed$Fixed, 'diagnosis')
+
+})
+
+
+test_that("gaussian mixed models with cross_validate()",{
+
+  # Load data and fold it
+  set.seed(1)
+  dat <- groupdata2::fold(participant.scores, k = 4,
+                          cat_col = 'diagnosis',
+                          id_col = 'participant')
+
+  # Cross-validate the data
+  CVed <- cross_validate(dat, c("score~diagnosis + (1|session)","score~age + (1|session)"),
+                         folds_col = '.folds',
+                         family='gaussian', link = NULL,
+                         REML = FALSE,
+                         model_verbose=FALSE)
+
+  expect_equal(CVed$RMSE, c(9.659488, 15.202256), tolerance=1e-3)
+  expect_equal(CVed$r2m, c(0.28218811, 0.01319593), tolerance=1e-3)
+  expect_equal(CVed$r2c, c(0.8043153, 0.5016050), tolerance=1e-3)
+  expect_equal(CVed$AIC, c(175.9497, 194.6358), tolerance=1e-3)
+  expect_equal(CVed$AICc, c(178.2523, 196.9384), tolerance=1e-3)
+  expect_equal(CVed$BIC, c(180.3948, 199.0809), tolerance=1e-3)
+  expect_equal(CVed$Folds, c(4,4))
+  expect_equal(CVed$`Convergence Warnings`, c(0,0))
+  expect_equal(CVed$Family, c('gaussian','gaussian'))
+  expect_equal(CVed$Dependent, c('score','score'))
+  expect_equal(CVed$Fixed, c('diagnosis', 'age'))
+  expect_equal(CVed$Random, c('1|session', '1|session'))
+
+
+})
+

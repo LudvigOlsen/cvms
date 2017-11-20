@@ -16,10 +16,10 @@ cross_validate_single = function(data, model, folds_col = '.folds',
   )
 
   # Extract y_column from model
-  y_column = unlist(strsplit(model, '\\s*~'))[1]
+  y_column = extract_y(model)
 
   # Check if there are random effects (yields a list e.g. (False, False, True))
-  random_effects = grepl('\\(\\d', model, perl=TRUE)
+  random_effects = rand_effects(model)
 
   # If link is NULL we pass it
   # the default link function for the family
@@ -76,7 +76,7 @@ cross_validate_single = function(data, model, folds_col = '.folds',
   if (family == 'gaussian'){
 
     # Extract model dataframe from fold_lists_list
-    models_list = fold_lists_list %c% 'model'
+    models_list = fold_lists_list %c% 'model_tidy'
     models = do.call("rbind", models_list)
 
     # Extract result dataframe from fold_lists_list
@@ -100,14 +100,14 @@ cross_validate_single = function(data, model, folds_col = '.folds',
     iter_results <- tibble::as_tibble(results)
     rownames(iter_results) <- NULL
     iter_results <- iter_results %>%
-      tidyr::nest() %>% #1:length(colnames(.))) %>%
+      tidyr::nest() %>%
       dplyr::rename(results = data)
 
     # Make models into a tibble
     iter_models <- tibble::as_tibble(models)
     iter_models <- mutate(iter_models,
                           p.value = if (exists('p.value', where = iter_models)) p.value else NA) %>%
-      tidyr::nest() %>% #1:length(colnames(.))) %>%
+      tidyr::nest() %>%
       dplyr::rename(coefficients = data)
 
     return(tibble::tibble(

@@ -11,3 +11,16 @@ default_link <- function(link, family){
   } else return(link)
 
 }
+
+## For validate_single and cross_validate_single
+
+# Extract y_column from model
+extract_y <- function(model){
+  unlist(strsplit(model, '\\s*~'))[1]
+}
+
+# Check if there are random effects
+# returns a list, e.g. (False, False, True)
+rand_effects <- function(model){
+  grepl('\\(\\d', model, perl=TRUE)
+}

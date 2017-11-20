@@ -84,7 +84,7 @@ cv_binomial_ = function(model, test_set, training_set, y_column, fold,
   # Return a list with
   # .. the dataframe containing predictions and observations
   # .. the converged variable
-  return(list(predictions_and_observations=predictions_and_y_Temp, converged=converged))
+  return(list(predictions_and_observations=predictions_and_y_Temp, converged=converged, model=model_temp))
 
 
 }

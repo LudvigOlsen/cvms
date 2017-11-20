@@ -52,9 +52,9 @@
 #'
 #'  Name of \strong{dependent} variable.
 #'
-#'  Names of \strong{fixed} predictors.
+#'  Names of \strong{fixed} effects.
 #'
-#'  Names of \strong{random} predictors if any.
+#'  Names of \strong{random} effects if any.
 #'
 #'  }
 #'
@@ -82,13 +82,13 @@
 #'
 #'  A tibble with \strong{predictions}, predicted classes (depends on \code{cutoff}), and the targets.
 #'
-#'  A tibble with the sensativities and specificities from the \strong{ROC} curve
+#'  A tibble with the sensativities and specificities from the \strong{ROC} curve.
 #'
 #'  Name of \strong{dependent} variable.
 #'
-#'  Names of \strong{fixed} predictors.
+#'  Names of \strong{fixed} effects.
 #'
-#'  Names of \strong{random} predictors if any.
+#'  Names of \strong{random} effects if any.
 #'
 #'  }
 #'
@@ -101,27 +101,29 @@
 #'   - as made with groupdata2's \link[groupdata2]{fold}().
 #' @param models Model formulas as strings. (Character)
 #'
-#'  E.g. c("y~x", "y~z").
+#'  E.g. \code{c("y~x", "y~z")}.
 #'
 #'  Can contain random effects.
 #'
-#'  E.g. c("y~x+(1|r)", "y~z+(1|r)").
+#'  E.g. \code{c("y~x+(1|r)", "y~z+(1|r)")}.
 #' @param folds_col Name of grouping factor for identifying folds. (Character)
 #' @param family Name of family ('gaussian' or 'binomial'). (Character)
 #' @param link Link function. (Character)
 #'
-#'  E.g. link = "log" with family = "gaussian" will use family = gaussian(link = "log").
+#'  E.g. \code{link = "log"} with \code{family = "gaussian"} will
+#'  use \code{family = gaussian(link = "log")}.
 #'
 #'  See \link[stats]{family} for available link functions.
 #'
 #'  \subsection{Default link functions}{
 #'
-#'  Gaussian: 'identity'.
+#'  Gaussian: \code{'identity'}.
 #'
-#'  Binomial: 'logit'.}
+#'  Binomial: \code{'logit'}.}
 #' @param REML Restricted Maximum Likelihood. (Logical)
 #' @param cutoff Threshold for predicted classes. Binomial models only. (Numeric)
-#' @param positive Level from dependent variable to predict (1/2 - alphabetically)
+#' @param positive Level from dependent variable to predict (1 or 2 - alphabetically).
+#'  Used when creating confusion matrix.
 #'  Binomial models only. (Integer)
 #' @param rmnc Remove non-converged models from output. (Logical)
 #' @param model_verbose Print name of used model function on each iteration. (Logical)

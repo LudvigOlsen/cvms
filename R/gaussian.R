@@ -113,9 +113,11 @@ cv_gaussian_ = function(model, test_set, training_set, y_column,
 
   # Return a list with
   # .. a tidied summary of the model
+  # .. the model object
   # .. a dataframe with the found values
   return(list(
-    'model' = cbind(model_temp_tidied, fold),
+    'model_tidy' = cbind(model_temp_tidied, fold),
+    'model' = model_temp,
     'result' = data.frame('RMSE' = rmse, 'r2m' = r2m, 'r2c' = r2c,
                           'AIC' = AIC, 'AICc' = AICc, 'BIC' = BIC,
                           'converged'= converged, fold)

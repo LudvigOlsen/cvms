@@ -257,11 +257,25 @@ test_that("Metrics work in cross_validate()",{
                                        positive = levels(as.factor(pred_df$obs))[1])
   expect_equal(negPredValue_,0.7619048, tolerance = 1e-3)
 
+  # F1
+  F1 <- (2 * posPredValue_ * sens) / (posPredValue_ + sens)
+  expect_equal(F1,0.6666667, tolerance = 1e-3)
+
+  # Confusion matrix
+  confMat <- caret::confusionMatrix(pred_df$pred, reference=pred_df$obs)
+  TP <- confMat$table[1]
+  FP <- confMat$table[3]
+  FN <- confMat$table[2]
+  TN <- confMat$table[4]
+  precision = TP / (TP + FP)
+  recall = TP / (TP + FN)
+  F1_2 <- 2 * precision * recall / (precision + recall)
+  expect_equal(F1_2,0.6666667, tolerance = 1e-3)
+
   # Add tests for the following metrics
   # expect_equal(#LowerCI, 0.5851154)
   # expect_equal(#UpperCI, 0.9380328)
   # expect_equal(#kappa, 0.4927536)
-  # expect_equal(#f1, 0.6666667)
   # expect_equal(#prevalence, 0.4)
   # expect_equal(#detectionrate, 0.2333333)
   # expect_equal(#detectionprevalence, 0.3)

@@ -195,8 +195,8 @@ validate_single = function(train_data,
     # Try to use a confusion matrix with the data
     # This will fail if one of the folds didn't converge
     conf_mat = tryCatch({
-      caret::confusionMatrix(pred_obs$predicted_class,
-                             factor(pred_obs$y_column),
+      caret::confusionMatrix(factor(pred_obs$predicted_class, levels=c(0,1)),
+                             factor(pred_obs$y_column, levels=c(0,1)),
                              positive = cat_levels[positive])
 
     }, error = function(e) {

@@ -262,7 +262,8 @@ test_that("Metrics work in cross_validate()",{
   expect_equal(F1,0.6666667, tolerance = 1e-3)
 
   # Confusion matrix
-  confMat <- caret::confusionMatrix(pred_df$pred, reference=pred_df$obs)
+  confMat <- caret::confusionMatrix(factor(pred_df$pred, levels=c(0,1)),
+                                    reference=factor(pred_df$obs, levels=c(0,1)))
   TP <- confMat$table[1]
   FP <- confMat$table[3]
   FN <- confMat$table[2]

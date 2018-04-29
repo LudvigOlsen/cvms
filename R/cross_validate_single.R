@@ -159,8 +159,8 @@ cross_validate_single = function(data, model, folds_col = '.folds',
     # Try to use a confusion matrix with the data
     # This will fail if one of the folds didn't converge
     conf_mat = tryCatch({
-      caret::confusionMatrix(binomial_pred_obs_class$predicted_class,
-                      factor(binomial_pred_obs_class$y_column),
+      caret::confusionMatrix(factor(binomial_pred_obs_class$predicted_class, levels=c(0,1)),
+                      factor(binomial_pred_obs_class$y_column, levels=c(0,1)),
                       positive=cat_levels[positive])
 
     }, error = function(e) {

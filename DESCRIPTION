@@ -16,7 +16,7 @@ Imports:
     plyr,
     tidyr (>= 0.7.0),
     ggplot2,
-    caret,
+    caret (>= 6.0-79),
     pROC,
     stats,
     lme4,

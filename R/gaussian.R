@@ -75,13 +75,13 @@ cv_gaussian_ = function(model, test_set, training_set, y_column,
     })
 
     r2m <- tryCatch({
-      MuMIn::r.squaredGLMM(model_temp)[1]
+      suppressWarnings(MuMIn::r.squaredGLMM(model_temp)[1])
     }, error = function(e){
       return(NA)
     })
 
     r2c <- tryCatch({
-      MuMIn::r.squaredGLMM(model_temp)[2]
+      suppressWarnings(MuMIn::r.squaredGLMM(model_temp)[2])
     }, error = function(e){
       return(NA)
     })

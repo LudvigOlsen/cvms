@@ -120,6 +120,9 @@
 #'  Gaussian: \code{'identity'}.
 #'
 #'  Binomial: \code{'logit'}.}
+#' @param control Construct control structures for mixed model fitting (i.e. \link[lme4]{lmer} and \link[lme4]{glmer}).
+#'  See \link[lme4]{lmerControl} and \link[lme4]{glmerControl}.
+#'  Ignored if fitting \code{lm} and \code{glm} models.
 #' @param REML Restricted Maximum Likelihood. (Logical)
 #' @param cutoff Threshold for predicted classes. Binomial models only. (Numeric)
 #' @param positive Level from dependent variable to predict (1 or 2 - alphabetically).
@@ -176,7 +179,7 @@
 #'                link = 'log',
 #'                REML = FALSE)
 cross_validate <- function(data, models, folds_col = '.folds', family='gaussian',
-                           link = NULL, REML=FALSE,
+                           link = NULL, control=NULL, REML=FALSE,
                            cutoff=0.5, positive=1, rmnc = FALSE, model_verbose=FALSE){
 
 
@@ -185,6 +188,7 @@ cross_validate <- function(data, models, folds_col = '.folds', family='gaussian'
                              folds_col = folds_col,
                              family = family,
                              link = link,
+                             control=control,
                              REML = REML,
                              cutoff = cutoff,
                              positive = positive,

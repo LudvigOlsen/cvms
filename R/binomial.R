@@ -1,7 +1,7 @@
 
 
 cv_binomial_ = function(model, test_set, training_set, y_column, fold,
-                        random_effects, family, link, REML, model_verbose){
+                        random_effects, family, link, control, REML, model_verbose){
 
   # Trains a given model on training_set and tests it on test_set
   # Returns list with
@@ -43,6 +43,7 @@ cv_binomial_ = function(model, test_set, training_set, y_column, fold,
                              training_set = training_set,
                              family = 'binomial',
                              link = link,
+                             control=control,
                              REML = REML,
                              fold = fold,
                              model_verbose = model_verbose)

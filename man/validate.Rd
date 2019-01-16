@@ -6,8 +6,8 @@
 \usage{
 validate(train_data, model, test_data = NULL,
   partitions_col = ".partitions", family = "gaussian", link = NULL,
-  REML = FALSE, cutoff = 0.5, positive = 1, err_nc = FALSE,
-  model_verbose = FALSE)
+  control = NULL, REML = FALSE, cutoff = 0.5, positive = 1,
+  err_nc = FALSE, model_verbose = FALSE)
 }
 \arguments{
 \item{train_data}{Dataframe.}
@@ -41,6 +41,10 @@ validate(train_data, model, test_data = NULL,
  Gaussian: \code{'identity'}.
 
  Binomial: \code{'logit'}.}}
+
+\item{control}{Construct control structures for mixed model fitting (i.e. \link[lme4]{lmer} and \link[lme4]{glmer}).
+See \link[lme4]{lmerControl} and \link[lme4]{glmerControl}.
+Ignored if fitting \code{lm} and \code{glm} models.}
 
 \item{REML}{Restricted Maximum Likelihood. (Logical)}
 

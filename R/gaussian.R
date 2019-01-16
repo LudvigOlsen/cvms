@@ -2,7 +2,7 @@
 
 #' @import hydroGOF
 cv_gaussian_ = function(model, test_set, training_set, y_column,
-                        fold, random_effects, REML, link, model_verbose){
+                        fold, random_effects, REML, link, control, model_verbose){
 
   # Finds the RMSE, r2m, r2c, AIC, and BIC for the given model
   # Trains the model on training_set and tests it on test_set
@@ -41,6 +41,7 @@ cv_gaussian_ = function(model, test_set, training_set, y_column,
                              family = 'gaussian',
                              REML = REML,
                              link = link,
+                             control=control,
                              fold = fold,
                              model_verbose = model_verbose)
 

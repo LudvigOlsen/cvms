@@ -60,7 +60,7 @@ test_that("binomial models checks that dependent variable is numeric with cross_
                           id_col = 'participant') %>%
     dplyr::mutate(diagnosis = factor(diagnosis))
 
-  dat %>% str()
+  # dat %>% str()
 
   CVbinomlist <- cross_validate(dat, models = c("diagnosis~score","diagnosis~age"),
                                 folds_col = '.folds', family='binomial',
@@ -210,6 +210,81 @@ test_that("gaussian mixed models with cross_validate()",{
   expect_equal(CVed$Dependent, c('score','score'))
   expect_equal(CVed$Fixed, c('diagnosis', 'age'))
   expect_equal(CVed$Random, c('1|session', '1|session'))
+
+
+})
+
+
+test_that("binomial models work with control specified in cross_validate()",{
+
+
+  # Load data and fold it
+  set.seed(2)
+  dat <- groupdata2::fold(participant.scores, k = 3,
+                          cat_col = 'diagnosis',
+                          id_col = 'participant')
+
+
+  CVbinomlistrand <- cross_validate(dat,
+                                    models = c("diagnosis~score + (1|session)"),
+                                    folds_col = '.folds',
+                                    family='binomial',
+                                    REML = FALSE,
+                                    link = NULL,
+                                    control = lme4::glmerControl(optimizer="bobyqa",
+                                                           optCtrl=list(maxfun=1000000)),
+                                    model_verbose=FALSE)
+
+  expect_equal(CVbinomlistrand$AUC, c(0.7847), tolerance=1e-3)
+  expect_equal(CVbinomlistrand$`Convergence Warnings`, c(0))
+
+  # Warning because of too few iterations
+  expect_warning(cross_validate(dat,
+                                models = c("diagnosis~score + (1|session)"),
+                                folds_col = '.folds',
+                                family='binomial',
+                                REML = FALSE,
+                                link = NULL,
+                                control = lme4::glmerControl(optimizer="bobyqa",
+                                                             optCtrl=list(maxfun=100)),
+                                model_verbose=FALSE), "cross_validate(): Convergence Warning:", fixed = TRUE)
+
+
+})
+
+test_that("gaussian models work with control specified in cross_validate()",{
+
+
+  # Load data and fold it
+  set.seed(2)
+  dat <- groupdata2::fold(participant.scores, k = 3,
+                          cat_col = 'diagnosis',
+                          id_col = 'participant')
+
+
+  CVgausslistrand <- cross_validate(dat,
+                                    models = c("score~diagnosis + (1|session)"),
+                                    folds_col = '.folds',
+                                    family='gaussian',
+                                    REML = FALSE,
+                                    link = NULL,
+                                    control = lme4::lmerControl(optimizer="Nelder_Mead",
+                                                                 optCtrl=list(maxfun=1000000)),
+                                    model_verbose=FALSE)
+
+  expect_equal(CVgausslistrand$RMSE, c(10.443), tolerance=1e-3)
+  expect_equal(CVgausslistrand$`Convergence Warnings`, c(0))
+
+  # Warning because of too few iterations
+  expect_warning(cross_validate(dat,
+                                models = c("score~diagnosis + (1|session)"),
+                                folds_col = '.folds',
+                                family='gaussian',
+                                REML = FALSE,
+                                link = NULL,
+                                control = lme4::lmerControl(optimizer="Nelder_Mead",
+                                                             optCtrl=list(maxfun=10)),
+                                model_verbose=FALSE), "cross_validate(): Convergence Warning:", fixed = TRUE)
 
 
 })

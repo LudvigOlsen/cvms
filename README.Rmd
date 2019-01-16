@@ -48,6 +48,7 @@ library(cvms)
 library(groupdata2) # fold()
 library(knitr) # kable()
 library(dplyr) # %>% arrange()
+library(ggplot2)
 ```
 
 ## Load data
@@ -140,16 +141,21 @@ CV4
 ### Gaussian
 
 ```{r}
-cv_plot(CV1, type = "RMSE")
-cv_plot(CV1, type = "r2")
-cv_plot(CV1, type = "IC")
-cv_plot(CV1, type = "coefficients")
+cv_plot(CV1, type = "RMSE") +
+  theme_bw()
+cv_plot(CV1, type = "r2") +
+  theme_bw()
+cv_plot(CV1, type = "IC") +
+  theme_bw()
+cv_plot(CV1, type = "coefficients") +
+  theme_bw()
 ```
 
 ### Binomial
 
 ```{r}
-cv_plot(CV2, type = "ROC")
+cv_plot(CV2, type = "ROC") +
+  theme_bw()
 ```
 
 

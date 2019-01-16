@@ -40,6 +40,7 @@ library(cvms)
 library(groupdata2) # fold()
 library(knitr) # kable()
 library(dplyr) # %>% arrange()
+library(ggplot2)
 ```
 
 Load data
@@ -102,12 +103,11 @@ CV1 <- cross_validate(data, "score~diagnosis",
 # Show results
 CV1
 #> # A tibble: 1 x 14
-#>       RMSE       r2m       r2c      AIC     AICc      BIC Folds
-#>      <dbl>     <dbl>     <dbl>    <dbl>    <dbl>    <dbl> <int>
-#> 1 16.66528 0.2716369 0.2716369 194.6045 195.9104 197.9384     4
-#> # ... with 7 more variables: `Convergence Warnings` <int>, Family <chr>,
-#> #   Link <chr>, Results <list>, Coefficients <list>, Dependent <chr>,
-#> #   Fixed <chr>
+#>    RMSE   r2m   r2c   AIC  AICc   BIC Folds `Convergence Wa… Family Link 
+#>   <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <int>            <int> <chr>  <chr>
+#> 1  16.7 0.272 0.272  195.  196.  198.     4                0 gauss… iden…
+#> # … with 4 more variables: Results <list>, Coefficients <list>,
+#> #   Dependent <chr>, Fixed <chr>
 ```
 
 ### Binomial
@@ -120,10 +120,10 @@ CV2 <- cross_validate(data, "diagnosis~score",
 # Show results
 CV2
 #> # A tibble: 1 x 21
-#>         AUC `Lower CI` `Upper CI`     Kappa Sensitivity Specificity
-#>       <dbl>      <dbl>      <dbl>     <dbl>       <dbl>       <dbl>
-#> 1 0.7476852  0.5621978  0.9331726 0.4285714   0.5833333   0.8333333
-#> # ... with 15 more variables: `Pos Pred Value` <dbl>, `Neg Pred
+#>     AUC `Lower CI` `Upper CI` Kappa Sensitivity Specificity
+#>   <dbl>      <dbl>      <dbl> <dbl>       <dbl>       <dbl>
+#> 1 0.748      0.562      0.933 0.429       0.583       0.833
+#> # … with 15 more variables: `Pos Pred Value` <dbl>, `Neg Pred
 #> #   Value` <dbl>, F1 <dbl>, Prevalence <dbl>, `Detection Rate` <dbl>,
 #> #   `Detection Prevalence` <dbl>, `Balanced Accuracy` <dbl>, Folds <int>,
 #> #   `Convergence Warnings` <dbl>, Family <chr>, Link <chr>,
@@ -151,13 +151,12 @@ CV3 <- cross_validate(data, models,
 # Show results
 CV3
 #> # A tibble: 2 x 14
-#>       RMSE         r2m         r2c      AIC     AICc      BIC Folds
-#>      <dbl>       <dbl>       <dbl>    <dbl>    <dbl>    <dbl> <int>
-#> 1 16.66528 0.271636894 0.271636894 194.6045 195.9104 197.9384     4
-#> 2 19.60274 0.004273726 0.004273726 202.0597 203.3656 205.3935     4
-#> # ... with 7 more variables: `Convergence Warnings` <int>, Family <chr>,
-#> #   Link <chr>, Results <list>, Coefficients <list>, Dependent <chr>,
-#> #   Fixed <chr>
+#>    RMSE     r2m     r2c   AIC  AICc   BIC Folds `Convergence Wa… Family
+#>   <dbl>   <dbl>   <dbl> <dbl> <dbl> <dbl> <int>            <int> <chr> 
+#> 1  16.7 0.272   0.272    195.  196.  198.     4                0 gauss…
+#> 2  19.6 0.00427 0.00427  202.  203.  205.     4                0 gauss…
+#> # … with 5 more variables: Link <chr>, Results <list>,
+#> #   Coefficients <list>, Dependent <chr>, Fixed <chr>
 ```
 
 ### Cross-validate mixed effects models
@@ -171,13 +170,12 @@ CV4 <- cross_validate(data, mixed_models,
 # Show results
 CV4
 #> # A tibble: 2 x 15
-#>        RMSE         r2m       r2c      AIC     AICc      BIC Folds
-#>       <dbl>       <dbl>     <dbl>    <dbl>    <dbl>    <dbl> <int>
-#> 1  8.652038 0.289662640 0.8096362 175.2741 177.5768 179.7193     4
-#> 2 13.735577 0.004672412 0.4879946 195.2054 197.5080 199.6505     4
-#> # ... with 8 more variables: `Convergence Warnings` <int>, Family <chr>,
-#> #   Link <chr>, Results <list>, Coefficients <list>, Dependent <chr>,
-#> #   Fixed <chr>, Random <chr>
+#>    RMSE     r2m   r2c   AIC  AICc   BIC Folds `Convergence Wa… Family Link 
+#>   <dbl>   <dbl> <dbl> <dbl> <dbl> <dbl> <int>            <int> <chr>  <chr>
+#> 1  8.65 0.290   0.810  175.  178.  180.     4                0 gauss… iden…
+#> 2 13.7  0.00467 0.488  195.  198.  200.     4                0 gauss… iden…
+#> # … with 5 more variables: Results <list>, Coefficients <list>,
+#> #   Dependent <chr>, Fixed <chr>, Random <chr>
 ```
 
 Plot results
@@ -186,25 +184,29 @@ Plot results
 ### Gaussian
 
 ``` r
-cv_plot(CV1, type = "RMSE")
+cv_plot(CV1, type = "RMSE") +
+  theme_bw()
 ```
 
 ![](README-unnamed-chunk-10-1.png)
 
 ``` r
-cv_plot(CV1, type = "r2")
+cv_plot(CV1, type = "r2") +
+  theme_bw()
 ```
 
 ![](README-unnamed-chunk-10-2.png)
 
 ``` r
-cv_plot(CV1, type = "IC")
+cv_plot(CV1, type = "IC") +
+  theme_bw()
 ```
 
 ![](README-unnamed-chunk-10-3.png)
 
 ``` r
-cv_plot(CV1, type = "coefficients")
+cv_plot(CV1, type = "coefficients") +
+  theme_bw()
 ```
 
 ![](README-unnamed-chunk-10-4.png)
@@ -212,7 +214,8 @@ cv_plot(CV1, type = "coefficients")
 ### Binomial
 
 ``` r
-cv_plot(CV2, type = "ROC")
+cv_plot(CV2, type = "ROC") +
+  theme_bw()
 ```
 
 ![](README-unnamed-chunk-11-1.png)

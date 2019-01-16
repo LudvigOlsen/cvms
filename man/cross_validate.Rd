@@ -5,8 +5,8 @@
 \title{Cross-validate regression models for model selection}
 \usage{
 cross_validate(data, models, folds_col = ".folds", family = "gaussian",
-  link = NULL, REML = FALSE, cutoff = 0.5, positive = 1,
-  rmnc = FALSE, model_verbose = FALSE)
+  link = NULL, control = NULL, REML = FALSE, cutoff = 0.5,
+  positive = 1, rmnc = FALSE, model_verbose = FALSE)
 }
 \arguments{
 \item{data}{Dataframe.
@@ -38,6 +38,10 @@ cross_validate(data, models, folds_col = ".folds", family = "gaussian",
  Gaussian: \code{'identity'}.
 
  Binomial: \code{'logit'}.}}
+
+\item{control}{Construct control structures for mixed model fitting (i.e. \link[lme4]{lmer} and \link[lme4]{glmer}).
+See \link[lme4]{lmerControl} and \link[lme4]{glmerControl}.
+Ignored if fitting \code{lm} and \code{glm} models.}
 
 \item{REML}{Restricted Maximum Likelihood. (Logical)}
 

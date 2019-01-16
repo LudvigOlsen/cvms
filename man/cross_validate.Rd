@@ -5,8 +5,8 @@
 \title{Cross-validate regression models for model selection}
 \usage{
 cross_validate(data, models, folds_col = ".folds", family = "gaussian",
-  link = NULL, REML = FALSE, cutoff = 0.5, positive = 1, rmnc = FALSE,
-  model_verbose = FALSE)
+  link = NULL, REML = FALSE, cutoff = 0.5, positive = 1,
+  rmnc = FALSE, model_verbose = FALSE)
 }
 \arguments{
 \item{data}{Dataframe.

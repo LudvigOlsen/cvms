@@ -2,7 +2,8 @@
 #' @importFrom plyr ldply
 #' @importFrom dplyr mutate %>%
 #' @importFrom tidyr separate
-cross_validate_list = function(data, model_list, folds_col = '.folds', family='gaussian', link = NULL, REML=FALSE,
+cross_validate_list = function(data, model_list, folds_col = '.folds', family='gaussian',
+                               link = NULL, control = NULL, REML=FALSE,
                                cutoff=0.5, positive=1, rmnc = FALSE, model_verbose=FALSE){
 
   # If link is NULL we pass it
@@ -13,7 +14,7 @@ cross_validate_list = function(data, model_list, folds_col = '.folds', family='g
   model_cvs_df = ldply(model_list,.fun = function(x){
 
     cross_validate_single(data = data, model = x, folds_col = folds_col,
-                          family = family, link = link,
+                          family = family, link = link, control=control,
                           REML = REML, cutoff = cutoff,
                           positive = positive,
                           model_verbose = model_verbose)

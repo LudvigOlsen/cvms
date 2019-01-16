@@ -3,6 +3,7 @@
 #' @importFrom dplyr %>%
 cross_validate_single = function(data, model, folds_col = '.folds',
                                  family='gaussian', link = NULL,
+                                 control = NULL,
                                  REML=FALSE, cutoff=0.5, positive=1,
                                  model_verbose=FALSE){
 
@@ -52,7 +53,8 @@ cross_validate_single = function(data, model, folds_col = '.folds',
                                    training_set = training_set,
                                    y_column = y_column, fold = fold,
                                    random_effects = random_effects,
-                                   REML=REML, link = link, model_verbose = model_verbose)
+                                   REML=REML, link = link, control=control,
+                                   model_verbose = model_verbose)
 
     } else if (family == 'binomial'){
 
@@ -64,8 +66,8 @@ cross_validate_single = function(data, model, folds_col = '.folds',
                                    training_set = training_set,
                                    y_column = y_column, fold = fold,
                                    random_effects = random_effects,
-                                   family = family, link = link, REML = REML,
-                                   model_verbose = model_verbose)
+                                   family = family, link = link, control=control,
+                                   REML = REML, model_verbose = model_verbose)
 
     }
 

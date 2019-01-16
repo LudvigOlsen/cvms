@@ -6,6 +6,7 @@ validate_single = function(train_data,
                            partitions_col = '.partitions',
                            family = 'gaussian',
                            link = NULL,
+                           control= NULL,
                            REML = FALSE,
                            cutoff = 0.5,
                            positive = 1,
@@ -69,6 +70,7 @@ validate_single = function(train_data,
       random_effects = random_effects,
       REML = REML,
       link = link,
+      control=control,
       model_verbose = model_verbose
     )
 
@@ -86,6 +88,7 @@ validate_single = function(train_data,
       random_effects = random_effects,
       family = family,
       link = link,
+      control=control,
       REML = REML,
       model_verbose = model_verbose
     )

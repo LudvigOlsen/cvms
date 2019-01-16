@@ -1,4 +1,5 @@
-fit_model_ = function(model, model_type, training_set, family, link, REML, model_verbose){
+fit_model_ = function(model, model_type, training_set, family, link,
+                      control, REML, model_verbose){
 
   # Checks the model_type and fits the model on the training_set
 
@@ -33,7 +34,14 @@ fit_model_ = function(model, model_type, training_set, family, link, REML, model
 
     # Fit the model using lmer() or glmer() depending on link function
     if (is.null(link) || link == 'identity'){
-      return(lme4::lmer(model,training_set, REML=REML))
+
+      # Only add control if specified
+      if (is.null(control)) {
+        return(lme4::lmer(model,training_set, REML=REML))
+      } else {
+        return(lme4::lmer(model,training_set, REML=REML, control=control))
+      }
+
     } else {
       return(lme4::glmer(model, training_set,
                          family = gaussian(link=link)))
@@ -59,10 +67,19 @@ fit_model_ = function(model, model_type, training_set, family, link, REML, model
 
     # Fit the model using glmer()
     # Return this model to model_temp
-    if (!is.null(link)){
-      return(lme4::glmer(model, training_set, family = binomial(link=link)))
+
+    if (is.null(control)){
+      if (!is.null(link)){
+        return(lme4::glmer(model, training_set, family = binomial(link=link)))
+      } else {
+        return(lme4::glmer(model, training_set, family = family))
+      }
     } else {
-      return(lme4::glmer(model, training_set, family = family))
+      if (!is.null(link)){
+        return(lme4::glmer(model, training_set, family = binomial(link=link), control = control))
+      } else {
+        return(lme4::glmer(model, training_set, family = family, control = control))
+      }
     }
 
   }

@@ -176,7 +176,7 @@
 #'                link = 'log',
 #'                REML = FALSE)
 cross_validate <- function(data, models, folds_col = '.folds', family='gaussian',
-                           link = NULL, REML=FALSE,
+                           link = NULL, control=NULL, REML=FALSE,
                            cutoff=0.5, positive=1, rmnc = FALSE, model_verbose=FALSE){
 
 
@@ -185,6 +185,7 @@ cross_validate <- function(data, models, folds_col = '.folds', family='gaussian'
                              folds_col = folds_col,
                              family = family,
                              link = link,
+                             control=control,
                              REML = REML,
                              cutoff = cutoff,
                              positive = positive,

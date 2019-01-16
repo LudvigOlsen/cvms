@@ -50,6 +50,52 @@ test_that("binomial models work with cross_validate()",{
 
 })
 
+test_that("binomial models checks that dependent variable is numeric with cross_validate()",{
+
+
+  # Load data and fold it
+  set.seed(1)
+  dat <- groupdata2::fold(participant.scores, k = 4,
+                          cat_col = 'diagnosis',
+                          id_col = 'participant') %>%
+    dplyr::mutate(diagnosis = factor(diagnosis))
+
+  dat %>% str()
+
+  CVbinomlist <- cross_validate(dat, models = c("diagnosis~score","diagnosis~age"),
+                                folds_col = '.folds', family='binomial',
+                                REML = FALSE, model_verbose=FALSE)
+
+  expect_equal(CVbinomlist$AUC, c(0.7615741,0.8333333), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Lower CI`, c(0.5851154,0.6841541), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Upper CI`, c(0.9380328,0.9825126), tolerance=1e-3)
+  expect_equal(CVbinomlist$Kappa, c(0.4927536, -0.3636364), tolerance=1e-3)
+  expect_equal(CVbinomlist$Sensitivity, c(0.5833333,0.0000000), tolerance=1e-3)
+  expect_equal(CVbinomlist$Specificity, c(0.8888889,0.6666667), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Pos Pred Value`, c(0.7777778,0.0000000), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Neg Pred Value`, c(0.7619048,0.5000000), tolerance=1e-3)
+  expect_equal(CVbinomlist$F1, c(0.6666667, NA), tolerance=1e-3)
+  expect_equal(CVbinomlist$Prevalence, c(0.4,0.4), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Detection Rate`, c(0.2333333,0.0000000), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Detection Prevalence`, c(0.3,0.2), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Balanced Accuracy`, c(0.7361111,0.3333333), tolerance=1e-3)
+  expect_equal(CVbinomlist$Folds, c(4,4))
+  expect_equal(CVbinomlist$`Convergence Warnings`, c(0,0))
+  expect_equal(CVbinomlist$Family, c('binomial','binomial'))
+  expect_equal(CVbinomlist$Dependent, c('diagnosis','diagnosis'))
+  expect_equal(CVbinomlist$Fixed, c('score','age'))
+
+  # Enter sub tibbles
+  expect_is(CVbinomlist$Predictions[[1]], "tbl_df")
+  expect_is(CVbinomlist$ROC[[1]], "tbl_df")
+  expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("prediction","predicted_class","target"))
+  expect_equal(colnames(CVbinomlist$ROC[[1]]), c("sensitivities","specificities"))
+  expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
+  expect_equal(nrow(CVbinomlist$ROC[[1]]),29)
+
+
+})
+
 test_that("binomial models work with cross_validate()",{
 
 

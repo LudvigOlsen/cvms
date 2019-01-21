@@ -24,3 +24,12 @@ extract_y <- function(model){
 rand_effects <- function(model){
   grepl('\\(\\d', model, perl=TRUE)
 }
+
+count_convergence_warnings <- function(convergences){ # "Yes" or "No"
+  # Count the convergence warnings
+  conv_warns = as.integer(table(convergences)['No'])
+  if (is.na(conv_warns)){
+    conv_warns = 0
+  }
+  return(conv_warns)
+}

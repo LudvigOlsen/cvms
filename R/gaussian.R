@@ -111,7 +111,6 @@ cv_gaussian_ = function(model, test_set, training_set, y_column,
   }
 
 
-
   # Return a list with
   # .. a tidied summary of the model
   # .. the model object

@@ -92,11 +92,10 @@ cross_validate_single = function(data, model, folds_col = '.folds',
       conv_warns = 0
     }
 
-    # Return a list with
+    # Return a tibble with
     # .. the means of the found RMSE, r2m, r2c, AIC, AICc, and BIC
     # .. the used number of folds
     # .. the count of convergence warnings
-    # .. list of plot objects
 
     # Make results into a tibble
     iter_results <- tibble::as_tibble(results)

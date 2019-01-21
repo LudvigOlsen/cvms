@@ -1,7 +1,7 @@
 
 # Takes the model from the model_list and split it up into
 # fixed effects and random effects
-# Some users might want to mix models with an without random effects,
+# Some users might want to mix models with and without random effects,
 # and so we first try to seperate into fixed and random,
 # and if no random effects are found for any of the models,
 # we remove the column "random".

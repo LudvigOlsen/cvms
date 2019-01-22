@@ -8,16 +8,37 @@ cross_validate_list = function(data, model_list, folds_col = '.folds', family='g
 
   # If link is NULL we pass it
   # the default link function for the family
-  link <- default_link(link, family)
+  # link <- default_link(link, family) # Is done at a later step
+
+  # Get evaluation functions
+  if (family == "gaussian"){
+    fold_evaluation_fn <- fold_evaluation_lm_lmer
+    eval_aggregation_fn <- eval_aggregation_lm_lmer
+  } else if (family == "binomial"){
+    fold_evaluation_fn <- fold_evaluation_binomial_glm_glmer
+    eval_aggregation_fn <- eval_aggregation_binomial_glm_glmer
+  } else {stop("Only two families allowed currently!")}
 
   # cross_validate() all the models using ldply()
-  model_cvs_df = ldply(model_list,.fun = function(x){
+  model_cvs_df = ldply(model_list,.fun = function(model_formula){
 
-    cross_validate_single(data = data, model = x, folds_col = folds_col,
-                          family = family, link = link, control=control,
-                          REML = REML, cutoff = cutoff,
-                          positive = positive,
-                          model_verbose = model_verbose)
+    # cross_validate_single(data = data, model = x, folds_col = folds_col,
+    #                       family = family, link = link, control=control,
+    #                       REML = REML, cutoff = cutoff,
+    #                       positive = positive,
+    #                       model_verbose = model_verbose)
+
+    cross_validate_fn_single(data = data, model_fn = model_fn_basics,
+                             fold_eval_fn = fold_evaluation_fn,
+                             eval_aggregation_fn = eval_aggregation_fn,
+                             model_specifics = list(
+                               model_formula=model_formula,
+                               family=family,
+                               REML=REML,
+                               link=link,
+                               model_verbose = model_verbose),
+                             model_specifics_update_fn = update_and_check_model_specifics_basics,
+                             folds_col = folds_col)
 
     }) %>% tibble::as_tibble()
 

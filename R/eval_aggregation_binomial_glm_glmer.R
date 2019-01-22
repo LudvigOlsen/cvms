@@ -1,8 +1,9 @@
-eval_aggregation_binomial_glm_glmer <- function(fold_evaluations, n_folds,
-                                                model_specifics = list(link=NULL, family=NULL, positive=NULL, cutoff=NULL)){
+eval_aggregation_binomial_glm_glmer <- function(fold_evaluations, n_folds, model_specifics){
 
   # Check that model_specifics contains all named arguments
-  check_model_specifics(model_specifics, c("link", "family", "positive", "cutoff"))
+  check_model_specifics(model_specifics, c("model_formula", "control",
+                                           "REML", "positive", "cutoff","model_verbose",
+                                           "link", "family"))
 
   # Get content of model_specifics
   # They cannot be NULL, which happens when the list is passed without naming the arguments

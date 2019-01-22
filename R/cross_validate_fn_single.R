@@ -1,6 +1,6 @@
 cross_validate_fn_single <- function(data, model_fn, fold_eval_fn, eval_aggregation_fn,
-                                     eval_model_specifics=list(), folds_col =".folds",
-                                     ..., model_verbose = FALSE){
+                                     model_specifics=list(), model_specifics_update_fn=NULL,
+                                     folds_col =".folds"){
 
   # eval_fn: "regression", "binomial", "multiclass", "multilabel", "custom"/function
   #   custom: returns predictions and true labels/values in tibble
@@ -8,7 +8,10 @@ cross_validate_fn_single <- function(data, model_fn, fold_eval_fn, eval_aggregat
 
 
   # Check arguments
-
+  # Check model_specifics arguments
+  if (!is.null(model_specifics_update_fn)){
+    model_specifics <- model_specifics_update_fn(model_specifics)
+  }
 
   # get number of folds - aka. number of levels in folds column
   n_folds <- nlevels(data[[folds_col]])
@@ -28,8 +31,7 @@ cross_validate_fn_single <- function(data, model_fn, fold_eval_fn, eval_aggregat
     model_fn(train_set = train_set,
              test_set = test_set,
              fold = fold,
-             model_verbose = model_verbose,
-             ...)
+             model_specifics=model_specifics)
 
   })
 
@@ -43,11 +45,12 @@ cross_validate_fn_single <- function(data, model_fn, fold_eval_fn, eval_aggregat
   # Evaluate folds
   fold_evaluations <- plyr::llply(1:n_folds, function(fold_){
     fold_eval_fn(predictions_and_targets %>% dplyr::filter(fold == fold_),
-                 models[[fold_]], fold_, model_specifics=eval_model_specifics)
+                 models[[fold_]], fold_, model_specifics=model_specifics)
   })
 
   # Aggregate fold evaluations
-  model_evaluation <- eval_aggregation_fn(fold_evaluations, n_folds, model_specifics=eval_model_specifics)
+  model_evaluation <- eval_aggregation_fn(fold_evaluations, n_folds,
+                                          model_specifics=model_specifics)
 
   return(model_evaluation)
 

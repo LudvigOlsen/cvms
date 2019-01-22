@@ -1,4 +1,4 @@
-run_basic_model <- function(model_fitting_fn, ...,
+run_basic_model_fitting <- function(model_fitting_fn, model_specifics, train_set,
                             warn_info = list(model_formula=NULL, fold=NULL, model_verbose=FALSE)){
 
   # Tries to fit the given model with the given model_type
@@ -6,7 +6,7 @@ run_basic_model <- function(model_fitting_fn, ...,
   # .... it checks if it's a convergence warning
   # ...... If it is
   # ........ it issues the warning using warning()
-  # ........ and returns NULL to model_temp
+  # ........ and returns NULL to model
   # ...... If it is not
   # ........ it issues the warning using warning()
   # ........ and returns the output of lm() / lmer()
@@ -20,10 +20,10 @@ run_basic_model <- function(model_fitting_fn, ...,
   fold <- assign_if_not_null_named_lists(warn_info[["fold"]], "fold", "warn_info")
   model_verbose <- assign_if_not_null_named_lists(warn_info[["model_verbose"]], "model_verbose", "warn_info")
 
-  model_temp = tryCatch({
+  model = tryCatch({
 
     # Fit model
-    model_fitting_fn(...)
+    model_fitting_fn(model_specifics, train_set)
 
   }, warning = function(w){
 
@@ -40,7 +40,7 @@ run_basic_model <- function(model_fitting_fn, ...,
       # If it seemed to be a convergence warning:
       # .. message the user of the failed model and fold
       # .. issue the warning
-      # .. and return NULL to model_temp
+      # .. and return NULL to model
 
       warning(paste('',
                     '-------------------------------------',
@@ -71,13 +71,13 @@ run_basic_model <- function(model_fitting_fn, ...,
                     w, sep = "\n"))
 
       # Return the fitted model
-      model_verbose = FALSE # It printed the first time, so we don't need it again
-      return(model_fitting_fn(...))
+      model_specifics[["model_verbose"]] = FALSE # It printed the first time, so we don't need it again
+      return(model_fitting_fn(model_specifics, train_set))
 
     }
 
   })
 
-  return(model_temp)
+  return(model)
 
 }

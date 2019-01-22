@@ -1,8 +1,9 @@
-fold_evaluation_binomial_glm_glmer <- function(fold_output, fitted_model, fold,
-                                               model_specifics=list(link=NULL, family=NULL, positive=NULL, cutoff=NULL)){
+fold_evaluation_binomial_glm_glmer <- function(fold_output, fitted_model, fold, model_specifics){
 
   # Check that model_specifics contains all named arguments
-  check_model_specifics(model_specifics, c("link", "family", "positive", "cutoff"))
+  check_model_specifics(model_specifics, c("model_formula", "control",
+                                           "REML", "positive", "cutoff","model_verbose",
+                                           "link", "family"))
 
   if (is.null(fitted_model)){
     converged = "No"

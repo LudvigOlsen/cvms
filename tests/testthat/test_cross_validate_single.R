@@ -10,7 +10,7 @@ test_that("gaussian models with cross_validate_single()",{
                           id_col = 'participant')
 
   # Cross-validate the data
-  CVed <- cross_validate_single(dat, "score~diagnosis",
+  CVed <- cross_validate(dat, "score~diagnosis",
                                folds_col = '.folds',
                                family='gaussian', link = NULL,
                                REML = FALSE,
@@ -37,12 +37,12 @@ test_that("binomial models with cross_validate_single()",{
                           id_col = 'participant')
 
   # Cross-validate the data
-  CVbinom <- cross_validate_single(dat, "diagnosis~score",
-                                  folds_col = '.folds',
-                                  family='binomial',
-                                  link = NULL,
-                                  REML = FALSE,
-                                  model_verbose=FALSE)
+  CVbinom <- cross_validate(dat, "diagnosis~score",
+                            folds_col = '.folds',
+                            family='binomial',
+                            link = NULL,
+                            REML = FALSE,
+                            model_verbose=FALSE)
 
   expect_equal(CVbinom$AUC, 0.7615741, tolerance=1e-3)
   expect_equal(CVbinom$`Lower CI`, 0.5851154, tolerance=1e-3)

@@ -1,7 +1,9 @@
-eval_aggregation_lm_lmer <- function(fold_evaluations, n_folds, model_specifics = list(link=NULL, family=NULL, REML=FALSE)){
+eval_aggregation_lm_lmer <- function(fold_evaluations, n_folds, model_specifics){
 
   # Check that model_specifics contains all named arguments
-  check_model_specifics(model_specifics, c("link", "family", "REML"))
+  check_model_specifics(model_specifics, c("model_formula", "control",
+                                           "REML", "positive", "cutoff","model_verbose",
+                                           "link", "family"))
 
   # Extract model dataframe from fold_lists_list
   models_list = fold_evaluations %c% 'model_tidy'

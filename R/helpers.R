@@ -1,15 +1,33 @@
 
 # Get all lists in a list with a certain name
 # Use: list_of_lists %c% 'list_name'
-`%c%` <- function(x, n)lapply(x, `[[`, n)
+`%c%` <- function(x, n) lapply(x, `[[`, n)
 # From http://stackoverflow.com/questions/5935673/accessing-same-named-list-elements-of-the-list-of-lists-in-r/5936077#5936077
+
+# Not in
+`%ni%` <- function(x, table) {
+  return(!(x %in% table))
+
+}
 
 default_link <- function(link, family){
   if (is.null(link)){
     if(family == 'gaussian') return('identity')
     if(family == 'binomial') return('logit')
   } else return(link)
+}
 
+default_control <- function(control, family, link){
+  if (is.null(control)){
+
+     # Note that gaussian models with alternative link functions are run with glmer
+    if(family == 'gaussian'){
+      if (link == "identity") return(lme4::lmerControl())
+      return(lme4::glmerControl())
+    }
+    if(family == 'binomial') return(lme4::glmerControl())
+
+    } else return(control)
 }
 
 ## For validate_single and cross_validate_single
@@ -34,12 +52,37 @@ count_convergence_warnings <- function(convergences){ # "Yes" or "No"
   return(conv_warns)
 }
 
+### Model specifics
+
 check_model_specifics <- function(passed_model_specifics, required_named_arguments){
   # Check that model_specifics contains all named arguments
-  if (length(setdiff(names(passed_model_specifics), required_named_arguments)) > 0) {
-    stop("model_specifics must (only) contain all named arguments. Be sure to name arguments.")
+  diff <- setdiff(names(passed_model_specifics), required_named_arguments)
+  if (length(diff) > 0) {
+    stop(paste0("model_specifics must (only) contain all named arguments. Be sure to name arguments. Wrongly passed argument(s): ",
+                diff))
   }
 }
+
+check_argument_in_model_specifics <- function(var_name, model_specifics){
+  if (var_name %ni% names(model_specifics))
+    stop(paste0(var_name," is a required named argument in model_specifics. Be sure to name arguments."))
+}
+
+replace_argument_in_model_specifics_if_null <- function(var_name, model_specifics, new_value, err=TRUE){
+  if (is.null(model_specifics[[var_name]])){
+
+    if (isTRUE(err)){
+      stop(paste0(var_name," was NULL in model_specifics. Remember to name arguments, i.e. ",
+                  var_name, " = ??? when passing model_specifics."))
+    }
+
+    model_specifics[[var_name]] = new_value
+
+  }
+  model_specifics
+}
+
+### Results
 
 nest_results <- function(results){
 

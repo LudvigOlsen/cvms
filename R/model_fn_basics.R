@@ -1,0 +1,48 @@
+# Model function for cross-validating lm, lmer, glm, and glmer
+
+model_fn_basics <- function(train_set,
+                            test_set,
+                            fold,
+                            model_specifics = list(model_formula=NULL, family=NULL, link=NULL,
+                                                   control=NULL, REML=FALSE, positive=1,
+                                                   cutoff=0.5, model_verbose=FALSE)){
+
+  y_col <- extract_y(model_specifics[["model_formula"]]) # Name of target column
+
+  # Check if there are random effects Logical
+  contains_random_effects = rand_effects(model_specifics[["model_formula"]])
+
+  # Choose model_type
+  if (model_specifics[["family"]] == "gaussian") model_type <- "lm"
+  if (model_specifics[["family"]] == "binomial") model_type <- "glm"
+  if (TRUE %in% contains_random_effects) model_type <- paste0(model_type, "er") #makes them either lmer or glmer
+
+  model_specifics[["model_type"]] <- model_type
+
+  # Fit model
+  model <- run_basic_model_fitting(fit_basic_model, model_specifics = model_specifics,
+                                   train_set = train_set,
+                                   warn_info=list(model_formula=model_specifics[["model_formula"]],
+                                                  fold=fold,
+                                                  model_verbose=model_specifics[["model_verbose"]]))
+
+  # Predict test set
+  # If models is NULL (e.g. didn't converge)
+  #   Create a list of NA predictions the length of y_column
+
+  if (is.null(model)){
+    predictions = rep(NA, length(test_set[[y_col]]))
+  } else {
+    predictions = stats::predict(model, test_set, allow.new.levels=TRUE)
+  }
+
+  predictions_and_targets <- tibble::tibble("target" = test_set[[y_col]],
+                                            "prediction" = predictions,
+                                            "fold" = fold)
+
+  return(list(predictions_and_targets=predictions_and_targets,
+              model=model))
+
+}
+
+

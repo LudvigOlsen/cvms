@@ -289,3 +289,6 @@ test_that("gaussian models work with control specified in cross_validate()",{
 
 })
 
+
+
+

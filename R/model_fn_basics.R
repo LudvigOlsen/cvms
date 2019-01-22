@@ -13,8 +13,10 @@ model_fn_basics <- function(train_set,
   contains_random_effects = rand_effects(model_specifics[["model_formula"]])
 
   # Choose model_type
-  if (model_specifics[["family"]] == "gaussian") model_type <- "lm"
-  if (model_specifics[["family"]] == "binomial") model_type <- "glm"
+  if (model_specifics[["family"]] == "gaussian")
+    model_type <- "lm"
+  if (model_specifics[["family"]] == "binomial")
+    model_type <- "glm"
   if (TRUE %in% contains_random_effects) model_type <- paste0(model_type, "er") #makes them either lmer or glmer
 
   model_specifics[["model_type"]] <- model_type
@@ -33,7 +35,10 @@ model_fn_basics <- function(train_set,
   if (is.null(model)){
     predictions = rep(NA, length(test_set[[y_col]]))
   } else {
-    predictions = stats::predict(model, test_set, allow.new.levels=TRUE)
+    if (model_specifics[["family"]] == "gaussian")
+      predictions = stats::predict(model, test_set, allow.new.levels=TRUE)
+    if (model_specifics[["family"]] == "binomial")
+      predictions = stats::predict(model, test_set, type="response", allow.new.levels=TRUE)
   }
 
   predictions_and_targets <- tibble::tibble("target" = test_set[[y_col]],

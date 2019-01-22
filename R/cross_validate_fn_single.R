@@ -2,6 +2,8 @@ cross_validate_fn_single <- function(data, model_fn, fold_eval_fn, eval_aggregat
                                      model_specifics=list(), model_specifics_update_fn=NULL,
                                      folds_col =".folds"){
 
+
+  # TODO: the below comment is not correct
   # eval_fn: "regression", "binomial", "multiclass", "multilabel", "custom"/function
   #   custom: returns predictions and true labels/values in tibble
   # Actually, it might be better that the user passes the premade functions or a custom function
@@ -17,19 +19,19 @@ cross_validate_fn_single <- function(data, model_fn, fold_eval_fn, eval_aggregat
   n_folds <- nlevels(data[[folds_col]])
 
   # Loop through the folds
-  # .. Create a test_set and a training_set
+  # .. Create a test_data and a training_set
   # .. Train the model on the training_set
-  # .. Test the model on the test_set
+  # .. Test the model on the test_data
 
   fold_lists_list <- plyr::llply(1:n_folds, function(fold){
 
     # Create training set for this iteration
-    train_set = data[data[[folds_col]] != fold,]
+    train_data = data[data[[folds_col]] != fold,]
     # Create test set for this iteration
-    test_set = data[data[[folds_col]] == fold,]
+    test_data = data[data[[folds_col]] == fold,]
 
-    model_fn(train_set = train_set,
-             test_set = test_set,
+    model_fn(train_data = train_data,
+             test_data = test_data,
              fold = fold,
              model_specifics=model_specifics)
 

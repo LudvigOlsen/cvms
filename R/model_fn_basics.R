@@ -1,7 +1,7 @@
 # Model function for cross-validating lm, lmer, glm, and glmer
 
-model_fn_basics <- function(train_set,
-                            test_set,
+model_fn_basics <- function(train_data,
+                            test_data,
                             fold,
                             model_specifics = list(model_formula=NULL, family=NULL, link=NULL,
                                                    control=NULL, REML=FALSE, positive=1,
@@ -23,7 +23,7 @@ model_fn_basics <- function(train_set,
 
   # Fit model
   model <- run_basic_model_fitting(fit_basic_model, model_specifics = model_specifics,
-                                   train_set = train_set,
+                                   train_data = train_data,
                                    warn_info=list(model_formula=model_specifics[["model_formula"]],
                                                   fold=fold,
                                                   model_verbose=model_specifics[["model_verbose"]]))
@@ -33,15 +33,15 @@ model_fn_basics <- function(train_set,
   #   Create a list of NA predictions the length of y_column
 
   if (is.null(model)){
-    predictions = rep(NA, length(test_set[[y_col]]))
+    predictions = rep(NA, length(test_data[[y_col]]))
   } else {
     if (model_specifics[["family"]] == "gaussian")
-      predictions = stats::predict(model, test_set, allow.new.levels=TRUE)
+      predictions = stats::predict(model, test_data, allow.new.levels=TRUE)
     if (model_specifics[["family"]] == "binomial")
-      predictions = stats::predict(model, test_set, type="response", allow.new.levels=TRUE)
+      predictions = stats::predict(model, test_data, type="response", allow.new.levels=TRUE)
   }
 
-  predictions_and_targets <- tibble::tibble("target" = test_set[[y_col]],
+  predictions_and_targets <- tibble::tibble("target" = test_data[[y_col]],
                                             "prediction" = predictions,
                                             "fold" = fold)
 

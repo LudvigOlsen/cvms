@@ -1,6 +1,6 @@
 #' @title Validate regression model on test set
-#' @description Train a gaussian or binomial model on full training set and validate it by predicting the test/validation set.
-#'  Returns results in a tibble for easy reporting.
+#' @description Train gaussian or binomial models on a full training set and validate it by predicting the test/validation set.
+#'  Returns results in a tibble for easy reporting, along with the trained models.
 #'
 #'  \strong{validate() is under development! Large changes may occur.}
 #' @inheritParams cross_validate
@@ -129,21 +129,21 @@
 #'
 #' # Gaussian
 #' validate(data_partitioned,
-#'          model = "score~diagnosis",
+#'          models = "score~diagnosis",
 #'          partitions_col = '.partitions',
 #'          family='gaussian',
 #'          REML = FALSE)
 #'
 #' # Binomial
 #' validate(data_partitioned,
-#'          model = "diagnosis~score",
+#'          models = "diagnosis~score",
 #'          partitions_col = '.partitions',
 #'          family='binomial')
 #'
 #' # Use non-default link functions
 #'
 #' validate(data_partitioned,
-#'          model = "score~diagnosis",
+#'          models = "score~diagnosis",
 #'          partitions_col = '.partitions',
 #'          family = 'gaussian',
 #'          link = 'log',
@@ -166,12 +166,12 @@
 #' # Gaussian
 #' validate(train_data,
 #'          test_data = test_data,
-#'          model = "score~diagnosis",
+#'          models = "score~diagnosis",
 #'          family='gaussian',
 #'          REML = FALSE)
 #'
 validate <- function(train_data,
-                     model,
+                     models,
                      test_data = NULL,
                      partitions_col = '.partitions',
                      family = 'gaussian',
@@ -181,10 +181,11 @@ validate <- function(train_data,
                      cutoff = 0.5,
                      positive = 1,
                      err_nc = FALSE,
+                     rm_nc = FALSE,
                      model_verbose = FALSE) {
-  validate_single(
+  validate_list(
     train_data = train_data,
-    model = model,
+    model_list = models,
     test_data = test_data,
     partitions_col = partitions_col,
     family = family,
@@ -194,8 +195,8 @@ validate <- function(train_data,
     cutoff = cutoff,
     positive = positive,
     err_nc = err_nc,
+    rm_nc = rm_nc,
     model_verbose = model_verbose
   )
-
 
 }

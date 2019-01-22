@@ -4,21 +4,21 @@
 \alias{validate}
 \title{Validate regression model on test set}
 \usage{
-validate(train_data, model, test_data = NULL,
+validate(train_data, models, test_data = NULL,
   partitions_col = ".partitions", family = "gaussian", link = NULL,
   control = NULL, REML = FALSE, cutoff = 0.5, positive = 1,
-  err_nc = FALSE, model_verbose = FALSE)
+  err_nc = FALSE, rm_nc = FALSE, model_verbose = FALSE)
 }
 \arguments{
 \item{train_data}{Dataframe.}
 
-\item{model}{Model formula as string. (Character)
+\item{models}{Model formulas as strings. (Character)
 
- E.g. \code{"y~x"}.
+ E.g. \code{c("y~x", "y~z")}.
 
  Can contain random effects.
 
- E.g. \code{"y~x+(1|r)"}.}
+ E.g. \code{c("y~x+(1|r)", "y~z+(1|r)")}.}
 
 \item{test_data}{Dataframe.}
 
@@ -57,6 +57,14 @@ Binomial models only. (Integer)}
 \item{err_nc}{Raise error if model does not converge. (Logical)}
 
 \item{model_verbose}{Print name of used model function on each iteration. (Logical)}
+
+\item{model}{Model formula as string. (Character)
+
+ E.g. \code{"y~x"}.
+
+ Can contain random effects.
+
+ E.g. \code{"y~x+(1|r)"}.}
 }
 \value{
 List containing tbl (tibble) with results and the trained model object.
@@ -114,8 +122,8 @@ List containing tbl (tibble) with results and the trained model object.
  }
 }
 \description{
-Train a gaussian or binomial model on full training set and validate it by predicting the test/validation set.
- Returns results in a tibble for easy reporting.
+Train gaussian or binomial models on a full training set and validate it by predicting the test/validation set.
+ Returns results in a tibble for easy reporting, along with the trained models.
 
  \strong{validate() is under development! Large changes may occur.}
 }

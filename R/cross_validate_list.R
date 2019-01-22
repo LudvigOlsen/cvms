@@ -44,6 +44,8 @@ cross_validate_list = function(data, model_list, folds_col = '.folds', family='g
                                family=family,
                                REML=REML,
                                link=link,
+                               cutoff = cutoff,
+                               positive = positive,
                                model_verbose = model_verbose),
                              model_specifics_update_fn = update_and_check_model_specifics_basics,
                              folds_col = folds_col)

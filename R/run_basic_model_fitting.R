@@ -1,4 +1,4 @@
-run_basic_model_fitting <- function(model_fitting_fn, model_specifics, train_set,
+run_basic_model_fitting <- function(model_fitting_fn, model_specifics, train_data,
                             warn_info = list(model_formula=NULL, fold=NULL, model_verbose=FALSE)){
 
   # Tries to fit the given model with the given model_type
@@ -23,7 +23,7 @@ run_basic_model_fitting <- function(model_fitting_fn, model_specifics, train_set
   model = tryCatch({
 
     # Fit model
-    model_fitting_fn(model_specifics, train_set)
+    model_fitting_fn(model_specifics, train_data)
 
   }, warning = function(w){
 
@@ -72,7 +72,7 @@ run_basic_model_fitting <- function(model_fitting_fn, model_specifics, train_set
 
       # Return the fitted model
       model_specifics[["model_verbose"]] = FALSE # It printed the first time, so we don't need it again
-      return(model_fitting_fn(model_specifics, train_set))
+      return(model_fitting_fn(model_specifics, train_data))
 
     }
 

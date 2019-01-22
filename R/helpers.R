@@ -33,3 +33,49 @@ count_convergence_warnings <- function(convergences){ # "Yes" or "No"
   }
   return(conv_warns)
 }
+
+check_model_specifics <- function(passed_model_specifics, required_named_arguments){
+  # Check that model_specifics contains all named arguments
+  if (length(setdiff(names(passed_model_specifics), required_named_arguments)) > 0) {
+    stop("model_specifics must (only) contain all named arguments. Be sure to name arguments.")
+  }
+}
+
+nest_results <- function(results){
+
+  # Make results into a tibble
+  iter_results <- tibble::as_tibble(results)
+  rownames(iter_results) <- NULL
+  iter_results <- iter_results %>%
+    tidyr::nest() %>%
+    dplyr::rename(results = data)
+
+  iter_results
+}
+
+nest_models <- function(models){
+  # Make models into a tibble
+  iter_models <- tibble::as_tibble(models)
+  iter_models <- iter_models %>%
+    mutate(p.value = ifelse(exists('p.value', where = iter_models), p.value, NA)) %>%
+    tidyr::nest() %>%
+    dplyr::rename(coefficients = data)
+
+  iter_models
+}
+
+levels_as_characters <- function(col){
+
+  levs <- levels(factor(col))
+
+  cat_levels <- plyr::llply(1:length(levs), function(i){
+    as.character(levs[i])
+  }) %>% unlist()
+
+  cat_levels
+}
+
+assign_if_not_null_named_lists <- function(var, var_name, list_name){
+  if (is.null(var)){stop(paste0(var_name, " is NULL. The arguments in the ",list_name," list must be named."))}
+  var
+}

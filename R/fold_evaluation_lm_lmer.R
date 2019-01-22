@@ -1,4 +1,5 @@
-fold_evaluation_lm_lmer <- function(fold_output, fitted_model, fold){
+fold_evaluation_lm_lmer <- function(fold_output, fitted_model, fold,
+                                    model_specifics=list(link=NULL, family=NULL, REML=FALSE)){
 
   # If model_temp returned NULL
   # .. set the output variables to NA
@@ -6,6 +7,9 @@ fold_evaluation_lm_lmer <- function(fold_output, fitted_model, fold){
   # Else
   # .. set it to the right values
   # .. set converged to "yes"
+
+  # Check that model_specifics contains all named arguments
+  check_model_specifics(model_specifics, c("link", "family", "REML"))
 
   if (is.null(fitted_model)){
 
@@ -21,47 +25,52 @@ fold_evaluation_lm_lmer <- function(fold_output, fitted_model, fold){
   } else {
 
     predictions <- fold_output[["prediction"]]
-    true_values <- fold_output[["true_value"]]
+    targets <- fold_output[["target"]]
 
     # Find the values rmse, r2m, r2c, AIC, and BIC
     rmse <- tryCatch({
-      hydroGOF::rmse(predictions, true_values)
+      hydroGOF::rmse(predictions, targets)
     }, error = function(e){
+      warning(e)
       return(NA)
     })
 
     r2m <- tryCatch({
       suppressWarnings(MuMIn::r.squaredGLMM(fitted_model)[1])
     }, error = function(e){
+      warning(e)
       return(NA)
     })
 
     r2c <- tryCatch({
       suppressWarnings(MuMIn::r.squaredGLMM(fitted_model)[2])
     }, error = function(e){
+      warning(e)
       return(NA)
     })
 
     AIC <- tryCatch({
       stats::AIC(fitted_model)
     }, error = function(e){
+      warning(e)
       return(NA)
     })
 
     AICc <- tryCatch({
-      AICcmodavg::AICc(fitted_model, return.K = REML)
+      AICcmodavg::AICc(fitted_model, return.K = model_specifics[["REML"]])
     }, error = function(e){
+      warning(e)
       return(NA)
     })
 
     BIC <- tryCatch({
       stats::BIC(fitted_model)
     }, error = function(e){
+      warning(e)
       return(NA)
     })
 
     converged = "Yes"
-    print(fitted_model)
     model_tidied = broom::tidy(fitted_model, effects = c("fixed"))
 
   }

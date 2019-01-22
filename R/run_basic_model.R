@@ -16,10 +16,9 @@ run_basic_model <- function(model_fitting_fn, ...,
     stop("warn_info must contain all named arguments. Be sure to name arguments.")
   }
 
-  model_formula <- warn_info["model_formula"]
-  fold <- warn_info["fold"]
-  model_verbose <- warn_info["model_verbose"]
-
+  model_formula <- assign_if_not_null_named_lists(warn_info[["model_formula"]], "model_formula", "warn_info")
+  fold <- assign_if_not_null_named_lists(warn_info[["fold"]], "fold", "warn_info")
+  model_verbose <- assign_if_not_null_named_lists(warn_info[["model_verbose"]], "model_verbose", "warn_info")
 
   model_temp = tryCatch({
 

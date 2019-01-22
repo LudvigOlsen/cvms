@@ -34,20 +34,20 @@ cross_validate_fn_single <- function(data, model_fn, fold_eval_fn, eval_aggregat
   })
 
   # Extract model dataframe from fold_lists_list
-  predictions_and_observations_list = fold_lists_list %c% 'predictions_and_observations'
-  predictions_and_observations = dplyr::bind_rows(predictions_and_observations_list)
+  predictions_and_targets_list = fold_lists_list %c% 'predictions_and_targets'
+  predictions_and_targets = dplyr::bind_rows(predictions_and_targets_list)
 
   # Extract models
   models = fold_lists_list %c% 'model'
 
   # Evaluate folds
   fold_evaluations <- plyr::llply(1:n_folds, function(fold_){
-    fold_eval_fn(predictions_and_observations %>% dplyr::filter(fold == fold_),
-                 models[[fold_]], fold_)
+    fold_eval_fn(predictions_and_targets %>% dplyr::filter(fold == fold_),
+                 models[[fold_]], fold_, model_specifics=eval_model_specifics)
   })
 
   # Aggregate fold evaluations
-  model_evaluation <- eval_aggregation_fn(fold_evaluations, n_folds, eval_model_specifics)
+  model_evaluation <- eval_aggregation_fn(fold_evaluations, n_folds, model_specifics=eval_model_specifics)
 
   return(model_evaluation)
 

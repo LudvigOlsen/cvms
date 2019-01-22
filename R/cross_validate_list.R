@@ -10,6 +10,14 @@ cross_validate_list = function(data, model_list, folds_col = '.folds', family='g
   # the default link function for the family
   # link <- default_link(link, family) # Is done at a later step
 
+  # Set errors if input variables aren't what we expect / can handle
+  # WORK ON THIS SECTION!
+  stopifnot(is.data.frame(data),
+            is.factor(data[[folds_col]]),
+            positive %in% c(1,2),
+            family %in% c("gaussian", "binomial")
+  )
+
   # Get evaluation functions
   if (family == "gaussian"){
     fold_evaluation_fn <- fold_evaluation_lm_lmer

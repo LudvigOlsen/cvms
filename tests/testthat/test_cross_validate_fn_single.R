@@ -10,16 +10,16 @@ test_that("gaussian models with cross_validate_single_fn()",{
                           id_col = 'participant')
 
   ### LMER
-  cv_result <- cross_validate_fn_single(dat, model_fn_basics,
-                                        fold_evaluation_lm_lmer,
-                                        eval_aggregation_lm_lmer,
+  cv_result <- cross_validate_fn_single(dat, basics_model_fn,
+                                        basics_fold_eval_lm_lmer,
+                                        basics_eval_aggregation_lm_lmer,
                                         model_specifics = list(
                                           model_formula="score~diagnosis+(1|session)",
                                           family="gaussian",
                                           REML=FALSE,
                                           link="identity",
                                           model_verbose = FALSE),
-                                        model_specifics_update_fn = update_and_check_model_specifics_basics,
+                                        model_specifics_update_fn = basics_update_model_specifics,
                                         folds_col =".folds")
 
   # For comparison
@@ -37,16 +37,16 @@ test_that("gaussian models with cross_validate_single_fn()",{
   expect_equal(cv_result$Link, "identity")
 
   ### LM
-  cv_result <- cross_validate_fn_single(dat, model_fn_basics,
-                                        fold_evaluation_lm_lmer,
-                                        eval_aggregation_lm_lmer,
+  cv_result <- cross_validate_fn_single(dat, basics_model_fn,
+                                        basics_fold_eval_lm_lmer,
+                                        basics_eval_aggregation_lm_lmer,
                                         model_specifics = list(
                                           model_formula="score~diagnosis",
                                           family="gaussian",
                                           REML=FALSE,
                                           link="identity",
                                           model_verbose = FALSE),
-                                        model_specifics_update_fn = update_and_check_model_specifics_basics,
+                                        model_specifics_update_fn = basics_update_model_specifics,
                                         folds_col =".folds")
 
   expect_equal(cv_result$RMSE, 17.168, tolerance=1e-3)
@@ -73,9 +73,9 @@ test_that("binomial models with cross_validate_single_fn()",{
                           id_col = 'participant')
 
   ### GLMER
-  cv_result <- cross_validate_fn_single(dat, model_fn_basics,
-                                        fold_evaluation_binomial_glm_glmer,
-                                        eval_aggregation_binomial_glm_glmer,
+  cv_result <- cross_validate_fn_single(dat, basics_model_fn,
+                                        basics_fold_eval_binomial_glm_glmer,
+                                        basics_eval_aggregation_binomial_glm_glmer,
                                         model_specifics = list(
                                           model_formula="diagnosis~score+(1|session)",
                                           family="binomial",
@@ -84,7 +84,7 @@ test_that("binomial models with cross_validate_single_fn()",{
                                           positive=1,
                                           cutoff=0.5,
                                           model_verbose = FALSE),
-                                        model_specifics_update_fn = update_and_check_model_specifics_basics,
+                                        model_specifics_update_fn = basics_update_model_specifics,
                                         folds_col =".folds")
 
   expect_equal(cv_result$AUC, 0.861, tolerance=1e-3)
@@ -107,9 +107,9 @@ test_that("binomial models with cross_validate_single_fn()",{
 
 
   ### GLM
-  cv_result <- cross_validate_fn_single(dat, model_fn_basics,
-                                        fold_evaluation_binomial_glm_glmer,
-                                        eval_aggregation_binomial_glm_glmer,
+  cv_result <- cross_validate_fn_single(dat, basics_model_fn,
+                                        basics_fold_eval_binomial_glm_glmer,
+                                        basics_eval_aggregation_binomial_glm_glmer,
                                         model_specifics = list(
                                           model_formula="diagnosis~score",
                                           family="binomial",
@@ -118,7 +118,7 @@ test_that("binomial models with cross_validate_single_fn()",{
                                           positive=1,
                                           cutoff=0.5,
                                           model_verbose = FALSE),
-                                        model_specifics_update_fn = update_and_check_model_specifics_basics,
+                                        model_specifics_update_fn = basics_update_model_specifics,
                                         folds_col =".folds")
 
   expect_equal(cv_result$AUC, 0.7615, tolerance=1e-3)

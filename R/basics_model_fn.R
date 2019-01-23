@@ -1,6 +1,6 @@
 # Model function for cross-validating lm, lmer, glm, and glmer
 
-model_fn_basics <- function(train_data,
+basics_model_fn <- function(train_data,
                             test_data,
                             fold,
                             model_specifics = list(model_formula=NULL, family=NULL, link=NULL,
@@ -22,11 +22,11 @@ model_fn_basics <- function(train_data,
   model_specifics[["model_type"]] <- model_type
 
   # Fit model
-  model <- run_basic_model_fitting(fit_basic_model, model_specifics = model_specifics,
-                                   train_data = train_data,
-                                   warn_info=list(model_formula=model_specifics[["model_formula"]],
-                                                  fold=fold,
-                                                  model_verbose=model_specifics[["model_verbose"]]))
+  model <- basics_run_model_fitting(basics_fit_model, model_specifics = model_specifics,
+                                    train_data = train_data,
+                                    warn_info=list(model_formula=model_specifics[["model_formula"]],
+                                                   fold=fold,
+                                                   model_verbose=model_specifics[["model_verbose"]]))
 
   # Predict test set
   # If models is NULL (e.g. didn't converge)

@@ -183,17 +183,17 @@ cross_validate <- function(data, models, folds_col = '.folds', family='gaussian'
                            cutoff=0.5, positive=1, rmnc = FALSE, model_verbose=FALSE){
 
 
-  return(cross_validate_list(data = data,
-                             model_list = models,
-                             folds_col = folds_col,
-                             family = family,
-                             link = link,
-                             control=control,
-                             REML = REML,
-                             cutoff = cutoff,
-                             positive = positive,
-                             rmnc = rmnc,
-                             model_verbose = model_verbose))
+  return(basics_cross_validate_list(data = data,
+                                   model_list = models,
+                                   folds_col = folds_col,
+                                   family = family,
+                                   link = link,
+                                   control=control,
+                                   REML = REML,
+                                   cutoff = cutoff,
+                                   positive = positive,
+                                   rmnc = rmnc,
+                                   model_verbose = model_verbose))
 
 
 

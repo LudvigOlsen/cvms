@@ -1,4 +1,4 @@
-run_basic_model_fitting <- function(model_fitting_fn, model_specifics, train_data,
+basics_run_model_fitting <- function(model_fitting_fn, model_specifics, train_data,
                             warn_info = list(model_formula=NULL, fold=NULL, model_verbose=FALSE)){
 
   # Tries to fit the given model with the given model_type

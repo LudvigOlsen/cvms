@@ -1,4 +1,4 @@
-update_and_check_model_specifics_basics <- function(model_specifics){
+basics_update_model_specifics <- function(model_specifics){
 
   # Check required arguments
   check_argument_in_model_specifics("model_formula", model_specifics)

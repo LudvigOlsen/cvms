@@ -1,4 +1,4 @@
-eval_aggregation_binomial_glm_glmer <- function(fold_evaluations, n_folds, model_specifics){
+basics_eval_aggregation_binomial_glm_glmer <- function(fold_evaluations, n_folds, model_specifics){
 
   # Check that model_specifics contains all named arguments
   check_model_specifics(model_specifics, c("model_formula", "control",

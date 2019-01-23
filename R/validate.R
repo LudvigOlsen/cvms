@@ -183,7 +183,7 @@ validate <- function(train_data,
                      err_nc = FALSE,
                      rm_nc = FALSE,
                      model_verbose = FALSE) {
-  validate_list(
+  basics_validate_list(
     train_data = train_data,
     model_list = models,
     test_data = test_data,

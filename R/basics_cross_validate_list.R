@@ -2,7 +2,7 @@
 #' @importFrom plyr ldply
 #' @importFrom dplyr mutate %>%
 #' @importFrom tidyr separate
-cross_validate_list = function(data, model_list, folds_col = '.folds', family='gaussian',
+basics_cross_validate_list = function(data, model_list, folds_col = '.folds', family='gaussian',
                                link = NULL, control = NULL, REML=FALSE,
                                cutoff=0.5, positive=1, rmnc = FALSE, model_verbose=FALSE){
 
@@ -20,24 +20,18 @@ cross_validate_list = function(data, model_list, folds_col = '.folds', family='g
 
   # Get evaluation functions
   if (family == "gaussian"){
-    fold_evaluation_fn <- fold_evaluation_lm_lmer
-    eval_aggregation_fn <- eval_aggregation_lm_lmer
+    fold_eval_fn <- basics_fold_eval_lm_lmer
+    eval_aggregation_fn <- basics_eval_aggregation_lm_lmer
   } else if (family == "binomial"){
-    fold_evaluation_fn <- fold_evaluation_binomial_glm_glmer
-    eval_aggregation_fn <- eval_aggregation_binomial_glm_glmer
+    fold_eval_fn <- basics_fold_eval_binomial_glm_glmer
+    eval_aggregation_fn <- basics_eval_aggregation_binomial_glm_glmer
   } else {stop("Only two families allowed currently!")}
 
   # cross_validate() all the models using ldply()
   model_cvs_df = ldply(model_list,.fun = function(model_formula){
 
-    # cross_validate_single(data = data, model = x, folds_col = folds_col,
-    #                       family = family, link = link, control=control,
-    #                       REML = REML, cutoff = cutoff,
-    #                       positive = positive,
-    #                       model_verbose = model_verbose)
-
-    cross_validate_fn_single(data = data, model_fn = model_fn_basics,
-                             fold_eval_fn = fold_evaluation_fn,
+    cross_validate_fn_single(data = data, model_fn = basics_model_fn,
+                             fold_eval_fn = fold_eval_fn,
                              eval_aggregation_fn = eval_aggregation_fn,
                              model_specifics = list(
                                model_formula=model_formula,
@@ -47,7 +41,7 @@ cross_validate_list = function(data, model_list, folds_col = '.folds', family='g
                                cutoff = cutoff,
                                positive = positive,
                                model_verbose = model_verbose),
-                             model_specifics_update_fn = update_and_check_model_specifics_basics,
+                             model_specifics_update_fn = basics_update_model_specifics,
                              folds_col = folds_col)
 
     }) %>% tibble::as_tibble()

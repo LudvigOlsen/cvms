@@ -1,4 +1,4 @@
-fold_evaluation_lm_lmer <- function(fold_output, fitted_model, fold, model_specifics){
+basics_fold_eval_lm_lmer <- function(fold_output, fitted_model, fold, model_specifics){
 
   # If model_temp returned NULL
   # .. set the output variables to NA

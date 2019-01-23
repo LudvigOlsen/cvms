@@ -1,10 +1,12 @@
 
 #' @importFrom dplyr mutate %>%
 #' @importFrom tidyr separate
-validate_list = function(train_data, model_list, family='gaussian',
-                         link = NULL, control = NULL, REML=FALSE,
-                         cutoff=0.5, positive=1, err_nc = FALSE, rm_nc = FALSE, test_data = NULL,
-                         partitions_col = '.partitions', model_verbose=FALSE){
+basics_validate_list = function(train_data, model_list, family='gaussian',
+                                link = NULL, control = NULL, REML=FALSE,
+                                cutoff=0.5, positive=1, err_nc = FALSE,
+                                rm_nc = FALSE, test_data = NULL,
+                                partitions_col = '.partitions',
+                                model_verbose=FALSE){
 
   # If train and test data is not already split,
   # get train and test set
@@ -17,19 +19,19 @@ validate_list = function(train_data, model_list, family='gaussian',
 
   # Get evaluation functions
   if (family == "gaussian"){
-    fold_evaluation_fn <- fold_evaluation_lm_lmer
-    eval_aggregation_fn <- eval_aggregation_lm_lmer
+    fold_eval_fn <- basics_fold_eval_lm_lmer
+    eval_aggregation_fn <- basics_eval_aggregation_lm_lmer
   } else if (family == "binomial"){
-    fold_evaluation_fn <- fold_evaluation_binomial_glm_glmer
-    eval_aggregation_fn <- eval_aggregation_binomial_glm_glmer
+    fold_eval_fn <- basics_fold_eval_binomial_glm_glmer
+    eval_aggregation_fn <- basics_eval_aggregation_binomial_glm_glmer
   } else {stop("Only two families allowed currently!")}
 
   # validate() all the models using ldply()
    validation_output = plyr::llply(model_list,.fun = function(model_formula){
 
     validate_fn_single(train_data=train_data,
-                       model_fn = model_fn_basics,
-                       fold_eval_fn=fold_evaluation_fn,
+                       model_fn = basics_model_fn,
+                       fold_eval_fn=fold_eval_fn,
                        eval_aggregation_fn=eval_aggregation_fn,
                        model_specifics = list(
                          model_formula=model_formula,
@@ -39,7 +41,7 @@ validate_list = function(train_data, model_list, family='gaussian',
                          cutoff = cutoff,
                          positive = positive,
                          model_verbose = model_verbose),
-                       model_specifics_update_fn = update_and_check_model_specifics_basics,
+                       model_specifics_update_fn = basics_update_model_specifics,
                        test_data = test_data,
                        partitions_col = partitions_col,
                        err_nc = err_nc)

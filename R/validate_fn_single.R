@@ -1,8 +1,7 @@
 #' @importFrom dplyr %>%
 validate_fn_single = function(train_data,
                              model_fn,
-                             fold_eval_fn,
-                             eval_aggregation_fn,
+                             evaluation_type="linear_regression",
                              model_specifics=list(),
                              model_specifics_update_fn=NULL,
                              test_data = NULL,
@@ -46,9 +45,15 @@ validate_fn_single = function(train_data,
   # Extract models
   model = fitting_output[["model"]]
 
-  model_evaluation <- validate_evaluation(fold_eval_fn, eval_aggregation_fn,
-                                          predictions_and_targets, model,
-                                          model_specifics)
+  model_evaluation <- evaluate(predictions_and_targets,
+                               type=evaluation_type,
+                               predictions_col = "prediction",
+                               targets_col = "target",
+                               folds_col = "fold",
+                               models=model,
+                               model_specifics=model_specifics) %>%
+    mutate(`Convergence Warnings` = ifelse(is.null(model), 1, 0))
+
 
   if (isTRUE(err_nc) && model_evaluation[["Convergence Warnings"]] != 0) {
     stop("Model did not converge.")

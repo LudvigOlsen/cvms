@@ -20,29 +20,34 @@ basics_cross_validate_list = function(data, model_list, folds_col = '.folds', fa
 
   # Get evaluation functions
   if (family == "gaussian"){
-    fold_eval_fn <- basics_fold_eval_lm_lmer
-    eval_aggregation_fn <- basics_eval_aggregation_lm_lmer
+    evaluation_type = "linear_regression"
   } else if (family == "binomial"){
-    fold_eval_fn <- basics_fold_eval_binomial_glm_glmer
-    eval_aggregation_fn <- basics_eval_aggregation_binomial_glm_glmer
+    evaluation_type = "binomial"
   } else {stop("Only two families allowed currently!")}
+
+  # Create model_specifics object
+  # Update to get default values when an argument was not specified
+  model_specifics <- list(
+    model_formula="",
+    family=family,
+    REML=REML,
+    link=link,
+    cutoff = cutoff,
+    positive = positive,
+    model_verbose = model_verbose) %>%
+    basics_update_model_specifics()
+
 
   # cross_validate() all the models using ldply()
   model_cvs_df = ldply(model_list,.fun = function(model_formula){
-
+    model_specifics[["model_formula"]] <- model_formula
     cross_validate_fn_single(data = data, model_fn = basics_model_fn,
-                             fold_eval_fn = fold_eval_fn,
-                             eval_aggregation_fn = eval_aggregation_fn,
-                             model_specifics = list(
-                               model_formula=model_formula,
-                               family=family,
-                               REML=REML,
-                               link=link,
-                               cutoff = cutoff,
-                               positive = positive,
-                               model_verbose = model_verbose),
-                             model_specifics_update_fn = basics_update_model_specifics,
-                             folds_col = folds_col)
+                             evaluation_type = evaluation_type,
+                             model_specifics = model_specifics,
+                             model_specifics_update_fn = NULL, # did this above
+                             folds_col = folds_col) %>%
+      dplyr::mutate(Family = model_specifics[["family"]],
+                    Link = model_specifics[["link"]])
 
     }) %>% tibble::as_tibble()
 

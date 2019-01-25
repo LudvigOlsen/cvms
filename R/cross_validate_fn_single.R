@@ -1,4 +1,4 @@
-cross_validate_fn_single <- function(data, model_fn, fold_eval_fn, eval_aggregation_fn,
+cross_validate_fn_single <- function(data, model_fn, evaluation_type="linear_regression",
                                      model_specifics=list(), model_specifics_update_fn=NULL,
                                      folds_col =".folds"){
 
@@ -41,18 +41,21 @@ cross_validate_fn_single <- function(data, model_fn, fold_eval_fn, eval_aggregat
   predictions_and_targets_list = fold_lists_list %c% 'predictions_and_targets'
   predictions_and_targets = dplyr::bind_rows(predictions_and_targets_list)
 
+  # TODO Check that the right columns exist !!!
+
   # Extract models
   models = fold_lists_list %c% 'model'
+  n_conv_warns <- length(models)-n_folds
 
-  # Evaluate folds
-  fold_evaluations <- plyr::llply(1:n_folds, function(fold_){
-    fold_eval_fn(predictions_and_targets %>% dplyr::filter(fold == fold_),
-                 models[[fold_]], fold_, model_specifics=model_specifics)
-  })
-
-  # Aggregate fold evaluations
-  model_evaluation <- eval_aggregation_fn(fold_evaluations, n_folds,
-                                          model_specifics=model_specifics)
+  model_evaluation <- evaluate(predictions_and_targets,
+                               type=evaluation_type,
+                               predictions_col = "prediction",
+                               targets_col = "target",
+                               folds_col = "fold",
+                               models=models,
+                               model_specifics=model_specifics) %>%
+    mutate(Folds = n_folds,
+           `Convergence Warnings` = n_conv_warns)
 
   return(model_evaluation)
 

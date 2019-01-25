@@ -186,7 +186,7 @@ test_that("binomial model work with test_data in validate()", {
 
 
 
-test_that("gaussian model with cross_validate()", {
+test_that("gaussian model with validate()", {
   # Load data and fold it
   set.seed(1)
 

@@ -97,7 +97,7 @@ nest_results <- function(results){
 }
 
 nest_models <- function(models){
-  # Make models into a tibble
+  # Make tidied models into a tibble
   iter_models <- tibble::as_tibble(models)
   iter_models <- iter_models %>%
     mutate(p.value = ifelse(exists('p.value', where = iter_models), p.value, NA)) %>%

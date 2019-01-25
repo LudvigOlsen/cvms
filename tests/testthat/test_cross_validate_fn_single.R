@@ -11,8 +11,7 @@ test_that("gaussian models with cross_validate_single_fn()",{
 
   ### LMER
   cv_result <- cross_validate_fn_single(dat, basics_model_fn,
-                                        basics_fold_eval_lm_lmer,
-                                        basics_eval_aggregation_lm_lmer,
+                                        evaluation_type = "linear_regression",
                                         model_specifics = list(
                                           model_formula="score~diagnosis+(1|session)",
                                           family="gaussian",
@@ -33,13 +32,12 @@ test_that("gaussian models with cross_validate_single_fn()",{
   expect_equal(cv_result$BIC, 180.3948, tolerance=1e-3)
   expect_equal(cv_result$Folds, 4)
   expect_equal(cv_result$`Convergence Warnings`, 0)
-  expect_equal(cv_result$Family, "gaussian")
-  expect_equal(cv_result$Link, "identity")
+  # expect_equal(cv_result$Family, "gaussian")
+  # expect_equal(cv_result$Link, "identity")
 
   ### LM
   cv_result <- cross_validate_fn_single(dat, basics_model_fn,
-                                        basics_fold_eval_lm_lmer,
-                                        basics_eval_aggregation_lm_lmer,
+                                        evaluation_type = "linear_regression",
                                         model_specifics = list(
                                           model_formula="score~diagnosis",
                                           family="gaussian",
@@ -57,8 +55,8 @@ test_that("gaussian models with cross_validate_single_fn()",{
   expect_equal(cv_result$BIC, 198.024, tolerance=1e-3)
   expect_equal(cv_result$Folds, 4)
   expect_equal(cv_result$`Convergence Warnings`, 0)
-  expect_equal(cv_result$Family, "gaussian")
-  expect_equal(cv_result$Link, "identity")
+  # expect_equal(cv_result$Family, "gaussian")
+  # expect_equal(cv_result$Link, "identity")
 
 })
 
@@ -74,8 +72,7 @@ test_that("binomial models with cross_validate_single_fn()",{
 
   ### GLMER
   cv_result <- cross_validate_fn_single(dat, basics_model_fn,
-                                        basics_fold_eval_binomial_glm_glmer,
-                                        basics_eval_aggregation_binomial_glm_glmer,
+                                        evaluation_type = "binomial",
                                         model_specifics = list(
                                           model_formula="diagnosis~score+(1|session)",
                                           family="binomial",
@@ -102,14 +99,13 @@ test_that("binomial models with cross_validate_single_fn()",{
   expect_equal(cv_result$`Balanced Accuracy`, 0.833, tolerance=1e-3)
   expect_equal(cv_result$Folds, 4)
   expect_equal(cv_result$`Convergence Warnings`, 0)
-  expect_equal(cv_result$Family, "binomial")
-  expect_equal(cv_result$Link, "logit")
+  # expect_equal(cv_result$Family, "binomial")
+  # expect_equal(cv_result$Link, "logit")
 
 
   ### GLM
   cv_result <- cross_validate_fn_single(dat, basics_model_fn,
-                                        basics_fold_eval_binomial_glm_glmer,
-                                        basics_eval_aggregation_binomial_glm_glmer,
+                                        evaluation_type = "binomial",
                                         model_specifics = list(
                                           model_formula="diagnosis~score",
                                           family="binomial",
@@ -136,7 +132,7 @@ test_that("binomial models with cross_validate_single_fn()",{
   expect_equal(cv_result$`Balanced Accuracy`, 0.736, tolerance=1e-3)
   expect_equal(cv_result$Folds, 4)
   expect_equal(cv_result$`Convergence Warnings`, 0)
-  expect_equal(cv_result$Family, "binomial")
-  expect_equal(cv_result$Link, "logit")
+  # expect_equal(cv_result$Family, "binomial")
+  # expect_equal(cv_result$Link, "logit")
 
 })

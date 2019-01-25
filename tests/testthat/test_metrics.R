@@ -13,7 +13,8 @@ test_that("Metrics work for glm in validate()",{
                                list_out = FALSE)
 
 
-  validated <- validate(train_data=dat, models="diagnosis~score", partitions_col = '.partitions', family = 'binomial')
+  validated <- validate(train_data=dat, models="diagnosis~score",
+                        partitions_col = '.partitions', family = 'binomial')
   same_model <- glm(diagnosis~score, data=dat[dat$.partitions==1,], family = 'binomial')
 
   test_data <- dat[dat$.partitions==2,]
@@ -117,7 +118,8 @@ test_that("Metrics work for glm in validate()",{
                                list_out = FALSE)
 
 
-  validated <- validate(train_data=dat, models="diagnosis~age", partitions_col = '.partitions', family = 'binomial')
+  validated <- validate(train_data=dat, models="diagnosis~age",
+                        partitions_col = '.partitions', family = 'binomial')
   same_model <- glm(diagnosis~age, data=dat[dat$.partitions==1,], family = 'binomial')
 
   test_data <- dat[dat$.partitions==2,]

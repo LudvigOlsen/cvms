@@ -15,14 +15,14 @@ basics_fold_eval_lm_lmer <- function(fold_output, fitted_model, fold, model_spec
 
   if (is.null(fitted_model)){
 
-    rmse = NA
-    r2m = NA
-    r2c = NA
-    AIC = NA
-    AICc = NA
-    BIC = NA
+    rmse_ = NA
+    r2m_ = NA
+    r2c_ = NA
+    AIC_ = NA
+    AICc_ = NA
+    BIC_ = NA
     converged = "No"
-    model_tidied = data.frame('term'=NA, 'estimate'=NA, 'std.error'=NA, 'statistic'=NA)
+    # model_tidied = data.frame('term'=NA, 'estimate'=NA, 'std.error'=NA, 'statistic'=NA)
 
   } else {
 
@@ -30,50 +30,15 @@ basics_fold_eval_lm_lmer <- function(fold_output, fitted_model, fold, model_spec
     targets <- fold_output[["target"]]
 
     # Find the values rmse, r2m, r2c, AIC, and BIC
-    rmse <- tryCatch({
-      hydroGOF::rmse(predictions, targets)
-    }, error = function(e){
-      warning(e)
-      return(NA)
-    })
-
-    r2m <- tryCatch({
-      suppressWarnings(MuMIn::r.squaredGLMM(fitted_model)[1])
-    }, error = function(e){
-      warning(e)
-      return(NA)
-    })
-
-    r2c <- tryCatch({
-      suppressWarnings(MuMIn::r.squaredGLMM(fitted_model)[2])
-    }, error = function(e){
-      warning(e)
-      return(NA)
-    })
-
-    AIC <- tryCatch({
-      stats::AIC(fitted_model)
-    }, error = function(e){
-      warning(e)
-      return(NA)
-    })
-
-    AICc <- tryCatch({
-      AICcmodavg::AICc(fitted_model, return.K = model_specifics[["REML"]])
-    }, error = function(e){
-      warning(e)
-      return(NA)
-    })
-
-    BIC <- tryCatch({
-      stats::BIC(fitted_model)
-    }, error = function(e){
-      warning(e)
-      return(NA)
-    })
+    rmse_ <- RMSE(predictions, targets)
+    r2m_ <- r2m(fitted_model)
+    r2c_ <- r2c(fitted_model)
+    AIC_ <- AIC(fitted_model)
+    AICc_ <- AICc(fitted_model, model_specifics[["REML"]])
+    BIC_ <- BIC(fitted_model)
 
     converged = "Yes"
-    model_tidied = broom::tidy(fitted_model, effects = c("fixed"))
+    #model_tidied = broom::tidy(fitted_model, effects = c("fixed"))
 
   }
 
@@ -81,11 +46,11 @@ basics_fold_eval_lm_lmer <- function(fold_output, fitted_model, fold, model_spec
   # .. a tidied summary of the model
   # .. the model object
   # .. a dataframe with the found values
-  return(list(
-    'model_tidy' = cbind(model_tidied, fold),
-    'model' = fitted_model,
-    'result' = tibble::tibble('RMSE' = rmse, 'r2m' = r2m, 'r2c' = r2c,
-                              'AIC' = AIC, 'AICc' = AICc, 'BIC' = BIC,
-                              'converged' = converged, "fold" = fold)
-  ))
+  return(
+    # 'model_tidy' = cbind(model_tidied, fold),
+    # 'model' = fitted_model,
+    tibble::tibble('RMSE' = rmse_, 'r2m' = r2m_, 'r2c' = r2c_,
+                   'AIC' = AIC_, 'AICc' = AICc_, 'BIC' = BIC_,
+                   'converged' = converged, "fold" = fold)
+  )
 }

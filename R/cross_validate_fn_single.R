@@ -45,10 +45,10 @@ cross_validate_fn_single <- function(data, model_fn, evaluation_type="linear_reg
 
   # Extract models
   models = fold_lists_list %c% 'model'
-  n_conv_warns <- length(models)-n_folds
+  n_conv_warns <- count_named_nulls_in_list(models)
 
-  model_evaluation <- evaluate(predictions_and_targets,
-                               type=evaluation_type,
+  model_evaluation <- evaluate(data = predictions_and_targets,
+                               type = evaluation_type,
                                predictions_col = "prediction",
                                targets_col = "target",
                                folds_col = "fold",

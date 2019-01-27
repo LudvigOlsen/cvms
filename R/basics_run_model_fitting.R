@@ -25,6 +25,7 @@ basics_run_model_fitting <- function(model_fitting_fn, model_specifics, train_da
     # Fit model
     model_fitting_fn(model_specifics, train_data)
 
+
   }, warning = function(w){
 
     # A warning occured!
@@ -33,9 +34,9 @@ basics_run_model_fitting <- function(model_fitting_fn, model_specifics, train_da
     # indicate that it is a convergence warning
     # --> This part could be improved upon, as it's currently only based on
     # the warnings that we got with a limited dataset and set of models
-    if (grepl('checkConv', as.character(w)) ||
-        grepl('convergence', as.character(w)) ||
-        grepl('converge', as.character(w))){
+    if (grepl('checkConv', as.character(w), ignore.case = TRUE) ||
+        grepl('convergence', as.character(w), ignore.case = TRUE) ||
+        grepl('converge', as.character(w), ignore.case = TRUE)){
 
       # If it seemed to be a convergence warning:
       # .. message the user of the failed model and fold
@@ -76,6 +77,8 @@ basics_run_model_fitting <- function(model_fitting_fn, model_specifics, train_da
 
     }
 
+  }, error = function(e){
+    stop(e)
   })
 
   return(model)

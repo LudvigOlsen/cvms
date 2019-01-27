@@ -240,7 +240,7 @@ test_that("binomial models work with control specified in cross_validate()",{
 
   # Warning because of too few iterations
   expect_warning(cross_validate(dat,
-                                models = c("diagnosis~score + (1|session)"),
+                                models = c("diagnosis~score+age + (1|session) + (1|age)"),
                                 folds_col = '.folds',
                                 family='binomial',
                                 REML = FALSE,
@@ -248,7 +248,6 @@ test_that("binomial models work with control specified in cross_validate()",{
                                 control = lme4::glmerControl(optimizer="bobyqa",
                                                              optCtrl=list(maxfun=100)),
                                 model_verbose=FALSE), "cross_validate(): Convergence Warning:", fixed = TRUE)
-
 
 })
 
@@ -277,13 +276,13 @@ test_that("gaussian models work with control specified in cross_validate()",{
 
   # Warning because of too few iterations
   expect_warning(cross_validate(dat,
-                                models = c("score~diagnosis + (1|session)"),
+                                models = c("age~diagnosis*score + (score|session) + (1|score)"),
                                 folds_col = '.folds',
                                 family='gaussian',
                                 REML = FALSE,
                                 link = NULL,
                                 control = lme4::lmerControl(optimizer="Nelder_Mead",
-                                                             optCtrl=list(maxfun=10)),
+                                                             optCtrl=list(maxfun=100)),
                                 model_verbose=FALSE), "cross_validate(): Convergence Warning:", fixed = TRUE)
 
 

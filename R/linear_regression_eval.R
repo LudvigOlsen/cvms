@@ -13,10 +13,11 @@ linear_regression_eval <- function(data,
 
   num_folds <- length(unique(data[[folds_col]]))
 
-  # When adding NULL to a list, it isn't actually added
+  # When adding NULL to a not-named list, it isn't actually added
   # so if a model object is NULL (didn't converge),
   # the list will be shorter than the number of folds
-  if(length(models) == num_folds){
+  # If the list is named, it may contain NULLs. Therefore we count these.
+  if(length(models) == num_folds && count_named_nulls_in_list(models) == 0){
 
     # Calculate RMSE
     rmse_per_fold <- data %>%
@@ -49,7 +50,7 @@ linear_regression_eval <- function(data,
   } else {
     rmse_per_fold <- tibble::tibble("RMSE"=rep(NA, num_folds))
     avg_rmse <- tibble::tibble("RMSE"=NA)
-    model_metrics_per_fold <- linear_regression_model_eval(NULL, NULL) %>%
+    model_metrics_per_fold <- list(linear_regression_model_eval(NULL, NULL)) %>%
       rep(num_folds) %>%
       dplyr::bind_rows()
     avg_model_metrics <- linear_regression_model_eval(NULL, FALSE)

@@ -45,11 +45,12 @@ basics_cross_validate_list = function(data, model_list, folds_col = '.folds', fa
                              evaluation_type = evaluation_type,
                              model_specifics = model_specifics,
                              model_specifics_update_fn = NULL, # did this above
-                             folds_col = folds_col) %>%
-      dplyr::mutate(Family = model_specifics[["family"]],
-                    Link = model_specifics[["link"]])
+                             folds_col = folds_col)
 
-    }) %>% tibble::as_tibble()
+    }) %>%
+    tibble::as_tibble() %>%
+    dplyr::mutate(Family = model_specifics[["family"]],
+                  Link = model_specifics[["link"]])
 
 
   # Now we want to take the model from the model_list and split it up into

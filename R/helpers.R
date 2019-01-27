@@ -52,6 +52,12 @@ count_convergence_warnings <- function(convergences){ # "Yes" or "No"
   return(conv_warns)
 }
 
+count_named_nulls_in_list <- function(l){
+  plyr::llply(l, function(e){
+    ifelse(is.null(e), 1, 0)
+  }) %>% unlist() %>% sum()
+}
+
 ### Model specifics
 
 check_model_specifics <- function(passed_model_specifics, required_named_arguments){

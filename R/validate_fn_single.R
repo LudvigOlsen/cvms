@@ -50,7 +50,7 @@ validate_fn_single = function(train_data,
                                predictions_col = "prediction",
                                targets_col = "target",
                                folds_col = "fold",
-                               models=model,
+                               models=list(model),
                                model_specifics=model_specifics) %>%
     mutate(`Convergence Warnings` = ifelse(is.null(model), 1, 0))
 

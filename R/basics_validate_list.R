@@ -40,25 +40,21 @@ basics_validate_list = function(train_data, model_list, family='gaussian',
    validation_output = plyr::llply(model_list,.fun = function(model_formula){
     model_specifics[["model_formula"]] <- model_formula
     validate_fn_single(train_data=train_data,
-                       model_fn = basics_model_fn,
-                       evaluation_type = evaluation_type,
-                       model_specifics = list(
-                         model_formula=model_formula,
-                         family=family,
-                         REML=REML,
-                         link=link,
-                         cutoff = cutoff,
-                         positive = positive,
-                         model_verbose = model_verbose),
-                       model_specifics_update_fn = NULL,
-                       test_data = test_data,
-                       partitions_col = partitions_col,
-                       err_nc = err_nc)
-
+                                   model_fn = basics_model_fn,
+                                   evaluation_type = evaluation_type,
+                                   model_specifics = model_specifics,
+                                   model_specifics_update_fn = NULL,
+                                   test_data = test_data,
+                                   partitions_col = partitions_col,
+                                   err_nc = err_nc)
   })
 
   results_list <- validation_output %c% "Results"
-  results <- results_list %>% dplyr::bind_rows() %>% tibble::as_tibble()
+  results <- results_list %>%
+    dplyr::bind_rows() %>%
+    tibble::as_tibble() %>%
+    dplyr::mutate(Family = model_specifics[["family"]],
+                  Link = model_specifics[["link"]])
 
   models <- validation_output %c% "Model"
 

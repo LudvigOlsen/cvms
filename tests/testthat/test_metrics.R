@@ -169,8 +169,10 @@ test_that("Metrics work for glmer in validate()",{
                                id_col = 'participant',
                                list_out = FALSE)
 
-  validated <- validate(train_data=dat, models="diagnosis~age+(1|session)", partitions_col = '.partitions', family = 'binomial')
-  same_model <- lme4::glmer(diagnosis~age+(1|session), data=dat[dat$.partitions==1,], family = 'binomial')
+  validated <- validate(train_data=dat, models="diagnosis~age+(1|session)",
+                        partitions_col = '.partitions', family = 'binomial')
+  same_model <- lme4::glmer(diagnosis~age+(1|session),
+                            data=dat[dat$.partitions==1,], family = 'binomial')
 
   test_data <- dat[dat$.partitions==2,]
   prob=predict(same_model, newdata=test_data, type=c("response"))

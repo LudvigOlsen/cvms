@@ -21,6 +21,7 @@ test_that("cv_plot() works",{
                             family='gaussian', REML = FALSE,
                             model_verbose=FALSE)
 
+  # If anyone can suggest a good way to test ggplot objects, feel free!
   expect_is(cv_plot(CVbinom, type = 'ROC'), 'ggplot')
   expect_is(cv_plot(CVgauss, type = 'RMSE'), 'ggplot')
   expect_is(cv_plot(CVgauss, type = 'r2'), 'ggplot')

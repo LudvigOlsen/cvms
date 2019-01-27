@@ -21,11 +21,11 @@ linear_regression_eval <- function(data,
     # Calculate RMSE
     rmse_per_fold <- data %>%
       dplyr::group_by(!! as.name(folds_col)) %>%
-      dplyr::summarize(rmse_ = RMSE(!! as.name(predictions_col),
+      dplyr::summarize(RMSE = calculate_RMSE(!! as.name(predictions_col),
                                     !! as.name(targets_col)))
 
     avg_rmse <- rmse_per_fold %>%
-      dplyr::pull(rmse_) %>%
+      dplyr::pull(RMSE) %>%
       mean() %>%
       tibble::as_tibble() %>%
       dplyr::rename(RMSE = value)
@@ -82,11 +82,11 @@ linear_regression_model_eval <- function(model, REML){
     AICc_ = NA
     BIC_ = NA
   } else {
-    r2m_ <- r2m(model)
-    r2c_ <- r2c(model)
-    AIC_ <- AIC(model)
-    AICc_ <- AICc(model, REML)
-    BIC_ <- BIC(model)
+    r2m_ <- calculate_r2m(model)
+    r2c_ <- calculate_r2c(model)
+    AIC_ <- calculate_AIC(model)
+    AICc_ <- calculate_AICc(model, REML)
+    BIC_ <- calculate_BIC(model)
   }
 
   tibble::tibble('r2m' = r2m_, 'r2c' = r2c_,

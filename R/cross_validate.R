@@ -128,7 +128,7 @@
 #' @param positive Level from dependent variable to predict (1 or 2 - alphabetically).
 #'  Used when creating confusion matrix.
 #'  Binomial models only. (Integer)
-#' @param rmnc Remove non-converged models from output. (Logical)
+#' @param rm_nc Remove non-converged models from output. (Logical)
 #' @param model_verbose Print name of used model function on each iteration. (Logical)
 #' @examples
 #' # Attach libraries
@@ -180,20 +180,20 @@
 #'                REML = FALSE)
 cross_validate <- function(data, models, folds_col = '.folds', family='gaussian',
                            link = NULL, control=NULL, REML=FALSE,
-                           cutoff=0.5, positive=1, rmnc = FALSE, model_verbose=FALSE){
+                           cutoff=0.5, positive=1, rm_nc = FALSE, model_verbose=FALSE){
 
 
-  return(cross_validate_list(data = data,
-                             model_list = models,
-                             folds_col = folds_col,
-                             family = family,
-                             link = link,
-                             control=control,
-                             REML = REML,
-                             cutoff = cutoff,
-                             positive = positive,
-                             rmnc = rmnc,
-                             model_verbose = model_verbose))
+  return(basics_cross_validate_list(data = data,
+                                   model_list = models,
+                                   folds_col = folds_col,
+                                   family = family,
+                                   link = link,
+                                   control=control,
+                                   REML = REML,
+                                   cutoff = cutoff,
+                                   positive = positive,
+                                   rm_nc = rm_nc,
+                                   model_verbose = model_verbose))
 
 
 

@@ -20,7 +20,7 @@ test_that("binomial model work with validate()", {
 
   Vbinom <- validate(
     train_data = dat,
-    model = "diagnosis~score",
+    models = "diagnosis~score",
     test_data = NULL,
     partitions_col = ".partitions",
     family = 'binomial',
@@ -79,7 +79,7 @@ test_that("binomial mixed model work with validate()", {
   Vbinom <-
     validate(
       train_data = dat,
-      model = "diagnosis~score + (1|session)",
+      models = "diagnosis~score + (1|session)",
       test_data = NULL,
       partitions_col = ".partitions",
       family = 'binomial',
@@ -140,7 +140,7 @@ test_that("binomial model work with test_data in validate()", {
   Vbinom <-
     validate(
       train_data = dat[[1]],
-      model = "diagnosis~score",
+      models = "diagnosis~score",
       test_data = dat[[2]],
       family = 'binomial',
       REML = FALSE,
@@ -186,7 +186,7 @@ test_that("binomial model work with test_data in validate()", {
 
 
 
-test_that("gaussian model with cross_validate()", {
+test_that("gaussian model with validate()", {
   # Load data and fold it
   set.seed(1)
 
@@ -201,7 +201,7 @@ test_that("gaussian model with cross_validate()", {
   Vgauss <-
     validate(
       train_data = dat,
-      model = "score~diagnosis+(1|session)",
+      models = "score~diagnosis+(1|session)",
       test_data = NULL,
       partitions_col = ".partitions",
       link = NULL,
@@ -243,20 +243,20 @@ test_that("Right glm model used in validate()", {
   validated <-
     validate(
       train_data = dat,
-      model = "diagnosis~score",
+      models = "diagnosis~score",
       partitions_col = '.partitions',
       family = 'binomial'
     )
   same_model <-
     glm(diagnosis ~ score, data = dat[dat$.partitions == 1, ], family = 'binomial')
-  expect_equal(validated$Model$coefficients,
+  expect_equal(validated$Models[[1]]$coefficients,
                same_model$coefficients,
                tolerance = 1e-3)
-  expect_equal(validated$Model$residuals,
+  expect_equal(validated$Models[[1]]$residuals,
                same_model$residuals,
                tolerance = 1e-3)
-  expect_equal(validated$Model$aic, same_model$aic, tolerance = 1e-3)
-  expect_equal(validated$Model$effects, same_model$effects, tolerance =
+  expect_equal(validated$Models[[1]]$aic, same_model$aic, tolerance = 1e-3)
+  expect_equal(validated$Models[[1]]$effects, same_model$effects, tolerance =
                  1e-3)
 
 })
@@ -277,20 +277,19 @@ test_that("Right glmer model used in validate()", {
   validated <-
     validate(
       train_data = dat,
-      model = "diagnosis~score+(1|session)",
+      models = "diagnosis~score+(1|session)",
       partitions_col = '.partitions',
       family = 'binomial'
     )
   same_model <-
-    lme4::glmer(diagnosis ~ score + (1 |
-                                       session),
+    lme4::glmer(diagnosis ~ score + (1 | session),
                 data = dat[dat$.partitions == 1, ],
                 family = 'binomial')
-  expect_equal(validated$Model@resp, same_model@resp, tolerance = 1e-3)
-  expect_equal(validated$Model@call, validated$Model@call, tolerance = 1e-3)
-  expect_equal(validated$Model@optinfo$val,
+  expect_equal(validated$Models[[1]]@resp, same_model@resp, tolerance = 1e-3)
+  # expect_equal(validated$Models[[1]]@call, same_model@call, tolerance = 1e-3) # TODO: not working?
+  expect_equal(validated$Models[[1]]@optinfo$val,
                same_model@optinfo$val,
                tolerance = 1e-3)
-  expect_equal(validated$Model@beta, same_model@beta, tolerance = 1e-3)
+  expect_equal(validated$Models[[1]]@beta, same_model@beta, tolerance = 1e-3)
 
 })

@@ -6,7 +6,7 @@
 \usage{
 cross_validate(data, models, folds_col = ".folds", family = "gaussian",
   link = NULL, control = NULL, REML = FALSE, cutoff = 0.5,
-  positive = 1, rmnc = FALSE, model_verbose = FALSE)
+  positive = 1, rm_nc = FALSE, model_verbose = FALSE)
 }
 \arguments{
 \item{data}{Dataframe.
@@ -51,7 +51,7 @@ Ignored if fitting \code{lm} and \code{glm} models.}
 Used when creating confusion matrix.
 Binomial models only. (Integer)}
 
-\item{rmnc}{Remove non-converged models from output. (Logical)}
+\item{rm_nc}{Remove non-converged models from output. (Logical)}
 
 \item{model_verbose}{Print name of used model function on each iteration. (Logical)}
 }

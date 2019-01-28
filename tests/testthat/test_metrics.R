@@ -13,7 +13,8 @@ test_that("Metrics work for glm in validate()",{
                                list_out = FALSE)
 
 
-  validated <- validate(train_data=dat, model="diagnosis~score", partitions_col = '.partitions', family = 'binomial')
+  validated <- validate(train_data=dat, models="diagnosis~score",
+                        partitions_col = '.partitions', family = 'binomial')
   same_model <- glm(diagnosis~score, data=dat[dat$.partitions==1,], family = 'binomial')
 
   test_data <- dat[dat$.partitions==2,]
@@ -63,7 +64,8 @@ test_that("Metrics work for glmer in validate()",{
                                id_col = 'participant',
                                list_out = FALSE)
 
-  validated <- validate(train_data=dat, model="diagnosis~score+(1|session)", partitions_col = '.partitions', family = 'binomial')
+  validated <- validate(train_data=dat, models="diagnosis~score+(1|session)",
+                        partitions_col = '.partitions', family = 'binomial')
   same_model <- lme4::glmer(diagnosis~score+(1|session), data=dat[dat$.partitions==1,], family = 'binomial')
 
   test_data <- dat[dat$.partitions==2,]
@@ -116,7 +118,8 @@ test_that("Metrics work for glm in validate()",{
                                list_out = FALSE)
 
 
-  validated <- validate(train_data=dat, model="diagnosis~age", partitions_col = '.partitions', family = 'binomial')
+  validated <- validate(train_data=dat, models="diagnosis~age",
+                        partitions_col = '.partitions', family = 'binomial')
   same_model <- glm(diagnosis~age, data=dat[dat$.partitions==1,], family = 'binomial')
 
   test_data <- dat[dat$.partitions==2,]
@@ -166,8 +169,10 @@ test_that("Metrics work for glmer in validate()",{
                                id_col = 'participant',
                                list_out = FALSE)
 
-  validated <- validate(train_data=dat, model="diagnosis~age+(1|session)", partitions_col = '.partitions', family = 'binomial')
-  same_model <- lme4::glmer(diagnosis~age+(1|session), data=dat[dat$.partitions==1,], family = 'binomial')
+  validated <- validate(train_data=dat, models="diagnosis~age+(1|session)",
+                        partitions_col = '.partitions', family = 'binomial')
+  same_model <- lme4::glmer(diagnosis~age+(1|session),
+                            data=dat[dat$.partitions==1,], family = 'binomial')
 
   test_data <- dat[dat$.partitions==2,]
   prob=predict(same_model, newdata=test_data, type=c("response"))

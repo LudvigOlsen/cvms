@@ -56,6 +56,8 @@ Binomial models only. (Integer)}
 
 \item{err_nc}{Raise error if model does not converge. (Logical)}
 
+\item{rm_nc}{Remove non-converged models from output. (Logical)}
+
 \item{model_verbose}{Print name of used model function on each iteration. (Logical)}
 
 \item{model}{Model formula as string. (Character)
@@ -182,21 +184,21 @@ data_partitioned <- partition(data,
 
 # Gaussian
 validate(data_partitioned,
-         model = "score~diagnosis",
+         models = "score~diagnosis",
          partitions_col = '.partitions',
          family='gaussian',
          REML = FALSE)
 
 # Binomial
 validate(data_partitioned,
-         model = "diagnosis~score",
+         models = "diagnosis~score",
          partitions_col = '.partitions',
          family='binomial')
 
 # Use non-default link functions
 
 validate(data_partitioned,
-         model = "score~diagnosis",
+         models = "score~diagnosis",
          partitions_col = '.partitions',
          family = 'gaussian',
          link = 'log',
@@ -219,7 +221,7 @@ test_data <- data_partitioned[[2]]
 # Gaussian
 validate(train_data,
          test_data = test_data,
-         model = "score~diagnosis",
+         models = "score~diagnosis",
          family='gaussian',
          REML = FALSE)
 

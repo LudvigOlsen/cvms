@@ -76,9 +76,6 @@ binomial_classification_eval <- function(predictions, targets, models=NULL, cuto
 
   } else {
 
-    #' warning(paste0('The model didn\'t converge'))# on ', conv_warns, # TODO conv_warns is not specified here xD
-    #'                #' fold', ifelse(conv_warns>1, 's',''), '.'))
-
     results <- binomial_classification_NA_results_tibble()
 
     if (!is.null(models))

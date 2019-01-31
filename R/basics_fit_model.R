@@ -3,11 +3,14 @@ basics_fit_model <- function(model_specifics, train_set){
   # Extract arguments from model_specifics
   model_formula <- model_specifics[["model_formula"]]
   model_type <- model_specifics[["model_type"]]
-  family <- model_specifics[["family"]]
+  family_ <- model_specifics[["family"]]
   link <- model_specifics[["link"]]
   control <- model_specifics[["control"]]
   REML <- model_specifics[["REML"]]
   model_verbose <- model_specifics[["model_verbose"]]
+
+  if (family_ == "binomial") family_fn <- binomial
+  else if (family_ == "poisson") family_fn <- poisson
 
   # Checks the model_type and fits the model on the train_set
   if (model_type == 'lm'){
@@ -56,9 +59,9 @@ basics_fit_model <- function(model_specifics, train_set){
     # Fit the model using glm()
     # Return this model to model_temp
     if (!is.null(link)){
-      return(glm(model_formula, train_set, family = binomial(link=link)))
+      return(glm(model_formula, train_set, family = family_fn(link=link)))
     } else {
-      return(glm(model_formula, train_set, family = family))
+      return(glm(model_formula, train_set, family = family_))
     }
 
   } else if (model_type == 'glmer'){
@@ -69,7 +72,7 @@ basics_fit_model <- function(model_specifics, train_set){
     # Fit the model using glmer()
     # Return this model to model_temp
 
-    return(lme4::glmer(model_formula, train_set, family = binomial(link=link), control = control))
+    return(lme4::glmer(model_formula, train_set, family = family_fn(link=link), control = control))
 
   }
 

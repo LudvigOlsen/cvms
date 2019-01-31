@@ -14,6 +14,7 @@ default_link <- function(link, family){
   if (is.null(link)){
     if(family == 'gaussian') return('identity')
     if(family == 'binomial') return('logit')
+    if(family == "poisson") return("log")
   } else return(link)
 }
 
@@ -21,11 +22,11 @@ default_control <- function(control, family, link){
   if (is.null(control)){
 
      # Note that gaussian models with alternative link functions are run with glmer
-    if(family == 'gaussian'){
+    if(family == "gaussian"){
       if (link == "identity") return(lme4::lmerControl())
       return(lme4::glmerControl())
     }
-    if(family == 'binomial') return(lme4::glmerControl())
+    if(family %in% c("binomial", "poisson")) return(lme4::glmerControl())
 
     } else return(control)
 }

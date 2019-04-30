@@ -4,7 +4,7 @@
 #' @importFrom tidyr separate
 basics_cross_validate_list = function(data, model_list, folds_col = '.folds', family='gaussian',
                                link = NULL, control = NULL, REML=FALSE,
-                               cutoff=0.5, positive=1, rmnc = FALSE, model_verbose=FALSE){
+                               cutoff=0.5, positive=1, rm_nc = FALSE, model_verbose=FALSE){
 
   # If link is NULL we pass it
   # the default link function for the family
@@ -67,7 +67,7 @@ basics_cross_validate_list = function(data, model_list, folds_col = '.folds', fa
   output <- dplyr::bind_cols(model_cvs_df, mixed_effects)
 
   # If asked to remove non-converged models from output
-  if (isTRUE(rmnc)){
+  if (isTRUE(rm_nc)){
 
     output <- output %>%
       dplyr::filter(`Convergence Warnings` == 0)

@@ -274,16 +274,17 @@ test_that("gaussian models work with control specified in cross_validate()",{
   expect_equal(CVgausslistrand$RMSE, c(10.443), tolerance=1e-3)
   expect_equal(CVgausslistrand$`Convergence Warnings`, c(0))
 
-  # Warning because of too few iterations
-  expect_warning(cross_validate(dat,
-                                models = c("age~diagnosis*score + (score|session) + (1|score)"),
-                                folds_col = '.folds',
-                                family='gaussian',
-                                REML = FALSE,
-                                link = NULL,
-                                control = lme4::lmerControl(optimizer="Nelder_Mead",
-                                                             optCtrl=list(maxfun=100)),
-                                model_verbose=FALSE), "cross_validate(): Convergence Warning:", fixed = TRUE)
+  # TODO When counting singular (boundary fit) messages, uncomment and change expected warning/message
+  # # Warning because of too few iterations
+  # expect_warning(cross_validate(dat,
+  #                               models = c("age~diagnosis*score + (score|session) + (1|score)"),
+  #                               folds_col = '.folds',
+  #                               family='gaussian',
+  #                               REML = FALSE,
+  #                               link = NULL,
+  #                               control = lme4::lmerControl(optimizer="Nelder_Mead",
+  #                                                            optCtrl=list(maxfun=100)),
+  #                               model_verbose=FALSE), "cross_validate(): Convergence Warning:", fixed = TRUE)
 
 
 })

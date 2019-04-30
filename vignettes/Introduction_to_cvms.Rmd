@@ -134,14 +134,14 @@ models_conv
 models_conv$`Convergence Warnings`
 ```
 
-We can also exclude models that didn't converge on all folds from the output by setting 'rmnc' (remove non-converged) to TRUE. 
+We can also exclude models that didn't converge on all folds from the output by setting 'rm_nc' (remove non-converged) to TRUE. 
 
 ```{r}
 models_conv = cross_validate(df, 
                              models = c("am~cyl+gear","am~mpg", 
                                         "am~mpg+cyl", "am~mpg+cyl+wt"),
                              family = 'binomial',
-                             rmnc = TRUE)
+                             rm_nc = TRUE)
 
 models_conv
 

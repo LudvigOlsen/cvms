@@ -28,7 +28,7 @@ linear_regression_eval <- function(data,
     avg_rmse <- rmse_per_fold %>%
       dplyr::pull(RMSE) %>%
       mean() %>%
-      tibble::as_tibble() %>%
+      tibble::enframe(name = NULL) %>%
       dplyr::rename(RMSE = value)
 
     # Get model metrics
@@ -37,7 +37,8 @@ linear_regression_eval <- function(data,
     })
 
     avg_model_metrics <- model_metrics_per_fold %>%
-      dplyr::summarise_all(dplyr::funs(mean))
+      dplyr::summarise_all(list(~mean(.)))
+
 
     # Get model coefficients
     nested_coefficients <- tryCatch({

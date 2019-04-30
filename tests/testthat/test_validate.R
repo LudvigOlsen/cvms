@@ -293,3 +293,43 @@ test_that("Right glmer model used in validate()", {
   expect_equal(validated$Models[[1]]@beta, same_model@beta, tolerance = 1e-3)
 
 })
+
+
+
+
+test_that("model using dot in formula ( y ~ . ) works with validate()",{
+
+  # We wish to test if using the dot "y~." method in the model formula
+  # correctly leaves out .folds column.
+
+  # Create data that should be easy to model
+  set.seed(7)
+
+  dat <- groupdata2::partition(
+    participant.scores,
+    p = 0.8,
+    cat_col = 'diagnosis',
+    id_col = 'participant',
+    list_out = FALSE
+  ) %>%
+    dplyr::select(-c(participant, session))
+
+
+  # Expect no warnings
+  # https://stackoverflow.com/questions/22003306/is-there-something-in-testthat-like-expect-no-warnings
+  expect_warning(validate(dat, models = c("diagnosis~."),
+                          family='binomial',
+                          partitions_col = '.partitions',
+                          REML = FALSE, model_verbose=FALSE),
+                 regexp = NA)
+
+  # Expect no warnings
+  # https://stackoverflow.com/questions/22003306/is-there-something-in-testthat-like-expect-no-warnings
+  expect_warning(validate(dat, models = c("score~."),
+                                partitions_col = '.partitions',
+                                family='gaussian',
+                                REML = FALSE, model_verbose=FALSE),
+                 regexp = NA)
+
+
+})

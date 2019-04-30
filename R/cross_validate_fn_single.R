@@ -30,6 +30,11 @@ cross_validate_fn_single <- function(data, model_fn, evaluation_type="linear_reg
     # Create test set for this iteration
     test_data = data[data[[folds_col]] == fold,]
 
+    # Remove folds column from subsets, so we can use "y ~ ." method
+    # when defining the model formula.
+    train_data[[folds_col]] <- NULL
+    test_data[[folds_col]] <- NULL
+
     model_fn(train_data = train_data,
              test_data = test_data,
              fold = fold,

@@ -291,4 +291,34 @@ test_that("gaussian models work with control specified in cross_validate()",{
 
 
 
+test_that("model using dot in formula ( y ~ . ) works with cross_validate()",{
+
+  # We wish to test if using the dot "y~." method in the model formula
+  # correctly leaves out .folds column.
+
+  # Load data and fold it
+  set.seed(1)
+  dat <- groupdata2::fold(participant.scores, k = 4,
+                          cat_col = 'diagnosis',
+                          id_col = 'participant') %>%
+    dplyr::select(-c(participant, session))
+
+  # Expect no warnings
+  # https://stackoverflow.com/questions/22003306/is-there-something-in-testthat-like-expect-no-warnings
+  expect_warning(cross_validate(dat, models = c("diagnosis~."),
+                                folds_col = '.folds', family='binomial',
+                                REML = FALSE, model_verbose=FALSE),
+                 regexp = NA)
+
+  # Expect no warnings
+  # https://stackoverflow.com/questions/22003306/is-there-something-in-testthat-like-expect-no-warnings
+  expect_warning(cross_validate(dat, models = c("score~."),
+                                folds_col = '.folds', family='gaussian',
+                                REML = FALSE, model_verbose=FALSE),
+                 regexp = NA)
+
+
+})
+
+
 

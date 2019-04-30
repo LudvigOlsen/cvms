@@ -33,6 +33,10 @@ validate_fn_single = function(train_data,
     train_data = train_data[train_data[[partitions_col]] == 1,]
   }
 
+  # Remove partitions column to allow for "y ~ ." definitions in the model formula
+  train_data[[partitions_col]] <- NULL
+  test_data[[partitions_col]] <- NULL
+
   # Train and test the model
 
   fitting_output <- model_fn(train_data = train_data,

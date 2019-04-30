@@ -108,7 +108,7 @@ nest_models <- function(models){
   iter_models <- iter_models %>%
     mutate(p.value = ifelse(exists('p.value', where = iter_models), p.value, NA)) %>%
     tidyr::nest() %>%
-    dplyr::rename(coefficients = data)
+    dplyr::rename(Coefficients = data)
 
   iter_models
 }

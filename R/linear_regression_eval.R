@@ -23,7 +23,7 @@ linear_regression_eval <- function(data,
     rmse_per_fold <- data %>%
       dplyr::group_by(!! as.name(folds_col)) %>%
       dplyr::summarize(RMSE = calculate_RMSE(!! as.name(predictions_col),
-                                    !! as.name(targets_col)))
+                                             !! as.name(targets_col)))
 
     avg_rmse <- rmse_per_fold %>%
       dplyr::pull(RMSE) %>%
@@ -107,7 +107,7 @@ get_nested_model_coefficients <- function(models){
                      'std.error'=NA, 'statistic'=NA,
                      'fold'=NA) %>%
       nest_models() %>%
-      dplyr::pull(coefficients) %>%
+      dplyr::pull(Coefficients) %>%
       return()
   }
 
@@ -120,7 +120,7 @@ get_nested_model_coefficients <- function(models){
     }) %>%
       dplyr::bind_rows() %>%
       nest_models() %>%
-      dplyr::pull(coefficients)
+      dplyr::pull(Coefficients)
   }, error = function(e){
     stop(paste0("Error when extracting model coefficients: ", e))
   })

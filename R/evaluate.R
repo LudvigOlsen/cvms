@@ -18,7 +18,7 @@ evaluate <- function(data, type="linear_regression",
                                       folds_col = folds_col,
                                       model_specifics = model_specifics)
 
-    results[["coefficients"]] <- get_nested_model_coefficients(models)
+    results[["Coefficients"]] <- get_nested_model_coefficients(models)
 
   } else if (type == "binomial"){
     results <- binomial_classification_eval(data[[predictions_col]],

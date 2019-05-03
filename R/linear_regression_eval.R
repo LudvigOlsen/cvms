@@ -2,7 +2,9 @@ linear_regression_eval <- function(data,
                                    models,
                                    predictions_col = "predictions",
                                    targets_col = "targets",
-                                   folds_col = "fold",
+                                   fold_info_cols = list(rel_fold="rel_fold",
+                                                         abs_fold="abs_fold",
+                                                         fold_column="fold_column"),
                                    model_specifics=list()){
 
   REML <- tryCatch({
@@ -11,20 +13,37 @@ linear_regression_eval <- function(data,
       stop("model_specifics must contain the REML argument.")
     })
 
-  num_folds <- length(unique(data[[folds_col]]))
+  num_folds <- length(unique(data[[ fold_info_cols[["abs_fold"]] ]]))
+
+  fold_and_fold_col <- data %>%
+    dplyr::select(dplyr::one_of(fold_info_cols[["fold_column"]],
+                                fold_info_cols[["abs_fold"]],
+                                fold_info_cols[["rel_fold"]]
+    )) %>%
+    dplyr::distinct()
+
 
   # When adding NULL to a not-named list, it isn't actually added
   # so if a model object is NULL (didn't converge),
   # the list will be shorter than the number of folds
   # If the list is named, it may contain NULLs. Therefore we count these.
   if(length(models) == num_folds && count_named_nulls_in_list(models) == 0){
+  #if(FALSE){
 
     # Calculate RMSE
     rmse_per_fold <- data %>%
-      dplyr::group_by(!! as.name(folds_col)) %>%
+      dplyr::group_by(!! as.name(fold_info_cols[["fold_column"]]),
+                      !! as.name(fold_info_cols[["rel_fold"]])) %>%
       dplyr::summarize(RMSE = calculate_RMSE(!! as.name(predictions_col),
                                              !! as.name(targets_col)))
 
+    # Add abs_fold. By doing it this way, we get better column sorting
+    rmse_per_fold <- fold_and_fold_col %>%
+      dplyr::left_join(rmse_per_fold,
+                        by = c(fold_info_cols[["fold_column"]],
+                               fold_info_cols[["rel_fold"]]))
+
+    # Average RMSE
     avg_rmse <- rmse_per_fold %>%
       dplyr::pull(RMSE) %>%
       mean() %>%
@@ -34,11 +53,17 @@ linear_regression_eval <- function(data,
     # Get model metrics
     model_metrics_per_fold <- plyr::ldply(models, function(m){
       linear_regression_model_eval(m, REML)
-    })
+    }) %>%
+      mutate(abs_fold = 1:dplyr::n()) %>%
+      dplyr::inner_join(fold_and_fold_col,
+                        by=c("abs_fold"=fold_info_cols[["abs_fold"]]))
 
+    # Overall average model metrics
     avg_model_metrics <- model_metrics_per_fold %>%
-      dplyr::summarise_all(list(~mean(.)))
-
+      dplyr::select(-c(abs_fold,
+                       !! as.name(fold_info_cols[["rel_fold"]]),
+                       !! as.name(fold_info_cols[["fold_column"]]))) %>%
+      dplyr::summarise_all(.funs = list(~mean(.)))
 
     # Get model coefficients
     nested_coefficients <- tryCatch({
@@ -47,13 +72,25 @@ linear_regression_eval <- function(data,
       get_nested_model_coefficients(NULL)
     })
 
-
   } else {
-    rmse_per_fold <- tibble::tibble("RMSE"=rep(NA, num_folds))
+
+    # Create NA results
+    # TODO Make some comments and make it a bit prettier ;)
+
+    rmse_per_fold <- tibble::tibble(
+      "RMSE"=rep(NA, num_folds))
+    rmse_per_fold[[fold_info_cols[["fold_column"]]]] <- fold_and_fold_col[[fold_info_cols[["fold_column"]]]]
+    rmse_per_fold[[fold_info_cols[["abs_fold"]]]] <- fold_and_fold_col[[fold_info_cols[["abs_fold"]]]]
+    rmse_per_fold[[fold_info_cols[["rel_fold"]]]] <- fold_and_fold_col[[fold_info_cols[["rel_fold"]]]]
+    rmse_per_fold <- rmse_per_fold %>%
+      dplyr::select(-RMSE, dplyr::everything()) # Move RMSE to the end (weird syntax)
     avg_rmse <- tibble::tibble("RMSE"=NA)
     model_metrics_per_fold <- list(linear_regression_model_eval(NULL, NULL)) %>%
       rep(num_folds) %>%
       dplyr::bind_rows()
+    model_metrics_per_fold[[fold_info_cols[["fold_column"]]]] <- fold_and_fold_col[[fold_info_cols[["fold_column"]]]]
+    model_metrics_per_fold[["abs_fold"]] <- fold_and_fold_col[[fold_info_cols[["abs_fold"]]]]
+    model_metrics_per_fold[[fold_info_cols[["rel_fold"]]]] <- fold_and_fold_col[[fold_info_cols[["rel_fold"]]]]
     avg_model_metrics <- linear_regression_model_eval(NULL, FALSE)
     nested_coefficients <- get_nested_model_coefficients(NULL)
   }
@@ -63,7 +100,10 @@ linear_regression_eval <- function(data,
     dplyr::bind_cols(avg_model_metrics)
 
   results_per_fold <- rmse_per_fold %>%
-    dplyr::bind_cols(model_metrics_per_fold)
+    dplyr::full_join(model_metrics_per_fold,
+                     by = c(fold_info_cols[["fold_column"]],
+                            "abs_fold"=fold_info_cols[["abs_fold"]],
+                            fold_info_cols[["rel_fold"]]))
 
   # nest fold results and add to result tibble
   avg_results[["Results"]] <- nest_results(results_per_fold)[["results"]]

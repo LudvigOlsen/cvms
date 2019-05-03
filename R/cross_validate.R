@@ -178,6 +178,8 @@
 #'                family = 'gaussian',
 #'                link = 'log',
 #'                REML = FALSE)
+#'
+#' @importFrom stats binomial gaussian glm lm
 cross_validate <- function(data, models, folds_col = '.folds', family='gaussian',
                            link = NULL, control=NULL, REML=FALSE,
                            cutoff=0.5, positive=1, rm_nc = FALSE, model_verbose=FALSE){

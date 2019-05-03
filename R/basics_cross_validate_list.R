@@ -13,10 +13,18 @@ basics_cross_validate_list = function(data, model_list, folds_col = '.folds', fa
   # Set errors if input variables aren't what we expect / can handle
   # WORK ON THIS SECTION!
   stopifnot(is.data.frame(data),
-            is.factor(data[[folds_col]]),
             positive %in% c(1,2),
             family %in% c("gaussian", "binomial")
   )
+
+  # Check that the folds column(s) is/are factor(s)
+  if (length(folds_col) == 1){
+    stopifnot(is.factor(data[[folds_col]]))
+  } else {
+    fcols <- data %>% dplyr::select(dplyr::one_of(folds_col)) %>%
+      sapply(is.factor)
+    if (FALSE %in% fcols) {stop("At least one of the fold columns is not a factor.")}
+  }
 
   # Get evaluation functions
   if (family == "gaussian"){
@@ -46,7 +54,6 @@ basics_cross_validate_list = function(data, model_list, folds_col = '.folds', fa
                              model_specifics = model_specifics,
                              model_specifics_update_fn = NULL, # did this above
                              folds_col = folds_col)
-
     }) %>%
     tibble::as_tibble() %>%
     dplyr::mutate(Family = model_specifics[["family"]],
@@ -74,8 +81,7 @@ basics_cross_validate_list = function(data, model_list, folds_col = '.folds', fa
 
   }
 
-
-  #and return it
+  # and return it
   return(output)
 
 }

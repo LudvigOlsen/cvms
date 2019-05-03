@@ -198,6 +198,7 @@ cross_validate(data,
                family = 'gaussian',
                link = 'log',
                REML = FALSE)
+
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

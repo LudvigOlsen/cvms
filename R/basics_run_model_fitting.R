@@ -1,5 +1,9 @@
 basics_run_model_fitting <- function(model_fitting_fn, model_specifics, train_data,
-                            warn_info = list(model_formula=NULL, fold=NULL, model_verbose=FALSE)){
+                            warn_info = list(model_formula=NULL,
+                                             fold_info=list(rel_fold=NULL,
+                                                            abs_fold=NULL,
+                                                            fold_column=NULL),
+                                             model_verbose=FALSE)){
 
   # Tries to fit the given model with the given model_type
   # .. If it gives a warning
@@ -12,13 +16,17 @@ basics_run_model_fitting <- function(model_fitting_fn, model_specifics, train_da
   # ........ and returns the output of lm() / lmer()
 
   # Check that warn_info contains all three named arguments
-  if (length(setdiff(names(warn_info), c("model_formula", "fold", "model_verbose"))) > 0) {
+  if (length(setdiff(names(warn_info), c("model_formula", "fold_info", "model_verbose"))) > 0) {
     stop("warn_info must contain all named arguments. Be sure to name arguments.")
   }
 
   model_formula <- assign_if_not_null_named_lists(warn_info[["model_formula"]], "model_formula", "warn_info")
-  fold <- assign_if_not_null_named_lists(warn_info[["fold"]], "fold", "warn_info")
   model_verbose <- assign_if_not_null_named_lists(warn_info[["model_verbose"]], "model_verbose", "warn_info")
+
+  fold_info <- assign_if_not_null_named_lists(warn_info[["fold_info"]], "fold_info", "warn_info")
+  rel_fold <- assign_if_not_null_named_lists(fold_info[["rel_fold"]], "rel_fold", "fold_info")
+  abs_fold <- assign_if_not_null_named_lists(fold_info[["abs_fold"]], "abs_fold", "fold_info")
+  fold_column <- assign_if_not_null_named_lists(fold_info[["fold_column"]], "fold_column", "fold_info")
 
   model = tryCatch({
 
@@ -48,8 +56,10 @@ basics_run_model_fitting <- function(model_fitting_fn, model_specifics, train_da
                     'cross_validate(): Convergence Warning:',
                     'In model:',
                     model_formula,
+                    'For fold column:',
+                    fold_column,
                     'In fold:',
-                    fold,
+                    rel_fold,
                     w, sep = "\n"))
 
 
@@ -67,8 +77,10 @@ basics_run_model_fitting <- function(model_fitting_fn, model_specifics, train_da
                     'cross_validate(): Warning:',
                     'In model:',
                     model_formula,
+                    'For fold column:',
+                    fold_column,
                     'In fold:',
-                    fold,
+                    rel_fold,
                     w, sep = "\n"))
 
       # Return the fitted model

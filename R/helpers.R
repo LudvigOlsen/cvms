@@ -128,3 +128,13 @@ assign_if_not_null_named_lists <- function(var, var_name, list_name){
   if (is.null(var)){stop(paste0(var_name, " is NULL. The arguments in the ",list_name," list must be named."))}
   var
 }
+
+# Removes pattern from all column names
+remove_from_colnames <- function(data, pattern){
+  colnames(data) <- colnames(data) %>%
+    tibble::enframe(name=NULL) %>%
+    dplyr::mutate(colname = stringr::str_remove_all(value, pattern)) %>%
+    dplyr::pull(colname)
+
+  return(data)
+}

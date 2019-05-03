@@ -20,7 +20,7 @@ validate(train_data, models, test_data = NULL,
 
  E.g. \code{c("y~x+(1|r)", "y~z+(1|r)")}.}
 
-\item{test_data}{Dataframe.}
+\item{test_data}{Dataframe. If specifying \code{partitions_col}, this can be \code{NULL}.}
 
 \item{partitions_col}{Name of grouping factor for identifying partitions. (Character)
  1 is training set and 2 is test set.
@@ -59,14 +59,6 @@ Binomial models only. (Integer)}
 \item{rm_nc}{Remove non-converged models from output. (Logical)}
 
 \item{model_verbose}{Print name of used model function on each iteration. (Logical)}
-
-\item{model}{Model formula as string. (Character)
-
- E.g. \code{"y~x"}.
-
- Can contain random effects.
-
- E.g. \code{"y~x+(1|r)"}.}
 }
 \value{
 List containing tbl (tibble) with results and the trained model object.

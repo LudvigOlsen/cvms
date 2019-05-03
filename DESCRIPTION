@@ -24,7 +24,8 @@ Imports:
     MuMIn,
     AICcmodavg,
     broom,
-    tibble
+    tibble,
+    stringr
 RoxygenNote: 6.1.1
 Suggests: knitr,
     rmarkdown,

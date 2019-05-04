@@ -319,26 +319,27 @@ test_that("model using dot in formula ( y ~ . ) works with cross_validate()",{
 
 
 })
-# #
-# test_that("models work with repeated cross_validate()",{
-#
-#   # Load data and fold it
-#   set.seed(1)
-#   dat <- groupdata2::fold(participant.scores, k = 4,
-#                           cat_col = 'diagnosis',
-#                           id_col = 'participant',
-#                           num_fold_cols=2)
-#
-#
-#   CVbinomlist <- cross_validate(dat, models = c("diagnosis~score","diagnosis~age"),
-#                                 folds_col = c('.folds_1','.folds_2'), family='binomial',
-#                                 REML = FALSE, model_verbose=FALSE)
-#
-#   CVgausslist <- cross_validate(dat, models = c("score~diagnosis","score~age"),
-#                                 folds_col = c('.folds_1','.folds_2'), family='gaussian',
-#                                 REML = FALSE, model_verbose=FALSE)
-#
-#   # CVgausslist$Results
-# })
+
+
+test_that("models work with repeated cross_validate()",{
+
+  # Load data and fold it
+  set.seed(1)
+  dat <- groupdata2::fold(participant.scores, k = 4,
+                          cat_col = 'diagnosis',
+                          id_col = 'participant',
+                          num_fold_cols=2)
+
+
+  CVbinomlist <- cross_validate(dat, models = c("diagnosis~score","diagnosis~age"),
+                                folds_col = c('.folds_1','.folds_2'), family='binomial',
+                                REML = FALSE, model_verbose=FALSE)
+
+  CVgausslist <- cross_validate(dat, models = c("score~diagnosis","score~age"),
+                                folds_col = c('.folds_1','.folds_2'), family='gaussian',
+                                REML = FALSE, model_verbose=FALSE)
+
+  # CVgausslist$Results
+})
 
 

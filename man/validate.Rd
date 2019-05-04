@@ -34,7 +34,7 @@ validate(train_data, models, test_data = NULL,
  E.g. \code{link = "log"} with \code{family = "gaussian"} will
  use \code{family = gaussian(link = "log")}.
 
- See \link[stats]{family} for available link functions.
+ See \code{\link[stats:family]{stats::family}} for available link functions.
 
  \subsection{Default link functions}{
 
@@ -42,9 +42,11 @@ validate(train_data, models, test_data = NULL,
 
  Binomial: \code{'logit'}.}}
 
-\item{control}{Construct control structures for mixed model fitting (i.e. \link[lme4]{lmer} and \link[lme4]{glmer}).
-See \link[lme4]{lmerControl} and \link[lme4]{glmerControl}.
-Ignored if fitting \code{lm} and \code{glm} models.}
+\item{control}{Construct control structures for mixed model fitting
+(i.e. \code{\link[lme4]{lmer}} and \code{\link[lme4]{glmer}}).
+See \code{\link[lme4:lmerControl]{lme4::lmerControl}} and
+\code{\link[lme4:glmerControl]{lme4::glmerControl}}.
+Ignored if fitting \code{\link[stats]{lm}} or \code{\link[stats]{glm}} models.}
 
 \item{REML}{Restricted Maximum Likelihood. (Logical)}
 

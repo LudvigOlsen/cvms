@@ -25,13 +25,17 @@ evaluate <- function(data, type="linear_regression",
     results[["Coefficients"]] <- get_nested_model_coefficients(models)
 
   } else if (type == "binomial"){
-    results <- binomial_classification_eval(data[[predictions_col]],
-                                           data[[targets_col]],
-                                           models=models,
-                                           cutoff=model_specifics[["cutoff"]],
-                                           positive=model_specifics[["positive"]])
-  }
 
+    results <- binomial_classification_eval(data,
+                                            predictions_col = predictions_col,
+                                            targets_col = targets_col,
+                                            fold_info_cols = list(rel_fold="rel_fold",
+                                                                  abs_fold="abs_fold",
+                                                                  fold_column="fold_column"),
+                                            models=models,
+                                            cutoff=model_specifics[["cutoff"]],
+                                            positive=model_specifics[["positive"]])
+  }
 
   return(results)
 }

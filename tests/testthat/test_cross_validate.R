@@ -42,7 +42,7 @@ test_that("binomial models work with cross_validate()",{
   # Enter sub tibbles
   expect_is(CVbinomlist$Predictions[[1]], "tbl_df")
   expect_is(CVbinomlist$ROC[[1]], "tbl_df")
-  expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("prediction","predicted_class","target"))
+  expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("fold_column","fold","target","prediction","predicted_classes"))
   expect_equal(colnames(CVbinomlist$ROC[[1]]), c("sensitivities","specificities"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
   expect_equal(nrow(CVbinomlist$ROC[[1]]),29)
@@ -88,7 +88,7 @@ test_that("binomial models checks that dependent variable is numeric with cross_
   # Enter sub tibbles
   expect_is(CVbinomlist$Predictions[[1]], "tbl_df")
   expect_is(CVbinomlist$ROC[[1]], "tbl_df")
-  expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("prediction","predicted_class","target"))
+  expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("fold_column","fold","target","prediction","predicted_classes"))
   expect_equal(colnames(CVbinomlist$ROC[[1]]), c("sensitivities","specificities"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
   expect_equal(nrow(CVbinomlist$ROC[[1]]),29)
@@ -138,14 +138,14 @@ test_that("binomial models work with cross_validate()",{
   # Enter sub tibbles
   expect_is(CVbinomlistrand$Predictions[[1]], "tbl_df")
   expect_is(CVbinomlistrand$ROC[[1]], "tbl_df")
-  expect_equal(colnames(CVbinomlistrand$Predictions[[1]]), c("prediction","predicted_class","target"))
+  expect_equal(colnames(CVbinomlistrand$Predictions[[1]]), c("fold_column","fold","target","prediction","predicted_classes"))
   expect_equal(colnames(CVbinomlistrand$ROC[[1]]), c("sensitivities","specificities"))
   expect_equal(nrow(CVbinomlistrand$Predictions[[1]]),30)
   expect_equal(nrow(CVbinomlistrand$ROC[[1]]),27) # Why?
 
   expect_is(CVbinomlistrand$Predictions[[2]], "tbl_df")
   expect_is(CVbinomlistrand$ROC[[2]], "tbl_df")
-  expect_equal(colnames(CVbinomlistrand$Predictions[[2]]), c("prediction","predicted_class","target"))
+  expect_equal(colnames(CVbinomlistrand$Predictions[[2]]), c("fold_column","fold","target","prediction","predicted_classes"))
   expect_equal(colnames(CVbinomlistrand$ROC[[2]]), c("sensitivities","specificities"))
   expect_equal(nrow(CVbinomlistrand$Predictions[[2]]),30)
   expect_equal(nrow(CVbinomlistrand$ROC[[2]]),11) # Why?
@@ -319,26 +319,26 @@ test_that("model using dot in formula ( y ~ . ) works with cross_validate()",{
 
 
 })
-
-test_that("models work with repeated cross_validate()",{
-
-  # Load data and fold it
-  set.seed(1)
-  dat <- groupdata2::fold(participant.scores, k = 4,
-                          cat_col = 'diagnosis',
-                          id_col = 'participant',
-                          num_fold_cols=2)
-
-
-  CVbinomlist <- cross_validate(dat, models = c("diagnosis~score","diagnosis~age"),
-                                folds_col = c('.folds_1','.folds_2'), family='binomial',
-                                REML = FALSE, model_verbose=FALSE)
-
-  CVgausslist <- cross_validate(dat, models = c("score~diagnosis","score~age"),
-                                folds_col = c('.folds_1','.folds_2'), family='gaussian',
-                                REML = FALSE, model_verbose=FALSE)
-
-  CVgausslist$Results
-})
+#
+# test_that("models work with repeated cross_validate()",{
+#
+#   # Load data and fold it
+#   set.seed(1)
+#   dat <- groupdata2::fold(participant.scores, k = 4,
+#                           cat_col = 'diagnosis',
+#                           id_col = 'participant',
+#                           num_fold_cols=2)
+#
+#
+#   CVbinomlist <- cross_validate(dat, models = c("diagnosis~score","diagnosis~age"),
+#                                 folds_col = c('.folds_1','.folds_2'), family='binomial',
+#                                 REML = FALSE, model_verbose=FALSE)
+#
+#   CVgausslist <- cross_validate(dat, models = c("score~diagnosis","score~age"),
+#                                 folds_col = c('.folds_1','.folds_2'), family='gaussian',
+#                                 REML = FALSE, model_verbose=FALSE)
+#
+#   # CVgausslist$Results
+# })
 
 

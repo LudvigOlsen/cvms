@@ -12,7 +12,6 @@ test_that("Metrics work for glm in validate()",{
                                id_col = 'participant',
                                list_out = FALSE)
 
-
   validated <- validate(train_data=dat, models="diagnosis~score",
                         partitions_col = '.partitions', family = 'binomial')
   same_model <- glm(diagnosis~score, data=dat[dat$.partitions==1,], family = 'binomial')

@@ -103,7 +103,9 @@ linear_regression_eval <- function(data,
     dplyr::full_join(model_metrics_per_fold,
                      by = c(fold_info_cols[["fold_column"]],
                             "abs_fold"=fold_info_cols[["abs_fold"]],
-                            fold_info_cols[["rel_fold"]]))
+                            fold_info_cols[["rel_fold"]])) %>%
+    dplyr::rename(fold = fold_info_cols[["rel_fold"]]) %>%
+    dplyr::select(-abs_fold)
 
   # nest fold results and add to result tibble
   avg_results[["Results"]] <- nest_results(results_per_fold)[["results"]]

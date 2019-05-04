@@ -138,3 +138,40 @@ remove_from_colnames <- function(data, pattern){
 
   return(data)
 }
+
+
+# Returns list with folds_map and n_folds
+create_folds_map <- function(data, folds_col){
+
+  # Create a map of number of folds per fold column
+  # The range tells what fold column a specific fold belongs to.
+  folds_map <- plyr::llply(1:length(folds_col), function(fold_column){
+    nlevels(data[[ folds_col[[fold_column]] ]])
+  }) %>%
+    unlist() %>%
+    tibble::enframe(name="fold_col", value="num_folds")
+
+  # Create ranges
+  first_start <- folds_map$num_folds[[1]]
+  folds_map <- folds_map %>%
+    dplyr::mutate(end_ = cumsum(num_folds),
+                  start_ = end_ - (first_start-1))
+
+  # Calculate number of folds
+  n_folds <- sum(folds_map$num_folds)
+
+  # Expand ranges to long format
+  folds_map_expanded <- plyr::ldply(1:length(folds_col), function(fold_column){
+    data.frame("fold_col_idx"=fold_column,
+               "fold_col_name"=folds_col[[fold_column]],
+               abs_fold=c(folds_map[["start_"]][[fold_column]]:folds_map[["end_"]][[fold_column]]),
+               rel_fold=c(1:folds_map[["num_folds"]][[fold_column]]))
+  }) %>% dplyr::as_tibble()
+
+  return(
+    list(
+    "folds_map" = folds_map_expanded,
+    "n_folds" = n_folds)
+    )
+
+}

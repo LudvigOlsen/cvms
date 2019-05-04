@@ -15,35 +15,13 @@ cross_validate_fn_single <- function(data, model_fn, evaluation_type="linear_reg
   }
 
   if (length(folds_col) > 1){
-
-    # Create a map of number of folds per fold column
-    # The range tells what fold column a specific fold belongs to.
-    folds_map <- plyr::llply(1:length(folds_col), function(fold_column){
-      nlevels(data[[ folds_col[[fold_column]] ]])
-    }) %>%
-      unlist() %>%
-      tibble::enframe() %>%
-      dplyr::rename(fold_col = name,
-             num_folds = value)
-
-    first_start <- folds_map$num_folds[[1]]
-
-    folds_map <- folds_map %>%
-      dplyr::mutate(end_ = cumsum(num_folds),
-             start_ = end_ - (first_start-1))
-
-    n_folds <- sum(folds_map$num_folds)
-
-    # Expand ranges to long format
-    folds_map_expanded <- plyr::ldply(1:length(folds_col), function(fold_column){
-      data.frame("fold_col_idx"=fold_column,
-                 "fold_col_name"=folds_col[[fold_column]],
-                 abs_fold=c(folds_map[["start_"]][[fold_column]]:folds_map[["end_"]][[fold_column]]),
-                 rel_fold=c(1:folds_map[["num_folds"]][[fold_column]]))
-    }) %>% dplyr::as_tibble()
+    # Create a "map" of folds per fold column
+    folds_map_and_n_folds <- create_folds_map(data, folds_col)
+    folds_map <- folds_map_and_n_folds[["folds_map"]]
+    n_folds <- folds_map_and_n_folds[["n_folds"]]
 
   } else {
-    # get number of folds - aka. number of levels in folds column
+    # Get number of folds - aka. number of levels in folds column
     n_folds <- nlevels(data[[folds_col]])
   }
 
@@ -56,7 +34,7 @@ cross_validate_fn_single <- function(data, model_fn, evaluation_type="linear_reg
   fold_lists_list <- plyr::llply(1:n_folds, function(fold){
 
     if(length(folds_col)>1){
-      current_fold_info <- folds_map_expanded %>%
+      current_fold_info <- folds_map %>%
         dplyr::filter(abs_fold == fold)
 
       rel_fold <- current_fold_info[["rel_fold"]]

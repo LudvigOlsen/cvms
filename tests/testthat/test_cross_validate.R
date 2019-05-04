@@ -42,8 +42,8 @@ test_that("binomial models work with cross_validate()",{
   # Enter sub tibbles
   expect_is(CVbinomlist$Predictions[[1]], "tbl_df")
   expect_is(CVbinomlist$ROC[[1]], "tbl_df")
-  expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("fold_column","fold","target","prediction","predicted_classes"))
-  expect_equal(colnames(CVbinomlist$ROC[[1]]), c("sensitivities","specificities"))
+  expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
+  expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Sensitivities","Specificities"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
   expect_equal(nrow(CVbinomlist$ROC[[1]]),29)
 
@@ -88,8 +88,8 @@ test_that("binomial models checks that dependent variable is numeric with cross_
   # Enter sub tibbles
   expect_is(CVbinomlist$Predictions[[1]], "tbl_df")
   expect_is(CVbinomlist$ROC[[1]], "tbl_df")
-  expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("fold_column","fold","target","prediction","predicted_classes"))
-  expect_equal(colnames(CVbinomlist$ROC[[1]]), c("sensitivities","specificities"))
+  expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
+  expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Sensitivities","Specificities"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
   expect_equal(nrow(CVbinomlist$ROC[[1]]),29)
 
@@ -138,15 +138,15 @@ test_that("binomial models work with cross_validate()",{
   # Enter sub tibbles
   expect_is(CVbinomlistrand$Predictions[[1]], "tbl_df")
   expect_is(CVbinomlistrand$ROC[[1]], "tbl_df")
-  expect_equal(colnames(CVbinomlistrand$Predictions[[1]]), c("fold_column","fold","target","prediction","predicted_classes"))
-  expect_equal(colnames(CVbinomlistrand$ROC[[1]]), c("sensitivities","specificities"))
+  expect_equal(colnames(CVbinomlistrand$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
+  expect_equal(colnames(CVbinomlistrand$ROC[[1]]), c("Sensitivities","Specificities"))
   expect_equal(nrow(CVbinomlistrand$Predictions[[1]]),30)
   expect_equal(nrow(CVbinomlistrand$ROC[[1]]),27) # Why?
 
   expect_is(CVbinomlistrand$Predictions[[2]], "tbl_df")
   expect_is(CVbinomlistrand$ROC[[2]], "tbl_df")
-  expect_equal(colnames(CVbinomlistrand$Predictions[[2]]), c("fold_column","fold","target","prediction","predicted_classes"))
-  expect_equal(colnames(CVbinomlistrand$ROC[[2]]), c("sensitivities","specificities"))
+  expect_equal(colnames(CVbinomlistrand$Predictions[[2]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
+  expect_equal(colnames(CVbinomlistrand$ROC[[2]]), c("Sensitivities","Specificities"))
   expect_equal(nrow(CVbinomlistrand$Predictions[[2]]),30)
   expect_equal(nrow(CVbinomlistrand$ROC[[2]]),11) # Why?
 
@@ -319,7 +319,7 @@ test_that("model using dot in formula ( y ~ . ) works with cross_validate()",{
 
 
 })
-#
+# #
 # test_that("models work with repeated cross_validate()",{
 #
 #   # Load data and fold it

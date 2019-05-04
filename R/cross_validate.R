@@ -36,6 +36,8 @@
 #'  Confusion matrix: \code{\link[caret::confusionMatrix]{caret::confusionMatrix}}
 #'
 #'  ROC: \code{\link[pROC::roc]{pROC::roc}}
+#'
+#'  MCC: \code{\link[mltools::mcc]{mltools::mcc}}
 #'  }
 #'  }
 #' @return
@@ -80,8 +82,9 @@
 #'  \strong{Negative Prediction Value},
 #'  \strong{Kappa},
 #'  \strong{Detection Rate},
-#'  \strong{Detection Prevalence}, and
-#'  \strong{Prevalence}.
+#'  \strong{Detection Prevalence},
+#'  \strong{Prevalence}, and
+#'  \strong{MCC} (Matthews correlation coefficient).
 #'
 #'  ROC:
 #'
@@ -206,7 +209,7 @@ cross_validate <- function(data, models, fold_cols = '.folds', family='gaussian'
 
   return(basics_cross_validate_list(data = data,
                                    model_list = models,
-                                   folds_col = fold_cols,
+                                   fold_cols = fold_cols,
                                    family = family,
                                    link = link,
                                    control=control,

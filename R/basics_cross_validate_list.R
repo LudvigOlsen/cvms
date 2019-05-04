@@ -2,7 +2,7 @@
 #' @importFrom plyr ldply
 #' @importFrom dplyr mutate %>%
 #' @importFrom tidyr separate
-basics_cross_validate_list = function(data, model_list, folds_col = '.folds', family='gaussian',
+basics_cross_validate_list = function(data, model_list, fold_cols = '.folds', family='gaussian',
                                link = NULL, control = NULL, REML=FALSE,
                                cutoff=0.5, positive=1, rm_nc = FALSE, model_verbose=FALSE){
 
@@ -18,10 +18,10 @@ basics_cross_validate_list = function(data, model_list, folds_col = '.folds', fa
   )
 
   # Check that the folds column(s) is/are factor(s)
-  if (length(folds_col) == 1){
-    stopifnot(is.factor(data[[folds_col]]))
+  if (length(fold_cols) == 1){
+    stopifnot(is.factor(data[[fold_cols]]))
   } else {
-    fcols <- data %>% dplyr::select(dplyr::one_of(folds_col)) %>%
+    fcols <- data %>% dplyr::select(dplyr::one_of(fold_cols)) %>%
       sapply(is.factor)
     if (FALSE %in% fcols) {stop("At least one of the fold columns is not a factor.")}
   }
@@ -53,7 +53,7 @@ basics_cross_validate_list = function(data, model_list, folds_col = '.folds', fa
                              evaluation_type = evaluation_type,
                              model_specifics = model_specifics,
                              model_specifics_update_fn = NULL, # did this above
-                             folds_col = folds_col)
+                             fold_cols = fold_cols)
     }) %>%
     tibble::as_tibble() %>%
     dplyr::mutate(Family = model_specifics[["family"]],

@@ -173,6 +173,7 @@ binomial_classification_NA_results_tibble <- function(){
                         "Detection Rate" = NA,
                         "Detection Prevalence" = NA,
                         "Prevalence" = NA,
+                        "MCC"=NA,
                         "Predictions" = NA,
                         "ROC" = NA))
 }
@@ -192,6 +193,8 @@ binomial_classification_results_tibble <- function(roc_curve, roc_nested, conf_m
                  'Detection Rate' = unname(conf_mat$byClass['Detection Rate']),
                  'Detection Prevalence' = unname(conf_mat$byClass['Detection Prevalence']),
                  'Prevalence' = unname(conf_mat$byClass['Prevalence']),
+                 'MCC' = mltools::mcc(TP=conf_mat$table[1], FP=conf_mat$table[3],
+                                      TN=conf_mat$table[4], FN=conf_mat$table[2]),
                  "Predictions" = ifelse(!is.null(predictions_nested), predictions_nested$predictions, logical()),
                  "ROC" = ifelse(!is.null(roc_nested), roc_nested$roc, logical()))
 }

@@ -25,7 +25,8 @@ Imports:
     AICcmodavg,
     broom,
     tibble,
-    stringr
+    stringr,
+    mltools
 RoxygenNote: 6.1.1
 Suggests: knitr,
     rmarkdown,

@@ -13,7 +13,7 @@ test_that("gaussian models with link functions with cross_validate()",{
 
   # Cross-validate the data
   CV_gauss <- cross_validate(dat, "score~diagnosis",
-                        folds_col = '.folds',
+                        fold_cols = '.folds',
                         family='gaussian', link = 'log',
                         model_verbose=FALSE)
 
@@ -21,7 +21,7 @@ test_that("gaussian models with link functions with cross_validate()",{
   expect_equal(CV_gauss$AIC, 194.6904, tolerance=1e-3)
 
   CV_gauss <- cross_validate(dat, "score~diagnosis+(1|session)",
-                             folds_col = '.folds',
+                             fold_cols = '.folds',
                              family='gaussian', link = 'log',
                              model_verbose=FALSE)
 
@@ -32,7 +32,7 @@ test_that("gaussian models with link functions with cross_validate()",{
 
   # Cross-validate the data
   CV_gauss <- cross_validate(dat, "score~diagnosis",
-                             folds_col = '.folds',
+                             fold_cols = '.folds',
                              family='gaussian', link = 'inverse',
                              model_verbose=FALSE)
 
@@ -41,7 +41,7 @@ test_that("gaussian models with link functions with cross_validate()",{
 
   # Cross-validate the data
   CV_gauss <- cross_validate(dat, "score~diagnosis",
-                             folds_col = '.folds',
+                             fold_cols = '.folds',
                              family='gaussian',
                              link = 'identity',
                              model_verbose=FALSE)
@@ -65,7 +65,7 @@ test_that("binomial models with link functions with cross_validate()",{
 
   # Cross-validate the data
   CV_binom <- cross_validate(dat, "diagnosis~score",
-                             folds_col = '.folds',
+                             fold_cols = '.folds',
                              family='binomial', link = 'logit',
                              model_verbose=FALSE)
 
@@ -74,7 +74,7 @@ test_that("binomial models with link functions with cross_validate()",{
 
   # Cross-validate the data
   CV_binom <- cross_validate(dat, "diagnosis~score+(1|session)",
-                             folds_col = '.folds',
+                             fold_cols = '.folds',
                              family='binomial', link = 'logit',
                              model_verbose=FALSE)
 
@@ -85,7 +85,7 @@ test_that("binomial models with link functions with cross_validate()",{
 
   # Cross-validate the data
   CV_binom <- cross_validate(dat, "diagnosis~score",
-                             folds_col = '.folds',
+                             fold_cols = '.folds',
                              family='binomial', link = 'probit',
                              model_verbose=FALSE)
 
@@ -94,7 +94,7 @@ test_that("binomial models with link functions with cross_validate()",{
 
   # Cross-validate the data
   CV_binom <- cross_validate(dat, "diagnosis~score+(1|session)",
-                             folds_col = '.folds',
+                             fold_cols = '.folds',
                              family='binomial', link = 'probit',
                              model_verbose=FALSE)
 
@@ -106,7 +106,7 @@ test_that("binomial models with link functions with cross_validate()",{
 
   # Cross-validate the data
   CV_binom <- cross_validate(dat, "diagnosis~score",
-                             folds_col = '.folds',
+                             fold_cols = '.folds',
                              family='binomial', link = 'cauchit',
                              model_verbose=FALSE)
 

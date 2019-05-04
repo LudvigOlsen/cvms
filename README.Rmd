@@ -83,7 +83,7 @@ data %>% head(15) %>% kable()
 
 ```{r}
 CV1 <- cross_validate(data, "score~diagnosis", 
-                     folds_col = '.folds', 
+                     fold_cols = '.folds', 
                      family='gaussian', 
                      REML = FALSE)
 
@@ -95,7 +95,7 @@ CV1
 
 ```{r}
 CV2 <- cross_validate(data, "diagnosis~score", 
-                     folds_col = '.folds', 
+                     fold_cols = '.folds', 
                      family='binomial')
 
 # Show results
@@ -116,7 +116,7 @@ mixed_models <- c("score~diagnosis+(1|session)","score~age+(1|session)")
 
 ```{r}
 CV3 <- cross_validate(data, models, 
-                     folds_col = '.folds', 
+                     fold_cols = '.folds', 
                      family='gaussian', 
                      REML = FALSE)
 
@@ -128,7 +128,7 @@ CV3
 
 ```{r}
 CV4 <- cross_validate(data, mixed_models, 
-                     folds_col = '.folds', 
+                     fold_cols = '.folds', 
                      family='gaussian', 
                      REML = FALSE)
 

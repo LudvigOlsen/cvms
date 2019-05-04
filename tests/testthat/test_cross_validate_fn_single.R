@@ -19,10 +19,10 @@ test_that("gaussian models with cross_validate_single_fn()",{
                                           link="identity",
                                           model_verbose = FALSE),
                                         model_specifics_update_fn = basics_update_model_specifics,
-                                        folds_col =".folds")
+                                        fold_cols =".folds")
 
   # For comparison
-  # cross_validate(dat, "score~diagnosis+(1|session)+(1|participant)", folds_col = ".folds", model_verbose = TRUE)
+  # cross_validate(dat, "score~diagnosis+(1|session)+(1|participant)", fold_cols = ".folds", model_verbose = TRUE)
 
   expect_equal(cv_result$RMSE, 9.66, tolerance=1e-3)
   expect_equal(cv_result$r2m, 0.282, tolerance=1e-3)
@@ -45,7 +45,7 @@ test_that("gaussian models with cross_validate_single_fn()",{
                                           link="identity",
                                           model_verbose = FALSE),
                                         model_specifics_update_fn = basics_update_model_specifics,
-                                        folds_col =".folds")
+                                        fold_cols =".folds")
 
   expect_equal(cv_result$RMSE, 17.168, tolerance=1e-3)
   expect_equal(cv_result$r2m, 0.264, tolerance=1e-3)
@@ -82,7 +82,7 @@ test_that("binomial models with cross_validate_single_fn()",{
                                           cutoff=0.5,
                                           model_verbose = FALSE),
                                         model_specifics_update_fn = basics_update_model_specifics,
-                                        folds_col =".folds")
+                                        fold_cols =".folds")
 
   expect_equal(cv_result$AUC, 0.861, tolerance=1e-3)
   expect_equal(cv_result$`Lower CI`, 0.710, tolerance=1e-3)
@@ -115,7 +115,7 @@ test_that("binomial models with cross_validate_single_fn()",{
                                           cutoff=0.5,
                                           model_verbose = FALSE),
                                         model_specifics_update_fn = basics_update_model_specifics,
-                                        folds_col =".folds")
+                                        fold_cols =".folds")
 
   expect_equal(cv_result$AUC, 0.7615, tolerance=1e-3)
   expect_equal(cv_result$`Lower CI`, 0.585, tolerance=1e-3)

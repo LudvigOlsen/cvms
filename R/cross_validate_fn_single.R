@@ -1,6 +1,6 @@
 cross_validate_fn_single <- function(data, model_fn, evaluation_type="linear_regression",
                                      model_specifics=list(), model_specifics_update_fn=NULL,
-                                     folds_col =".folds"){
+                                     fold_cols =".folds"){
 
   # TODO: the below comment is not correct
   # eval_fn: "regression", "binomial", "multiclass", "multilabel", "custom"/function
@@ -14,15 +14,15 @@ cross_validate_fn_single <- function(data, model_fn, evaluation_type="linear_reg
     model_specifics <- model_specifics_update_fn(model_specifics)
   }
 
-  if (length(folds_col) > 1){
+  if (length(fold_cols) > 1){
     # Create a "map" of folds per fold column
-    folds_map_and_n_folds <- create_folds_map(data, folds_col)
+    folds_map_and_n_folds <- create_folds_map(data, fold_cols)
     folds_map <- folds_map_and_n_folds[["folds_map"]]
     n_folds <- folds_map_and_n_folds[["n_folds"]]
 
   } else {
     # Get number of folds - aka. number of levels in folds column
-    n_folds <- nlevels(data[[folds_col]])
+    n_folds <- nlevels(data[[fold_cols]])
   }
 
 
@@ -33,7 +33,7 @@ cross_validate_fn_single <- function(data, model_fn, evaluation_type="linear_reg
 
   fold_lists_list <- plyr::llply(1:n_folds, function(fold){
 
-    if(length(folds_col)>1){
+    if(length(fold_cols)>1){
       current_fold_info <- folds_map %>%
         dplyr::filter(abs_fold == fold)
 
@@ -46,7 +46,7 @@ cross_validate_fn_single <- function(data, model_fn, evaluation_type="linear_reg
       rel_fold <- fold
       abs_fold <- fold
       current_fold_col_idx <- 1
-      current_fold_col_name <- folds_col
+      current_fold_col_name <- fold_cols
     }
 
     # Create training set for this iteration
@@ -58,11 +58,11 @@ cross_validate_fn_single <- function(data, model_fn, evaluation_type="linear_reg
     # when defining the model formula.
     train_data <- train_data %>%
       dplyr::ungroup() %>%
-      dplyr::select(-dplyr::one_of(folds_col))
+      dplyr::select(-dplyr::one_of(fold_cols))
 
     test_data <- test_data %>%
       dplyr::ungroup() %>%
-      dplyr::select(-dplyr::one_of(folds_col))
+      dplyr::select(-dplyr::one_of(fold_cols))
 
     model_fn(train_data = train_data,
              test_data = test_data,

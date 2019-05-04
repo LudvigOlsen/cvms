@@ -101,8 +101,9 @@ Tbl (tibble) with results for each model.
  \strong{Negative Prediction Value},
  \strong{Kappa},
  \strong{Detection Rate},
- \strong{Detection Prevalence}, and
- \strong{Prevalence}.
+ \strong{Detection Prevalence},
+ \strong{Prevalence}, and
+ \strong{MCC} (Matthews correlation coefficient).
 
  ROC:
 
@@ -164,6 +165,8 @@ Packages used:
  Confusion matrix: \code{\link[caret::confusionMatrix]{caret::confusionMatrix}}
 
  ROC: \code{\link[pROC::roc]{pROC::roc}}
+
+ MCC: \code{\link[mltools::mcc]{mltools::mcc}}
  }
  }
 }

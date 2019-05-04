@@ -17,7 +17,7 @@ test_that("binomial models work with cross_validate()",{
 
 
   CVbinomlist <- cross_validate(dat, models = c("diagnosis~score","diagnosis~age"),
-                                folds_col = '.folds', family='binomial',
+                                fold_cols = '.folds', family='binomial',
                                 REML = FALSE, model_verbose=FALSE)
 
   expect_equal(CVbinomlist$AUC, c(0.7615741,0.8333333), tolerance=1e-3)
@@ -63,7 +63,7 @@ test_that("binomial models checks that dependent variable is numeric with cross_
   # dat %>% str()
 
   CVbinomlist <- cross_validate(dat, models = c("diagnosis~score","diagnosis~age"),
-                                folds_col = '.folds', family='binomial',
+                                fold_cols = '.folds', family='binomial',
                                 REML = FALSE, model_verbose=FALSE)
 
   expect_equal(CVbinomlist$AUC, c(0.7615741,0.8333333), tolerance=1e-3)
@@ -108,7 +108,7 @@ test_that("binomial models work with cross_validate()",{
 
   CVbinomlistrand <- cross_validate(dat,
                                     models = c("diagnosis~score + (1|session)","diagnosis~age + (1|session)"),
-                                    folds_col = '.folds',
+                                    fold_cols = '.folds',
                                     family='binomial',
                                     REML = FALSE,
                                     link = NULL,
@@ -163,7 +163,7 @@ test_that("gaussian model with cross_validate()",{
 
   # Cross-validate the data
   CVed <- cross_validate(dat, "score~diagnosis",
-                          folds_col = '.folds',
+                          fold_cols = '.folds',
                           family='gaussian', link = NULL,
                           REML = FALSE,
                           model_verbose=FALSE)
@@ -193,7 +193,7 @@ test_that("gaussian mixed models with cross_validate()",{
 
   # Cross-validate the data
   CVed <- cross_validate(dat, c("score~diagnosis + (1|session)","score~age + (1|session)"),
-                         folds_col = '.folds',
+                         fold_cols = '.folds',
                          family='gaussian', link = NULL,
                          REML = FALSE,
                          model_verbose=FALSE)
@@ -227,7 +227,7 @@ test_that("binomial models work with control specified in cross_validate()",{
 
   CVbinomlistrand <- cross_validate(dat,
                                     models = c("diagnosis~score + (1|session)"),
-                                    folds_col = '.folds',
+                                    fold_cols = '.folds',
                                     family='binomial',
                                     REML = FALSE,
                                     link = NULL,
@@ -241,7 +241,7 @@ test_that("binomial models work with control specified in cross_validate()",{
   # Warning because of too few iterations
   expect_warning(cross_validate(dat,
                                 models = c("diagnosis~score+age + (1|session) + (1|age)"),
-                                folds_col = '.folds',
+                                fold_cols = '.folds',
                                 family='binomial',
                                 REML = FALSE,
                                 link = NULL,
@@ -263,7 +263,7 @@ test_that("gaussian models work with control specified in cross_validate()",{
 
   CVgausslistrand <- cross_validate(dat,
                                     models = c("score~diagnosis + (1|session)"),
-                                    folds_col = '.folds',
+                                    fold_cols = '.folds',
                                     family='gaussian',
                                     REML = FALSE,
                                     link = NULL,
@@ -278,7 +278,7 @@ test_that("gaussian models work with control specified in cross_validate()",{
   # # Warning because of too few iterations
   # expect_warning(cross_validate(dat,
   #                               models = c("age~diagnosis*score + (score|session) + (1|score)"),
-  #                               folds_col = '.folds',
+  #                               fold_cols = '.folds',
   #                               family='gaussian',
   #                               REML = FALSE,
   #                               link = NULL,
@@ -306,14 +306,14 @@ test_that("model using dot in formula ( y ~ . ) works with cross_validate()",{
   # Expect no warnings
   # https://stackoverflow.com/questions/22003306/is-there-something-in-testthat-like-expect-no-warnings
   expect_warning(cross_validate(dat, models = c("diagnosis~."),
-                                folds_col = '.folds', family='binomial',
+                                fold_cols = '.folds', family='binomial',
                                 REML = FALSE, model_verbose=FALSE),
                  regexp = NA)
 
   # Expect no warnings
   # https://stackoverflow.com/questions/22003306/is-there-something-in-testthat-like-expect-no-warnings
   expect_warning(cross_validate(dat, models = c("score~."),
-                                folds_col = '.folds', family='gaussian',
+                                fold_cols = '.folds', family='gaussian',
                                 REML = FALSE, model_verbose=FALSE),
                  regexp = NA)
 
@@ -332,11 +332,11 @@ test_that("models work with repeated cross_validate()",{
 
 
   CVbinomlist <- cross_validate(dat, models = c("diagnosis~score","diagnosis~age"),
-                                folds_col = c('.folds_1','.folds_2'), family='binomial',
+                                fold_cols = c('.folds_1','.folds_2'), family='binomial',
                                 REML = FALSE, model_verbose=FALSE)
 
   CVgausslist <- cross_validate(dat, models = c("score~diagnosis","score~age"),
-                                folds_col = c('.folds_1','.folds_2'), family='gaussian',
+                                fold_cols = c('.folds_1','.folds_2'), family='gaussian',
                                 REML = FALSE, model_verbose=FALSE)
 
   # CVgausslist$Results

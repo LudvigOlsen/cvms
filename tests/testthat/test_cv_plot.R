@@ -12,12 +12,12 @@ test_that("cv_plot() works",{
 
   # Cross-validate the data
   CVbinom <- cross_validate(dat, "diagnosis~score",
-                            folds_col = '.folds',
+                            fold_cols = '.folds',
                             family='binomial', REML = FALSE,
                             model_verbose=FALSE)
 
   CVgauss <- cross_validate(dat, "score~diagnosis",
-                            folds_col = '.folds',
+                            fold_cols = '.folds',
                             family='gaussian', REML = FALSE,
                             model_verbose=FALSE)
 

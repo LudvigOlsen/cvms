@@ -104,6 +104,9 @@
 #'  A nested tibble with the sensativities and specificities from the \strong{ROC} curve(s).
 #'
 #'  A nested tibble with the \strong{confusion matrix}/matrices.
+#'  The \code{Pos_} columns tells you whether a row is a
+#'  True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
+#'  depending on which level is the "positive" level. I.e. the level you wish to predict.
 #'
 #'  A nested tibble with the \strong{results} from all fold columns, if using repeated cross-validation.
 #'

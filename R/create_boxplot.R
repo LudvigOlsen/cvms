@@ -1,3 +1,6 @@
+# R CMD check NOTE handling
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
+
 create_boxplot_ = function(data, var_start=NULL, var_end=NULL){
 
   # Data: gaussian_return or likewise
@@ -27,10 +30,10 @@ create_boxplot_ = function(data, var_start=NULL, var_end=NULL){
 
   # Fix for now
   data <- data %>%
-    tidyr::gather(key, value)
+    tidyr::gather(key="key", value="value")
 
   # Create and print plot
-  gg <- ggplot2::ggplot(data, ggplot2::aes(key, value)) +
+  gg <- ggplot2::ggplot(data, ggplot2::aes(.data$key, .data$value)) +
     ggplot2::geom_boxplot() +
     ggplot2::labs(x = 'Measure', y = 'Value')
 

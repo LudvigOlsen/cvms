@@ -1,3 +1,6 @@
+# R CMD check NOTE handling
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
+
 #' @title Validate regression model on test set
 #' @description Train gaussian or binomial models on a full training set and validate it by predicting the test/validation set.
 #'  Returns results in a tibble for easy reporting, along with the trained models.

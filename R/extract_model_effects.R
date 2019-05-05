@@ -20,7 +20,7 @@ extract_model_effects <- function(model_list) {
 
       # Seperate model into dependent variable and predictors
       tidyr::separate(
-        model,
+        .data$model,
         into = c("Dependent", "Predictors"),
         sep = "~"
       ) %>%
@@ -31,7 +31,7 @@ extract_model_effects <- function(model_list) {
       # We use "extra = 'merge'" to only split into the 2 given parts
       # as it will elsewise split the string whenever "\\(" occurs
       tidyr::separate(
-        Predictors,
+        .data$Predictors,
         into = c("Fixed", "Random"),
         sep = "\\(",
         extra = "merge"
@@ -41,8 +41,8 @@ extract_model_effects <- function(model_list) {
       # From fixed we remove the last "+"
       # From random we remove all "(" and ")"
       mutate(
-        Fixed = gsub("[+]$", "", Fixed),
-        Random = gsub('\\(|\\)', '', Random)
+        Fixed = gsub("[+]$", "", .data$Fixed),
+        Random = gsub('\\(|\\)', '', .data$Random)
 
       )
   ))

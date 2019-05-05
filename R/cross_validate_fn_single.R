@@ -1,3 +1,6 @@
+# R CMD check NOTE handling
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
+
 cross_validate_fn_single <- function(data, model_fn, evaluation_type="linear_regression",
                                      model_specifics=list(), model_specifics_update_fn=NULL,
                                      fold_cols =".folds"){

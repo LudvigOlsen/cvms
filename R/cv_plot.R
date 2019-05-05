@@ -1,3 +1,5 @@
+# R CMD check NOTE handling
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 
 #' @title Wrapper for plotting common plots using ggplot2
 #' @description Creates various plots based on
@@ -87,7 +89,7 @@ cv_plot <- function(x, type){
 
     if (type == 'coefficients'){
 
-      return(ggplot2::ggplot(x$Coefficients[[1]], ggplot2::aes(term, estimate)) +
+      return(ggplot2::ggplot(x$Coefficients[[1]], ggplot2::aes(.data$term, .data$estimate)) +
         ggplot2::geom_boxplot() +
         ggplot2::labs(x = 'Fixed Effects', y = 'Estimate'))
 
@@ -98,7 +100,7 @@ cv_plot <- function(x, type){
     if (type == 'ROC'){
 
       ROC_plot <- data.frame(y=x$ROC[[1]]$Sensitivities, x=x$ROC[[1]]$Specificities) %>%
-        ggplot2::ggplot(ggplot2::aes(x, y)) +
+        ggplot2::ggplot(ggplot2::aes(.data$x, .data$y)) +
         ggplot2::geom_line() +
         ggplot2::scale_x_reverse() +
         ggplot2::geom_abline(intercept=1, slope=1, linetype="dashed") +

@@ -1,3 +1,6 @@
+# R CMD check NOTE handling
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
+
 binomial_classification_eval <- function(data,
                                          predictions_col,
                                          targets_col,
@@ -31,13 +34,13 @@ binomial_classification_eval <- function(data,
                     !! as.name(fold_info_cols[["rel_fold"]]),
                     !! as.name(targets_col),
                     !! as.name(predictions_col),
-                    predicted_classes
+                    .data$predicted_classes
       ) %>%
       dplyr::rename(Fold = fold_info_cols[["rel_fold"]],
                     `Fold Column` = fold_info_cols[["fold_column"]],
                     Target = !! as.name(targets_col),
                     Prediction = !! as.name(predictions_col),
-                    `Predicted Class` = predicted_classes
+                    `Predicted Class` = .data$predicted_classes
                     ) %>%
       tidyr::nest(1:5) %>%
       dplyr::rename(predictions = data)
@@ -98,17 +101,17 @@ binomial_classification_eval <- function(data,
                                                predictions_nested = NULL) %>%
           dplyr::mutate(`Fold Column` = fcol)
         }) %>%
-        dplyr::select(`Fold Column`, dplyr::everything())
+        dplyr::select(.data$`Fold Column`, dplyr::everything())
 
       # Nest fold column results
       fold_col_results_nested <- fold_col_results %>%
-        dplyr::select(-c(Predictions, ROC)) %>%
+        dplyr::select(-c(.data$Predictions, .data$ROC)) %>%
         tidyr::nest(1 : (ncol(fold_col_results) - 2) ) %>% # -2 as we just remove two cols
         dplyr::rename(fold_col_results = data)
 
       # Average fold column results for reporting
       average_metrics <- fold_col_results %>%
-        dplyr::select(-`Fold Column`) %>%
+        dplyr::select(-.data$`Fold Column`) %>%
         dplyr::summarise_all(list(~mean(., na.rm=FALSE)))
 
       # ROC sensitivities and specificities
@@ -260,8 +263,9 @@ nest_confusion_matrices <- function(confusion_matrices, cat_levels=c("0","1"), f
                     Pos1 = c("TN","FP","FN","TP"),
                     `Fold Column` = fold_cols[[i]])
   }) %>%
-    dplyr::rename(N=n) %>%
-    dplyr::select(c(`Fold Column`, Prediction, Reference, Pos0, Pos1, N)) %>%
+    dplyr::rename(N=.data$n) %>%
+    dplyr::select(c(.data$`Fold Column`, .data$Prediction, .data$Reference,
+                    .data$Pos0, .data$Pos1, .data$N)) %>%
     dplyr::rename_at(dplyr::vars(c("Pos0","Pos1")), ~ c(paste0("Pos_",cat_levels[[1]]),
                                                         paste0("Pos_",cat_levels[[2]]))) %>%
     tidyr::nest(1:6) %>%

@@ -26,7 +26,8 @@ Imports:
     broom,
     tibble,
     stringr,
-    mltools
+    mltools,
+    rlang
 RoxygenNote: 6.1.1
 Suggests: knitr,
     rmarkdown,

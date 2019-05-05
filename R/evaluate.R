@@ -1,3 +1,6 @@
+# R CMD check NOTE handling
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
+
 evaluate <- function(data, type="linear_regression",
                      predictions_col = "prediction",
                      targets_col = "target",

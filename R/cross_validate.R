@@ -1,3 +1,5 @@
+# R CMD check NOTE handling
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 
 #' @title Cross-validate regression models for model selection
 #' @description Cross-validate one or multiple gaussian or binomial
@@ -10,34 +12,34 @@
 #'
 #'  \subsection{Models}{
 #'
-#'  Gaussian: \code{\link[stats::lm]{stats::lm}}, \code{\link[lme4::lmer]{lme4::lmer}}
+#'  Gaussian: \link[stats:lm]{stats::lm}, \code{\link[lme4:lmer]{lme4::lmer}}
 #'
-#'  Binomial: \code{\link[stats::glm]{stats::glm}}, \code{\link[lme4::glmer]{lme4::glmer}}
+#'  Binomial: \code{\link[stats:glm]{stats::glm}}, \code{\link[lme4:glmer]{lme4::glmer}}
 #'  }
 #'  \subsection{Results}{
 #'  \subsection{Gaussian}{
 #'
-#'  RMSE : \code{\link[hydroGOF::rmse]{hydroGOF::rmse}}
+#'  RMSE : \code{\link[hydroGOF:rmse]{hydroGOF::rmse}}
 #'
-#'  MAE : \code{\link[hydroGOF::mae]{hydroGOF::mae}}
+#'  MAE : \code{\link[hydroGOF:mae]{hydroGOF::mae}}
 #'
-#'  r2m : \code{\link[MuMIn::r.squaredGLMM]{MuMIn::r.squaredGLMM}}
+#'  r2m : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
 #'
-#'  r2c : \code{\link[MuMIn::r.squaredGLMM]{MuMIn::r.squaredGLMM}}
+#'  r2c : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
 #'
-#'  AIC : \code{\link[stats::AIC]{stats::AIC}}
+#'  AIC : \code{\link[stats:AIC]{stats::AIC}}
 #'
-#'  AICc : \code{\link[AICcmodavg::AICc]{AICcmodavg::AICc}}
+#'  AICc : \code{\link[AICcmodavg:AICc]{AICcmodavg::AICc}}
 #'
-#'  BIC : \code{\link[stats::BIC]{stats::BIC}}
+#'  BIC : \code{\link[stats:BIC]{stats::BIC}}
 #'  }
 #'  \subsection{Binomial}{
 #'
-#'  Confusion matrix: \code{\link[caret::confusionMatrix]{caret::confusionMatrix}}
+#'  Confusion matrix: \code{\link[caret:confusionMatrix]{caret::confusionMatrix}}
 #'
-#'  ROC: \code{\link[pROC::roc]{pROC::roc}}
+#'  ROC: \code{\link[pROC:roc]{pROC::roc}}
 #'
-#'  MCC: \code{\link[mltools::mcc]{mltools::mcc}}
+#'  MCC: \code{\link[mltools:mcc]{mltools::mcc}}
 #'  }
 #'  }
 #' @return
@@ -209,6 +211,8 @@
 #'                REML = FALSE)
 #'
 #' @importFrom stats binomial gaussian glm lm
+#' @importFrom rlang .data
+#' @import zoo
 cross_validate <- function(data, models, fold_cols = '.folds', family='gaussian',
                            link = NULL, control=NULL, REML=FALSE,
                            cutoff=0.5, positive=1, rm_nc = FALSE, model_verbose=FALSE){

@@ -1,3 +1,5 @@
+# R CMD check NOTE handling
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 
 #' @importFrom dplyr mutate %>%
 #' @importFrom tidyr separate
@@ -76,7 +78,7 @@ basics_validate_list = function(train_data, model_list, family='gaussian',
   if (isTRUE(rm_nc)){
 
     output <- output %>%
-      dplyr::filter(`Convergence Warnings` == 0)
+      dplyr::filter(.data$`Convergence Warnings` == 0)
 
   }
 

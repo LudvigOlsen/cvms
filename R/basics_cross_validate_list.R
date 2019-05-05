@@ -1,3 +1,5 @@
+# R CMD check NOTE handling
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 
 #' @importFrom plyr ldply
 #' @importFrom dplyr mutate %>%
@@ -77,7 +79,7 @@ basics_cross_validate_list = function(data, model_list, fold_cols = '.folds', fa
   if (isTRUE(rm_nc)){
 
     output <- output %>%
-      dplyr::filter(`Convergence Warnings` == 0)
+      dplyr::filter(.data$`Convergence Warnings` == 0)
 
   }
 

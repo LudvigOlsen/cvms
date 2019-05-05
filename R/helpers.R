@@ -1,3 +1,5 @@
+# R CMD check NOTE handling
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 
 # Get all lists in a list with a certain name
 # Use: list_of_lists %c% 'list_name'
@@ -106,7 +108,7 @@ nest_models <- function(models){
   # Make tidied models into a tibble
   iter_models <- tibble::as_tibble(models)
   iter_models <- iter_models %>%
-    mutate(p.value = ifelse(exists('p.value', where = iter_models), p.value, NA)) %>%
+    mutate(p.value = ifelse(exists('p.value', where = iter_models), .data$p.value, NA)) %>%
     tidyr::nest() %>%
     dplyr::rename(Coefficients = data)
 
@@ -133,8 +135,8 @@ assign_if_not_null_named_lists <- function(var, var_name, list_name){
 remove_from_colnames <- function(data, pattern){
   colnames(data) <- colnames(data) %>%
     tibble::enframe(name=NULL) %>%
-    dplyr::mutate(colname = stringr::str_remove_all(value, pattern)) %>%
-    dplyr::pull(colname)
+    dplyr::mutate(colname = stringr::str_remove_all(.data$value, pattern)) %>%
+    dplyr::pull(.data$colname)
 
   return(data)
 }
@@ -154,8 +156,8 @@ create_folds_map <- function(data, fold_cols){
   # Create ranges
   first_start <- folds_map$num_folds[[1]]
   folds_map <- folds_map %>%
-    dplyr::mutate(end_ = cumsum(num_folds),
-                  start_ = end_ - (first_start-1))
+    dplyr::mutate(end_ = cumsum(.data$num_folds),
+                  start_ = .data$end_ - (first_start-1))
 
   # Calculate number of folds
   n_folds <- sum(folds_map$num_folds)

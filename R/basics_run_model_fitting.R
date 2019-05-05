@@ -1,3 +1,6 @@
+# R CMD check NOTE handling
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
+
 basics_run_model_fitting <- function(model_fitting_fn, model_specifics, train_data,
                             warn_info = list(model_formula=NULL,
                                              fold_info=list(rel_fold=NULL,

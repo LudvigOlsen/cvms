@@ -1,3 +1,6 @@
+# R CMD check NOTE handling
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
+
 linear_regression_eval <- function(data,
                                    models,
                                    predictions_col = "predictions",
@@ -58,10 +61,10 @@ linear_regression_eval <- function(data,
     # First average per fold column, then average those
     avg_rmse_mae <- rmse_mae_per_fold %>%
       dplyr::group_by(!! as.name(fold_info_cols[["fold_column"]])) %>%
-      dplyr::summarize(RMSE = mean(RMSE, na.rm = TRUE),
-                       MAE = mean(MAE, na.rm = TRUE)) %>%
-      dplyr::summarize(RMSE = mean(RMSE, na.rm = TRUE),
-                       MAE = mean(MAE, na.rm = TRUE))
+      dplyr::summarize(RMSE = mean(.data$RMSE, na.rm = TRUE),
+                       MAE = mean(.data$MAE, na.rm = TRUE)) %>%
+      dplyr::summarize(RMSE = mean(.data$RMSE, na.rm = TRUE),
+                       MAE = mean(.data$MAE, na.rm = TRUE))
 
     # Get model metrics
     model_metrics_per_fold <- plyr::ldply(models, function(m){
@@ -74,7 +77,7 @@ linear_regression_eval <- function(data,
     # Average model metrics
     # First average per fold column, then average those
     avg_model_metrics <- model_metrics_per_fold %>%
-      dplyr::select(-c(abs_fold,
+      dplyr::select(-c(.data$abs_fold,
                        !! as.name(fold_info_cols[["rel_fold"]]))) %>%
       dplyr::group_by(!! as.name(fold_info_cols[["fold_column"]])) %>%
       dplyr::summarise_all(.funs = list(~mean(., na.rm = TRUE))) %>%
@@ -101,7 +104,7 @@ linear_regression_eval <- function(data,
     rmse_mae_per_fold[[fold_info_cols[["abs_fold"]]]] <- fold_and_fold_col[[fold_info_cols[["abs_fold"]]]]
     rmse_mae_per_fold[[fold_info_cols[["rel_fold"]]]] <- fold_and_fold_col[[fold_info_cols[["rel_fold"]]]]
     rmse_mae_per_fold <- rmse_mae_per_fold %>%
-      dplyr::select(-RMSE, dplyr::everything()) # Move RMSE to the end (weird syntax)
+      dplyr::select(-.data$RMSE, dplyr::everything()) # Move RMSE to the end (weird syntax)
     avg_rmse_mae <- tibble::tibble("RMSE"=NA, "MAE"=NA)
     model_metrics_per_fold <- list(linear_regression_model_eval(NULL, NULL)) %>%
       rep(num_folds) %>%
@@ -125,7 +128,7 @@ linear_regression_eval <- function(data,
                             fold_info_cols[["rel_fold"]])) %>%
     dplyr::rename(`Fold Column` = fold_info_cols[["fold_column"]],
                   Fold = fold_info_cols[["rel_fold"]]) %>%
-    dplyr::select(-abs_fold)
+    dplyr::select(-.data$abs_fold)
 
   if (!is.na(predictions_nested)){
     avg_results[["Predictions"]] <- predictions_nested$predictions
@@ -176,7 +179,7 @@ get_nested_model_coefficients <- function(models, fold_info=list(folds=NULL,
                    'std.error'=NA, 'statistic'=NA,
                    'fold'=NA,"fold_column"=NA) %>%
       nest_models() %>%
-      dplyr::pull(Coefficients)
+      dplyr::pull(.data$Coefficients)
 
     return(nested_NA_coeffs)
 
@@ -198,7 +201,7 @@ get_nested_model_coefficients <- function(models, fold_info=list(folds=NULL,
     }) %>%
       dplyr::bind_rows() %>%
       nest_models() %>%
-      dplyr::pull(Coefficients)
+      dplyr::pull(.data$Coefficients)
   }, error = function(e){
     stop(paste0("Error when extracting model coefficients: ", e))
   })

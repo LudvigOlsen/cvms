@@ -97,7 +97,7 @@ cv_plot <- function(x, type){
 
     if (type == 'ROC'){
 
-      ROC_plot <- data.frame(y=x$ROC[[1]]$sensitivities, x=x$ROC[[1]]$specificities) %>%
+      ROC_plot <- data.frame(y=x$ROC[[1]]$Sensitivities, x=x$ROC[[1]]$Specificities) %>%
         ggplot2::ggplot(ggplot2::aes(x, y)) +
         ggplot2::geom_line() +
         ggplot2::scale_x_reverse() +

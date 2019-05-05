@@ -4,7 +4,7 @@
 \alias{cross_validate}
 \title{Cross-validate regression models for model selection}
 \usage{
-cross_validate(data, models, folds_col = ".folds", family = "gaussian",
+cross_validate(data, models, fold_cols = ".folds", family = "gaussian",
   link = NULL, control = NULL, REML = FALSE, cutoff = 0.5,
   positive = 1, rm_nc = FALSE, model_verbose = FALSE)
 }
@@ -12,7 +12,7 @@ cross_validate(data, models, folds_col = ".folds", family = "gaussian",
 \item{data}{Dataframe.
 
  Must include grouping factor for identifying folds
-  - as made with groupdata2's \link[groupdata2]{fold}().}
+  - as made with \code{\link[groupdata2:fold]{groupdata2::fold()}}.}
 
 \item{models}{Model formulas as strings. (Character)
 
@@ -22,7 +22,9 @@ cross_validate(data, models, folds_col = ".folds", family = "gaussian",
 
  E.g. \code{c("y~x+(1|r)", "y~z+(1|r)")}.}
 
-\item{folds_col}{Name of grouping factor for identifying folds. (Character)}
+\item{fold_cols}{Name(s) of grouping factor(s) for identifying folds. (Character)
+
+ Include names of multiple grouping factors for repeated cross-validation.}
 
 \item{family}{Name of family ('gaussian' or 'binomial'). (Character)}
 
@@ -31,7 +33,7 @@ cross_validate(data, models, folds_col = ".folds", family = "gaussian",
  E.g. \code{link = "log"} with \code{family = "gaussian"} will
  use \code{family = gaussian(link = "log")}.
 
- See \link[stats]{family} for available link functions.
+ See \code{\link[stats:family]{stats::family}} for available link functions.
 
  \subsection{Default link functions}{
 
@@ -39,17 +41,21 @@ cross_validate(data, models, folds_col = ".folds", family = "gaussian",
 
  Binomial: \code{'logit'}.}}
 
-\item{control}{Construct control structures for mixed model fitting (i.e. \link[lme4]{lmer} and \link[lme4]{glmer}).
-See \link[lme4]{lmerControl} and \link[lme4]{glmerControl}.
-Ignored if fitting \code{lm} and \code{glm} models.}
+\item{control}{Construct control structures for mixed model fitting
+(i.e. \code{\link[lme4]{lmer}} and \code{\link[lme4]{glmer}}).
+See \code{\link[lme4:lmerControl]{lme4::lmerControl}} and
+\code{\link[lme4:glmerControl]{lme4::glmerControl}}.
+Ignored if fitting \code{\link[stats]{lm}} or \code{\link[stats]{glm}} models.}
 
 \item{REML}{Restricted Maximum Likelihood. (Logical)}
 
 \item{cutoff}{Threshold for predicted classes. Binomial models only. (Numeric)}
 
-\item{positive}{Level from dependent variable to predict (1 or 2 - alphabetically).
-Used when creating confusion matrix.
-Binomial models only. (Integer)}
+\item{positive}{Level from dependent variable to predict.
+ Either as character or level index (1 or 2 - alphabetically).
+ Used when creating confusion matrix.
+
+ Binomial models only. (Character or Integer)}
 
 \item{rm_nc}{Remove non-converged models from output. (Logical)}
 
@@ -58,96 +64,114 @@ Binomial models only. (Integer)}
 \value{
 Tbl (tibble) with results for each model.
 
- \subsection{Gaussian Results}{
- Average \strong{RMSE}, \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
- and \strong{BIC} of all the iterations,
- omitting potential NAs from non-converged iterations.
- Notice that the Information Criteria (AIC, AICc, and BIC) are also averages.
+ \subsection{Shared across families}{
+ A nested tibble with \strong{coefficients} of the models from all iterations.
+
+ Number of \emph{total} \strong{folds}.
+
+ Number of \strong{fold columns}.
 
  Count of \strong{convergence warnings}. Consider discarding models that did not converge on all
- iterations. As we omit NAs before averaging the results, you might still see results,
- but these should be taken with a grain of salt!
+ iterations. Note: you might still see results, but these should be taken with a grain of salt!
 
  Specified \strong{family}.
 
- A tibble of the non-averaged \strong{results} from all iterations.
-
- A tibble with \strong{coefficients} of the models from all iterations.
+ Specified \strong{link} function.
 
  Name of \strong{dependent} variable.
 
  Names of \strong{fixed} effects.
 
- Names of \strong{random} effects if any.
+ Names of \strong{random} effects, if any.
+ }
+
+ \subsection{Gaussian Results}{
+ Average \strong{RMSE}, \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
+ and \strong{BIC} of all the iterations*,
+ \emph{\strong{omitting potential NAs} from non-converged iterations}.
+ Note that the Information Criteria metrics (AIC, AICc, and BIC) are also averages.
+
+ A nested tibble with the \strong{predictions} and targets.
+
+ A nested tibble with the non-averaged \strong{results} from all iterations.
+
+ * In \emph{repeated cross-validation},
+ the metrics are first averaged for each fold column (repetition) and then averaged again.
 
  }
 
  \subsection{Binomial Results}{
- Based on predictions of the test folds,
- a confusion matrix and ROC curve are used to get the following:
+ Based on the collected predictions from the test folds*,
+ a confusion matrix and a ROC curve are created to get the following:
+
+ Confusion Matrix:
+
+ \strong{Balanced Accuracy}, \strong{F1},
+ \strong{Sensitivity}, \strong{Specificity},
+ \strong{Positive Prediction Value},
+ \strong{Negative Prediction Value},
+ \strong{Kappa},
+ \strong{Detection Rate},
+ \strong{Detection Prevalence},
+ \strong{Prevalence}, and
+ \strong{MCC} (Matthews correlation coefficient).
 
  ROC:
 
  \strong{AUC}, \strong{Lower CI}, and \strong{Upper CI}
 
- Confusion Matrix:
+ A nested tibble with \strong{predictions}, predicted classes (depends on \code{cutoff}), and the targets.
 
- \strong{Kappa}, \strong{Sensitivity},
- \strong{Specificity}, \strong{Positive Prediction Value},
- \strong{Negative Prediction Value},
- \strong{F1}, \strong{Prevalence}, \strong{Detection Rate},
- \strong{Detection Prevalence}, and
- \strong{Balanced Accuracy}.
+ A nested tibble with the sensativities and specificities from the \strong{ROC} curve(s).
 
- Count of \strong{convergence warnings}. Consider discarding models that did not converge on all
- iterations!
+ A nested tibble with the \strong{confusion matrix}/matrices.
 
- Specified \strong{family}.
+ A nested tibble with the \strong{results} from all fold columns, if using repeated cross-validation.
 
- A tibble with \strong{predictions}, predicted classes (depends on \code{cutoff}), and the targets.
-
- A tibble with the sensativities and specificities from the \strong{ROC} curve.
-
- Name of \strong{dependent} variable.
-
- Names of \strong{fixed} effects.
-
- Names of \strong{random} effects if any.
+ * In \emph{repeated cross-validation}, an evaluation is made per fold column (repetition) and averaged.
 
  }
 }
 \description{
 Cross-validate one or multiple gaussian or binomial
- models at once. Returns results in a tibble for easy comparison and
- reporting.
+ models at once. Perform repeated cross-validation.
+ Returns results in a tibble for easy comparison,
+ reporting and further analysis.
 }
 \details{
-\subsection{Models}{
+Packages used:
 
- Gaussian: stats::lm, lme4::lmer
+ \subsection{Models}{
 
- Binomial: stats::glm, lme4::glmer
+ Gaussian: \code{\link[stats::lm]{stats::lm}}, \code{\link[lme4::lmer]{lme4::lmer}}
+
+ Binomial: \code{\link[stats::glm]{stats::glm}}, \code{\link[lme4::glmer]{lme4::glmer}}
  }
  \subsection{Results}{
- \strong{Gaussian}:
+ \subsection{Gaussian}{
 
- RMSE : hydroGOF::rmse
+ RMSE : \code{\link[hydroGOF::rmse]{hydroGOF::rmse}}
 
- r2m : MuMIn::r.squaredGLMM
+ MAE : \code{\link[hydroGOF::mae]{hydroGOF::mae}}
 
- r2c : MuMIn::r.squaredGLMM
+ r2m : \code{\link[MuMIn::r.squaredGLMM]{MuMIn::r.squaredGLMM}}
 
- AIC : stats::AIC
+ r2c : \code{\link[MuMIn::r.squaredGLMM]{MuMIn::r.squaredGLMM}}
 
- AICc : AICcmodavg::AICc
+ AIC : \code{\link[stats::AIC]{stats::AIC}}
 
- BIC : stats::BIC
+ AICc : \code{\link[AICcmodavg::AICc]{AICcmodavg::AICc}}
 
- \strong{Binomial}:
+ BIC : \code{\link[stats::BIC]{stats::BIC}}
+ }
+ \subsection{Binomial}{
 
- Confusion matrix: caret::confusionMatrix
+ Confusion matrix: \code{\link[caret::confusionMatrix]{caret::confusionMatrix}}
 
- ROC: pROC::roc
+ ROC: \code{\link[pROC::roc]{pROC::roc}}
+
+ MCC: \code{\link[mltools::mcc]{mltools::mcc}}
+ }
  }
 }
 \examples{
@@ -198,6 +222,7 @@ cross_validate(data,
                family = 'gaussian',
                link = 'log',
                REML = FALSE)
+
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

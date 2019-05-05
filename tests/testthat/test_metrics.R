@@ -12,7 +12,6 @@ test_that("Metrics work for glm in validate()",{
                                id_col = 'participant',
                                list_out = FALSE)
 
-
   validated <- validate(train_data=dat, models="diagnosis~score",
                         partitions_col = '.partitions', family = 'binomial')
   same_model <- glm(diagnosis~score, data=dat[dat$.partitions==1,], family = 'binomial')
@@ -269,7 +268,7 @@ test_that("Metrics work in cross_validate()",{
   # Confusion matrix
   confMat <- caret::confusionMatrix(factor(pred_df$pred, levels=c(0,1)),
                                     reference=factor(pred_df$obs, levels=c(0,1)))
-  TP <- confMat$table[1]
+  TP <- confMat$table[1] # Dependent on positive = 0 ?
   FP <- confMat$table[3]
   FN <- confMat$table[2]
   TN <- confMat$table[4]
@@ -277,6 +276,10 @@ test_that("Metrics work in cross_validate()",{
   recall = TP / (TP + FN)
   F1_2 <- 2 * precision * recall / (precision + recall)
   expect_equal(F1_2,0.6666667, tolerance = 1e-3)
+
+  # Test that MCC does not care about what class if positive
+  expect_equal(mltools::mcc(TP=TP, FP=FP, FN=FN, TN=TN),
+               mltools::mcc(TP=TN, FP=FN, FN=FP, TN=TP))
 
   # Add tests for the following metrics
   # expect_equal(#LowerCI, 0.5851154)

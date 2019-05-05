@@ -20,7 +20,7 @@ validate(train_data, models, test_data = NULL,
 
  E.g. \code{c("y~x+(1|r)", "y~z+(1|r)")}.}
 
-\item{test_data}{Dataframe.}
+\item{test_data}{Dataframe. If specifying \code{partitions_col}, this can be \code{NULL}.}
 
 \item{partitions_col}{Name of grouping factor for identifying partitions. (Character)
  1 is training set and 2 is test set.
@@ -34,7 +34,7 @@ validate(train_data, models, test_data = NULL,
  E.g. \code{link = "log"} with \code{family = "gaussian"} will
  use \code{family = gaussian(link = "log")}.
 
- See \link[stats]{family} for available link functions.
+ See \code{\link[stats:family]{stats::family}} for available link functions.
 
  \subsection{Default link functions}{
 
@@ -42,31 +42,27 @@ validate(train_data, models, test_data = NULL,
 
  Binomial: \code{'logit'}.}}
 
-\item{control}{Construct control structures for mixed model fitting (i.e. \link[lme4]{lmer} and \link[lme4]{glmer}).
-See \link[lme4]{lmerControl} and \link[lme4]{glmerControl}.
-Ignored if fitting \code{lm} and \code{glm} models.}
+\item{control}{Construct control structures for mixed model fitting
+(i.e. \code{\link[lme4]{lmer}} and \code{\link[lme4]{glmer}}).
+See \code{\link[lme4:lmerControl]{lme4::lmerControl}} and
+\code{\link[lme4:glmerControl]{lme4::glmerControl}}.
+Ignored if fitting \code{\link[stats]{lm}} or \code{\link[stats]{glm}} models.}
 
 \item{REML}{Restricted Maximum Likelihood. (Logical)}
 
 \item{cutoff}{Threshold for predicted classes. Binomial models only. (Numeric)}
 
-\item{positive}{Level from dependent variable to predict (1 or 2 - alphabetically).
-Used when creating confusion matrix.
-Binomial models only. (Integer)}
+\item{positive}{Level from dependent variable to predict.
+ Either as character or level index (1 or 2 - alphabetically).
+ Used when creating confusion matrix.
+
+ Binomial models only. (Character or Integer)}
 
 \item{err_nc}{Raise error if model does not converge. (Logical)}
 
 \item{rm_nc}{Remove non-converged models from output. (Logical)}
 
 \item{model_verbose}{Print name of used model function on each iteration. (Logical)}
-
-\item{model}{Model formula as string. (Character)
-
- E.g. \code{"y~x"}.
-
- Can contain random effects.
-
- E.g. \code{"y~x+(1|r)"}.}
 }
 \value{
 List containing tbl (tibble) with results and the trained model object.

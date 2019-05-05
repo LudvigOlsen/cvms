@@ -27,6 +27,7 @@ r-pkgs@ludvigolsen.dk
 Main functions:  
 
 * cross_validate()
+* validate()
 * cv_plot()
 
 ## Installation  
@@ -83,29 +84,64 @@ data %>% head(15) %>% kable()
 
 ```{r}
 CV1 <- cross_validate(data, "score~diagnosis", 
-                     folds_col = '.folds', 
+                     fold_cols = '.folds', 
                      family='gaussian', 
                      REML = FALSE)
 
 # Show results
 CV1
+
+# Let's take a closer look at the different parts of the output 
+
+# Results metrics
+CV1 %>% select(1:7) %>% kable()
+
+# Nested predictions 
+# Note that [[1]] picks predictions for the first row
+CV1$Predictions[[1]] %>% head() %>% kable()
+
+# Nested results from the different folds/models
+CV1$Results[[1]] %>% kable()
+
+# Nested model coefficients
+# Note that you have the full p-values, 
+# but kable() only show a certain number of digits
+CV1$Coefficients[[1]] %>% kable()
+
+# Additional information about the model
+# and the training process
+CV1 %>% select(11:17) %>% kable()
+
 ```
 
 ### Binomial
 
 ```{r}
 CV2 <- cross_validate(data, "diagnosis~score", 
-                     folds_col = '.folds', 
+                     fold_cols = '.folds', 
                      family='binomial')
 
 # Show results
 CV2
+
+# Let's take a closer look at the different parts of the output 
+# We won't repeat the parts too similar to those in Gaussian
+
+# Results metrics
+CV2 %>% select(1:9) %>% kable()
+CV2 %>% select(10:14) %>% kable()
+
+# ROC curve info
+CV2$ROC[[1]] %>% head() %>% kable()
+
+# Confusion matrix
+CV2$`Confusion Matrix`[[1]] %>% kable()
 ```
 
 
 ## Cross-validate multiple models
 
-### Describe model formulas
+### Create model formulas
 
 ```{r}
 models <- c("score~diagnosis","score~age")
@@ -116,7 +152,7 @@ mixed_models <- c("score~diagnosis+(1|session)","score~age+(1|session)")
 
 ```{r}
 CV3 <- cross_validate(data, models, 
-                     folds_col = '.folds', 
+                     fold_cols = '.folds', 
                      family='gaussian', 
                      REML = FALSE)
 
@@ -128,7 +164,7 @@ CV3
 
 ```{r}
 CV4 <- cross_validate(data, mixed_models, 
-                     folds_col = '.folds', 
+                     fold_cols = '.folds', 
                      family='gaussian', 
                      REML = FALSE)
 
@@ -136,7 +172,47 @@ CV4 <- cross_validate(data, mixed_models,
 CV4
 ```
 
+## Repeated cross-validation
+Note: currently only work with the github version of groupdata2!
+
+Let's first create new folds. We will use the num_fold_cols argument to add 3 unique fold columns.
+
+```{r}
+# devtools::install_github("ludvigolsen/groupdata2", ref="repeatedCV")
+
+# Set seed for reproducibility
+set.seed(7)
+
+# Fold data 
+data <- fold(data, k = 4,
+             cat_col = 'diagnosis',
+             id_col = 'participant',
+             num_fold_cols = 3)
+
+# Show first 15 rows of data
+data %>% head(10) %>% kable()
+
+```
+
+
+```{r}
+CV5 <- cross_validate(data, "diagnosis~score+(1|session)", 
+                     fold_cols = c('.folds_1','.folds_2','.folds_3'), 
+                     family='binomial', 
+                     REML = FALSE)
+
+# Show results
+CV5
+
+# The binomial output now has a nested results tibble
+# Let's see a subset of the columns
+CV5$Results[[1]] %>% select(1:8) %>%  kable()
+```
+
+
 ## Plot results
+
+There are currently a small set of plots for quick visualization of the results. It is supposed to be easy to extract the needed information to create your own plots. If you lack access to any information or have other requests or ideas, feel free to open an issue.
 
 ### Gaussian
 

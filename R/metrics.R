@@ -10,6 +10,16 @@ calculate_RMSE <- function(predictions, targets, raise_errors = FALSE){
   })
 }
 
+calculate_MAE <- function(predictions, targets, raise_errors = FALSE){
+  tryCatch({
+    hydroGOF::mae(predictions, targets)
+  }, error = function(e){
+    if (raise_errors) stop(e)
+    else warning(e)
+    return(NA)
+  })
+}
+
 
 calculate_r2m <- function(model, raise_errors = FALSE){
   tryCatch({

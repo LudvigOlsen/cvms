@@ -5,14 +5,7 @@
 #'  \strong{validate() is under development! Large changes may occur.}
 #' @inheritParams cross_validate
 #' @param train_data Dataframe.
-#' @param model Model formula as string. (Character)
-#'
-#'  E.g. \code{"y~x"}.
-#'
-#'  Can contain random effects.
-#'
-#'  E.g. \code{"y~x+(1|r)"}.
-#' @param test_data Dataframe.
+#' @param test_data Dataframe. If specifying \code{partitions_col}, this can be \code{NULL}.
 #' @param partitions_col Name of grouping factor for identifying partitions. (Character)
 #'  1 is training set and 2 is test set.
 #'

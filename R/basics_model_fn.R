@@ -2,14 +2,14 @@
 
 basics_model_fn <- function(train_data,
                             test_data,
-                            fold,
+                            fold_info = list(rel_fold=NULL, abs_fold=NULL, fold_column=NULL),
                             model_specifics = list(model_formula=NULL, family=NULL, link=NULL,
                                                    control=NULL, REML=FALSE, positive=1,
                                                    cutoff=0.5, model_verbose=FALSE)){
 
   y_col <- extract_y(model_specifics[["model_formula"]]) # Name of target column
 
-  # Check if there are random effects Logical
+  # Check if there are random effects (Logical)
   contains_random_effects = rand_effects(model_specifics[["model_formula"]])
 
   # Choose model_type
@@ -25,7 +25,7 @@ basics_model_fn <- function(train_data,
   model <- basics_run_model_fitting(basics_fit_model, model_specifics = model_specifics,
                                     train_data = train_data,
                                     warn_info=list(model_formula=model_specifics[["model_formula"]],
-                                                   fold=fold,
+                                                   fold_info=fold_info,
                                                    model_verbose=model_specifics[["model_verbose"]]))
 
   # Predict test set
@@ -43,7 +43,9 @@ basics_model_fn <- function(train_data,
 
   predictions_and_targets <- tibble::tibble("target" = test_data[[y_col]],
                                             "prediction" = predictions,
-                                            "fold" = fold)
+                                            "rel_fold" = fold_info[["rel_fold"]],
+                                            "abs_fold" = fold_info[["abs_fold"]],
+                                            "fold_column" = fold_info[["fold_column"]])
 
   return(list(predictions_and_targets=predictions_and_targets,
               model=model))

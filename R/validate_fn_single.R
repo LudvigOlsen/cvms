@@ -1,12 +1,12 @@
 #' @importFrom dplyr %>%
 validate_fn_single = function(train_data,
-                             model_fn,
-                             evaluation_type="linear_regression",
-                             model_specifics=list(),
-                             model_specifics_update_fn=NULL,
-                             test_data = NULL,
-                             partitions_col = '.partitions',
-                             err_nc = FALSE) {
+                              model_fn,
+                              evaluation_type="linear_regression",
+                              model_specifics=list(),
+                              model_specifics_update_fn=NULL,
+                              test_data = NULL,
+                              partitions_col = '.partitions',
+                              err_nc = FALSE) {
 
   # Set errors if input variables aren't what we expect / can handle
   # WORK ON THIS SECTION!
@@ -41,7 +41,7 @@ validate_fn_single = function(train_data,
 
   fitting_output <- model_fn(train_data = train_data,
                              test_data = test_data,
-                             fold = 1, # we'll remove this later
+                             fold_info = list(rel_fold=1, abs_fold=1, fold_column=1), # we'll remove this later
                              model_specifics=model_specifics)
 
   predictions_and_targets <- fitting_output[["predictions_and_targets"]]
@@ -53,7 +53,9 @@ validate_fn_single = function(train_data,
                                type=evaluation_type,
                                predictions_col = "prediction",
                                targets_col = "target",
-                               folds_col = "fold",
+                               fold_info_cols = list(rel_fold="rel_fold",
+                                                     abs_fold="abs_fold",
+                                                     fold_column="fold_column"),
                                models=list(model),
                                model_specifics=model_specifics) %>%
     mutate(`Convergence Warnings` = ifelse(is.null(model), 1, 0))

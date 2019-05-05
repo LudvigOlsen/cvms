@@ -56,10 +56,10 @@ test_that("binomial model work with validate()", {
   expect_is(Vbinom_results$ROC[[1]], "tbl_df")
   expect_equal(
     colnames(Vbinom_results$Predictions[[1]]),
-    c("prediction", "predicted_class", "target")
+    c("Fold Column","Fold","Target","Prediction","Predicted Class")
   )
   expect_equal(colnames(Vbinom_results$ROC[[1]]),
-               c("sensitivities", "specificities"))
+               c("Sensitivities", "Specificities"))
   expect_equal(nrow(Vbinom_results$Predictions[[1]]), 9)
   expect_equal(nrow(Vbinom_results$ROC[[1]]), 9)
 
@@ -116,10 +116,10 @@ test_that("binomial mixed model work with validate()", {
   expect_is(Vbinom_results$ROC[[1]], "tbl_df")
   expect_equal(
     colnames(Vbinom_results$Predictions[[1]]),
-    c("prediction", "predicted_class", "target")
+    c("Fold Column","Fold","Target","Prediction","Predicted Class")
   )
   expect_equal(colnames(Vbinom_results$ROC[[1]]),
-               c("sensitivities", "specificities"))
+               c("Sensitivities", "Specificities"))
   expect_equal(nrow(Vbinom_results$Predictions[[1]]), 12)
   expect_equal(nrow(Vbinom_results$ROC[[1]]), 12)
 
@@ -175,10 +175,10 @@ test_that("binomial model work with test_data in validate()", {
   expect_is(Vbinom_results$ROC[[1]], "tbl_df")
   expect_equal(
     colnames(Vbinom_results$Predictions[[1]]),
-    c("prediction", "predicted_class", "target")
+    c("Fold Column","Fold","Target","Prediction","Predicted Class")
   )
   expect_equal(colnames(Vbinom_results$ROC[[1]]),
-               c("sensitivities", "specificities"))
+               c("Sensitivities", "Specificities"))
   expect_equal(nrow(Vbinom_results$Predictions[[1]]), 9)
   expect_equal(nrow(Vbinom_results$ROC[[1]]), 9)
 

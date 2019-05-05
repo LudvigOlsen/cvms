@@ -128,3 +128,61 @@ assign_if_not_null_named_lists <- function(var, var_name, list_name){
   if (is.null(var)){stop(paste0(var_name, " is NULL. The arguments in the ",list_name," list must be named."))}
   var
 }
+
+# Removes pattern from all column names
+remove_from_colnames <- function(data, pattern){
+  colnames(data) <- colnames(data) %>%
+    tibble::enframe(name=NULL) %>%
+    dplyr::mutate(colname = stringr::str_remove_all(value, pattern)) %>%
+    dplyr::pull(colname)
+
+  return(data)
+}
+
+
+# Returns list with folds_map and n_folds
+create_folds_map <- function(data, fold_cols){
+
+  # Create a map of number of folds per fold column
+  # The range tells what fold column a specific fold belongs to.
+  folds_map <- plyr::llply(1:length(fold_cols), function(fold_column){
+    nlevels(data[[ fold_cols[[fold_column]] ]])
+  }) %>%
+    unlist() %>%
+    tibble::enframe(name="fold_col", value="num_folds")
+
+  # Create ranges
+  first_start <- folds_map$num_folds[[1]]
+  folds_map <- folds_map %>%
+    dplyr::mutate(end_ = cumsum(num_folds),
+                  start_ = end_ - (first_start-1))
+
+  # Calculate number of folds
+  n_folds <- sum(folds_map$num_folds)
+
+  # Expand ranges to long format
+  folds_map_expanded <- plyr::ldply(1:length(fold_cols), function(fold_column){
+    data.frame("fold_col_idx"=fold_column,
+               "fold_col_name"=fold_cols[[fold_column]],
+               abs_fold=c(folds_map[["start_"]][[fold_column]]:folds_map[["end_"]][[fold_column]]),
+               rel_fold=c(1:folds_map[["num_folds"]][[fold_column]]))
+  }) %>% dplyr::as_tibble()
+
+  return(
+    list(
+    "folds_map" = folds_map_expanded,
+    "n_folds" = n_folds)
+    )
+
+}
+
+# Creates data frame with existing combinations of fold column, abs_fold and rel_fold
+# For adding the info to other data frames via joins
+create_fold_and_fold_column_map <- function(data, fold_info_cols){
+  data %>%
+    dplyr::select(dplyr::one_of(fold_info_cols[["fold_column"]],
+                                fold_info_cols[["abs_fold"]],
+                                fold_info_cols[["rel_fold"]]
+    )) %>%
+    dplyr::distinct()
+}

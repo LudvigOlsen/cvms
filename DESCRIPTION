@@ -5,7 +5,7 @@ Authors@R: person("Ludvig Renbo", "Olsen", email = "r-pkgs@ludvigolsen.dk", role
 Description: Run cross-validation of one or multiple regression models with a tidy output. 
   Currently supports gaussian and binomial regression.
 Depends:
-    R (>= 3.3.1),
+    R (>= 3.5),
     zoo
 License: MIT + file LICENSE
 Encoding: UTF-8

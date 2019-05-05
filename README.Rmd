@@ -133,6 +133,9 @@ CV2 %>% select(10:14) %>% kable()
 
 # ROC curve info
 CV2$ROC[[1]] %>% head() %>% kable()
+
+# Confusion matrix
+CV2$`Confusion Matrix`[[1]] %>% kable()
 ```
 
 

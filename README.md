@@ -189,16 +189,17 @@ CV2 <- cross_validate(data, "diagnosis~score",
 
 # Show results
 CV2
-#> # A tibble: 1 x 24
+#> # A tibble: 1 x 25
 #>   `Balanced Accur…    F1 Sensitivity Specificity `Pos Pred Value`
 #>              <dbl> <dbl>       <dbl>       <dbl>            <dbl>
 #> 1            0.708 0.636       0.583       0.833              0.7
-#> # … with 19 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
+#> # … with 20 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
 #> #   CI` <dbl>, `Upper CI` <dbl>, Kappa <dbl>, MCC <dbl>, `Detection
 #> #   Rate` <dbl>, `Detection Prevalence` <dbl>, Prevalence <dbl>,
-#> #   Predictions <list>, ROC <list>, Coefficients <list>, Folds <int>,
-#> #   `Fold Columns` <int>, `Convergence Warnings` <dbl>, Family <chr>,
-#> #   Link <chr>, Dependent <chr>, Fixed <chr>
+#> #   Predictions <list>, ROC <list>, `Confusion Matrix` <list>,
+#> #   Coefficients <list>, Folds <int>, `Fold Columns` <int>, `Convergence
+#> #   Warnings` <dbl>, Family <chr>, Link <chr>, Dependent <chr>,
+#> #   Fixed <chr>
 
 # Let's take a closer look at the different parts of the output 
 # We won't repeat the parts too similar to those in Gaussian
@@ -233,6 +234,19 @@ CV2$ROC[[1]] %>% head() %>% kable()
 |      0.9444444|      0.1666667|
 |      0.9444444|      0.2500000|
 |      0.8888889|      0.2500000|
+
+``` r
+
+# Confusion matrix
+CV2$`Confusion Matrix`[[1]] %>% kable()
+```
+
+| Fold Column | Prediction | Reference | Pos\_0 | Pos\_1 |    N|
+|:------------|:-----------|:----------|:-------|:-------|----:|
+| .folds      | 0          | 0         | TP     | TN     |    7|
+| .folds      | 1          | 0         | FN     | FP     |    5|
+| .folds      | 0          | 1         | FP     | FN     |    3|
+| .folds      | 1          | 1         | TN     | TP     |   15|
 
 Cross-validate multiple models
 ------------------------------
@@ -328,16 +342,17 @@ CV5 <- cross_validate(data, "diagnosis~score+(1|session)",
 
 # Show results
 CV5
-#> # A tibble: 1 x 26
+#> # A tibble: 1 x 27
 #>   `Balanced Accur…    F1 Sensitivity Specificity `Pos Pred Value`
 #>              <dbl> <dbl>       <dbl>       <dbl>            <dbl>
 #> 1            0.852 0.822       0.833       0.870            0.812
-#> # … with 21 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
+#> # … with 22 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
 #> #   CI` <dbl>, `Upper CI` <dbl>, Kappa <dbl>, MCC <dbl>, `Detection
 #> #   Rate` <dbl>, `Detection Prevalence` <dbl>, Prevalence <dbl>,
-#> #   Predictions <list>, ROC <list>, Coefficients <list>, Results <list>,
-#> #   Folds <int>, `Fold Columns` <int>, `Convergence Warnings` <dbl>,
-#> #   Family <chr>, Link <chr>, Dependent <chr>, Fixed <chr>, Random <chr>
+#> #   Predictions <list>, ROC <list>, `Confusion Matrix` <list>,
+#> #   Coefficients <list>, Results <list>, Folds <int>, `Fold
+#> #   Columns` <int>, `Convergence Warnings` <dbl>, Family <chr>,
+#> #   Link <chr>, Dependent <chr>, Fixed <chr>, Random <chr>
 
 # The binomial output now has a nested results tibble
 # Let's see a subset of the columns

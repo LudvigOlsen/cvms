@@ -51,9 +51,11 @@ Ignored if fitting \code{\link[stats]{lm}} or \code{\link[stats]{glm}} models.}
 
 \item{cutoff}{Threshold for predicted classes. Binomial models only. (Numeric)}
 
-\item{positive}{Level from dependent variable to predict (1 or 2 - alphabetically).
-Used when creating confusion matrix.
-Binomial models only. (Integer)}
+\item{positive}{Level from dependent variable to predict.
+ Either as character or level index (1 or 2 - alphabetically).
+ Used when creating confusion matrix.
+
+ Binomial models only. (Character or Integer)}
 
 \item{rm_nc}{Remove non-converged models from output. (Logical)}
 
@@ -121,6 +123,8 @@ Tbl (tibble) with results for each model.
  A nested tibble with \strong{predictions}, predicted classes (depends on \code{cutoff}), and the targets.
 
  A nested tibble with the sensativities and specificities from the \strong{ROC} curve(s).
+
+ A nested tibble with the \strong{confusion matrix}/matrices.
 
  A nested tibble with the \strong{results} from all fold columns, if using repeated cross-validation.
 

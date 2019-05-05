@@ -103,6 +103,8 @@
 #'
 #'  A nested tibble with the sensativities and specificities from the \strong{ROC} curve(s).
 #'
+#'  A nested tibble with the \strong{confusion matrix}/matrices.
+#'
 #'  A nested tibble with the \strong{results} from all fold columns, if using repeated cross-validation.
 #'
 #'  * In \emph{repeated cross-validation}, an evaluation is made per fold column (repetition) and averaged.
@@ -147,9 +149,11 @@
 #'  Ignored if fitting \code{\link[stats]{lm}} or \code{\link[stats]{glm}} models.
 #' @param REML Restricted Maximum Likelihood. (Logical)
 #' @param cutoff Threshold for predicted classes. Binomial models only. (Numeric)
-#' @param positive Level from dependent variable to predict (1 or 2 - alphabetically).
+#' @param positive Level from dependent variable to predict.
+#'  Either as character or level index (1 or 2 - alphabetically).
 #'  Used when creating confusion matrix.
-#'  Binomial models only. (Integer)
+#'
+#'  Binomial models only. (Character or Integer)
 #' @param rm_nc Remove non-converged models from output. (Logical)
 #' @param model_verbose Print name of used model function on each iteration. (Logical)
 #' @examples

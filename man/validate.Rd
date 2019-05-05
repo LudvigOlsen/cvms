@@ -52,9 +52,11 @@ Ignored if fitting \code{\link[stats]{lm}} or \code{\link[stats]{glm}} models.}
 
 \item{cutoff}{Threshold for predicted classes. Binomial models only. (Numeric)}
 
-\item{positive}{Level from dependent variable to predict (1 or 2 - alphabetically).
-Used when creating confusion matrix.
-Binomial models only. (Integer)}
+\item{positive}{Level from dependent variable to predict.
+ Either as character or level index (1 or 2 - alphabetically).
+ Used when creating confusion matrix.
+
+ Binomial models only. (Character or Integer)}
 
 \item{err_nc}{Raise error if model does not converge. (Logical)}
 

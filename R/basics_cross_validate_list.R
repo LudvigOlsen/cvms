@@ -13,7 +13,7 @@ basics_cross_validate_list = function(data, model_list, fold_cols = '.folds', fa
   # Set errors if input variables aren't what we expect / can handle
   # WORK ON THIS SECTION!
   stopifnot(is.data.frame(data),
-            positive %in% c(1,2),
+            is.character(positive) || positive %in% c(1,2),
             family %in% c("gaussian", "binomial")
   )
 

@@ -369,6 +369,7 @@ test_that("binomial models work with repeated cross_validate()",{
   expect_is(CVbinomlist$Predictions[[1]], "tbl_df")
   expect_is(CVbinomlist$Results[[1]], "tbl_df")
   expect_is(CVbinomlist$ROC[[1]], "tbl_df")
+  expect_is(CVbinomlist$`Confusion Matrix`[[1]], "tbl_df")
   expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
   expect_equal(colnames(CVbinomlist$Results[[1]]), c("Fold Column","Balanced Accuracy","F1",
                                                      "Sensitivity","Specificity","Pos Pred Value",
@@ -376,10 +377,18 @@ test_that("binomial models work with repeated cross_validate()",{
                                                      "Kappa","MCC","Detection Rate","Detection Prevalence",
                                                      "Prevalence"))
   expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Fold Column","Sensitivities","Specificities"))
+  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]), c("Fold Column","Prediction","Reference","Pos_0","Pos_1","N"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),60)
   expect_equal(nrow(CVbinomlist$ROC[[1]]),58)
   expect_equal(colnames(CVbinomlist$Coefficients[[1]]),
                c("term","estimate","std.error","statistic","p.value","Fold","Fold Column"))
+
+  expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$`Fold Column`, rep(c(".folds_1",".folds_2"), each=4))
+  expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$Prediction, as.character(c(0,1,0,1,0,1,0,1)))
+  expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$Reference, as.character(c(0,0,1,1,0,0,1,1)))
+  expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$Pos_0, rep(c("TP","FN","FP","TN"),2))
+  expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$Pos_1, rep(c("TN","FP","FN","TP"),2))
+  expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(7,5,2,16,7,5,3,15))
 
   expect_equal(CVbinomlist$Results[[1]]$`Fold Column`,c(".folds_1",".folds_2"))
   expect_equal(CVbinomlist$Results[[1]]$`Balanced Accuracy`,c(0.7361111, 0.7083333), tolerance=1e-3)
@@ -397,6 +406,113 @@ test_that("binomial models work with repeated cross_validate()",{
   expect_equal(CVbinomlist$Results[[1]]$Prevalence,c(0.4, 0.4), tolerance=1e-3)
   expect_equal(CVbinomlist$Results[[1]]$MCC,c(0.5048268, 0.4330127), tolerance=1e-3)
 })
+
+test_that("binomial models work with positive as.character in cross_validate()",{
+
+  # Load data and fold it
+  set.seed(1)
+  dat <- groupdata2::fold(participant.scores, k = 4,
+                          cat_col = 'diagnosis',
+                          id_col = 'participant',
+                          num_fold_cols=2) %>%
+  dplyr::mutate(diagnosis = factor(ifelse(diagnosis==0, "E","B")))
+
+  CVbinomlist <- cross_validate(dat, models = c("diagnosis~score","diagnosis~age"),
+                                fold_cols = c('.folds_1','.folds_2'), family='binomial',
+                                REML = FALSE, model_verbose=FALSE)
+
+  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]), c("Fold Column","Prediction","Reference","Pos_B","Pos_E","N"))
+  expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(16,2,5,7,15,3,5,7))
+  expect_equal(CVbinomlist$F1, c(0.8049933, 0.6428571), tolerance=1e-3)
+
+  CVbinomlist <- cross_validate(dat, models = c("diagnosis~score","diagnosis~age"),
+                                fold_cols = c('.folds_1','.folds_2'), family='binomial',
+                                REML = FALSE, model_verbose=FALSE, positive="E")
+
+  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]), c("Fold Column","Prediction","Reference","Pos_B","Pos_E","N"))
+  expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(16,2,5,7,15,3,5,7))
+  expect_equal(CVbinomlist$F1, c(0.6515152, NA), tolerance=1e-3)
+
+  CVbinomlist <- cross_validate(dat, models = c("diagnosis~score","diagnosis~age"),
+                                fold_cols = c('.folds_1','.folds_2'), family='binomial',
+                                REML = FALSE, model_verbose=FALSE, positive="B")
+
+  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]), c("Fold Column","Prediction","Reference","Pos_B","Pos_E","N"))
+  expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(16,2,5,7,15,3,5,7))
+  expect_equal(CVbinomlist$F1, c(0.8049933, 0.6428571), tolerance=1e-3)
+
+  CVbinomlist <- cross_validate(dat, models = c("diagnosis~score","diagnosis~age"),
+                                fold_cols = c('.folds_1','.folds_2'), family='binomial',
+                                REML = FALSE, model_verbose=FALSE, positive=1)
+
+  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]), c("Fold Column","Prediction","Reference","Pos_B","Pos_E","N"))
+  expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(16,2,5,7,15,3,5,7))
+  expect_equal(CVbinomlist$F1, c(0.8049933, 0.6428571), tolerance=1e-3)
+
+  CVbinomlist <- cross_validate(dat, models = c("diagnosis~score","diagnosis~age"),
+                                fold_cols = c('.folds_1','.folds_2'), family='binomial',
+                                REML = FALSE, model_verbose=FALSE, positive=2)
+
+  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]), c("Fold Column","Prediction","Reference","Pos_B","Pos_E","N"))
+  expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(16,2,5,7,15,3,5,7))
+  expect_equal(CVbinomlist$F1, c(0.6515152, NA), tolerance=1e-3)
+
+  expect_error(cross_validate(dat, models = c("diagnosis~score","diagnosis~age"),
+                                fold_cols = c('.folds_1','.folds_2'), family='binomial',
+                                REML = FALSE, model_verbose=FALSE, positive="C"),
+               "When 'positive' is a character, it must correspond to a factor level in the dependent variable.\n'positive' is C and levels are B and E.")
+
+  # Interchanging the level names
+
+  set.seed(1)
+  dat <- groupdata2::fold(participant.scores, k = 4,
+                          cat_col = 'diagnosis',
+                          id_col = 'participant',
+                          num_fold_cols=2) %>%
+    dplyr::mutate(diagnosis = factor(ifelse(diagnosis==0, "B","E")))
+
+  CVbinomlist <- cross_validate(dat, models = c("diagnosis~score","diagnosis~age"),
+                                fold_cols = c('.folds_1','.folds_2'), family='binomial',
+                                REML = FALSE, model_verbose=FALSE)
+
+  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]), c("Fold Column","Prediction","Reference","Pos_B","Pos_E","N"))
+  expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(7,5,2,16,7,5,3,15))
+  expect_equal(CVbinomlist$F1, c(0.6515152, NA), tolerance=1e-3)
+
+  CVbinomlist <- cross_validate(dat, models = c("diagnosis~score","diagnosis~age"),
+                                fold_cols = c('.folds_1','.folds_2'), family='binomial',
+                                REML = FALSE, model_verbose=FALSE, positive="E")
+
+  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]), c("Fold Column","Prediction","Reference","Pos_B","Pos_E","N"))
+  expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(7,5,2,16,7,5,3,15))
+  expect_equal(CVbinomlist$F1, c(0.8049933,0.6428571), tolerance=1e-3)
+
+  CVbinomlist <- cross_validate(dat, models = c("diagnosis~score","diagnosis~age"),
+                                fold_cols = c('.folds_1','.folds_2'), family='binomial',
+                                REML = FALSE, model_verbose=FALSE, positive="B")
+
+  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]), c("Fold Column","Prediction","Reference","Pos_B","Pos_E","N"))
+  expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(7,5,2,16,7,5,3,15))
+  expect_equal(CVbinomlist$F1, c(0.6515152, NA), tolerance=1e-3)
+
+  CVbinomlist <- cross_validate(dat, models = c("diagnosis~score","diagnosis~age"),
+                                fold_cols = c('.folds_1','.folds_2'), family='binomial',
+                                REML = FALSE, model_verbose=FALSE, positive=1)
+
+  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]), c("Fold Column","Prediction","Reference","Pos_B","Pos_E","N"))
+  expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(7,5,2,16,7,5,3,15))
+  expect_equal(CVbinomlist$F1, c(0.6515152, NA), tolerance=1e-3)
+
+  CVbinomlist <- cross_validate(dat, models = c("diagnosis~score","diagnosis~age"),
+                                fold_cols = c('.folds_1','.folds_2'), family='binomial',
+                                REML = FALSE, model_verbose=FALSE, positive=2)
+
+  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]), c("Fold Column","Prediction","Reference","Pos_B","Pos_E","N"))
+  expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(7,5,2,16,7,5,3,15))
+  expect_equal(CVbinomlist$F1, c(0.8049933,0.6428571), tolerance=1e-3)
+
+
+  })
 
 
 

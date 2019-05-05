@@ -14,7 +14,7 @@ binomial_classification_eval <- function(data,
   # Map of fold column, abs_fold and rel_fold
   fold_and_fold_col <- create_fold_and_fold_column_map(data, fold_info_cols)
 
-  # Number of unique fold columns
+  # Unique fold columns
   unique_fold_cols <- unique(fold_and_fold_col[["fold_column"]])
 
   if (!na_in_targets && !na_in_predictions){
@@ -61,11 +61,15 @@ binomial_classification_eval <- function(data,
 
       }) %>% unlist(recursive=FALSE)
 
+      nested_confusion_matrices <- nest_confusion_matrices(fold_col_confusion_matrices, cat_levels, unique_fold_cols)
+
     } else {
       conf_mat <- fit_confusion_matrix(predicted_classes = data[["predicted_classes"]],
                                        targets = data[[targets_col]],
                                        cat_levels = cat_levels,
                                        positive = positive)
+
+      nested_confusion_matrices <- nest_confusion_matrices(list(conf_mat), cat_levels, unique_fold_cols)
     }
 
     # ROC curves
@@ -133,6 +137,8 @@ binomial_classification_eval <- function(data,
 
       results <- binomial_classification_results_tibble(roc_curve, roc_nested, conf_mat, predictions_nested)
     }
+
+    results[["Confusion Matrix"]] <- nested_confusion_matrices$confusion_matrices
 
     # Add model coefficients
     if (!is.null(models)){
@@ -206,11 +212,17 @@ binomial_classification_results_tibble <- function(roc_curve, roc_nested, conf_m
 
 fit_confusion_matrix <- function(predicted_classes, targets, cat_levels, positive){
 
+  if (is.numeric(positive)) positive <- cat_levels[positive]
+  else if (is.character(positive) && positive %ni% cat_levels){
+    stop(paste0("When 'positive' is a character, it must correspond to a factor level in the dependent variable.",
+                "\n'positive' is ", positive, " and levels are ", paste(cat_levels, collapse = " and "),"."))
+  }
+
   # Try to use fit a confusion matrix with the predictions and targets
   conf_mat = tryCatch({
-    caret::confusionMatrix(factor(predicted_classes, levels=c(0,1)),
-                           factor(targets, levels=c(0,1)),
-                           positive=cat_levels[positive])
+    caret::confusionMatrix(factor(predicted_classes), #levels=c(0,1)),
+                           factor(targets), #levels=c(0,1)),
+                           positive=positive)
 
   }, error = function(e) {
     stop(paste0('Confusion matrix error: ',e))
@@ -233,4 +245,27 @@ fit_roc_curve <- function(predicted_probabilities, targets){
   })
 
   roc_curve
+}
+
+nest_confusion_matrices <- function(confusion_matrices, cat_levels=c("0","1"), fold_cols=".folds"){
+
+  if (length(fold_cols) == 1) {
+    fold_cols <- rep(fold_cols, length(confusion_matrices))
+  }
+
+  plyr::ldply(1:length(confusion_matrices), function(i){
+
+    dplyr::as_tibble(confusion_matrices[[i]]$table) %>%
+      dplyr::mutate(Pos0 = c("TP","FN","FP","TN"),
+                    Pos1 = c("TN","FP","FN","TP"),
+                    `Fold Column` = fold_cols[[i]])
+  }) %>%
+    dplyr::rename(N=n) %>%
+    dplyr::select(c(`Fold Column`, Prediction, Reference, Pos0, Pos1, N)) %>%
+    dplyr::rename_at(dplyr::vars(c("Pos0","Pos1")), ~ c(paste0("Pos_",cat_levels[[1]]),
+                                                        paste0("Pos_",cat_levels[[2]]))) %>%
+    tidyr::nest(1:6) %>%
+    dplyr::rename(confusion_matrices = data)
+
+
 }

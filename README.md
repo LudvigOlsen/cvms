@@ -102,12 +102,13 @@ CV1 <- cross_validate(data, "score~diagnosis",
 
 # Show results
 CV1
-#> # A tibble: 1 x 15
+#> # A tibble: 1 x 16
 #>    RMSE   MAE   r2m   r2c   AIC  AICc   BIC Results Coefficients Folds
 #>   <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <list>  <list>       <int>
 #> 1  16.7  14.0 0.272 0.272  195.  196.  198. <tibbl… <tibble [8 …     4
-#> # … with 5 more variables: `Convergence Warnings` <dbl>, Family <chr>,
-#> #   Link <chr>, Dependent <chr>, Fixed <chr>
+#> # … with 6 more variables: `Fold Columns` <int>, `Convergence
+#> #   Warnings` <dbl>, Family <chr>, Link <chr>, Dependent <chr>,
+#> #   Fixed <chr>
 ```
 
 ### Binomial
@@ -119,16 +120,16 @@ CV2 <- cross_validate(data, "diagnosis~score",
 
 # Show results
 CV2
-#> # A tibble: 1 x 23
+#> # A tibble: 1 x 24
 #>   `Balanced Accur…    F1 Sensitivity Specificity `Pos Pred Value`
 #>              <dbl> <dbl>       <dbl>       <dbl>            <dbl>
 #> 1            0.708 0.636       0.583       0.833              0.7
-#> # … with 18 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
-#> #   CI` <dbl>, `Upper CI` <dbl>, Kappa <dbl>, `Detection Rate` <dbl>,
-#> #   `Detection Prevalence` <dbl>, Prevalence <dbl>, MCC <dbl>,
+#> # … with 19 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
+#> #   CI` <dbl>, `Upper CI` <dbl>, Kappa <dbl>, MCC <dbl>, `Detection
+#> #   Rate` <dbl>, `Detection Prevalence` <dbl>, Prevalence <dbl>,
 #> #   Predictions <list>, ROC <list>, Coefficients <list>, Folds <int>,
-#> #   `Convergence Warnings` <dbl>, Family <chr>, Link <chr>,
-#> #   Dependent <chr>, Fixed <chr>
+#> #   `Fold Columns` <int>, `Convergence Warnings` <dbl>, Family <chr>,
+#> #   Link <chr>, Dependent <chr>, Fixed <chr>
 ```
 
 Cross-validate multiple models
@@ -151,13 +152,14 @@ CV3 <- cross_validate(data, models,
 
 # Show results
 CV3
-#> # A tibble: 2 x 15
+#> # A tibble: 2 x 16
 #>    RMSE   MAE     r2m     r2c   AIC  AICc   BIC Results Coefficients Folds
 #>   <dbl> <dbl>   <dbl>   <dbl> <dbl> <dbl> <dbl> <list>  <list>       <int>
 #> 1  16.7  14.0 0.272   0.272    195.  196.  198. <tibbl… <tibble [8 …     4
 #> 2  19.6  16.2 0.00427 0.00427  202.  203.  205. <tibbl… <tibble [8 …     4
-#> # … with 5 more variables: `Convergence Warnings` <dbl>, Family <chr>,
-#> #   Link <chr>, Dependent <chr>, Fixed <chr>
+#> # … with 6 more variables: `Fold Columns` <int>, `Convergence
+#> #   Warnings` <dbl>, Family <chr>, Link <chr>, Dependent <chr>,
+#> #   Fixed <chr>
 ```
 
 ### Cross-validate mixed effects models
@@ -170,13 +172,14 @@ CV4 <- cross_validate(data, mixed_models,
 
 # Show results
 CV4
-#> # A tibble: 2 x 16
+#> # A tibble: 2 x 17
 #>    RMSE   MAE     r2m   r2c   AIC  AICc   BIC Results Coefficients Folds
 #>   <dbl> <dbl>   <dbl> <dbl> <dbl> <dbl> <dbl> <list>  <list>       <int>
 #> 1  8.65  6.94 0.290   0.810  175.  178.  180. <tibbl… <tibble [8 …     4
 #> 2 13.7  12.3  0.00467 0.488  195.  198.  200. <tibbl… <tibble [8 …     4
-#> # … with 6 more variables: `Convergence Warnings` <dbl>, Family <chr>,
-#> #   Link <chr>, Dependent <chr>, Fixed <chr>, Random <chr>
+#> # … with 7 more variables: `Fold Columns` <int>, `Convergence
+#> #   Warnings` <dbl>, Family <chr>, Link <chr>, Dependent <chr>,
+#> #   Fixed <chr>, Random <chr>
 ```
 
 Plot results

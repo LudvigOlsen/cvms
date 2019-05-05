@@ -93,6 +93,7 @@ cross_validate_fn_single <- function(data, model_fn, evaluation_type="linear_reg
                                models=models,
                                model_specifics=model_specifics) %>%
     mutate(Folds = n_folds,
+           `Fold Columns` = length(fold_cols),
            `Convergence Warnings` = n_conv_warns)
 
   return(model_evaluation)

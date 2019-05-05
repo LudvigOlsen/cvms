@@ -175,3 +175,14 @@ create_folds_map <- function(data, fold_cols){
     )
 
 }
+
+# Creates data frame with existing combinations of fold column, abs_fold and rel_fold
+# For adding the info to other data frames via joins
+create_fold_and_fold_column_map <- function(data, fold_info_cols){
+  data %>%
+    dplyr::select(dplyr::one_of(fold_info_cols[["fold_column"]],
+                                fold_info_cols[["abs_fold"]],
+                                fold_info_cols[["rel_fold"]]
+    )) %>%
+    dplyr::distinct()
+}

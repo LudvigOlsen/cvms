@@ -43,27 +43,36 @@
 #' @return
 #'  Tbl (tibble) with results for each model.
 #'
-#'  \subsection{Gaussian Results}{
-#'  Average \strong{RMSE}, \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
-#'  and \strong{BIC} of all the iterations*,
-#'  \emph{\strong{omitting potential NAs} from non-converged iterations}.
-#'  Note that the Information Criteria metrics (AIC, AICc, and BIC) are also averages.
+#'  \subsection{Shared across families}{
+#'  A nested tibble with \strong{coefficients} of the models from all iterations.
+#'
+#'  Number of \emph{total} \strong{folds}.
+#'
+#'  Number of \strong{fold columns}.
 #'
 #'  Count of \strong{convergence warnings}. Consider discarding models that did not converge on all
-#'  iterations. As we omit NAs before averaging the results, you might still see results,
-#'  but these should be taken with a grain of salt!
+#'  iterations. Note: you might still see results, but these should be taken with a grain of salt!
 #'
 #'  Specified \strong{family}.
 #'
-#'  A tibble with the non-averaged \strong{results} from all iterations.
-#'
-#'  A tibble with \strong{coefficients} of the models from all iterations.
+#'  Specified \strong{link} function.
 #'
 #'  Name of \strong{dependent} variable.
 #'
 #'  Names of \strong{fixed} effects.
 #'
 #'  Names of \strong{random} effects, if any.
+#'  }
+#'
+#'  \subsection{Gaussian Results}{
+#'  Average \strong{RMSE}, \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
+#'  and \strong{BIC} of all the iterations*,
+#'  \emph{\strong{omitting potential NAs} from non-converged iterations}.
+#'  Note that the Information Criteria metrics (AIC, AICc, and BIC) are also averages.
+#'
+#'  A nested tibble with the \strong{predictions} and targets.
+#'
+#'  A nested tibble with the non-averaged \strong{results} from all iterations.
 #'
 #'  * In \emph{repeated cross-validation},
 #'  the metrics are first averaged for each fold column (repetition) and then averaged again.
@@ -90,20 +99,11 @@
 #'
 #'  \strong{AUC}, \strong{Lower CI}, and \strong{Upper CI}
 #'
-#'  Count of \strong{convergence warnings}. Consider discarding models that did not converge on all
-#'  iterations!
+#'  A nested tibble with \strong{predictions}, predicted classes (depends on \code{cutoff}), and the targets.
 #'
-#'  Specified \strong{family}.
+#'  A nested tibble with the sensativities and specificities from the \strong{ROC} curve(s).
 #'
-#'  A tibble with \strong{predictions}, predicted classes (depends on \code{cutoff}), and the targets.
-#'
-#'  A tibble with the sensativities and specificities from the \strong{ROC} curve(s).
-#'
-#'  Name of \strong{dependent} variable.
-#'
-#'  Names of \strong{fixed} effects.
-#'
-#'  Names of \strong{random} effects, if any.
+#'  A nested tibble with the \strong{results} from all fold columns, if using repeated cross-validation.
 #'
 #'  * In \emph{repeated cross-validation}, an evaluation is made per fold column (repetition) and averaged.
 #'

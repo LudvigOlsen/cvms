@@ -11,8 +11,11 @@ binomial_classification_eval <- function(data,
   na_in_predictions <- sum(is.na(data[[predictions_col]])) > 0
   na_in_targets <- sum(is.na(data[[targets_col]])) > 0
 
+  # Map of fold column, abs_fold and rel_fold
+  fold_and_fold_col <- create_fold_and_fold_column_map(data, fold_info_cols)
+
   # Number of unique fold columns
-  unique_fold_cols <- unique(data[[fold_info_cols[["fold_column"]]]])
+  unique_fold_cols <- unique(fold_and_fold_col[["fold_column"]])
 
   if (!na_in_targets && !na_in_predictions){
 
@@ -136,7 +139,9 @@ binomial_classification_eval <- function(data,
       # Get model coefficients
       # If broom::tidy does not work with the model objects, return NAs.
       nested_coefficients <- tryCatch({
-        get_nested_model_coefficients(models)
+        get_nested_model_coefficients(models,
+                                      fold_info = list(folds = fold_and_fold_col[["rel_fold"]],
+                                                       fold_columns = fold_and_fold_col[["fold_column"]]))
       }, error = function(e){
         get_nested_model_coefficients(NULL)
       })
@@ -167,13 +172,13 @@ binomial_classification_NA_results_tibble <- function(){
 
   return(tibble::tibble("Balanced Accuracy" = NA,
                         "F1" = NA, 'Sensitivity' = NA, 'Specificity' = NA,
-                        "Kappa" = NA,
                         'Pos Pred Value' = NA, "Neg Pred Value"=NA,
                         "AUC" = NA, "Lower CI" = NA, "Upper CI" = NA,
+                        "Kappa" = NA,
+                        "MCC"=NA,
                         "Detection Rate" = NA,
                         "Detection Prevalence" = NA,
                         "Prevalence" = NA,
-                        "MCC"=NA,
                         "Predictions" = NA,
                         "ROC" = NA))
 }
@@ -190,11 +195,11 @@ binomial_classification_results_tibble <- function(roc_curve, roc_nested, conf_m
                  "Lower CI" = pROC::ci(roc_curve)[1],
                  "Upper CI" = pROC::ci(roc_curve)[3],
                  "Kappa" = unname(conf_mat$overall['Kappa']),
+                 'MCC' = mltools::mcc(TP=conf_mat$table[1], FP=conf_mat$table[3],
+                                      TN=conf_mat$table[4], FN=conf_mat$table[2]),
                  'Detection Rate' = unname(conf_mat$byClass['Detection Rate']),
                  'Detection Prevalence' = unname(conf_mat$byClass['Detection Prevalence']),
                  'Prevalence' = unname(conf_mat$byClass['Prevalence']),
-                 'MCC' = mltools::mcc(TP=conf_mat$table[1], FP=conf_mat$table[3],
-                                      TN=conf_mat$table[4], FN=conf_mat$table[2]),
                  "Predictions" = ifelse(!is.null(predictions_nested), predictions_nested$predictions, logical()),
                  "ROC" = ifelse(!is.null(roc_nested), roc_nested$roc, logical()))
 }

@@ -277,6 +277,10 @@ test_that("Metrics work in cross_validate()",{
   F1_2 <- 2 * precision * recall / (precision + recall)
   expect_equal(F1_2,0.6666667, tolerance = 1e-3)
 
+  # Test that MCC does not care about what class if positive
+  expect_equal(mltools::mcc(TP=TP, FP=FP, FN=FN, TN=TN),
+               mltools::mcc(TP=TN, FP=FN, FN=FP, TN=TP))
+
   # Add tests for the following metrics
   # expect_equal(#LowerCI, 0.5851154)
   # expect_equal(#UpperCI, 0.9380328)

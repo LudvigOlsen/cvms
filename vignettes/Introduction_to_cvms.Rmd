@@ -5,14 +5,13 @@ author:
 date: "`r Sys.Date()`"
 abstract: |
   This vignette is an introduction to the package cvms.  
-  Cross-validation for model selection.  
+  Cross-Validation for Model Selection.  
   &nbsp;  
   &nbsp;  
   Contact author at r-pkgs@ludvigolsen.dk
   &nbsp;  
   &nbsp;  
   
-  -----
 output: 
   rmarkdown::html_vignette:
     css: 
@@ -28,20 +27,26 @@ output:
     toc: yes
     toc_depth: 4
 vignette: >
-  %\VignetteIndexEntry{Introduction to cvms}
+  %\VignetteIndexEntry{Introduction_to_cvms}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-# Attach packages
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
 
-```{r warning=FALSE, message=FALSE}
+```{r setup, warning=FALSE, message=FALSE}
 library(cvms)
 library(groupdata2) # fold()
 library(dplyr) # %>% arrange() mutate()
 library(knitr) # kable()
 
 ```
+
 
 # Loading data
 We will use the mtcars dataset from base R.
@@ -146,6 +151,3 @@ models_conv = cross_validate(df,
 models_conv
 
 ```
-
-
-

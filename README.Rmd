@@ -178,7 +178,7 @@ Note: currently only work with the github version of groupdata2!
 Let's first create new folds. We will use the num_fold_cols argument to add 3 unique fold columns.
 
 ```{r}
-# devtools::install_github("ludvigolsen/groupdata2", ref="repeatedCV")
+# devtools::install_github("ludvigolsen/groupdata2")
 
 # Set seed for reproducibility
 set.seed(7)

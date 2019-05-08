@@ -36,7 +36,9 @@ default_control <- function(control, family, link){
 
 # Extract y_column from model
 extract_y <- function(model){
-  unlist(strsplit(model, '\\s*~'))[1]
+  splits <- unlist(strsplit(model, '\\s*~'))
+  if (length(splits)<2) return(NULL)
+  return(splits[1])
 }
 
 # Check if there are random effects

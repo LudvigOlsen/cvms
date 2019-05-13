@@ -85,9 +85,9 @@ create_formulas <- function(..., prepared_operators){
   }
 
   formulas <- prepared_operators %>%
-    dplyr::mutate("effects_" = effects, "effect_index"=1:dplyr::n()) %>%
+    dplyr::mutate("effects_" = effects) %>%
     dplyr::select(.data$effects_, dplyr::everything()) %>%
-    tidyr::gather(key="combi",value="op", -dplyr::one_of("effects_", "effect_index")) %>%
+    tidyr::gather(key="combi",value="op", -dplyr::one_of("effects_")) %>%
     dplyr::mutate(pasted = paste0(.data$effects_," ",op," ")) %>%
     groupdata2::group(n=length(effects), method = "greedy") %>%
     dplyr::summarise(formula_ = trimws(paste0(.data$pasted, collapse = ""), "r")) %>%
@@ -97,14 +97,6 @@ create_formulas <- function(..., prepared_operators){
   formulas
 }
 
-# # https://stackoverflow.com/questions/46850278/dplyr-mutate-how-do-i-pass-one-row-as-a-function-argument
-# map_all_rows <- function(data, func, ...){
-#   data %>%
-#     dplyr::rowwise() %>%
-#     dplyr::do( X = as.data.frame(.) ) %>%
-#     dplyr::ungroup() %>%
-#     dplyr::mutate( Result = purrr::map(X, func, ...) )
-# }
 
 # Finds the largest interaction
 # Example:

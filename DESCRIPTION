@@ -16,6 +16,8 @@ Imports:
     plyr,
     tidyr (>= 0.7.0),
     ggplot2,
+    purrr,
+    tibble,
     caret (>= 6.0-79),
     pROC,
     stats,
@@ -24,7 +26,6 @@ Imports:
     MuMIn,
     AICcmodavg,
     broom,
-    tibble,
     stringr,
     mltools,
     rlang

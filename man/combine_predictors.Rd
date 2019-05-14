@@ -2,13 +2,51 @@
 % Please edit documentation in R/combine_predictors.R
 \name{combine_predictors}
 \alias{combine_predictors}
-\title{Create model formulas with all combinations of the fixed effects
-Random effects will be added as supplied}
+\title{Combine predictors to create model formulas}
 \usage{
 combine_predictors(dependent, fixed_effects, random_effects = NULL,
   max_fixed_effects = NULL, max_interaction_size = NULL)
 }
+\arguments{
+\item{dependent}{Name of dependent variable. (Character)}
+
+\item{fixed_effects}{List of fixed effects. (Character)}
+
+\item{random_effects}{List of random effects. (Character)}
+
+\item{max_fixed_effects}{Maximum number of fixed effects in a model formula. (Integer)
+
+  Due to the exponential time increase with number of fixed effects,
+  it can help to restrict the number of fixed effects.}
+
+\item{max_interaction_size}{Maximum n-way interactions allowed. (Integer)}
+}
+\value{
+List of model formulas.
+
+ E.g.:
+
+ \code{c("y ~ x1 + (1|z)", "y ~ x2 + (1|z)",
+ "y ~ x1 + x2 + (1|z)", "y ~ x1 * x2 + (1|z)")}.
+}
 \description{
-Create model formulas with all combinations of the fixed effects
-Random effects will be added as supplied
+Create model formulas with every combination
+ of your fixed effects, along with the dependent variable and random effects.
+ Be aware of exponential time increase with number of fixed effects.
+}
+\examples{
+# Attach libraries
+library(cvms)
+
+# Create effect names
+dependent <- "y"
+fixed_effects <- c("a","b","c","d")
+random_effects <- "(1|e)"
+
+# Create model formulas
+combine_predictors(dependent, fixed_effects,
+                   random_effects)
+}
+\author{
+Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
 }

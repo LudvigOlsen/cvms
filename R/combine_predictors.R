@@ -1,6 +1,39 @@
-
-#' Create model formulas with all combinations of the fixed effects
-#' Random effects will be added as supplied
+#' @title Combine predictors to create model formulas
+#' @description Create model formulas with every combination
+#'  of your fixed effects, along with the dependent variable and random effects.
+#'  Be aware of exponential time increase with number of fixed effects.
+#' @return
+#'  List of model formulas.
+#'
+#'  E.g.:
+#'
+#'  \code{c("y ~ x1 + (1|z)", "y ~ x2 + (1|z)",
+#'  "y ~ x1 + x2 + (1|z)", "y ~ x1 * x2 + (1|z)")}.
+#' @author Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
+#' @export
+#' @param dependent Name of dependent variable. (Character)
+#' @param fixed_effects List of fixed effects. (Character)
+#' @param random_effects List of random effects. (Character)
+#' @param max_fixed_effects Maximum number of fixed effects in a model formula. (Integer)
+#'
+#'   Due to the exponential time increase with number of fixed effects,
+#'   it can help to restrict the number of fixed effects.
+#' @param max_interaction_size Maximum n-way interactions allowed. (Integer)
+#' @examples
+#' # Attach libraries
+#' library(cvms)
+#'
+#' # Create effect names
+#' dependent <- "y"
+#' fixed_effects <- c("a","b","c","d")
+#' random_effects <- "(1|e)"
+#'
+#' # Create model formulas
+#' combine_predictors(dependent, fixed_effects,
+#'                    random_effects)
+#' @importFrom purrr pmap_dbl pmap_df
+#' @importFrom rlang .data
+#' @importFrom utils combn
 combine_predictors <- function(dependent, fixed_effects,
                                random_effects=NULL,
                                max_fixed_effects=NULL,
@@ -44,7 +77,7 @@ combine_predictors <- function(dependent, fixed_effects,
 
   effect_combinations[is.na(effect_combinations)] <- "__NA__"
 
-  operator_combinations <- t(combn(rep(c("+","*"), n_fixed_effects, each=TRUE), n_fixed_effects-1)) %>%
+  operator_combinations <- t(combn(rep(c(" + "," * "), n_fixed_effects, each=TRUE), n_fixed_effects-1)) %>%
     as.data.frame(stringsAsFactors=FALSE) %>%
     dplyr::distinct()
 
@@ -55,10 +88,25 @@ combine_predictors <- function(dependent, fixed_effects,
       dplyr::select(-.data$n_interactions)
   }
 
-  formulas <- purrr::pmap_df(effect_combinations, create_formulas,
-                             prepared_operators=prepare_operators(operator_combinations)) %>%
+  colnames(effect_combinations) <- paste0("eff_", 1:n_fixed_effects)
+  colnames(operator_combinations) <- paste0("op_", 1:(n_fixed_effects-1))
+  efx_cols <- colnames(effect_combinations)
+  ops_cols <- colnames(operator_combinations)
+
+  combined_col_names <- plyr::llply(1:n_fixed_effects, function(i){
+    if (i < n_fixed_effects){
+      c(efx_cols[[i]], ops_cols[[i]])
+    } else {
+      efx_cols[[i]]
+    }
+  }) %>% unlist()
+
+  formulas <- tidyr::crossing(effect_combinations, operator_combinations) %>%
+    dplyr::select(dplyr::one_of(combined_col_names)) %>%
+    dplyr::distinct() %>%
+    dplyr::mutate(Formula = purrr::pmap_chr(., paste0)) %>%
     dplyr::mutate(NAs = stringr::str_count(.data$Formula, "__NA__"),
-                  Formula = stringr::str_sub(.data$Formula, 1, ifelse(NAs > 0, -9*NAs, -1)),
+                  Formula = stringr::str_sub(.data$Formula, 1, ifelse(.data$NAs > 0, -9*.data$NAs, -1)),
                   Formula = trimws(.data$Formula, "b")) %>%
                   dplyr::pull(.data$Formula) %>%
                   unique()
@@ -71,32 +119,6 @@ combine_predictors <- function(dependent, fixed_effects,
 
 }
 
-prepare_operators <- function(operators){
-  operators$extra <- " "
-  as.data.frame(t(operators), stringsAsFactors=FALSE)
-}
-
-create_formulas <- function(..., prepared_operators){
-
-  effects <- unname(c(...))
-
-  if (nrow(prepared_operators) - length(effects) != 0){
-    stop("Number of columns in prepared_operators should be length(effects).")
-  }
-
-  formulas <- prepared_operators %>%
-    dplyr::mutate("effects_" = effects) %>%
-    dplyr::select(.data$effects_, dplyr::everything()) %>%
-    tidyr::gather(key="combi",value="op", -dplyr::one_of("effects_")) %>%
-    dplyr::mutate(pasted = paste0(.data$effects_," ",op," ")) %>%
-    groupdata2::group(n=length(effects), method = "greedy") %>%
-    dplyr::summarise(formula_ = trimws(paste0(.data$pasted, collapse = ""), "r")) %>%
-    dplyr::pull(.data$formula_) %>%
-    tibble::enframe(name=NULL, value="Formula")
-
-  formulas
-}
-
 
 # Finds the largest interaction
 # Example:
@@ -107,10 +129,10 @@ create_formulas <- function(..., prepared_operators){
 get_max_nway_interaction <- function(...){
   ops <- unname(c(...))
 
-  if ("*" %ni% ops) return(0)
+  if (" * " %ni% ops) return(0)
 
   rle_ <- rle(ops)
-  max(rle_$lengths[rle_$values == "*"])
+  max(rle_$lengths[rle_$values == " * "])
 }
 
 

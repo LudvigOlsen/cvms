@@ -3,6 +3,7 @@
 export(combine_predictors)
 export(cross_validate)
 export(cv_plot)
+export(reconstruct_formulas)
 export(validate)
 import(zoo)
 importFrom(dplyr,"%>%")

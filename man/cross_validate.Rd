@@ -9,7 +9,7 @@ cross_validate(data, models, fold_cols = ".folds", family = "gaussian",
   positive = 1, rm_nc = FALSE, model_verbose = FALSE)
 }
 \arguments{
-\item{data}{Dataframe.
+\item{data}{Data frame.
 
  Must include grouping factor for identifying folds
   - as made with \code{\link[groupdata2:fold]{groupdata2::fold()}}.}

@@ -119,7 +119,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
 #' @author Benjamin Hugh Zachariae
 #' @export
-#' @param data Dataframe.
+#' @param data Data frame.
 #'
 #'  Must include grouping factor for identifying folds
 #'   - as made with \code{\link[groupdata2:fold]{groupdata2::fold()}}.

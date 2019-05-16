@@ -1,11 +1,6 @@
 library(cvms)
 context("combine_predictors()")
 
-# NOTICE:
-# Numbers tested are the results I got and not "what should be"
-# This will allow me to see if something changes, but it shouldn't give false confidence.
-
-
 test_that("predictors are properly combined with combine_predictors()",{
 
   dep <- "y"

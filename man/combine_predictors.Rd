@@ -19,7 +19,11 @@ combine_predictors(dependent, fixed_effects, random_effects = NULL,
   Due to the exponential time increase with number of fixed effects,
   it can help to restrict the number of fixed effects.}
 
-\item{max_interaction_size}{Maximum n-way interactions allowed. (Integer)}
+\item{max_interaction_size}{Maximum number of interaction terms in a row. (Integer)
+
+ The model formula can contain more interaction terms (I.e. "\code{*}") but will need a "\code{+}" in-between.
+
+ Use this to limit the \code{n}-way interactions allowed (where \code{n == max_interaction_size + 1}).}
 }
 \value{
 List of model formulas.

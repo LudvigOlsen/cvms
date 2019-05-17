@@ -5,7 +5,7 @@
 #'  This function selects the evaluation metrics and model formulas only.
 #' @return
 #'  The results tibble with only metric and model definition columns.
-#' @details The \code{Family} column is used to identify relevant columns.
+#' @details The first element in the \code{Family} column is used to identify the relevant columns.
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
 #' @export
 #' @param results Results tibble from cross_validate() or validate().
@@ -21,13 +21,13 @@ select_metrics <- function(results){
 
   # What about "Convergence Warnings"? People should be aware of this!
 
-  if (results[["Family"]] == "gaussian"){
+  if (results[["Family"]][[1]] == "gaussian"){
 
     metric_cols <- c("RMSE", "MAE", "r2m", "r2c", "AIC", "AICc", "BIC")
 
     return( dplyr::select(results, dplyr::one_of(metric_cols), dplyr::one_of(model_formula_cols)))
 
-  } else if (results[["Family"]] == "binomial"){
+  } else if (results[["Family"]][[1]] == "binomial"){
 
     metric_cols <- c("Balanced Accuracy","F1","Sensitivity","Specificity","Pos Pred Value",
                      "Neg Pred Value","AUC","Lower CI","Upper CI","Kappa",

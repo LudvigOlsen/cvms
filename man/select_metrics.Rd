@@ -18,7 +18,7 @@ When reporting results, we may not want all
  This function selects the evaluation metrics and model formulas only.
 }
 \details{
-The \code{Family} column is used to identify relevant columns.
+The first element in the \code{Family} column is used to identify the relevant columns.
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

@@ -1,3 +1,14 @@
+
+#' @title Select columns with evaluation metrics and model definitions.
+#' @description When reporting results, we may not want all
+#'  the nested tibbles and process information columns.
+#'  This function selects the evaluation metrics and model formulas only.
+#' @return
+#'  The results tibble with only metric and model definition columns.
+#' @details The \code{Family} column is used to identify relevant columns.
+#' @author Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
+#' @export
+#' @param results Results tibble from cross_validate() or validate().
 select_metrics <- function(results){
 
   # TODO Add checks of results input
@@ -7,7 +18,6 @@ select_metrics <- function(results){
   } else {
     model_formula_cols <- c("Dependent", "Fixed")
   }
-
 
   # What about "Convergence Warnings"? People should be aware of this!
 

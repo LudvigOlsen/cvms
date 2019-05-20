@@ -28,7 +28,8 @@ Imports:
     broom,
     stringr,
     mltools,
-    rlang
+    rlang,
+    combinat
 RoxygenNote: 6.1.1
 Suggests: knitr,
     rmarkdown,

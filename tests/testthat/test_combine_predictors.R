@@ -59,6 +59,12 @@ test_that("predictors are properly combined with combine_predictors()",{
   #   combine_predictors("y", as.character(1:10), random_effects = NULL, max_interaction_size = NULL)
   # })
 
+  # system.time({
+  #   combine_predictors("y", as.character(1:4), random_effects = NULL, max_interaction_size = NULL,
+  #                      max_fixed_effects = 2)
+  # })
+
+
   # data.frame("t"=c(0.132,0.312,0.836,2.199,6.903,26.337,103.696),
   #            "n"=c(4,5,6,7,8,9,10)) %>%
   #   ggplot(aes(x=n,y=t)) +

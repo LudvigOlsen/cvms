@@ -37,8 +37,9 @@
 #'                    random_effects)
 #' @importFrom purrr pmap_dbl pmap_df
 #' @importFrom rlang .data
-#' @importFrom utils combn
+#' @importFrom utils combn head
 #' @importFrom combinat permn
+#' @importFrom stats setNames
 combine_predictors <- function(dependent, fixed_effects,
                                random_effects=NULL,
                                max_fixed_effects=NULL,
@@ -207,6 +208,9 @@ combine_predictors <- function(dependent, fixed_effects,
 
 #' Deduplicates rows with the same interactions (including permutations).
 #' Removes rows without interactions, as we got these covered already.
+#' @param formulas_df Data Frame where each column is an effect or an operator
+#' @param interactions_map Named list with each
+#'  potential interaction mapping to its key permutation.
 remove_duplicates_and_rows_without_interactions <- function(formulas_df, interactions_map){
 
   # Create "flag"/mask data frame with 1 if a term or interaction is in the formula
@@ -239,6 +243,12 @@ remove_duplicates_and_rows_without_interactions <- function(formulas_df, interac
 #' Replaces interactions by value in interactions_map.
 #' Returns data frame row with effects and interactions as columns
 #' and "1" as value.
+#' @param ... Values.
+#'
+#'  Intended to be used with
+#'  purrr::pmap, where ... is a row of values.
+#' @param interactions_map Named list with each
+#'  potential interaction mapping to its key permutation.
 find_interactions <- function(..., interactions_map){
   formula_parts <- unname(c(...))
 
@@ -271,6 +281,7 @@ find_interactions <- function(..., interactions_map){
 
 #' Generate interactions map with all permutations of
 #' an interaction being mapped to one of the permutations
+#' @param possible_interactions Data Frame.
 generate_interactions_map <- function(possible_interactions){
 
   # Create data frame where the effects are columns
@@ -309,6 +320,12 @@ generate_interactions_map <- function(possible_interactions){
 
 #' Create data frame row with values as columns.
 #' Fill with the values or a specified value.
+#' @param ... Values.
+#'
+#'  Intended to be used with
+#'  purrr::pmap, where ... is a row of values.
+#' @param fill_with Value to fill cells with.
+#'  If \code{NULL}, the values in \code{...} are used.
 vals_to_cols <- function(..., fill_with=NULL){
   vals <- unname(c(...))
 
@@ -322,6 +339,10 @@ vals_to_cols <- function(..., fill_with=NULL){
 
 #' Paste effects as interactions.
 #' Collapse with ".|_|." instead of " * ".
+#' @param ... Values.
+#'
+#'  Intended to be used with
+#'  purrr::pmap, where ... is a row of values.
 paste_as_interactions <- function(...){
   effects_ <- unname(c(...))
   effects_ <- effects_[effects_ != "__NA__"]
@@ -330,6 +351,10 @@ paste_as_interactions <- function(...){
 }
 
 #' Finds the largest interaction.
+#' @param ... Values.
+#'
+#'  Intended to be used with
+#'  purrr::pmap, where ... is a row of values.
 get_max_nway_interaction <- function(...){
   ops <- unname(c(...))
 
@@ -341,6 +366,10 @@ get_max_nway_interaction <- function(...){
 
 #' Detect if a row has a "__NA__" value left
 #' of a non-"__NA__" value.
+#' @param ... Values.
+#'
+#'  Intended to be used with
+#'  purrr::pmap, where ... is a row of values.
 contains_NA_left_of_value <- function(...){
   r <- unname(c(...))
 
@@ -364,6 +393,7 @@ contains_NA_left_of_value <- function(...){
 #' Removes all but the first interchangeable effects from fixed_effects.
 #' With this, we can create our formulas with one combination of effects
 #' and add versions with the combinations of interchangeable effects afterwards.
+#' @param fixed_effects Vector of fixed effects. (Character)
 create_interchangeable_effects_combinations <- function(fixed_effects){
 
   # Check if any element is a list with more than one element

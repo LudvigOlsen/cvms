@@ -160,16 +160,16 @@ combine_predictors <- function(dependent, fixed_effects,
     interaction_combinations <- interaction_combinations %>% #nrow() %>% print() %>% stop()
       # Filter such that effect 1 is not the first in column 1 and 2
       dplyr::filter(
-        is.na(X2) |
-          !(stringr::str_detect(X1, stringr::fixed(fixed_effects[[1]])) &
-              stringr::str_detect(X2, stringr::fixed(fixed_effects[[1]])))
+        is.na(.data$X2) |
+          !(stringr::str_detect(.data$X1, stringr::fixed(fixed_effects[[1]])) &
+              stringr::str_detect(.data$X2, stringr::fixed(fixed_effects[[1]])))
         ) %>%
       # Filter such that effect 2 is not the first in column 1 and 2
       # This assumes at least two fixed effects.
       dplyr::filter(
-        is.na(X2) |
-          !(stringr::str_detect(X1, stringr::fixed(fixed_effects[[2]])) &
-              stringr::str_detect(X2, stringr::fixed(fixed_effects[[2]])))
+        is.na(.data$X2) |
+          !(stringr::str_detect(.data$X1, stringr::fixed(fixed_effects[[2]])) &
+              stringr::str_detect(.data$X2, stringr::fixed(fixed_effects[[2]])))
       ) %>%
       dplyr::mutate(combination = 1:dplyr::n())
 
@@ -191,11 +191,11 @@ combine_predictors <- function(dependent, fixed_effects,
                           .funs = list(~sum(.))) %>%
       dplyr::filter_at(dplyr::vars(-.data$combination), dplyr::all_vars(. < 2)) %>%
       dplyr::mutate(total_num_effects = rowSums(.[2:(n_total_fixed_effects+1)])) %>%
-      dplyr::filter(total_num_effects <= n_fixed_effects) %>%
+      dplyr::filter(.data$total_num_effects <= n_fixed_effects) %>%
       dplyr::pull(.data$combination)
 
     formulas <- interaction_combinations %>%
-      dplyr::filter(combination %in% combinations_to_keep) %>%
+      dplyr::filter(.data$combination %in% combinations_to_keep) %>%
       sort_rowwise(1:(n_fixed_effects)) %>%
       dplyr::select(-.data$combination) %>%
       dplyr::mutate(form = purrr::pmap_chr(., paste_columns, collapse=" + ")) %>%
@@ -243,9 +243,9 @@ combine_predictors <- function(dependent, fixed_effects,
 
 }
 
-#' Generate interactions (One permutation only)
-#' Add columns describing if an effect is in the interaction
-#' @param possible_interactions Data Frame.
+# Generate interactions (One permutation only)
+# Add columns describing if an effect is in the interaction
+# @param possible_interactions Data Frame.
 generate_interactions <- function(possible_interactions){   # TODO Rename function
 
   # Convert __NA__ into NA
@@ -278,14 +278,14 @@ sort_rowwise <- function(data, vars, decreasing=FALSE, na.last = TRUE){
   data
 }
 
-#' Create data frame row with values as columns.
-#' Fill with the values or a specified value.
-#' @param ... Values.
-#'
-#'  Intended to be used with
-#'  purrr::pmap, where ... is a row of values.
-#' @param fill_with Value to fill cells with.
-#'  If \code{NULL}, the values in \code{...} are used.
+# Create data frame row with values as columns.
+# Fill with the values or a specified value.
+# @param ... Values.
+#
+#  Intended to be used with
+#  purrr::pmap, where ... is a row of values.
+# @param fill_with Value to fill cells with.
+#  If \code{NULL}, the values in \code{...} are used.
 vals_to_cols <- function(..., fill_with=NULL){
   vals <- unname(c(...))
 
@@ -299,12 +299,12 @@ vals_to_cols <- function(..., fill_with=NULL){
     c(vals))
 }
 
-#' Paste effects as interactions.
-#' Collapse with ".|_|." instead of " * ".
-#' @param ... Values.
-#'
-#'  Intended to be used with
-#'  purrr::pmap, where ... is a row of values.
+# Paste effects as interactions.
+# Collapse with ".|_|." instead of " * ".
+# @param ... Values.
+#
+#  Intended to be used with
+#  purrr::pmap, where ... is a row of values.
 paste_columns <- function(..., collapse=" * "){
   effects_ <- unname(c(...))
   effects_ <- effects_[effects_ != "__NA__"]
@@ -314,12 +314,12 @@ paste_columns <- function(..., collapse=" * "){
 }
 
 
-#' Detect if a row has a "__NA__" value left
-#' of a non-"__NA__" value.
-#' @param ... Values.
-#'
-#'  Intended to be used with
-#'  purrr::pmap, where ... is a row of values.
+# Detect if a row has a "__NA__" value left
+# of a non-"__NA__" value.
+# @param ... Values.
+#
+#  Intended to be used with
+#  purrr::pmap, where ... is a row of values.
 contains_NA_left_of_value <- function(...){
   r <- unname(c(...))
 
@@ -339,11 +339,11 @@ contains_NA_left_of_value <- function(...){
   return(FALSE)
 }
 
-#' Creates map of interchangeable effects and their combinations.
-#' Removes all but the first interchangeable effects from fixed_effects.
-#' With this, we can create our formulas with one combination of effects
-#' and add versions with the combinations of interchangeable effects afterwards.
-#' @param fixed_effects Vector of fixed effects. (Character)
+# Creates map of interchangeable effects and their combinations.
+# Removes all but the first interchangeable effects from fixed_effects.
+# With this, we can create our formulas with one combination of effects
+# and add versions with the combinations of interchangeable effects afterwards.
+# @param fixed_effects Vector of fixed effects. (Character)
 create_interchangeable_effects_combinations <- function(fixed_effects){
 
   # Check if any element is a list with more than one element

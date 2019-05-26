@@ -75,6 +75,7 @@ combine_predictors <- function(dependent, fixed_effects,
   } else {
     n_fixed_effects <- length(fixed_effects)
   }
+  n_total_fixed_effects <- length(fixed_effects) # For indexing columns
 
   if (n_fixed_effects < 2) {stop("The number of fixed effects should be at least 2.")}
 
@@ -127,13 +128,13 @@ combine_predictors <- function(dependent, fixed_effects,
 
     # Generate the interactions, with flags for included effects
     interactions_df <- generate_interactions(effect_combinations_interactions) %>%
-      dplyr::mutate(interaction_terms = rowSums(.[2:(n_fixed_effects+1)]))
+      dplyr::mutate(interaction_terms = rowSums(.[2:(n_total_fixed_effects+1)])-1)
 
     # Remove interaction larger than max_interaction_size
     # Note: The size is the number of interaction terms
     if (!is.null(max_interaction_size)){
     interactions_df <- interactions_df %>%
-      dplyr::filter(.data$interaction_terms <= (max_interaction_size+1))
+      dplyr::filter(.data$interaction_terms <= max_interaction_size)
     }
 
   }
@@ -148,7 +149,7 @@ combine_predictors <- function(dependent, fixed_effects,
         data.frame("X1" = interactions_df[["interaction"]], stringsAsFactors=FALSE)
       } else {
         interactions_ <- interactions_df %>%
-          dplyr::filter(.data$interaction_terms <= (n_fixed_effects-i+1)) %>%
+          dplyr::filter(.data$interaction_terms <= (n_fixed_effects-i)) %>%
           dplyr::pull(.data$interaction)
         data.frame(t(combn(interactions_, i)), stringsAsFactors=FALSE)
       }
@@ -189,6 +190,8 @@ combine_predictors <- function(dependent, fixed_effects,
       dplyr::summarise_at(.vars = dplyr::vars(fixed_effects),
                           .funs = list(~sum(.))) %>%
       dplyr::filter_at(dplyr::vars(-.data$combination), dplyr::all_vars(. < 2)) %>%
+      dplyr::mutate(total_num_effects = rowSums(.[2:(n_total_fixed_effects+1)])) %>%
+      dplyr::filter(total_num_effects <= n_fixed_effects) %>%
       dplyr::pull(.data$combination)
 
     formulas <- interaction_combinations %>%

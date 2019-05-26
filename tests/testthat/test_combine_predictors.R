@@ -58,6 +58,10 @@ test_that("predictors are properly combined with combine_predictors()",{
   expect_error(combine_predictors(NULL, fx, random_effects = NULL, max_interaction_size = NULL),
                "Please specify dependent variable.")
 
+  formulas_8 <- combine_predictors("y", as.character(1:4), random_effects = NULL,
+                                   max_interaction_size = 1, max_fixed_effects = 3)
+  expect_equal(length(formulas_8), 32)
+
   # system.time({
   #   combine_predictors("y", as.character(1:6), random_effects = NULL, max_interaction_size = NULL)
   # })

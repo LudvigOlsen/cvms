@@ -20,9 +20,9 @@ test_that("binomial models work with cross_validate()",{
                                 fold_cols = '.folds', family='binomial',
                                 REML = FALSE, model_verbose=FALSE)
 
-  expect_equal(CVbinomlist$AUC, c(0.7638889, 0.9791667), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Lower CI`, c(0.5855803, 0.9484242), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Upper CI`, c(0.9421975, 1.0000000), tolerance=1e-3)
+  expect_equal(CVbinomlist$AUC, c(0.76388889, 0.02083333), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Lower CI`, c(0.5855803, 0.0000000), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Upper CI`, c(0.9421975, 0.05157582), tolerance=1e-3)
   expect_equal(CVbinomlist$Kappa, c(0.4927536, -0.5217391), tolerance=1e-3)
   expect_equal(CVbinomlist$Sensitivity, c(0.5833333,0.0000000), tolerance=1e-3)
   expect_equal(CVbinomlist$Specificity, c(0.8888889,0.5000000), tolerance=1e-3)
@@ -67,9 +67,9 @@ test_that("binomial models checks that dependent variable is numeric with cross_
                                 fold_cols = '.folds', family='binomial',
                                 REML = FALSE, model_verbose=FALSE)
 
-  expect_equal(CVbinomlist$AUC, c(0.7638889, 0.9791667), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Lower CI`, c(0.5855803, 0.9484242), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Upper CI`, c(0.9421975, 1.0000000), tolerance=1e-3)
+  expect_equal(CVbinomlist$AUC, c(0.76388889, 0.02083333), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Lower CI`, c(0.5855803, 0.0000000), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Upper CI`, c(0.9421975, 0.05157582), tolerance=1e-3)
   expect_equal(CVbinomlist$Kappa, c(0.4927536, -0.5217391), tolerance=1e-3)
   expect_equal(CVbinomlist$Sensitivity, c(0.5833333,0.0000000), tolerance=1e-3)
   expect_equal(CVbinomlist$Specificity, c(0.8888889,0.5000000), tolerance=1e-3)
@@ -117,9 +117,9 @@ test_that("binomial models work with cross_validate()",{
                                     link = NULL,
                                     model_verbose=FALSE)
 
-  expect_equal(CVbinomlistrand$AUC, c(0.8425926, 0.9791667), tolerance=1e-3)
-  expect_equal(CVbinomlistrand$`Lower CI`, c(0.6892322, 0.9484242), tolerance=1e-3)
-  expect_equal(CVbinomlistrand$`Upper CI`, c(0.995953, 1.000000), tolerance=1e-3)
+  expect_equal(CVbinomlistrand$AUC, c(0.8425926, 0.02083333), tolerance=1e-3)
+  expect_equal(CVbinomlistrand$`Lower CI`, c(0.6892322, 0.0000000), tolerance=1e-3)
+  expect_equal(CVbinomlistrand$`Upper CI`, c(0.995953, 0.05157582), tolerance=1e-3)
   expect_equal(CVbinomlistrand$Kappa, c(0.6575342, -0.5217391), tolerance=1e-3)
   expect_equal(CVbinomlistrand$Sensitivity, c(0.8333333,0.0000000), tolerance=1e-3)
   expect_equal(CVbinomlistrand$Specificity, c(0.8333333,0.5000000), tolerance=1e-3)
@@ -343,9 +343,9 @@ test_that("binomial models work with repeated cross_validate()",{
                                 fold_cols = c('.folds_1','.folds_2'), family='binomial',
                                 REML = FALSE, model_verbose=FALSE)
 
-  expect_equal(CVbinomlist$AUC, c(0.7708333, 0.9270833), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Lower CI`, c(0.5962955, 0.8411773), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Upper CI`, c(0.9453712, 1.0000000), tolerance=1e-3)
+  expect_equal(CVbinomlist$AUC, c(0.7708333, 0.07291667), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Lower CI`, c(0.5962955, 0.0000000), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Upper CI`, c(0.9453712, 0.1588227), tolerance=1e-3)
   expect_equal(CVbinomlist$Kappa, c(0.4927536, -0.3858696), tolerance=1e-3)
   expect_equal(CVbinomlist$Sensitivity, c(0.5833333, 0.1250000), tolerance=1e-3)
   expect_equal(CVbinomlist$Specificity, c(0.8888889, 0.5000000), tolerance=1e-3)

@@ -16,6 +16,7 @@ test_that("Metrics work for glm in validate()",{
                         partitions_col = '.partitions', family = 'binomial')
   same_model <- glm(diagnosis~score, data=dat[dat$.partitions==1,], family = 'binomial')
 
+  train_data <- dat[dat$.partitions==1,]
   test_data <- dat[dat$.partitions==2,]
   prob=predict(same_model, newdata=test_data, type=c("response"))
 
@@ -24,29 +25,33 @@ test_that("Metrics work for glm in validate()",{
     dplyr::mutate(pred = dplyr::if_else(prob>0.5,1,0))
 
   # AUC
-  g <- pROC::roc(diagnosis ~ prob, data = test_data)
+  g <- pROC::roc(diagnosis ~ prob, data = test_data, direction = "<", levels=c(0,1))
   expect_equal(validated$Results$AUC,as.numeric(g$auc))
 
   auc2 <- AUC::auc(AUC::roc(test_data$prob, factor(test_data$diagnosis)))
   expect_equal(validated$Results$AUC,auc2)
 
   # Sensitivity
-  sens <- caret::sensitivity(as.factor(test_data$pred), as.factor(test_data$diagnosis),
+  sens <- caret::sensitivity(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
+                             factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
                      positive = levels(as.factor(test_data$diagnosis))[1])
   expect_equal(validated$Results$Sensitivity,sens)
 
   # Specificity
-  spec <- caret::specificity(as.factor(test_data$pred), as.factor(test_data$diagnosis),
+  spec <- caret::specificity(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
+                             factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
                              positive = levels(as.factor(test_data$diagnosis))[1])
   expect_equal(validated$Results$Specificity,spec)
 
   # posPredValue
-  posPredValue_ <- caret::posPredValue(as.factor(test_data$pred), as.factor(test_data$diagnosis),
+  posPredValue_ <- caret::posPredValue(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
+                                       factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
                              positive = levels(as.factor(test_data$diagnosis))[1])
   expect_equal(validated$Results$`Pos Pred Value`,posPredValue_)
 
   # negPredValue
-  negPredValue_ <- caret::negPredValue(as.factor(test_data$pred), as.factor(test_data$diagnosis),
+  negPredValue_ <- caret::negPredValue(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
+                                       factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
                                        positive = levels(as.factor(test_data$diagnosis))[1])
   expect_equal(validated$Results$`Neg Pred Value`,negPredValue_)
 
@@ -67,6 +72,7 @@ test_that("Metrics work for glmer in validate()",{
                         partitions_col = '.partitions', family = 'binomial')
   same_model <- lme4::glmer(diagnosis~score+(1|session), data=dat[dat$.partitions==1,], family = 'binomial')
 
+  train_data <- dat[dat$.partitions==1,]
   test_data <- dat[dat$.partitions==2,]
   prob=predict(same_model, newdata=test_data, type=c("response"))
 
@@ -83,22 +89,26 @@ test_that("Metrics work for glmer in validate()",{
 
 
   # Sensitivity
-  sens <- caret::sensitivity(as.factor(test_data$pred), as.factor(test_data$diagnosis),
+  sens <- caret::sensitivity(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
+                             factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
                              positive = levels(as.factor(test_data$diagnosis))[1])
   expect_equal(validated$Results$Sensitivity,sens)
 
   # Specificity
-  spec <- caret::specificity(as.factor(test_data$pred), as.factor(test_data$diagnosis),
+  spec <- caret::specificity(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
+                             factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
                              positive = levels(as.factor(test_data$diagnosis))[1])
   expect_equal(validated$Results$Specificity,spec)
 
   # posPredValue
-  posPredValue_ <- caret::posPredValue(as.factor(test_data$pred), as.factor(test_data$diagnosis),
+  posPredValue_ <- caret::posPredValue(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
+                                       factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
                                        positive = levels(as.factor(test_data$diagnosis))[1])
   expect_equal(validated$Results$`Pos Pred Value`,posPredValue_)
 
   # negPredValue
-  negPredValue_ <- caret::negPredValue(as.factor(test_data$pred), as.factor(test_data$diagnosis),
+  negPredValue_ <- caret::negPredValue(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
+                                       factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
                                        positive = levels(as.factor(test_data$diagnosis))[1])
   expect_equal(validated$Results$`Neg Pred Value`,negPredValue_)
 
@@ -117,11 +127,11 @@ test_that("Metrics work for glm in validate()",{
                                list_out = FALSE)
 
 
-  expect_warning(validated <- validate(train_data=dat, models="diagnosis~age",
-                        partitions_col = '.partitions', family = 'binomial'),
-                 "of a ROC curve with AUC == 1 is always 1-1 and can be misleading.")
+  validated <- validate(train_data=dat, models="diagnosis~age",
+                        partitions_col = '.partitions', family = 'binomial')
   same_model <- glm(diagnosis~age, data=dat[dat$.partitions==1,], family = 'binomial')
 
+  train_data <- dat[dat$.partitions==1,]
   test_data <- dat[dat$.partitions==2,]
   prob=predict(same_model, newdata=test_data, type=c("response"))
 
@@ -130,29 +140,35 @@ test_that("Metrics work for glm in validate()",{
     dplyr::mutate(pred = dplyr::if_else(prob>0.5,1,0))
 
   # AUC
-  g <- pROC::roc(diagnosis ~ prob, data = test_data)
+  g <- pROC::roc(diagnosis ~ prob, data = test_data,
+                 direction = "<", levels=c(0,1))
   expect_equal(validated$Results$AUC,as.numeric(g$auc))
 
+  roc_ <- AUC::roc(test_data$prob, factor(test_data$diagnosis))
   auc2 <- AUC::auc(AUC::roc(test_data$prob, factor(test_data$diagnosis)))
-  expect_equal(validated$Results$AUC,auc2)  # TODO What is the actual underlying error here?
+  expect_equal(validated$Results$AUC, auc2)  # TODO What is the actual underlying error here?
 
   # Sensitivity
-  sens <- caret::sensitivity(as.factor(test_data$pred), as.factor(test_data$diagnosis),
+  sens <- caret::sensitivity(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
+                             factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
                              positive = levels(as.factor(test_data$diagnosis))[1])
   expect_equal(validated$Results$Sensitivity,sens)
 
   # Specificity
-  spec <- caret::specificity(as.factor(test_data$pred), as.factor(test_data$diagnosis),
+  spec <- caret::specificity(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
+                             factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
                              positive = levels(as.factor(test_data$diagnosis))[1])
   expect_equal(validated$Results$Specificity,spec)
 
   # posPredValue
-  posPredValue_ <- caret::posPredValue(as.factor(test_data$pred), as.factor(test_data$diagnosis),
+  posPredValue_ <- caret::posPredValue(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
+                                       factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
                                        positive = levels(as.factor(test_data$diagnosis))[1])
   expect_equal(validated$Results$`Pos Pred Value`,posPredValue_)
 
   # negPredValue
-  negPredValue_ <- caret::negPredValue(as.factor(test_data$pred), as.factor(test_data$diagnosis),
+  negPredValue_ <- caret::negPredValue(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
+                                       factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
                                        positive = levels(as.factor(test_data$diagnosis))[1])
   expect_equal(validated$Results$`Neg Pred Value`,negPredValue_)
 
@@ -176,6 +192,7 @@ test_that("Metrics work for glmer in validate()",{
   same_model <- lme4::glmer(diagnosis~age+(1|session),
                             data=dat[dat$.partitions==1,], family = 'binomial')
 
+  train_data <- dat[dat$.partitions==1,]
   test_data <- dat[dat$.partitions==2,]
   prob=predict(same_model, newdata=test_data, type=c("response"))
 
@@ -184,30 +201,35 @@ test_that("Metrics work for glmer in validate()",{
     dplyr::mutate(pred = dplyr::if_else(prob>0.5,1,0))
 
   # AUC
-  auc1 <- pROC::roc(diagnosis ~ prob, data = test_data)
+  auc1 <- pROC::roc(diagnosis ~ prob, data = test_data, direction = "<", levels=c(0,1))
   expect_equal(validated$Results$AUC,as.numeric(auc1$auc))
 
-  auc2 <- AUC::auc(AUC::roc(test_data$prob, factor(test_data$diagnosis)))
+  auc2 <- AUC::auc(AUC::roc(test_data$prob,
+                            factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis)))))
   expect_equal(validated$Results$AUC,auc2)
 
 
   # Sensitivity
-  sens <- caret::sensitivity(as.factor(test_data$pred), as.factor(test_data$diagnosis),
+  sens <- caret::sensitivity(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
+                             factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
                              positive = levels(as.factor(test_data$diagnosis))[1])
   expect_equal(validated$Results$Sensitivity,sens)
 
   # Specificity
-  spec <- caret::specificity(as.factor(test_data$pred), as.factor(test_data$diagnosis),
+  spec <- caret::specificity(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
+                             factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
                              positive = levels(as.factor(test_data$diagnosis))[1])
   expect_equal(validated$Results$Specificity,spec)
 
   # posPredValue
-  posPredValue_ <- caret::posPredValue(as.factor(test_data$pred), as.factor(test_data$diagnosis),
+  posPredValue_ <- caret::posPredValue(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
+                                       factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
                                        positive = levels(as.factor(test_data$diagnosis))[1])
   expect_equal(validated$Results$`Pos Pred Value`,posPredValue_)
 
   # negPredValue
-  negPredValue_ <- caret::negPredValue(as.factor(test_data$pred), as.factor(test_data$diagnosis),
+  negPredValue_ <- caret::negPredValue(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
+                                       factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
                                        positive = levels(as.factor(test_data$diagnosis))[1])
   expect_equal(validated$Results$`Neg Pred Value`,negPredValue_)
 
@@ -237,7 +259,7 @@ test_that("Metrics work in cross_validate()",{
   pred_df <- data.frame("obs"=target, "prob"=predictions_prob, "pred"=predictions)
 
   # AUC
-  auc1 <- pROC::roc(obs ~ prob, data = pred_df)
+  auc1 <- pROC::roc(obs ~ prob, data = pred_df, direction = "<", levels=c(0,1))
   expect_equal(as.numeric(auc1$auc), 0.7615741, tolerance = 1e-3)
 
   auc2 <- AUC::auc(AUC::roc(pred_df$prob, factor(pred_df$obs)))

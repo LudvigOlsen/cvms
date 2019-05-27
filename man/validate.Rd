@@ -54,7 +54,9 @@ Ignored if fitting \code{\link[stats]{lm}} or \code{\link[stats]{glm}} models.}
 
 \item{positive}{Level from dependent variable to predict.
  Either as character or level index (1 or 2 - alphabetically).
- Used when creating confusion matrix.
+ Used when creating confusion matrices and ROC curves.
+
+ N.B. Only affects evaluation metrics, not the model training or returned predictions.
 
  Binomial models only. (Character or Integer)}
 

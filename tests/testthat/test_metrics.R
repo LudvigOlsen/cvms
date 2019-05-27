@@ -393,6 +393,31 @@ test_that("Metrics work when 0 is positive class for glmer in validate()",{
 
   expect_equal(validated_pos1$Results$AUC,validated_pos0$Results$AUC)
 
+  # If dependent variable is character factor
+
+  dat$diagnosis_chr <- factor(ifelse(dat$diagnosis == 0, "a", "b"))
+
+  validated_pos1_num <- validate(train_data=dat, models="diagnosis_chr~age",
+                             partitions_col = '.partitions', family = 'binomial',
+                             positive = 1)
+  validated_pos1_chr <- validate(train_data=dat, models="diagnosis_chr~age",
+                                 partitions_col = '.partitions', family = 'binomial',
+                                 positive = "b")
+
+  expect_equal(validated_pos1_num$Results$AUC,validated_pos1_chr$Results$AUC)
+
+  validated_pos0_num <- validate(train_data=dat, models="diagnosis_chr~age",
+                             partitions_col = '.partitions', family = 'binomial',
+                             positive = 0)
+  validated_pos0_chr <- validate(train_data=dat, models="diagnosis_chr~age",
+                                 partitions_col = '.partitions', family = 'binomial',
+                                 positive = "a")
+
+  expect_equal(validated_pos0_num$Results$AUC,validated_pos0_chr$Results$AUC)
+
+  expect_equal(validated_pos0_num$Results$AUC,validated_pos1_num$Results$AUC)
+  expect_equal(validated_pos0_chr$Results$AUC,validated_pos1_chr$Results$AUC)
+
 
 })
 

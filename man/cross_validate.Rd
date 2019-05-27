@@ -53,7 +53,9 @@ Ignored if fitting \code{\link[stats]{lm}} or \code{\link[stats]{glm}} models.}
 
 \item{positive}{Level from dependent variable to predict.
  Either as character or level index (1 or 2 - alphabetically).
- Used when creating confusion matrix.
+ Used when creating confusion matrices and ROC curves.
+
+ N.B. Only affects evaluation metrics, not the model training or returned predictions.
 
  Binomial models only. (Character or Integer)}
 
@@ -121,6 +123,8 @@ Tbl (tibble) with results for each model.
  \strong{AUC}, \strong{Lower CI}, and \strong{Upper CI}
 
  A nested tibble with \strong{predictions}, predicted classes (depends on \code{cutoff}), and the targets.
+ Note, that the \strong{predictions are not necessarily of the specified \code{positive} class}, but of
+ the model's positive class (second level of dependent variable, alphabetically).
 
  A nested tibble with the sensativities and specificities from the \strong{ROC} curve(s).
 

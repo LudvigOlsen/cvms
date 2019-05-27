@@ -86,6 +86,10 @@ cross_validate_fn_single <- function(data, model_fn, evaluation_type="linear_reg
   models = fold_lists_list %c% 'model'
   n_conv_warns <- count_named_nulls_in_list(models)
 
+  # Extract singular fit message
+  singular_fit_messages = fold_lists_list %c% 'yielded_singular_fit_message'
+  n_singular_fit_messages <- sum(unlist(singular_fit_messages))
+
   model_evaluation <- evaluate(data = predictions_and_targets,
                                type = evaluation_type,
                                predictions_col = "prediction",
@@ -97,7 +101,8 @@ cross_validate_fn_single <- function(data, model_fn, evaluation_type="linear_reg
                                model_specifics=model_specifics) %>%
     mutate(Folds = n_folds,
            `Fold Columns` = length(fold_cols),
-           `Convergence Warnings` = n_conv_warns)
+           `Convergence Warnings` = n_conv_warns,
+           `Singular Fit Messages` = n_singular_fit_messages)
 
   return(model_evaluation)
 

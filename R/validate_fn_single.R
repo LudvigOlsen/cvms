@@ -52,6 +52,9 @@ validate_fn_single = function(train_data,
   # Extract models
   model = fitting_output[["model"]]
 
+  # Extract singular fit message
+  yielded_singular_fit_message = fitting_output[["yielded_singular_fit_message"]]
+
   model_evaluation <- evaluate(predictions_and_targets,
                                type=evaluation_type,
                                predictions_col = "prediction",
@@ -61,7 +64,8 @@ validate_fn_single = function(train_data,
                                                      fold_column="fold_column"),
                                models=list(model),
                                model_specifics=model_specifics) %>%
-    mutate(`Convergence Warnings` = ifelse(is.null(model), 1, 0))
+    mutate(`Convergence Warnings` = ifelse(is.null(model), 1, 0),
+           `Singular Fit Messages` = ifelse(isTRUE(yielded_singular_fit_message), 1, 0))
 
 
   if (isTRUE(err_nc) && model_evaluation[["Convergence Warnings"]] != 0) {

@@ -25,7 +25,8 @@ test_that("binomial model work with validate()", {
     partitions_col = ".partitions",
     family = 'binomial',
     REML = FALSE,
-    model_verbose = FALSE
+    model_verbose = FALSE,
+    positive=1
   )
 
   Vbinom_results <- Vbinom$Results
@@ -87,7 +88,8 @@ test_that("binomial mixed model work with validate()", {
       partitions_col = ".partitions",
       family = 'binomial',
       REML = FALSE,
-      model_verbose = FALSE
+      model_verbose = FALSE,
+      positive=1
     )
 
   Vbinom_results <- Vbinom$Results
@@ -147,7 +149,8 @@ test_that("binomial model work with test_data in validate()", {
       test_data = dat[[2]],
       family = 'binomial',
       REML = FALSE,
-      model_verbose = FALSE
+      model_verbose = FALSE,
+      positive=1
     )
 
   Vbinom_results <- Vbinom$Results
@@ -248,7 +251,8 @@ test_that("Right glm model used in validate()", {
       train_data = dat,
       models = "diagnosis~score",
       partitions_col = '.partitions',
-      family = 'binomial'
+      family = 'binomial',
+      positive=1
     )
   same_model <-
     glm(diagnosis ~ score, data = dat[dat$.partitions == 1, ], family = 'binomial')
@@ -282,7 +286,8 @@ test_that("Right glmer model used in validate()", {
       train_data = dat,
       models = "diagnosis~score+(1|session)",
       partitions_col = '.partitions',
-      family = 'binomial'
+      family = 'binomial',
+      positive=1
     )
   same_model <-
     lme4::glmer(diagnosis ~ score + (1 | session),
@@ -296,8 +301,6 @@ test_that("Right glmer model used in validate()", {
   expect_equal(validated$Models[[1]]@beta, same_model@beta, tolerance = 1e-3)
 
 })
-
-
 
 
 test_that("model using dot in formula ( y ~ . ) works with validate()",{
@@ -334,5 +337,29 @@ test_that("model using dot in formula ( y ~ . ) works with validate()",{
                                 REML = FALSE, model_verbose=FALSE),
                  regexp = NA)
 
+
+})
+
+test_that("Singular fit messages counted in validate()", {
+  # Create data that should be easy to model
+  set.seed(7)
+
+  dat <- groupdata2::partition(
+    participant.scores,
+    p = 0.8,
+    cat_col = 'diagnosis',
+    id_col = 'participant',
+    list_out = FALSE
+  )
+
+  expect_message(validated <-
+    validate(
+      train_data = dat,
+      models = "diagnosis~score+(1|session)+(1|participant)",
+      partitions_col = '.partitions',
+      family = 'binomial'
+    ), "Boundary \\(Singular\\) Fit Message")
+
+  expect_equal(validated$Results$`Singular Fit Messages`, 1)
 
 })

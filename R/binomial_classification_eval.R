@@ -7,7 +7,7 @@ binomial_classification_eval <- function(data,
                                          fold_info_cols = list(rel_fold="rel_fold",
                                                                abs_fold="abs_fold",
                                                                fold_column="fold_column"),
-                                         models=NULL, cutoff=0.5, positive=1){
+                                         models=NULL, cutoff=0.5, positive=2){
   # Note: predictions are floats (e.g. 0.7), targets are 0 or 1
 
   # Check if there are NAs in predictions

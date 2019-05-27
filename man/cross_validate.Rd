@@ -6,7 +6,7 @@
 \usage{
 cross_validate(data, models, fold_cols = ".folds", family = "gaussian",
   link = NULL, control = NULL, REML = FALSE, cutoff = 0.5,
-  positive = 1, rm_nc = FALSE, model_verbose = FALSE)
+  positive = 2, rm_nc = FALSE, model_verbose = FALSE)
 }
 \arguments{
 \item{data}{Data frame.

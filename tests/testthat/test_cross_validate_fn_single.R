@@ -100,6 +100,7 @@ test_that("binomial models with cross_validate_single_fn()",{
   expect_equal(cv_result$`Balanced Accuracy`, 0.833, tolerance=1e-3)
   expect_equal(cv_result$Folds, 4)
   expect_equal(cv_result$`Convergence Warnings`, 0)
+  expect_equal(cv_result$`Singular Fit Messages`, 0)
   # expect_equal(cv_result$Family, "binomial")
   # expect_equal(cv_result$Link, "logit")
 
@@ -133,6 +134,7 @@ test_that("binomial models with cross_validate_single_fn()",{
   expect_equal(cv_result$`Balanced Accuracy`, 0.736, tolerance=1e-3)
   expect_equal(cv_result$Folds, 4)
   expect_equal(cv_result$`Convergence Warnings`, 0)
+  expect_equal(cv_result$`Singular Fit Messages`, 0)
   # expect_equal(cv_result$Family, "binomial")
   # expect_equal(cv_result$Link, "logit")
 

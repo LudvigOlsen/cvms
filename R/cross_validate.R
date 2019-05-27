@@ -219,7 +219,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #' @import zoo
 cross_validate <- function(data, models, fold_cols = '.folds', family='gaussian',
                            link = NULL, control=NULL, REML=FALSE,
-                           cutoff=0.5, positive=1, rm_nc = FALSE, model_verbose=FALSE){
+                           cutoff=0.5, positive=2, rm_nc = FALSE, model_verbose=FALSE){
 
 
   return(basics_cross_validate_list(data = data,

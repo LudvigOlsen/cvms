@@ -175,7 +175,7 @@ validate <- function(train_data,
                      control = NULL,
                      REML = FALSE,
                      cutoff = 0.5,
-                     positive = 1,
+                     positive = 2,
                      err_nc = FALSE,
                      rm_nc = FALSE,
                      model_verbose = FALSE) {

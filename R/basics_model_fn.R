@@ -4,7 +4,7 @@ basics_model_fn <- function(train_data,
                             test_data,
                             fold_info = list(rel_fold=NULL, abs_fold=NULL, fold_column=NULL),
                             model_specifics = list(model_formula=NULL, family=NULL, link=NULL,
-                                                   control=NULL, REML=FALSE, positive=1,
+                                                   control=NULL, REML=FALSE, positive=2,
                                                    cutoff=0.5, model_verbose=FALSE)){
 
   y_col <- extract_y(model_specifics[["model_formula"]]) # Name of target column
@@ -29,6 +29,13 @@ basics_model_fn <- function(train_data,
                                                    fold_info=fold_info,
                                                    model_verbose=model_specifics[["model_verbose"]]))
 
+  if (is.list(model) && isTRUE(model[["yielded_singular_fit_message"]])){
+    yielded_singular_fit_message <- TRUE
+    model <- model[["model"]]
+  } else {
+    yielded_singular_fit_message <- FALSE
+  }
+
   # Predict test set
   # If models is NULL (e.g. didn't converge)
   #   Create a list of NA predictions the length of y_column
@@ -49,7 +56,8 @@ basics_model_fn <- function(train_data,
                                             "fold_column" = fold_info[["fold_column"]])
 
   return(list(predictions_and_targets=predictions_and_targets,
-              model=model))
+              model=model,
+              yielded_singular_fit_message = yielded_singular_fit_message))
 
 }
 

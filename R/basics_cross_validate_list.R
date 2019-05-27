@@ -6,7 +6,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #' @importFrom tidyr separate
 basics_cross_validate_list = function(data, model_list, fold_cols = '.folds', family='gaussian',
                                link = NULL, control = NULL, REML=FALSE,
-                               cutoff=0.5, positive=1, rm_nc = FALSE, model_verbose=FALSE){
+                               cutoff=0.5, positive=2, rm_nc = FALSE, model_verbose=FALSE){
 
   # If link is NULL we pass it
   # the default link function for the family

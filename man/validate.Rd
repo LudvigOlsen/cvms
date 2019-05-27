@@ -6,7 +6,7 @@
 \usage{
 validate(train_data, models, test_data = NULL,
   partitions_col = ".partitions", family = "gaussian", link = NULL,
-  control = NULL, REML = FALSE, cutoff = 0.5, positive = 1,
+  control = NULL, REML = FALSE, cutoff = 0.5, positive = 2,
   err_nc = FALSE, rm_nc = FALSE, model_verbose = FALSE)
 }
 \arguments{

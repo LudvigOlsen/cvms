@@ -103,6 +103,47 @@ basics_run_model_fitting <- function(model_fitting_fn, model_specifics, train_da
                  'In fold:',
                  rel_fold,
                  e, sep = "\n"))
+  }, message = function(m){
+    if (grepl('boundary \\(singular\\) fit', as.character(m), ignore.case = TRUE)){
+      message(paste('',
+                    '--------------------------------------------------',
+                    'cross_validate(): Boundary (Singular) Fit Message:',
+                    'In model:',
+                    model_formula,
+                    'For fold column:',
+                    fold_column,
+                    'In fold:',
+                    rel_fold,
+                    m, sep = "\n"))
+
+      is_singular_message <- TRUE
+    } else {
+      message(paste('',
+                    '--------------------------',
+                    'cross_validate(): Message:',
+                    'In model:',
+                    model_formula,
+                    'For fold column:',
+                    fold_column,
+                    'In fold:',
+                    rel_fold,
+                    m, sep = "\n"))
+
+      is_singular_message <- FALSE
+    }
+
+    # Return the fitted model
+
+    model_specifics[["model_verbose"]] = FALSE # It printed the first time, so we don't need it again
+
+    # If it yielded a singular fit, we want to count that.
+    if (isTRUE(is_singular_message)){
+      return(list("model" = suppressMessages(model_fitting_fn(model_specifics, train_data)),
+                  "yielded_singular_fit_message"=TRUE))
+    } else {
+      return(suppressMessages(model_fitting_fn(model_specifics, train_data)))
+    }
+
   })
 
   return(model)

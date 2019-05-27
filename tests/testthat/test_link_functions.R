@@ -67,7 +67,8 @@ test_that("binomial models with link functions with cross_validate()",{
   CV_binom <- cross_validate(dat, "diagnosis~score",
                              fold_cols = '.folds',
                              family='binomial', link = 'logit',
-                             model_verbose=FALSE)
+                             model_verbose=FALSE,
+                             positive=1)
 
   expect_equal(CV_binom$AUC, 0.7638889, tolerance=1e-3)
   expect_equal(CV_binom$Sensitivity, 0.5833333, tolerance=1e-3)
@@ -76,7 +77,8 @@ test_that("binomial models with link functions with cross_validate()",{
   CV_binom <- cross_validate(dat, "diagnosis~score+(1|session)",
                              fold_cols = '.folds',
                              family='binomial', link = 'logit',
-                             model_verbose=FALSE)
+                             model_verbose=FALSE,
+                             positive=1)
 
   expect_equal(CV_binom$AUC, 0.8425926, tolerance=1e-3)
   expect_equal(CV_binom$Sensitivity, 0.8333333, tolerance=1e-3)
@@ -87,7 +89,8 @@ test_that("binomial models with link functions with cross_validate()",{
   CV_binom <- cross_validate(dat, "diagnosis~score",
                              fold_cols = '.folds',
                              family='binomial', link = 'probit',
-                             model_verbose=FALSE)
+                             model_verbose=FALSE,
+                             positive=1)
 
   expect_equal(CV_binom$AUC, 0.7638889, tolerance=1e-3)
   expect_equal(CV_binom$Sensitivity, 0.5833333, tolerance=1e-3)
@@ -97,7 +100,8 @@ test_that("binomial models with link functions with cross_validate()",{
   expect_error(cross_validate(dat, "diagnosis~score+(1|session)",
                              fold_cols = '.folds',
                              family='binomial', link = 'probit',
-                             model_verbose=FALSE),
+                             model_verbose=FALSE,
+                             positive=1),
                regexp="PIRLS step-halvings failed to reduce deviance in pwrssUpdate")
 #
 #   expect_equal(CV_binom$AUC, 0.8657407, tolerance=1e-3)
@@ -110,7 +114,8 @@ test_that("binomial models with link functions with cross_validate()",{
   CV_binom <- cross_validate(dat, "diagnosis~score",
                              fold_cols = '.folds',
                              family='binomial', link = 'cauchit',
-                             model_verbose=FALSE)
+                             model_verbose=FALSE,
+                             positive=1)
 
   expect_equal(CV_binom$AUC, 0.75, tolerance=1e-3)
   expect_equal(CV_binom$Sensitivity, 0.5, tolerance=1e-3)

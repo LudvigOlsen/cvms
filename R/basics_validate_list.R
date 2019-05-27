@@ -5,10 +5,16 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #' @importFrom tidyr separate
 basics_validate_list = function(train_data, model_list, family='gaussian',
                                 link = NULL, control = NULL, REML=FALSE,
-                                cutoff=0.5, positive=1, err_nc = FALSE,
+                                cutoff=0.5, positive=2, err_nc = FALSE,
                                 rm_nc = FALSE, test_data = NULL,
                                 partitions_col = '.partitions',
                                 model_verbose=FALSE){
+
+  # positive can be 1,2, or a character
+  stopifnot(is.data.frame(train_data),
+            is.character(positive) || positive %in% c(1,2),
+            family %in% c("gaussian", "binomial")
+  )
 
   # If train and test data is not already split,
   # get train and test set

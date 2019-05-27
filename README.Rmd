@@ -39,6 +39,10 @@ Main functions:
 
 * Unit tests have been updated for the new random sampling generator in R 3.6.0. They will NOT run previous versions of R. 
 
+* Argument "positive" now defaults to 2. If a dependent variable has the values 0 and 1, 1 is now the default positive class.
+
+* Results now contain a count of singular fit messages. See ?lme4::isSingular for more information.
+
 ## Installation  
 
 Development version:  

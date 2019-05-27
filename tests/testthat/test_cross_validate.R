@@ -18,7 +18,8 @@ test_that("binomial models work with cross_validate()",{
 
   CVbinomlist <- cross_validate(dat, models = c("diagnosis~score","diagnosis~age"),
                                 fold_cols = '.folds', family='binomial',
-                                REML = FALSE, model_verbose=FALSE)
+                                REML = FALSE, model_verbose=FALSE,
+                                positive=1)
 
   expect_equal(CVbinomlist$AUC, c(0.76388889, 0.02083333), tolerance=1e-3)
   expect_equal(CVbinomlist$`Lower CI`, c(0.5855803, 0.0000000), tolerance=1e-3)
@@ -65,7 +66,8 @@ test_that("binomial models checks that dependent variable is numeric with cross_
 
   CVbinomlist <- cross_validate(dat, models = c("diagnosis~score","diagnosis~age"),
                                 fold_cols = '.folds', family='binomial',
-                                REML = FALSE, model_verbose=FALSE)
+                                REML = FALSE, model_verbose=FALSE,
+                                positive=1)
 
   expect_equal(CVbinomlist$AUC, c(0.76388889, 0.02083333), tolerance=1e-3)
   expect_equal(CVbinomlist$`Lower CI`, c(0.5855803, 0.0000000), tolerance=1e-3)
@@ -115,7 +117,8 @@ test_that("binomial models work with cross_validate()",{
                                     family='binomial',
                                     REML = FALSE,
                                     link = NULL,
-                                    model_verbose=FALSE)
+                                    model_verbose=FALSE,
+                                    positive=1)
 
   expect_equal(CVbinomlistrand$AUC, c(0.8425926, 0.02083333), tolerance=1e-3)
   expect_equal(CVbinomlistrand$`Lower CI`, c(0.6892322, 0.0000000), tolerance=1e-3)
@@ -242,7 +245,8 @@ test_that("binomial models work with control specified in cross_validate()",{
                                     link = NULL,
                                     control = lme4::glmerControl(optimizer="bobyqa",
                                                            optCtrl=list(maxfun=1000000)),
-                                    model_verbose=FALSE)
+                                    model_verbose=FALSE,
+                                    positive=1)
 
   expect_equal(CVbinomlistrand$AUC, c(0.8842593), tolerance=1e-3)
   expect_equal(CVbinomlistrand$`Convergence Warnings`, c(0))
@@ -341,7 +345,8 @@ test_that("binomial models work with repeated cross_validate()",{
 
   CVbinomlist <- cross_validate(dat, models = c("diagnosis~score","diagnosis~age"),
                                 fold_cols = c('.folds_1','.folds_2'), family='binomial',
-                                REML = FALSE, model_verbose=FALSE)
+                                REML = FALSE, model_verbose=FALSE,
+                                positive=1)
 
   expect_equal(CVbinomlist$AUC, c(0.7708333, 0.07291667), tolerance=1e-3)
   expect_equal(CVbinomlist$`Lower CI`, c(0.5962955, 0.0000000), tolerance=1e-3)
@@ -418,7 +423,8 @@ test_that("binomial models work with positive as.character in cross_validate()",
 
   CVbinomlist <- cross_validate(dat, models = c("diagnosis~score","diagnosis~age"),
                                 fold_cols = c('.folds_1','.folds_2'), family='binomial',
-                                REML = FALSE, model_verbose=FALSE)
+                                REML = FALSE, model_verbose=FALSE,
+                                positive=1)
 
   expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]), c("Fold Column","Prediction","Reference","Pos_B","Pos_E","N"))
   expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(16,2,5,7,15,3,5,7))
@@ -472,7 +478,8 @@ test_that("binomial models work with positive as.character in cross_validate()",
 
   CVbinomlist <- cross_validate(dat, models = c("diagnosis~score","diagnosis~age"),
                                 fold_cols = c('.folds_1','.folds_2'), family='binomial',
-                                REML = FALSE, model_verbose=FALSE)
+                                REML = FALSE, model_verbose=FALSE,
+                                positive=1)
 
   expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]), c("Fold Column","Prediction","Reference","Pos_B","Pos_E","N"))
   expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(7,5,2,16,7,5,3,15))
@@ -580,3 +587,20 @@ test_that("that wrong model formulas are warned about in cross_validate()",{
 
   })
 
+
+test_that("that singular fit messages are caught, counted and messaged about in cross_validate()",{
+
+  library(groupdata2)
+
+  set.seed(1)
+  dat <- groupdata2::fold(participant.scores, k = 4,
+                          cat_col = 'diagnosis',
+                          id_col = 'participant')
+
+  expect_message(CVbinom <- cross_validate(dat, models = c("diagnosis~score+(1|participant)+(1|session)"),
+                            family='binomial', REML = FALSE, model_verbose=FALSE,
+                            positive=2), "Boundary \\(Singular\\) Fit Message")
+
+  expect_equal(CVbinom$`Singular Fit Messages`, 3)
+
+})

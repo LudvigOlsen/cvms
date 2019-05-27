@@ -30,6 +30,12 @@ Main functions:
   - Unit tests have been updated for the new random sampling generator
     in R 3.6.0. They will NOT run previous versions of R.
 
+  - Argument “positive” now defaults to 2. If a dependent variable has
+    the values 0 and 1, 1 is now the default positive class.
+
+  - Results now contain a count of singular fit messages. See
+    ?lme4::isSingular for more information.
+
 ## Installation
 
 Development version:
@@ -115,13 +121,14 @@ CV1 <- cross_validate(data, "score~diagnosis",
 
 # Show results
 CV1
-#> # A tibble: 1 x 17
+#> # A tibble: 1 x 18
 #>    RMSE   MAE   r2m   r2c   AIC  AICc   BIC Predictions Results
 #>   <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <list>      <list> 
 #> 1  16.4  13.8 0.271 0.271  195.  196.  198. <tibble [3… <tibbl…
-#> # … with 8 more variables: Coefficients <list>, Folds <int>, `Fold
-#> #   Columns` <int>, `Convergence Warnings` <dbl>, Family <chr>,
-#> #   Link <chr>, Dependent <chr>, Fixed <chr>
+#> # … with 9 more variables: Coefficients <list>, Folds <int>, `Fold
+#> #   Columns` <int>, `Convergence Warnings` <dbl>, `Singular Fit
+#> #   Messages` <int>, Family <chr>, Link <chr>, Dependent <chr>,
+#> #   Fixed <chr>
 
 # Let's take a closer look at the different parts of the output 
 
@@ -188,9 +195,9 @@ CV1$Coefficients[[1]] %>% kable()
 CV1 %>% select(11:17) %>% kable()
 ```
 
-| Folds | Fold Columns | Convergence Warnings | Family   | Link     | Dependent | Fixed     |
-| ----: | -----------: | -------------------: | :------- | :------- | :-------- | :-------- |
-|     4 |            1 |                    0 | gaussian | identity | score     | diagnosis |
+| Folds | Fold Columns | Convergence Warnings | Singular Fit Messages | Family   | Link     | Dependent |
+| ----: | -----------: | -------------------: | --------------------: | :------- | :------- | :-------- |
+|     4 |            1 |                    0 |                     0 | gaussian | identity | score     |
 
 ### Binomial
 
@@ -201,17 +208,17 @@ CV2 <- cross_validate(data, "diagnosis~score",
 
 # Show results
 CV2
-#> # A tibble: 1 x 25
+#> # A tibble: 1 x 26
 #>   `Balanced Accur…    F1 Sensitivity Specificity `Pos Pred Value`
 #>              <dbl> <dbl>       <dbl>       <dbl>            <dbl>
-#> 1            0.736 0.667       0.583       0.889            0.778
-#> # … with 20 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
+#> 1            0.736 0.821       0.889       0.583            0.762
+#> # … with 21 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
 #> #   CI` <dbl>, `Upper CI` <dbl>, Kappa <dbl>, MCC <dbl>, `Detection
 #> #   Rate` <dbl>, `Detection Prevalence` <dbl>, Prevalence <dbl>,
 #> #   Predictions <list>, ROC <list>, `Confusion Matrix` <list>,
 #> #   Coefficients <list>, Folds <int>, `Fold Columns` <int>, `Convergence
-#> #   Warnings` <dbl>, Family <chr>, Link <chr>, Dependent <chr>,
-#> #   Fixed <chr>
+#> #   Warnings` <dbl>, `Singular Fit Messages` <int>, Family <chr>,
+#> #   Link <chr>, Dependent <chr>, Fixed <chr>
 
 # Let's take a closer look at the different parts of the output 
 # We won't repeat the parts too similar to those in Gaussian
@@ -222,7 +229,7 @@ CV2 %>% select(1:9) %>% kable()
 
 | Balanced Accuracy |        F1 | Sensitivity | Specificity | Pos Pred Value | Neg Pred Value |       AUC |  Lower CI |  Upper CI |
 | ----------------: | --------: | ----------: | ----------: | -------------: | -------------: | --------: | --------: | --------: |
-|         0.7361111 | 0.6666667 |   0.5833333 |   0.8888889 |      0.7777778 |      0.7619048 | 0.7685185 | 0.5962701 | 0.9407669 |
+|         0.7361111 | 0.8205128 |   0.8888889 |   0.5833333 |      0.7619048 |      0.7777778 | 0.7685185 | 0.5962701 | 0.9407669 |
 
 ``` r
 CV2 %>% select(10:14) %>% kable()
@@ -230,7 +237,7 @@ CV2 %>% select(10:14) %>% kable()
 
 |     Kappa |       MCC | Detection Rate | Detection Prevalence | Prevalence |
 | --------: | --------: | -------------: | -------------------: | ---------: |
-| 0.4927536 | 0.5048268 |      0.2333333 |                  0.3 |        0.4 |
+| 0.4927536 | 0.5048268 |      0.5333333 |                  0.7 |        0.6 |
 
 ``` r
 
@@ -279,14 +286,15 @@ CV3 <- cross_validate(data, models,
 
 # Show results
 CV3
-#> # A tibble: 2 x 17
+#> # A tibble: 2 x 18
 #>    RMSE   MAE    r2m    r2c   AIC  AICc   BIC Predictions Results
 #>   <dbl> <dbl>  <dbl>  <dbl> <dbl> <dbl> <dbl> <list>      <list> 
 #> 1  16.4  13.8 0.271  0.271   195.  196.  198. <tibble [3… <tibbl…
 #> 2  22.4  18.9 0.0338 0.0338  201.  202.  204. <tibble [3… <tibbl…
-#> # … with 8 more variables: Coefficients <list>, Folds <int>, `Fold
-#> #   Columns` <int>, `Convergence Warnings` <dbl>, Family <chr>,
-#> #   Link <chr>, Dependent <chr>, Fixed <chr>
+#> # … with 9 more variables: Coefficients <list>, Folds <int>, `Fold
+#> #   Columns` <int>, `Convergence Warnings` <dbl>, `Singular Fit
+#> #   Messages` <int>, Family <chr>, Link <chr>, Dependent <chr>,
+#> #   Fixed <chr>
 ```
 
 ### Cross-validate mixed effects models
@@ -299,14 +307,15 @@ CV4 <- cross_validate(data, mixed_models,
 
 # Show results
 CV4
-#> # A tibble: 2 x 18
+#> # A tibble: 2 x 19
 #>    RMSE   MAE    r2m   r2c   AIC  AICc   BIC Predictions Results
 #>   <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <list>      <list> 
 #> 1  7.95  6.41 0.290  0.811  176.  178.  180. <tibble [3… <tibbl…
 #> 2 17.5  16.2  0.0366 0.526  194.  196.  198. <tibble [3… <tibbl…
-#> # … with 9 more variables: Coefficients <list>, Folds <int>, `Fold
-#> #   Columns` <int>, `Convergence Warnings` <dbl>, Family <chr>,
-#> #   Link <chr>, Dependent <chr>, Fixed <chr>, Random <chr>
+#> # … with 10 more variables: Coefficients <list>, Folds <int>, `Fold
+#> #   Columns` <int>, `Convergence Warnings` <dbl>, `Singular Fit
+#> #   Messages` <int>, Family <chr>, Link <chr>, Dependent <chr>,
+#> #   Fixed <chr>, Random <chr>
 ```
 
 ## Repeated cross-validation
@@ -353,17 +362,18 @@ CV5 <- cross_validate(data, "diagnosis~score",
 
 # Show results
 CV5
-#> # A tibble: 1 x 26
+#> # A tibble: 1 x 27
 #>   `Balanced Accur…    F1 Sensitivity Specificity `Pos Pred Value`
 #>              <dbl> <dbl>       <dbl>       <dbl>            <dbl>
-#> 1            0.727 0.657       0.583       0.870            0.752
-#> # … with 21 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
+#> 1            0.727 0.810       0.870       0.583            0.758
+#> # … with 22 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
 #> #   CI` <dbl>, `Upper CI` <dbl>, Kappa <dbl>, MCC <dbl>, `Detection
 #> #   Rate` <dbl>, `Detection Prevalence` <dbl>, Prevalence <dbl>,
 #> #   Predictions <list>, ROC <list>, `Confusion Matrix` <list>,
 #> #   Coefficients <list>, Results <list>, Folds <int>, `Fold
-#> #   Columns` <int>, `Convergence Warnings` <dbl>, Family <chr>,
-#> #   Link <chr>, Dependent <chr>, Fixed <chr>
+#> #   Columns` <int>, `Convergence Warnings` <dbl>, `Singular Fit
+#> #   Messages` <int>, Family <chr>, Link <chr>, Dependent <chr>,
+#> #   Fixed <chr>
 
 # The binomial output now has a nested results tibble
 # Let's see a subset of the columns
@@ -372,9 +382,9 @@ CV5$Results[[1]] %>% select(1:8) %>%  kable()
 
 | Fold Column | Balanced Accuracy |        F1 | Sensitivity | Specificity | Pos Pred Value | Neg Pred Value |       AUC |
 | :---------- | ----------------: | --------: | ----------: | ----------: | -------------: | -------------: | --------: |
-| .folds\_1   |         0.7361111 | 0.6666667 |   0.5833333 |   0.8888889 |      0.7777778 |      0.7619048 | 0.7685185 |
-| .folds\_2   |         0.7361111 | 0.6666667 |   0.5833333 |   0.8888889 |      0.7777778 |      0.7619048 | 0.7777778 |
-| .folds\_3   |         0.7083333 | 0.6363636 |   0.5833333 |   0.8333333 |      0.7000000 |      0.7500000 | 0.7476852 |
+| .folds\_1   |         0.7361111 | 0.8205128 |   0.8888889 |   0.5833333 |      0.7619048 |      0.7777778 | 0.7685185 |
+| .folds\_2   |         0.7361111 | 0.8205128 |   0.8888889 |   0.5833333 |      0.7619048 |      0.7777778 | 0.7777778 |
+| .folds\_3   |         0.7083333 | 0.7894737 |   0.8333333 |   0.5833333 |      0.7500000 |      0.7000000 | 0.7476852 |
 
 ## Plot results
 

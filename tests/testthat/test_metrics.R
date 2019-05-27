@@ -13,7 +13,8 @@ test_that("Metrics work for glm in validate()",{
                                list_out = FALSE)
 
   validated <- validate(train_data=dat, models="diagnosis~score",
-                        partitions_col = '.partitions', family = 'binomial')
+                        partitions_col = '.partitions', family = 'binomial',
+                        positive=1)
   same_model <- glm(diagnosis~score, data=dat[dat$.partitions==1,], family = 'binomial')
 
   train_data <- dat[dat$.partitions==1,]
@@ -69,7 +70,8 @@ test_that("Metrics work for glmer in validate()",{
                                list_out = FALSE)
 
   validated <- validate(train_data=dat, models="diagnosis~score+(1|session)",
-                        partitions_col = '.partitions', family = 'binomial')
+                        partitions_col = '.partitions', family = 'binomial',
+                        positive=1)
   same_model <- lme4::glmer(diagnosis~score+(1|session), data=dat[dat$.partitions==1,], family = 'binomial')
 
   train_data <- dat[dat$.partitions==1,]
@@ -128,7 +130,8 @@ test_that("Metrics work for glm in validate()",{
 
 
   validated <- validate(train_data=dat, models="diagnosis~age",
-                        partitions_col = '.partitions', family = 'binomial')
+                        partitions_col = '.partitions', family = 'binomial',
+                        positive=1)
   same_model <- glm(diagnosis~age, data=dat[dat$.partitions==1,], family = 'binomial')
 
   train_data <- dat[dat$.partitions==1,]
@@ -186,7 +189,8 @@ test_that("Metrics work for glmer in validate()",{
                                list_out = FALSE)
 
   validated <- validate(train_data=dat, models="diagnosis~age+(1|session)",
-                        partitions_col = '.partitions', family = 'binomial')
+                        partitions_col = '.partitions', family = 'binomial',
+                        positive=1)
   same_model <- lme4::glmer(diagnosis~age+(1|session),
                             data=dat[dat$.partitions==1,], family = 'binomial')
 
@@ -378,21 +382,21 @@ test_that("Metrics work when 0 is positive class for glmer in validate()",{
 
   validated_pos1 <- validate(train_data=dat, models="diagnosis~score",
                         partitions_col = '.partitions', family = 'binomial',
-                        positive = 1)
+                        positive = 2)
 
   validated_pos0 <- validate(train_data=dat, models="diagnosis~score",
                         partitions_col = '.partitions', family = 'binomial',
-                        positive = 0)
+                        positive = 1)
 
   expect_equal(validated_pos1$Results$AUC,validated_pos0$Results$AUC)
 
   validated_pos1 <- validate(train_data=dat, models="diagnosis~age",
                              partitions_col = '.partitions', family = 'binomial',
-                             positive = 1)
+                             positive = 2)
 
   validated_pos0 <- validate(train_data=dat, models="diagnosis~age",
                              partitions_col = '.partitions', family = 'binomial',
-                             positive = 0)
+                             positive = 1)
 
   expect_equal(validated_pos1$Results$AUC,validated_pos0$Results$AUC)
 
@@ -402,7 +406,7 @@ test_that("Metrics work when 0 is positive class for glmer in validate()",{
 
   validated_pos1_num <- validate(train_data=dat, models="diagnosis_chr~age",
                              partitions_col = '.partitions', family = 'binomial',
-                             positive = 1)
+                             positive = 2)
   validated_pos1_chr <- validate(train_data=dat, models="diagnosis_chr~age",
                                  partitions_col = '.partitions', family = 'binomial',
                                  positive = "b")
@@ -411,7 +415,7 @@ test_that("Metrics work when 0 is positive class for glmer in validate()",{
 
   validated_pos0_num <- validate(train_data=dat, models="diagnosis_chr~age",
                              partitions_col = '.partitions', family = 'binomial',
-                             positive = 0)
+                             positive = 1)
   validated_pos0_chr <- validate(train_data=dat, models="diagnosis_chr~age",
                                  partitions_col = '.partitions', family = 'binomial',
                                  positive = "a")

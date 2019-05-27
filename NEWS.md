@@ -1,5 +1,10 @@
 # cvms 0.0.0.9000
 
+* Results now contain a count of singular fit messages. See ?lme4::isSingular for more information.
+
+* Argument "positive" changes default to 2. Now takes either 1 or 2 (previously 0 and 1). If your dependent variable has
+values 0 and 1, 1 is now the positive class by default.
+
 * AUC calculation has changed. Now explicitly sets the direction in pROC::roc.
 
 * Unit tests have been updated for the new random sampling generator in R 3.6.0. They will NOT run previous versions of R. 

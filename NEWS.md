@@ -1,5 +1,9 @@
 # cvms 0.0.0.9000
 
+* AUC calculation has changed. Now explicitly sets the direction in pROC::roc.
+
+* Unit tests have been updated for the new random sampling generator in R 3.6.0. They will NOT run previous versions of R. 
+
 * Adds reconstruct_formulas() for reconstructing formulas based on model definition columns in the results tibble.
 
 * Adds combine_predictors() for generating model formulas from a set of fixed effects.

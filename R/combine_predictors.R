@@ -1,7 +1,8 @@
-#' @title Combine predictors to create model formulas
+#' @title Generate model formulas by combining predictors
 #' @description Create model formulas with every combination
 #'  of your fixed effects, along with the dependent variable and random effects.
 #'  Be aware of exponential time increase with number of fixed effects.
+#'  Allows for limiting the size of interactions and the number of fixed effects in a formula.
 #' @return
 #'  List of model formulas.
 #'
@@ -11,18 +12,29 @@
 #'  "y ~ x1 + x2 + (1|z)", "y ~ x1 * x2 + (1|z)")}.
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
 #' @export
+#' @aliases generate_formulas
 #' @param dependent Name of dependent variable. (Character)
 #' @param fixed_effects List of fixed effects. (Character)
-#' @param random_effects List of random effects. (Character)
+#'
+#'  Effects in sublists will be interchanged. This can be useful, when
+#'  we have multiple versions of a predictor (e.g. \code{x1} and \code{log(x1)}) that we
+#'  do not wish to have in the same formula.
+#'
+#'  Example of interchangeable effects:
+#'
+#'  \code{list( list( "x1", "log_x1" ), "x2", "x3" )}
+#' @param random_effects The random effects structure. (Character)
+#'
+#'  Is appended to the model formulas.
 #' @param max_fixed_effects Maximum number of fixed effects in a model formula. (Integer)
 #'
 #'   Due to the exponential time increase with number of fixed effects,
-#'   it can help to restrict the number of fixed effects.
-#' @param max_interaction_size Maximum number of interaction terms in a row. (Integer)
+#'   it can help to restrict the number of fixed effects in a formula.
+#' @param max_interaction_size Maximum number of effects in an interaction. (Integer)
 #'
-#'  The model formula can contain more interaction terms (I.e. "\code{*}") but will need a "\code{+}" in-between.
+#'  Use this to limit the \code{n}-way interactions allowed.
 #'
-#'  Use this to limit the \code{n}-way interactions allowed (where \code{n == max_interaction_size + 1}).
+#'  A model formula can contain multiple interactions.
 #' @examples
 #' # Attach libraries
 #' library(cvms)
@@ -31,6 +43,13 @@
 #' dependent <- "y"
 #' fixed_effects <- c("a","b","c","d")
 #' random_effects <- "(1|e)"
+#'
+#' # Create model formulas
+#' combine_predictors(dependent, fixed_effects,
+#'                    random_effects)
+#'
+#' # Create effect names with interchangeable effects in sublists
+#' fixed_effects <- list("a",list("b","log_b"),"c","d")
 #'
 #' # Create model formulas
 #' combine_predictors(dependent, fixed_effects,
@@ -79,7 +98,14 @@ combine_predictors <- function(dependent, fixed_effects,
 
   if (n_fixed_effects < 2) {stop("The number of fixed effects should be at least 2.")}
 
-  should_contain_interactions <- is.null(max_interaction_size) || max_interaction_size != 0
+  should_contain_interactions <- is.null(max_interaction_size) || max_interaction_size %ni% c(0,1)
+
+  # Change it to be a count of asterisks (*)
+  if (should_contain_interactions && !is.null(max_interaction_size)){
+    max_num_asterisks <- max_interaction_size - 1
+  } else {
+    max_num_asterisks <- NULL
+  }
 
   # Interchangeable fixed effects
   if (is.list(fixed_effects)){
@@ -128,13 +154,12 @@ combine_predictors <- function(dependent, fixed_effects,
 
     # Generate the interactions, with flags for included effects
     interactions_df <- generate_interactions(effect_combinations_interactions) %>%
-      dplyr::mutate(interaction_terms = rowSums(.[2:(n_total_fixed_effects+1)])-1)
+      dplyr::mutate(num_asterisks = rowSums(.[2:(n_total_fixed_effects+1)])-1) #%>% print()
 
-    # Remove interaction larger than max_interaction_size
-    # Note: The size is the number of interaction terms
-    if (!is.null(max_interaction_size)){
+    # Remove interaction larger than max_num_asterisks
+    if (!is.null(max_num_asterisks)){
     interactions_df <- interactions_df %>%
-      dplyr::filter(.data$interaction_terms <= max_interaction_size)
+      dplyr::filter(.data$num_asterisks <= max_num_asterisks)
     }
 
   }
@@ -149,7 +174,7 @@ combine_predictors <- function(dependent, fixed_effects,
         data.frame("X1" = interactions_df[["interaction"]], stringsAsFactors=FALSE)
       } else {
         interactions_ <- interactions_df %>%
-          dplyr::filter(.data$interaction_terms <= (n_fixed_effects-i)) %>%
+          dplyr::filter(.data$num_asterisks <= (n_fixed_effects-i)) %>%
           dplyr::pull(.data$interaction)
         data.frame(t(combn(interactions_, i)), stringsAsFactors=FALSE)
       }

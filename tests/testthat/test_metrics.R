@@ -236,6 +236,9 @@ test_that("Metrics work for glmer in validate()",{
 
 test_that("Metrics work when 0 is positive class for glmer in validate()",{
 
+  # AUC approach was improved from this answer: https://stats.stackexchange.com/a/269577
+  # Here I test that it works.
+
   # First we will check what should be the behavior, when changing positive to 0.
   participant.scores$perfect_predicted_probability <- c(0.8, 0.9, 0.7, 0.3,0.2,0.1,
                                                         0.8,0.7,0.7,0.1,0.4,0.3,

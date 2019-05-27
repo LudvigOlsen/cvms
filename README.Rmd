@@ -28,7 +28,16 @@ Main functions:
 
 * cross_validate()
 * validate()
+* combine_predictors()
 * cv_plot()
+* select_metrics()
+* reconstruct_metrics()
+
+## Important News
+
+* AUC calculation has changed. Now explicitly sets the direction in pROC::roc.
+
+* Unit tests have been updated for the new random sampling generator in R 3.6.0. They will NOT run previous versions of R. 
 
 ## Installation  
 
@@ -39,7 +48,6 @@ Development version:
 > devtools::install_github("LudvigOlsen/groupdata2")  
 >
 > devtools::install_github("LudvigOlsen/cvms")  
-
 
 # Examples
 
@@ -94,7 +102,7 @@ CV1
 # Let's take a closer look at the different parts of the output 
 
 # Results metrics
-CV1 %>% select(1:7) %>% kable()
+CV1 %>% select_metrics() %>% kable()
 
 # Nested predictions 
 # Note that [[1]] picks predictions for the first row
@@ -181,7 +189,7 @@ Let's first create new folds. We will use the num_fold_cols argument to add 3 un
 # devtools::install_github("ludvigolsen/groupdata2")
 
 # Set seed for reproducibility
-set.seed(7)
+set.seed(2)
 
 # Fold data 
 data <- fold(data, k = 4,
@@ -196,7 +204,7 @@ data %>% head(10) %>% kable()
 
 
 ```{r}
-CV5 <- cross_validate(data, "diagnosis~score+(1|session)", 
+CV5 <- cross_validate(data, "diagnosis~score", 
                      fold_cols = c('.folds_1','.folds_2','.folds_3'), 
                      family='binomial', 
                      REML = FALSE)
@@ -234,4 +242,25 @@ cv_plot(CV2, type = "ROC") +
   theme_bw()
 ```
 
+## Generate model formulas
+
+Instead of manually typing all possible model formulas for a set of fixed effects (including the possible interactions), combine_predictors() can do it for you. 
+
+NOTE: When more than 6 fixed effects are to be combined with all possible interactions, the formula generation can take a long time. To manage this, we have the option to limit the number of fixed effects in a formula, as well as the maximum interaction size (number of effects in an interaction).
+
+We can also append a random effects structure to the generated formulas.
+
+```{r}
+combine_predictors(dependent = "y",
+                   fixed_effects = c("a","b","c"),
+                   random_effects = "(1|d)")
+```
+
+If two or more predictors should not be in the same formula, like a predictor and its log-transformed version, we can provide them as sublists.
+
+```{r}
+combine_predictors(dependent = "y",
+                   fixed_effects = list("a", list("b","log_b")),
+                   random_effects = "(1|d)")
+```
 

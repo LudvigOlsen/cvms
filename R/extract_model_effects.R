@@ -42,7 +42,8 @@ extract_model_effects <- function(model_list) {
       # From random we remove all "(" and ")"
       mutate(
         Fixed = gsub("[+]$", "", .data$Fixed),
-        Random = gsub('\\(|\\)', '', .data$Random)
+        Random = ifelse(!is.na(.data$Random), paste0("(",.data$Random), .data$Random)
+        #Random = gsub('\\(|\\)', '', .data$Random)
 
       )
   ))

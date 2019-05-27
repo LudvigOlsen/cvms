@@ -25,6 +25,8 @@ binomial_classification_eval <- function(data,
     # Find the levels in the categorical target variable
     cat_levels = levels_as_characters(data[[targets_col]])
 
+    if (length(cat_levels)>2){ stop("The target column must maximally contain 2 levels.") }
+
     # Create a column with the predicted class based on the chosen cutoff
     data[["predicted_classes"]] <- ifelse(data[[predictions_col]] < cutoff, cat_levels[1], cat_levels[2])
 
@@ -76,6 +78,14 @@ binomial_classification_eval <- function(data,
     }
 
     # ROC curves
+
+    # Prepare roc_cat_levels order first
+    # Note that if this order is reverse of cat_levels,
+    # the positive class will be correct when the probability is
+    # smaller than a threshold (closer to 0).
+    roc_cat_levels <- c(cat_levels[cat_levels != positive], cat_levels[cat_levels == positive])
+    roc_direction <- ifelse(all(roc_cat_levels == rev(cat_levels)), ">", "<")
+
     if (length(unique_fold_cols) > 1){
       fold_col_roc_curves <- plyr::llply(unique_fold_cols, function(fcol){
 
@@ -84,7 +94,9 @@ binomial_classification_eval <- function(data,
 
         # Create confusion matrix and add to list
         fcol_roc_curve <- list("x" = fit_roc_curve(predicted_probabilities = fcol_data[[predictions_col]],
-                                                   targets = fcol_data[[targets_col]]))
+                                                   targets = fcol_data[[targets_col]],
+                                                   levels = roc_cat_levels,
+                                                   direction = roc_direction))
         # Rename list element to the fold column name
         names(fcol_roc_curve) <- fcol
 
@@ -130,7 +142,9 @@ binomial_classification_eval <- function(data,
 
     } else {
       roc_curve <- fit_roc_curve(predicted_probabilities = data[[predictions_col]],
-                                 targets = data[[targets_col]])
+                                 targets = data[[targets_col]],
+                                 levels = roc_cat_levels,
+                                 direction = roc_direction)
 
       # ROC sensitivities and specificities
       roc_nested <- tibble::tibble(Sensitivities = roc_curve$sensitivities,
@@ -223,8 +237,8 @@ fit_confusion_matrix <- function(predicted_classes, targets, cat_levels, positiv
 
   # Try to use fit a confusion matrix with the predictions and targets
   conf_mat = tryCatch({
-    caret::confusionMatrix(factor(predicted_classes), #levels=c(0,1)),
-                           factor(targets), #levels=c(0,1)),
+    caret::confusionMatrix(factor(predicted_classes, levels=cat_levels),
+                           factor(targets, levels=cat_levels),
                            positive=positive)
 
   }, error = function(e) {
@@ -235,12 +249,15 @@ fit_confusion_matrix <- function(predicted_classes, targets, cat_levels, positiv
   conf_mat
 }
 
-fit_roc_curve <- function(predicted_probabilities, targets){
+# levels must be ordered such that the positive class is last c(neg, pos)
+fit_roc_curve <- function(predicted_probabilities, targets, levels=c(0,1), direction="<"){
 
   # Try to fit a ROC curve on the data
   roc_curve = tryCatch({
     pROC::roc(response = targets,
-              predictor = predicted_probabilities)
+              predictor = predicted_probabilities,
+              direction=direction,
+              levels=levels)
 
   }, error = function(e) {
     stop(paste0('Receiver Operator Characteristic (ROC) Curve error: ',e))

@@ -4,8 +4,6 @@
 #' @description In the results tibble from cross_validate and validate,
 #'  the model formulas have been split into the columns Dependent, Fixed and Random.
 #'  Quickly reconstruct the model formulas from these column.
-#'
-#'  NOTE: Currently only works properly without random effects!
 #' @return
 #'  List of model formulas.
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
@@ -33,8 +31,8 @@ reconstruct_formulas <- function(results, topn=NULL){
   if ("Random" %ni% cols_){
     return( paste0(results[["Dependent"]], " ~ ", space_operators(results[["Fixed"]])) )
   } else {
-    # TODO Fix formatting (add paranthesis etc., what if multiple random effect specifications?)
-    return( paste0(results[["Dependent"]], " ~ ", space_operators(results[["Fixed"]]), " + ", results[["Random"]]) )
+    return( paste0(results[["Dependent"]], " ~ ", space_operators(results[["Fixed"]]),
+                   " + ", space_operators(results[["Random"]]) ))
   }
 
 

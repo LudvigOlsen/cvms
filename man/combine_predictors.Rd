@@ -2,7 +2,8 @@
 % Please edit documentation in R/combine_predictors.R
 \name{combine_predictors}
 \alias{combine_predictors}
-\title{Combine predictors to create model formulas}
+\alias{generate_formulas}
+\title{Generate model formulas by combining predictors}
 \usage{
 combine_predictors(dependent, fixed_effects, random_effects = NULL,
   max_fixed_effects = NULL, max_interaction_size = NULL)
@@ -10,20 +11,30 @@ combine_predictors(dependent, fixed_effects, random_effects = NULL,
 \arguments{
 \item{dependent}{Name of dependent variable. (Character)}
 
-\item{fixed_effects}{List of fixed effects. (Character)}
+\item{fixed_effects}{List of fixed effects. (Character)
 
-\item{random_effects}{List of random effects. (Character)}
+ Effects in sublists will be interchanged. This can be useful, when
+ we have multiple versions of a predictor (e.g. \code{x1} and \code{log(x1)}) that we
+ do not wish to have in the same formula.
+
+ Example of interchangeable effects:
+
+ \code{list( list( "x1", "log_x1" ), "x2", "x3" )}}
+
+\item{random_effects}{The random effects structure. (Character)
+
+ Is appended to the model formulas.}
 
 \item{max_fixed_effects}{Maximum number of fixed effects in a model formula. (Integer)
 
   Due to the exponential time increase with number of fixed effects,
-  it can help to restrict the number of fixed effects.}
+  it can help to restrict the number of fixed effects in a formula.}
 
-\item{max_interaction_size}{Maximum number of interaction terms in a row. (Integer)
+\item{max_interaction_size}{Maximum number of effects in an interaction. (Integer)
 
- The model formula can contain more interaction terms (I.e. "\code{*}") but will need a "\code{+}" in-between.
+ Use this to limit the \code{n}-way interactions allowed.
 
- Use this to limit the \code{n}-way interactions allowed (where \code{n == max_interaction_size + 1}).}
+ A model formula can contain multiple interactions.}
 }
 \value{
 List of model formulas.
@@ -37,6 +48,7 @@ List of model formulas.
 Create model formulas with every combination
  of your fixed effects, along with the dependent variable and random effects.
  Be aware of exponential time increase with number of fixed effects.
+ Allows for limiting the size of interactions and the number of fixed effects in a formula.
 }
 \examples{
 # Attach libraries
@@ -46,6 +58,13 @@ library(cvms)
 dependent <- "y"
 fixed_effects <- c("a","b","c","d")
 random_effects <- "(1|e)"
+
+# Create model formulas
+combine_predictors(dependent, fixed_effects,
+                   random_effects)
+
+# Create effect names with interchangeable effects in sublists
+fixed_effects <- list("a",list("b","log_b"),"c","d")
 
 # Create model formulas
 combine_predictors(dependent, fixed_effects,

@@ -23,8 +23,6 @@ List of model formulas.
 In the results tibble from cross_validate and validate,
  the model formulas have been split into the columns Dependent, Fixed and Random.
  Quickly reconstruct the model formulas from these column.
-
- NOTE: Currently only works properly without random effects!
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

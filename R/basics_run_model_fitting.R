@@ -93,7 +93,16 @@ basics_run_model_fitting <- function(model_fitting_fn, model_specifics, train_da
     }
 
   }, error = function(e){
-    stop(e)
+    stop(paste('',
+                 '-------------------------------------',
+                 'Error:',
+                 'In model:',
+                 model_formula,
+                 'For fold column:',
+                 fold_column,
+                 'In fold:',
+                 rel_fold,
+                 e, sep = "\n"))
   })
 
   return(model)

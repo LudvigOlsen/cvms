@@ -5,8 +5,8 @@ Authors@R: person("Ludvig Renbo", "Olsen", email = "r-pkgs@ludvigolsen.dk", role
 Description: Run cross-validation of one or multiple regression models with a tidy output. 
   Currently supports gaussian and binomial regression.
 Depends:
-    R (>= 3.5),
-    zoo
+    R (>= 3.6),
+    zoo (>= 1.8-5)
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -17,19 +17,19 @@ Imports:
     tidyr (>= 0.7.0),
     ggplot2,
     purrr,
-    tibble,
-    caret (>= 6.0-79),
-    pROC,
+    tibble (>= 2.1.1),
+    caret (>= 6.0-84),
+    pROC (>= 1.14.0),
     stats,
-    lme4,
-    hydroGOF,
-    MuMIn,
-    AICcmodavg,
+    lme4 (>= 1.1-21),
+    hydroGOF (>= 0.3-10),
+    MuMIn (>= 1.43.6),
+    AICcmodavg (>= 2.2-1),
     broom,
     stringr,
-    mltools,
+    mltools (>= 0.3.5),
     rlang,
-    combinat
+    combinat (>= 0.0-8)
 RoxygenNote: 6.1.1
 Suggests: knitr,
     rmarkdown,

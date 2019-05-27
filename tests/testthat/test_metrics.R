@@ -117,8 +117,9 @@ test_that("Metrics work for glm in validate()",{
                                list_out = FALSE)
 
 
-  validated <- validate(train_data=dat, models="diagnosis~age",
-                        partitions_col = '.partitions', family = 'binomial')
+  expect_warning(validated <- validate(train_data=dat, models="diagnosis~age",
+                        partitions_col = '.partitions', family = 'binomial'),
+                 "of a ROC curve with AUC == 1 is always 1-1 and can be misleading.")
   same_model <- glm(diagnosis~age, data=dat[dat$.partitions==1,], family = 'binomial')
 
   test_data <- dat[dat$.partitions==2,]
@@ -133,7 +134,7 @@ test_that("Metrics work for glm in validate()",{
   expect_equal(validated$Results$AUC,as.numeric(g$auc))
 
   auc2 <- AUC::auc(AUC::roc(test_data$prob, factor(test_data$diagnosis)))
-  expect_equal(validated$Results$AUC,auc2)
+  expect_equal(validated$Results$AUC,auc2)  # TODO What is the actual underlying error here?
 
   # Sensitivity
   sens <- caret::sensitivity(as.factor(test_data$pred), as.factor(test_data$diagnosis),
@@ -168,6 +169,8 @@ test_that("Metrics work for glmer in validate()",{
                                id_col = 'participant',
                                list_out = FALSE)
 
+  # TODO: Is this warning okay? :
+  #   "Levels are not in the same order for reference and data. Refactoring data to match."
   validated <- validate(train_data=dat, models="diagnosis~age+(1|session)",
                         partitions_col = '.partitions', family = 'binomial')
   same_model <- lme4::glmer(diagnosis~age+(1|session),

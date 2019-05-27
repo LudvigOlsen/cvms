@@ -30,8 +30,8 @@ test_that("binomial model work with validate()", {
 
   Vbinom_results <- Vbinom$Results
 
-  expect_equal(Vbinom_results$AUC, 0.9444444, tolerance = 1e-3)
-  expect_equal(Vbinom_results$`Lower CI`, 0.7904551, tolerance = 1e-3)
+  expect_equal(Vbinom_results$AUC, 0.8888889, tolerance = 1e-3)
+  expect_equal(Vbinom_results$`Lower CI`, 0.6312155, tolerance = 1e-3)
   expect_equal(Vbinom_results$`Upper CI`, 1, tolerance = 1e-3)
   expect_equal(Vbinom_results$Kappa, 0.7272727, tolerance = 1e-3)
   expect_equal(Vbinom_results$Sensitivity, 0.6666667, tolerance = 1e-3)
@@ -61,7 +61,7 @@ test_that("binomial model work with validate()", {
   expect_equal(colnames(Vbinom_results$ROC[[1]]),
                c("Sensitivities", "Specificities"))
   expect_equal(nrow(Vbinom_results$Predictions[[1]]), 9)
-  expect_equal(nrow(Vbinom_results$ROC[[1]]), 9)
+  expect_equal(nrow(Vbinom_results$ROC[[1]]), 10)
 
 })
 
@@ -76,6 +76,9 @@ test_that("binomial mixed model work with validate()", {
     list_out = FALSE
   )
 
+  # Making sure the partitioning is not the error
+  expect_equal(dat$.partitions, factor(c(2,2,2,1,1,1,1,1,1,2,2,2,1,1,1,1,1,1,2,2,2,1,1,1,1,1,1,2,2,2)))
+
   Vbinom <-
     validate(
       train_data = dat,
@@ -89,27 +92,27 @@ test_that("binomial mixed model work with validate()", {
 
   Vbinom_results <- Vbinom$Results
 
-  expect_equal(Vbinom_results$AUC, 0.9444444, tolerance = 1e-3)
-  expect_equal(Vbinom_results$`Lower CI`, 0.8156077, tolerance = 1e-3)
+  expect_equal(Vbinom_results$AUC, 0.8333333, tolerance = 1e-3)
+  expect_equal(Vbinom_results$`Lower CI`, 0.626735, tolerance = 1e-3)
   expect_equal(Vbinom_results$`Upper CI`, 1, tolerance = 1e-3)
-  expect_equal(Vbinom_results$Kappa, 0.3333333, tolerance = 1e-3)
-  expect_equal(Vbinom_results$Sensitivity, 0.3333333, tolerance = 1e-3)
-  expect_equal(Vbinom_results$Specificity, 1, tolerance = 1e-3)
-  expect_equal(Vbinom_results$`Pos Pred Value`, 1, tolerance = 1e-3)
-  expect_equal(Vbinom_results$`Neg Pred Value`, 0.6, tolerance = 1e-3)
-  expect_equal(Vbinom_results$F1, 0.5, tolerance = 1e-3)
+  expect_equal(Vbinom_results$Kappa, 0.5, tolerance = 1e-3)
+  expect_equal(Vbinom_results$Sensitivity, 1, tolerance = 1e-3)
+  expect_equal(Vbinom_results$Specificity, 0.5, tolerance = 1e-3)
+  expect_equal(Vbinom_results$`Pos Pred Value`, 0.6666667, tolerance = 1e-3)
+  expect_equal(Vbinom_results$`Neg Pred Value`, 1, tolerance = 1e-3)
+  expect_equal(Vbinom_results$F1, 0.8, tolerance = 1e-3)
   expect_equal(Vbinom_results$Prevalence, 0.5, tolerance = 1e-3)
-  expect_equal(Vbinom_results$`Detection Rate`, 0.1666667, tolerance = 1e-3)
+  expect_equal(Vbinom_results$`Detection Rate`, 0.5, tolerance = 1e-3)
   expect_equal(Vbinom_results$`Detection Prevalence`,
-               0.1666667,
+               0.75,
                tolerance = 1e-3)
-  expect_equal(Vbinom_results$`Balanced Accuracy`, 0.6666667, tolerance =
+  expect_equal(Vbinom_results$`Balanced Accuracy`, 0.75, tolerance =
                  1e-3)
   expect_equal(Vbinom_results$`Convergence Warnings`, 0)
   expect_equal(Vbinom_results$Family, 'binomial')
   expect_equal(Vbinom_results$Dependent, 'diagnosis')
   expect_equal(Vbinom_results$Fixed, 'score')
-  expect_equal(Vbinom_results$Random, '1|session')
+  expect_equal(Vbinom_results$Random, '(1|session)')
 
   # Enter sub tibbles
   expect_is(Vbinom_results$Predictions[[1]], "tbl_df")
@@ -121,7 +124,7 @@ test_that("binomial mixed model work with validate()", {
   expect_equal(colnames(Vbinom_results$ROC[[1]]),
                c("Sensitivities", "Specificities"))
   expect_equal(nrow(Vbinom_results$Predictions[[1]]), 12)
-  expect_equal(nrow(Vbinom_results$ROC[[1]]), 12)
+  expect_equal(nrow(Vbinom_results$ROC[[1]]), 6)
 
 })
 
@@ -149,8 +152,8 @@ test_that("binomial model work with test_data in validate()", {
 
   Vbinom_results <- Vbinom$Results
 
-  expect_equal(Vbinom_results$AUC, 0.9444444, tolerance = 1e-3)
-  expect_equal(Vbinom_results$`Lower CI`, 0.7904551, tolerance = 1e-3)
+  expect_equal(Vbinom_results$AUC, 0.8888889, tolerance = 1e-3)
+  expect_equal(Vbinom_results$`Lower CI`, 0.6312155, tolerance = 1e-3)
   expect_equal(Vbinom_results$`Upper CI`, 1, tolerance = 1e-3)
   expect_equal(Vbinom_results$Kappa, 0.7272727, tolerance = 1e-3)
   expect_equal(Vbinom_results$Sensitivity, 0.6666667, tolerance = 1e-3)
@@ -180,7 +183,7 @@ test_that("binomial model work with test_data in validate()", {
   expect_equal(colnames(Vbinom_results$ROC[[1]]),
                c("Sensitivities", "Specificities"))
   expect_equal(nrow(Vbinom_results$Predictions[[1]]), 9)
-  expect_equal(nrow(Vbinom_results$ROC[[1]]), 9)
+  expect_equal(nrow(Vbinom_results$ROC[[1]]), 10)
 
 })
 
@@ -212,17 +215,17 @@ test_that("gaussian model with validate()", {
 
   Vgauss_results <- Vgauss$Results
 
-  expect_equal(Vgauss_results$RMSE, 8.08783, tolerance = 1e-3)
-  expect_equal(Vgauss_results$r2m, 0.1658105, tolerance = 1e-3)
-  expect_equal(Vgauss_results$r2c, 0.7674236, tolerance = 1e-3)
-  expect_equal(Vgauss_results$AIC, 147.728, tolerance = 1e-3)
-  expect_equal(Vgauss_results$AICc, 150.8049, tolerance = 1e-3)
-  expect_equal(Vgauss_results$BIC, 151.2895, tolerance = 1e-3)
+  expect_equal(Vgauss_results$RMSE, 5.41618, tolerance = 1e-3)
+  expect_equal(Vgauss_results$r2m, 0.2011114, tolerance = 1e-3)
+  expect_equal(Vgauss_results$r2c, 0.688687, tolerance = 1e-3)
+  expect_equal(Vgauss_results$AIC, 151.137, tolerance = 1e-3)
+  expect_equal(Vgauss_results$AICc, 154.2139, tolerance = 1e-3)
+  expect_equal(Vgauss_results$BIC, 154.6985, tolerance = 1e-3)
   expect_equal(Vgauss_results$`Convergence Warnings`, 0)
   expect_equal(Vgauss_results$Family, 'gaussian')
   expect_equal(Vgauss_results$Dependent, 'score')
   expect_equal(Vgauss_results$Fixed, 'diagnosis')
-  expect_equal(Vgauss_results$Random, '1|session')
+  expect_equal(Vgauss_results$Random, '(1|session)')
 
 })
 

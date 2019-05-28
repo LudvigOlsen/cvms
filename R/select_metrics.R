@@ -9,9 +9,9 @@
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
 #' @export
 #' @param results Results tibble from cross_validate() or validate().
-#' @param include_model_definitions Whether to include the \code{Dependent},
+#' @param include_definitions Whether to include the \code{Dependent},
 #'  \code{Fixed} and (possibly) \code{Random} columns. (Logical)
-select_metrics <- function(results, include_model_definitions = TRUE){
+select_metrics <- function(results, include_definitions = TRUE){
 
   # TODO Add checks of results input
 
@@ -21,13 +21,17 @@ select_metrics <- function(results, include_model_definitions = TRUE){
     model_formula_cols <- c("Dependent", "Fixed")
   }
 
+  if ("Family" %ni% colnames(results)){
+    stop("results most contain the column Family.")
+  }
+
   # What about "Convergence Warnings"? People should be aware of this!
 
   if (results[["Family"]][[1]] == "gaussian"){
 
     metric_cols <- c("RMSE", "MAE", "r2m", "r2c", "AIC", "AICc", "BIC")
 
-    if (isTRUE(include_model_definitions)){
+    if (isTRUE(include_definitions)){
       return( dplyr::select(results, dplyr::one_of(metric_cols), dplyr::one_of(model_formula_cols)))
     } else {
       return( dplyr::select(results, dplyr::one_of(metric_cols)))
@@ -40,7 +44,7 @@ select_metrics <- function(results, include_model_definitions = TRUE){
                      "Neg Pred Value","AUC","Lower CI","Upper CI","Kappa",
                      "MCC","Detection Rate","Detection Prevalence","Prevalence")
 
-    if (isTRUE(include_model_definitions)){
+    if (isTRUE(include_definitions)){
       return( dplyr::select(results, dplyr::one_of(metric_cols), dplyr::one_of(model_formula_cols)))
     } else {
       return( dplyr::select(results, dplyr::one_of(metric_cols)))

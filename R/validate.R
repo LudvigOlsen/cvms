@@ -4,56 +4,63 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #' @title Validate regression model on test set
 #' @description Train gaussian or binomial models on a full training set and validate it by predicting the test/validation set.
 #'  Returns results in a tibble for easy reporting, along with the trained models.
-#'
-#'  \strong{validate() is under development! Large changes may occur.}
 #' @inheritParams cross_validate
-#' @param train_data Dataframe.
-#' @param test_data Dataframe. If specifying \code{partitions_col}, this can be \code{NULL}.
+#' @param train_data Data Frame.
+#' @param test_data Data Frame. If specifying \code{partitions_col}, this can be \code{NULL}.
 #' @param partitions_col Name of grouping factor for identifying partitions. (Character)
 #'  1 is training set and 2 is test set.
 #'
 #'  Only used if test_data is NULL.
 #' @param err_nc Raise error if model does not converge. (Logical)
 #' @details
+#'
+#'  Packages used:
+#'
 #'  \subsection{Models}{
 #'
-#'  Gaussian: stats::lm, lme4::lmer
+#'  Gaussian: \link[stats:lm]{stats::lm}, \code{\link[lme4:lmer]{lme4::lmer}}
 #'
-#'  Binomial: stats::glm, lme4::glmer
+#'  Binomial: \code{\link[stats:glm]{stats::glm}}, \code{\link[lme4:glmer]{lme4::glmer}}
 #'  }
 #'  \subsection{Results}{
 #'  \strong{Gaussian}:
 #'
-#'  RMSE : hydroGOF::rmse
+#'  RMSE : \code{\link[hydroGOF:rmse]{hydroGOF::rmse}}
 #'
-#'  r2m : MuMIn::r.squaredGLMM
+#'  MAE : \code{\link[hydroGOF:mae]{hydroGOF::mae}}
 #'
-#'  r2c : MuMIn::r.squaredGLMM
+#'  r2m : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
 #'
-#'  AIC : stats::AIC
+#'  r2c : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
 #'
-#'  AICc : AICcmodavg::AICc
+#'  AIC : \code{\link[stats:AIC]{stats::AIC}}
 #'
-#'  BIC : stats::BIC
+#'  AICc : \code{\link[AICcmodavg:AICc]{AICcmodavg::AICc}}
+#'
+#'  BIC : \code{\link[stats:BIC]{stats::BIC}}
 #'
 #'  \strong{Binomial}:
 #'
-#'  Confusion matrix: caret::confusionMatrix
+#'  Confusion matrix: \code{\link[caret:confusionMatrix]{caret::confusionMatrix}}
 #'
-#'  ROC: pROC::roc
+#'  ROC: \code{\link[pROC:roc]{pROC::roc}}
+#'
+#'  MCC: \code{\link[mltools:mcc]{mltools::mcc}}
 #'  }
 #' @return List containing tbl (tibble) with results and the trained model object.
 #'  The tibble contains:
 #'
 #'  \subsection{Gaussian Results}{
-#'  \strong{RMSE}, \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
+#'  \strong{RMSE}, \strong{MAE}, \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
 #'  and \strong{BIC}.
 #'
 #'  Count of \strong{convergence warnings}. Consider discarding the model if it did not converge.
 #'
 #'  Specified \strong{family}.
 #'
-#'  A tibble with \strong{coefficients} of the model.
+#'  A nested tibble with model \strong{coefficients}.
+#'
+#'  A nested tibble with the \strong{predictions} and targets.
 #'
 #'  Name of \strong{dependent} variable.
 #'
@@ -73,14 +80,21 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #'
 #'  Confusion Matrix:
 #'
-#'  \strong{Kappa}, \strong{Sensitivity},
-#'  \strong{Specificity}, \strong{Positive Prediction Value},
+#'  \strong{Balanced Accuracy}, \strong{F1},
+#'  \strong{Sensitivity}, \strong{Specificity},
+#'  \strong{Positive Prediction Value},
 #'  \strong{Negative Prediction Value},
-#'  \strong{F1}, \strong{Prevalence}, \strong{Detection Rate},
-#'  \strong{Detection Prevalence}, and
-#'  \strong{Balanced Accuracy}.
+#'  \strong{Kappa},
+#'  \strong{Detection Rate},
+#'  \strong{Detection Prevalence},
+#'  \strong{Prevalence}, and
+#'  \strong{MCC} (Matthews correlation coefficient).
+#'
+#'  A nested tibble with model \strong{coefficients}.
 #'
 #'  Count of \strong{convergence warnings}. Consider discarding the model if it did not converge.
+#'
+#'  Count of \strong{Singular Fit messages}. See \code{?\link[lme4:isSingular]{lme4::isSingular}} for more information.
 #'
 #'  Specified \strong{family}.
 #'
@@ -97,7 +111,6 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #'  }
 #'
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
-#' @author Benjamin Hugh Zachariae
 #' @export
 #' @examples
 #' # Attach libraries

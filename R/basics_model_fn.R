@@ -18,7 +18,7 @@ basics_model_fn <- function(train_data,
     model_type <- "lm"
   if (model_specifics[["family"]] == "binomial")
     model_type <- "glm"
-  if (TRUE %in% contains_random_effects) model_type <- paste0(model_type, "er") #makes them either lmer or glmer
+  if (TRUE %in% contains_random_effects) model_type <- paste0(model_type, "er") # makes them either lmer or glmer
 
   model_specifics[["model_type"]] <- model_type
 
@@ -41,12 +41,12 @@ basics_model_fn <- function(train_data,
   #   Create a list of NA predictions the length of y_column
 
   if (is.null(model)){
-    predictions = rep(NA, length(test_data[[y_col]]))
+    predictions <- rep(NA, length(test_data[[y_col]]))
   } else {
     if (model_specifics[["family"]] == "gaussian")
-      predictions = stats::predict(model, test_data, allow.new.levels=TRUE)
+      predictions <- stats::predict(model, test_data, allow.new.levels=TRUE)
     if (model_specifics[["family"]] == "binomial")
-      predictions = stats::predict(model, test_data, type="response", allow.new.levels=TRUE)
+      predictions <- stats::predict(model, test_data, type="response", allow.new.levels=TRUE)
   }
 
   predictions_and_targets <- tibble::tibble("target" = test_data[[y_col]],

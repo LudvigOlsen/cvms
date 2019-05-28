@@ -111,6 +111,7 @@ test_that("binomial mixed model work with validate()", {
   expect_equal(Vbinom_results$`Balanced Accuracy`, 0.75, tolerance =
                  1e-3)
   expect_equal(Vbinom_results$`Convergence Warnings`, 0)
+  expect_equal(Vbinom_results$`Singular Fit Messages`, 0)
   expect_equal(Vbinom_results$Family, 'binomial')
   expect_equal(Vbinom_results$Dependent, 'diagnosis')
   expect_equal(Vbinom_results$Fixed, 'score')
@@ -225,6 +226,7 @@ test_that("gaussian model with validate()", {
   expect_equal(Vgauss_results$AICc, 154.2139, tolerance = 1e-3)
   expect_equal(Vgauss_results$BIC, 154.6985, tolerance = 1e-3)
   expect_equal(Vgauss_results$`Convergence Warnings`, 0)
+  expect_equal(Vgauss_results$`Singular Fit Messages`, 0)
   expect_equal(Vgauss_results$Family, 'gaussian')
   expect_equal(Vgauss_results$Dependent, 'score')
   expect_equal(Vgauss_results$Fixed, 'diagnosis')

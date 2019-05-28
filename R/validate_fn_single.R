@@ -64,8 +64,14 @@ validate_fn_single = function(train_data,
                                                      fold_column="fold_column"),
                                models=list(model),
                                model_specifics=model_specifics) %>%
-    mutate(`Convergence Warnings` = ifelse(is.null(model), 1, 0),
+    dplyr::mutate(`Convergence Warnings` = ifelse(is.null(model), 1, 0),
            `Singular Fit Messages` = ifelse(isTRUE(yielded_singular_fit_message), 1, 0))
+
+  # Remove Results tibble if linear regression
+  if (evaluation_type == "linear_regression"){
+    model_evaluation <- model_evaluation %>%
+    dplyr::select(-dplyr::one_of("Results"))
+  }
 
 
   if (isTRUE(err_nc) && model_evaluation[["Convergence Warnings"]] != 0) {

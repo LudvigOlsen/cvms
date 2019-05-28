@@ -55,6 +55,8 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #'  Count of \strong{convergence warnings}. Consider discarding models that did not converge on all
 #'  iterations. Note: you might still see results, but these should be taken with a grain of salt!
 #'
+#'  Count of \strong{Singular Fit messages}. See \code{?\link[lme4:isSingular]{lme4::isSingular}} for more information.
+#'
 #'  Specified \strong{family}.
 #'
 #'  Specified \strong{link} function.
@@ -67,7 +69,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #'  }
 #'
 #'  \subsection{Gaussian Results}{
-#'  Average \strong{RMSE}, \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
+#'  Average \strong{RMSE}, \strong{MAE}, \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
 #'  and \strong{BIC} of all the iterations*,
 #'  \emph{\strong{omitting potential NAs} from non-converged iterations}.
 #'  Note that the Information Criteria metrics (AIC, AICc, and BIC) are also averages.
@@ -110,7 +112,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #'  A nested tibble with the \strong{confusion matrix}/matrices.
 #'  The \code{Pos_} columns tells you whether a row is a
 #'  True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
-#'  depending on which level is the "positive" level. I.e. the level you wish to predict.
+#'  depending on which level is the "positive" class. I.e. the level you wish to predict.
 #'
 #'  A nested tibble with the \strong{results} from all fold columns, if using repeated cross-validation.
 #'

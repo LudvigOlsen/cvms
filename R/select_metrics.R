@@ -9,7 +9,9 @@
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
 #' @export
 #' @param results Results tibble from cross_validate() or validate().
-select_metrics <- function(results){
+#' @param include_model_definitions Whether to include the \code{Dependent},
+#'  \code{Fixed} and (possibly) \code{Random} columns. (Logical)
+select_metrics <- function(results, include_model_definitions = TRUE){
 
   # TODO Add checks of results input
 
@@ -25,7 +27,12 @@ select_metrics <- function(results){
 
     metric_cols <- c("RMSE", "MAE", "r2m", "r2c", "AIC", "AICc", "BIC")
 
-    return( dplyr::select(results, dplyr::one_of(metric_cols), dplyr::one_of(model_formula_cols)))
+    if (isTRUE(include_model_definitions)){
+      return( dplyr::select(results, dplyr::one_of(metric_cols), dplyr::one_of(model_formula_cols)))
+    } else {
+      return( dplyr::select(results, dplyr::one_of(metric_cols)))
+    }
+
 
   } else if (results[["Family"]][[1]] == "binomial"){
 
@@ -33,7 +40,11 @@ select_metrics <- function(results){
                      "Neg Pred Value","AUC","Lower CI","Upper CI","Kappa",
                      "MCC","Detection Rate","Detection Prevalence","Prevalence")
 
-    return( dplyr::select(results, dplyr::one_of(metric_cols), dplyr::one_of(model_formula_cols)))
+    if (isTRUE(include_model_definitions)){
+      return( dplyr::select(results, dplyr::one_of(metric_cols), dplyr::one_of(model_formula_cols)))
+    } else {
+      return( dplyr::select(results, dplyr::one_of(metric_cols)))
+    }
 
   } else {
     stop(paste0("Family, ",results[["Family"]],", not currently supported."))

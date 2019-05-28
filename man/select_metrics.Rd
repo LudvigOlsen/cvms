@@ -4,10 +4,13 @@
 \alias{select_metrics}
 \title{Select columns with evaluation metrics and model definitions.}
 \usage{
-select_metrics(results)
+select_metrics(results, include_model_definitions = TRUE)
 }
 \arguments{
 \item{results}{Results tibble from cross_validate() or validate().}
+
+\item{include_model_definitions}{Whether to include the \code{Dependent},
+\code{Fixed} and (possibly) \code{Random} columns. (Logical)}
 }
 \value{
 The results tibble with only metric and model definition columns.

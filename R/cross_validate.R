@@ -167,6 +167,10 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #'  Binomial models only. (Character or Integer)
 #' @param rm_nc Remove non-converged models from output. (Logical)
 #' @param model_verbose Print name of used model function on each iteration. (Logical)
+#' @param parallel Whether to cross-validate the list of models in parallel. (Logical)
+#'
+#'  Remember to register a parallel backend first.
+#'  E.g. with \code{\link[doParallel:registerDoParallel]{doParallel::registerDoParallel}}.
 #' @examples
 #' # Attach libraries
 #' library(cvms)
@@ -216,12 +220,37 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #'                link = 'log',
 #'                REML = FALSE)
 #'
+#' # Use parallelization
+#'
+#' \dontrun{
+#' # Attach doParallel and register four cores
+#' library(doParallel)
+#' registerDoParallel(4)
+#'
+#' # Create list of 20 model formulas
+#' models <- rep(c("score~diagnosis+(1|session)",
+#'                 "score~age+(1|session)"), 10)
+#'
+#' # Cross-validate a list of 20 model formulas in parallel
+#' system.time({cross_validate(data,
+#'                             models = models,
+#'                             family = 'gaussian',
+#'                             parallel = TRUE)})
+#'
+#' # Cross-validate a list of 20 model formulas sequentially
+#' system.time({cross_validate(data,
+#'                             models = models,
+#'                             family = 'gaussian',
+#'                             parallel = FALSE)})
+#' }
+#'
 #' @importFrom stats binomial gaussian glm lm
 #' @importFrom rlang .data
 #' @import zoo
-cross_validate <- function(data, models, fold_cols = '.folds', family='gaussian',
-                           link = NULL, control=NULL, REML=FALSE,
-                           cutoff=0.5, positive=2, rm_nc = FALSE, model_verbose=FALSE){
+cross_validate <- function(data, models, fold_cols = '.folds', family = 'gaussian',
+                           link = NULL, control = NULL, REML = FALSE,
+                           cutoff = 0.5, positive = 2, rm_nc = FALSE,
+                           parallel = FALSE, model_verbose = FALSE){
 
 
   return(basics_cross_validate_list(data = data,
@@ -234,7 +263,9 @@ cross_validate <- function(data, models, fold_cols = '.folds', family='gaussian'
                                    cutoff = cutoff,
                                    positive = positive,
                                    rm_nc = rm_nc,
-                                   model_verbose = model_verbose))
+                                   model_verbose = model_verbose,
+                                   parallel_ = parallel,
+                                   parallelize = "models"))
 
 
 

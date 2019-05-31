@@ -8,6 +8,7 @@ basics_validate_list = function(train_data, model_list, family='gaussian',
                                 cutoff=0.5, positive=2, err_nc = FALSE,
                                 rm_nc = FALSE, test_data = NULL,
                                 partitions_col = '.partitions',
+                                parallel_ = FALSE,
                                 model_verbose=FALSE){
 
   # positive can be 1,2, or a character
@@ -45,7 +46,7 @@ basics_validate_list = function(train_data, model_list, family='gaussian',
     basics_update_model_specifics()
 
   # validate() all the models using ldply()
-   validation_output = plyr::llply(model_list,.fun = function(model_formula){
+   validation_output = plyr::llply(model_list, .parallel = parallel_, .fun = function(model_formula){
     model_specifics[["model_formula"]] <- model_formula
     validate_fn_single(train_data=train_data,
                        model_fn = basics_model_fn,

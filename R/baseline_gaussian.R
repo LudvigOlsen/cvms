@@ -4,7 +4,8 @@ create_gaussian_baseline_evaluations <- function(train_data,
                                                  dependent_col,
                                                  n_samplings=100,
                                                  min_training_rows = 5,
-                                                 min_training_rows_left_out = 3){
+                                                 min_training_rows_left_out = 3,
+                                                 parallel_ = FALSE){
 
 
   # Minimum requirement
@@ -44,34 +45,48 @@ create_gaussian_baseline_evaluations <- function(train_data,
     basics_update_model_specifics()
 
   # Sample probability of a row being included
-  train_set_samplings <- split(runif(n_train_targets*n_samplings),
-                               f = factor(rep(1:n_samplings, each=n_train_targets)))
+  train_set_inclusion_vals <- data.frame("inclusion_probability" = runif(n_train_targets * n_samplings),
+                                         "split_factor" = factor(rep(1:n_samplings, each = n_train_targets))) %>%
+    dplyr::group_by(.data$split_factor) %>%
+    dplyr::mutate(indices = 1:dplyr::n())
+
+  # Find the boundaries for sampling a threshold
+  # such that at least min_training_rows are included
+  # and at least min_training_rows_left_out are not included
+  sampling_boundaries <- train_set_inclusion_vals %>%
+    dplyr::arrange(.data$split_factor, dplyr::desc(.data$inclusion_probability)) %>%
+    dplyr::filter(dplyr::row_number() == min_training_rows |
+                  dplyr::row_number() == n_train_targets - min_training_rows_left_out + 1) %>%
+    dplyr::mutate(to_add = c(-0.001, 0.001),
+                  limits = .data$inclusion_probability + .data$to_add,
+                  min_max = c("max_","min_")) %>%
+    dplyr::select(.data$split_factor, .data$min_max, .data$limits) %>%
+    tidyr::spread(key = "min_max", value="limits") %>%
+    dplyr::mutate(inclusion_probability_threshold = runif(1, min = .data$min_, max = .data$max_)) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(-c(.data$max_, .data$min_))
+
+  # Filter rows to get training set indices
+  # for the n_samplings evaluations
+  train_sets_indices <- train_set_inclusion_vals %>%
+    dplyr::ungroup() %>%
+    dplyr::inner_join(sampling_boundaries, by="split_factor") %>%
+    dplyr::filter(.data$inclusion_probability > .data$inclusion_probability_threshold) %>%
+    dplyr:::select(c(.data$split_factor, .data$indices))
+
+  # Get the lists of indices
+  train_sets_indices <- split(train_sets_indices[["indices"]],
+                              f = train_sets_indices[["split_factor"]])
 
   # Evaluate randomly sampled train set with model "y~1"
 
-  evaluations_random <- plyr::llply(1:n_samplings, function(evaluation){
+  evaluations_random <- plyr::llply(1:n_samplings, .parallel = parallel_, function(evaluation){
 
-    # Get inclusion probabilities for this evaluation
-    inclusion_probabilities <- train_set_samplings[[evaluation]]
+    # Get indices for this evaluation
+    inds <- train_sets_indices[[evaluation]]
 
-    # Get the nth smallest and mth third largest (specified by user)
-    inclusion_probabilities_sorted <- sort(inclusion_probabilities)
-    nth_smallest <- inclusion_probabilities_sorted[[min_training_rows]]
-    mth_largest <- inclusion_probabilities_sorted[[length(inclusion_probabilities_sorted)-min_training_rows_left_out+1]]
-
-    # Sample a threshold for the inclusion probability
-    # Such that at least 1 element and at most n-1 elements are included
-    inclusion_probability_threshold <- runif(1, min = (nth_smallest + 0.001),
-                                             max = (mth_largest - 0.001))
-
-    # Sample training set
-    sampled_train_set <- train_data %>%
-      dplyr::mutate(inclusion_probability = inclusion_probabilities) %>%
-      dplyr::filter(.data$inclusion_probability > inclusion_probability_threshold)
-
-    if (nrow(sampled_train_set) == 0){
-      stop("The sampled training set contains no rows.")
-    }
+    # Subset training data for this evaluation
+    sampled_train_set <- train_data[inds,]
 
     # Fit baseline model
     baseline_linear_model <- lm(model_specifics[["model_formula"]], data = sampled_train_set)

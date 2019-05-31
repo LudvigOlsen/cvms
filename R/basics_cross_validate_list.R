@@ -6,7 +6,9 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #' @importFrom tidyr separate
 basics_cross_validate_list = function(data, model_list, fold_cols = '.folds', family='gaussian',
                                link = NULL, control = NULL, REML=FALSE,
-                               cutoff=0.5, positive=2, rm_nc = FALSE, model_verbose=FALSE){
+                               cutoff=0.5, positive=2, rm_nc = FALSE,
+                               model_verbose=FALSE, parallel_ = FALSE,
+                               parallelize = "models"){
 
   # If link is NULL we pass it
   # the default link function for the family
@@ -47,20 +49,19 @@ basics_cross_validate_list = function(data, model_list, fold_cols = '.folds', fa
     model_verbose = model_verbose) %>%
     basics_update_model_specifics()
 
-
   # cross_validate() all the models using ldply()
-  model_cvs_df = ldply(model_list,.fun = function(model_formula){
+  model_cvs_df = ldply(model_list, .parallel = all(parallel_, parallelize == "models"), .fun = function(model_formula){
     model_specifics[["model_formula"]] <- model_formula
     cross_validate_fn_single(data = data, model_fn = basics_model_fn,
                              evaluation_type = evaluation_type,
                              model_specifics = model_specifics,
                              model_specifics_update_fn = NULL, # did this above
-                             fold_cols = fold_cols)
+                             fold_cols = fold_cols,
+                             parallel_ = all(parallel_, parallelize == "folds"))
     }) %>%
     tibble::as_tibble() %>%
     dplyr::mutate(Family = model_specifics[["family"]],
                   Link = model_specifics[["link"]])
-
 
   # Now we want to take the model from the model_list and split it up into
   # fixed effects and random effects

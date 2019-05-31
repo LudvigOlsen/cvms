@@ -35,6 +35,10 @@
 #'  \code{max_rows_in_subset = nrow(train_data) - min_training_rows_left_out}.
 #'
 #'  Gaussian only. (Integer)
+#' @param parallel Whether to run the \code{n} evaluations in parallel. (Logical)
+#'
+#'  Remember to register a parallel backend first.
+#'  E.g. with \code{\link[doParallel:registerDoParallel]{doParallel::registerDoParallel}}.
 #' @details
 #'
 #'  Packages used:
@@ -180,14 +184,14 @@ baseline <- function(test_data,
                      train_data = NULL,
                      n=100, # how many times to randomly sample probabilities (bootstrapping?)
                      family = 'binomial',
-
                      # Binomial
                      positive = 2,
                      cutoff = 0.5,
-
                      # Gaussian
                      min_training_rows = 5,
-                     min_training_rows_left_out = 3){
+                     min_training_rows_left_out = 3,
+                     # Parallelization
+                     parallel = FALSE){
 
   if (family == "binomial"){
 
@@ -201,7 +205,8 @@ baseline <- function(test_data,
         dependent_col = dependent_col,
         reps=n,
         positive = positive,
-        cutoff = cutoff)
+        cutoff = cutoff,
+        parallel_ = parallel)
     )
 
   } else if (family == "gaussian"){
@@ -215,8 +220,9 @@ baseline <- function(test_data,
                                            test_data = test_data,
                                            dependent_col = dependent_col,
                                            n_samplings = n,
-                                           min_training_rows = 5,
-                                           min_training_rows_left_out = 3)
+                                           min_training_rows = min_training_rows,
+                                           min_training_rows_left_out = min_training_rows_left_out,
+                                           parallel_ = parallel)
     )
   }
 

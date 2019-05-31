@@ -7,6 +7,8 @@ context("parallelization")
 
 test_that("parallelization works with cross_validate()",{
 
+  testthat::skip(message = "Skipping parallel tests")
+
   library(doParallel)
 
   # Load data and fold it
@@ -19,13 +21,13 @@ test_that("parallelization works with cross_validate()",{
   })
 
   if (!is.null(wrks) && wrks > 1){
-    registerDoParallel(wrks)
+    doParallel::registerDoParallel(wrks)
 
   } else {
 
     # Register more cores than available
     # This might be slower than sequential
-    registerDoParallel(4)
+    doParallel::registerDoParallel(4)
   }
 
 
@@ -52,6 +54,8 @@ test_that("parallelization works with cross_validate()",{
 
 test_that("parallelization works with validate()",{
 
+  testthat::skip(message = "Skipping parallel tests")
+
   library(doParallel)
 
   # Load data and fold it
@@ -64,12 +68,12 @@ test_that("parallelization works with validate()",{
   })
 
   if (!is.null(wrks) && wrks > 1){
-    registerDoParallel(wrks)
+    doParallel::registerDoParallel(wrks)
   } else {
 
     # Register more cores than available
     # This might be slower than sequential
-    registerDoParallel(4)
+    doParallel::registerDoParallel(4)
   }
 
 
@@ -96,6 +100,8 @@ test_that("parallelization works with validate()",{
 
 test_that("parallelization works with binomial baseline()",{
 
+  testthat::skip(message = "Skipping parallel tests")
+
   library(doParallel)
 
   wrks <- tryCatch({foreach::getDoParWorkers()}, error = function(e) {
@@ -104,12 +110,12 @@ test_that("parallelization works with binomial baseline()",{
   })
 
   if (!is.null(wrks) && wrks > 1){
-    registerDoParallel(wrks)
+    doParallel::registerDoParallel(wrks)
   } else {
 
     # Register more cores than available
     # This might be slower than sequential
-    registerDoParallel(4)
+    doParallel::registerDoParallel(4)
   }
 
 
@@ -136,6 +142,8 @@ test_that("parallelization works with binomial baseline()",{
 
 test_that("parallelization works with gaussian baseline()",{
 
+  testthat::skip(message = "Skipping parallel tests")
+
   library(doParallel)
 
   # Load data and fold it
@@ -150,12 +158,12 @@ test_that("parallelization works with gaussian baseline()",{
   })
 
   if (!is.null(wrks) && wrks > 1){
-    registerDoParallel(wrks)
+    doParallel::registerDoParallel(wrks)
   } else {
 
     # Register more cores than available
     # This might be slower than sequential
-    registerDoParallel(4)
+    doParallel::registerDoParallel(4)
   }
 
 

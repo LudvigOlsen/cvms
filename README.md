@@ -15,11 +15,12 @@ Contact at: <r-pkgs@ludvigolsen.dk>
 
 Main functions:
 
-  - cross\_validate()
-  - validate()
-  - combine\_predictors()
-  - cv\_plot()
-  - select\_metrics()
+  - cross\_validate()  
+  - validate()  
+  - baseline()  
+  - combine\_predictors()  
+  - cv\_plot()  
+  - select\_metrics()  
   - reconstruct\_metrics()
 
 ## Important News
@@ -386,6 +387,120 @@ CV5$Results[[1]] %>% select(1:8) %>%  kable()
 | .folds\_2   |         0.7361111 | 0.8205128 |   0.8888889 |   0.5833333 |      0.7619048 |      0.7777778 | 0.7777778 |
 | .folds\_3   |         0.7083333 | 0.7894737 |   0.8333333 |   0.5833333 |      0.7500000 |      0.7000000 | 0.7476852 |
 
+## Baseline evaluations
+
+Create baseline evaluations of a test set.
+
+### Gaussian
+
+Approach: The baseline model (y ~ 1), where 1 is simply the intercept
+(i.e. mean of y), is fitted on n random subsets of the training set and
+evaluated on the test set. We also perform an evaluation of the model
+fitted on the entire training set.
+
+Start by partitioning the dataset.
+
+``` r
+# Set seed for reproducibility
+set.seed(1)
+
+# Partition the dataset 
+partitions <- groupdata2::partition(participant.scores, 
+                                    p = 0.7,
+                                    cat_col = 'diagnosis',
+                                    id_col = 'participant',
+                                    list_out = TRUE)
+train_set <- partitions[[1]]
+test_set <- partitions[[2]]
+```
+
+Create the baseline evaluations.
+
+``` r
+baseline(test_data = test_set, train_data = train_set,
+         n = 100, dependent_col = "score", family = "gaussian")
+#> $summarized_metrics
+#> # A tibble: 9 x 9
+#>   Measure   RMSE    MAE   r2m   r2c   AIC  AICc   BIC `Training Rows`
+#>   <chr>    <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>           <dbl>
+#> 1 Mean     19.7  15.8       0     0  87.0  89.5  87.4            9.63
+#> 2 Median   19.2  15.5       0     0  83.3  85.3  83.7            9   
+#> 3 SD        1.05  0.759     0     0  28.9  27.6  29.6            3.22
+#> 4 IQR       1.16  0.264     0     0  45.9  44.3  47.0            5   
+#> 5 Max      24.1  19.4       0     0 137.  138.  138.            15   
+#> 6 Min      18.9  15.5       0     0  42.0  48.0  41.2            5   
+#> 7 NAs       0     0         0     0   0     0     0              0   
+#> 8 INFs      0     0         0     0   0     0     0              0   
+#> 9 All_rows 19.1  15.5       0     0 161.  162.  163.            18   
+#> 
+#> $random_evaluations
+#> # A tibble: 100 x 13
+#>     RMSE   MAE   r2m   r2c   AIC  AICc   BIC Predictions Coefficients
+#>    <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <list>      <list>      
+#>  1  20.0  16.3     0     0  72.5  74.9  72.7 <tibble [1… <tibble [1 …
+#>  2  19.0  15.5     0     0 137.  138.  138.  <tibble [1… <tibble [1 …
+#>  3  20.2  15.7     0     0  61.3  64.3  61.2 <tibble [1… <tibble [1 …
+#>  4  20.0  15.7     0     0  97.7  99.2  98.5 <tibble [1… <tibble [1 …
+#>  5  19.3  15.6     0     0  73.3  75.7  73.5 <tibble [1… <tibble [1 …
+#>  6  20.4  15.9     0     0  44.4  50.4  43.6 <tibble [1… <tibble [1 …
+#>  7  19.0  15.5     0     0 118.  120.  119.  <tibble [1… <tibble [1 …
+#>  8  19.4  15.5     0     0  93.3  95.1  94.0 <tibble [1… <tibble [1 …
+#>  9  20.7  16.2     0     0  71.2  73.6  71.3 <tibble [1… <tibble [1 …
+#> 10  20.8  17.1     0     0  43.7  49.7  42.9 <tibble [1… <tibble [1 …
+#> # … with 90 more rows, and 4 more variables: `Training Rows` <int>,
+#> #   Family <chr>, Dependent <chr>, Fixed <chr>
+```
+
+### Binomial
+
+Approach: n random sets of predictions are evaluated against the
+dependent variable in the test set. We also evaluate a set of all 0s and
+a set of all 1s.
+
+Create the baseline evaluations.
+
+``` r
+baseline(test_data = test_set, n = 100, 
+         dependent_col = "diagnosis", family = "binomial")
+#> $summarized_metrics
+#> # A tibble: 10 x 15
+#>    Measure `Balanced Accur…     F1 Sensitivity Specificity `Pos Pred Value`
+#>    <chr>              <dbl>  <dbl>       <dbl>       <dbl>            <dbl>
+#>  1 Mean               0.502  0.495       0.478       0.525            0.498
+#>  2 Median             0.5    0.5         0.5         0.5              0.500
+#>  3 SD                 0.147  0.159       0.215       0.210            0.194
+#>  4 IQR                0.167  0.252       0.333       0.333            0.200
+#>  5 Max                0.833  0.833       0.833       1                1    
+#>  6 Min                0.167  0.182       0           0                0    
+#>  7 NAs                0      4           0           0                0    
+#>  8 INFs               0      0           0           0                0    
+#>  9 All_0              0.5   NA           0           1              NaN    
+#> 10 All_1              0.5    0.667       1           0                0.5  
+#> # … with 9 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
+#> #   CI` <dbl>, `Upper CI` <dbl>, Kappa <dbl>, MCC <dbl>, `Detection
+#> #   Rate` <dbl>, `Detection Prevalence` <dbl>, Prevalence <dbl>
+#> 
+#> $random_evaluations
+#> # A tibble: 100 x 19
+#>    `Balanced Accur…    F1 Sensitivity Specificity `Pos Pred Value`
+#>               <dbl> <dbl>       <dbl>       <dbl>            <dbl>
+#>  1            0.417 0.364       0.333       0.5              0.4  
+#>  2            0.5   0.5         0.5         0.5              0.5  
+#>  3            0.417 0.364       0.333       0.5              0.4  
+#>  4            0.667 0.6         0.5         0.833            0.75 
+#>  5            0.583 0.667       0.833       0.333            0.556
+#>  6            0.667 0.6         0.5         0.833            0.75 
+#>  7            0.25  0.308       0.333       0.167            0.286
+#>  8            0.5   0.4         0.333       0.667            0.500
+#>  9            0.25  0.182       0.167       0.333            0.20 
+#> 10            0.417 0.222       0.167       0.667            0.333
+#> # … with 90 more rows, and 14 more variables: `Neg Pred Value` <dbl>,
+#> #   AUC <dbl>, `Lower CI` <dbl>, `Upper CI` <dbl>, Kappa <dbl>, MCC <dbl>,
+#> #   `Detection Rate` <dbl>, `Detection Prevalence` <dbl>,
+#> #   Prevalence <dbl>, Predictions <list>, ROC <list>, `Confusion
+#> #   Matrix` <list>, Family <chr>, Dependent <chr>
+```
+
 ## Plot results
 
 There are currently a small set of plots for quick visualization of the
@@ -400,28 +515,28 @@ cv_plot(CV1, type = "RMSE") +
   theme_bw()
 ```
 
-![](README-unnamed-chunk-12-1.png)<!-- -->
+![](README-unnamed-chunk-15-1.png)<!-- -->
 
 ``` r
 cv_plot(CV1, type = "r2") +
   theme_bw()
 ```
 
-![](README-unnamed-chunk-12-2.png)<!-- -->
+![](README-unnamed-chunk-15-2.png)<!-- -->
 
 ``` r
 cv_plot(CV1, type = "IC") +
   theme_bw()
 ```
 
-![](README-unnamed-chunk-12-3.png)<!-- -->
+![](README-unnamed-chunk-15-3.png)<!-- -->
 
 ``` r
 cv_plot(CV1, type = "coefficients") +
   theme_bw()
 ```
 
-![](README-unnamed-chunk-12-4.png)<!-- -->
+![](README-unnamed-chunk-15-4.png)<!-- -->
 
 ### Binomial
 
@@ -430,7 +545,7 @@ cv_plot(CV2, type = "ROC") +
   theme_bw()
 ```
 
-![](README-unnamed-chunk-13-1.png)<!-- -->
+![](README-unnamed-chunk-16-1.png)<!-- -->
 
 ## Generate model formulas
 

@@ -29,7 +29,9 @@ Imports:
     stringr,
     mltools (>= 0.3.5),
     rlang,
-    combinat (>= 0.0-8)
+    combinat (>= 0.0-8),
+    foreach (>= 1.4.4),
+    doParallel (>= 1.0.14)
 RoxygenNote: 6.1.1
 Suggests: knitr,
     rmarkdown,

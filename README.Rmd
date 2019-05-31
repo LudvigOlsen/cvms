@@ -26,12 +26,13 @@ r-pkgs@ludvigolsen.dk
 
 Main functions:  
 
-* cross_validate()
-* validate()
-* combine_predictors()
-* cv_plot()
-* select_metrics()
-* reconstruct_metrics()
+* cross_validate()  
+* validate()  
+* baseline()  
+* combine_predictors()  
+* cv_plot()  
+* select_metrics()  
+* reconstruct_metrics()  
 
 ## Important News
 
@@ -219,6 +220,48 @@ CV5
 # The binomial output now has a nested results tibble
 # Let's see a subset of the columns
 CV5$Results[[1]] %>% select(1:8) %>%  kable()
+```
+
+## Baseline evaluations
+
+Create baseline evaluations of a test set.
+
+### Gaussian
+
+Approach: The baseline model (y ~ 1), where 1 is simply the intercept (i.e. mean of y), is fitted on n random subsets of the training set and evaluated on the test set. We also perform an evaluation of the model fitted on the entire training set.
+
+Start by partitioning the dataset.
+
+```{r}
+# Set seed for reproducibility
+set.seed(1)
+
+# Partition the dataset 
+partitions <- groupdata2::partition(participant.scores, 
+                                    p = 0.7,
+                                    cat_col = 'diagnosis',
+                                    id_col = 'participant',
+                                    list_out = TRUE)
+train_set <- partitions[[1]]
+test_set <- partitions[[2]]
+```
+
+Create the baseline evaluations.
+
+```{r}
+baseline(test_data = test_set, train_data = train_set,
+         n = 100, dependent_col = "score", family = "gaussian")
+```
+
+### Binomial
+
+Approach: n random sets of predictions are evaluated against the dependent variable in the test set. We also evaluate a set of all 0s and a set of all 1s.
+
+Create the baseline evaluations.
+
+```{r}
+baseline(test_data = test_set, n = 100, 
+         dependent_col = "diagnosis", family = "binomial")
 ```
 
 

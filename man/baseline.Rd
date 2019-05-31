@@ -51,9 +51,14 @@ baseline(test_data, dependent_col, train_data = NULL, n = 100,
 }
 \value{
 List containing tbl (tibble) with summarized results and tbl with random evaluations.
+
+ ----------------------------------------------------------------
+
  \subsection{Gaussian Results}{
 
- The \strong{summarized results} tibble contains:
+ ----------------------------------------------------------------
+
+ The \strong{Summarized Results} tibble contains:
 
  Average \strong{RMSE}, \strong{MAE}, \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc}, and \strong{BIC}.
  }
@@ -65,7 +70,9 @@ List containing tbl (tibble) with summarized results and tbl with random evaluat
  The \strong{Training Rows} column contains the aggregated number of rows used from \code{train_data},
  when fitting the baseline models.
 
- The \strong{random evaluations} tibble contains:
+ ....................................................................
+
+ The \strong{Random Evaluations} tibble contains:
 
  The \strong{non-aggregated metrics}.
 
@@ -81,7 +88,12 @@ List containing tbl (tibble) with summarized results and tbl with random evaluat
 
  Name of \strong{fixed} effect (bias term only).
 
+ ----------------------------------------------------------------
+
  \subsection{Binomial Results}{
+
+ ----------------------------------------------------------------
+
  Based on the generated test set predictions,
  a confusion matrix and ROC curve are used to get the following:
 
@@ -101,7 +113,9 @@ List containing tbl (tibble) with summarized results and tbl with random evaluat
  \strong{Prevalence}, and
  \strong{MCC} (Matthews correlation coefficient).
 
- The \strong{summarized results} tibble contains:
+ ....................................................................
+
+ The \strong{Summarized Results} tibble contains:
 
  The \strong{Measure} column indicates the statistical descriptor used on the evaluations.
  The row where \code{Measure == All_0} is the evaluation when all predictions are 0.
@@ -109,7 +123,9 @@ List containing tbl (tibble) with summarized results and tbl with random evaluat
 
  The \strong{aggregated metrics}.
 
- The \strong{random evaluations} tibble contains:
+ ....................................................................
+
+ The \strong{Random Evaluations} tibble contains:
 
  The \strong{non-aggregated metrics}.
 
@@ -130,10 +146,11 @@ List containing tbl (tibble) with summarized results and tbl with random evaluat
 \description{
 Create a baseline evaluation of a test set.
 
- When \code{family == binomial}: evaluates \code{n} sets of random samples,
+ When \code{family} is \code{binomial}: evaluates \code{n} sets of random predictions
+ against the dependent variable,
  along with a set of all \code{0} predictions and a set of all \code{1} predictions.
 
- When \code{family == gaussian}: fits baseline models (\code{y ~ 1}) on \code{n} random
+ When \code{family} is \code{gaussian}: fits baseline models (\code{y ~ 1}) on \code{n} random
  subsets of \code{train_data} and evalutes each model on \code{test_data}. Also evaluates a
  model fitted on all rows in \code{train_data}.
 
@@ -194,11 +211,28 @@ test_set <- partitions[[2]]
 
 # Gaussian
 baseline(test_data = test_set, train_data = train_set,
-         dependent_col="score", n=10, family="gaussian")
+         dependent_col = "score", n = 10, family = "gaussian")
 
 # Binomial
 baseline(test_data = test_set, dependent_col="diagnosis",
-         n=10, family="binomial")
+         n = 10, family="binomial")
+
+# Parallelize evaluations
+
+\dontrun{
+# Attach doParallel and register four cores
+library(doParallel)
+registerDoParallel(4)
+
+# Binomial
+baseline(test_data = test_set, dependent_col = "diagnosis",
+         n = 10, family = "binomial", parallel = TRUE)
+
+# Gaussian
+baseline(test_data = test_set, train_data = train_set,
+         dependent_col = "score", n = 10, family = "gaussian",
+         parallel = TRUE)
+}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

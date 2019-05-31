@@ -23,6 +23,8 @@ test_that("formulas without random effects are properly reconstructed from cross
 
 test_that("formulas with random effects are properly reconstructed from cross_validate results with reconstruct_formulas()",{
 
+  set.seed(1)
+
   data <- participant.scores
 
   model_formulas <- c("score~age + (1|participant) + (1|diagnosis)",
@@ -36,8 +38,8 @@ test_that("formulas with random effects are properly reconstructed from cross_va
   cv_results <- cv_results[order(cv_results$RMSE), ]
   cv_results$Random
 
-  expect_equal(reconstruct_formulas(cv_results), c("score ~ age + (1|participant) + (1|diagnosis)",
-                                                   "score ~ age * diagnosis + (1|participant)"))
-  expect_equal(reconstruct_formulas(cv_results, topn = 1), c("score ~ age + (1|participant) + (1|diagnosis)"))
+  expect_equal(reconstruct_formulas(cv_results), c("score ~ age * diagnosis + (1|participant)",
+                                                   "score ~ age + (1|participant) + (1|diagnosis)"))
+  expect_equal(reconstruct_formulas(cv_results, topn = 1), c("score ~ age * diagnosis + (1|participant)"))
 
 })

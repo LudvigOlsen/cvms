@@ -12,6 +12,10 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #'
 #'  Only used if test_data is NULL.
 #' @param err_nc Raise error if model does not converge. (Logical)
+#' @param parallel Whether to validate the list of models in parallel. (Logical)
+#'
+#'  Remember to register a parallel backend first.
+#'  E.g. with \code{\link[doParallel:registerDoParallel]{doParallel::registerDoParallel}}.
 #' @details
 #'
 #'  Packages used:
@@ -191,6 +195,7 @@ validate <- function(train_data,
                      positive = 2,
                      err_nc = FALSE,
                      rm_nc = FALSE,
+                     parallel = FALSE,
                      model_verbose = FALSE) {
   basics_validate_list(
     train_data = train_data,
@@ -205,6 +210,7 @@ validate <- function(train_data,
     positive = positive,
     err_nc = err_nc,
     rm_nc = rm_nc,
+    parallel_ = parallel,
     model_verbose = model_verbose
   )
 

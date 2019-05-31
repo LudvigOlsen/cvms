@@ -60,9 +60,9 @@
 #' @importFrom combinat permn
 #' @importFrom stats setNames
 combine_predictors <- function(dependent, fixed_effects,
-                               random_effects=NULL,
-                               max_fixed_effects=NULL,
-                               max_interaction_size=NULL){
+                               random_effects = NULL,
+                               max_fixed_effects = NULL,
+                               max_interaction_size = NULL){
 
   # Check inputs
   if (is.null(dependent)){

@@ -2,7 +2,8 @@ create_binomial_baseline_evaluations <- function(test_data,
                                                  dependent_col,
                                                  reps=100,
                                                  positive = 2,
-                                                 cutoff = 0.5){
+                                                 cutoff = 0.5,
+                                                 parallel_ = FALSE){
 
   # TODO ADD stopifnot for positive and cutoff
 
@@ -45,7 +46,7 @@ create_binomial_baseline_evaluations <- function(test_data,
 
   # Evaluate random probabilities
 
-  evaluations_random <- plyr::llply(1:reps, function(evaluation){
+  evaluations_random <- plyr::llply(1:reps, .parallel = parallel_, function(evaluation){
 
     test_data[["prediction"]] <- random_probabilities[[evaluation]]
 
@@ -61,7 +62,7 @@ create_binomial_baseline_evaluations <- function(test_data,
                                    fold_column="fold_column"),
              # models=NULL,
              model_specifics=model_specifics)
-  }) %>% dplyr::bind_rows() %>%
+  }) %>% dplyr::bind_rows() %>% # Works with nested tibbles (ldply doesn't seem to)
     dplyr::mutate(
       Family = "binomial",
       Dependent = dependent_col

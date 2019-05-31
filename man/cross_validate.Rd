@@ -6,7 +6,8 @@
 \usage{
 cross_validate(data, models, fold_cols = ".folds", family = "gaussian",
   link = NULL, control = NULL, REML = FALSE, cutoff = 0.5,
-  positive = 2, rm_nc = FALSE, model_verbose = FALSE)
+  positive = 2, rm_nc = FALSE, parallel = FALSE,
+  model_verbose = FALSE)
 }
 \arguments{
 \item{data}{Data frame.
@@ -60,6 +61,11 @@ Ignored if fitting \code{\link[stats]{lm}} or \code{\link[stats]{glm}} models.}
  Binomial models only. (Character or Integer)}
 
 \item{rm_nc}{Remove non-converged models from output. (Logical)}
+
+\item{parallel}{Whether to cross-validate the list of models in parallel. (Logical)
+
+ Remember to register a parallel backend first.
+ E.g. with \code{\link[doParallel:registerDoParallel]{doParallel::registerDoParallel}}.}
 
 \item{model_verbose}{Print name of used model function on each iteration. (Logical)}
 }
@@ -231,6 +237,30 @@ cross_validate(data,
                family = 'gaussian',
                link = 'log',
                REML = FALSE)
+
+# Use parallelization
+
+\dontrun{
+# Attach doParallel and register four cores
+library(doParallel)
+registerDoParallel(4)
+
+# Create list of 20 model formulas
+models <- rep(c("score~diagnosis+(1|session)",
+                "score~age+(1|session)"), 10)
+
+# Cross-validate a list of 20 model formulas in parallel
+system.time({cross_validate(data,
+                            models = models,
+                            family = 'gaussian',
+                            parallel = TRUE)})
+
+# Cross-validate a list of 20 model formulas sequentially
+system.time({cross_validate(data,
+                            models = models,
+                            family = 'gaussian',
+                            parallel = FALSE)})
+}
 
 }
 \author{

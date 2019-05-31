@@ -7,7 +7,8 @@
 validate(train_data, models, test_data = NULL,
   partitions_col = ".partitions", family = "gaussian", link = NULL,
   control = NULL, REML = FALSE, cutoff = 0.5, positive = 2,
-  err_nc = FALSE, rm_nc = FALSE, model_verbose = FALSE)
+  err_nc = FALSE, rm_nc = FALSE, parallel = FALSE,
+  model_verbose = FALSE)
 }
 \arguments{
 \item{train_data}{Data Frame.}
@@ -63,6 +64,11 @@ Ignored if fitting \code{\link[stats]{lm}} or \code{\link[stats]{glm}} models.}
 \item{err_nc}{Raise error if model does not converge. (Logical)}
 
 \item{rm_nc}{Remove non-converged models from output. (Logical)}
+
+\item{parallel}{Whether to validate the list of models in parallel. (Logical)
+
+ Remember to register a parallel backend first.
+ E.g. with \code{\link[doParallel:registerDoParallel]{doParallel::registerDoParallel}}.}
 
 \item{model_verbose}{Print name of used model function on each iteration. (Logical)}
 }

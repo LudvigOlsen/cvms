@@ -15,7 +15,6 @@ test_that("binomial models work with cross_validate()",{
                           cat_col = 'diagnosis',
                           id_col = 'participant')
 
-
   CVbinomlist <- cross_validate(dat, models = c("diagnosis~score","diagnosis~age"),
                                 fold_cols = '.folds', family='binomial',
                                 REML = FALSE, model_verbose=FALSE,

@@ -3,7 +3,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 
 cross_validate_fn_single <- function(data, model_fn, evaluation_type="linear_regression",
                                      model_specifics=list(), model_specifics_update_fn=NULL,
-                                     fold_cols =".folds"){
+                                     fold_cols =".folds", parallel_ = FALSE){
 
   # TODO: the below comment is not correct
   # eval_fn: "regression", "binomial", "multiclass", "multilabel", "custom"/function
@@ -34,7 +34,7 @@ cross_validate_fn_single <- function(data, model_fn, evaluation_type="linear_reg
   # .. Train the model on the training_set
   # .. Test the model on the test_data
 
-  fold_lists_list <- plyr::llply(1:n_folds, function(fold){
+  fold_lists_list <- plyr::llply(1:n_folds, .parallel = parallel_, function(fold){
 
     if(length(fold_cols)>1){
       current_fold_info <- folds_map %>%

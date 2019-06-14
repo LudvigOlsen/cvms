@@ -49,6 +49,8 @@ Create model formulas with every combination
  of your fixed effects, along with the dependent variable and random effects.
  Be aware of exponential time increase with number of fixed effects.
  Allows for limiting the size of interactions and the number of fixed effects in a formula.
+ Currently use the \code{+} and \code{*} operators,
+ and has the constraint that a fixed effect is only included once in a formula.
 }
 \examples{
 # Attach libraries

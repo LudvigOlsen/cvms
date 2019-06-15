@@ -1,8 +1,15 @@
 
+# file = "data/combine_predictors_table_5_effects.rda"
+building_combine_predictors_table <- function(n_fixed_effects = 5, file=""){
 
-building_combine_predictors_table <- function(){
+  if (n_fixed_effects > 26){
+    # LETTERS is only 26 characters
+    # That number will take forever to run anyway,
+    # but more effects should of course be supported in some way
+    stop("Currently only up to 26 fixed effects supported.")
+  }
 
-  fixed_effects <- LETTERS[1:25] # c("A","B","C","D") #,"E","F","G")
+  fixed_effects <- LETTERS[1:n_fixed_effects]
   n_fixed_effects <- length(fixed_effects)
   terms_matrix <- get_terms_matrix(fixed_effects)
   # print(terms_matrix)
@@ -57,9 +64,6 @@ building_combine_predictors_table <- function(){
     dplyr::summarise(max_interaction_size = max(num_terms))
                      # required_n_fixed_effects = max(which(. == 1)))
 
-  #allowed_crossings$position <-
-
-
   allowed_crossings <- allowed_crossings %>%
     dplyr::mutate(side = c("left","right")) %>%
     dplyr::select(c(comparison, terms, side)) %>%
@@ -77,10 +81,10 @@ building_combine_predictors_table <- function(){
     function(x) {n_fixed_effects + 1 - match(1,x[rev(fixed_effects)], nomatch=NA )})
 
   combine_predictors_table <- allowed_crossings
-  save(combine_predictors_table, file="combine_predictors_table.RData")
+  save(combine_predictors_table, file=file)
 
   # print(allowed_crossings)
-  View(allowed_crossings)
+  # View(allowed_crossings)
 
 
   # for (i in rev(1:15)){

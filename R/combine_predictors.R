@@ -98,16 +98,21 @@ combine_predictors <- function(dependent, fixed_effects,
   }
   n_total_fixed_effects <- length(fixed_effects) # For indexing columns
 
+  # If we only want to use 3 fixed effects, we shouldn't have a 4-way interaction
+  if (!is.null(max_interaction_size) && !is.null(max_fixed_effects)){
+    max_interaction_size <- min(max_interaction_size, max_fixed_effects)
+  }
+
   if (n_fixed_effects < 2) {stop("The number of fixed effects should be at least 2.")}
 
   should_contain_interactions <- is.null(max_interaction_size) || max_interaction_size %ni% c(0,1)
 
-  # Change it to be a count of asterisks (*)
-  if (should_contain_interactions && !is.null(max_interaction_size)){
-    max_num_asterisks <- max_interaction_size - 1
-  } else {
-    max_num_asterisks <- NULL
-  }
+  # # Change it to be a count of asterisks (*)
+  # if (should_contain_interactions && !is.null(max_interaction_size)){
+  #   max_num_asterisks <- max_interaction_size - 1
+  # } else {
+  #   max_num_asterisks <- NULL
+  # }
 
   # Interchangeable fixed effects
   if (is.list(fixed_effects)){
@@ -137,32 +142,36 @@ combine_predictors <- function(dependent, fixed_effects,
   # With interactions
   if (should_contain_interactions){
 
-    # Create all permutations of the effect columns (except first column)
-    col_combinations <- permn(colnames(effect_combinations)[-1])
-
-    # Create rows for each permutation and keep the useful ones
-    effect_combinations_interactions <- plyr::ldply(1:length(col_combinations), function(i){
-
-      col_combination <- c("V1", col_combinations[[i]])
-      effect_combinations <- effect_combinations[col_combination] #%>%
-        #dplyr::select(dplyr::one_of(col_combination))
-      colnames(effect_combinations) <- paste0("V",c(1:n_fixed_effects))
-      effect_combinations
-
-    }) %>% dplyr::distinct() %>%
-      dplyr::mutate(NA_left_of_value = purrr::pmap_dbl(., contains_NA_left_of_value)) %>%
-      dplyr::filter(!.data$NA_left_of_value) %>%
-      dplyr::select(-.data$NA_left_of_value)
+    # # Create all permutations of the effect columns (except first column)
+    # col_combinations <- permn(colnames(effect_combinations)[-1])
+    #
+    # # Create rows for each permutation and keep the useful ones
+    # effect_combinations_interactions <- plyr::ldply(1:length(col_combinations), function(i){
+    #
+    #   col_combination <- c("V1", col_combinations[[i]])
+    #   effect_combinations <- effect_combinations[col_combination] #%>%
+    #     #dplyr::select(dplyr::one_of(col_combination))
+    #   colnames(effect_combinations) <- paste0("V",c(1:n_fixed_effects))
+    #   effect_combinations
+    #
+    # }) %>% dplyr::distinct() %>%
+    #   dplyr::mutate(NA_left_of_value = purrr::pmap_dbl(., contains_NA_left_of_value)) %>%
+    #   dplyr::filter(!.data$NA_left_of_value) %>%
+    #   dplyr::select(-.data$NA_left_of_value)
 
     # Generate the interactions, with flags for included effects
-    interactions_df <- generate_interactions(effect_combinations_interactions) %>%
-      dplyr::mutate(num_asterisks = rowSums(.[2:(n_total_fixed_effects+1)])-1) #%>% print()
+    # interactions_df <- generate_interactions(effect_combinations_interactions) %>%
+    #   dplyr::mutate(num_asterisks = rowSums(.[2:(n_total_fixed_effects+1)])-1) #%>% print()
+
+    interactions_df <- get_terms_matrix(fixed_effects)
 
     # Remove interaction larger than max_num_asterisks
-    if (!is.null(max_num_asterisks)){
+    if (!is.null(max_interaction_size)){
     interactions_df <- interactions_df %>%
-      dplyr::filter(.data$num_asterisks <= max_num_asterisks)
+      dplyr::filter(.data$num_terms <= max_interaction_size)
     }
+
+    print(interactions_df)
 
   }
 
@@ -171,35 +180,42 @@ combine_predictors <- function(dependent, fixed_effects,
   if (should_contain_interactions){
 
     # Combine interactions
+    print(n_fixed_effects)
     interaction_combinations <- plyr::ldply(1:n_fixed_effects, function(i){
       if (i == 1) {
-        data.frame("X1" = interactions_df[["interaction"]], stringsAsFactors=FALSE)
+        data.frame("X1" = interactions_df[["terms"]], stringsAsFactors=FALSE)
       } else {
         interactions_ <- interactions_df %>%
-          dplyr::filter(.data$num_asterisks <= (n_fixed_effects-i)) %>%
-          dplyr::pull(.data$interaction)
+          dplyr::filter(.data$num_terms <= (n_fixed_effects-i+2)) %>%
+          dplyr::pull(.data$terms)
+        print(interactions_)
         data.frame(t(combn(interactions_, i)), stringsAsFactors=FALSE)
       }
 
     })
+    # print(interaction_combinations)
+    # stop()
 
-    # Filter combinations
-    interaction_combinations <- interaction_combinations %>% #nrow() %>% print() %>% stop()
-      # Filter such that effect 1 is not the first in column 1 and 2
-      dplyr::filter(
-        is.na(.data$X2) |
-          !(stringr::str_detect(.data$X1, stringr::fixed(fixed_effects[[1]])) &
-              stringr::str_detect(.data$X2, stringr::fixed(fixed_effects[[1]])))
-        ) %>%
-      # Filter such that effect 2 is not the first in column 1 and 2
-      # This assumes at least two fixed effects.
-      dplyr::filter(
-        is.na(.data$X2) |
-          !(stringr::str_detect(.data$X1, stringr::fixed(fixed_effects[[2]])) &
-              stringr::str_detect(.data$X2, stringr::fixed(fixed_effects[[2]])))
-      ) %>%
-      dplyr::mutate(combination = 1:dplyr::n())
+    print(nrow(interaction_combinations))
 
+    # # Filter combinations
+    # interaction_combinations <- interaction_combinations %>% #nrow() %>% print() %>% stop()
+    #   # Filter such that effect 1 is not the first in column 1 and 2
+    #   dplyr::filter(
+    #     is.na(.data$X2) |
+    #       !(stringr::str_detect(.data$X1, stringr::fixed(fixed_effects[[1]])) &
+    #           stringr::str_detect(.data$X2, stringr::fixed(fixed_effects[[1]])))
+    #     ) %>%
+    #   # Filter such that effect 2 is not the first in column 1 and 2
+    #   # This assumes at least two fixed effects.
+    #   dplyr::filter(
+    #     is.na(.data$X2) |
+    #       !(stringr::str_detect(.data$X1, stringr::fixed(fixed_effects[[2]])) &
+    #           stringr::str_detect(.data$X2, stringr::fixed(fixed_effects[[2]])))
+    #   ) %>%
+    #   dplyr::mutate(combination = 1:dplyr::n())
+
+    print(nrow(interaction_combinations))
 
     # Find the combinations to keep
     combinations_to_keep <- interaction_combinations %>%
@@ -211,8 +227,8 @@ combine_predictors <- function(dependent, fixed_effects,
       # dplyr::filter(.data$terms_ <= n_fixed_effects) %>%
 
       # Find and remove duplicate effects
-      tidyr::gather(key="column", value="interaction", 1:n_fixed_effects) %>%
-      dplyr::inner_join(interactions_df, by="interaction") %>%
+      tidyr::gather(key="column", value="terms", 1:n_fixed_effects) %>%
+      dplyr::inner_join(interactions_df, by="terms") %>%
       dplyr::group_by(.data$combination) %>%
       dplyr::summarise_at(.vars = dplyr::vars(fixed_effects),
                           .funs = list(~sum(.))) %>%
@@ -402,3 +418,19 @@ create_interchangeable_effects_combinations <- function(fixed_effects){
               "interchangeable_effects_combinations" = interchangeable_effects_combinations))
 
 }
+
+# Get effects and all possible interactions
+get_terms_matrix <- function(fixed_effects){
+  interacting_effects <- paste0(fixed_effects, collapse = "*")
+  interaction_formula <- formula(paste0("1 ~ ", interacting_effects))
+  terms_matrix <- t(attr(terms.formula(interaction_formula), "factors"))
+  terms <- rownames(terms_matrix)
+  terms_matrix <- dplyr::as_tibble(terms_matrix)
+  terms_matrix[["1"]] <- NULL
+  terms_matrix$terms <- stringr::str_replace_all(terms, ":", "\\*")
+  terms_matrix %>%
+    dplyr::select(.data$terms, dplyr::everything()) %>%
+    dplyr::mutate(num_terms = rowSums(.[2:(length(fixed_effects)+1)]))
+}
+
+

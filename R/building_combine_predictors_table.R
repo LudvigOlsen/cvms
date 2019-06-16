@@ -1,6 +1,7 @@
 
-# file = "data/combine_predictors_table_5_effects.rda"
-building_combine_predictors_table <- function(n_fixed_effects = 5, file=""){
+# file_ = "data/combine_predictors_table_5_effects.rda"
+# Note: The largest interaction is not included (if n = 3, then only up to 2-way interactions included)
+building_combine_predictors_table <- function(n_fixed_effects = 5, file_=NULL){
 
   if (n_fixed_effects > 26){
     # LETTERS is only 26 characters
@@ -81,41 +82,11 @@ building_combine_predictors_table <- function(n_fixed_effects = 5, file=""){
     function(x) {n_fixed_effects + 1 - match(1,x[rev(fixed_effects)], nomatch=NA )})
 
   combine_predictors_table <- allowed_crossings
-  save(combine_predictors_table, file=file)
-
-  # print(allowed_crossings)
-  # View(allowed_crossings)
-
-
-  # for (i in rev(1:15)){
-  #   current_row <- terms_matrix[i,]
-  #   lower_rows <- terms_matrix[c(1:(i-1)),]
-  #
-  #
-  #   print("current:")
-  #   print(current_row)
-  #   print("lower")
-  #   print(lower_rows)
-  #   stop()
-  # }
-
+  if (is.null(file_)){
+    return(combine_predictors_table)
+  } else {
+    save(combine_predictors_table, file=file_)
+  }
 }
 
-# set_diff_for_pmap <- function(..., effect_names){
-#   r <- unname(c(...))
-#
-#   rle_ <- rle(r)
-#
-#   total_NAs <- sum(stringr::str_count(rle_$values, "__NA__"))
-#
-#   if (total_NAs == 0) {
-#     return(FALSE)
-#   } else if (total_NAs > 1) {
-#     return(TRUE)
-#   }
-#
-#   if (rle_$values[length(rle_$values)] != "__NA__"){
-#     return(TRUE)
-#   }
-#   return(FALSE)
-# }
+

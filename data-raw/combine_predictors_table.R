@@ -13,22 +13,41 @@ building_combine_predictors_table <- function(n_fixed_effects = 5){
 
   fixed_effects <- LETTERS[1:n_fixed_effects]
   n_fixed_effects <- length(fixed_effects)
-  terms_matrix <- get_terms_matrix(fixed_effects)
-  # print(terms_matrix)
+  terms_matrix <- get_terms_matrix(fixed_effects) %>%
+    dplyr::mutate(has_NA = FALSE)
 
+  # Extract terms and combine them two by two
   terms <- terms_matrix$terms
-  crossed <- tidyr::crossing(terms, terms) %>%
+  combs <- t(combn(terms, 2))
+
+  # Create row for terms matrix with NA term and 0's everywhere
+  zero_cols <- dplyr::bind_rows(setNames(rep(0, n_fixed_effects), fixed_effects))
+  NA_row <- tibble::tibble("terms" = NA, "num_terms"= 0, "has_NA" = TRUE) %>%
+    dplyr::bind_cols(zero_cols)
+
+  # Add a NA term to the terms matrix
+  # for when we join with the combinations
+  terms_matrix <- terms_matrix %>%
+    dplyr::bind_rows(NA_row)
+
+  # ...
+  crossed <- tibble::tibble("left" = combs[,1],
+                            "right" = combs[,2]) %>%
+    dplyr::bind_rows(tibble::tibble("left" = terms,
+                                    "right" = NA)) %>%
     dplyr::mutate(comparison = 1:dplyr::n()) %>%
-    dplyr::filter(terms != terms1) %>%
-    dplyr::rename(left = terms,
-                  right = terms1) %>%
     tidyr::gather(key="side", value="terms", 1:2) %>%
-    dplyr::full_join(terms_matrix, by="terms") %>%
+    dplyr::left_join(terms_matrix, by="terms") %>%
     dplyr::arrange(comparison, desc(num_terms))
 
-  #print(crossed)
+  comparisons_with_NA <- crossed %>%
+    dplyr::filter(.data$has_NA) %>%
+    dplyr::pull(.data$comparison)
+
+  # print(comparisons_with_NA)
 
   comparisons <- crossed %>%
+    dplyr::filter(.data$comparison %ni% comparisons_with_NA) %>%
     dplyr::group_by(comparison) %>%
     dplyr::mutate(ind = 1:dplyr::n(),
                   mult = ifelse(ind == 2, -1, 1)) %>%
@@ -36,11 +55,9 @@ building_combine_predictors_table <- function(n_fixed_effects = 5){
     dplyr::group_by(comparison)
 
   comparisons_with_same_num_terms <- comparisons %>%
-    dplyr::summarise(diff_num_terms = diff(num_terms)) %>% # print() %>%
-    dplyr::filter(diff_num_terms == 0) %>% # print() %>%
+    dplyr::summarise(diff_num_terms = diff(num_terms)) %>%
+    dplyr::filter(diff_num_terms == 0) %>%
     dplyr::pull(.data$comparison)
-
-  # print(comparisons_with_same_num_terms)
 
   comparisons_that_add_effect <- comparisons %>%
     dplyr::filter(comparison %ni% comparisons_with_same_num_terms) %>%
@@ -50,7 +67,9 @@ building_combine_predictors_table <- function(n_fixed_effects = 5){
 
   # print(comparisons_that_add_effect)
 
-  comparisons_to_use <- c(comparisons_with_same_num_terms, comparisons_that_add_effect)
+  comparisons_to_use <- c(comparisons_with_same_num_terms,
+                          comparisons_that_add_effect,
+                          comparisons_with_NA)
 
   # print(comparisons_to_use)
 
@@ -76,19 +95,38 @@ building_combine_predictors_table <- function(n_fixed_effects = 5){
     dplyr::select(-comparison) %>%
     dplyr::mutate(num_terms = rowSums(.[3:(n_fixed_effects+2)])) %>%
     dplyr::arrange(left, right) %>%
-    dplyr::distinct()
-
-  allowed_crossings[["min_n_fixed_effects"]] <- apply(
-    allowed_crossings, 1,
-    function(x) {n_fixed_effects + 1 - match(1,x[rev(fixed_effects)], nomatch=NA )})
+    dplyr::distinct() %>%
+    dplyr::mutate(min_n_fixed_effects = furrr::future_pmap_dbl(.,
+                                                               get_min_n_fixed_effects,
+                                                               fixed_effects=fixed_effects,
+                                                               n_fixed_effects=n_fixed_effects))
 
   return(allowed_crossings)
 }
 
+get_min_n_fixed_effects <- function(..., fixed_effects, n_fixed_effects){
+  r <- c(...)[rev(fixed_effects)]
+  n_fixed_effects + 1 - match(1,r, nomatch=NA)
+}
+
+plan(multiprocess)
+
 # A larger number of fixed effects can take a long time.
+# We also save the tables to /data to begin with for backup
 combine_predictors_table_5_effects <- building_combine_predictors_table(5)
+usethis::use_data(combine_predictors_table_5_effects,
+                  internal=FALSE, overwrite = TRUE)
+
 combine_predictors_table_7_effects <- building_combine_predictors_table(7)
+usethis::use_data(combine_predictors_table_7_effects,
+                  internal=FALSE, overwrite = TRUE)
+
 combine_predictors_table_10_effects <- building_combine_predictors_table(10)
+usethis::use_data(combine_predictors_table_10_effects,
+                  internal=FALSE, overwrite = TRUE)
+
+# TODO list:
+# 1. We might be able to build with more effects if we set an upper limit to max_interaction_size
 
 usethis::use_data(combine_predictors_table_5_effects,
                   combine_predictors_table_7_effects,

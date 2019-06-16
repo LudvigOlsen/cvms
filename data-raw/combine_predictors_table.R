@@ -1,7 +1,8 @@
+## code to prepare `combine_predictors_table` dataset goes here
 
 # file_ = "data/combine_predictors_table_5_effects.rda"
 # Note: The largest interaction is not included (if n = 3, then only up to 2-way interactions included)
-building_combine_predictors_table <- function(n_fixed_effects = 5, file_=NULL){
+building_combine_predictors_table <- function(n_fixed_effects = 5){
 
   if (n_fixed_effects > 26){
     # LETTERS is only 26 characters
@@ -63,7 +64,7 @@ building_combine_predictors_table <- function(n_fixed_effects = 5, file_=NULL){
 
   max_num_interaction_terms <- allowed_crossings %>%
     dplyr::summarise(max_interaction_size = max(num_terms))
-                     # required_n_fixed_effects = max(which(. == 1)))
+  # required_n_fixed_effects = max(which(. == 1)))
 
   allowed_crossings <- allowed_crossings %>%
     dplyr::mutate(side = c("left","right")) %>%
@@ -81,12 +82,15 @@ building_combine_predictors_table <- function(n_fixed_effects = 5, file_=NULL){
     allowed_crossings, 1,
     function(x) {n_fixed_effects + 1 - match(1,x[rev(fixed_effects)], nomatch=NA )})
 
-  combine_predictors_table <- allowed_crossings
-  if (is.null(file_)){
-    return(combine_predictors_table)
-  } else {
-    save(combine_predictors_table, file=file_)
-  }
+  return(allowed_crossings)
 }
 
+# A larger number of fixed effects can take a long time.
+combine_predictors_table_5_effects <- building_combine_predictors_table(5)
+combine_predictors_table_7_effects <- building_combine_predictors_table(7)
+combine_predictors_table_10_effects <- building_combine_predictors_table(10)
 
+usethis::use_data(combine_predictors_table_5_effects,
+                  combine_predictors_table_7_effects,
+                  combine_predictors_table_10_effects,
+                  internal=TRUE, overwrite = TRUE)

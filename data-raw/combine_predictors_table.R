@@ -1,8 +1,7 @@
 ## code to prepare `combine_predictors_table` dataset goes here
 
 # file_ = "data/combine_predictors_table_5_effects.rda"
-# Note: The largest interaction is not included (if n = 3, then only up to 2-way interactions included)
-building_combine_predictors_table <- function(n_fixed_effects = 5){
+building_combine_predictors_table <- function(n_fixed_effects = 5, max_interaction_size = 3){
 
   if (n_fixed_effects > 26){
     # LETTERS is only 26 characters
@@ -11,10 +10,15 @@ building_combine_predictors_table <- function(n_fixed_effects = 5){
     stop("Currently only up to 26 fixed effects supported.")
   }
 
+  if (is.null(max_interaction_size)){
+    max_interaction_size <- n_fixed_effects
+  }
+
   fixed_effects <- LETTERS[1:n_fixed_effects]
   n_fixed_effects <- length(fixed_effects)
   terms_matrix <- get_terms_matrix(fixed_effects) %>%
-    dplyr::mutate(has_NA = FALSE)
+    dplyr::mutate(has_NA = FALSE) %>%
+    dplyr::filter(num_terms <= max_interaction_size)
 
   # Extract terms and combine them two by two
   terms <- terms_matrix$terms
@@ -104,31 +108,23 @@ building_combine_predictors_table <- function(n_fixed_effects = 5){
   return(allowed_crossings)
 }
 
-get_min_n_fixed_effects <- function(..., fixed_effects, n_fixed_effects){
-  r <- c(...)[rev(fixed_effects)]
-  n_fixed_effects + 1 - match(1,r, nomatch=NA)
-}
+# Moved to combine_predictors
+# get_min_n_fixed_effects <- function(..., fixed_effects, n_fixed_effects){
+#   r <- c(...)[rev(fixed_effects)]
+#   n_fixed_effects + 1 - match(1,r, nomatch=NA)
+# }
 
-plan(multiprocess)
+# library(future)
+# plan(multiprocess)
 
-# A larger number of fixed effects can take a long time.
-# We also save the tables to /data to begin with for backup
-combine_predictors_table_5_effects <- building_combine_predictors_table(5)
-usethis::use_data(combine_predictors_table_5_effects,
-                  internal=FALSE, overwrite = TRUE)
+# combine_predictors_table_15_effects <- building_combine_predictors_table(15) %>%
+#   dplyr::select(-c(LETTERS[1:15]))
+# usethis::use_data(combine_predictors_table_15_effects,
+#                   internal=FALSE, overwrite = TRUE)
 
-combine_predictors_table_7_effects <- building_combine_predictors_table(7)
-usethis::use_data(combine_predictors_table_7_effects,
-                  internal=FALSE, overwrite = TRUE)
 
-combine_predictors_table_10_effects <- building_combine_predictors_table(10)
-usethis::use_data(combine_predictors_table_10_effects,
-                  internal=FALSE, overwrite = TRUE)
-
-# TODO list:
-# 1. We might be able to build with more effects if we set an upper limit to max_interaction_size
-
-usethis::use_data(combine_predictors_table_5_effects,
-                  combine_predictors_table_7_effects,
-                  combine_predictors_table_10_effects,
-                  internal=TRUE, overwrite = TRUE)
+# usethis::use_data(combine_predictors_table_5_effects,
+#                   combine_predictors_table_7_effects,
+#                   combine_predictors_table_10_effects,
+#                   combine_predictors_table_15_effects,
+#                   internal=TRUE, overwrite = TRUE)

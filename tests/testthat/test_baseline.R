@@ -165,3 +165,7 @@ test_that("gaussian evaluation are correct in baseline()",{
                c(0.0041047160, 0.0250310158, 0.0013229506, 0.0008935055, 0.0011131538,
                  0.0006603135, 0.0013229506, 0.0161300899, 0.0013229506, 0.0051210728), tolerance=1e-3)
 })
+
+
+# Create baseline test where both classes are 50% 50% , 100% 0%, 0% 100%, 30/70 etc.
+# Do we get what we expect?

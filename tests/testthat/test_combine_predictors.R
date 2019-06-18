@@ -7,21 +7,21 @@ test_that("predictors are properly combined with combine_predictors()",{
   fx <- c("a","b","c","d")
   rfx <- "(1|e)"
 
-  formulas_1 <- combine_predictors(dep, fx, random_effects = rfx, max_interaction_size = NULL)
-  expect_equal(length(formulas_1), 51)
-  expect_equal(nchar(paste0(formulas_1, collapse=" ; ")), 1201)
+  formulas_1 <- combine_predictors(dep, fx, random_effects = rfx, max_effect_frequency = 1)
+  expect_equal(length(formulas_1), 50)
+  expect_equal(nchar(paste0(formulas_1, collapse=" ; ")), 1173)
 
-  formulas_2 <- combine_predictors(dep, fx, random_effects = rfx, max_interaction_size = 4)
-  expect_equal(length(formulas_2), 51)
-  expect_equal(nchar(paste0(formulas_2, collapse=" ; ")), 1201)
+  formulas_2 <- combine_predictors(dep, fx, random_effects = rfx, max_effect_frequency = 1, max_interaction_size = 2)
+  expect_equal(length(formulas_2), 42)
+  expect_equal(nchar(paste0(formulas_2, collapse=" ; ")), 965)
 
-  formulas_3 <- combine_predictors(dep, fx, random_effects = rfx, max_interaction_size = 3)
-  expect_equal(length(formulas_3), 50)
-  expect_equal(nchar(paste0(formulas_3, collapse=" ; ")), 1173)
+  formulas_3 <- combine_predictors(dep, fx, random_effects = rfx)
+  expect_equal(length(formulas_3), 165)
+  expect_equal(nchar(paste0(formulas_3, collapse=" ; ")), 5593)
 
   formulas_4 <- combine_predictors(dep, fx, random_effects = rfx, max_interaction_size = 2)
-  expect_equal(length(formulas_4), 42)
-  expect_equal(nchar(paste0(formulas_4, collapse=" ; ")), 965)
+  expect_equal(length(formulas_4), 112)
+  expect_equal(nchar(paste0(formulas_4, collapse=" ; ")), 3597)
 
   formulas_5_0 <- combine_predictors(dep, fx, random_effects = rfx, max_interaction_size = 0)
   formulas_5_1 <- combine_predictors(dep, fx, random_effects = rfx, max_interaction_size = 1)
@@ -44,24 +44,23 @@ test_that("predictors are properly combined with combine_predictors()",{
                  "y ~ a + b + (1|e)", "y ~ a + c + (1|e)", "y ~ a + d + (1|e)",
                  "y ~ b + c + (1|e)", "y ~ b + d + (1|e)", "y ~ c + d + (1|e)"))
 
-  formulas_6 <- combine_predictors(dep, fx, random_effects = NULL, max_interaction_size = NULL)
-  expect_equal(length(formulas_6), 51)
-  expect_equal(nchar(paste0(formulas_6, collapse=" ; ")), 793)
-
-  # NOTE: What happens if predictors contain ".|_|." ? E.g. c(max.|_|.f1, max.|_|.f2, max) would become a weird situation!
+  formulas_6 <- combine_predictors(dep, fx, random_effects = NULL, max_interaction_size = 3, max_effect_frequency = 1)
+  expect_equal(length(formulas_6), 50)
+  expect_equal(nchar(paste0(formulas_6, collapse=" ; ")), 773)
 
   formulas_7 <- combine_predictors(dep, fx, random_effects = NULL, max_interaction_size = 3)
-  expect_equal(length(formulas_7), 50)
-  expect_equal(nchar(paste0(formulas_7, collapse=" ; ")), 773)
+  expect_equal(length(formulas_7), 165)
+  expect_equal(nchar(paste0(formulas_7, collapse=" ; ")), 4273)
 
-  expect_error(combine_predictors(dep, NULL, random_effects = NULL, max_interaction_size = NULL),
-               "Please specify vector/list of fixed_effects.")
+  expect_error(combine_predictors(dep, NULL, random_effects = NULL),
+               "Please specify vector/list of at least 2 fixed_effects.")
 
-  expect_error(combine_predictors(NULL, fx, random_effects = NULL, max_interaction_size = NULL),
-               "Please specify dependent variable.")
+  expect_error(combine_predictors(NULL, fx, random_effects = NULL),
+               "Please specify the name of the dependent variable.")
 
   formulas_8 <- combine_predictors("y", as.character(1:4), random_effects = NULL,
-                                   max_interaction_size = 2, max_fixed_effects = 3)
+                                   max_interaction_size = 2, max_fixed_effects = 3,
+                                   max_effect_frequency = 1)
   expect_equal(length(formulas_8), 32)
 
   # system.time({
@@ -152,29 +151,33 @@ test_that("interchangeable predictors are properly combined with combine_predict
                              "y ~ b * d + (1|e)", "y ~ b + d + (1|e)", "y ~ c * d + (1|e)",
                              "y ~ c + d + (1|e)", "y ~ a * b + d + (1|e)", "y ~ a * c + d + (1|e)",
                              "y ~ a * d + b + (1|e)", "y ~ a * d + c + (1|e)", "y ~ a + b * d + (1|e)",
-                             "y ~ a + b + d + (1|e)", "y ~ a + c * d + (1|e)", "y ~ a + c + d + (1|e)"))
+                             "y ~ a + b + d + (1|e)", "y ~ a + c * d + (1|e)", "y ~ a + c + d + (1|e)",
+                             "y ~ a * b + a * d + (1|e)", "y ~ a * b + b * d + (1|e)",
+                             "y ~ a * c + a * d + (1|e)","y ~ a * c + c * d + (1|e)",
+                             "y ~ a * d + b * d + (1|e)", "y ~ a * d + c * d + (1|e)",
+                             "y ~ a * b + a * d + b * d + (1|e)","y ~ a * c + a * d + c * d + (1|e)"))
 
 
   # formulas_4 <- combine_predictors(dep, fx, random_effects = rfx, max_interaction_size = NULL)
 
-  expect_equal(combine_predictors(dep, c("a","b","c","d"), random_effects = rfx, max_interaction_size = NULL),
-               combine_predictors(dep, list("a",list("b"),"c","d"), random_effects = rfx, max_interaction_size = NULL))
+  expect_equal(combine_predictors(dep, c("a","b","c","d"), random_effects = rfx),
+               combine_predictors(dep, list("a",list("b"),"c","d"), random_effects = rfx))
 
   fx_1 <- list("a","b","c")
   fx_2 <- list("a","e","c")
   fx_3 <- list("a","f","c")
   fx_4 <- list("a",list("b","e","f"),"c")
 
-  formulas_fx_1 <- combine_predictors(dep, fx_1, random_effects = rfx, max_interaction_size = NULL)
-  formulas_fx_2 <- combine_predictors(dep, fx_2, random_effects = rfx, max_interaction_size = NULL)
-  formulas_fx_3 <- combine_predictors(dep, fx_3, random_effects = rfx, max_interaction_size = NULL)
-  formulas_fx_4 <- combine_predictors(dep, fx_4, random_effects = rfx, max_interaction_size = NULL)
+  formulas_fx_1 <- combine_predictors(dep, fx_1, random_effects = rfx)
+  formulas_fx_2 <- combine_predictors(dep, fx_2, random_effects = rfx)
+  formulas_fx_3 <- combine_predictors(dep, fx_3, random_effects = rfx)
+  formulas_fx_4 <- combine_predictors(dep, fx_4, random_effects = rfx)
 
   expect_equal(length(formulas_fx_4), length(unique(c(formulas_fx_1, formulas_fx_2, formulas_fx_3))))
 
   fx <- list(list("a","h"),list("b","e","f"),list("c","t","k"))
 
-  formulas_5 <- combine_predictors(dep, fx, random_effects = NULL, max_interaction_size = NULL)
+  formulas_5 <- combine_predictors(dep, fx, random_effects = NULL, max_effect_frequency = 1)
 
   expect_equal(length(setdiff(c("y ~ a * b * c","y ~ a * b * k", "y ~ a * b * t",
                 "y ~ a * e * c","y ~ a * e * k","y ~ a * e * t",

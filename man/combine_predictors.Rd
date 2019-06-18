@@ -6,12 +6,17 @@
 \title{Generate model formulas by combining predictors}
 \usage{
 combine_predictors(dependent, fixed_effects, random_effects = NULL,
-  max_fixed_effects = NULL, max_interaction_size = NULL)
+  max_fixed_effects = 5, max_interaction_size = 3,
+  max_effect_frequency = NULL)
 }
 \arguments{
 \item{dependent}{Name of dependent variable. (Character)}
 
 \item{fixed_effects}{List of fixed effects. (Character)
+
+ Max. limit of \code{8} effects \strong{when interactions are included}!
+
+ A fixed effect name cannot contain: white spaces, \code{"\*"} or \code{"+"}.
 
  Effects in sublists will be interchanged. This can be useful, when
  we have multiple versions of a predictor (e.g. \code{x1} and \code{log(x1)}) that we
@@ -27,14 +32,18 @@ combine_predictors(dependent, fixed_effects, random_effects = NULL,
 
 \item{max_fixed_effects}{Maximum number of fixed effects in a model formula. (Integer)
 
-  Due to the exponential time increase with number of fixed effects,
-  it can help to restrict the number of fixed effects in a formula.}
+ Max. limit of \code{5} \strong{when interactions are included}!}
 
 \item{max_interaction_size}{Maximum number of effects in an interaction. (Integer)
 
+ Max. limit of \code{3}.
+
  Use this to limit the \code{n}-way interactions allowed.
+ \code{0} or \code{1} excludes interactions all together.
 
  A model formula can contain multiple interactions.}
+
+\item{max_effect_frequency}{Maximum number of times an effect is included in a formula string.}
 }
 \value{
 List of model formulas.
@@ -47,10 +56,10 @@ List of model formulas.
 \description{
 Create model formulas with every combination
  of your fixed effects, along with the dependent variable and random effects.
- Be aware of exponential time increase with number of fixed effects.
- Allows for limiting the size of interactions and the number of fixed effects in a formula.
- Currently use the \code{+} and \code{*} operators,
- and has the constraint that a fixed effect is only included once in a formula.
+ \code{259,358} formulas have been pre-computed with two- and three-way interactions
+ for up to \code{8} fixed effects, with up to \code{5} included effects per formula.
+ Uses the \code{+} and \code{*} operators, so lower order interactions are
+ automatically included.
 }
 \examples{
 # Attach libraries
@@ -58,7 +67,7 @@ library(cvms)
 
 # Create effect names
 dependent <- "y"
-fixed_effects <- c("a","b","c","d")
+fixed_effects <- c("a","b","c")
 random_effects <- "(1|e)"
 
 # Create model formulas
@@ -66,7 +75,7 @@ combine_predictors(dependent, fixed_effects,
                    random_effects)
 
 # Create effect names with interchangeable effects in sublists
-fixed_effects <- list("a",list("b","log_b"),"c","d")
+fixed_effects <- list("a",list("b","log_b"),"c")
 
 # Create model formulas
 combine_predictors(dependent, fixed_effects,

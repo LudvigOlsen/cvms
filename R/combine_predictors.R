@@ -1,10 +1,10 @@
 #' @title Generate model formulas by combining predictors
 #' @description Create model formulas with every combination
 #'  of your fixed effects, along with the dependent variable and random effects.
-#'  Be aware of exponential time increase with number of fixed effects.
-#'  Allows for limiting the size of interactions and the number of fixed effects in a formula.
-#'  Currently use the \code{+} and \code{*} operators,
-#'  and has the constraint that a fixed effect is only included once in a formula.
+#'  \code{259,358} formulas have been pre-computed with two- and three-way interactions
+#'  for up to \code{8} fixed effects, with up to \code{5} included effects per formula.
+#'  Uses the \code{+} and \code{*} operators, so lower order interactions are
+#'  automatically included.
 #' @return
 #'  List of model formulas.
 #'
@@ -18,6 +18,10 @@
 #' @param dependent Name of dependent variable. (Character)
 #' @param fixed_effects List of fixed effects. (Character)
 #'
+#'  Max. limit of \code{8} effects \strong{when interactions are included}!
+#'
+#'  A fixed effect name cannot contain: white spaces, \code{"\*"} or \code{"+"}.
+#'
 #'  Effects in sublists will be interchanged. This can be useful, when
 #'  we have multiple versions of a predictor (e.g. \code{x1} and \code{log(x1)}) that we
 #'  do not wish to have in the same formula.
@@ -30,20 +34,23 @@
 #'  Is appended to the model formulas.
 #' @param max_fixed_effects Maximum number of fixed effects in a model formula. (Integer)
 #'
-#'   Due to the exponential time increase with number of fixed effects,
-#'   it can help to restrict the number of fixed effects in a formula.
+#'  Max. limit of \code{5} \strong{when interactions are included}!
 #' @param max_interaction_size Maximum number of effects in an interaction. (Integer)
 #'
+#'  Max. limit of \code{3}.
+#'
 #'  Use this to limit the \code{n}-way interactions allowed.
+#'  \code{0} or \code{1} excludes interactions all together.
 #'
 #'  A model formula can contain multiple interactions.
+#' @param max_effect_frequency Maximum number of times an effect is included in a formula string.
 #' @examples
 #' # Attach libraries
 #' library(cvms)
 #'
 #' # Create effect names
 #' dependent <- "y"
-#' fixed_effects <- c("a","b","c","d")
+#' fixed_effects <- c("a","b","c")
 #' random_effects <- "(1|e)"
 #'
 #' # Create model formulas
@@ -51,7 +58,7 @@
 #'                    random_effects)
 #'
 #' # Create effect names with interchangeable effects in sublists
-#' fixed_effects <- list("a",list("b","log_b"),"c","d")
+#' fixed_effects <- list("a",list("b","log_b"),"c")
 #'
 #' # Create model formulas
 #' combine_predictors(dependent, fixed_effects,
@@ -60,180 +67,63 @@
 #' @importFrom rlang .data
 #' @importFrom utils combn head
 #' @importFrom combinat permn
-#' @importFrom stats setNames
-combine_predictors <- function(dependent, fixed_effects,
+#' @importFrom stats setNames formula terms.formula
+#' @import data.table
+combine_predictors <- function(dependent,
+                               fixed_effects,
                                random_effects = NULL,
-                               max_fixed_effects = NULL,
-                               max_interaction_size = NULL){
+                               max_fixed_effects = 5,
+                               max_interaction_size = 3,
+                               max_effect_frequency = NULL){
 
-  # Check inputs
-  if (is.null(dependent)){
-    stop("Please specify dependent variable.")
-  }
+  args_ <- combine_predictors_prepare_args(dependent = dependent,
+                                           fixed_effects = fixed_effects,
+                                           random_effects = random_effects,
+                                           max_fixed_effects = max_fixed_effects,
+                                           max_interaction_size = max_interaction_size,
+                                           max_effect_frequency = max_effect_frequency)
 
-  if (is.null(fixed_effects) || length(fixed_effects) == 0){
-    stop("Please specify vector/list of fixed_effects.")
-  }
+  dependent <- args_[["dependent"]]
+  fixed_effects <- args_[["fixed_effects"]]
+  random_effects <- args_[["random_effects"]]
+  max_fixed_effects <- args_[["max_fixed_effects"]]
+  max_interaction_size <- args_[["max_interaction_size"]]
+  max_effect_frequency <- args_[["max_effect_frequency"]]
+  n_fixed_effects <- args_[["n_fixed_effects"]]
+  should_contain_interactions <- args_[["should_contain_interactions"]]
+  interchangeable_effects_combinations <- args_[["interchangeable_effects_combinations"]]
 
-  if (!is.null(max_interaction_size) && !is.numeric(max_interaction_size)){
-    stop("max_interactions must be scalar or NULL.")
-  }
+  # Generate / fetch formulas
 
-  if (!is.null(max_fixed_effects) && !is.numeric(max_fixed_effects)){
-    stop("max_fixed_effects must be scalar or NULL.")
-  }
-  if (!is.null(max_fixed_effects) && max_fixed_effects<2){
-    stop("max_fixed_effects must be at least 2")
-  }
+  if (!should_contain_interactions){
 
-  if (!is.null(random_effects) && !is.character(random_effects)){
-    stop("random_effects must be either a string or NULL. Example: '(1|x)'.")
-  }
+    ## Effect combinations without interactions
 
-  # Find number of fixed effects
-  if (!is.null(max_fixed_effects)){
-    n_fixed_effects <- max_fixed_effects
-  } else {
-    n_fixed_effects <- length(fixed_effects)
-  }
-  n_total_fixed_effects <- length(fixed_effects) # For indexing columns
-
-  if (n_fixed_effects < 2) {stop("The number of fixed effects should be at least 2.")}
-
-  should_contain_interactions <- is.null(max_interaction_size) || max_interaction_size %ni% c(0,1)
-
-  # Change it to be a count of asterisks (*)
-  if (should_contain_interactions && !is.null(max_interaction_size)){
-    max_num_asterisks <- max_interaction_size - 1
-  } else {
-    max_num_asterisks <- NULL
-  }
-
-  # Interchangeable fixed effects
-  if (is.list(fixed_effects)){
-    # Create map and update fixed_effects vector
-    interchangeable_effects <- create_interchangeable_effects_combinations(fixed_effects)
-    fixed_effects <- interchangeable_effects[["fixed_effects"]]
-    interchangeable_effects_combinations <- interchangeable_effects[["interchangeable_effects_combinations"]]
-  } else {
-    if (!is.character(fixed_effects)){
-      stop("fixed_effects must be of type character.")
-    }
-    interchangeable_effects_combinations <- NULL
-  }
-
-  # Sort fixed effects
-  fixed_effects <- sort(fixed_effects, decreasing=FALSE)
-
-  ## Effect combinations, with and without interactions
-
-  # Without interactions
-  effect_combinations <- plyr::ldply(1:n_fixed_effects, function(i){
-    as.data.frame(t(combn(fixed_effects, i)), stringsAsFactors=FALSE)
-  })
-
-  effect_combinations[is.na(effect_combinations)] <- "__NA__"
-
-  # With interactions
-  if (should_contain_interactions){
-
-    # Create all permutations of the effect columns (except first column)
-    col_combinations <- permn(colnames(effect_combinations)[-1])
-
-    # Create rows for each permutation and keep the useful ones
-    effect_combinations_interactions <- plyr::ldply(1:length(col_combinations), function(i){
-
-      col_combination <- c("V1", col_combinations[[i]])
-      effect_combinations <- effect_combinations[col_combination] #%>%
-        #dplyr::select(dplyr::one_of(col_combination))
-      colnames(effect_combinations) <- paste0("V",c(1:n_fixed_effects))
-      effect_combinations
-
-    }) %>% dplyr::distinct() %>%
-      dplyr::mutate(NA_left_of_value = purrr::pmap_dbl(., contains_NA_left_of_value)) %>%
-      dplyr::filter(!.data$NA_left_of_value) %>%
-      dplyr::select(-.data$NA_left_of_value)
-
-    # Generate the interactions, with flags for included effects
-    interactions_df <- generate_interactions(effect_combinations_interactions) %>%
-      dplyr::mutate(num_asterisks = rowSums(.[2:(n_total_fixed_effects+1)])-1) #%>% print()
-
-    # Remove interaction larger than max_num_asterisks
-    if (!is.null(max_num_asterisks)){
-    interactions_df <- interactions_df %>%
-      dplyr::filter(.data$num_asterisks <= max_num_asterisks)
-    }
-
-  }
-
-  # Create formulas
-  # Different approaches if with/without interactions
-  if (should_contain_interactions){
-
-    # Combine interactions
-    interaction_combinations <- plyr::ldply(1:n_fixed_effects, function(i){
-      if (i == 1) {
-        data.frame("X1" = interactions_df[["interaction"]], stringsAsFactors=FALSE)
-      } else {
-        interactions_ <- interactions_df %>%
-          dplyr::filter(.data$num_asterisks <= (n_fixed_effects-i)) %>%
-          dplyr::pull(.data$interaction)
-        data.frame(t(combn(interactions_, i)), stringsAsFactors=FALSE)
-      }
-
+    # Without interactions
+    effect_combinations <- plyr::ldply(1:max_fixed_effects, function(i){
+      as.data.frame(t(combn(fixed_effects, i)), stringsAsFactors=FALSE)
     })
 
-    # Filter combinations
-    interaction_combinations <- interaction_combinations %>% #nrow() %>% print() %>% stop()
-      # Filter such that effect 1 is not the first in column 1 and 2
-      dplyr::filter(
-        is.na(.data$X2) |
-          !(stringr::str_detect(.data$X1, stringr::fixed(fixed_effects[[1]])) &
-              stringr::str_detect(.data$X2, stringr::fixed(fixed_effects[[1]])))
-        ) %>%
-      # Filter such that effect 2 is not the first in column 1 and 2
-      # This assumes at least two fixed effects.
-      dplyr::filter(
-        is.na(.data$X2) |
-          !(stringr::str_detect(.data$X1, stringr::fixed(fixed_effects[[2]])) &
-              stringr::str_detect(.data$X2, stringr::fixed(fixed_effects[[2]])))
-      ) %>%
-      dplyr::mutate(combination = 1:dplyr::n())
-
-
-    # Find the combinations to keep
-    combinations_to_keep <- interaction_combinations %>%
-
-      # # Add count of terms (+ / *) and filter out rows with too many
-      # tidyr::unite("pasted", 1:n_fixed_effects, sep=" + ", remove = FALSE) %>%
-      # dplyr::mutate(pasted = stringr::str_replace_all(.data$pasted, "\\+ NA", ""),
-      #               terms_ = stringr::str_count(.data$pasted, "\\+|\\*")) %>%
-      # dplyr::filter(.data$terms_ <= n_fixed_effects) %>%
-
-      # Find and remove duplicate effects
-      tidyr::gather(key="column", value="interaction", 1:n_fixed_effects) %>%
-      dplyr::inner_join(interactions_df, by="interaction") %>%
-      dplyr::group_by(.data$combination) %>%
-      dplyr::summarise_at(.vars = dplyr::vars(fixed_effects),
-                          .funs = list(~sum(.))) %>%
-      dplyr::filter_at(dplyr::vars(-.data$combination), dplyr::all_vars(. < 2)) %>%
-      dplyr::mutate(total_num_effects = rowSums(.[2:(n_total_fixed_effects+1)])) %>%
-      dplyr::filter(.data$total_num_effects <= n_fixed_effects) %>%
-      dplyr::pull(.data$combination)
-
-    formulas <- interaction_combinations %>%
-      dplyr::filter(.data$combination %in% combinations_to_keep) %>%
-      sort_rowwise(1:(n_fixed_effects)) %>%
-      dplyr::select(-.data$combination) %>%
-      dplyr::mutate(form = purrr::pmap_chr(., paste_columns, collapse=" + ")) %>%
-      dplyr::select(.data$form)
-
-  } else {
+    # effect_combinations[is.na(effect_combinations)] <- "__NA__"
 
     # Create formulas without interactions
     formulas <- effect_combinations %>%
-      dplyr::mutate(form = purrr::pmap_chr(., paste_columns, collapse=" + ")) %>%
-      dplyr::select(.data$form)
+      dplyr::mutate(formula_ = purrr::pmap_chr(., paste_columns, collapse=" + ")) %>%
+      dplyr::select(.data$formula_)
+
+  } else {
+
+    # Create the map between each fixed effect and its letter ("A"="efx1", etc.)
+    pattern_replacement <- setNames(fixed_effects, LETTERS[1:n_fixed_effects])
+
+    # Fetch the precomputed formulas and replace names of the effects
+    formulas <- fetch_formulas(n_fixed_effects = n_fixed_effects,
+                               max_interaction_size_ = max_interaction_size,
+                               max_fixed_effects_ = max_fixed_effects,
+                               max_effect_frequency_ = max_effect_frequency) %>% #  print() %>%
+      dplyr::mutate(formula_ = stringr::str_replace_all(.data$formula_,
+                                                        pattern_replacement))
+
   }
 
   # Add formula versions with the interchangeable effects
@@ -247,20 +137,20 @@ combine_predictors <- function(dependent, fixed_effects,
       formulas <<- formulas %>%
         dplyr::mutate_at(
           .vars = 1,
-          .funs = list(~stringr::str_replace_all(.,
-                                                 colnames(formulas)[[column]],
-                                                 as.character(!! as.name(colnames(formulas)[[column]])))))
+          .funs = list(~stringr::str_replace_all(
+            ., colnames(formulas)[[column]],
+            as.character(!! as.name(colnames(formulas)[[column]])))))
     })
 
     formulas <- formulas %>%
-      dplyr::select(.data$form) %>%
+      dplyr::select(.data$formula_) %>%
       dplyr::distinct()
   }
 
   formulas <- formulas %>%
-    dplyr::mutate(n_efxs = stringr::str_count(.data$form, "\\+|\\*")) %>%
-    dplyr::arrange(.data$n_efxs, .data$form) %>%
-    dplyr::pull(.data$form)
+    dplyr::mutate(n_efxs = stringr::str_count(.data$formula_, "\\+|\\*")) %>%
+    dplyr::arrange(.data$n_efxs, .data$formula_) %>%
+    dplyr::pull(.data$formula_)
 
   if (is.null(random_effects)){
     return( paste0(dependent, " ~ ", formulas) )
@@ -270,37 +160,13 @@ combine_predictors <- function(dependent, fixed_effects,
 
 }
 
-# Generate interactions (One permutation only)
-# Add columns describing if an effect is in the interaction
-# @param possible_interactions Data Frame.
-generate_interactions <- function(possible_interactions){   # TODO Rename function
-
-  # Convert __NA__ into NA
-  possible_interactions[possible_interactions == "__NA__"] <- NA
-  # Sort values rowwise, so 1,4,3,4 -> 1,3,4,4
-  # Remove duplicate rows
-  possible_interactions <- possible_interactions %>%
-    sort_rowwise(1:ncol(possible_interactions), na.last = TRUE) %>%
-    dplyr::distinct()
-
-  # Create data frame with a flag/mask for whether the effect is in the interaction
-  effect_counts <- dplyr::bind_rows(apply(possible_interactions, MARGIN=1, counts_as_row))
-  effect_counts[is.na(effect_counts)] <- 0
-
-  # Add the effect flag columns to the interactions
-  possible_interactions %>%
-    dplyr::mutate(interaction = purrr::pmap_chr(., paste_columns)) %>%
-    dplyr::select(.data$interaction) %>%
-    dplyr::bind_cols(effect_counts)
-}
-
 counts_as_row <- function(...){
   dplyr::bind_rows(table(...))
 }
 
 sort_rowwise <- function(data, vars, decreasing=FALSE, na.last = TRUE){
   data[vars] <- t(apply(data[vars], 1,
-                        FUN=function(x) sort(x, decreasing=decreasing, na.last=na.last)))
+                        FUN=function(x) sort(x, decreasing = decreasing, na.last=na.last)))
 
   data
 }
@@ -401,4 +267,26 @@ create_interchangeable_effects_combinations <- function(fixed_effects){
   return(list("fixed_effects" = fixed_effects,
               "interchangeable_effects_combinations" = interchangeable_effects_combinations))
 
+}
+
+# Get effects and all possible interactions
+get_terms_matrix <- function(fixed_effects){
+  interacting_effects <- paste0(fixed_effects, collapse = "*")
+  interaction_formula <- formula(paste0("1 ~ ", interacting_effects))
+  terms_matrix <- t(attr(terms.formula(interaction_formula), "factors"))
+  terms <- rownames(terms_matrix)
+  terms_matrix <- dplyr::as_tibble(terms_matrix)
+  terms_matrix[["1"]] <- NULL
+  terms_matrix$terms <- stringr::str_replace_all(terms, ":", " \\* ")
+  terms_matrix %>%
+    dplyr::select(.data$terms, dplyr::everything()) %>%
+    dplyr::mutate(num_terms = rowSums(.[2:(length(fixed_effects)+1)]))
+}
+
+# Note DO NOT DELETE #############################
+# Also used by data-raw/combine_predictors_table()
+get_min_n_fixed_effects <- function(..., fixed_effects){
+  n_fixed_effects <- length(fixed_effects)
+  r <- c(...)[rev(fixed_effects)]
+  n_fixed_effects + 1 - match(1,r, nomatch=NA)
 }

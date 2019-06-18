@@ -4,13 +4,17 @@
 \name{participant.scores}
 \alias{participant.scores}
 \title{Participant scores}
+\format{A data frame with 30 rows and 5 variables:
+\describe{
+  \item{participant}{participant identifier, 10 levels}
+  \item{age}{age of the participant, in years}
+  \item{diagnosis}{diagnosis of the participant, either 1 or 0}
+  \item{score}{test score of the participant, on a 0-100 scale}
+  \item{session}{testing session identifier, 1 to 3}
+}}
 \description{
-10 participants. 5 for each of 2 diagnoses.
-Scores for 3 sessions per participant. Participants get better for each session.
-Age of participants.
-}
-\details{
-Simulated data. 30 rows. 5 columns.
+Made-up experiment data with 10 participants and two diagnoses.
+Test scores for 3 sessions per participant, where participants improve their scores each session.
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

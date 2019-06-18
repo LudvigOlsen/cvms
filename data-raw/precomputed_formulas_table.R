@@ -102,14 +102,14 @@ combine_predictors_build_formulas <- function(fixed_effects,
     # First, sum the fixed effects flags
     # then, get the max value of those sums row-wise
     # then, deselect fixed effects columns
-    interaction_combinations_max_term_appearances <- interaction_combinations_long[
+    interaction_combinations_max_effect_frequency <- interaction_combinations_long[
       , lapply(.SD, sum, na.rm=TRUE), by=combination, .SDcols=c(fixed_effects)][
-        , max_term_appearances := do.call(pmax, .SD), .SDcols = fixed_effects
+        , max_effect_frequency := do.call(pmax, .SD), .SDcols = fixed_effects
         ][, (fixed_effects):=NULL]
 
     # Join with the stats just created
     interaction_combinations <- interaction_combinations[interaction_combinations_max, on="combination"][
-      interaction_combinations_max_term_appearances, on="combination"]
+      interaction_combinations_max_effect_frequency, on="combination"]
     interaction_combinations[["combination"]] <- NULL
 
     # TODO Can these operations be performed faster with data.table?
@@ -117,7 +117,7 @@ combine_predictors_build_formulas <- function(fixed_effects,
       dplyr::rename(max_interaction_size = .data$num_terms)
 
     interaction_combinations <- interaction_combinations %>%
-      dplyr::mutate(num_terms = rowSums(.[(n_fixed_effects + 1):(
+      dplyr::mutate(num_effects = rowSums(.[(n_fixed_effects + 1):(
         n_fixed_effects + n_total_fixed_effects)]))
 
     interaction_combinations <-  interaction_combinations %>%
@@ -134,7 +134,7 @@ combine_predictors_build_formulas <- function(fixed_effects,
 
     if (!is.null(max_fixed_effects)){
       interaction_combinations <- interaction_combinations %>%
-        dplyr::filter(.data$num_terms <= max_fixed_effects)
+        dplyr::filter(.data$num_effects <= max_fixed_effects)
     }
 
     return(interaction_combinations)
@@ -180,7 +180,7 @@ choose_combine_predictors_table <- function(n_fixed_effects,
                                             max_interaction_size_ = NULL,
                                             max_fixed_effects_ = NULL){
 
-  predictors_table <- compatible.formula.terms
+  predictors_table <- cvms::compatible.formula.terms
 
   predictors_table <- predictors_table %>%
     dplyr::filter(.data$min_num_fixed_effects <= n_fixed_effects)

@@ -97,13 +97,13 @@ building_combine_predictors_table <- function(n_fixed_effects = 5, max_interacti
     dplyr::inner_join(included_effects, by = "comparison") %>%
     dplyr::inner_join(max_num_interaction_terms, by = "comparison") %>%
     dplyr::select(-comparison) %>%
-    dplyr::mutate(num_terms = rowSums(.[3:(n_fixed_effects+2)])) %>%
+    dplyr::mutate(num_effects = rowSums(.[3:(n_fixed_effects+2)])) %>%
     dplyr::arrange(left, right) %>%
     dplyr::distinct() %>%
-    dplyr::mutate(min_n_fixed_effects = furrr::future_pmap_dbl(.,
-                                                               get_min_n_fixed_effects,
-                                                               fixed_effects=fixed_effects,
-                                                               n_fixed_effects=n_fixed_effects))
+    dplyr::mutate(min_num_fixed_effects = furrr::future_pmap_dbl(
+      ., get_min_n_fixed_effects,
+      fixed_effects=fixed_effects,
+      n_fixed_effects=n_fixed_effects))
 
   return(allowed_crossings)
 }

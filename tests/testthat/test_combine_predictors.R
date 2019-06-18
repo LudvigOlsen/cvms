@@ -206,6 +206,25 @@ test_that("fixed effect replacements works with combine_predictors()",{
 
   expect_equal(tolower(model_formulas_lower), tolower(model_formulas_title))
 
+  expect_equal(model_formulas_title, c(
+    "Price ~ Cruise","Price ~ Cylinder",
+    "Price ~ Doors","Price ~ Mileage",
+    "Price ~ Cruise * Cylinder","Price ~ Cruise * Doors",
+    "Price ~ Cruise * Mileage","Price ~ Cruise + Cylinder",
+    "Price ~ Cruise + Doors","Price ~ Cruise + Mileage",
+    "Price ~ Cylinder * Doors", "Price ~ Cylinder * Mileage",
+    "Price ~ Cylinder + Doors","Price ~ Cylinder + Mileage",
+    "Price ~ Doors * Mileage","Price ~ Doors + Mileage",
+    "Price ~ Cruise * Cylinder + Doors","Price ~ Cruise * Cylinder + Mileage",
+    "Price ~ Cruise * Doors + Cylinder","Price ~ Cruise * Doors + Mileage",
+    "Price ~ Cruise * Mileage + Cylinder","Price ~ Cruise * Mileage + Doors",
+    "Price ~ Cruise + Cylinder * Doors","Price ~ Cruise + Cylinder * Mileage",
+    "Price ~ Cruise + Cylinder + Doors","Price ~ Cruise + Cylinder + Mileage",
+    "Price ~ Cruise + Doors * Mileage","Price ~ Cruise + Doors + Mileage",
+    "Price ~ Cylinder * Doors + Mileage","Price ~ Cylinder * Mileage + Doors",
+    "Price ~ Cylinder + Doors * Mileage","Price ~ Cylinder + Doors + Mileage"
+  ))
+
 
 })
 

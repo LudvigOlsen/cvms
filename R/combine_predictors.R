@@ -115,7 +115,7 @@ combine_predictors <- function(dependent,
 
     # Create the map between each fixed effect and its letter ("A"="efx1", etc.)
     pattern_replacement <- setNames(paste0(" ",fixed_effects),
-                                    paste0("\\s",LETTERS[1:n_fixed_effects], "(?!\\S)"))
+                                    paste0("(\\s|^)",LETTERS[1:n_fixed_effects], "(?!\\S)"))
 
     # Fetch the precomputed formulas and replace names of the effects
     formulas <- fetch_formulas(n_fixed_effects = n_fixed_effects,
@@ -123,7 +123,8 @@ combine_predictors <- function(dependent,
                                max_fixed_effects_ = max_fixed_effects,
                                max_effect_frequency_ = max_effect_frequency) %>%
       dplyr::mutate(formula_ = stringr::str_replace_all(.data$formula_,
-                                                        pattern_replacement))
+                                                        pattern_replacement),
+                    formula_ = trimws(.data$formula_))
 
   }
 

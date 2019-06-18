@@ -188,3 +188,24 @@ test_that("interchangeable predictors are properly combined with combine_predict
 
 })
 
+test_that("fixed effect replacements works with combine_predictors()",{
+
+  model_formulas_lower <- combine_predictors(dependent = "Price",
+                                             fixed_effects = tolower(c("Mileage","Cylinder",
+                                                                       "Doors","Cruise")),
+                                             max_fixed_effects = 3,
+                                             max_interaction_size = 2,
+                                             max_effect_frequency = 1)
+
+  model_formulas_title <- combine_predictors(dependent = "Price",
+                                       fixed_effects = c("Mileage","Cylinder",
+                                                         "Doors","Cruise"),
+                                       max_fixed_effects = 3,
+                                       max_interaction_size = 2,
+                                       max_effect_frequency = 1)
+
+  expect_equal(tolower(model_formulas_lower), tolower(model_formulas_title))
+
+
+})
+

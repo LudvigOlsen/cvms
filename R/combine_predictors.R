@@ -1,11 +1,10 @@
 #' @title Generate model formulas by combining predictors
 #' @description Create model formulas with every combination
 #'  of your fixed effects, along with the dependent variable and random effects.
-#'  Be aware of exponential time increase with number of fixed effects.
-#'  259,358 formulas have been pre-computed with two- and three-way interactions
-#'  for up to 8 fixed effects with up to 5 included effects per formula.
-#'  Uses the \code{+} and \code{*} operators, so lower order interactions
-#'  automatically are included.
+#'  \code{259,358} formulas have been pre-computed with two- and three-way interactions
+#'  for up to \code{8} fixed effects, with up to \code{5} included effects per formula.
+#'  Uses the \code{+} and \code{*} operators, so lower order interactions are
+#'  automatically included.
 #' @return
 #'  List of model formulas.
 #'
@@ -36,18 +35,15 @@
 #' @param max_fixed_effects Maximum number of fixed effects in a model formula. (Integer)
 #'
 #'  Max. limit of \code{5} \strong{when interactions are included}!
-#'
-#'  Due to the exponential time increase with number of fixed effects,
-#'  it can help to restrict the number of fixed effects in a formula.
 #' @param max_interaction_size Maximum number of effects in an interaction. (Integer)
 #'
 #'  Max. limit of \code{3}.
 #'
 #'  Use this to limit the \code{n}-way interactions allowed.
-#'  \code{0} or \code{1} removes interactions all together.
+#'  \code{0} or \code{1} excludes interactions all together.
 #'
 #'  A model formula can contain multiple interactions.
-#' @param max_effect_frequency Maximum times an effect is included in a formula string.
+#' @param max_effect_frequency Maximum number of times an effect is included in a formula string.
 #' @examples
 #' # Attach libraries
 #' library(cvms)
@@ -71,7 +67,7 @@
 #' @importFrom rlang .data
 #' @importFrom utils combn head
 #' @importFrom combinat permn
-#' @importFrom stats setNames
+#' @importFrom stats setNames formula terms.formula
 #' @import data.table
 combine_predictors <- function(dependent,
                                fixed_effects,
@@ -125,7 +121,7 @@ combine_predictors <- function(dependent,
                                max_interaction_size_ = max_interaction_size,
                                max_fixed_effects_ = max_fixed_effects,
                                max_effect_frequency_ = max_effect_frequency) %>% #  print() %>%
-      dplyr::mutate(formula_ = stringr::str_replace_all(formula_,
+      dplyr::mutate(formula_ = stringr::str_replace_all(.data$formula_,
                                                         pattern_replacement))
 
   }

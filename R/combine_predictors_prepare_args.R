@@ -41,7 +41,7 @@ combine_predictors_prepare_args <- function(dependent,
 
   # Check dependent variable is correctly specified
   if (is.null(dependent) || !is.character(dependent)){
-    stop("Please specify the dependent variable as a character name.")
+    stop("Please specify the name of the dependent variable.")
   }
 
   if (!is.null(random_effects) && !is.character(random_effects)){
@@ -152,11 +152,16 @@ fetch_formulas <- function(n_fixed_effects,
   # Order by size of formula
   # Return formulas as tibble
 
-  formulas_table <- data.table(precomputed_formulas_table)[
-    min_n_fixed_effects <= n_fixed_effects &
+  # Predefine variable to avoid NSE notes in R CMD check
+  min_num_fixed_effects <- max_interaction_size <- num_effects <- NULL
+  max_effect_frequency <- nchars <- formula_ <- NULL
+
+  # Filter precomputed formulas
+  formulas_table <- data.table(cvms::precomputed.formulas)[
+    min_num_fixed_effects <= n_fixed_effects &
       max_interaction_size <= max_interaction_size_ &
-      num_terms <= max_fixed_effects_ &
-      max_term_appearances <= max_effect_frequency_
+      num_effects <= max_fixed_effects_ &
+      max_effect_frequency <= max_effect_frequency_
   ][, nchars := nchar(formula_)]
   setorder(formulas_table, nchars)
   formulas_table <- formulas_table[, formula_]

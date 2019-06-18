@@ -32,21 +32,18 @@ combine_predictors(dependent, fixed_effects, random_effects = NULL,
 
 \item{max_fixed_effects}{Maximum number of fixed effects in a model formula. (Integer)
 
- Max. limit of \code{5} \strong{when interactions are included}!
-
- Due to the exponential time increase with number of fixed effects,
- it can help to restrict the number of fixed effects in a formula.}
+ Max. limit of \code{5} \strong{when interactions are included}!}
 
 \item{max_interaction_size}{Maximum number of effects in an interaction. (Integer)
 
  Max. limit of \code{3}.
 
  Use this to limit the \code{n}-way interactions allowed.
- \code{0} or \code{1} removes interactions all together.
+ \code{0} or \code{1} excludes interactions all together.
 
  A model formula can contain multiple interactions.}
 
-\item{max_effect_frequency}{Maximum times an effect is included in a formula string.}
+\item{max_effect_frequency}{Maximum number of times an effect is included in a formula string.}
 }
 \value{
 List of model formulas.
@@ -59,11 +56,10 @@ List of model formulas.
 \description{
 Create model formulas with every combination
  of your fixed effects, along with the dependent variable and random effects.
- Be aware of exponential time increase with number of fixed effects.
- 259,358 formulas have been pre-computed with two- and three-way interactions
- for up to 8 fixed effects with up to 5 included effects per formula.
- Uses the \code{+} and \code{*} operators, so lower order interactions
- automatically are included.
+ \code{259,358} formulas have been pre-computed with two- and three-way interactions
+ for up to \code{8} fixed effects, with up to \code{5} included effects per formula.
+ Uses the \code{+} and \code{*} operators, so lower order interactions are
+ automatically included.
 }
 \examples{
 # Attach libraries

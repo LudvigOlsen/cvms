@@ -180,10 +180,10 @@ choose_combine_predictors_table <- function(n_fixed_effects,
                                             max_interaction_size_ = NULL,
                                             max_fixed_effects_ = NULL){
 
-  predictors_table <- combine_predictors_table_15_effects
+  predictors_table <- compatible.formula.terms
 
   predictors_table <- predictors_table %>%
-    dplyr::filter(.data$min_n_fixed_effects <= n_fixed_effects)
+    dplyr::filter(.data$min_num_fixed_effects <= n_fixed_effects)
 
   if (!is.null(max_interaction_size_)){
     predictors_table <- predictors_table %>%
@@ -192,7 +192,7 @@ choose_combine_predictors_table <- function(n_fixed_effects,
 
   if (!is.null(max_fixed_effects_)){
     predictors_table <- predictors_table %>%
-      dplyr::filter(.data$num_terms <= max_fixed_effects_)
+      dplyr::filter(.data$num_effects <= max_fixed_effects_)
   }
 
   predictors_table
@@ -244,3 +244,4 @@ precomputed_formulas_table <- combine_predictors_build_formulas(LETTERS[1:8],
 
 # Make sure only to overwrite when we actually want to!
 usethis::use_data(precomputed_formulas_table, overwrite = FALSE)
+usethis::use_data(precomputed.formulas, internal = TRUE, overwrite = FALSE)

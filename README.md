@@ -551,13 +551,12 @@ cv_plot(CV2, type = "ROC") +
 
 Instead of manually typing all possible model formulas for a set of
 fixed effects (including the possible interactions),
-combine\_predictors() can do it for you.
+combine\_predictors() can do it for you (with some constraints).
 
-NOTE: When more than 6 fixed effects are to be combined with all
-possible interactions, the formula generation can take a long time. To
-manage this, we have the option to limit the number of fixed effects in
-a formula, as well as the maximum interaction size (number of effects in
-an interaction).
+When including interactions, \>200k formulas have been precomputed for
+up to 8 fixed effects, with a max. interaction size of 3, and a max. of
+5 fixed effects per formula. It’s possible to further limit the
+generated formulas.
 
 We can also append a random effects structure to the generated formulas.
 
@@ -565,18 +564,28 @@ We can also append a random effects structure to the generated formulas.
 combine_predictors(dependent = "y",
                    fixed_effects = c("a","b","c"),
                    random_effects = "(1|d)")
-#>  [1] "y ~ a + (1|d)"         "y ~ b + (1|d)"        
-#>  [3] "y ~ c + (1|d)"         "y ~ a * b + (1|d)"    
-#>  [5] "y ~ a * c + (1|d)"     "y ~ a + b + (1|d)"    
-#>  [7] "y ~ a + c + (1|d)"     "y ~ b * c + (1|d)"    
-#>  [9] "y ~ b + c + (1|d)"     "y ~ a * b * c + (1|d)"
-#> [11] "y ~ a * b + c + (1|d)" "y ~ a * c + b + (1|d)"
-#> [13] "y ~ a + b * c + (1|d)" "y ~ a + b + c + (1|d)"
+#>  [1] "y ~ a + (1|d)"                    
+#>  [2] "y ~ b + (1|d)"                    
+#>  [3] "y ~ c + (1|d)"                    
+#>  [4] "y ~ a * b + (1|d)"                
+#>  [5] "y ~ a * c + (1|d)"                
+#>  [6] "y ~ a + b + (1|d)"                
+#>  [7] "y ~ a + c + (1|d)"                
+#>  [8] "y ~ b * c + (1|d)"                
+#>  [9] "y ~ b + c + (1|d)"                
+#> [10] "y ~ a * b * c + (1|d)"            
+#> [11] "y ~ a * b + c + (1|d)"            
+#> [12] "y ~ a * c + b + (1|d)"            
+#> [13] "y ~ a + b * c + (1|d)"            
+#> [14] "y ~ a + b + c + (1|d)"            
+#> [15] "y ~ a * b + a * c + (1|d)"        
+#> [16] "y ~ a * b + b * c + (1|d)"        
+#> [17] "y ~ a * c + b * c + (1|d)"        
+#> [18] "y ~ a * b + a * c + b * c + (1|d)"
 ```
 
-If two or more predictors should not be in the same formula, like a
-predictor and its log-transformed version, we can provide them as
-sublists.
+If two or more fixed effects should not be in the same formula, like an
+effect and its log-transformed version, we can provide them as sublists.
 
 ``` r
 combine_predictors(dependent = "y",

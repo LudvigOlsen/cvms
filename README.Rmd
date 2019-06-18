@@ -291,9 +291,9 @@ cv_plot(CV2, type = "ROC") +
 
 ## Generate model formulas
 
-Instead of manually typing all possible model formulas for a set of fixed effects (including the possible interactions), combine_predictors() can do it for you. 
+Instead of manually typing all possible model formulas for a set of fixed effects (including the possible interactions), combine_predictors() can do it for you (with some constraints). 
 
-NOTE: When more than 6 fixed effects are to be combined with all possible interactions, the formula generation can take a long time. To manage this, we have the option to limit the number of fixed effects in a formula, as well as the maximum interaction size (number of effects in an interaction).
+When including interactions, >200k formulas have been precomputed for up to 8 fixed effects, with a max. interaction size of 3, and a max. of 5 fixed effects per formula. It's possible to further limit the generated formulas.
 
 We can also append a random effects structure to the generated formulas.
 
@@ -303,7 +303,7 @@ combine_predictors(dependent = "y",
                    random_effects = "(1|d)")
 ```
 
-If two or more predictors should not be in the same formula, like a predictor and its log-transformed version, we can provide them as sublists.
+If two or more fixed effects should not be in the same formula, like an effect and its log-transformed version, we can provide them as sublists.
 
 ```{r}
 combine_predictors(dependent = "y",

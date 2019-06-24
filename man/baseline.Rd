@@ -22,7 +22,9 @@ baseline(test_data, dependent_col, train_data = NULL, n = 100,
 
  For gaussian: The number of random samplings of train_data to fit baseline models on.}
 
-\item{family}{Name of family ('gaussian' or 'binomial'). (Character)}
+\item{family}{Name of family. (Character)
+
+ Currently supports "gaussian" and "binomial".}
 
 \item{positive}{Level from dependent variable to predict. Either as character or level index (1 or 2 - alphabetically). Used when creating confusion matrices and ROC curves.
 
@@ -30,7 +32,9 @@ baseline(test_data, dependent_col, train_data = NULL, n = 100,
 
  Binomial only. (Character or Integer)}
 
-\item{cutoff}{Threshold for predicted classes. Binomial models only. (Numeric)}
+\item{cutoff}{Threshold for predicted classes. (Numeric)
+
+ N.B. Binomial models only.}
 
 \item{min_training_rows}{Minimum number of rows in the random subsets of \code{train_data}.
 
@@ -165,10 +169,6 @@ Packages used:
  }
  \subsection{Results}{
  \strong{Gaussian}:
-
- RMSE : \code{\link[hydroGOF:rmse]{hydroGOF::rmse}}
-
- MAE : \code{\link[hydroGOF:mae]{hydroGOF::mae}}
 
  r2m : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
 

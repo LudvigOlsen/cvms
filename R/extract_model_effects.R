@@ -8,7 +8,7 @@
 # Models without random effects will get NA in the random column.
 
 extract_model_effects <- function(model_list) {
-  # First we create a dataframe with the list of models
+  # First we create a data frame with the list of models
   mixed_effects = tibble::tibble("model" = as.character(model_list))
 
   suppressWarnings((

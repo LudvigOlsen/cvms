@@ -1,21 +1,24 @@
 # R CMD check NOTE handling
 if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 
-#' @title Validate regression model on test set
-#' @description Train gaussian or binomial models on a full training set and validate it by predicting the test/validation set.
+#' @title Validate regression models on a test set
+#' @description Train gaussian or binomial models on a
+#'  full training set and validate it by predicting the test/validation set.
 #'  Returns results in a tibble for easy reporting, along with the trained models.
 #' @inheritParams cross_validate
 #' @param train_data Data Frame.
 #' @param test_data Data Frame. If specifying \code{partitions_col}, this can be \code{NULL}.
 #' @param partitions_col Name of grouping factor for identifying partitions. (Character)
-#'  1 is training set and 2 is test set.
 #'
-#'  Only used if test_data is NULL.
+#'  Rows with the value \code{1} in \code{partitions_col} are used as training set and
+#'  rows with the value \code{2} are used as test set.
+#'
+#'  N.B. Only used if \code{test_data} is \code{NULL}.
 #' @param err_nc Raise error if model does not converge. (Logical)
 #' @param parallel Whether to validate the list of models in parallel. (Logical)
 #'
 #'  Remember to register a parallel backend first.
-#'  E.g. with doParallel::registerDoParallel.
+#'  E.g. with \code{doParallel::registerDoParallel}.
 #' @details
 #'
 #'  Packages used:
@@ -28,10 +31,6 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #'  }
 #'  \subsection{Results}{
 #'  \strong{Gaussian}:
-#'
-#'  RMSE : \code{\link[hydroGOF:rmse]{hydroGOF::rmse}}
-#'
-#'  MAE : \code{\link[hydroGOF:mae]{hydroGOF::mae}}
 #'
 #'  r2m : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
 #'
@@ -114,7 +113,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #'
 #'  }
 #'
-#' @author Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
+#' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
 #' @examples
 #' # Attach libraries
@@ -129,8 +128,8 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #' set.seed(7)
 #'
 #' # Partition data
-#' # Keep as single dataframe
-#' # We could also have fed validate() separat train and test sets.
+#' # Keep as single data frame
+#' # We could also have fed validate() separate train and test sets.
 #' data_partitioned <- partition(data,
 #'                               p = 0.7,
 #'                               cat_col = 'diagnosis',
@@ -162,10 +161,10 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #'          link = 'log',
 #'          REML = FALSE)
 #'
-#' ## Feed separat train and test sets
+#' ## Feed separate train and test sets
 #'
-#' # Partition data to list of dataframes
-#' # The first dataframe will be train (70% of the data)
+#' # Partition data to list of data frames
+#' # The first data frame will be train (70% of the data)
 #' # The second will be test (30% of the data)
 #' data_partitioned <- partition(data, p = 0.7,
 #'                               cat_col = 'diagnosis',

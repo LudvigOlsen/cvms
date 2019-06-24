@@ -6,7 +6,7 @@
 #' @return
 #'  The results tibble with only metric and model definition columns.
 #' @details The first element in the \code{Family} column is used to identify the relevant columns.
-#' @author Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
+#' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
 #' @param results Results tibble from cross_validate() or validate().
 #' @param include_definitions Whether to include the \code{Dependent},

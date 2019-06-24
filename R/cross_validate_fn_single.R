@@ -76,7 +76,7 @@ cross_validate_fn_single <- function(data, model_fn, evaluation_type="linear_reg
 
   })
 
-  # Extract model dataframe from fold_lists_list
+  # Extract model data frame from fold_lists_list
   predictions_and_targets_list = fold_lists_list %c% 'predictions_and_targets'
   predictions_and_targets = dplyr::bind_rows(predictions_and_targets_list)
 

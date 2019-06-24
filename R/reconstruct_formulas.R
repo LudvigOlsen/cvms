@@ -6,7 +6,7 @@
 #'  Quickly reconstruct the model formulas from these column.
 #' @return
 #'  List of model formulas.
-#' @author Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
+#' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
 #' @param results Data frame with results from cross_validate or validate(). (tbl)
 #'

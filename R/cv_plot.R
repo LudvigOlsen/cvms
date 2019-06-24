@@ -23,7 +23,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #'  "ROC" - ROC curve
 #'
 #'  }
-#' @author Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
+#' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
 #' @examples
 #' # Attach packages

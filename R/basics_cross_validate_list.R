@@ -73,7 +73,7 @@ basics_cross_validate_list = function(data, model_list, fold_cols = '.folds', fa
 
   mixed_effects <- extract_model_effects(model_list)
 
-  # we put the two dataframes together
+  # we put the two data frames together
   output <- dplyr::bind_cols(model_cvs_df, mixed_effects)
 
   # If asked to remove non-converged models from output

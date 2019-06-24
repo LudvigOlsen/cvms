@@ -2,7 +2,7 @@
 % Please edit documentation in R/validate.R
 \name{validate}
 \alias{validate}
-\title{Validate regression model on test set}
+\title{Validate regression models on a test set}
 \usage{
 validate(train_data, models, test_data = NULL,
   partitions_col = ".partitions", family = "gaussian", link = NULL,
@@ -24,11 +24,15 @@ validate(train_data, models, test_data = NULL,
 \item{test_data}{Data Frame. If specifying \code{partitions_col}, this can be \code{NULL}.}
 
 \item{partitions_col}{Name of grouping factor for identifying partitions. (Character)
- 1 is training set and 2 is test set.
 
- Only used if test_data is NULL.}
+ Rows with the value \code{1} in \code{partitions_col} are used as training set and
+ rows with the value \code{2} are used as test set.
 
-\item{family}{Name of family ('gaussian' or 'binomial'). (Character)}
+ N.B. Only used if \code{test_data} is \code{NULL}.}
+
+\item{family}{Name of family. (Character)
+
+ Currently supports "gaussian" and "binomial".}
 
 \item{link}{Link function. (Character)
 
@@ -44,22 +48,25 @@ validate(train_data, models, test_data = NULL,
  Binomial: \code{'logit'}.}}
 
 \item{control}{Construct control structures for mixed model fitting
-(i.e. \code{\link[lme4]{lmer}} and \code{\link[lme4]{glmer}}).
-See \code{\link[lme4:lmerControl]{lme4::lmerControl}} and
-\code{\link[lme4:glmerControl]{lme4::glmerControl}}.
-Ignored if fitting \code{\link[stats]{lm}} or \code{\link[stats]{glm}} models.}
+ (i.e. \code{\link[lme4]{lmer}} and \code{\link[lme4]{glmer}}).
+ See \code{\link[lme4:lmerControl]{lme4::lmerControl}} and
+ \code{\link[lme4:glmerControl]{lme4::glmerControl}}.
+
+ N.B. Ignored if fitting \code{\link[stats]{lm}} or \code{\link[stats]{glm}} models.}
 
 \item{REML}{Restricted Maximum Likelihood. (Logical)}
 
-\item{cutoff}{Threshold for predicted classes. Binomial models only. (Numeric)}
+\item{cutoff}{Threshold for predicted classes. (Numeric)
+
+ N.B. Binomial models only.}
 
 \item{positive}{Level from dependent variable to predict.
- Either as character or level index (1 or 2 - alphabetically).
+ Either as character or level index (\code{1} or \code{2} - alphabetically).
  Used when creating confusion matrices and ROC curves.
 
  N.B. Only affects evaluation metrics, not the model training or returned predictions.
 
- Binomial models only. (Character or Integer)}
+ N.B. Binomial models only.}
 
 \item{err_nc}{Raise error if model does not converge. (Logical)}
 
@@ -68,7 +75,7 @@ Ignored if fitting \code{\link[stats]{lm}} or \code{\link[stats]{glm}} models.}
 \item{parallel}{Whether to validate the list of models in parallel. (Logical)
 
  Remember to register a parallel backend first.
- E.g. with doParallel::registerDoParallel.}
+ E.g. with \code{doParallel::registerDoParallel}.}
 
 \item{model_verbose}{Print name of used model function on each iteration. (Logical)}
 }
@@ -137,7 +144,8 @@ List containing tbl (tibble) with results and the trained model object.
  }
 }
 \description{
-Train gaussian or binomial models on a full training set and validate it by predicting the test/validation set.
+Train gaussian or binomial models on a
+ full training set and validate it by predicting the test/validation set.
  Returns results in a tibble for easy reporting, along with the trained models.
 }
 \details{
@@ -151,10 +159,6 @@ Packages used:
  }
  \subsection{Results}{
  \strong{Gaussian}:
-
- RMSE : \code{\link[hydroGOF:rmse]{hydroGOF::rmse}}
-
- MAE : \code{\link[hydroGOF:mae]{hydroGOF::mae}}
 
  r2m : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
 
@@ -188,8 +192,8 @@ data <- participant.scores
 set.seed(7)
 
 # Partition data
-# Keep as single dataframe
-# We could also have fed validate() separat train and test sets.
+# Keep as single data frame
+# We could also have fed validate() separate train and test sets.
 data_partitioned <- partition(data,
                               p = 0.7,
                               cat_col = 'diagnosis',
@@ -221,10 +225,10 @@ validate(data_partitioned,
          link = 'log',
          REML = FALSE)
 
-## Feed separat train and test sets
+## Feed separate train and test sets
 
-# Partition data to list of dataframes
-# The first dataframe will be train (70\% of the data)
+# Partition data to list of data frames
+# The first data frame will be train (70\% of the data)
 # The second will be test (30\% of the data)
 data_partitioned <- partition(data, p = 0.7,
                               cat_col = 'diagnosis',

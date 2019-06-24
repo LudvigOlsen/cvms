@@ -51,10 +51,6 @@
 #'  \subsection{Results}{
 #'  \strong{Gaussian}:
 #'
-#'  RMSE : \code{\link[hydroGOF:rmse]{hydroGOF::rmse}}
-#'
-#'  MAE : \code{\link[hydroGOF:mae]{hydroGOF::mae}}
-#'
 #'  r2m : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
 #'
 #'  r2c : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
@@ -167,7 +163,7 @@
 #'  Name of \strong{dependent} variable.
 #'  }
 #'
-#' @author Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
+#' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
 #' @examples
 #' # Attach libraries

@@ -14,7 +14,7 @@
 #'
 #' @name participant.scores
 #' @docType data
-#' @author Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
+#' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @keywords data
 #' @importFrom utils data
 NULL

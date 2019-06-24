@@ -78,7 +78,7 @@ basics_validate_list = function(train_data, model_list, family='gaussian',
 
   mixed_effects <- extract_model_effects(model_list)
 
-  # we put the two dataframes together
+  # we put the two data frames together
   output <- dplyr::bind_cols(results, mixed_effects)
 
   # If asked to remove non-converged models from output

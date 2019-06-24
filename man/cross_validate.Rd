@@ -27,7 +27,9 @@ cross_validate(data, models, fold_cols = ".folds", family = "gaussian",
 
  Include names of multiple grouping factors for repeated cross-validation.}
 
-\item{family}{Name of family ('gaussian' or 'binomial'). (Character)}
+\item{family}{Name of family. (Character)
+
+ Currently supports "gaussian" and "binomial".}
 
 \item{link}{Link function. (Character)
 
@@ -43,29 +45,32 @@ cross_validate(data, models, fold_cols = ".folds", family = "gaussian",
  Binomial: \code{'logit'}.}}
 
 \item{control}{Construct control structures for mixed model fitting
-(i.e. \code{\link[lme4]{lmer}} and \code{\link[lme4]{glmer}}).
-See \code{\link[lme4:lmerControl]{lme4::lmerControl}} and
-\code{\link[lme4:glmerControl]{lme4::glmerControl}}.
-Ignored if fitting \code{\link[stats]{lm}} or \code{\link[stats]{glm}} models.}
+ (i.e. \code{\link[lme4]{lmer}} and \code{\link[lme4]{glmer}}).
+ See \code{\link[lme4:lmerControl]{lme4::lmerControl}} and
+ \code{\link[lme4:glmerControl]{lme4::glmerControl}}.
+
+ N.B. Ignored if fitting \code{\link[stats]{lm}} or \code{\link[stats]{glm}} models.}
 
 \item{REML}{Restricted Maximum Likelihood. (Logical)}
 
-\item{cutoff}{Threshold for predicted classes. Binomial models only. (Numeric)}
+\item{cutoff}{Threshold for predicted classes. (Numeric)
+
+ N.B. Binomial models only.}
 
 \item{positive}{Level from dependent variable to predict.
- Either as character or level index (1 or 2 - alphabetically).
+ Either as character or level index (\code{1} or \code{2} - alphabetically).
  Used when creating confusion matrices and ROC curves.
 
  N.B. Only affects evaluation metrics, not the model training or returned predictions.
 
- Binomial models only. (Character or Integer)}
+ N.B. Binomial models only.}
 
 \item{rm_nc}{Remove non-converged models from output. (Logical)}
 
 \item{parallel}{Whether to cross-validate the list of models in parallel. (Logical)
 
  Remember to register a parallel backend first.
- E.g. with doParallel::registerDoParallel.}
+ E.g. with \code{doParallel::registerDoParallel}.}
 
 \item{model_verbose}{Print name of used model function on each iteration. (Logical)}
 }
@@ -165,10 +170,6 @@ Packages used:
  \subsection{Results}{
  \subsection{Gaussian}{
 
- RMSE : \code{\link[hydroGOF:rmse]{hydroGOF::rmse}}
-
- MAE : \code{\link[hydroGOF:mae]{hydroGOF::mae}}
-
  r2m : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
 
  r2c : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
@@ -178,6 +179,7 @@ Packages used:
  AICc : \code{\link[AICcmodavg:AICc]{AICcmodavg::AICc}}
 
  BIC : \code{\link[stats:BIC]{stats::BIC}}
+
  }
  \subsection{Binomial}{
 

@@ -19,10 +19,6 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #'  \subsection{Results}{
 #'  \subsection{Gaussian}{
 #'
-#'  RMSE : \code{\link[hydroGOF:rmse]{hydroGOF::rmse}}
-#'
-#'  MAE : \code{\link[hydroGOF:mae]{hydroGOF::mae}}
-#'
 #'  r2m : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
 #'
 #'  r2c : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
@@ -32,6 +28,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #'  AICc : \code{\link[AICcmodavg:AICc]{AICcmodavg::AICc}}
 #'
 #'  BIC : \code{\link[stats:BIC]{stats::BIC}}
+#'
 #'  }
 #'  \subsection{Binomial}{
 #'
@@ -120,14 +117,13 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #'
 #'  }
 #'
-#' @author Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
+#' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @author Benjamin Hugh Zachariae
 #' @export
 #' @param data Data frame.
 #'
 #'  Must include grouping factor for identifying folds
 #'   - as made with \code{\link[groupdata2:fold]{groupdata2::fold()}}.
-#'
 #' @param models Model formulas as strings. (Character)
 #'
 #'  E.g. \code{c("y~x", "y~z")}.
@@ -138,7 +134,9 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #' @param fold_cols Name(s) of grouping factor(s) for identifying folds. (Character)
 #'
 #'  Include names of multiple grouping factors for repeated cross-validation.
-#' @param family Name of family ('gaussian' or 'binomial'). (Character)
+#' @param family Name of family. (Character)
+#'
+#'  Currently supports "gaussian" and "binomial".
 #' @param link Link function. (Character)
 #'
 #'  E.g. \code{link = "log"} with \code{family = "gaussian"} will
@@ -155,22 +153,25 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #'  (i.e. \code{\link[lme4]{lmer}} and \code{\link[lme4]{glmer}}).
 #'  See \code{\link[lme4:lmerControl]{lme4::lmerControl}} and
 #'  \code{\link[lme4:glmerControl]{lme4::glmerControl}}.
-#'  Ignored if fitting \code{\link[stats]{lm}} or \code{\link[stats]{glm}} models.
+#'
+#'  N.B. Ignored if fitting \code{\link[stats]{lm}} or \code{\link[stats]{glm}} models.
 #' @param REML Restricted Maximum Likelihood. (Logical)
-#' @param cutoff Threshold for predicted classes. Binomial models only. (Numeric)
+#' @param cutoff Threshold for predicted classes. (Numeric)
+#'
+#'  N.B. Binomial models only.
 #' @param positive Level from dependent variable to predict.
-#'  Either as character or level index (1 or 2 - alphabetically).
+#'  Either as character or level index (\code{1} or \code{2} - alphabetically).
 #'  Used when creating confusion matrices and ROC curves.
 #'
 #'  N.B. Only affects evaluation metrics, not the model training or returned predictions.
 #'
-#'  Binomial models only. (Character or Integer)
+#'  N.B. Binomial models only.
 #' @param rm_nc Remove non-converged models from output. (Logical)
 #' @param model_verbose Print name of used model function on each iteration. (Logical)
 #' @param parallel Whether to cross-validate the list of models in parallel. (Logical)
 #'
 #'  Remember to register a parallel backend first.
-#'  E.g. with doParallel::registerDoParallel.
+#'  E.g. with \code{doParallel::registerDoParallel}.
 #' @examples
 #' # Attach libraries
 #' library(cvms)
@@ -246,7 +247,6 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #'
 #' @importFrom stats binomial gaussian glm lm
 #' @importFrom rlang .data
-#' @import zoo
 cross_validate <- function(data, models, fold_cols = '.folds', family = 'gaussian',
                            link = NULL, control = NULL, REML = FALSE,
                            cutoff = 0.5, positive = 2, rm_nc = FALSE,

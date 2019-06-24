@@ -12,7 +12,7 @@ validate_fn_single = function(train_data,
                               err_nc = FALSE) {
 
   # Set errors if input variables aren't what we expect / can handle
-  # WORK ON THIS SECTION!
+  # TODO WORK ON THIS SECTION!
   stopifnot(
     is.data.frame(train_data),
     is.data.frame(test_data) || is.null(test_data))

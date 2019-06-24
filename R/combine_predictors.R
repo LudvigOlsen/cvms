@@ -12,7 +12,7 @@
 #'
 #'  \code{c("y ~ x1 + (1|z)", "y ~ x2 + (1|z)",
 #'  "y ~ x1 + x2 + (1|z)", "y ~ x1 * x2 + (1|z)")}.
-#' @author Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
+#' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
 #' @aliases generate_formulas
 #' @param dependent Name of dependent variable. (Character)

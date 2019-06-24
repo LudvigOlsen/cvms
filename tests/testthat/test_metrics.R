@@ -510,3 +510,27 @@ test_that("Metrics work in cross_validate()",{
   # expect_equal(#balanceACC, 0.7361111)
 
 })
+
+test_that("mae and rmse works", {
+
+  # Normal distribution
+  set.seed(1)
+  targets <- rnorm(100)
+  preds <- rnorm(100)
+
+  # RMSE
+  expect_equal(rmse(predictions = preds, targets = targets), 1.315395, tolerance = 1e+3)
+  # MAE
+  expect_equal(mae(predictions = preds, targets = targets), 1.044417, tolerance = 1e+3)
+
+  # Uniform distribution
+  set.seed(1)
+  targets <- runif(100,min = 45, max = 97)
+  preds <- runif(100,min = 54, max = 120)
+
+  # RMSE
+  expect_equal(rmse(predictions = preds, targets = targets), 27.661, tolerance = 1e+3)
+  # MAE
+  expect_equal(mae(predictions = preds, targets = targets), 23.62234, tolerance = 1e+3)
+
+})

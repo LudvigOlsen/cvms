@@ -5,7 +5,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 
 calculate_RMSE <- function(predictions, targets, raise_errors = FALSE){
   tryCatch({
-    hydroGOF::rmse(predictions, targets)
+    rmse(predictions, targets)
   }, error = function(e){
     if (raise_errors) stop(e)
     else warning(e)
@@ -15,7 +15,7 @@ calculate_RMSE <- function(predictions, targets, raise_errors = FALSE){
 
 calculate_MAE <- function(predictions, targets, raise_errors = FALSE){
   tryCatch({
-    hydroGOF::mae(predictions, targets)
+    mae(predictions, targets)
   }, error = function(e){
     if (raise_errors) stop(e)
     else warning(e)
@@ -76,5 +76,37 @@ calculate_BIC <- function(model, raise_errors = FALSE){
     else warning(e)
     return(NA)
   })
+}
+
+mae <- function(predictions, targets, na.rm=TRUE){
+
+  if (!(is.numeric(predictions) || is.integer(predictions))){
+    stop("'predictions' must be numeric")
+  }
+  if (!(is.numeric(targets) || is.integer(targets))){
+    stop("'predictions' must be numeric")
+  }
+  if (length(predictions) != length(targets)){
+    stop("predictions and targets must have same length")
+  }
+
+  mean(abs(targets - predictions), na.rm = na.rm)
+
+}
+
+rmse <- function(predictions, targets, na.rm=TRUE){
+
+  if (!(is.numeric(predictions) || is.integer(predictions))){
+    stop("'predictions' must be numeric")
+  }
+  if (!(is.numeric(targets) || is.integer(targets))){
+    stop("'predictions' must be numeric")
+  }
+  if (length(predictions) != length(targets)){
+    stop("predictions and targets must have same length")
+  }
+
+  sqrt(mean((targets - predictions)^2, na.rm = na.rm))
+
 }
 

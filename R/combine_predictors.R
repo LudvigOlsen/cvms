@@ -1,7 +1,7 @@
 #' @title Generate model formulas by combining predictors
 #' @description Create model formulas with every combination
 #'  of your fixed effects, along with the dependent variable and random effects.
-#'  \code{259,358} formulas have been pre-computed with two- and three-way interactions
+#'  \code{259,358} formulas have been precomputed with two- and three-way interactions
 #'  for up to \code{8} fixed effects, with up to \code{5} included effects per formula.
 #'  Uses the \code{+} and \code{*} operators, so lower order interactions are
 #'  automatically included.
@@ -20,7 +20,7 @@
 #'
 #'  Max. limit of \code{8} effects \strong{when interactions are included}!
 #'
-#'  A fixed effect name cannot contain: white spaces, \code{"\*"} or \code{"+"}.
+#'  A fixed effect name cannot contain: white spaces, \code{"*"} or \code{"+"}.
 #'
 #'  Effects in sublists will be interchanged. This can be useful, when
 #'  we have multiple versions of a predictor (e.g. \code{x1} and \code{log(x1)}) that we

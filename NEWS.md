@@ -1,10 +1,10 @@
-# cvms 0.0.0.9000
+# cvms 0.1.0
 
 * Adds optional parallelization.
 
 * Results now contain a count of singular fit messages. See ?lme4::isSingular for more information.
 
-* Argument "positive" changes default to 2. Now takes either 1 or 2 (previously 0 and 1). If your dependent variable has
+* Argument "positive" changes default value to 2. Now takes either 1 or 2 (previously 0 and 1). If your dependent variable has
 values 0 and 1, 1 is now the positive class by default.
 
 * AUC calculation has changed. Now explicitly sets the direction in pROC::roc.

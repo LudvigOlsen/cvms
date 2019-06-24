@@ -40,7 +40,6 @@ NULL
 #'   so \code{4} for the formula: \code{"A + B + D"}  }
 #' }
 #'
-#'
 #' @name precomputed.formulas
 #' @docType data
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

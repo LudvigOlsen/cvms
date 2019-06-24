@@ -3,18 +3,16 @@
 #' @title Reconstruct model formulas from results tibbles
 #' @description In the results tibble from cross_validate and validate,
 #'  the model formulas have been split into the columns Dependent, Fixed and Random.
-#'  Quickly reconstruct the model formulas from these column.
+#'  Quickly reconstruct the model formulas from these columns.
 #' @return
 #'  List of model formulas.
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
-#' @param results Data frame with results from cross_validate or validate(). (tbl)
+#' @param results Data frame with results from \code{\link{cross_validate}()} or \code{\link{validate}()}. (tbl)
 #'
-#'  Must contain at least the columns "Dependent" and "Fixed". For random effects
-#'  the "Random" column should be included.
+#'  Must contain at least the columns "\code{Dependent}" and "\code{Fixed}". For random effects
+#'  the "\code{Random}" column should be included.
 #' @param topn Number of top rows to return. Simply applies head() to the results tibble.
-#'
-#'  Set to NULL to return all rows.
 reconstruct_formulas <- function(results, topn=NULL){
 
   cols_ <- colnames(results)

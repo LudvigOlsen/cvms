@@ -7,8 +7,7 @@
 
 R package: Cross-validating gaussian and binomial regression models.
 
-By Ludvig R. Olsen and Benjamin Zachariae,  
-Cognitive Science, Aarhus University.  
+By Ludvig R. Olsen and Benjamin Zachariae.  
 Started in Oct. 2016
 
 Contact at: <r-pkgs@ludvigolsen.dk>
@@ -26,13 +25,15 @@ Main functions:
 ## Important News
 
   - AUC calculation has changed. Now explicitly sets the direction in
-    pROC::roc.
+    pROC::roc. (27th of May 2019)
 
   - Unit tests have been updated for the new random sampling generator
-    in R 3.6.0. They will NOT run previous versions of R.
+    in R 3.6.0. They will NOT run on previous versions of R.
 
   - Argument “positive” now defaults to 2. If a dependent variable has
-    the values 0 and 1, 1 is now the default positive class.
+    the values 0 and 1, 1 is now the default positive class, as that’s
+    the second largest values. If the dependent variable is a character,
+    it’s in alphabetical order.
 
   - Results now contain a count of singular fit messages. See
     ?lme4::isSingular for more information.
@@ -113,9 +114,6 @@ CV1 <- cross_validate(data, "score~diagnosis",
                      fold_cols = '.folds', 
                      family='gaussian', 
                      REML = FALSE)
-#> Registered S3 method overwritten by 'xts':
-#>   method     from
-#>   as.zoo.xts zoo
 #> Registered S3 method overwritten by 'MuMIn':
 #>   method         from
 #>   predict.merMod lme4
@@ -337,23 +335,26 @@ data <- fold(data, k = 4,
              cat_col = 'diagnosis',
              id_col = 'participant',
              num_fold_cols = 3)
+#> Warning in fold(data, k = 4, cat_col = "diagnosis", id_col =
+#> "participant", : Found 1 existing fold column. It will NOT be replaced.
+#> Change 'handle_existing_fold_cols' to 'remove' if you want to replace it.
 
 # Show first 15 rows of data
 data %>% head(10) %>% kable()
 ```
 
-| participant | age | diagnosis | score | session | .folds\_1 | .folds\_2 | .folds\_3 |
-| :---------- | --: | --------: | ----: | ------: | :-------- | :-------- | :-------- |
-| 10          |  32 |         0 |    29 |       1 | 4         | 4         | 3         |
-| 10          |  32 |         0 |    55 |       2 | 4         | 4         | 3         |
-| 10          |  32 |         0 |    81 |       3 | 4         | 4         | 3         |
-| 2           |  23 |         0 |    24 |       1 | 2         | 3         | 1         |
-| 2           |  23 |         0 |    40 |       2 | 2         | 3         | 1         |
-| 2           |  23 |         0 |    67 |       3 | 2         | 3         | 1         |
-| 4           |  21 |         0 |    35 |       1 | 3         | 2         | 4         |
-| 4           |  21 |         0 |    50 |       2 | 3         | 2         | 4         |
-| 4           |  21 |         0 |    78 |       3 | 3         | 2         | 4         |
-| 9           |  34 |         0 |    33 |       1 | 1         | 1         | 2         |
+| participant | age | diagnosis | score | session | .folds\_1 | .folds\_2 | .folds\_3 | .folds\_4 |
+| :---------- | --: | --------: | ----: | ------: | :-------- | :-------- | :-------- | :-------- |
+| 10          |  32 |         0 |    29 |       1 | 4         | 4         | 3         | 1         |
+| 10          |  32 |         0 |    55 |       2 | 4         | 4         | 3         | 1         |
+| 10          |  32 |         0 |    81 |       3 | 4         | 4         | 3         | 1         |
+| 2           |  23 |         0 |    24 |       1 | 2         | 3         | 1         | 2         |
+| 2           |  23 |         0 |    40 |       2 | 2         | 3         | 1         | 2         |
+| 2           |  23 |         0 |    67 |       3 | 2         | 3         | 1         | 2         |
+| 4           |  21 |         0 |    35 |       1 | 3         | 2         | 4         | 4         |
+| 4           |  21 |         0 |    50 |       2 | 3         | 2         | 4         | 4         |
+| 4           |  21 |         0 |    78 |       3 | 3         | 2         | 4         | 4         |
+| 9           |  34 |         0 |    33 |       1 | 1         | 1         | 2         | 3         |
 
 ``` r
 CV5 <- cross_validate(data, "diagnosis~score", 
@@ -515,28 +516,28 @@ cv_plot(CV1, type = "RMSE") +
   theme_bw()
 ```
 
-![](README-unnamed-chunk-15-1.png)<!-- -->
+<img src="man/figures/README-unnamed-chunk-15-1.png" width="644" />
 
 ``` r
 cv_plot(CV1, type = "r2") +
   theme_bw()
 ```
 
-![](README-unnamed-chunk-15-2.png)<!-- -->
+<img src="man/figures/README-unnamed-chunk-15-2.png" width="644" />
 
 ``` r
 cv_plot(CV1, type = "IC") +
   theme_bw()
 ```
 
-![](README-unnamed-chunk-15-3.png)<!-- -->
+<img src="man/figures/README-unnamed-chunk-15-3.png" width="644" />
 
 ``` r
 cv_plot(CV1, type = "coefficients") +
   theme_bw()
 ```
 
-![](README-unnamed-chunk-15-4.png)<!-- -->
+<img src="man/figures/README-unnamed-chunk-15-4.png" width="644" />
 
 ### Binomial
 
@@ -545,7 +546,7 @@ cv_plot(CV2, type = "ROC") +
   theme_bw()
 ```
 
-![](README-unnamed-chunk-16-1.png)<!-- -->
+<img src="man/figures/README-unnamed-chunk-16-1.png" width="644" />
 
 ## Generate model formulas
 

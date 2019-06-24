@@ -7,7 +7,7 @@
 select_metrics(results, include_definitions = TRUE)
 }
 \arguments{
-\item{results}{Results tibble from cross_validate() or validate().}
+\item{results}{Results tibble from \code{\link{cross_validate}()} or \code{\link{validate}()}.}
 
 \item{include_definitions}{Whether to include the \code{Dependent},
 \code{Fixed} and (possibly) \code{Random} columns. (Logical)}
@@ -16,7 +16,7 @@ select_metrics(results, include_definitions = TRUE)
 The results tibble with only metric and model definition columns.
 }
 \description{
-When reporting results, we may not want all
+When reporting results, we might not want all
  the nested tibbles and process information columns.
  This function selects the evaluation metrics and model formulas only.
 }

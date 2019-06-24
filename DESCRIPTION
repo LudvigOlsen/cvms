@@ -1,5 +1,5 @@
 Package: cvms
-Title: Cross-validation for Model Selection
+Title: Cross-Validation for Model Selection
 Version: 0.1.0
 Authors@R: person("Ludvig Renbo", "Olsen", email = "r-pkgs@ludvigolsen.dk", role = c("aut", "cre"))
 Description: Run cross-validation of one or multiple regression models with a tidy output. 
@@ -19,7 +19,6 @@ Imports:
     ggplot2,
     purrr,
     tibble (>= 2.1.1),
-    e1071, 
     caret (>= 6.0-84),
     pROC (>= 1.14.0),
     stats,
@@ -33,8 +32,10 @@ Imports:
 RoxygenNote: 6.1.1
 Suggests: knitr,
     groupdata2 (>= 1.1),
+    e1071,
     rmarkdown,
     testthat,
     AUC,
-    furrr
+    furrr,
+    ModelMetrics
 VignetteBuilder: knitr

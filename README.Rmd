@@ -8,7 +8,9 @@ output: github_document
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.path = "README-"
+  fig.path = "man/figures/README-",
+  dpi = 92,
+  fig.retina = 2
 )
 ```
 
@@ -17,8 +19,7 @@ knitr::opts_chunk$set(
 
 R package: Cross-validating gaussian and binomial regression models.  
 
-By Ludvig R. Olsen and Benjamin Zachariae,  
-Cognitive Science, Aarhus University.  
+By Ludvig R. Olsen and Benjamin Zachariae.  
 Started in Oct. 2016 
 
 Contact at:
@@ -36,9 +37,9 @@ Main functions:
 
 ## Important News
 
-* AUC calculation has changed. Now explicitly sets the direction in pROC::roc.
+* AUC calculation has changed. Now explicitly sets the direction in pROC::roc. (27th of May 2019)
 
-* Unit tests have been updated for the new random sampling generator in R 3.6.0. They will NOT run previous versions of R. 
+* Unit tests have been updated for the new random sampling generator in R 3.6.0. They will NOT run on previous versions of R. 
 
 * Argument "positive" now defaults to 2. If a dependent variable has the values 0 and 1, 1 is now the default positive class, as that's the second largest values. If the dependent variable is a character, it's in alphabetical order.
 

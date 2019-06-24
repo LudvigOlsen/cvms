@@ -1,6 +1,6 @@
 
 #' @title Select columns with evaluation metrics and model definitions.
-#' @description When reporting results, we may not want all
+#' @description When reporting results, we might not want all
 #'  the nested tibbles and process information columns.
 #'  This function selects the evaluation metrics and model formulas only.
 #' @return
@@ -8,7 +8,7 @@
 #' @details The first element in the \code{Family} column is used to identify the relevant columns.
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
-#' @param results Results tibble from cross_validate() or validate().
+#' @param results Results tibble from \code{\link{cross_validate}()} or \code{\link{validate}()}.
 #' @param include_definitions Whether to include the \code{Dependent},
 #'  \code{Fixed} and (possibly) \code{Random} columns. (Logical)
 select_metrics <- function(results, include_definitions = TRUE){

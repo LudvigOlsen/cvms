@@ -2,3 +2,6 @@
 .Rhistory
 .RData
 inst/doc
+revdep/checks
+revdep/library
+revdep/library\.noindex

@@ -47,7 +47,7 @@ baseline(test_data, dependent_col, train_data = NULL, n = 100,
 \item{parallel}{Whether to run the \code{n} evaluations in parallel. (Logical)
 
  Remember to register a parallel backend first.
- E.g. with \code{\link[doParallel:registerDoParallel]{doParallel::registerDoParallel}}.}
+ E.g. with doParallel::registerDoParallel.}
 }
 \value{
 List containing tbl (tibble) with summarized results and tbl with random evaluations.

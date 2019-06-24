@@ -15,7 +15,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #' @param parallel Whether to validate the list of models in parallel. (Logical)
 #'
 #'  Remember to register a parallel backend first.
-#'  E.g. with \code{\link[doParallel:registerDoParallel]{doParallel::registerDoParallel}}.
+#'  E.g. with doParallel::registerDoParallel.
 #' @details
 #'
 #'  Packages used:

@@ -191,6 +191,7 @@ Packages used:
  }
 }
 \examples{
+\dontrun{
 # Attach libraries
 library(cvms)
 library(groupdata2) # partition()
@@ -208,29 +209,29 @@ train_set <- partitions[[1]]
 test_set <- partitions[[2]]
 
 # Create baseline evaluations
+# Note: usually n=100 is a good setting
 
 # Gaussian
 baseline(test_data = test_set, train_data = train_set,
-         dependent_col = "score", n = 10, family = "gaussian")
+         dependent_col = "score", n = 2, family = "gaussian")
 
 # Binomial
 baseline(test_data = test_set, dependent_col="diagnosis",
-         n = 10, family="binomial")
+         n = 2, family="binomial")
 
 # Parallelize evaluations
 
-\dontrun{
 # Attach doParallel and register four cores
 library(doParallel)
 registerDoParallel(4)
 
 # Binomial
 baseline(test_data = test_set, dependent_col = "diagnosis",
-         n = 10, family = "binomial", parallel = TRUE)
+         n = 4, family = "binomial", parallel = TRUE)
 
 # Gaussian
 baseline(test_data = test_set, train_data = train_set,
-         dependent_col = "score", n = 10, family = "gaussian",
+         dependent_col = "score", n = 4, family = "gaussian",
          parallel = TRUE)
 }
 }

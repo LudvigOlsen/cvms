@@ -33,6 +33,7 @@ Creates various plots based on
  the output of cvms::\link{cross_validate}()
 }
 \examples{
+\dontrun{
 # Attach packages
 library(cvms)
 library(groupdata2) # fold()
@@ -63,6 +64,7 @@ CVbinom <- cross_validate(data,
 
 # Plot results for binomial model
 cv_plot(CVbinom, type = 'ROC')
+}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

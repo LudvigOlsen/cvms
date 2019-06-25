@@ -26,6 +26,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
 #' @examples
+#' \dontrun{
 #' # Attach packages
 #' library(cvms)
 #' library(groupdata2) # fold()
@@ -56,6 +57,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #'
 #' # Plot results for binomial model
 #' cv_plot(CVbinom, type = 'ROC')
+#' }
 cv_plot <- function(x, type){
 
   if (x$Family == 'gaussian'){

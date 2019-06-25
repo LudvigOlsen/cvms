@@ -184,6 +184,7 @@
 #'
 #' # Create baseline evaluations
 #'
+#' \dontrun{
 #' # Gaussian
 #' baseline(test_data = test_set, train_data = train_set,
 #'          dependent_col = "score", n = 10, family = "gaussian")
@@ -191,6 +192,7 @@
 #' # Binomial
 #' baseline(test_data = test_set, dependent_col="diagnosis",
 #'          n = 10, family="binomial")
+#' }
 #'
 #' # Parallelize evaluations
 #'

@@ -70,7 +70,7 @@ data <- participant.scores
 
 ## Fold data
 
-Create a grouping factor for subsetting in folds using
+Create a grouping factor for subsetting of folds using
 groupdata2::fold(). Order the dataset by the folds.
 
 ``` r
@@ -114,9 +114,6 @@ CV1 <- cross_validate(data, "score~diagnosis",
                      fold_cols = '.folds', 
                      family='gaussian', 
                      REML = FALSE)
-#> Registered S3 method overwritten by 'MuMIn':
-#>   method         from
-#>   predict.merMod lme4
 
 # Show results
 CV1
@@ -157,7 +154,7 @@ CV1$Predictions[[1]] %>% head() %>% kable()
 
 ``` r
 
-# Nested results from the different folds/models
+# Nested results from the different folds
 CV1$Results[[1]] %>% kable()
 ```
 
@@ -172,7 +169,7 @@ CV1$Results[[1]] %>% kable()
 
 # Nested model coefficients
 # Note that you have the full p-values, 
-# but kable() only show a certain number of digits
+# but kable() only shows a certain number of digits
 CV1$Coefficients[[1]] %>% kable()
 ```
 
@@ -319,14 +316,14 @@ CV4
 
 ## Repeated cross-validation
 
-Note: currently only work with the github version of groupdata2\!
-
-Let’s first create new folds. We will use the num\_fold\_cols argument
-to add 3 unique fold columns.
+Let’s first add some extra fold columns. We will use the num\_fold\_cols
+argument to add 3 unique fold columns. We tell fold() to keep the
+existing fold column and simply add three extra columns. We could also
+choose to remove the existing fold column, if for instance we were
+changing the number of folds (k). Note, that the original fold column
+will be renamed to “.folds\_1”.
 
 ``` r
-# devtools::install_github("ludvigolsen/groupdata2")
-
 # Set seed for reproducibility
 set.seed(2)
 
@@ -334,10 +331,8 @@ set.seed(2)
 data <- fold(data, k = 4,
              cat_col = 'diagnosis',
              id_col = 'participant',
-             num_fold_cols = 3)
-#> Warning in fold(data, k = 4, cat_col = "diagnosis", id_col =
-#> "participant", : Found 1 existing fold column. It will NOT be replaced.
-#> Change 'handle_existing_fold_cols' to 'remove' if you want to replace it.
+             num_fold_cols = 3,
+             handle_existing_fold_cols = "keep")
 
 # Show first 15 rows of data
 data %>% head(10) %>% kable()
@@ -357,8 +352,8 @@ data %>% head(10) %>% kable()
 | 9           |  34 |         0 |    33 |       1 | 1         | 1         | 2         | 3         |
 
 ``` r
-CV5 <- cross_validate(data, "diagnosis~score", 
-                     fold_cols = c('.folds_1','.folds_2','.folds_3'), 
+CV5 <- cross_validate(data, "diagnosis ~ score", 
+                     fold_cols = paste0(".folds_", 1:4), 
                      family='binomial', 
                      REML = FALSE)
 
@@ -367,7 +362,7 @@ CV5
 #> # A tibble: 1 x 27
 #>   `Balanced Accur…    F1 Sensitivity Specificity `Pos Pred Value`
 #>              <dbl> <dbl>       <dbl>       <dbl>            <dbl>
-#> 1            0.727 0.810       0.870       0.583            0.758
+#> 1            0.729 0.813       0.875       0.583            0.759
 #> # … with 22 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
 #> #   CI` <dbl>, `Upper CI` <dbl>, Kappa <dbl>, MCC <dbl>, `Detection
 #> #   Rate` <dbl>, `Detection Prevalence` <dbl>, Prevalence <dbl>,
@@ -377,7 +372,7 @@ CV5
 #> #   Messages` <int>, Family <chr>, Link <chr>, Dependent <chr>,
 #> #   Fixed <chr>
 
-# The binomial output now has a nested results tibble
+# The binomial output now has a nested 'Results' tibble
 # Let's see a subset of the columns
 CV5$Results[[1]] %>% select(1:8) %>%  kable()
 ```
@@ -387,6 +382,7 @@ CV5$Results[[1]] %>% select(1:8) %>%  kable()
 | .folds\_1   |         0.7361111 | 0.8205128 |   0.8888889 |   0.5833333 |      0.7619048 |      0.7777778 | 0.7685185 |
 | .folds\_2   |         0.7361111 | 0.8205128 |   0.8888889 |   0.5833333 |      0.7619048 |      0.7777778 | 0.7777778 |
 | .folds\_3   |         0.7083333 | 0.7894737 |   0.8333333 |   0.5833333 |      0.7500000 |      0.7000000 | 0.7476852 |
+| .folds\_4   |         0.7361111 | 0.8205128 |   0.8888889 |   0.5833333 |      0.7619048 |      0.7777778 | 0.7662037 |
 
 ## Baseline evaluations
 
@@ -555,9 +551,9 @@ fixed effects (including the possible interactions),
 combine\_predictors() can do it for you (with some constraints).
 
 When including interactions, \>200k formulas have been precomputed for
-up to 8 fixed effects, with a max. interaction size of 3, and a max. of
-5 fixed effects per formula. It’s possible to further limit the
-generated formulas.
+up to 8 fixed effects, with a maximum interaction size of 3, and a
+maximum of 5 fixed effects per formula. It’s possible to further limit
+the generated formulas.
 
 We can also append a random effects structure to the generated formulas.
 

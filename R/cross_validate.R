@@ -192,6 +192,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #'
 #' # Cross-validate a single model
 #'
+#' \dontrun{
 #' # Gaussian
 #' cross_validate(data,
 #'                models = "score~diagnosis",
@@ -220,7 +221,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #'                family = 'gaussian',
 #'                link = 'log',
 #'                REML = FALSE)
-#'
+#' }
 #' # Use parallelization
 #'
 #' \dontrun{

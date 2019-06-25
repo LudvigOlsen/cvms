@@ -53,16 +53,20 @@
 #' fixed_effects <- c("a","b","c")
 #' random_effects <- "(1|e)"
 #'
+#' \dontrun{
 #' # Create model formulas
 #' combine_predictors(dependent, fixed_effects,
 #'                    random_effects)
 #'
+#' }
 #' # Create effect names with interchangeable effects in sublists
 #' fixed_effects <- list("a",list("b","log_b"),"c")
 #'
+#' \dontrun{
 #' # Create model formulas
 #' combine_predictors(dependent, fixed_effects,
 #'                    random_effects)
+#' }
 #' @importFrom purrr pmap_dbl pmap_df
 #' @importFrom rlang .data
 #' @importFrom utils combn head

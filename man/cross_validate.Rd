@@ -211,6 +211,7 @@ data <- fold(data, k = 4,
 
 # Cross-validate a single model
 
+\dontrun{
 # Gaussian
 cross_validate(data,
                models = "score~diagnosis",
@@ -239,7 +240,7 @@ cross_validate(data,
                family = 'gaussian',
                link = 'log',
                REML = FALSE)
-
+}
 # Use parallelization
 
 \dontrun{

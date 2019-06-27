@@ -9,7 +9,5 @@ There were no ERRORs, WARNINGs or NOTEs.
 There are currently no downstream dependencies, as it is a new package.
 
 ## Resubmission notes
-I have fixed the Description and added dontrun to multiple examples, 
-and shortened the examples as well, in case dontrun doesn't work.
-R CMD Check does not complain about long examples anymore.
+I have added a reference to the Description.
 

@@ -9,5 +9,5 @@ There were no ERRORs, WARNINGs or NOTEs.
 There are currently no downstream dependencies, as it is a new package.
 
 ## Resubmission notes
-I have added a reference to the Description.
+I have added a reference to the Description, as per request.
 

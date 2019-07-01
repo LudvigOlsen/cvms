@@ -166,7 +166,7 @@
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Attach libraries
 #' library(cvms)
 #' library(groupdata2) # partition()
@@ -197,8 +197,9 @@
 #' # Parallelize evaluations
 #'
 #' # Attach doParallel and register four cores
-#' library(doParallel)
-#' registerDoParallel(4)
+#' # Uncomment:
+#' # library(doParallel)
+#' # registerDoParallel(4)
 #'
 #' # Binomial
 #' baseline(test_data = test_set, dependent_col = "diagnosis",

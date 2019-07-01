@@ -53,7 +53,7 @@
 #' fixed_effects <- c("a","b","c")
 #' random_effects <- "(1|e)"
 #'
-#' \dontrun{
+#' \donttest{
 #' # Create model formulas
 #' combine_predictors(dependent, fixed_effects,
 #'                    random_effects)
@@ -62,7 +62,7 @@
 #' # Create effect names with interchangeable effects in sublists
 #' fixed_effects <- list("a",list("b","log_b"),"c")
 #'
-#' \dontrun{
+#' \donttest{
 #' # Create model formulas
 #' combine_predictors(dependent, fixed_effects,
 #'                    random_effects)
@@ -138,14 +138,14 @@ combine_predictors <- function(dependent,
                                 interchangeable_effects_combinations)
 
     # Replace with the interchangeable effects
-    plyr::l_ply(2:ncol(formulas), function(column){
-      formulas <<- formulas %>%
+    for (column in 2:ncol(formulas)){
+      formulas <- formulas %>%
         dplyr::mutate_at(
           .vars = 1,
           .funs = list(~stringr::str_replace_all(
             ., colnames(formulas)[[column]],
             as.character(!! as.name(colnames(formulas)[[column]])))))
-    })
+    }
 
     formulas <- formulas %>%
       dplyr::select(.data$formula_) %>%

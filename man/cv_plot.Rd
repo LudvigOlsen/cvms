@@ -33,7 +33,7 @@ Creates various plots based on
  the output of cvms::\link{cross_validate}()
 }
 \examples{
-\dontrun{
+\donttest{
 # Attach packages
 library(cvms)
 library(groupdata2) # fold()

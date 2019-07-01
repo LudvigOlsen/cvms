@@ -211,7 +211,7 @@ data <- fold(data, k = 4,
 
 # Cross-validate a single model
 
-\dontrun{
+\donttest{
 # Gaussian
 cross_validate(data,
                models = "score~diagnosis",
@@ -243,10 +243,11 @@ cross_validate(data,
 }
 # Use parallelization
 
-\dontrun{
+\donttest{
 # Attach doParallel and register four cores
-library(doParallel)
-registerDoParallel(4)
+# Uncomment:
+# library(doParallel)
+# registerDoParallel(4)
 
 # Create list of 20 model formulas
 models <- rep(c("score~diagnosis+(1|session)",

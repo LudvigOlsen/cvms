@@ -26,7 +26,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Attach packages
 #' library(cvms)
 #' library(groupdata2) # fold()

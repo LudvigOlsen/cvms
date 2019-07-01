@@ -9,5 +9,8 @@ There were no ERRORs, WARNINGs or NOTEs.
 There are currently no downstream dependencies, as it is a new package.
 
 ## Resubmission notes
-I have added a reference to the Description, as per request.
+* Replaced replace dontrun with donttest.  
+* Removed need for <<-, even though it wasn't used to modify the global env. Note, that 
+it is still used in a script in data-raw/ which shouldn't be a problem.
+* Added Benjamin Hugh Zachariae as author in DESCRIPTION.
 

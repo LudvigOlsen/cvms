@@ -192,7 +192,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #'
 #' # Cross-validate a single model
 #'
-#' \dontrun{
+#' \donttest{
 #' # Gaussian
 #' cross_validate(data,
 #'                models = "score~diagnosis",
@@ -224,10 +224,11 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #' }
 #' # Use parallelization
 #'
-#' \dontrun{
+#' \donttest{
 #' # Attach doParallel and register four cores
-#' library(doParallel)
-#' registerDoParallel(4)
+#' # Uncomment:
+#' # library(doParallel)
+#' # registerDoParallel(4)
 #'
 #' # Create list of 20 model formulas
 #' models <- rep(c("score~diagnosis+(1|session)",

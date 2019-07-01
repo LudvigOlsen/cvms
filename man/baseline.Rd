@@ -191,7 +191,7 @@ Packages used:
  }
 }
 \examples{
-\dontrun{
+\donttest{
 # Attach libraries
 library(cvms)
 library(groupdata2) # partition()
@@ -222,8 +222,9 @@ baseline(test_data = test_set, dependent_col="diagnosis",
 # Parallelize evaluations
 
 # Attach doParallel and register four cores
-library(doParallel)
-registerDoParallel(4)
+# Uncomment:
+# library(doParallel)
+# registerDoParallel(4)
 
 # Binomial
 baseline(test_data = test_set, dependent_col = "diagnosis",

@@ -1,6 +1,6 @@
 Package: cvms
 Title: Cross-Validation for Model Selection
-Version: 0.1.0
+Version: 0.1.0.9000
 Authors@R: c(
     person("Ludvig Renbo", "Olsen", email = "r-pkgs@ludvigolsen.dk", role = c("aut", "cre")),
     person("Benjamin Hugh", "Zachariae", role="aut")

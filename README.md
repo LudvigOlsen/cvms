@@ -40,6 +40,10 @@ Main functions:
 
 ## Installation
 
+CRAN:
+
+> install.packages(“cvms”)
+
 Development version:
 
 > install.packages(“devtools”)

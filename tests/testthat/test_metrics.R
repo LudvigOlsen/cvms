@@ -5,6 +5,8 @@ context("metrics")
 
 test_that("Metrics work for glm in validate()",{
 
+  skip_test_if_old_R_version()
+
   set.seed(7)
 
   dat <- groupdata2::partition(participant.scores, p = 0.8,
@@ -61,6 +63,8 @@ test_that("Metrics work for glm in validate()",{
 
 
 test_that("Metrics work for glmer in validate()",{
+
+  skip_test_if_old_R_version()
 
   set.seed(7)
 
@@ -120,6 +124,8 @@ test_that("Metrics work for glmer in validate()",{
 
 
 test_that("Metrics work for glm in validate()",{
+
+  skip_test_if_old_R_version()
 
   set.seed(6)
 
@@ -181,6 +187,8 @@ test_that("Metrics work for glm in validate()",{
 
 test_that("Metrics work for glmer in validate()",{
 
+  skip_test_if_old_R_version()
+
   set.seed(201)
 
   dat <- groupdata2::partition(participant.scores, p = 0.8,
@@ -239,6 +247,8 @@ test_that("Metrics work for glmer in validate()",{
 
 
 test_that("Metrics work when 0 is positive class for glmer in validate()",{
+
+  skip_test_if_old_R_version()
 
   # AUC approach was improved from this answer: https://stats.stackexchange.com/a/269577
   # Here I test that it works.
@@ -432,6 +442,8 @@ test_that("Metrics work when 0 is positive class for glmer in validate()",{
 
 test_that("Metrics work in cross_validate()",{
 
+  skip_test_if_old_R_version()
+
   #
   # In this test I printed the predictions within each training loop
   # and manually copied the predictions
@@ -512,6 +524,8 @@ test_that("Metrics work in cross_validate()",{
 })
 
 test_that("mae and rmse works", {
+
+  skip_test_if_old_R_version()
 
   # Normal distribution
   set.seed(1)

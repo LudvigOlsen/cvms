@@ -8,6 +8,7 @@ context("cross_validate()")
 
 test_that("binomial models work with cross_validate()",{
 
+  skip_test_if_old_R_version()
 
   # Load data and fold it
   set.seed(1)
@@ -53,6 +54,7 @@ test_that("binomial models work with cross_validate()",{
 
 test_that("binomial models checks that dependent variable is numeric with cross_validate()",{
 
+  skip_test_if_old_R_version()
 
   # Load data and fold it
   set.seed(1)
@@ -102,6 +104,7 @@ test_that("binomial models checks that dependent variable is numeric with cross_
 
 test_that("binomial models work with cross_validate()",{
 
+  skip_test_if_old_R_version()
 
   # Load data and fold it
   set.seed(1)
@@ -162,6 +165,8 @@ test_that("binomial models work with cross_validate()",{
 
 test_that("gaussian model with cross_validate()",{
 
+  skip_test_if_old_R_version()
+
   # Load data and fold it
   set.seed(1)
   dat <- groupdata2::fold(participant.scores, k = 4,
@@ -193,6 +198,8 @@ test_that("gaussian model with cross_validate()",{
 
 
 test_that("gaussian mixed models with cross_validate()",{
+
+  skip_test_if_old_R_version()
 
   # Load data and fold it
   set.seed(1)
@@ -228,6 +235,7 @@ test_that("gaussian mixed models with cross_validate()",{
 
 test_that("binomial models work with control specified in cross_validate()",{
 
+  skip_test_if_old_R_version()
 
   # Load data and fold it
   set.seed(2)
@@ -265,6 +273,7 @@ test_that("binomial models work with control specified in cross_validate()",{
 
 test_that("gaussian models work with control specified in cross_validate()",{
 
+  skip_test_if_old_R_version()
 
   # Load data and fold it
   set.seed(2)
@@ -305,6 +314,8 @@ test_that("gaussian models work with control specified in cross_validate()",{
 
 test_that("model using dot in formula ( y ~ . ) works with cross_validate()",{
 
+  skip_test_if_old_R_version()
+
   # We wish to test if using the dot "y~." method in the model formula
   # correctly leaves out .folds column.
 
@@ -334,6 +345,8 @@ test_that("model using dot in formula ( y ~ . ) works with cross_validate()",{
 
 
 test_that("binomial models work with repeated cross_validate()",{
+
+  skip_test_if_old_R_version()
 
   # Load data and fold it
   set.seed(1)
@@ -411,6 +424,8 @@ test_that("binomial models work with repeated cross_validate()",{
 })
 
 test_that("binomial models work with positive as.character in cross_validate()",{
+
+  skip_test_if_old_R_version()
 
   # Load data and fold it
   set.seed(2)
@@ -523,6 +538,8 @@ test_that("binomial models work with positive as.character in cross_validate()",
 
 test_that("gaussian models work with repeated cross_validate()",{
 
+  skip_test_if_old_R_version()
+
   # Load data and fold it
   set.seed(1)
   dat <- groupdata2::fold(participant.scores, k = 4,
@@ -565,6 +582,8 @@ test_that("gaussian models work with repeated cross_validate()",{
 
 test_that("that wrong model formulas are warned about in cross_validate()",{
 
+  skip_test_if_old_R_version()
+
   library(caret)
   library(groupdata2)
 
@@ -588,6 +607,8 @@ test_that("that wrong model formulas are warned about in cross_validate()",{
 
 
 test_that("that singular fit messages are caught, counted and messaged about in cross_validate()",{
+
+  skip_test_if_old_R_version()
 
   library(groupdata2)
 

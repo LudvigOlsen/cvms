@@ -4,6 +4,8 @@ context("baseline()")
 
 test_that("binomial evaluation are correct in baseline()",{
 
+  skip_test_if_old_R_version()
+
   set.seed(1)
   binom_baseline <- baseline(test_data = participant.scores,
                     dependent_col = "diagnosis",
@@ -80,6 +82,8 @@ test_that("binomial evaluation are correct in baseline()",{
 })
 
 test_that("gaussian evaluation are correct in baseline()",{
+
+  skip_test_if_old_R_version()
 
   set.seed(1)
   dat <- groupdata2::partition(participant.scores, p = 0.6, list_out = TRUE)

@@ -7,6 +7,9 @@ context("validate()")
 
 
 test_that("binomial model work with validate()", {
+
+  skip_test_if_old_R_version()
+
   # Load data and partition it
   set.seed(1)
   dat <- groupdata2::partition(
@@ -67,6 +70,9 @@ test_that("binomial model work with validate()", {
 })
 
 test_that("binomial mixed model work with validate()", {
+
+  skip_test_if_old_R_version()
+
   # Load data and fold it
   set.seed(3)
   dat <- groupdata2::partition(
@@ -133,6 +139,9 @@ test_that("binomial mixed model work with validate()", {
 
 
 test_that("binomial model work with test_data in validate()", {
+
+  skip_test_if_old_R_version()
+
   # Load data and partition it
   set.seed(1)
   dat <- groupdata2::partition(
@@ -194,6 +203,9 @@ test_that("binomial model work with test_data in validate()", {
 
 
 test_that("gaussian model with validate()", {
+
+  skip_test_if_old_R_version()
+
   # Load data and fold it
   set.seed(1)
 
@@ -236,6 +248,9 @@ test_that("gaussian model with validate()", {
 
 
 test_that("Right glm model used in validate()", {
+
+  skip_test_if_old_R_version()
+
   # Create data that should be easy to model
   set.seed(7)
 
@@ -271,6 +286,9 @@ test_that("Right glm model used in validate()", {
 })
 
 test_that("Right glmer model used in validate()", {
+
+  skip_test_if_old_R_version()
+
   # Create data that should be easy to model
   set.seed(7)
 
@@ -306,6 +324,8 @@ test_that("Right glmer model used in validate()", {
 
 
 test_that("model using dot in formula ( y ~ . ) works with validate()",{
+
+  skip_test_if_old_R_version()
 
   # We wish to test if using the dot "y~." method in the model formula
   # correctly leaves out .folds column.
@@ -343,6 +363,9 @@ test_that("model using dot in formula ( y ~ . ) works with validate()",{
 })
 
 test_that("Singular fit messages counted in validate()", {
+
+  skip_test_if_old_R_version()
+
   # Create data that should be easy to model
   set.seed(7)
 

@@ -3,6 +3,8 @@ context("cross_validate() with link functions")
 
 test_that("gaussian models with link functions with cross_validate()",{
 
+  skip_test_if_old_R_version()
+
   # Load data and fold it
   set.seed(1)
   dat <- groupdata2::fold(participant.scores, k = 4,
@@ -54,6 +56,8 @@ test_that("gaussian models with link functions with cross_validate()",{
 
 
 test_that("binomial models with link functions with cross_validate()",{
+
+  skip_test_if_old_R_version()
 
   # Load data and fold it
   set.seed(1)

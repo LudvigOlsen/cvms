@@ -33,7 +33,7 @@ Main functions:
 * combine_predictors()  
 * cv_plot()  
 * select_metrics()  
-* reconstruct_metrics()  
+* reconstruct_formulas()  
 
 ## Important News
 

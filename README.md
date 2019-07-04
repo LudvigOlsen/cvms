@@ -20,7 +20,7 @@ Main functions:
   - combine\_predictors()  
   - cv\_plot()  
   - select\_metrics()  
-  - reconstruct\_metrics()
+  - reconstruct\_formulas()
 
 ## Important News
 

@@ -5,9 +5,9 @@ context("metrics")
 
 test_that("Metrics work for glm in validate()",{
 
-  skip_test_if_old_R_version()
+  # skip_test_if_old_R_version()
 
-  set.seed(7)
+  set_seed_for_R_compatibility(7)
 
   dat <- groupdata2::partition(participant.scores, p = 0.8,
                                cat_col = 'diagnosis',
@@ -64,9 +64,9 @@ test_that("Metrics work for glm in validate()",{
 
 test_that("Metrics work for glmer in validate()",{
 
-  skip_test_if_old_R_version()
+  # skip_test_if_old_R_version()
 
-  set.seed(7)
+  set_seed_for_R_compatibility(7)
 
   dat <- groupdata2::partition(participant.scores, p = 0.8,
                                cat_col = 'diagnosis',
@@ -125,9 +125,9 @@ test_that("Metrics work for glmer in validate()",{
 
 test_that("Metrics work for glm in validate()",{
 
-  skip_test_if_old_R_version()
+  # skip_test_if_old_R_version()
 
-  set.seed(6)
+  set_seed_for_R_compatibility(6)
 
   dat <- groupdata2::partition(participant.scores, p = 0.8,
                                cat_col = 'diagnosis',
@@ -187,9 +187,9 @@ test_that("Metrics work for glm in validate()",{
 
 test_that("Metrics work for glmer in validate()",{
 
-  skip_test_if_old_R_version()
+  # skip_test_if_old_R_version()
 
-  set.seed(201)
+  set_seed_for_R_compatibility(201)
 
   dat <- groupdata2::partition(participant.scores, p = 0.8,
                                cat_col = 'diagnosis',
@@ -248,7 +248,7 @@ test_that("Metrics work for glmer in validate()",{
 
 test_that("Metrics work when 0 is positive class for glmer in validate()",{
 
-  skip_test_if_old_R_version()
+  # skip_test_if_old_R_version()
 
   # AUC approach was improved from this answer: https://stats.stackexchange.com/a/269577
   # Here I test that it works.
@@ -383,7 +383,7 @@ test_that("Metrics work when 0 is positive class for glmer in validate()",{
   expect_equal(pROC_auc_worst, AUC_auc_worst)
   expect_equal(AUC_auc_worst_pos0, pROC_auc_worst_pos0)
 
-  set.seed(201)
+  set_seed_for_R_compatibility(201)
 
   dat <- groupdata2::partition(participant.scores, p = 0.8,
                                cat_col = 'diagnosis',
@@ -442,7 +442,7 @@ test_that("Metrics work when 0 is positive class for glmer in validate()",{
 
 test_that("Metrics work in cross_validate()",{
 
-  skip_test_if_old_R_version()
+  # skip_test_if_old_R_version()
 
   #
   # In this test I printed the predictions within each training loop
@@ -456,10 +456,14 @@ test_that("Metrics work in cross_validate()",{
               0,0,0,1,1,1,1,1,1,
               0,0,0,1,1,1,
               0,0,0,1,1,1,1,1,1)
-  predictions_prob <- c(0.77379615,0.36952324,0.09125579,0.89205819,0.73620142,0.55282759,
-                   0.8307928,0.6042899,0.1754574,0.9317034,0.8307928,0.5145979,0.9269098,0.6874739,0.5867096,
-                   0.71867985,0.26746773,0.09346533,0.85976827,0.24884534,0.13205012,
-                   0.6503171,0.4541755,0.1564246,0.8445872,0.7085838,0.5871876,0.8514956,0.7607141,0.7085838)
+  predictions_prob <- c(0.77379615,0.36952324,0.09125579,0.89205819,
+                        0.73620142,0.55282759,0.8307928,0.6042899,
+                        0.1754574,0.9317034,0.8307928,0.5145979,
+                        0.9269098,0.6874739,0.5867096,0.71867985,
+                        0.26746773,0.09346533,0.85976827,0.24884534,
+                        0.13205012,0.6503171,0.4541755,0.1564246,
+                        0.8445872,0.7085838,0.5871876,0.8514956,
+                        0.7607141,0.7085838)
   predictions <- dplyr::if_else(predictions_prob>0.5,1,0)
 
   pred_df <- data.frame("obs"=target, "prob"=predictions_prob, "pred"=predictions)
@@ -525,26 +529,26 @@ test_that("Metrics work in cross_validate()",{
 
 test_that("mae and rmse works", {
 
-  skip_test_if_old_R_version()
+  # skip_test_if_old_R_version()
 
   # Normal distribution
-  set.seed(1)
+  set_seed_for_R_compatibility(6)
   targets <- rnorm(100)
   preds <- rnorm(100)
 
   # RMSE
-  expect_equal(rmse(predictions = preds, targets = targets), 1.315395, tolerance = 1e+3)
+  expect_equal(rmse(predictions = preds, targets = targets), 1.23924, tolerance = 1e-3)
   # MAE
-  expect_equal(mae(predictions = preds, targets = targets), 1.044417, tolerance = 1e+3)
+  expect_equal(mae(predictions = preds, targets = targets), 0.9888096, tolerance = 1e-3)
 
   # Uniform distribution
-  set.seed(1)
+  set_seed_for_R_compatibility(9)
   targets <- runif(100,min = 45, max = 97)
   preds <- runif(100,min = 54, max = 120)
 
   # RMSE
-  expect_equal(rmse(predictions = preds, targets = targets), 27.661, tolerance = 1e+3)
+  expect_equal(rmse(predictions = preds, targets = targets), 30.2487, tolerance = 1e-3)
   # MAE
-  expect_equal(mae(predictions = preds, targets = targets), 23.62234, tolerance = 1e+3)
+  expect_equal(mae(predictions = preds, targets = targets), 24.3477, tolerance = 1e-3)
 
 })

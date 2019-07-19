@@ -5,7 +5,7 @@ context("cv_plot()")
 test_that("cv_plot() works",{
 
   # Load data and fold it
-  set.seed(1)
+  set_seed_for_R_compatibility(1)
   dat <- groupdata2::fold(participant.scores, k = 4,
                           cat_col = 'diagnosis',
                           id_col = 'participant')

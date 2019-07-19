@@ -113,8 +113,8 @@ test_that("predictors are properly combined with combine_predictors()",{
 
 test_that("interchangeable predictors are properly combined with combine_predictors()",{
 
-  testthat::skip(message = "Skipping check for CRAN release due to r_hub failure")
-  set.seed(1)
+  # testthat::skip(message = "Skipping check for CRAN release due to r_hub failure")
+  set_seed_for_R_compatibility(1)
   dep <- "y"
   rfx <- "(1|e)"
 

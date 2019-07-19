@@ -3,8 +3,9 @@ context("reconstruct_formulas()")
 
 test_that("formulas without random effects are properly reconstructed from cross_validate results with reconstruct_formulas()",{
 
-  skip_test_if_old_R_version()
+  # skip_test_if_old_R_version()
 
+  set_seed_for_R_compatibility(1)
   data <- participant.scores
 
   model_formulas <- c("score~age +diagnosis",
@@ -25,9 +26,9 @@ test_that("formulas without random effects are properly reconstructed from cross
 
 test_that("formulas with random effects are properly reconstructed from cross_validate results with reconstruct_formulas()",{
 
-  skip_test_if_old_R_version()
+  # skip_test_if_old_R_version()
 
-  set.seed(1)
+  set_seed_for_R_compatibility(1)
 
   data <- participant.scores
 
@@ -47,3 +48,4 @@ test_that("formulas with random effects are properly reconstructed from cross_va
   expect_equal(reconstruct_formulas(cv_results, topn = 1), c("score ~ age * diagnosis + (1|participant)"))
 
 })
+

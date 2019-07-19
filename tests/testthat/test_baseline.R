@@ -4,9 +4,7 @@ context("baseline()")
 
 test_that("binomial evaluation are correct in baseline()",{
 
-  skip_test_if_old_R_version()
-
-  set.seed(1)
+  set_seed_for_R_compatibility(1)
   binom_baseline <- baseline(test_data = participant.scores,
                     dependent_col = "diagnosis",
                     n = 10,
@@ -83,18 +81,16 @@ test_that("binomial evaluation are correct in baseline()",{
 
 test_that("gaussian evaluation are correct in baseline()",{
 
-  skip_test_if_old_R_version()
-
-  set.seed(1)
+  set_seed_for_R_compatibility(1)
   dat <- groupdata2::partition(participant.scores, p = 0.6, list_out = TRUE)
   train_data <- dat[[1]]
   test_data <- dat[[2]]
-  gaussian_baseline <- baseline(test_data = test_data,
+  suppressWarnings(gaussian_baseline <- baseline(test_data = test_data,
                              train_data = train_data,
                              dependent_col = "diagnosis",
                              n = 10,
                              family = "gaussian",
-                             parallel = FALSE)
+                             parallel = FALSE))
 
   gaussian_baseline_summ <- gaussian_baseline$summarized_metrics
   gaussian_baseline_reval <- gaussian_baseline$random_evaluations
@@ -103,18 +99,16 @@ test_that("gaussian evaluation are correct in baseline()",{
   expect_equal(gaussian_baseline_summ$Measure, c("Mean", "Median", "SD", "IQR", "Max",
                                               "Min", "NAs", "INFs", "All_rows"))
   expect_equal(gaussian_baseline_summ$RMSE,
-               c(0.53817815, 0.53278138, 0.03113600, 0.02189922,
-                 0.60092521, 0.50507627, 0.0, 0.0, 0.52704628), tolerance=1e-3)
+               c(0.53976549,0.52003413,0.05536050,0.06101522,0.64549722,0.49315036,0.00000000,0.00000000,0.49378858), tolerance=1e-3)
 
   expect_equal(gaussian_baseline_summ$MAE,
-               c(0.5, 0.5, 0.0, 0.0, 0.5, 0.5, 0.0, 0.0, 0.5), tolerance=1e-3)
+               c(0.47052503,0.46611722,0.03613427,0.03597884,0.55000000,0.41666667,0.00000000,0.00000000,0.48148148), tolerance=1e-3)
 
   expect_equal(gaussian_baseline_summ$AIC,
-               c(16.483477, 16.772293, 5.093491, 6.335927, 24.033488,
-                 9.026478, 0.0, 0.0, 28.008394), tolerance=1e-3)
+               c(-21.81094,12.39809,113.07636,7.15748,21.48099,-343.36287,0.00000,0.00000,29.21690), tolerance=1e-3)
 
   expect_equal(gaussian_baseline_summ$`Training Rows`,
-               c(9.60, 10.0, 3.062316, 4.50, 14.0, 5.0, 0.0, 0.0, 18.0), tolerance=1e-3)
+               c(7.9000,7.0000,3.3483,4.0000,14.0000,5.0000,0.0000,0.0000,18.0000), tolerance=1e-3)
 
   expect_equal(gaussian_baseline_summ$r2m,
                rep(0.0, 9), tolerance=1e-3)
@@ -122,27 +116,23 @@ test_that("gaussian evaluation are correct in baseline()",{
                rep(0.0, 9), tolerance=1e-3)
 
   expect_equal(gaussian_baseline_summ$AICc,
-               c(18.931616, 18.486579, 3.681980, 4.335927,
-                 25.124397, 13.182776, 0.0, 0.0, 28.808394), tolerance=1e-3)
+               c(-18.181848,16.379556,112.194238,3.451304,22.571895,-337.362866, 0.000000, 0.000000,30.016902), tolerance=1e-3)
 
   expect_equal(gaussian_baseline_summ$BIC,
-               c(16.901920, 17.377463, 5.787432, 7.375648,
-                 25.311603, 8.245354, 0.0, 0.0, 29.789138), tolerance=1e-3)
+               c(-21.825333,12.090622,113.376366, 8.096223,22.759101,-344.143990, 0.000000, 0.000000,30.997645), tolerance=1e-3)
 
   # The random evaluations
   expect_equal(gaussian_baseline_reval$RMSE,
-               c(0.6009252, 0.5270463, 0.5385165, 0.5131409, 0.5050763,
-                 0.5270463, 0.5385165, 0.5830952, 0.5385165, 0.5099020), tolerance=1e-3)
+               c(0.4932883,0.5101020,0.5639390,0.6454972,0.4931504,0.5049069,0.5299662,0.6244998,0.5385165,0.4937886), tolerance=1e-3)
 
   expect_equal(gaussian_baseline_reval$MAE,
-               rep(0.5, 10), tolerance=1e-3)
+               c(0.4833333,0.4642857,0.4404762,0.4166667,0.4880952,0.4679487,0.4537037,0.5500000,0.4500000,0.4907407), tolerance=1e-3)
 
   expect_equal(gaussian_baseline_reval$AIC,
-               c(9.182776, 12.002798, 16.772293, 22.159151, 24.033488,
-                 20.005596, 16.772293, 9.026478, 16.772293, 18.107607), tolerance=1e-3)
+               c(11.053804,21.480986, 9.164714,-343.362866,14.016744,20.789465,13.742367, 9.026478, 9.026478,16.952442), tolerance=1e-3)
 
   expect_equal(gaussian_baseline_reval$`Training Rows`,
-               c(6, 6, 10, 13, 14, 12, 10, 5, 10, 10), tolerance=1e-3)
+               c(5,14,7,5,7,13,9,5,5,9), tolerance=1e-3)
 
   expect_equal(gaussian_baseline_reval$Family,
                rep("gaussian", 10), tolerance=1e-3)
@@ -155,19 +145,21 @@ test_that("gaussian evaluation are correct in baseline()",{
 
   all_predictions <- dplyr::bind_rows(gaussian_baseline_reval$Predictions)
   expect_equal(sum(as.numeric(all_predictions$Fold)), 120)
-  expect_equal(sum(all_predictions$Target), 60)
-  expect_equal(sum(all_predictions$Prediction), 82.24176, tolerance=1e-3)
+  expect_equal(sum(all_predictions$Target), 70)
+  expect_equal(sum(all_predictions$Prediction), 81.22198, tolerance=1e-3)
 
   all_coeffs <- dplyr::bind_rows(gaussian_baseline_reval$Coefficients)
   expect_equal(all_coeffs$estimate,
-               c(0.8333333, 0.6666667, 0.70, 0.6153846, 0.5714286,
-                 0.6666667, 0.70, 0.80, 0.70, 0.60), tolerance=1e-3)
+               c(0.6000000,0.7142857,0.8571429,1.0000000,0.5714286,
+                 0.6923077,0.7777778,0.2000000,0.8000000,0.5555556), tolerance=1e-3)
   expect_equal(all_coeffs$std.error,
-               c(0.1666667, 0.2108185, 0.1527525, 0.1404417, 0.1372527,
-                 0.1421338, 0.1527525, 0.20, 0.1527525, 0.1632993), tolerance=1e-3)
+               c(2.449490e-01,1.252940e-01,1.428571e-01,9.930137e-17,
+                 2.020305e-01,1.332347e-01,1.469862e-01,2.000000e-01,
+                 2.000000e-01, 1.756821e-01), tolerance=1e-3)
   expect_equal(all_coeffs$p.value,
-               c(0.0041047160, 0.0250310158, 0.0013229506, 0.0008935055, 0.0011131538,
-                 0.0006603135, 0.0013229506, 0.0161300899, 0.0013229506, 0.0051210728), tolerance=1e-3)
+               c(7.048400e-02,7.282309e-05,9.645352e-04,5.834077e-64,
+                 3.001975e-02,2.233108e-04,7.359017e-04,3.739010e-01,
+                 1.613009e-02,1.334906e-02), tolerance=1e-3)
 })
 
 

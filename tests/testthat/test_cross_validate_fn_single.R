@@ -3,10 +3,10 @@ context("cross_validate_fn_single()")
 
 test_that("gaussian models with cross_validate_single_fn()",{
 
-  skip_test_if_old_R_version()
+  # skip_test_if_old_R_version()
 
   # Load data and fold it
-  set.seed(1)
+  set_seed_for_R_compatibility(1)
   dat <- groupdata2::fold(participant.scores, k = 4,
                           cat_col = 'diagnosis',
                           id_col = 'participant')
@@ -27,12 +27,12 @@ test_that("gaussian models with cross_validate_single_fn()",{
   # For comparison
   # cross_validate(dat, "score~diagnosis+(1|session)+(1|participant)", fold_cols = ".folds", model_verbose = TRUE)
 
-  expect_equal(cv_result$RMSE, 8.76, tolerance=1e-3)
-  expect_equal(cv_result$r2m, 0.291, tolerance=1e-3)
-  expect_equal(cv_result$r2c, 0.808, tolerance=1e-3)
-  expect_equal(cv_result$AIC, 175.6952, tolerance=1e-3)
-  expect_equal(cv_result$AICc, 177.9978, tolerance=1e-3)
-  expect_equal(cv_result$BIC, 180.1403, tolerance=1e-3)
+  expect_equal(cv_result$RMSE, 9.65949, tolerance=1e-3)
+  expect_equal(cv_result$r2m, 0.2821929, tolerance=1e-3)
+  expect_equal(cv_result$r2c, 0.804314, tolerance=1e-3)
+  expect_equal(cv_result$AIC, 175.9497, tolerance=1e-3)
+  expect_equal(cv_result$AICc, 178.2523, tolerance=1e-3)
+  expect_equal(cv_result$BIC, 180.3948, tolerance=1e-3)
   expect_equal(cv_result$Folds, 4)
   expect_equal(cv_result$`Convergence Warnings`, 0)
   # expect_equal(cv_result$Family, "gaussian")
@@ -50,12 +50,12 @@ test_that("gaussian models with cross_validate_single_fn()",{
                                         model_specifics_update_fn = basics_update_model_specifics,
                                         fold_cols =".folds")
 
-  expect_equal(cv_result$RMSE, 16.5418, tolerance=1e-3)
-  expect_equal(cv_result$r2m, 0.2723672, tolerance=1e-3)
-  expect_equal(cv_result$r2c, 0.2723672, tolerance=1e-3)
-  expect_equal(cv_result$AIC, 194.6612, tolerance=1e-3)
-  expect_equal(cv_result$AICc, 195.967, tolerance=1e-3)
-  expect_equal(cv_result$BIC, 197.995, tolerance=1e-3)
+  expect_equal(cv_result$RMSE, 17.16817, tolerance=1e-3)
+  expect_equal(cv_result$r2m, 0.2640793, tolerance=1e-3)
+  expect_equal(cv_result$r2c, 0.2640793, tolerance=1e-3)
+  expect_equal(cv_result$AIC, 194.6904, tolerance=1e-3)
+  expect_equal(cv_result$AICc, 195.9963, tolerance=1e-3)
+  expect_equal(cv_result$BIC, 198.0243, tolerance=1e-3)
   expect_equal(cv_result$Folds, 4)
   expect_equal(cv_result$`Convergence Warnings`, 0)
   # expect_equal(cv_result$Family, "gaussian")
@@ -67,10 +67,10 @@ test_that("gaussian models with cross_validate_single_fn()",{
 
 test_that("binomial models with cross_validate_single_fn()",{
 
-  skip_test_if_old_R_version()
+  # skip_test_if_old_R_version()
 
   # Load data and fold it
-  set.seed(1)
+  set_seed_for_R_compatibility(1)
   dat <- groupdata2::fold(participant.scores, k = 4,
                           cat_col = 'diagnosis',
                           id_col = 'participant')
@@ -89,9 +89,9 @@ test_that("binomial models with cross_validate_single_fn()",{
                                         model_specifics_update_fn = basics_update_model_specifics,
                                         fold_cols =".folds")
 
-  expect_equal(cv_result$AUC, 0.843, tolerance=1e-3)
-  expect_equal(cv_result$`Lower CI`, 0.6892, tolerance=1e-3)
-  expect_equal(cv_result$`Upper CI`, 0.995953, tolerance=1e-3)
+  expect_equal(cv_result$AUC, 0.8611111, tolerance=1e-3)
+  expect_equal(cv_result$`Lower CI`, 0.7103334, tolerance=1e-3)
+  expect_equal(cv_result$`Upper CI`, 1, tolerance=1e-3)
   expect_equal(cv_result$Kappa, 0.6575342, tolerance=1e-3)
   expect_equal(cv_result$Sensitivity, 0.833, tolerance=1e-3)
   expect_equal(cv_result$Specificity, 0.833, tolerance=1e-3)
@@ -123,9 +123,9 @@ test_that("binomial models with cross_validate_single_fn()",{
                                         model_specifics_update_fn = basics_update_model_specifics,
                                         fold_cols =".folds")
 
-  expect_equal(cv_result$AUC, 0.7638889, tolerance=1e-3)
-  expect_equal(cv_result$`Lower CI`, 0.585, tolerance=1e-3)
-  expect_equal(cv_result$`Upper CI`, 0.942, tolerance=1e-3)
+  expect_equal(cv_result$AUC, 0.7615741, tolerance=1e-3)
+  expect_equal(cv_result$`Lower CI`, 0.5851154, tolerance=1e-3)
+  expect_equal(cv_result$`Upper CI`, 0.9380328, tolerance=1e-3)
   expect_equal(cv_result$Kappa, 0.493, tolerance=1e-3)
   expect_equal(cv_result$Sensitivity, 0.583, tolerance=1e-3)
   expect_equal(cv_result$Specificity, 0.889, tolerance=1e-3)

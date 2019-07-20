@@ -147,7 +147,7 @@ test_that("interchangeable predictors are properly combined with combine_predict
   fx <- list("a",list("b","c"),"d")
 
   formulas_3 <- combine_predictors(dep, fx, random_effects = rfx, max_interaction_size = 2)
-  expect_equal(formulas_3, c("y ~ a + (1|e)", "y ~ b + (1|e)", "y ~ c + (1|e)", "y ~ d + (1|e)",
+  expect_equal(setdiff(formulas_3, c("y ~ a + (1|e)", "y ~ b + (1|e)", "y ~ c + (1|e)", "y ~ d + (1|e)",
                              "y ~ a * b + (1|e)", "y ~ a * c + (1|e)", "y ~ a * d + (1|e)",
                              "y ~ a + b + (1|e)", "y ~ a + c + (1|e)", "y ~ a + d + (1|e)",
                              "y ~ b * d + (1|e)", "y ~ b + d + (1|e)", "y ~ c * d + (1|e)",
@@ -157,7 +157,18 @@ test_that("interchangeable predictors are properly combined with combine_predict
                              "y ~ a * b + a * d + (1|e)", "y ~ a * b + b * d + (1|e)",
                              "y ~ a * c + a * d + (1|e)","y ~ a * c + c * d + (1|e)",
                              "y ~ a * d + b * d + (1|e)", "y ~ a * d + c * d + (1|e)",
-                             "y ~ a * b + a * d + b * d + (1|e)","y ~ a * c + a * d + c * d + (1|e)"))
+                             "y ~ a * b + a * d + b * d + (1|e)","y ~ a * c + a * d + c * d + (1|e)")), character())
+  expect_equal(sort(formulas_3), sort(c("y ~ a + (1|e)", "y ~ b + (1|e)", "y ~ c + (1|e)", "y ~ d + (1|e)",
+                             "y ~ a * b + (1|e)", "y ~ a * c + (1|e)", "y ~ a * d + (1|e)",
+                             "y ~ a + b + (1|e)", "y ~ a + c + (1|e)", "y ~ a + d + (1|e)",
+                             "y ~ b * d + (1|e)", "y ~ b + d + (1|e)", "y ~ c * d + (1|e)",
+                             "y ~ c + d + (1|e)", "y ~ a * b + d + (1|e)", "y ~ a * c + d + (1|e)",
+                             "y ~ a * d + b + (1|e)", "y ~ a * d + c + (1|e)", "y ~ a + b * d + (1|e)",
+                             "y ~ a + b + d + (1|e)", "y ~ a + c * d + (1|e)", "y ~ a + c + d + (1|e)",
+                             "y ~ a * b + a * d + (1|e)", "y ~ a * b + b * d + (1|e)",
+                             "y ~ a * c + a * d + (1|e)","y ~ a * c + c * d + (1|e)",
+                             "y ~ a * d + b * d + (1|e)", "y ~ a * d + c * d + (1|e)",
+                             "y ~ a * b + a * d + b * d + (1|e)","y ~ a * c + a * d + c * d + (1|e)")))
 
 
   # formulas_4 <- combine_predictors(dep, fx, random_effects = rfx, max_interaction_size = NULL)

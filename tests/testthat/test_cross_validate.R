@@ -278,8 +278,7 @@ test_that("binomial models work with control specified in cross_validate()",{
                                 link = NULL,
                                 control = lme4::glmerControl(optimizer="bobyqa",
                                                              optCtrl=list(maxfun=100))))
-  expect_equal(cv_messages$`Singular Fit Messages`,2)
-
+  expect_equal(cv_messages$`Singular Fit Messages`, 2)
 
 
 })

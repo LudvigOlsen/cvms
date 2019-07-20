@@ -1,6 +1,6 @@
 Package: cvms
 Title: Cross-Validation for Model Selection
-Version: 0.1.0.9000
+Version: 0.1.1
 Authors@R: c(
     person("Ludvig Renbo", "Olsen", email = "r-pkgs@ludvigolsen.dk", role = c("aut", "cre")),
     person("Benjamin Hugh", "Zachariae", role="aut")
@@ -36,7 +36,7 @@ Imports:
     rlang
 RoxygenNote: 6.1.1
 Suggests: knitr,
-    groupdata2 (>= 1.1),
+    groupdata2 (>= 1.1.1),
     e1071,
     rmarkdown,
     testthat,

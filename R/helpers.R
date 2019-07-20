@@ -191,10 +191,11 @@ create_fold_and_fold_column_map <- function(data, fold_info_cols){
     dplyr::distinct()
 }
 
-# Extracts the major and minor version numbers. E.g. 3.5.
-# TODO, this won't work if the minor is a two-digit number
+# Extracts the major and minor version numbers.
 check_R_version <- function(){
-  as.numeric(substring(getRversion(), 1, 3))
+  major <- as.integer(R.Version()$major)
+  minor <- as.numeric(strsplit(R.Version()$minor, ".", fixed = TRUE)[[1]][[1]])
+  list("major"=major, "minor"=minor)
 }
 
 # Skips testthat test, if the R version is below 3.6.0
@@ -203,18 +204,18 @@ check_R_version <- function(){
 # It is possible to fix this by using the old generator for
 # unit tests, but that would take a long time to convert,
 # and most likely the code works the same on v3.5
-skip_test_if_old_R_version <- function(min_R_version = 3.6){
-  if(check_R_version() < min_R_version){
+skip_test_if_old_R_version <- function(min_R_version = "3.6"){
+  if(check_R_version()[["minor"]] < strsplit(min_R_version, ".", fixed = TRUE)[[1]][[2]]){
     testthat::skip(message = paste0("Skipping test as R version is < ", min_R_version, "."))
   }
 }
 
 # Wrapper for setting seed with the sample generator for R versions <3.6
 # Used for unittests
-# Contributed by R. Mark Sharp
+# Partly contributed by R. Mark Sharp
 set_seed_for_R_compatibility <- function(seed = 1) {
-  version <- as.integer(R.Version()$major) + (as.numeric(R.Version()$minor) / 10.0)
-  if (version >= 3.6) {
+  version <- check_R_version()
+  if (version[["minor"]] >= 6) {
     args <- list(seed, sample.kind = "Rounding")
   } else {
     args <- list(seed)

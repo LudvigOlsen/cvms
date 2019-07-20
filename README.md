@@ -27,9 +27,6 @@ Main functions:
   - AUC calculation has changed. Now explicitly sets the direction in
     pROC::roc. (27th of May 2019)
 
-  - Unit tests have been updated for the new random sampling generator
-    in R 3.6.0. They will NOT run on previous versions of R.
-
   - Argument “positive” now defaults to 2. If a dependent variable has
     the values 0 and 1, 1 is now the default positive class, as that’s
     the second largest values. If the dependent variable is a character,

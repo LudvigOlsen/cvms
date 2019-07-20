@@ -1,3 +1,5 @@
+# cvms 0.1.1.9000
+
 # cvms 0.1.1
 
 * Unit tests have been made compatible with R v. 3.5

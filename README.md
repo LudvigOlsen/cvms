@@ -8,6 +8,8 @@ downloads](https://cranlogs.r-pkg.org/badges/cvms)](https://cran.r-project.org/p
 version](https://img.shields.io/badge/R%3E%3D-3.5-6666ff.svg)](https://cran.r-project.org/)
 [![Travis build
 status](https://travis-ci.org/LudvigOlsen/cvms.svg?branch=master)](https://travis-ci.org/LudvigOlsen/cvms)
+[![Codecov test
+coverage](https://codecov.io/gh/ludvigolsen/cvms/branch/master/graph/badge.svg)](https://codecov.io/gh/ludvigolsen/cvms?branch=master)
 
 # cvms
 
@@ -37,7 +39,7 @@ Main functions:
 
   - Argument “positive” now defaults to 2. If a dependent variable has
     the values 0 and 1, 1 is now the default positive class, as that’s
-    the second largest values. If the dependent variable is a character,
+    the second smallest value. If the dependent variable is a character,
     it’s in alphabetical order.
 
   - Results now contain a count of singular fit messages. See

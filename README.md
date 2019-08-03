@@ -24,13 +24,13 @@ Contact at: <r-pkgs@ludvigolsen.dk>
 
 Main functions:
 
-  - cross\_validate()  
-  - validate()  
-  - baseline()  
-  - combine\_predictors()  
-  - cv\_plot()  
-  - select\_metrics()  
-  - reconstruct\_formulas()
+  - `cross_validate()`  
+  - `validate()`  
+  - `baseline()`  
+  - `combine_predictors()`  
+  - `cv_plot()`  
+  - `select_metrics()`  
+  - `reconstruct_formulas()`
 
 ## Important News
 
@@ -82,7 +82,7 @@ data <- participant.scores
 ## Fold data
 
 Create a grouping factor for subsetting of folds using
-groupdata2::fold(). Order the dataset by the folds.
+`groupdata2::fold()`. Order the dataset by the folds.
 
 ``` r
 # Set seed for reproducibility
@@ -328,7 +328,7 @@ CV4
 ## Repeated cross-validation
 
 Let’s first add some extra fold columns. We will use the num\_fold\_cols
-argument to add 3 unique fold columns. We tell fold() to keep the
+argument to add 3 unique fold columns. We tell `fold()` to keep the
 existing fold column and simply add three extra columns. We could also
 choose to remove the existing fold column, if for instance we were
 changing the number of folds (k). Note, that the original fold column
@@ -559,7 +559,7 @@ cv_plot(CV2, type = "ROC") +
 
 Instead of manually typing all possible model formulas for a set of
 fixed effects (including the possible interactions),
-combine\_predictors() can do it for you (with some constraints).
+`combine_predictors()` can do it for you (with some constraints).
 
 When including interactions, \>200k formulas have been precomputed for
 up to 8 fixed effects, with a maximum interaction size of 3, and a

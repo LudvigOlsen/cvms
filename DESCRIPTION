@@ -42,5 +42,6 @@ Suggests: knitr,
     testthat,
     AUC,
     furrr,
-    ModelMetrics
+    ModelMetrics,
+    covr
 VignetteBuilder: knitr

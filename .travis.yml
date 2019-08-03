@@ -8,3 +8,7 @@ r:
   - oldrel
   - release
   - devel
+
+# CodeCov
+after_success:
+  - Rscript -e 'library(covr); codecov()'

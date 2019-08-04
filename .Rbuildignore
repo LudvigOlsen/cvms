@@ -8,3 +8,4 @@
 ^data-raw$
 ^CRAN-RELEASE$
 ^\.travis\.yml$
+^appveyor\.yml$

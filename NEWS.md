@@ -1,5 +1,7 @@
 # cvms 0.1.1.9000
 
+* Bug fix: p-values are correctly added to the nested coefficients tibble. Adds tests of this table as well.
+
 # cvms 0.1.1
 
 * Unit tests have been made compatible with R v. 3.5

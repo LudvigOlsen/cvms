@@ -109,8 +109,10 @@ nest_results <- function(results){
 nest_models <- function(models){
   # Make tidied models into a tibble
   iter_models <- tibble::as_tibble(models)
+  if ("p.value" %ni% colnames(iter_models)){
+    iter_models[["p.value"]] <- NA
+  }
   iter_models <- iter_models %>%
-    mutate(p.value = ifelse(exists('p.value', where = iter_models), .data$p.value, NA)) %>%
     tidyr::nest() %>%
     dplyr::rename(Coefficients = data)
 

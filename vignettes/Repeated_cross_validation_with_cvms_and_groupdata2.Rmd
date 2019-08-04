@@ -98,9 +98,9 @@ CV <- cross_validate(data, "circumference ~ age",
 # Show results
 CV
 
-# The binomial output now has a nested 'Results' tibble
+# The output now has a nested 'Results' tibble
 # Let's see a subset of the columns
-CV$Results[[1]] %>% select(1:9) %>%  kable()
+CV$Results[[1]] %>% select(1:9) %>% head(10) %>%  kable()
 ```
 
 
@@ -113,19 +113,16 @@ CV_coeffs %>% head(10) %>% kable()
 
 ```{r}
 # Coefficient estimate
-ggplot(CV_coeffs, aes(x=term, y=estimate)) +
-  geom_point() +
+ggplot(CV_coeffs, aes(x=term, y=estimate, color=term)) +
+  geom_jitter()  +
   theme_light()
 
 # P-values
+CV_coeffs$p.value <- ifelse(CV_coeffs$p.value < 0.001, 0.001, CV_coeffs$p.value)
+CV_coeffs$p.value <- ifelse(CV_coeffs$p.value > 0.2, 0.2, CV_coeffs$p.value)
 ggplot(CV_coeffs, aes(x=term, y=p.value, color=term)) +
-  geom_point() +
-  scale_y_continuous(breaks = c(0,0.001,0.01,0.05,0.1,0.5,1.0)) + 
+  geom_jitter() +
+  scale_y_log10(breaks = c(0,0.001,0.01,0.05,0.1,0.2),
+                labels = c("0","<=0.001","0.01","0.05","0.1",">=0.2")) +
   theme_light()
 ```
-
-```{r}
-dftest <- data %>% filter(.folds_1 != 4)
-summary(lm("circumference ~ age", data=dftest))
-```
-

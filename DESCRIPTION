@@ -5,7 +5,7 @@ Authors@R: c(
     person("Ludvig Renbo", "Olsen", email = "r-pkgs@ludvigolsen.dk", role = c("aut", "cre")),
     person("Benjamin Hugh", "Zachariae", role="aut")
     )
-Description: Run cross-validation of one or multiple regression models and get relevant evaluation 
+Description: Cross-validate one or multiple regression models and get relevant evaluation 
   metrics in a tidy format. Validate the best model on a test set and compare it to a baseline evaluation.
   Currently supports Gaussian and binomial regression.
   Described in chp. 5 of Jeyaraman, B. P., Olsen, L. R., & Wambugu M. (2019, ISBN: 9781838550134).

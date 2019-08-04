@@ -20,6 +20,11 @@ rvers <- substring(dep, 7, nchar(dep)-1)
 # rm <- regmatches(dep, m)
 # rvers <- gsub('.*(\\\\d+.\\\\d+.\\\\d+).*', '\\\\1', dep)
 ```
+# cvms
+**Cross-Validation for Model Selection**  
+**Authors:** [Ludvig R. Olsen](http://ludvigolsen.dk/) ( r-pkgs@ludvigolsen.dk ), Hugh Benjamin Zachariae <br/>
+**License:** [MIT](https://opensource.org/licenses/MIT) <br/>
+**Started:** October 2016 
 
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/cvms)](https://cran.r-project.org/package=cvms)
 [![metacran downloads](https://cranlogs.r-pkg.org/badges/cvms)](https://cran.r-project.org/package=cvms)
@@ -27,16 +32,9 @@ rvers <- substring(dep, 7, nchar(dep)-1)
 [![Travis build status](https://travis-ci.org/LudvigOlsen/cvms.svg?branch=master)](https://travis-ci.org/LudvigOlsen/cvms)
 [![Codecov test coverage](https://codecov.io/gh/ludvigolsen/cvms/branch/master/graph/badge.svg)](https://codecov.io/gh/ludvigolsen/cvms?branch=master)
 
-# cvms
-**Cross-Validation for Model Selection**  
+## Overview
 
-R package: Cross-validating gaussian and binomial regression models.  
-
-By Ludvig R. Olsen and Benjamin Zachariae.  
-Started in Oct. 2016 
-
-Contact at:
-r-pkgs@ludvigolsen.dk
+R package: Cross-validate one or multiple regression models and get relevant evaluation metrics in a tidy format. Validate the best model on a test set and compare it to a baseline evaluation. Currently supports Gaussian and binomial regression.
 
 Main functions:  
 
@@ -50,11 +48,11 @@ Main functions:
 
 ## Important News
 
-* AUC calculation has changed. Now explicitly sets the direction in pROC::roc. (27th of May 2019)
+* AUC calculation has changed. Now explicitly sets the direction in `pROC::roc`. (27th of May 2019)
 
 * Argument "positive" now defaults to 2. If a dependent variable has the values 0 and 1, 1 is now the default positive class, as that's the second smallest value. If the dependent variable is a character, it's in alphabetical order.
 
-* Results now contain a count of singular fit messages. See ?lme4::isSingular for more information.
+* Results now contain a count of singular fit messages. See `?lme4::isSingular` for more information.
 
 ## Installation  
 
@@ -83,7 +81,7 @@ library(ggplot2)
 
 ## Load data
 
-The dataset participant.scores comes with cvms.
+The dataset `participant.scores` comes with cvms.
 
 ```{r}
 data <- participant.scores

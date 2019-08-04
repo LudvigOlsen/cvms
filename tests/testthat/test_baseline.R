@@ -199,7 +199,7 @@ test_that("baseline() throws expected errors",{
                         n = 10,
                         family = "binomial",
                         cutoff = NULL),
-               "'cutoff' must be numeric.", fixed=T)
+               "'cutoff' was NULL. Must be numeric between 0.0 and 1.0.", fixed=T)
   expect_error(baseline(test_data = participant.scores,
                         dependent_col = "diagnosis",
                         n = 10,
@@ -213,7 +213,7 @@ test_that("baseline() throws expected errors",{
                         n = 10,
                         family = "binomial",
                         positive = NULL),
-               "'positive' must be either a whole number or character.", fixed=T)
+               "'positive' was NULL. Must be either whole number or character.", fixed=T)
   expect_error(baseline(test_data = participant.scores,
                         dependent_col = "diagnosis",
                         n = 10,

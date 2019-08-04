@@ -6,6 +6,9 @@ create_binomial_baseline_evaluations <- function(test_data,
                                                  parallel_ = FALSE){
 
   # Check positive
+  if (is.null(positive)){
+    stop("'positive' was NULL. Must be either whole number or character.")
+  }
   if (length(positive) != 1){
     stop("'positive' must have length 1.")
   }
@@ -17,6 +20,9 @@ create_binomial_baseline_evaluations <- function(test_data,
   }
 
   # Check cutoff
+  if (is.null(cutoff)){
+    stop("'cutoff' was NULL. Must be numeric between 0.0 and 1.0.")
+  }
   if (length(cutoff) != 1){
     stop("'cutoff' must have length 1.")
   }

@@ -171,5 +171,79 @@ test_that("gaussian evaluation are correct in baseline()",{
 })
 
 
-# Create baseline test where both classes are 50% 50% , 100% 0%, 0% 100%, 30/70 etc.
+# TODO Create baseline test where both classes are 50% 50% , 100% 0%, 0% 100%, 30/70 etc.
 # Do we get what we expect?
+
+test_that("baseline() throws expected errors",{
+
+  # Binomial
+
+  set_seed_for_R_compatibility(1)
+
+  # cutoff
+
+  expect_error(baseline(test_data = participant.scores,
+                        dependent_col = "diagnosis",
+                        n = 10,
+                        family = "binomial",
+                        cutoff = 1.1),
+               "'cutoff' must be between 0.0 and 1.0.", fixed=T)
+  expect_error(baseline(test_data = participant.scores,
+                        dependent_col = "diagnosis",
+                        n = 10,
+                        family = "binomial",
+                        cutoff = NA),
+               "'cutoff' must be numeric.", fixed=T)
+  expect_error(baseline(test_data = participant.scores,
+                        dependent_col = "diagnosis",
+                        n = 10,
+                        family = "binomial",
+                        cutoff = NULL),
+               "'cutoff' must be numeric.", fixed=T)
+  expect_error(baseline(test_data = participant.scores,
+                        dependent_col = "diagnosis",
+                        n = 10,
+                        family = "binomial",
+                        cutoff = c(0,1)),
+               "'cutoff' must have length 1.", fixed=T)
+
+  # positive
+  expect_error(baseline(test_data = participant.scores,
+                        dependent_col = "diagnosis",
+                        n = 10,
+                        family = "binomial",
+                        positive = NULL),
+               "'positive' must be either a whole number or character.", fixed=T)
+  expect_error(baseline(test_data = participant.scores,
+                        dependent_col = "diagnosis",
+                        n = 10,
+                        family = "binomial",
+                        positive = NA),
+               "'positive' must be either a whole number or character.", fixed=T)
+  expect_error(baseline(test_data = participant.scores,
+                        dependent_col = "diagnosis",
+                        n = 10,
+                        family = "binomial",
+                        positive = 3),
+               "When 'positive' is numeric, it must be either 0 or 1.", fixed=T)
+  expect_error(baseline(test_data = participant.scores,
+                        dependent_col = "diagnosis",
+                        n = 10,
+                        family = "binomial",
+                        positive = -1),
+               "When 'positive' is numeric, it must be either 0 or 1.", fixed=T)
+  expect_error(baseline(test_data = participant.scores,
+                        dependent_col = "diagnosis",
+                        n = 10,
+                        family = "binomial",
+                        positive = c("0","1")),
+               "'positive' must have length 1.", fixed=T)
+  expect_error(baseline(test_data = participant.scores,
+                        dependent_col = "diagnosis",
+                        n = 10,
+                        family = "binomial",
+                        positive = c(0,1)),
+               "'positive' must have length 1.", fixed=T)
+
+
+})

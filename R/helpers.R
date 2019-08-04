@@ -224,3 +224,73 @@ set_seed_for_R_compatibility <- function(seed = 1) {
   }
   suppressWarnings(do.call(set.seed, args))
 }
+
+# Numeric Argument Checks
+
+is_wholenumber_ <- function(n) {
+
+  # If n is a whole number
+  # .. return TRUE
+  # else
+  # .. return FALSE
+
+  return( floor(n) == n )
+}
+
+arg_is_wholenumber_ <- function(n){
+
+  # Checks if n is a whole number of either
+  # type integer or numeric
+  # Returns TRUE if yes, else FALSE
+
+  # If n is an integer, return TRUE
+  # else check if it is a numeric
+  # .. if yes, check if it is a whole number
+  # .... if yes, return TRUE
+  # .... if no, return FALSE
+  # .. if not a numeric
+  # .... return FALSE
+
+  if ( is.integer(n) ){
+
+    return(TRUE)
+
+  } else if ( is.numeric(n) ){
+
+    if ( is_wholenumber_(n) ){
+
+      return(TRUE)
+
+    } else {
+
+      return(FALSE)
+    }
+
+  } else {
+
+    return(FALSE)
+  }
+}
+
+arg_is_number_ <- function(n){
+
+  # Checks if n is either an integer or a numeric
+  # Returns TRUE if yes, FALSE if no
+
+  if ( is.integer(n) || is.numeric(n) ){
+
+    return(TRUE)
+
+  } else {
+
+    return(FALSE)
+
+  }
+
+}
+is_between_ <- function(x, a, b) {
+
+  # Checks if x is between a and b
+
+  x > a & x < b
+}

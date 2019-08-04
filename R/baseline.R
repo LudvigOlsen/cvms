@@ -214,7 +214,8 @@
 baseline <- function(test_data,
                      dependent_col,
                      train_data = NULL,
-                     n=100, # how many times to randomly sample probabilities (bootstrapping?)
+                     n = 100,
+                     # how many times to randomly sample probabilities (bootstrapping?)
                      family = 'binomial',
                      # Binomial
                      positive = 2,
@@ -223,7 +224,8 @@ baseline <- function(test_data,
                      min_training_rows = 5,
                      min_training_rows_left_out = 3,
                      # Parallelization
-                     parallel = FALSE){
+                     parallel = FALSE) {
+
 
   if (family == "binomial"){
 
@@ -235,10 +237,11 @@ baseline <- function(test_data,
       create_binomial_baseline_evaluations(
         test_data = test_data,
         dependent_col = dependent_col,
-        reps=n,
+        reps = n,
         positive = positive,
         cutoff = cutoff,
-        parallel_ = parallel)
+        parallel_ = parallel
+      )
     )
 
   } else if (family == "gaussian"){

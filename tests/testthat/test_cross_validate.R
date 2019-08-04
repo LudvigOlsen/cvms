@@ -410,6 +410,45 @@ test_that("binomial models work with repeated cross_validate()",{
   expect_equal(nrow(CVbinomlist$ROC[[1]]),60)
   expect_equal(colnames(CVbinomlist$Coefficients[[1]]),
                c("term","estimate","std.error","statistic","p.value","Fold","Fold Column"))
+  expect_equal(colnames(CVbinomlist$Coefficients[[2]]),
+               c("term","estimate","std.error","statistic","p.value","Fold","Fold Column"))
+  expect_equal(CVbinomlist$Coefficients[[1]]$p.value,
+               c(0.01294663,0.01931905,0.04833047,0.05703608,0.01900735,
+                 0.03169528,0.04338194,0.05071058,0.01639887,0.02528367,
+                 0.04118387,0.04851447,0.01412963,0.02178988,0.04010255,0.04752187))
+  expect_equal(CVbinomlist$Coefficients[[2]]$p.value,
+               c(0.62478703,0.84891972,0.18479764,0.14117487,0.09443436,
+                 0.12527121,0.13628239,0.10142803,0.66873537,0.89953532,0.21621108,
+                 0.18124974,0.67252682,0.45631539,0.87784992,0.77268412))
+  expect_equal(CVbinomlist$Coefficients[[1]]$estimate,
+               c(5.26664582,-0.12300571,2.56877552,-0.05531371,3.03166220,
+                 -0.06342121,2.80320088,-0.06211859,3.61808397,-0.07362534,
+                 2.70911710,-0.06030082,4.53407887,-0.10779184,2.62880059,-0.05770449))
+  expect_equal(CVbinomlist$Coefficients[[2]]$estimate,
+               c(0.818615019,-0.010725093,-2.665418817,0.106774730,4.483382847,
+                 -0.141769999,-3.054394678,0.116528272,0.714444780,-0.007070299,
+                 -3.594942567,0.123832276,-0.701387195,0.044667112,-0.340316825,
+                 0.024469156))
+  expect_equal(CVbinomlist$Coefficients[[1]]$std.error,
+               c(2.11917509,0.05258190,1.30100740,0.02906606,1.29260651,0.02952251,
+                 1.38771363,0.03179176,1.50758829,0.03291193,1.32690970,0.03056558,
+                 1.84766496,0.04698838,1.28066063,0.02911987))
+  expect_equal(CVbinomlist$Coefficients[[2]]$std.error,
+               c(1.67379503,0.05630060,2.00992729,0.07256528,2.68071734,0.09247766,
+                 2.05023360,0.07114190,1.66971492,0.05600309,2.90696307,0.09262526,
+                 1.65937069,0.05996167,2.21422931,0.08470771))
+  expect_equal(CVbinomlist$Coefficients[[1]]$statistic,
+               c(2.485234,-2.339317,1.974451,-1.903034,2.345387,-2.148233,
+                 2.020014,-1.953921,2.399915,-2.237041,2.041674,-1.972834,
+                 2.453951,-2.294011,2.052691,-1.981619), tolerance = 1e-6)
+  expect_equal(CVbinomlist$Coefficients[[2]]$statistic,
+               c(0.4890772,-0.1904970,-1.3261270,1.4714300,1.6724564,-1.5330188,
+                 -1.4897789,1.6379696,0.4278843,-0.1262484,-1.2366661,1.3369170,
+                 -0.4226826,0.7449278,-0.1536954,0.2888657), tolerance = 1e-6)
+  expect_equal(CVbinomlist$Coefficients[[1]]$Fold, c(1,1,2,2,3,3,4,4,1,1,2,2,3,3,4,4))
+  expect_equal(CVbinomlist$Coefficients[[2]]$Fold, c(1,1,2,2,3,3,4,4,1,1,2,2,3,3,4,4))
+  expect_equal(CVbinomlist$Coefficients[[1]]$`Fold Column`, rep(c(".folds_1",".folds_2"), each=8))
+  expect_equal(CVbinomlist$Coefficients[[2]]$`Fold Column`, rep(c(".folds_1",".folds_2"), each=8))
 
   expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$`Fold Column`, rep(c(".folds_1",".folds_2"), each=4))
   expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$Prediction, as.character(c(0,1,0,1,0,1,0,1)))
@@ -585,10 +624,46 @@ test_that("gaussian models work with repeated cross_validate()",{
                c("Fold Column","Fold","RMSE","MAE","r2m","r2c","AIC","AICc","BIC"))
   expect_equal(CVgausslist$Results[[1]]$`Fold Column`,
                rep(c(".folds_1",".folds_2"), each=4))
-  expect_equal(colnames(CVgausslist$Coefficients[[1]]),
-               c("term","estimate","std.error","statistic","p.value","Fold","Fold Column"))
   expect_equal(colnames(CVgausslist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction"))
   expect_equal(unique(CVgausslist$Predictions[[1]]$`Fold Column`), c(".folds_1",".folds_2"))
+  expect_equal(colnames(CVgausslist$Coefficients[[1]]),
+               c("term","estimate","std.error","statistic","p.value","Fold","Fold Column"))
+  expect_equal(CVgausslist$Coefficients[[1]]$p.value,
+               c(8.230130e-09,1.290208e-02,1.346678e-08,1.073278e-02,2.434650e-09,
+                 1.980414e-03,9.363412e-08,4.950473e-02,6.908574e-09,1.352584e-02,
+                 9.209672e-08,3.018268e-02,1.700920e-08,1.994213e-02,2.078447e-09,1.105365e-03))
+  expect_equal(CVgausslist$Coefficients[[2]]$p.value,
+               c(0.009808606,0.637825565,0.258490506,0.636485814,0.010557346,
+                 0.646231138,0.085798324,0.557360724,0.151732090,0.638915931,
+                 0.093280236,0.851553515,0.017961529,0.953518671,0.021408386,0.658577591))
+  expect_equal(CVgausslist$Coefficients[[1]]$estimate,
+               c(49.55556,-18.88889,53.33333,-21.16667,51.00000,-23.53333,
+                 49.77778,-16.61111,49.55556,-18.55556,49.77778,-18.52778,
+                 51.00000,-18.80000,53.33333,-25.58333), tolerance = 1e-5)
+  expect_equal(CVgausslist$Coefficients[[2]]$estimate,
+               c(45.14324082,-0.25604297,29.32953312,0.42100977,43.24298347,
+                 -0.25509419,30.55040872,0.33242507,28.88530466,0.34729296,
+                 35.47615039,0.12093154,40.14314003,-0.03262612,46.87397730,
+                 -0.27329111), tolerance = 1e-5)
+  expect_equal(CVgausslist$Coefficients[[1]]$std.error,
+               c(5.518360,6.980235,5.656682,7.483087,5.301864,6.706387,
+                 5.984982,7.917387,5.463479,6.910816,5.978424,7.908712,
+                 5.922223,7.491086,5.036852,6.663130), tolerance = 1e-6)
+  expect_equal(CVgausslist$Coefficients[[2]]$std.error,
+               c(15.9672206,0.5363914,25.1784502,0.8765252,15.4721646,
+                 0.5481382,16.8586576,0.5565485,19.4513547,0.7299321,
+                 20.0765470,0.6374769,15.6973841,0.5533890,18.6950224,
+                 0.6087937), tolerance = 1e-6)
+  expect_equal(CVgausslist$Coefficients[[1]]$statistic,
+               c(8.980123,-2.706053,9.428378,-2.828601,9.619258,
+                 -3.509093,8.317114,-2.098055,9.070329,-2.685002,
+                 8.326238,-2.342705,8.611631,-2.509650,10.588623,
+                 -3.839537), tolerance = 1e-6)
+  expect_equal(CVgausslist$Coefficients[[2]]$statistic,
+               c(2.82724476,-0.47734352,1.16486650,0.48031677,
+                 2.79488905,-0.46538302,1.81214955,0.59729753,
+                 1.48500220,0.47578805,1.76704442,0.18970340,
+                 2.55731400,-0.05895694,2.50729719,-0.44890594), tolerance = 1e-6)
 
 })
 

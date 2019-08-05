@@ -4,11 +4,20 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #' @importFrom plyr ldply
 #' @importFrom dplyr mutate %>%
 #' @importFrom tidyr separate
-basics_cross_validate_list = function(data, model_list, fold_cols = '.folds', family='gaussian',
-                               link = NULL, control = NULL, REML=FALSE,
-                               cutoff=0.5, positive=2, rm_nc = FALSE,
-                               model_verbose=FALSE, parallel_ = FALSE,
-                               parallelize = "models"){
+basics_cross_validate_list = function(data,
+                                      model_list,
+                                      fold_cols = '.folds',
+                                      family = 'gaussian',
+                                      link = NULL,
+                                      control = NULL,
+                                      REML = FALSE,
+                                      cutoff = 0.5,
+                                      positive = 2,
+                                      rm_nc = FALSE,
+                                      model_verbose = FALSE,
+                                      parallel_ = FALSE,
+                                      parallelize = "models") {
+
 
   # If link is NULL we pass it
   # the default link function for the family
@@ -17,11 +26,10 @@ basics_cross_validate_list = function(data, model_list, fold_cols = '.folds', fa
   # Set errors if input variables aren't what we expect / can handle
   # WORK ON THIS SECTION!
   stopifnot(is.data.frame(data),
-            is.character(positive) || positive %in% c(1,2),
-            family %in% c("gaussian", "binomial")
+            is.character(positive) || positive %in% c(1,2)
   )
 
-  # Check that the folds column(s) is/are factor(s)
+  # Check that the fold column(s) is/are factor(s)
   if (length(fold_cols) == 1){
     stopifnot(is.factor(data[[fold_cols]]))
   } else {
@@ -35,18 +43,19 @@ basics_cross_validate_list = function(data, model_list, fold_cols = '.folds', fa
     evaluation_type = "linear_regression"
   } else if (family == "binomial"){
     evaluation_type = "binomial"
-  } else {stop("Only two families allowed currently!")}
+  } else {stop("Only 'gaussian' and 'binomial' families are currently allowed.")}
 
   # Create model_specifics object
   # Update to get default values when an argument was not specified
   model_specifics <- list(
-    model_formula="",
-    family=family,
-    REML=REML,
-    link=link,
+    model_formula = "",
+    family = family,
+    REML = REML,
+    link = link,
     cutoff = cutoff,
     positive = positive,
-    model_verbose = model_verbose) %>%
+    model_verbose = model_verbose
+  ) %>%
     basics_update_model_specifics()
 
   # cross_validate() all the models using ldply()

@@ -387,3 +387,74 @@ test_that("Singular fit messages counted in validate()", {
 
 })
 
+test_that("the expected errors are thrown by validate()",{
+
+
+  # Load data and fold it
+  set_seed_for_R_compatibility(1)
+  dat <- participant.scores
+
+  expect_error(validate(dat, dat, models = c("diagnosis~score","diagnosis~age"),
+                       family = 'fdsfs',
+                       REML = FALSE, model_verbose=FALSE,
+                       positive=1),
+               "Only 'gaussian' and 'binomial' families are currently allowed.", fixed=TRUE)
+
+})
+
+test_that("model_verbose reports the correct model functions in validate()",{
+
+
+  # Load data and fold it
+  set_seed_for_R_compatibility(1)
+  dat <- groupdata2::partition(participant.scores, p = .75,
+                          cat_col = 'diagnosis',
+                          id_col = 'participant')
+
+  # Test the list of verbose messages
+  # glm()
+  expect_equal(evaluate_promise(validate(dat[[1]], dat[[2]],
+                                         models = c("diagnosis~score"),
+                                         family = 'binomial',
+                                         REML = FALSE, model_verbose=TRUE,
+                                         positive=1))$messages,
+               as.character(c(
+                 "Updated model_specifics to { model_formula = , family = binomial, link = logit, control = (c(\"bobyqa\", \"Nelder_Mead\"), TRUE, FALSE, FALSE, 1e-05, 1e-07, TRUE, TRUE, list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), list(check.conv.grad = list(action = \"warning\", tol = 0.001, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), list()), REML = FALSE, positive = 1, cutoff = 0.5, model_verbose = TRUE }. Note: If incorrect, remember to name arguments in model_specific.\n",
+                 "Model function: Used glm()\n"
+               )))
+
+  # glmer
+  expect_equal(evaluate_promise(validate(dat[[1]], dat[[2]],
+                                         models = c("diagnosis~score+(1|session)"),
+                                         family = 'binomial',
+                                         REML = FALSE, model_verbose = TRUE,
+                                         positive = 1))$messages,
+               as.character(c(
+                 "Updated model_specifics to { model_formula = , family = binomial, link = logit, control = (c(\"bobyqa\", \"Nelder_Mead\"), TRUE, FALSE, FALSE, 1e-05, 1e-07, TRUE, TRUE, list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), list(check.conv.grad = list(action = \"warning\", tol = 0.001, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), list()), REML = FALSE, positive = 1, cutoff = 0.5, model_verbose = TRUE }. Note: If incorrect, remember to name arguments in model_specific.\n",
+                 "Model function: Used lme4::glmer()\n"
+               )))
+
+  # lm
+  expect_equal(evaluate_promise(validate(dat[[1]], dat[[2]],
+                                         models = c("score~diagnosis"),
+                                         family='gaussian',
+                                         REML = FALSE, model_verbose=TRUE,
+                                         positive=1))$messages,
+               as.character(c(
+                 "Updated model_specifics to { model_formula = , family = gaussian, link = identity, control = (nloptwrap, TRUE, 1e-05, TRUE, FALSE, list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\"), list(check.conv.grad = list(action = \"warning\", tol = 0.002, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), list()), REML = FALSE, positive = 1, cutoff = 0.5, model_verbose = TRUE }. Note: If incorrect, remember to name arguments in model_specific.\n",
+                 "Model function: Used lm()\n"
+               )))
+
+  # glmer
+  expect_equal(evaluate_promise(validate(dat[[1]], dat[[2]],
+                                         models = c("score~diagnosis+(1|session)"),
+                                         family = 'gaussian',
+                                         REML = FALSE, model_verbose = TRUE,
+                                         positive = 1))$messages,
+               as.character(c(
+                 "Updated model_specifics to { model_formula = , family = gaussian, link = identity, control = (nloptwrap, TRUE, 1e-05, TRUE, FALSE, list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\"), list(check.conv.grad = list(action = \"warning\", tol = 0.002, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), list()), REML = FALSE, positive = 1, cutoff = 0.5, model_verbose = TRUE }. Note: If incorrect, remember to name arguments in model_specific.\n",
+                 "Model function: Used lme4::lmer()\n"
+               )))
+
+
+})

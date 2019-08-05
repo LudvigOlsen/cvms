@@ -247,7 +247,7 @@ baseline <- function(test_data,
   } else if (family == "gaussian"){
 
     if (is.null(train_data)){
-      stop("train_data must be passed for gaussian baseline.")
+      stop("train_data must be passed for Gaussian baseline.")
     }
 
     return(

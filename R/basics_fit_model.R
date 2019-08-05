@@ -14,9 +14,9 @@ basics_fit_model <- function(model_specifics, train_set){
 
     if (model_verbose == TRUE){
       if (is.null(link) || link == 'identity'){
-        print('Used lm()')
+        message('Model function: Used lm()')
       } else {
-        print('Used glm()')
+        message('Model function: Used glm()')
       }
     }
 
@@ -33,9 +33,9 @@ basics_fit_model <- function(model_specifics, train_set){
 
     if (model_verbose == TRUE){
       if (is.null(link) || link == 'identity'){
-        print('Used lme4::lmer()')
+        message('Model function: Used lme4::lmer()')
       } else {
-        print('Used lme4::glmer()')
+        message('Model function: Used lme4::glmer()')
       }
     }
 
@@ -51,7 +51,7 @@ basics_fit_model <- function(model_specifics, train_set){
   } else if (model_type == 'glm'){
 
     if (model_verbose == TRUE){
-      print('Used glm()')}
+      message('Model function: Used glm()')}
 
     # Fit the model using glm()
     # Return this model to model_temp
@@ -64,7 +64,7 @@ basics_fit_model <- function(model_specifics, train_set){
   } else if (model_type == 'glmer'){
 
     if (model_verbose == TRUE){
-      print('Used lme4::glmer()')}
+      message('Model function: Used lme4::glmer()')}
 
     # Fit the model using glmer()
     # Return this model to model_temp

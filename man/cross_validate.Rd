@@ -72,7 +72,7 @@ cross_validate(data, models, fold_cols = ".folds", family = "gaussian",
  Remember to register a parallel backend first.
  E.g. with \code{doParallel::registerDoParallel}.}
 
-\item{model_verbose}{Print name of used model function on each iteration. (Logical)}
+\item{model_verbose}{Message name of used model function on each iteration. (Logical)}
 }
 \value{
 Tbl (tibble) with results for each model.

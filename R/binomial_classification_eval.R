@@ -25,7 +25,7 @@ binomial_classification_eval <- function(data,
     # Find the levels in the categorical target variable
     cat_levels = levels_as_characters(data[[targets_col]])
 
-    if (length(cat_levels)>2){ stop("The target column must maximally contain 2 levels.") }
+    if (length(cat_levels) > 2){ stop("The target column must maximally contain 2 levels.") }
 
     # Create a column with the predicted class based on the chosen cutoff
     data[["predicted_classes"]] <- ifelse(data[[predictions_col]] < cutoff, cat_levels[1], cat_levels[2])
@@ -237,9 +237,9 @@ fit_confusion_matrix <- function(predicted_classes, targets, cat_levels, positiv
 
   # Try to use fit a confusion matrix with the predictions and targets
   conf_mat = tryCatch({
-    caret::confusionMatrix(factor(predicted_classes, levels=cat_levels),
-                           factor(targets, levels=cat_levels),
-                           positive=positive)
+    caret::confusionMatrix(factor(predicted_classes, levels = cat_levels),
+                           factor(targets, levels = cat_levels),
+                           positive = positive)
 
   }, error = function(e) {
     stop(paste0('Confusion matrix error: ',e))
@@ -250,15 +250,16 @@ fit_confusion_matrix <- function(predicted_classes, targets, cat_levels, positiv
 }
 
 # levels must be ordered such that the positive class is last c(neg, pos)
-fit_roc_curve <- function(predicted_probabilities, targets, levels=c(0,1), direction="<"){
+fit_roc_curve <- function(predicted_probabilities, targets, levels = c(0,1), direction = "<"){
 
   # Try to fit a ROC curve on the data
   roc_curve = tryCatch({
-    pROC::roc(response = targets,
-              predictor = predicted_probabilities,
-              direction=direction,
-              levels=levels)
-
+    pROC::roc(
+      response = targets,
+      predictor = predicted_probabilities,
+      direction = direction,
+      levels = levels
+    )
   }, error = function(e) {
     stop(paste0('Receiver Operator Characteristic (ROC) Curve error: ',e))
 
@@ -287,6 +288,5 @@ nest_confusion_matrices <- function(confusion_matrices, cat_levels=c("0","1"), f
                                                         paste0("Pos_",cat_levels[[2]]))) %>%
     tidyr::nest(1:6) %>%
     dplyr::rename(confusion_matrices = data)
-
 
 }

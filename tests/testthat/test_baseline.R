@@ -245,5 +245,36 @@ test_that("baseline() throws expected errors",{
                         positive = c(0,1)),
                "'positive' must have length 1.", fixed=T)
 
+  expect_message(baseline(train_data = participant.scores,
+                          test_data = participant.scores,
+                          dependent_col = "diagnosis",
+                          n = 2,
+                          family = "binomial"),
+                 "train_data was not used for binomial baseline.",
+                 fixed=T
+                 )
+  expect_error(baseline(test_data = participant.scores,
+                          dependent_col = "score",
+                          n = 10,
+                          family = "gaussian"),
+                 "train_data must be passed for Gaussian baseline.",
+                 fixed=T
+  )
 
+  set_seed_for_R_compatibility(1)
+  dat <- participant.scores
+  dat$diagnosis <- c(head(dat$diagnosis, 20),rep(2,10))
+  expect_error(baseline(test_data = dat,
+                          dependent_col = "diagnosis",
+                          n = 2,
+                          family = "binomial"),
+                 "The dependent column must maximally contain 2 levels. Did you specify the correct family?",
+                 fixed = T)
+  dat$diagnosis <- as.character(dat$diagnosis)
+  expect_error(baseline(test_data = dat,
+                          dependent_col = "diagnosis",
+                          n = 2,
+                          family = "binomial"),
+                 "The dependent column must maximally contain 2 levels.",
+                 fixed = T)
 })

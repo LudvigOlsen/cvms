@@ -242,3 +242,70 @@ test_that("fixed effect replacements works with combine_predictors()",{
 
 })
 
+test_that("the expected errors are thrown by combine_predictors()",{
+
+  expect_error(combine_predictors(dependent = "Price",
+                                  fixed_effects = c("Mileage", "Cylinder",
+                                                    "Doors", "Cruise"),
+                                  max_fixed_effects = 3,
+                                  max_interaction_size = NA,
+                                  max_effect_frequency = 1),
+               "max_interactions_size must be numeric scalar or NULL.", fixed=T)
+  expect_error(combine_predictors(dependent = "Price",
+                                  fixed_effects = c("Mileage", "Cylinder",
+                                                    "Doors", "Cruise"),
+                                  max_fixed_effects = 3,
+                                  max_interaction_size = 5,
+                                  max_effect_frequency = 1),
+               "max_interaction_size must be numeric between 0 and 3.", fixed=T)
+  expect_error(combine_predictors(dependent = "Price",
+                                  fixed_effects = c("Mileage", "Cylinder",
+                                                    "Doors", "Cruise"),
+                                  max_fixed_effects = 3,
+                                  max_interaction_size = -1,
+                                  max_effect_frequency = 1),
+               "max_interaction_size must be numeric between 0 and 3.", fixed=T)
+  expect_error(combine_predictors(dependent = "Price",
+                                  fixed_effects = c("Mileage", "Cylinder",
+                                                    "Doors", "Cruise"),
+                                  max_fixed_effects = 10),
+               "max_fixed_effects was greater than the max. limit of 5.", fixed=T)
+  expect_error(combine_predictors(dependent = "Price",
+                                  fixed_effects = c("Mileage", "Cylinder",
+                                                    "Doors", "Cruise"),
+                                  max_fixed_effects = -10),
+               "max_fixed_effects must be at least 2.", fixed=T)
+  expect_error(combine_predictors(dependent = "Price",
+                                  fixed_effects = c("Mileage", "Cylinder",
+                                                    "Doors", "Cruise"),
+                                  max_fixed_effects = c(2,3)),
+               "max_fixed_effects must be scalar or NULL.", fixed=T)
+  expect_error(combine_predictors(dependent = "Price",
+                                  fixed_effects = c("Mileage", "Cylinder",
+                                                    "Doors", "Cruise"),
+                                  max_effect_frequency = c(2,3)),
+               "max_effect_frequency must be scalar or NULL.", fixed=T)
+  expect_error(combine_predictors(dependent = NULL,
+                                  fixed_effects = c("Mileage", "Cylinder",
+                                                    "Doors", "Cruise")),
+               "Please specify the name of the dependent variable.", fixed=T)
+  expect_error(combine_predictors(dependent = 3,
+                                  fixed_effects = c("Mileage", "Cylinder",
+                                                    "Doors", "Cruise")),
+               "Please specify the name of the dependent variable.", fixed=T)
+  expect_error(combine_predictors(dependent = "Price",
+                                  fixed_effects = NULL),
+               "Please specify vector/list of at least 2 fixed_effects.", fixed=T)
+  expect_error(combine_predictors(dependent = "Price",
+                                  fixed_effects = "lol"),
+               "Please specify vector/list of at least 2 fixed_effects.", fixed=T)
+  expect_error(combine_predictors(dependent = "Price",
+                                  fixed_effects = c("a","b","c","d","e","f","g","h","i")),
+               "fixed_effects contained more elements than the max. limit of 8.", fixed=T)
+  expect_error(combine_predictors(dependent = "Price",
+                                  fixed_effects = c(1,2,3)),
+               "fixed_effects must be of type character.", fixed=T)
+
+
+})
+

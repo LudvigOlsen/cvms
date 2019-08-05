@@ -49,6 +49,12 @@ rand_effects <- function(model){
 
 count_convergence_warnings <- function(convergences){ # "Yes" or "No"
   # Count the convergence warnings
+  if (length(setdiff(convergences, c("Yes","No"))) > 0){
+    stop(paste0(
+      "'convergences' can only contain 'Yes' and 'No'. Found: ",
+      paste0(setdiff(convergences, c("Yes", "No")), collapse = ", "), "."
+    ))
+  }
   conv_warns = as.integer(table(convergences)['No'])
   if (is.na(conv_warns)){
     conv_warns = 0
@@ -89,6 +95,7 @@ replace_argument_in_model_specifics_if_null <- function(var_name, model_specific
     model_specifics[[var_name]] = new_value
 
   }
+
   model_specifics
 }
 

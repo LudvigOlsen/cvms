@@ -1,3 +1,7 @@
+# cvms 0.1.2.9000
+
+* Adds Zenodo DOI for easier citation.
+
 # cvms 0.1.2
 
 * Bug fix: p-values are correctly added to the nested coefficients tibble. Adds tests of this table as well.

@@ -20,6 +20,7 @@ coverage](https://codecov.io/gh/ludvigolsen/cvms/branch/master/graph/badge.svg)]
 status](https://travis-ci.org/LudvigOlsen/cvms.svg?branch=master)](https://travis-ci.org/LudvigOlsen/cvms)
 [![AppVeyor build
 status](https://ci.appveyor.com/api/projects/status/github/LudvigOlsen/cvms?branch=master&svg=true)](https://ci.appveyor.com/project/LudvigOlsen/cvms)
+[![DOI](https://zenodo.org/badge/71063931.svg)](https://zenodo.org/badge/latestdoi/71063931)
 
 ## Overview
 
@@ -190,16 +191,16 @@ CV1$Results[[1]] %>% kable()
 CV1$Coefficients[[1]] %>% kable()
 ```
 
-| term        |   estimate | std.error |  statistic | p.value | Fold | Fold Column |
-| :---------- | ---------: | --------: | ---------: | ------: | ---: | :---------- |
-| (Intercept) |   51.00000 |  5.901264 |   8.642216 |       0 |    1 | .folds      |
-| diagnosis   | \-20.33333 |  7.464574 | \-2.723978 |       0 |    1 | .folds      |
-| (Intercept) |   53.33333 |  5.718886 |   9.325826 |       0 |    2 | .folds      |
-| diagnosis   | \-19.66667 |  7.565375 | \-2.599563 |       0 |    2 | .folds      |
-| (Intercept) |   49.77778 |  5.653977 |   8.804030 |       0 |    3 | .folds      |
-| diagnosis   | \-18.77778 |  7.151778 | \-2.625610 |       0 |    3 | .folds      |
-| (Intercept) |   49.55556 |  5.061304 |   9.791065 |       0 |    4 | .folds      |
-| diagnosis   | \-22.30556 |  6.695476 | \-3.331437 |       0 |    4 | .folds      |
+| term        |   estimate | std.error |  statistic |   p.value | Fold | Fold Column |
+| :---------- | ---------: | --------: | ---------: | --------: | ---: | :---------- |
+| (Intercept) |   51.00000 |  5.901264 |   8.642216 | 0.0000000 |    1 | .folds      |
+| diagnosis   | \-20.33333 |  7.464574 | \-2.723978 | 0.0123925 |    1 | .folds      |
+| (Intercept) |   53.33333 |  5.718886 |   9.325826 | 0.0000000 |    2 | .folds      |
+| diagnosis   | \-19.66667 |  7.565375 | \-2.599563 | 0.0176016 |    2 | .folds      |
+| (Intercept) |   49.77778 |  5.653977 |   8.804030 | 0.0000000 |    3 | .folds      |
+| diagnosis   | \-18.77778 |  7.151778 | \-2.625610 | 0.0154426 |    3 | .folds      |
+| (Intercept) |   49.55556 |  5.061304 |   9.791065 | 0.0000000 |    4 | .folds      |
+| diagnosis   | \-22.30556 |  6.695476 | \-3.331437 | 0.0035077 |    4 | .folds      |
 
 ``` r
 

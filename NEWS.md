@@ -1,6 +1,13 @@
-# cvms 0.1.1.9000
+# cvms 0.1.2
 
 * Bug fix: p-values are correctly added to the nested coefficients tibble. Adds tests of this table as well.
+
+* Adds extra unit tests to increase code coverage.
+
+* When argument "model_verbose"" is TRUE, the used model function is now messaged instead of printed.
+
+* Adds badges to README, including travis-ci status, AppVeyor status, 
+Codecov, min. required R version, CRAN version and monthly CRAN downloads. Note: Zenodo badge will be added post release.
 
 # cvms 0.1.1
 
@@ -12,8 +19,7 @@
 
 * Results now contain a count of singular fit messages. See ?lme4::isSingular for more information.
 
-* Argument "positive" changes default value to 2. Now takes either 1 or 2 (previously 0 and 1). If your dependent variable has
-values 0 and 1, 1 is now the positive class by default.
+* Argument "positive" changes default value to 2. Now takes either 1 or 2 (previously 0 and 1). If your dependent variable has values 0 and 1, 1 is now the positive class by default.
 
 * AUC calculation has changed. Now explicitly sets the direction in pROC::roc.
 

@@ -1,9 +1,9 @@
 Package: cvms
 Title: Cross-Validation for Model Selection
-Version: 0.1.1.9000
+Version: 0.1.2
 Authors@R: c(
     person("Ludvig Renbo", "Olsen", email = "r-pkgs@ludvigolsen.dk", role = c("aut", "cre")),
-    person("Benjamin Hugh", "Zachariae", role="aut")
+    person("Benjamin Hugh", "Zachariae", role = "aut")
     )
 Description: Cross-validate one or multiple regression models and get relevant evaluation 
   metrics in a tidy format. Validate the best model on a test set and compare it to a baseline evaluation.

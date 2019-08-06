@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# cvms <a href='https://github.com/LudvigOlsen/cvms'><img src='man/figures/cvms_logo_224x280_250dpi.png' align="right" height="140" /></a>
+# cvms <a href='https://github.com/LudvigOlsen/cvms'><img src='man/figures/cvms_logo_242x280_250dpi.png' align="right" height="140" /></a>
 
 **Cross-Validation for Model Selection**  
 **Authors:** [Ludvig R. Olsen](http://ludvigolsen.dk/) (

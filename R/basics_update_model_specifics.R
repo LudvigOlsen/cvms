@@ -17,12 +17,12 @@ basics_update_model_specifics <- function(model_specifics){
   model_specifics <- replace_argument_in_model_specifics_if_null("model_verbose", model_specifics, FALSE, err=FALSE)
 
   if (isTRUE(model_specifics[["model_verbose"]])){
-    print(paste0(
+    message(paste0(
       "Updated model_specifics to { ",
       "model_formula = ", model_specifics[["model_formula"]],
       ", family = ", model_specifics[["family"]],
       ", link = ", model_specifics[["link"]],
-      ", control = (", paste0(model_specifics[["control"]],collapse=", "), ")",
+      ", control = (", paste0(model_specifics[["control"]], collapse = ", "), ")",
       ", REML = ", model_specifics[["REML"]],
       ", positive = ", model_specifics[["positive"]],
       ", cutoff = ", model_specifics[["cutoff"]],

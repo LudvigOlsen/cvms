@@ -712,3 +712,120 @@ test_that("that singular fit messages are caught, counted and messaged about in 
   expect_equal(CVbinom$`Singular Fit Messages`, 3)
 
 })
+
+test_that("the expected errors are thrown by cross_validate()",{
+
+
+  # Load data and fold it
+  set_seed_for_R_compatibility(1)
+  dat <- groupdata2::fold(participant.scores, k = 4,
+                          num_fold_cols = 3,
+                          cat_col = 'diagnosis',
+                          id_col = 'participant')
+  dat[[".folds_3"]] <- as.character(dat[[".folds_3"]])
+
+  expect_error(cross_validate(dat, models = c("diagnosis~score","diagnosis~age"),
+                                fold_cols = paste0(".folds_",1:3), family='binomial',
+                                REML = FALSE, model_verbose=FALSE,
+                                positive=1),
+               "At least one of the fold columns is not a factor.", fixed=TRUE)
+  expect_error(cross_validate(dat, models = c("diagnosis~score","diagnosis~age"),
+                              fold_cols = paste0(".folds_",1), family='fdsfs',
+                              REML = FALSE, model_verbose=FALSE,
+                              positive=1),
+               "Only 'gaussian' and 'binomial' families are currently allowed.", fixed=TRUE)
+
+})
+
+test_that("model_verbose reports the correct model functions in cross_validate()",{
+
+
+  # Load data and fold it
+  set_seed_for_R_compatibility(1)
+  dat <- groupdata2::fold(participant.scores, k = 4,
+                          num_fold_cols = 3,
+                          cat_col = 'diagnosis',
+                          id_col = 'participant')
+
+  # Test the list of verbose messages
+  # glm()
+  expect_equal(evaluate_promise(cross_validate(dat, models = c("diagnosis~score"),
+                                                 fold_cols = paste0(".folds_",1), family='binomial',
+                                                 REML = FALSE, model_verbose=TRUE,
+                                                 positive=1))$messages,
+                 as.character(c(
+                   "Updated model_specifics to { model_formula = , family = binomial, link = logit, control = (c(\"bobyqa\", \"Nelder_Mead\"), TRUE, FALSE, FALSE, 1e-05, 1e-07, TRUE, TRUE, list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), list(check.conv.grad = list(action = \"warning\", tol = 0.001, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), list()), REML = FALSE, positive = 1, cutoff = 0.5, model_verbose = TRUE }. Note: If incorrect, remember to name arguments in model_specific.\n",
+                   "Model function: Used glm()\n",
+                   "Model function: Used glm()\n",
+                   "Model function: Used glm()\n",
+                   "Model function: Used glm()\n"
+                 )))
+
+  # glmer
+  expect_equal(evaluate_promise(cross_validate(dat, models = c("diagnosis~score+(1|session)"),
+                                               fold_cols = paste0(".folds_",1), family='binomial',
+                                               REML = FALSE, model_verbose=TRUE,
+                                               positive=1))$messages,
+               as.character(c(
+                 "Updated model_specifics to { model_formula = , family = binomial, link = logit, control = (c(\"bobyqa\", \"Nelder_Mead\"), TRUE, FALSE, FALSE, 1e-05, 1e-07, TRUE, TRUE, list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), list(check.conv.grad = list(action = \"warning\", tol = 0.001, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), list()), REML = FALSE, positive = 1, cutoff = 0.5, model_verbose = TRUE }. Note: If incorrect, remember to name arguments in model_specific.\n",
+                 "Model function: Used lme4::glmer()\n",
+                 "Model function: Used lme4::glmer()\n",
+                 "Model function: Used lme4::glmer()\n",
+                 "Model function: Used lme4::glmer()\n"
+               )))
+
+  # lm
+  expect_equal(evaluate_promise(cross_validate(dat, models = c("score~diagnosis"),
+                                               fold_cols = paste0(".folds_",1), family='gaussian',
+                                               REML = FALSE, model_verbose=TRUE,
+                                               positive=1))$messages,
+               as.character(c(
+                 "Updated model_specifics to { model_formula = , family = gaussian, link = identity, control = (nloptwrap, TRUE, 1e-05, TRUE, FALSE, list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\"), list(check.conv.grad = list(action = \"warning\", tol = 0.002, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), list()), REML = FALSE, positive = 1, cutoff = 0.5, model_verbose = TRUE }. Note: If incorrect, remember to name arguments in model_specific.\n",
+                 "Model function: Used lm()\n",
+                 "Model function: Used lm()\n",
+                 "Model function: Used lm()\n",
+                 "Model function: Used lm()\n"
+               )))
+  # glm due to different link function
+  expect_equal(evaluate_promise(cross_validate(dat, models = c("score~diagnosis"),
+                                               fold_cols = paste0(".folds_",1), family='gaussian',
+                                               link = "log",
+                                               REML = FALSE, model_verbose=TRUE,
+                                               positive=1))$messages,
+               as.character(c(
+                 "Updated model_specifics to { model_formula = , family = gaussian, link = log, control = (c(\"bobyqa\", \"Nelder_Mead\"), TRUE, FALSE, FALSE, 1e-05, 1e-07, TRUE, TRUE, list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), list(check.conv.grad = list(action = \"warning\", tol = 0.001, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), list()), REML = FALSE, positive = 1, cutoff = 0.5, model_verbose = TRUE }. Note: If incorrect, remember to name arguments in model_specific.\n",
+                 "Model function: Used glm()\n",
+                 "Model function: Used glm()\n",
+                 "Model function: Used glm()\n",
+                 "Model function: Used glm()\n"
+               )))
+
+  # lmer
+  expect_equal(evaluate_promise(cross_validate(dat, models = c("score~diagnosis+(1|session)"),
+                                               fold_cols = paste0(".folds_",1), family = 'gaussian',
+                                               REML = FALSE, model_verbose = TRUE,
+                                               positive = 1))$messages,
+               as.character(c(
+                 "Updated model_specifics to { model_formula = , family = gaussian, link = identity, control = (nloptwrap, TRUE, 1e-05, TRUE, FALSE, list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\"), list(check.conv.grad = list(action = \"warning\", tol = 0.002, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), list()), REML = FALSE, positive = 1, cutoff = 0.5, model_verbose = TRUE }. Note: If incorrect, remember to name arguments in model_specific.\n",
+                 "Model function: Used lme4::lmer()\n",
+                 "Model function: Used lme4::lmer()\n",
+                 "Model function: Used lme4::lmer()\n",
+                 "Model function: Used lme4::lmer()\n"
+               )))
+
+  # glmer due to different link function
+  expect_equal(evaluate_promise(cross_validate(dat, models = c("score~diagnosis+(1|session)"),
+                                               fold_cols = paste0(".folds_",1), family = 'gaussian',
+                                               REML = FALSE, model_verbose = TRUE,
+                                               link = "log",
+                                               positive = 1))$messages,
+               as.character(c(
+                 "Updated model_specifics to { model_formula = , family = gaussian, link = log, control = (c(\"bobyqa\", \"Nelder_Mead\"), TRUE, FALSE, FALSE, 1e-05, 1e-07, TRUE, TRUE, list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), list(check.conv.grad = list(action = \"warning\", tol = 0.001, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), list()), REML = FALSE, positive = 1, cutoff = 0.5, model_verbose = TRUE }. Note: If incorrect, remember to name arguments in model_specific.\n",
+                 "Model function: Used lme4::glmer()\n",
+                 "Model function: Used lme4::glmer()\n",
+                 "Model function: Used lme4::glmer()\n",
+                 "Model function: Used lme4::glmer()\n"
+               )))
+
+
+})

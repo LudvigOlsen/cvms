@@ -117,6 +117,10 @@ basics_run_model_fitting <- function(model_fitting_fn, model_specifics, train_da
                     m, sep = "\n"))
 
       is_singular_message <- TRUE
+
+    } else if (grepl('Model function: Used', as.character(m), ignore.case = TRUE)) {
+      message(m)
+      is_singular_message <- FALSE
     } else {
       message(paste('',
                     '--------------------------',

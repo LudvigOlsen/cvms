@@ -3,18 +3,17 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 
 #' @importFrom dplyr mutate %>%
 #' @importFrom tidyr separate
-basics_validate_list = function(train_data, model_list, family='gaussian',
-                                link = NULL, control = NULL, REML=FALSE,
-                                cutoff=0.5, positive=2, err_nc = FALSE,
+basics_validate_list = function(train_data, model_list, family = 'gaussian',
+                                link = NULL, control = NULL, REML = FALSE,
+                                cutoff = 0.5, positive = 2, err_nc = FALSE,
                                 rm_nc = FALSE, test_data = NULL,
                                 partitions_col = '.partitions',
                                 parallel_ = FALSE,
-                                model_verbose=FALSE){
+                                model_verbose = FALSE){
 
   # positive can be 1,2, or a character
   stopifnot(is.data.frame(train_data),
-            is.character(positive) || positive %in% c(1,2),
-            family %in% c("gaussian", "binomial")
+            is.character(positive) || positive %in% c(1,2)
   )
 
   # If train and test data is not already split,
@@ -31,24 +30,24 @@ basics_validate_list = function(train_data, model_list, family='gaussian',
     evaluation_type = "linear_regression"
   } else if (family == "binomial"){
     evaluation_type = "binomial"
-  } else {stop("Only two families allowed currently!")}
+  } else {stop("Only 'gaussian' and 'binomial' families are currently allowed.")}
 
   # Create model_specifics object
   # Update to get default values when an argument was not specified
   model_specifics <- list(
-    model_formula="",
-    family=family,
-    REML=REML,
-    link=link,
+    model_formula = "",
+    family = family,
+    REML = REML,
+    link = link,
     cutoff = cutoff,
     positive = positive,
     model_verbose = model_verbose) %>%
     basics_update_model_specifics()
 
   # validate() all the models using ldply()
-   validation_output = plyr::llply(model_list, .parallel = parallel_, .fun = function(model_formula){
+  validation_output <- plyr::llply(model_list, .parallel = parallel_, .fun = function(model_formula){
     model_specifics[["model_formula"]] <- model_formula
-    validate_fn_single(train_data=train_data,
+    validate_fn_single(train_data = train_data,
                        model_fn = basics_model_fn,
                        evaluation_type = evaluation_type,
                        model_specifics = model_specifics,

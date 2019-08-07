@@ -171,5 +171,110 @@ test_that("gaussian evaluation are correct in baseline()",{
 })
 
 
-# Create baseline test where both classes are 50% 50% , 100% 0%, 0% 100%, 30/70 etc.
+# TODO Create baseline test where both classes are 50% 50% , 100% 0%, 0% 100%, 30/70 etc.
 # Do we get what we expect?
+
+test_that("baseline() throws expected errors",{
+
+  # Binomial
+
+  set_seed_for_R_compatibility(1)
+
+  # cutoff
+
+  expect_error(baseline(test_data = participant.scores,
+                        dependent_col = "diagnosis",
+                        n = 10,
+                        family = "binomial",
+                        cutoff = 1.1),
+               "'cutoff' must be between 0.0 and 1.0.", fixed=T)
+  expect_error(baseline(test_data = participant.scores,
+                        dependent_col = "diagnosis",
+                        n = 10,
+                        family = "binomial",
+                        cutoff = NA),
+               "'cutoff' must be numeric.", fixed=T)
+  expect_error(baseline(test_data = participant.scores,
+                        dependent_col = "diagnosis",
+                        n = 10,
+                        family = "binomial",
+                        cutoff = NULL),
+               "'cutoff' was NULL. Must be numeric between 0.0 and 1.0.", fixed=T)
+  expect_error(baseline(test_data = participant.scores,
+                        dependent_col = "diagnosis",
+                        n = 10,
+                        family = "binomial",
+                        cutoff = c(0,1)),
+               "'cutoff' must have length 1.", fixed=T)
+
+  # positive
+  expect_error(baseline(test_data = participant.scores,
+                        dependent_col = "diagnosis",
+                        n = 10,
+                        family = "binomial",
+                        positive = NULL),
+               "'positive' was NULL. Must be either whole number or character.", fixed=T)
+  expect_error(baseline(test_data = participant.scores,
+                        dependent_col = "diagnosis",
+                        n = 10,
+                        family = "binomial",
+                        positive = NA),
+               "'positive' must be either a whole number or character.", fixed=T)
+  expect_error(baseline(test_data = participant.scores,
+                        dependent_col = "diagnosis",
+                        n = 10,
+                        family = "binomial",
+                        positive = 3),
+               "When 'positive' is numeric, it must be either 0 or 1.", fixed=T)
+  expect_error(baseline(test_data = participant.scores,
+                        dependent_col = "diagnosis",
+                        n = 10,
+                        family = "binomial",
+                        positive = -1),
+               "When 'positive' is numeric, it must be either 0 or 1.", fixed=T)
+  expect_error(baseline(test_data = participant.scores,
+                        dependent_col = "diagnosis",
+                        n = 10,
+                        family = "binomial",
+                        positive = c("0","1")),
+               "'positive' must have length 1.", fixed=T)
+  expect_error(baseline(test_data = participant.scores,
+                        dependent_col = "diagnosis",
+                        n = 10,
+                        family = "binomial",
+                        positive = c(0,1)),
+               "'positive' must have length 1.", fixed=T)
+
+  expect_message(baseline(train_data = participant.scores,
+                          test_data = participant.scores,
+                          dependent_col = "diagnosis",
+                          n = 2,
+                          family = "binomial"),
+                 "train_data was not used for binomial baseline.",
+                 fixed=T
+                 )
+  expect_error(baseline(test_data = participant.scores,
+                          dependent_col = "score",
+                          n = 10,
+                          family = "gaussian"),
+                 "train_data must be passed for Gaussian baseline.",
+                 fixed=T
+  )
+
+  set_seed_for_R_compatibility(1)
+  dat <- participant.scores
+  dat$diagnosis <- c(head(dat$diagnosis, 20),rep(2,10))
+  expect_error(baseline(test_data = dat,
+                          dependent_col = "diagnosis",
+                          n = 2,
+                          family = "binomial"),
+                 "The dependent column must maximally contain 2 levels. Did you specify the correct family?",
+                 fixed = T)
+  dat$diagnosis <- as.character(dat$diagnosis)
+  expect_error(baseline(test_data = dat,
+                          dependent_col = "diagnosis",
+                          n = 2,
+                          family = "binomial"),
+                 "The dependent column must maximally contain 2 levels.",
+                 fixed = T)
+})

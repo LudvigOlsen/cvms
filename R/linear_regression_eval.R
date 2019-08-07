@@ -175,9 +175,14 @@ get_nested_model_coefficients <- function(models, fold_info=list(folds=NULL,
 
   if(is.null(models)){
 
-    nested_NA_coeffs <- tibble::tibble('term'=NA, 'estimate'=NA,
-                   'std.error'=NA, 'statistic'=NA,
-                   'fold'=NA,"fold_column"=NA) %>%
+    nested_NA_coeffs <- tibble::tibble(
+      'term' = NA,
+      'estimate' = NA,
+      'std.error' = NA,
+      'statistic' = NA,
+      'fold' = NA,
+      "fold_column" = NA
+    ) %>%
       nest_models() %>%
       dplyr::pull(.data$Coefficients)
 

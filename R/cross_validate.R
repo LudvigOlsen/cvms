@@ -167,7 +167,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #'
 #'  N.B. Binomial models only.
 #' @param rm_nc Remove non-converged models from output. (Logical)
-#' @param model_verbose Print name of used model function on each iteration. (Logical)
+#' @param model_verbose Message name of used model function on each iteration. (Logical)
 #' @param parallel Whether to cross-validate the list of models in parallel. (Logical)
 #'
 #'  Remember to register a parallel backend first.

@@ -35,18 +35,21 @@ create_gaussian_baseline_evaluations <- function(train_data,
   # Create model_specifics object
   # Update to get default values when an argument was not specified
   model_specifics <- list(
-    model_formula=paste0(dependent_col," ~ 1"),
-    family="family",
-    REML=FALSE,
-    link=NULL,
+    model_formula = paste0(dependent_col, " ~ 1"),
+    family = "family",
+    REML = FALSE,
+    link = NULL,
     cutoff = 0.5,
     positive = 2,
     model_verbose = FALSE) %>%
     basics_update_model_specifics()
 
   # Sample probability of a row being included
-  train_set_inclusion_vals <- data.frame("inclusion_probability" = runif(n_train_targets * n_samplings),
-                                         "split_factor" = factor(rep(1:n_samplings, each = n_train_targets))) %>%
+  train_set_inclusion_vals <-
+    data.frame(
+      "inclusion_probability" = runif(n_train_targets * n_samplings),
+      "split_factor" = factor(rep(1:n_samplings, each = n_train_targets))
+    ) %>%
     dplyr::group_by(.data$split_factor) %>%
     dplyr::mutate(indices = 1:dplyr::n())
 
@@ -70,7 +73,7 @@ create_gaussian_baseline_evaluations <- function(train_data,
   # for the n_samplings evaluations
   train_sets_indices <- train_set_inclusion_vals %>%
     dplyr::ungroup() %>%
-    dplyr::inner_join(sampling_boundaries, by="split_factor") %>%
+    dplyr::inner_join(sampling_boundaries, by = "split_factor") %>%
     dplyr::filter(.data$inclusion_probability > .data$inclusion_probability_threshold) %>%
     dplyr::select(c(.data$split_factor, .data$indices))
 
@@ -99,14 +102,14 @@ create_gaussian_baseline_evaluations <- function(train_data,
     test_data[["fold_column"]] <- evaluation
 
     evaluate(test_data,
-             type="linear_regression",
+             type = "linear_regression",
              predictions_col = "prediction",
              targets_col = dependent_col,
-             fold_info_cols = list(rel_fold="rel_fold",
-                                   abs_fold="abs_fold",
-                                   fold_column="fold_column"),
-             models=list(baseline_linear_model),
-             model_specifics=model_specifics) %>%
+             fold_info_cols = list(rel_fold = "rel_fold",
+                                   abs_fold = "abs_fold",
+                                   fold_column = "fold_column"),
+             models = list(baseline_linear_model),
+             model_specifics = model_specifics) %>%
       dplyr::select(-.data$Results) %>%
       dplyr::mutate(`Training Rows` = nrow(sampled_train_set))
   }) %>%  dplyr::bind_rows() %>%
@@ -167,15 +170,16 @@ create_gaussian_baseline_evaluations <- function(train_data,
   # This will be changed to evaluation repetition later on
   test_data[["fold_column"]] <- n_samplings + 1
 
-  evaluation_all_rows <- evaluate(test_data,
-           type="linear_regression",
-           predictions_col = "prediction",
-           targets_col = dependent_col,
-           fold_info_cols = list(rel_fold="rel_fold",
-                                 abs_fold="abs_fold",
-                                 fold_column="fold_column"),
-           models=list(baseline_linear_model_all_rows),
-           model_specifics=model_specifics) %>%
+  evaluation_all_rows <- evaluate(
+    test_data,
+    type = "linear_regression",
+    predictions_col = "prediction",
+    targets_col = dependent_col,
+    fold_info_cols = list(rel_fold = "rel_fold",
+                          abs_fold = "abs_fold",
+                          fold_column = "fold_column"),
+    models = list(baseline_linear_model_all_rows),
+    model_specifics = model_specifics) %>%
     dplyr::mutate(Family = "gaussian") %>%
     select_metrics(include_definitions = FALSE) %>%
     dplyr::mutate(

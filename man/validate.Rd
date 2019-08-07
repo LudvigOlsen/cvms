@@ -77,7 +77,7 @@ validate(train_data, models, test_data = NULL,
  Remember to register a parallel backend first.
  E.g. with \code{doParallel::registerDoParallel}.}
 
-\item{model_verbose}{Print name of used model function on each iteration. (Logical)}
+\item{model_verbose}{Message name of used model function on each iteration. (Logical)}
 }
 \value{
 List containing tbl (tibble) with results and the trained model object.

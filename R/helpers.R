@@ -49,6 +49,12 @@ rand_effects <- function(model){
 
 count_convergence_warnings <- function(convergences){ # "Yes" or "No"
   # Count the convergence warnings
+  if (length(setdiff(convergences, c("Yes","No"))) > 0){
+    stop(paste0(
+      "'convergences' can only contain 'Yes' and 'No'. Found: ",
+      paste0(setdiff(convergences, c("Yes", "No")), collapse = ", "), "."
+    ))
+  }
   conv_warns = as.integer(table(convergences)['No'])
   if (is.na(conv_warns)){
     conv_warns = 0
@@ -89,6 +95,7 @@ replace_argument_in_model_specifics_if_null <- function(var_name, model_specific
     model_specifics[[var_name]] = new_value
 
   }
+
   model_specifics
 }
 
@@ -223,4 +230,74 @@ set_seed_for_R_compatibility <- function(seed = 1) {
     args <- list(seed)
   }
   suppressWarnings(do.call(set.seed, args))
+}
+
+# Numeric Argument Checks
+
+is_wholenumber_ <- function(n) {
+
+  # If n is a whole number
+  # .. return TRUE
+  # else
+  # .. return FALSE
+
+  return( floor(n) == n )
+}
+
+arg_is_wholenumber_ <- function(n){
+
+  # Checks if n is a whole number of either
+  # type integer or numeric
+  # Returns TRUE if yes, else FALSE
+
+  # If n is an integer, return TRUE
+  # else check if it is a numeric
+  # .. if yes, check if it is a whole number
+  # .... if yes, return TRUE
+  # .... if no, return FALSE
+  # .. if not a numeric
+  # .... return FALSE
+
+  if ( is.integer(n) ){
+
+    return(TRUE)
+
+  } else if ( is.numeric(n) ){
+
+    if ( is_wholenumber_(n) ){
+
+      return(TRUE)
+
+    } else {
+
+      return(FALSE)
+    }
+
+  } else {
+
+    return(FALSE)
+  }
+}
+
+arg_is_number_ <- function(n){
+
+  # Checks if n is either an integer or a numeric
+  # Returns TRUE if yes, FALSE if no
+
+  if ( is.integer(n) || is.numeric(n) ){
+
+    return(TRUE)
+
+  } else {
+
+    return(FALSE)
+
+  }
+
+}
+is_between_ <- function(x, a, b) {
+
+  # Checks if x is between a and b
+
+  x > a & x < b
 }

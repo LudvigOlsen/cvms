@@ -20,7 +20,7 @@ rvers <- substring(dep, 7, nchar(dep)-1)
 # rm <- regmatches(dep, m)
 # rvers <- gsub('.*(\\\\d+.\\\\d+.\\\\d+).*', '\\\\1', dep)
 ```
-# cvms
+# cvms <a href='https://github.com/LudvigOlsen/cvms'><img src='man/figures/cvms_logo_242x280_250dpi.png' align="right" height="140" /></a>
 **Cross-Validation for Model Selection**  
 **Authors:** [Ludvig R. Olsen](http://ludvigolsen.dk/) ( r-pkgs@ludvigolsen.dk ), Hugh Benjamin Zachariae <br/>
 **License:** [MIT](https://opensource.org/licenses/MIT) <br/>
@@ -32,6 +32,8 @@ rvers <- substring(dep, 7, nchar(dep)-1)
 [![Codecov test coverage](https://codecov.io/gh/ludvigolsen/cvms/branch/master/graph/badge.svg)](https://codecov.io/gh/ludvigolsen/cvms?branch=master)
 [![Travis build status](https://travis-ci.org/LudvigOlsen/cvms.svg?branch=master)](https://travis-ci.org/LudvigOlsen/cvms)
 [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/LudvigOlsen/cvms?branch=master&svg=true)](https://ci.appveyor.com/project/LudvigOlsen/cvms)
+[![DOI](https://zenodo.org/badge/71063931.svg)](https://zenodo.org/badge/latestdoi/71063931)
+
 
 ## Overview
 

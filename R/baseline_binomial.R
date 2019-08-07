@@ -5,14 +5,40 @@ create_binomial_baseline_evaluations <- function(test_data,
                                                  cutoff = 0.5,
                                                  parallel_ = FALSE){
 
-  # TODO ADD stopifnot for positive and cutoff
+  # Check positive
+  if (is.null(positive)){
+    stop("'positive' was NULL. Must be either whole number or character.")
+  }
+  if (length(positive) != 1){
+    stop("'positive' must have length 1.")
+  }
+  if (!(is.character(positive) || arg_is_wholenumber_(positive))){
+    stop("'positive' must be either a whole number or character.")
+  }
+  if (arg_is_wholenumber_(positive) && positive %ni% c(1,2)){
+    stop("When 'positive' is numeric, it must be either 0 or 1.")
+  }
+
+  # Check cutoff
+  if (is.null(cutoff)){
+    stop("'cutoff' was NULL. Must be numeric between 0.0 and 1.0.")
+  }
+  if (length(cutoff) != 1){
+    stop("'cutoff' must have length 1.")
+  }
+  if (!is.numeric(cutoff)){
+    stop("'cutoff' must be numeric.")
+  }
+  if (!is_between_(cutoff, 0.0,1.0)){
+    stop("'cutoff' must be between 0.0 and 1.0.")
+  }
 
   # Get targets
   targets <- test_data[[dependent_col]]
   n_targets <- length(targets)
 
   # Check dependent variable
-  if (nlevels(targets) > 2){
+  if (length(unique(targets)) > 2){
     if (is.numeric(targets) || is.integer(targets)){
       stop("The dependent column must maximally contain 2 levels. Did you specify the correct family?")
     }
@@ -28,13 +54,14 @@ create_binomial_baseline_evaluations <- function(test_data,
   # Create model_specifics object
   # Update to get default values when an argument was not specified
   model_specifics <- list(
-    model_formula="",
-    family="binomial",
-    REML=FALSE,
-    link=NULL,
+    model_formula = "",
+    family = "binomial",
+    REML = FALSE,
+    link = NULL,
     cutoff = cutoff,
     positive = positive,
-    model_verbose = FALSE) %>%
+    model_verbose = FALSE
+  ) %>%
     basics_update_model_specifics()
 
   # Sample random probabilities
@@ -54,14 +81,14 @@ create_binomial_baseline_evaluations <- function(test_data,
     test_data[["fold_column"]] <- evaluation
 
     evaluate(test_data,
-             type="binomial",
+             type = "binomial",
              predictions_col = "prediction",
              targets_col = dependent_col,
-             fold_info_cols = list(rel_fold="rel_fold",
-                                   abs_fold="abs_fold",
-                                   fold_column="fold_column"),
+             fold_info_cols = list(rel_fold = "rel_fold",
+                                   abs_fold = "abs_fold",
+                                   fold_column = "fold_column"),
              # models=NULL,
-             model_specifics=model_specifics)
+             model_specifics = model_specifics)
   }) %>% dplyr::bind_rows() %>% # Works with nested tibbles (ldply doesn't seem to)
     dplyr::mutate(
       Family = "binomial",
@@ -112,14 +139,14 @@ create_binomial_baseline_evaluations <- function(test_data,
   test_data[["fold_column"]] <- reps + 1
 
   evaluations_all_0 <- evaluate(test_data,
-                                type="binomial",
+                                type = "binomial",
                                 predictions_col = "prediction",
                                 targets_col = dependent_col,
-                                fold_info_cols = list(rel_fold="rel_fold",
-                                                      abs_fold="abs_fold",
-                                                      fold_column="fold_column"),
-                                # models=NULL,
-                                model_specifics=model_specifics) %>%
+                                fold_info_cols = list(rel_fold = "rel_fold",
+                                                      abs_fold = "abs_fold",
+                                                      fold_column = "fold_column"),
+                                # models = NULL,
+                                model_specifics = model_specifics) %>%
     dplyr::mutate(Family = "binomial",
                   Dependent = dependent_col) %>%
     select_metrics(include_definitions = FALSE) %>%
@@ -133,14 +160,14 @@ create_binomial_baseline_evaluations <- function(test_data,
   test_data[["fold_column"]] <- reps + 2
 
   evaluations_all_1 <- evaluate(test_data,
-                                type="binomial",
+                                type = "binomial",
                                 predictions_col = "prediction",
                                 targets_col = dependent_col,
-                                fold_info_cols = list(rel_fold="rel_fold",
-                                                      abs_fold="abs_fold",
-                                                      fold_column="fold_column"),
+                                fold_info_cols = list(rel_fold = "rel_fold",
+                                                      abs_fold = "abs_fold",
+                                                      fold_column = "fold_column"),
                                 # models=NULL,
-                                model_specifics=model_specifics) %>%
+                                model_specifics = model_specifics) %>%
     dplyr::mutate(Family = "binomial",
                   Dependent = dependent_col) %>%
     select_metrics(include_definitions = FALSE) %>%

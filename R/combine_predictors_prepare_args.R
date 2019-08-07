@@ -55,12 +55,12 @@ combine_predictors_prepare_args <- function(dependent,
 
   # Check that we have max. 8 fixed effects
   if (length(fixed_effects) > args_max_num_fixed_effects__){
-    stop(paste0("fixed_effects contained more elements than the max. limit of",
+    stop(paste0("fixed_effects contained more elements than the max. limit of ",
                 args_max_num_fixed_effects__, "."))
   }
 
   # Check that max_fixed_effects is correctly specified
-  if (!is.null(max_fixed_effects) && !is.numeric(max_fixed_effects)){
+  if (!is.null(max_fixed_effects) && (!is.numeric(max_fixed_effects) || length(max_fixed_effects)>1)){
     stop("max_fixed_effects must be scalar or NULL.")
   }
 
@@ -79,7 +79,7 @@ combine_predictors_prepare_args <- function(dependent,
   }
 
   # Check that max_effect_frequency is correctly specified
-  if (!is.null(max_effect_frequency) && !is.numeric(max_effect_frequency)){
+  if (!is.null(max_effect_frequency) && (!is.numeric(max_effect_frequency) || length(max_effect_frequency) > 1)){
     stop("max_effect_frequency must be scalar or NULL.")
   }
 

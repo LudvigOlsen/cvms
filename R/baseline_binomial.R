@@ -98,39 +98,8 @@ create_binomial_baseline_evaluations <- function(test_data,
 
   # TODO Rename Fold Column to Repetition or similar in evaluations$Predictions
 
-  metrics_cols <- select_metrics(evaluations_random, include_definitions = FALSE)
-
-  # Get rows with INFs
-  metrics_cols_with_infs <- metrics_cols[is.infinite(rowSums(metrics_cols)),]
-
-  # Replace infs with NA
-  if(nrow(metrics_cols_with_infs) > 0){
-    metrics_cols <- do.call(data.frame,c(lapply(metrics_cols, function(x) replace(x, is.infinite(x), NA)),
-                                         check.names=FALSE,fix.empty.names = FALSE, stringsAsFactors=FALSE))
-  }
-
-  # This may be better solveable with pivot_* from tidyr, when it is on CRAN
-  # This isn't exactly pretty.
-  summarized_metrics <- dplyr::bind_rows(
-    metrics_cols %>% dplyr::summarize_all(.funs = list(~mean(., na.rm = TRUE))) %>% dplyr::mutate(f = "Mean"),
-    metrics_cols %>% dplyr::summarize_all(.funs = list(~median(., na.rm = TRUE))) %>% dplyr::mutate(f = "Median"),
-    metrics_cols %>% dplyr::summarize_all(.funs = list(~sd(., na.rm = TRUE))) %>% dplyr::mutate(f = "SD"),
-    metrics_cols %>% dplyr::summarize_all(.funs = list(~IQR(., na.rm = TRUE))) %>% dplyr::mutate(f = "IQR"),
-    metrics_cols %>% dplyr::summarize_all(.funs = list(~max(., na.rm = TRUE))) %>% dplyr::mutate(f = "Max"),
-    metrics_cols %>% dplyr::summarize_all(.funs = list(~min(., na.rm = TRUE))) %>% dplyr::mutate(f = "Min"),
-    metrics_cols %>% dplyr::summarize_all(.funs = list(~sum(is.na(.)))) %>% dplyr::mutate(f = "NAs"),
-    metrics_cols_with_infs %>% dplyr::summarize_all(.funs = list(~sum(is.infinite(.)))) %>% dplyr::mutate(f = "INFs")
-  ) %>%
-    dplyr::select(.data$f, dplyr::everything()) %>%
-    dplyr::rename(Measure = .data$f)
-
-  # Remove the INFs from the NAs count
-  if(nrow(metrics_cols_with_infs) > 0){
-    NAs_row_number <- which(summarized_metrics$Measure == "NAs")
-    INFs_row_number <- which(summarized_metrics$Measure == "INFs")
-    summarized_metrics[NAs_row_number,-1] <- summarized_metrics[NAs_row_number,-1] - summarized_metrics[INFs_row_number,-1]
-  }
-
+  metric_cols <- select_metrics(evaluations_random, include_definitions = FALSE)
+  summarized_metrics <- summarize_metric_cols(metric_cols)
 
   # Evaluate all 0s
 
@@ -184,4 +153,53 @@ create_binomial_baseline_evaluations <- function(test_data,
 
   return(list("summarized_metrics" = overall_evaluations,
               "random_evaluations" = evaluations_random))
+}
+
+
+replace_inf_with_na <- function(metric_cols){
+  # Get rows with INFs
+  metric_cols_with_infs <- metric_cols[is.infinite(rowSums(metric_cols)),]
+
+  # Replace infs with NA
+  if(nrow(metric_cols_with_infs) > 0){
+    metric_cols <- do.call(data.frame,c(lapply(metric_cols, function(x) replace(x, is.infinite(x), NA)),
+                                         check.names=FALSE,fix.empty.names = FALSE, stringsAsFactors=FALSE))
+  }
+
+  list("metric_cols" = metric_cols,
+       "metric_cols_with_infs" = metric_cols_with_infs)
+}
+
+summarize_metric_cols <- function(metric_cols, na.rm = TRUE){
+
+  # Start by replacing INF with NA
+  # We keep the infs as well, as we wish to distinguish between them in the summary
+  inf_replacement <- replace_inf_with_na(metric_cols)
+  metric_cols <- inf_replacement[["metric_cols"]]
+  metric_cols_with_infs <- inf_replacement[["metric_cols_with_infs"]]
+
+  # Summarize the metrics with a range of functions
+  # Note: This may be better solveable with pivot_* from tidyr, when it is on CRAN
+  # This isn't exactly pretty.
+  summarized_metrics <- dplyr::bind_rows(
+    metric_cols %>% dplyr::summarize_all(.funs = list(~mean(., na.rm = na.rm))) %>% dplyr::mutate(f = "Mean"),
+    metric_cols %>% dplyr::summarize_all(.funs = list(~median(., na.rm = na.rm))) %>% dplyr::mutate(f = "Median"),
+    metric_cols %>% dplyr::summarize_all(.funs = list(~sd(., na.rm = na.rm))) %>% dplyr::mutate(f = "SD"),
+    metric_cols %>% dplyr::summarize_all(.funs = list(~IQR(., na.rm = na.rm))) %>% dplyr::mutate(f = "IQR"),
+    metric_cols %>% dplyr::summarize_all(.funs = list(~max(., na.rm = na.rm))) %>% dplyr::mutate(f = "Max"),
+    metric_cols %>% dplyr::summarize_all(.funs = list(~min(., na.rm = na.rm))) %>% dplyr::mutate(f = "Min"),
+    metric_cols %>% dplyr::summarize_all(.funs = list(~sum(is.na(.)))) %>% dplyr::mutate(f = "NAs"),
+    metric_cols_with_infs %>% dplyr::summarize_all(.funs = list(~sum(is.infinite(.)))) %>% dplyr::mutate(f = "INFs")
+  ) %>%
+    dplyr::select(.data$f, dplyr::everything()) %>%
+    dplyr::rename(Measure = .data$f)
+
+  # Remove the INFs from the NAs count
+  if(nrow(metric_cols_with_infs) > 0){
+    NAs_row_number <- which(summarized_metrics$Measure == "NAs")
+    INFs_row_number <- which(summarized_metrics$Measure == "INFs")
+    summarized_metrics[NAs_row_number,-1] <- summarized_metrics[NAs_row_number,-1] - summarized_metrics[INFs_row_number,-1]
+  }
+
+  summarized_metrics
 }

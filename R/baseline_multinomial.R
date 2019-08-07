@@ -52,17 +52,43 @@ baseline_multinomial <- function(test_data,
                                    abs_fold = "abs_fold",
                                    fold_column = "fold_column"),
              # models=NULL,
-             model_specifics = model_specifics)
+             model_specifics = model_specifics) %>%
+      dplyr::mutate(Repetition = evaluation)
+
   }) %>% dplyr::bind_rows() %>% # Works with nested tibbles (ldply doesn't seem to)
     dplyr::mutate(
       Family = "multinomial",
       Dependent = dependent_col
-    ) %>% View()
+    ) %>%
+    dplyr::select(.data$Repetition, dplyr::everything())
 
+  # Extract the metrics
+  metric_cols_all <- select_metrics(evaluations_random, include_definitions = FALSE,
+                                additional_includes = "Class")
 
+  # Extract the "Avg result" rows and select the metric columns
+  metric_cols_avg <- metric_cols_all %>%
+    dplyr::filter(.data$Class == "Avg") %>%
+    dplyr::select(-.data$Class)
 
+  # Summarize the metrics
+  summarized_avg_metrics <- summarize_metric_cols(metric_cols_avg)
 
+  # Find the class level summaries
+  summarized_metrics_class_level <- plyr::ldply(classes, function(cl){
+    # Extract the class level (non averaged) results and select the metric columns
+    metric_cols_current_class <- metric_cols_all %>%
+      dplyr::filter(.data$Class != "Avg") %>%
+      dplyr::select(-c(.data$Class, .data$`Overall Accuracy`))
+
+    summarize_metric_cols(metric_cols_current_class) %>%
+      dplyr::mutate(Class = cl)
+
+  }) %>% dplyr::select(.data$Class, dplyr::everything())
+
+  View(summarized_metrics_class_level)
   # predicted_class <- argmax(random_probabilities)
+
 
 }
 

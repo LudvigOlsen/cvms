@@ -111,7 +111,7 @@ multinomial_classification_eval <- function(data,
     }) %>% dplyr::bind_rows()
 
     average_metrics <- one_vs_all_evaluations %>%
-      dplyr::mutate(Family = "binomial") %>%
+      dplyr::mutate(Family = "multinomial") %>%
       select_metrics(include_definitions = FALSE) %>%
       dplyr::summarise_all(list(mean), na.rm = TRUE) %>%
       dplyr::mutate(Class = "Avg",

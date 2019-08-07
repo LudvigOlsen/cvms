@@ -65,7 +65,8 @@ create_binomial_baseline_evaluations <- function(test_data,
     basics_update_model_specifics()
 
   # Sample random probabilities
-  random_probabilities <- split(runif(n_targets*reps), f = factor(rep(1:reps, each=n_targets)))
+  random_probabilities <- split(runif(n_targets*reps),
+                                f = factor(rep(1:reps, each = n_targets)))
 
   # Create all 0 and all 1 probabilities
   all_0_probabilities <- rep(0.000001, n_targets)

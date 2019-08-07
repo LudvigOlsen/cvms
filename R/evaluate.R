@@ -10,7 +10,7 @@ evaluate <- function(data, type="linear_regression",
                      models=NULL,
                      model_specifics=list()){
 
-  stopifnot(type %in% c("linear_regression", "binomial")) #, "multiclass", "multilabel"))
+  stopifnot(type %in% c("linear_regression", "binomial", "multinomial")) #, "multiclass", "multilabel"))
 
   # data is a table with predictions, targets and folds
   # predictions can be values, logits, or classes, depending on evaluation type
@@ -30,13 +30,25 @@ evaluate <- function(data, type="linear_regression",
     results <- binomial_classification_eval(data,
                                             predictions_col = predictions_col,
                                             targets_col = targets_col,
-                                            fold_info_cols = list(rel_fold="rel_fold",
-                                                                  abs_fold="abs_fold",
-                                                                  fold_column="fold_column"),
-                                            models=models,
-                                            cutoff=model_specifics[["cutoff"]],
-                                            positive=model_specifics[["positive"]])
+                                            fold_info_cols = list(
+                                              rel_fold = "rel_fold",
+                                              abs_fold = "abs_fold",
+                                              fold_column = "fold_column"),
+                                            models = models,
+                                            cutoff = model_specifics[["cutoff"]],
+                                            positive = model_specifics[["positive"]])
+  } else if (type == "multinomial"){
+
+    results <- multinomial_classification_eval(data,
+                                               predictions_col = predictions_col,
+                                               targets_col = targets_col,
+                                               fold_info_cols = list(
+                                                 rel_fold = "rel_fold",
+                                                 abs_fold = "abs_fold",
+                                                 fold_column = "fold_column"),
+                                               models = models)
   }
+
 
   return(results)
 }

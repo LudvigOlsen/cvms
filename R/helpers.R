@@ -301,3 +301,57 @@ is_between_ <- function(x, a, b) {
 
   x > a & x < b
 }
+
+logsumexp <- function (x) {
+  y = max(x)
+  y + log(sum(exp(x - y)))
+}
+
+softmax_row <- function (...) {
+  x <- unname(c(...))
+  x <- exp(x - logsumexp(x))
+  # Convert to row in tibble
+  # TODO There must be a better way
+  x <- dplyr::as_tibble(t(matrix(x)))
+  x
+}
+
+# TODO Add tests of this !!!
+softmax <- function(data, cols=NULL){
+
+  # Convert to tibble
+  data <- dplyr::as_tibble(data)
+
+  # TODO is this necessary?
+  if (!is.null(cols)){
+
+    if (is.numeric(cols)){
+      data_to_process <- data %>% dplyr::select(cols)
+      data_to_leave <- data %>% dplyr::select(-cols)
+      cols <- colnames(data_to_process)
+
+      } else if (is.character(cols)){
+      data_to_process <- data %>% dplyr::select(dplyr::one_of(cols))
+      data_to_leave <- data %>% dplyr::select(-dplyr::one_of(cols))
+      }
+
+  } else {
+    data_to_process <- data
+    data_to_leave <- NULL
+    cols <- colnames(data)
+  }
+
+  processed_data <- purrr::pmap_dfr(data_to_process,
+           softmax_row)
+  colnames(processed_data) <- cols
+  dplyr::bind_cols(processed_data, data_to_leave)
+
+}
+
+# Add underscore until var name is unique
+create_tmp_var <- function(data, tmp_var = ".tmp_index_"){
+  while (tmp_var %in% colnames(data)){
+    tmp_var <- paste0(tmp_var, "_")
+  }
+  tmp_var
+}

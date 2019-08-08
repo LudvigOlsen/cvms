@@ -1,14 +1,14 @@
 # R CMD check NOTE handling
 if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 
-evaluate <- function(data, type="linear_regression",
+evaluate <- function(data, type = "linear_regression",
                      predictions_col = "prediction",
                      targets_col = "target",
-                     fold_info_cols = list(rel_fold="rel_fold",
-                                           abs_fold="abs_fold",
-                                           fold_column="fold_column"),
-                     models=NULL,
-                     model_specifics=list()){
+                     fold_info_cols = list(rel_fold = "rel_fold",
+                                           abs_fold = "abs_fold",
+                                           fold_column = "fold_column"),
+                     models = NULL,
+                     model_specifics = list()){
 
   stopifnot(type %in% c("linear_regression", "binomial", "multinomial")) #, "multiclass", "multilabel"))
 

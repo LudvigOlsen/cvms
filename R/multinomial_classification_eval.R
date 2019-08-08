@@ -125,6 +125,7 @@ multinomial_classification_eval <- function(data,
   } else {
 
     # TODO replace with multinomial NA result
+    stop("NOT YET IMPLEMENTED!")
     results <- binomial_classification_NA_results_tibble()
 
     if (!is.null(models))

@@ -1,7 +1,3 @@
-# R CMD check NOTE handling
-if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
-
-
 # TODO Find another name, as evaluate is already in generics::evaluate
 # Isn't there an appropriate synonym?
 evaluate <- function(data,
@@ -40,6 +36,7 @@ evaluate <- function(data,
                       cutoff = cutoff,
                       positive = positive)
 
+  # Create basic model_specifics object
   model_specifics <- list(
     model_formula = "",
     family = family,
@@ -51,10 +48,27 @@ evaluate <- function(data,
   ) %>%
     basics_update_model_specifics()
 
+  # If the dataset is grouped, we need the indices and keys for the groups
+  # so we can evaluate group wise
+  grouping_factor <- dplyr::group_indices(data)
+  grouping_keys <- dplyr::group_keys(data)
+
+  # Add grouping factor with a unique tmp var
+  local_tmp_grouping_factor_var <- create_tmp_var(data, ".group")
+  data[[local_tmp_grouping_factor_var]] <- grouping_factor
+
+  # Now that we've saved the groups
+  # we can ungroup the dataset
+  data <- data %>% dplyr::ungroup()
+
   # Create temporary prediction column name
   local_tmp_predictions_col_var <- create_tmp_var(data, "tmp_predictions_col")
 
   if (!is.null(id_col)) {
+
+    # ID level evaluation
+
+    # Prepare data for ID level evaluation
     data_for_id_evaluation <- prepare_id_level_evaluation(
       data = data,
       dependent_col = dependent_col,
@@ -62,69 +76,89 @@ evaluate <- function(data,
       family = family,
       id_col = id_col,
       id_method = id_method,
+      groups_col = local_tmp_grouping_factor_var,
       apply_softmax = FALSE,
       new_prediction_col_name = local_tmp_predictions_col_var
     ) %>% dplyr::ungroup()
 
-  }
+    if (family == "multinomial")
+      prediction_cols <- local_tmp_predictions_col_var
 
-  if (family == "multinomial"){
-
-    data <- prepare_multinomial_evaluation(data = data,
-                                           dependent_col = dependent_col,
-                                           prediction_cols = prediction_cols,
-                                           apply_softmax = apply_softmax,
-                                           new_prediction_col_name = local_tmp_predictions_col_var
+    # Run ID level evaluation
+    evaluations <- run_evaluate_wrapper(
+      data = data_for_id_evaluation,
+      type = family,
+      predictions_col = prediction_cols,
+      targets_col = dependent_col,
+      id_col = id_col,
+      id_method = id_method,
+      groups_col = local_tmp_grouping_factor_var,
+      grouping_keys = grouping_keys,
+      models = model,
+      model_specifics = model_specifics
     )
 
-    prediction_cols <- local_tmp_predictions_col_var
-
   } else {
-    if (length(prediction_cols) > 1) {
-      stop(paste0("'prediction_cols' must have length 1 when family is '", family, "'."))
-    }
-  }
 
-  evaluations <- run_evaluate_wrapper(
+    # Regular evaluation
+
+    if (family == "multinomial"){
+
+      # Prepare data for multinomial evaluation
+      data <- prepare_multinomial_evaluation(data = data,
+                                             dependent_col = dependent_col,
+                                             prediction_cols = prediction_cols,
+                                             apply_softmax = apply_softmax,
+                                             new_prediction_col_name = local_tmp_predictions_col_var
+      )
+
+      prediction_cols <- local_tmp_predictions_col_var
+
+    } else {
+      if (length(prediction_cols) > 1) {
+        stop(paste0("'prediction_cols' must have length 1 when family is '", family, "'."))
+      }
+    }
+
+    # Run evaluation
+    evaluations <- run_evaluate_wrapper(
       data = data,
       type = family,
       predictions_col = prediction_cols,
       targets_col = dependent_col,
       models = model,
+      groups_col = local_tmp_grouping_factor_var,
+      grouping_keys = grouping_keys,
       model_specifics = model_specifics
     )
-
-  if (!is.null(id_col)){
-    id_evaluations <- run_evaluate_wrapper(
-      data = data_for_id_evaluation,
-      type = family,
-      predictions_col = prediction_cols,
-      targets_col = dependent_col,
-      models = model,
-      model_specifics = model_specifics
-    )
-
-    return(
-      list("Evaluation" = evaluations,
-           "ID_evaluation" = id_evaluations)
-    )
-  } else {
-    return(evaluations)
   }
+
+  evaluations
 
 }
 
 
-run_evaluate_wrapper <- function(
-  data, type, predictions_col, targets_col, models,
-  fold_info_cols = NULL, model_specifics) {
+run_evaluate_wrapper <- function(data,
+                                 type,
+                                 predictions_col,
+                                 targets_col,
+                                 models,
+                                 groups_col,
+                                 grouping_keys,
+                                 id_col = NULL,
+                                 id_method = NULL,
+                                 fold_info_cols = NULL,
+                                 model_specifics) {
+
+  num_classes <- length(unique(data[[targets_col]]))
 
   if (is.null(fold_info_cols)){
 
-    # Add fold columns. They are not really used but are currently required.
+    # Create fold columns
     local_tmp_fold_col_var <- create_tmp_var(data, "fold_column")
     local_tmp_rel_fold_col_var <- create_tmp_var(data, "rel_fold")
     local_tmp_abs_fold_col_var <- create_tmp_var(data, "abs_fold")
+
     data[[local_tmp_fold_col_var]] <- 1
     data[[local_tmp_rel_fold_col_var]] <- 1
     data[[local_tmp_abs_fold_col_var]] <- 1
@@ -134,15 +168,39 @@ run_evaluate_wrapper <- function(
                           fold_column = local_tmp_fold_col_var)
   }
 
-  evaluations <- internal_evaluate(data = data,
-                                   type = type,
-                                   predictions_col = predictions_col,
-                                   targets_col = targets_col,
-                                   models = models,
-                                   fold_info_cols = fold_info_cols,
-                                   model_specifics = model_specifics)
+  evaluations <- plyr::llply(unique(data[[groups_col]]), function(gr){
+    data_for_current_group <- data %>%
+      dplyr::filter(!!as.name(groups_col) == gr)
+    internal_evaluate(data = data_for_current_group,
+                      type = type,
+                      predictions_col = predictions_col,
+                      targets_col = targets_col,
+                      models = models,
+                      id_col = id_col,
+                      id_method = id_method,
+                      fold_info_cols = fold_info_cols,
+                      model_specifics = model_specifics)
+  })
 
-  evaluations
+  # Extract all the Results tibbles
+  # And add the grouping keys
+  results <- evaluations %c% "Results" %>%
+    dplyr::bind_rows() %>%
+    tibble::as_tibble()
+  results <- grouping_keys %>%
+    dplyr::bind_cols(results)
+
+  # Extract all the Class_level_results tibbles
+  # And add the grouping keys
+  class_level_results <- evaluations %c% "Class_level_results" %>%
+    dplyr::bind_rows() %>%
+    tibble::as_tibble()
+  class_level_results <- grouping_keys %>%
+    dplyr::slice(rep(1:dplyr::n(), each = num_classes)) %>%
+    dplyr::bind_cols(class_level_results)
+
+  list("Results" = results,
+       "Class_level_results" = class_level_results)
 
 }
 
@@ -152,10 +210,15 @@ prepare_id_level_evaluation <- function(data,
                                         family,
                                         id_col,
                                         id_method,
+                                        groups_col,
                                         apply_softmax = length(prediction_cols) > 1,
                                         new_prediction_col_name = "prediction") {
 
   # Prepare data for id evaluation
+
+  if (is.null(id_col)){
+    stop("'id_col' was NULL.")
+  }
 
   if (!is.character(id_col)) {
     stop("'id_col' must be either the name of a column in 'data' or NULL.")
@@ -171,17 +234,20 @@ prepare_id_level_evaluation <- function(data,
     data <- softmax(data, cols = prediction_cols)
   }
 
+  num_groups <- length(unique(data[[groups_col]]))
+
   # Add actual class
   id_classes <- data %>%
-    dplyr::select(!!as.name(id_col), !!as.name(dependent_col)) %>%
+    dplyr::select(!!as.name(groups_col), !!as.name(id_col), !!as.name(dependent_col)) %>%
     dplyr::distinct()
 
   if (id_method == "mean") {
 
     data_for_id_evaluation <- data %>%
-      dplyr::group_by(!!as.name(id_col)) %>%
+      dplyr::group_by(!!as.name(groups_col), !!as.name(id_col)) %>%
       dplyr::summarise_at(dplyr::vars(prediction_cols), .funs = mean) %>%
-      dplyr::left_join(id_classes, by = id_col)
+      dplyr::left_join(id_classes, by = c(id_col, groups_col)) %>%
+      dplyr::ungroup()
 
   } else if (id_method == "majority"){
 
@@ -198,21 +264,20 @@ prepare_id_level_evaluation <- function(data,
         .f = function(x){prediction_cols[[x]]})
 
       data_majority_count_by_id <- data %>%
-        dplyr::group_by(!!as.name(id_col)) %>%
-        dplyr::count(.data$predicted_class)
-
-      data_majority_count_by_id <- data_majority_count_by_id %>%
-        dplyr::left_join(id_classes, by = id_col)
+        dplyr::group_by(!!as.name(groups_col), !!as.name(id_col)) %>%
+        dplyr::count(.data$predicted_class) %>%
+        dplyr::left_join(id_classes, by = c(id_col, groups_col)) %>%
+        dplyr::ungroup()
 
       # In case not all classes were predicted
       # We add them with NA values
       # TODO Add unit test to make sure this part works !!!! !!!! !!!!
-      classes_to_add <- setdiff(prediction_cols,
+      classes_to_add <- setdiff(prediction_cols, # use for testing: c(prediction_cols, "cl_7"),
                                 data_majority_count_by_id[["predicted_class"]])
 
       if (length(classes_to_add) > 0){
         na_cols <- dplyr::bind_rows(setNames(rep(
-          list(rep(NA, nlevels(factor(data_majority_count_by_id[[id_col]])))),
+          list(rep(NA, num_groups * nlevels(factor(data_majority_count_by_id[[id_col]])))),
           length(classes_to_add)), classes_to_add))
       }
 
@@ -224,7 +289,8 @@ prepare_id_level_evaluation <- function(data,
       if (length(classes_to_add) > 0){
         majority_vote_probabilities <- majority_vote_probabilities %>%
           dplyr::bind_cols(na_cols) %>%
-          dplyr::select(dplyr::one_of(id_col, prediction_cols))
+          dplyr::select(dplyr::one_of(
+            groups_col, id_col, dependent_col, prediction_cols))
       }
 
       # Set NAs to 0
@@ -236,7 +302,8 @@ prepare_id_level_evaluation <- function(data,
       majority_vote_probabilities <- majority_vote_probabilities %>%
         dplyr::mutate_at(prediction_cols, function(x){(x/(x+1e-30))*1e+4})
 
-      data_for_id_evaluation <- majority_vote_probabilities
+      data_for_id_evaluation <- majority_vote_probabilities %>%
+        dplyr::ungroup()
 
     } else if (family == "binomial"){
       stop("not yet implemented")
@@ -299,6 +366,8 @@ internal_evaluate <- function(data,
                                                     abs_fold = "abs_fold",
                                                     fold_column = "fold_column"),
                               models = NULL,
+                              id_col = NULL,
+                              id_method = NULL,
                               model_specifics = list()) {
 
 
@@ -335,6 +404,7 @@ internal_evaluate <- function(data,
       predictions_col = predictions_col,
       targets_col = targets_col,
       id_col = id_col,
+      id_method = id_method,
       fold_info_cols = fold_info_cols,
       models = models)
 
@@ -374,14 +444,16 @@ check_args_evaluate <- function(data,
   }
 
   # id_col
-  if (!is.null(id_col) && !is.character(id_col)) {
-    stop("'id_col' must be either a column name or NULL.")
-  }
-  if (type == "gaussian" && !is.null(id_col)) {
-    warning(paste0("'id_col' is ignored when type is '", type, "'."))
-  }
-  if (id_col %ni% colnames(data)) {
-    stop(paste0("the 'id_col', ", id_col, ", was not found in 'data'."))
+  if (!is.null(id_col)){
+    if (!is.character(id_col)) {
+      stop("'id_col' must be either a column name or NULL.")
+    }
+    if (type == "gaussian") {
+      warning(paste0("'id_col' is ignored when type is '", type, "'."))
+    }
+    if (id_col %ni% colnames(data)) {
+      stop(paste0("the 'id_col', ", id_col, ", was not found in 'data'."))
+    }
   }
 
   # softmax

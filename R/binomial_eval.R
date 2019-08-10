@@ -48,7 +48,14 @@ binomial_eval <- function(data,
 
 }
 
-binomial_eval_confusion_matrices <- function(data,  targets_col, predicted_class_col, unique_fold_cols, cat_levels, positive, fold_info_cols){
+binomial_eval_confusion_matrices <- function(
+  data,
+  targets_col,
+  predicted_class_col,
+  unique_fold_cols,
+  cat_levels,
+  positive,
+  fold_info_cols) {
 
   # Confusion matrices
   if (length(unique_fold_cols) > 1){

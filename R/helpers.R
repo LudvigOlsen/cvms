@@ -197,6 +197,9 @@ create_fold_and_fold_column_map <- function(data, fold_info_cols){
                                 fold_info_cols[["abs_fold"]],
                                 fold_info_cols[["rel_fold"]]
     )) %>%
+    dplyr::rename(fold_column = fold_info_cols[["fold_column"]],
+                  abs_fold = fold_info_cols[["abs_fold"]],
+                  rel_fold = fold_info_cols[["rel_fold"]]) %>%
     dplyr::distinct()
 }
 

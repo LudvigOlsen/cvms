@@ -62,6 +62,20 @@ test_that("multinomial evaluations are correct in evaluate()",{
     apply_softmax = TRUE
   )
 
+  data_2 <- data_ %>% dplyr::mutate(fold_ = 1) %>% dplyr::bind_rows(data_ %>% dplyr::mutate(fold_ = 2))
+
+  mn_eval_3 <- evaluate(
+    data = data_2 %>% dplyr::group_by(fold_),
+    dependent_col = "cl_char",
+    prediction_cols = paste0("cl_", 1:5),
+    id_col = "id",
+    id_method = "majority",
+    type = "multiclass_classification",
+    apply_softmax = TRUE
+  )
+
+  # TODO test that group_by and evaluate work correctly together
+
 })
 
 # TODO Add test that majority vote id_method works when not all classes are predicted most by one of the ids

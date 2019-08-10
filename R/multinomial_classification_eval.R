@@ -4,6 +4,7 @@ multinomial_classification_eval <- function(data,
                                             predictions_col,
                                             targets_col,
                                             id_col = NULL,
+                                            id_method = NULL,
                                             fold_info_cols = list(
                                               rel_fold = "rel_fold",
                                               abs_fold = "abs_fold",
@@ -71,14 +72,27 @@ multinomial_classification_eval <- function(data,
                     !! as.name(targets_col),
                     !! as.name(predictions_col),
                     .data$predicted_class
-      ) %>%
+      )
+
+    # If ID evaluation, add ID and method to nested predictions
+    if (!is.null(id_col)){
+      if (is.null(id_method))
+        stop("when 'id_col' is specified, 'id_method' must be specified as well.")
+
+      predictions_nested[[id_col]] <- data[[id_col]]
+      predictions_nested[["id_method"]] <- id_method
+
+    }
+
+    # Rename some columns and nest, nest, nest
+    predictions_nested <- predictions_nested %>%
       dplyr::rename(Fold = fold_info_cols[["rel_fold"]],
                     `Fold Column` = fold_info_cols[["fold_column"]],
                     Target = !! as.name(targets_col),
                     Prediction = !! as.name(predictions_col),
                     `Predicted Class` = .data$predicted_class
       ) %>%
-      tidyr::nest(1:5) %>%
+      tidyr::nest(1:ncol(predictions_nested)) %>%
       dplyr::rename(predictions = data)
 
     # print(predictions_nested$predictions)#[[1]]$Prediction)

@@ -316,6 +316,11 @@ softmax_row <- function (...) {
   x
 }
 
+softmax_vector <- function(...){
+  x <- unname(c(...))
+  exp(x - logsumexp(x))
+}
+
 # TODO Add tests of this !!!
 softmax <- function(data, cols=NULL){
 
@@ -341,6 +346,11 @@ softmax <- function(data, cols=NULL){
     cols <- colnames(data)
   }
 
+  # Test that the probability columns are numeric
+  if (any(!sapply(data_to_process, is.numeric))) {
+    stop("softmax only works on numeric columns.")
+  }
+
   processed_data <- purrr::pmap_dfr(data_to_process,
            softmax_row)
   colnames(processed_data) <- cols
@@ -354,4 +364,21 @@ create_tmp_var <- function(data, tmp_var = ".tmp_index_"){
     tmp_var <- paste0(tmp_var, "_")
   }
   tmp_var
+}
+
+create_multinomial_probability_tibble <- function(num_classes,
+                                                  num_observations,
+                                                  apply_softmax = TRUE,
+                                                  FUN = runif,
+                                                  class_name = "class_"){
+
+  probability_matrix <- matrix(FUN(num_classes * num_observations),
+                               ncol = num_classes) %>%
+    dplyr::as_tibble(.name_repair = ~ paste0(class_name, 1:num_classes))
+
+  if (isTRUE(apply_softmax)){
+    probability_matrix <- softmax(probability_matrix)
+  }
+
+  probability_matrix
 }

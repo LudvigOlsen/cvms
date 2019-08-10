@@ -1,14 +1,13 @@
-# R CMD check NOTE handling
-if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
-
 # Note - predictions should be softmaxed rowwise and nested - TODO create tool
 
 multinomial_classification_eval <- function(data,
                                             predictions_col,
                                             targets_col,
-                                            fold_info_cols = list(rel_fold="rel_fold",
-                                                               abs_fold="abs_fold",
-                                                               fold_column="fold_column"),
+                                            id_col = NULL,
+                                            fold_info_cols = list(
+                                              rel_fold = "rel_fold",
+                                              abs_fold = "abs_fold",
+                                              fold_column = "fold_column"),
                                             models = NULL){
   # Note: predictions are floats (e.g. 0.7), targets are 0 or 1
 
@@ -24,7 +23,7 @@ multinomial_classification_eval <- function(data,
   predicted_probabilities <- tryCatch({
     dplyr::bind_rows(data[[predictions_col]])
   }, error = function(e){
-    stop("Could not bind the specified preditions_col: ", predictions_col,".")
+    stop("Could not bind the specified predictions_col: ", predictions_col, ".")
   })
 
   # Check if there are NAs in predictions
@@ -40,7 +39,7 @@ multinomial_classification_eval <- function(data,
   if (!na_in_targets && !na_in_predictions){
 
     # Find the levels in the categorical target variable
-    cat_levels = levels_as_characters(data[[targets_col]])
+    cat_levels <- levels_as_characters(data[[targets_col]])
     classes <- cat_levels # TODO FIX COPYING
     num_classes <- length(cat_levels)
 
@@ -53,7 +52,7 @@ multinomial_classification_eval <- function(data,
     predicted_probabilities <- predicted_probabilities %>%
       dplyr::select(dplyr::one_of(classes))
 
-    # Create a column with the predicted class based on the chosen cutoff
+    # Create a column with the predicted class
     data[["predicted_class_index"]] <- argmax(predicted_probabilities)
     data[["predicted_class"]] <- purrr::map_chr(
       data[["predicted_class_index"]],
@@ -65,6 +64,7 @@ multinomial_classification_eval <- function(data,
       dplyr::pull(.data$overall_accuracy)
 
     # Nest predictions and targets
+    # TODO This should not be included in class level results, only for average metrics
     predictions_nested <- tibble::as_tibble(data) %>%
       dplyr::select(!! as.name(fold_info_cols[["fold_column"]]),
                     !! as.name(fold_info_cols[["rel_fold"]]),
@@ -103,24 +103,45 @@ multinomial_classification_eval <- function(data,
         positive = 2,
         fold_info_cols = fold_info_cols,
         fold_and_fold_col = fold_and_fold_col,
-        predictions_nested = predictions_nested,
+        predictions_nested = NULL,
         models = models
         ) %>%
         dplyr::mutate(Class = classes[[cl]])
 
     }) %>% dplyr::bind_rows()
 
+    # Place Class column first
+    one_vs_all_evaluations <- one_vs_all_evaluations %>%
+      dplyr::select(.data$Class, dplyr::everything())
+
+    # Calculate the average metrics and add overall metrics
     average_metrics <- one_vs_all_evaluations %>%
       dplyr::mutate(Family = "multinomial") %>%
       select_metrics(include_definitions = FALSE) %>%
-      dplyr::summarise_all(list(mean), na.rm = TRUE) %>%
-      dplyr::mutate(Class = "Avg",
-                    `Overall Accuracy` = overall_accuracy)
+      dplyr::summarise_all(list(mean), na.rm = TRUE)
 
-    results <- average_metrics %>%
-      dplyr::bind_rows(one_vs_all_evaluations) %>%
-      dplyr::select(dplyr::one_of(c("Overall Accuracy", colnames(one_vs_all_evaluations)))) %>%
-      dplyr::select(.data$Class, dplyr::everything())
+    overall_results <- average_metrics %>%
+      dplyr::mutate(`Overall Accuracy` = overall_accuracy,
+                    Predictions = predictions_nested$predictions)
+
+      overall_results <- overall_results %>%
+      dplyr::select(dplyr::one_of("Overall Accuracy"), dplyr::everything())
+
+    # Add total counts confusion matrix
+    # Try to use fit a confusion matrix with the predictions and targets
+    overall_confusion_matrix = tryCatch({
+      caret::confusionMatrix(factor(data[["predicted_class"]], levels = cat_levels),
+                             factor(data[[targets_col]], levels = cat_levels))
+
+    }, error = function(e) {
+      stop(paste0('Confusion matrix error: ',e))
+    })
+
+    overall_results[["Confusion Matrix"]] <- nest_multiclass_confusion_matrices(
+      list(overall_confusion_matrix))[["confusion_matrices"]]
+
+    results <- list("Results" = overall_results,
+                    "Class_level_results" = one_vs_all_evaluations)
 
   } else {
 
@@ -139,7 +160,6 @@ multinomial_classification_eval <- function(data,
   return(results)
 
 }
-
 
 
 argmax_row <- function(...){
@@ -188,68 +208,4 @@ argmax <- function(data){
 #                  'Prevalence' = unname(conf_mat$byClass['Prevalence']),
 #                  "Predictions" = ifelse(!is.null(predictions_nested), predictions_nested$predictions, logical()),
 #                  "ROC" = ifelse(!is.null(roc_nested), roc_nested$roc, logical()))
-# }
-#
-# fit_confusion_matrix <- function(predicted_classes, targets, cat_levels, positive){
-#
-#   if (is.numeric(positive)) positive <- cat_levels[positive]
-#   else if (is.character(positive) && positive %ni% cat_levels){
-#     stop(paste0("When 'positive' is a character, it must correspond to a factor level in the dependent variable.",
-#                 "\n'positive' is ", positive, " and levels are ", paste(cat_levels, collapse = " and "),"."))
-#   }
-#
-#   # Try to use fit a confusion matrix with the predictions and targets
-#   conf_mat = tryCatch({
-#     caret::confusionMatrix(factor(predicted_classes, levels = cat_levels),
-#                            factor(targets, levels = cat_levels),
-#                            positive = positive)
-#
-#   }, error = function(e) {
-#     stop(paste0('Confusion matrix error: ',e))
-#
-#   })
-#
-#   conf_mat
-# }
-#
-# # levels must be ordered such that the positive class is last c(neg, pos)
-# fit_roc_curve <- function(predicted_probabilities, targets, levels = c(0,1), direction = "<"){
-#
-#   # Try to fit a ROC curve on the data
-#   roc_curve = tryCatch({
-#     pROC::roc(
-#       response = targets,
-#       predictor = predicted_probabilities,
-#       direction = direction,
-#       levels = levels
-#     )
-#   }, error = function(e) {
-#     stop(paste0('Receiver Operator Characteristic (ROC) Curve error: ',e))
-#
-#   })
-#
-#   roc_curve
-# }
-#
-# nest_confusion_matrices <- function(confusion_matrices, cat_levels=c("0","1"), fold_cols=".folds"){
-#
-#   if (length(fold_cols) == 1) {
-#     fold_cols <- rep(fold_cols, length(confusion_matrices))
-#   }
-#
-#   plyr::ldply(1:length(confusion_matrices), function(i){
-#
-#     dplyr::as_tibble(confusion_matrices[[i]]$table) %>%
-#       dplyr::mutate(Pos0 = c("TP","FN","FP","TN"),
-#                     Pos1 = c("TN","FP","FN","TP"),
-#                     `Fold Column` = fold_cols[[i]])
-#   }) %>%
-#     dplyr::rename(N=.data$n) %>%
-#     dplyr::select(c(.data$`Fold Column`, .data$Prediction, .data$Reference,
-#                     .data$Pos0, .data$Pos1, .data$N)) %>%
-#     dplyr::rename_at(dplyr::vars(c("Pos0","Pos1")), ~ c(paste0("Pos_",cat_levels[[1]]),
-#                                                         paste0("Pos_",cat_levels[[2]]))) %>%
-#     tidyr::nest(1:6) %>%
-#     dplyr::rename(confusion_matrices = data)
-#
 # }

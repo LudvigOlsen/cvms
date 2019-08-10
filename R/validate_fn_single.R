@@ -55,17 +55,22 @@ validate_fn_single = function(train_data,
   # Extract singular fit message
   yielded_singular_fit_message = fitting_output[["yielded_singular_fit_message"]]
 
-  model_evaluation <- evaluate(predictions_and_targets,
-                               type=evaluation_type,
-                               predictions_col = "prediction",
-                               targets_col = "target",
-                               fold_info_cols = list(rel_fold="rel_fold",
-                                                     abs_fold="abs_fold",
-                                                     fold_column="fold_column"),
-                               models=list(model),
-                               model_specifics=model_specifics) %>%
+  model_evaluation <- internal_evaluate(
+    predictions_and_targets,
+    type = evaluation_type,
+    predictions_col = "prediction",
+    targets_col = "target",
+    fold_info_cols = list(
+      rel_fold = "rel_fold",
+      abs_fold = "abs_fold",
+      fold_column = "fold_column"
+    ),
+    models = list(model),
+    model_specifics = model_specifics
+  ) %>%
     dplyr::mutate(`Convergence Warnings` = ifelse(is.null(model), 1, 0),
-           `Singular Fit Messages` = ifelse(isTRUE(yielded_singular_fit_message), 1, 0))
+                  `Singular Fit Messages` = ifelse(isTRUE(yielded_singular_fit_message), 1, 0))
+
 
   # Remove Results tibble if linear regression
   if (evaluation_type == "linear_regression"){

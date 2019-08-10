@@ -5,13 +5,11 @@ baseline_multinomial <- function(test_data,
 
   # Extract the dependent column from the test set
   targets <- as.character(test_data[[dependent_col]])
-  n_targets <- length(targets)
+  num_targets <- length(targets)
   # Extract the unique class labels
   classes <- unique(targets)
   # Count number of classes
   num_classes <- length(classes)
-
-  print(classes)
 
   # Add fold info columns
   test_data[["rel_fold"]] <- 1
@@ -30,12 +28,12 @@ baseline_multinomial <- function(test_data,
 
   # TODO Test num_classes etc.
 
-  random_probabilities <- matrix(runif(num_classes * n_targets * reps), ncol=num_classes) %>%
-    dplyr::as_tibble() %>%
-    softmax() %>%
-    dplyr::rename_all( ~ classes) %>%
+  random_probabilities <- create_multinomial_probability_tibble(num_classes = num_classes,
+                                                                num_observations = num_targets * reps,
+                                                                apply_softmax = TRUE) %>%
+    dplyr::rename_all(~classes) %>%
     nest_probabilities_rowwise() %>%
-    split(f = factor(rep(1:reps, each=n_targets)))
+    split(f = factor(rep(1:reps, each = num_targets)))
 
   evaluations_random <- plyr::llply(1:reps, .parallel = parallel_, function(evaluation){
 
@@ -44,27 +42,37 @@ baseline_multinomial <- function(test_data,
     # This will be changed to evaluation repetition later on
     test_data[["fold_column"]] <- evaluation
 
-    evaluate(test_data,
-             type = "multinomial",
-             predictions_col = "prediction",
-             targets_col = dependent_col,
-             fold_info_cols = list(rel_fold = "rel_fold",
-                                   abs_fold = "abs_fold",
-                                   fold_column = "fold_column"),
-             # models=NULL,
-             model_specifics = model_specifics) %>%
+    results <- internal_evaluate(
+      test_data,
+      type = "multinomial",
+      predictions_col = "prediction",
+      targets_col = dependent_col,
+      fold_info_cols = list(
+        rel_fold = "rel_fold",
+        abs_fold = "abs_fold",
+        fold_column = "fold_column"
+      ),
+      # models=NULL,
+      model_specifics = model_specifics)
+
+    results[["results"]][["Class"]] <- "Avg"
+
+    results %>%
+      dplyr::bind_rows() %>%  # bind the dataframes
       dplyr::mutate(Repetition = evaluation)
+
 
   }) %>% dplyr::bind_rows() %>% # Works with nested tibbles (ldply doesn't seem to)
     dplyr::mutate(
       Family = "multinomial",
       Dependent = dependent_col
     ) %>%
+    dplyr::select(.data$Class, dplyr::everything()) %>%
     dplyr::select(.data$Repetition, dplyr::everything())
 
   # Extract the metrics
   metric_cols_all <- select_metrics(evaluations_random, include_definitions = FALSE,
-                                additional_includes = "Class")
+                                    additional_includes = "Class")
 
   # Extract the "Avg result" rows and select the metric columns
   metric_cols_avg <- metric_cols_all %>%
@@ -130,15 +138,18 @@ all_or_nothing_evaluations <- function(test_data, targets_col, current_class, re
   # This will be changed to evaluation repetition later on
   test_data[["fold_column"]] <- reps + 1 # TODO is this necessary?
 
-  evaluations_all_0 <- evaluate(test_data,
-                                type = "binomial",
-                                predictions_col = local_tmp_predicted_probability_all_0_var,
-                                targets_col = local_tmp_target_var,
-                                fold_info_cols = list(rel_fold = "rel_fold",
-                                                      abs_fold = "abs_fold",
-                                                      fold_column = "fold_column"),
-                                # models = NULL,
-                                model_specifics = model_specifics) %>%
+  evaluations_all_0 <- internal_evaluate(
+    test_data,
+    type = "binomial",
+    predictions_col = local_tmp_predicted_probability_all_0_var,
+    targets_col = local_tmp_target_var,
+    fold_info_cols = list(
+      rel_fold = "rel_fold",
+      abs_fold = "abs_fold",
+      fold_column = "fold_column"
+    ),
+    # models = NULL,
+    model_specifics = model_specifics) %>%
     dplyr::mutate(Family = "multinomial",
                   Dependent = targets_col) %>%
     select_metrics(include_definitions = FALSE) %>%
@@ -149,15 +160,18 @@ all_or_nothing_evaluations <- function(test_data, targets_col, current_class, re
   # This will be changed to evaluation repetition later on
   test_data[["fold_column"]] <- reps + 2
 
-  evaluations_all_1 <- evaluate(test_data,
-                                type = "binomial",
-                                predictions_col = local_tmp_predicted_probability_all_1_var,
-                                targets_col = local_tmp_target_var,
-                                fold_info_cols = list(rel_fold = "rel_fold",
-                                                      abs_fold = "abs_fold",
-                                                      fold_column = "fold_column"),
-                                # models=NULL,
-                                model_specifics = model_specifics) %>%
+  evaluations_all_1 <- internal_evaluate(
+    test_data,
+    type = "binomial",
+    predictions_col = local_tmp_predicted_probability_all_1_var,
+    targets_col = local_tmp_target_var,
+    fold_info_cols = list(
+      rel_fold = "rel_fold",
+      abs_fold = "abs_fold",
+      fold_column = "fold_column"
+    ),
+    # models=NULL,
+    model_specifics = model_specifics) %>%
     dplyr::mutate(Family = "multinomial",
                   Dependent = targets_col) %>%
     select_metrics(include_definitions = FALSE) %>%

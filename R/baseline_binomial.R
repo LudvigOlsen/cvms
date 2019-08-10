@@ -81,15 +81,19 @@ create_binomial_baseline_evaluations <- function(test_data,
     # This will be changed to evaluation repetition later on
     test_data[["fold_column"]] <- evaluation
 
-    evaluate(test_data,
-             type = "binomial",
-             predictions_col = "prediction",
-             targets_col = dependent_col,
-             fold_info_cols = list(rel_fold = "rel_fold",
-                                   abs_fold = "abs_fold",
-                                   fold_column = "fold_column"),
-             # models=NULL,
-             model_specifics = model_specifics)
+    internal_evaluate(
+      test_data,
+      type = "binomial",
+      predictions_col = "prediction",
+      targets_col = dependent_col,
+      fold_info_cols = list(
+        rel_fold = "rel_fold",
+        abs_fold = "abs_fold",
+        fold_column = "fold_column"
+      ),
+      # models=NULL,
+      model_specifics = model_specifics
+    )
   }) %>% dplyr::bind_rows() %>% # Works with nested tibbles (ldply doesn't seem to)
     dplyr::mutate(
       Family = "binomial",
@@ -108,15 +112,19 @@ create_binomial_baseline_evaluations <- function(test_data,
   # This will be changed to evaluation repetition later on
   test_data[["fold_column"]] <- reps + 1
 
-  evaluations_all_0 <- evaluate(test_data,
-                                type = "binomial",
-                                predictions_col = "prediction",
-                                targets_col = dependent_col,
-                                fold_info_cols = list(rel_fold = "rel_fold",
-                                                      abs_fold = "abs_fold",
-                                                      fold_column = "fold_column"),
-                                # models = NULL,
-                                model_specifics = model_specifics) %>%
+  evaluations_all_0 <- internal_evaluate(
+    test_data,
+    type = "binomial",
+    predictions_col = "prediction",
+    targets_col = dependent_col,
+    fold_info_cols = list(
+      rel_fold = "rel_fold",
+      abs_fold = "abs_fold",
+      fold_column = "fold_column"
+    ),
+    # models = NULL,
+    model_specifics = model_specifics
+  ) %>%
     dplyr::mutate(Family = "binomial",
                   Dependent = dependent_col) %>%
     select_metrics(include_definitions = FALSE) %>%
@@ -129,15 +137,18 @@ create_binomial_baseline_evaluations <- function(test_data,
   # This will be changed to evaluation repetition later on
   test_data[["fold_column"]] <- reps + 2
 
-  evaluations_all_1 <- evaluate(test_data,
-                                type = "binomial",
-                                predictions_col = "prediction",
-                                targets_col = dependent_col,
-                                fold_info_cols = list(rel_fold = "rel_fold",
-                                                      abs_fold = "abs_fold",
-                                                      fold_column = "fold_column"),
-                                # models=NULL,
-                                model_specifics = model_specifics) %>%
+  evaluations_all_1 <- internal_evaluate(
+    test_data,
+    type = "binomial",
+    predictions_col = "prediction",
+    targets_col = dependent_col,
+    fold_info_cols = list(
+      rel_fold = "rel_fold",
+      abs_fold = "abs_fold",
+      fold_column = "fold_column"
+    ),
+    # models=NULL,
+    model_specifics = model_specifics) %>%
     dplyr::mutate(Family = "binomial",
                   Dependent = dependent_col) %>%
     select_metrics(include_definitions = FALSE) %>%

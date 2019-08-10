@@ -10,7 +10,7 @@ binomial_eval <- function(data,
                           positive,
                           fold_info_cols,
                           fold_and_fold_col,
-                          predictions_nested,
+                          predictions_nested = NULL,
                           models = NULL) {
 
 
@@ -35,10 +35,10 @@ binomial_eval <- function(data,
   )
 
   results <- binomial_eval_collect(unique_fold_cols = unique_fold_cols,
-                                     roc_curves_list = roc_curves_list,
-                                     confusion_matrices_list = confusion_matrices_list,
-                                     predictions_nested = predictions_nested,
-                                     models = models)
+                                   roc_curves_list = roc_curves_list,
+                                   confusion_matrices_list = confusion_matrices_list,
+                                   predictions_nested = predictions_nested,
+                                   models = models)
 
   if (!is.null(models)){
     results[["Coefficients"]] <- binomial_add_model_coefficients(models, fold_and_fold_col)
@@ -184,7 +184,9 @@ binomial_eval_collect <- function(unique_fold_cols, roc_curves_list, confusion_m
 
     # Gather the various results
     results <- average_metrics
-    results[["Predictions"]] <- predictions_nested$predictions
+    if (!is.null(predictions_nested)){
+      results[["Predictions"]] <- predictions_nested$predictions
+    }
     results[["Results"]] <- fold_col_results_nested$fold_col_results
     results[["ROC"]] <- roc_nested$roc
 
@@ -325,6 +327,28 @@ nest_confusion_matrices <- function(confusion_matrices, cat_levels=c("0","1"), f
     dplyr::rename_at(dplyr::vars(c("Pos0","Pos1")), ~ c(paste0("Pos_",cat_levels[[1]]),
                                                         paste0("Pos_",cat_levels[[2]]))) %>%
     tidyr::nest(1:6) %>%
+    dplyr::rename(confusion_matrices = data)
+
+}
+
+# Note, if only one confusion matrix object (from caret::confusionMatrix()),
+# pass it in a list
+nest_multiclass_confusion_matrices <- function(confusion_matrices,
+                                               fold_cols = ".folds") {
+
+  if (length(fold_cols) == 1) {
+    fold_cols <- rep(fold_cols, length(confusion_matrices))
+  }
+
+  plyr::ldply(1:length(confusion_matrices), function(i){
+
+    dplyr::as_tibble(confusion_matrices[[i]]$table) %>%
+      dplyr::mutate(`Fold Column` = fold_cols[[i]])
+  }) %>%
+    dplyr::rename(N=.data$n) %>%
+    dplyr::select(c(.data$`Fold Column`, .data$Prediction,
+                    .data$Reference, .data$N)) %>%
+    tidyr::nest(1:4) %>%
     dplyr::rename(confusion_matrices = data)
 
 }

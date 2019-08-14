@@ -92,7 +92,7 @@ multinomial_classification_eval <- function(data,
                     Prediction = !! as.name(predictions_col),
                     `Predicted Class` = .data$predicted_class
       ) %>%
-      tidyr::nest(1:ncol(predictions_nested)) %>%
+      legacy_nest(1:ncol(predictions_nested)) %>%
       dplyr::rename(predictions = data)
 
     # print(predictions_nested$predictions)#[[1]]$Prediction)

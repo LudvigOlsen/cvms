@@ -39,7 +39,7 @@ linear_regression_eval <- function(data,
                     Target = !! as.name(targets_col),
                     Prediction = !! as.name(predictions_col)
       ) %>%
-      tidyr::nest(1:4) %>%
+      legacy_nest(1:4) %>%
       dplyr::rename(predictions = data)
 
     # Calculate RMSE and MAE

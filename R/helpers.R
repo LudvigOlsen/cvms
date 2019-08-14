@@ -107,7 +107,7 @@ nest_results <- function(results){
   iter_results <- tibble::as_tibble(results)
   rownames(iter_results) <- NULL
   iter_results <- iter_results %>%
-    tidyr::nest() %>%
+    legacy_nest() %>%
     dplyr::rename(results = data)
 
   iter_results
@@ -120,7 +120,7 @@ nest_models <- function(models){
     iter_models[["p.value"]] <- NA
   }
   iter_models <- iter_models %>%
-    tidyr::nest() %>%
+    legacy_nest() %>%
     dplyr::rename(Coefficients = data)
 
   iter_models
@@ -385,3 +385,22 @@ create_multinomial_probability_tibble <- function(num_classes,
 
   probability_matrix
 }
+
+# https://tidyr.tidyverse.org/dev/articles/in-packages.html
+tidyr_new_interface <- function() {
+  packageVersion("tidyr") > "0.8.99"
+}
+
+# As the upcoming tidyr v1.0.0 has breaking changes
+# to nest (and unnest!), we make sure it's compatible for now
+# TODO replace nest_legacy with the new nest syntax within the
+# code, once people have moved to that.
+legacy_nest <- function(...){
+  if (tidyr_new_interface()){
+    tidyr::nest_legacy(...)
+  } else {
+    tidyr::nest(...)
+  }
+}
+
+

@@ -189,7 +189,7 @@ nest_row <- function(...){
   x <- unname(c(...))
   x <- dplyr::as_tibble(t(matrix(x)))
   colnames(x) <- col_names
-  tidyr::nest(x) %>%
+  legacy_nest(x) %>%
     dplyr::rename(probabilities = data)
 }
 

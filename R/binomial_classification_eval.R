@@ -47,7 +47,7 @@ binomial_classification_eval <- function(data,
                     Prediction = !! as.name(predictions_col),
                     `Predicted Class` = .data$predicted_class
                     ) %>%
-      tidyr::nest(1:5) %>%
+      legacy_nest(1:5) %>%
       dplyr::rename(predictions = data)
 
     results <-

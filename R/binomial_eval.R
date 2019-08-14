@@ -132,7 +132,7 @@ binomial_eval_roc_curves <- function(data, targets_col, predictions_col, unique_
                      Sensitivities = roc_curves[[i]]$sensitivities,
                      Specificities = roc_curves[[i]]$specificities)
     }) %>%
-      tidyr::nest(1:3) %>%
+      legacy_nest(1:3) %>%
       dplyr::rename(roc = data)
 
 
@@ -145,7 +145,7 @@ binomial_eval_roc_curves <- function(data, targets_col, predictions_col, unique_
     # ROC sensitivities and specificities
     roc_nested <- tibble::tibble(Sensitivities = roc_curve$sensitivities,
                                  Specificities = roc_curve$specificities) %>%
-      tidyr::nest(1:2) %>%
+      legacy_nest(1:2) %>%
       dplyr::rename(roc = data)
 
     # Put in list
@@ -181,7 +181,7 @@ binomial_eval_collect <- function(unique_fold_cols, roc_curves_list, confusion_m
     # Nest fold column results
     fold_col_results_nested <- fold_col_results %>%
       dplyr::select(-c(.data$Predictions, .data$ROC)) %>%
-      tidyr::nest(1 : (ncol(fold_col_results) - 2) ) %>% # -2 as we just remove two cols
+      legacy_nest(1 : (ncol(fold_col_results) - 2) ) %>% # -2 as we just remove two cols
       dplyr::rename(fold_col_results = data)
 
     # Average fold column results for reporting
@@ -333,7 +333,7 @@ nest_confusion_matrices <- function(confusion_matrices, cat_levels=c("0","1"), f
                     .data$Pos0, .data$Pos1, .data$N)) %>%
     dplyr::rename_at(dplyr::vars(c("Pos0","Pos1")), ~ c(paste0("Pos_",cat_levels[[1]]),
                                                         paste0("Pos_",cat_levels[[2]]))) %>%
-    tidyr::nest(1:6) %>%
+    legacy_nest(1:6) %>%
     dplyr::rename(confusion_matrices = data)
 
 }
@@ -355,7 +355,7 @@ nest_multiclass_confusion_matrices <- function(confusion_matrices,
     dplyr::rename(N=.data$n) %>%
     dplyr::select(c(.data$`Fold Column`, .data$Prediction,
                     .data$Reference, .data$N)) %>%
-    tidyr::nest(1:4) %>%
+    legacy_nest(1:4) %>%
     dplyr::rename(confusion_matrices = data)
 
 }

@@ -82,7 +82,7 @@ test_that("multinomial evaluations are correct in evaluate()",{
 
 
 
-testthat("binomial evaluation works in evaluate()",{
+test_that("binomial evaluation works in evaluate()",{
 
   set_seed_for_R_compatibility(1)
   random_probabilities <- create_multinomial_probability_tibble(

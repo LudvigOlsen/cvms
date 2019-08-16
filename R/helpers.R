@@ -315,7 +315,8 @@ softmax_row <- function (...) {
   x <- exp(x - logsumexp(x))
   # Convert to row in tibble
   # TODO There must be a better way
-  x <- dplyr::as_tibble(t(matrix(x)))
+  x <- dplyr::as_tibble(t(matrix(x)),
+                        .name_repair = ~ paste0("V", 1:length(x)))
   x
 }
 

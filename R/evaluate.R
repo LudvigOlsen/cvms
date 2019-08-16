@@ -74,6 +74,7 @@ evaluate <- function(data,
       dependent_col = dependent_col,
       prediction_cols = prediction_cols,
       family = family,
+      cutoff = cutoff,
       id_col = id_col,
       id_method = id_method,
       groups_col = local_tmp_grouping_factor_var,
@@ -182,25 +183,42 @@ run_evaluate_wrapper <- function(data,
                       model_specifics = model_specifics)
   })
 
-  # Extract all the Results tibbles
-  # And add the grouping keys
-  results <- evaluations %c% "Results" %>%
-    dplyr::bind_rows() %>%
-    tibble::as_tibble()
-  results <- grouping_keys %>%
-    dplyr::bind_cols(results)
+  if (type == "multinomial"){
 
-  # Extract all the Class_level_results tibbles
-  # And add the grouping keys
-  class_level_results <- evaluations %c% "Class_level_results" %>%
-    dplyr::bind_rows() %>%
-    tibble::as_tibble()
-  class_level_results <- grouping_keys %>%
-    dplyr::slice(rep(1:dplyr::n(), each = num_classes)) %>%
-    dplyr::bind_cols(class_level_results)
+    # Extract all the Results tibbles
+    # And add the grouping keys
+    results <- evaluations %c% "Results" %>%
+      dplyr::bind_rows() %>%
+      tibble::as_tibble()
+    results <- grouping_keys %>%
+      dplyr::bind_cols(results)
 
-  list("Results" = results,
-       "Class_level_results" = class_level_results)
+    # Extract all the Class_level_results tibbles
+    # And add the grouping keys
+    class_level_results <- evaluations %c% "Class_level_results" %>%
+      dplyr::bind_rows() %>%
+      tibble::as_tibble()
+    class_level_results <- grouping_keys %>%
+      dplyr::slice(rep(1:dplyr::n(), each = num_classes)) %>%
+      dplyr::bind_cols(class_level_results)
+
+    return(
+      list("Results" = results,
+         "Class_level_results" = class_level_results)
+    )
+  } else {
+
+    # Bind evaluations
+    evaluations <- evaluations %>%
+      dplyr::bind_rows() %>%
+      tibble::as_tibble()
+
+    # Add grouping keys
+    results <- grouping_keys %>%
+      dplyr::bind_cols(evaluations)
+
+    return(results)
+  }
 
 }
 
@@ -211,6 +229,7 @@ prepare_id_level_evaluation <- function(data,
                                         id_col,
                                         id_method,
                                         groups_col,
+                                        cutoff = NULL,
                                         apply_softmax = length(prediction_cols) > 1,
                                         new_prediction_col_name = "prediction") {
 
@@ -232,6 +251,15 @@ prepare_id_level_evaluation <- function(data,
       stop("can only apply softmax when there are more than one 'prediction_cols'.")
     }
     data <- softmax(data, cols = prediction_cols)
+  }
+
+  if (family == "binomial"){
+    if (is.null(cutoff)){
+      stop("when 'family' is 'binomial', 'cutoff' must be numeric between 0 and 1.")
+    }
+    if (is.null(cutoff)){
+      stop("when 'family' is 'binomial', 'cutoff' must be numeric between 0 and 1.")
+    }
   }
 
   num_groups <- length(unique(data[[groups_col]]))
@@ -306,9 +334,28 @@ prepare_id_level_evaluation <- function(data,
         dplyr::ungroup()
 
     } else if (family == "binomial"){
-      stop("not yet implemented")
+
+      if (length(prediction_cols)>1){
+        stop("when 'family' is 'binomial', length of 'prediction_cols' should be 1.")
+      }
+
+      data[["predicted_class"]] <- ifelse(data[[prediction_cols]] > cutoff, 1, 0)
+
+      # Create majority count by id
+      data_for_id_evaluation <- data %>%
+        dplyr::group_by(!!as.name(groups_col), !!as.name(id_col)) %>%
+        dplyr::summarise(mean_prediction = mean(.data$predicted_class)) %>%
+        dplyr::mutate(mean_prediction = dplyr::case_when(
+          mean_prediction > cutoff ~ 1-1e-40, # Almost 1
+          mean_prediction == cutoff ~ cutoff, # split decision (unlikely to happen)
+          mean_prediction < cutoff ~ 1e-40 # Almost 0
+        )) %>%
+        dplyr::rename_at("mean_prediction", ~prediction_cols) %>%
+        dplyr::left_join(id_classes, by = c(id_col, groups_col)) %>%
+        dplyr::ungroup()
+
     } else {
-      stop(paste0("family ", family, " not currently supported for ID evaluation."))
+      stop(paste0("family ", family, " not currently supported for majority vote aggregated ID evaluation."))
     }
   }
 

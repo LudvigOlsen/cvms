@@ -187,8 +187,9 @@ all_or_nothing_evaluations <- function(test_data, targets_col, current_class, re
 nest_row <- function(...){
   col_names <- names(c(...))
   x <- unname(c(...))
-  x <- dplyr::as_tibble(t(matrix(x)))
-  colnames(x) <- col_names
+  x <- dplyr::as_tibble(t(matrix(x)),
+                        .name_repair = ~ col_names)
+  # colnames(x) <- col_names
   legacy_nest(x) %>%
     dplyr::rename(probabilities = data)
 }

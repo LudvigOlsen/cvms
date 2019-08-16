@@ -80,6 +80,63 @@ test_that("multinomial evaluations are correct in evaluate()",{
 
 # TODO Add test that majority vote id_method works when not all classes are predicted most by one of the ids
 
+
+
+testthat("binomial evaluation works in evaluate()",{
+
+  set_seed_for_R_compatibility(1)
+  random_probabilities <- create_multinomial_probability_tibble(
+    num_classes = 1,
+    num_observations = 20,
+    apply_softmax = FALSE # Test with as well
+  )
+  expect_equal(sum(random_probabilities), 11.10334, tolerance = 1e-5)
+
+  data_ <- random_probabilities %>%
+    dplyr::mutate(cl = as.factor(rep(1:2, each = 10)),
+                  cl_char = paste0("cl_", cl))
+
+  bn_eval_1 <- evaluate(
+    data = data_,
+    dependent_col = "cl_char",
+    prediction_cols = "class_1",
+    type = "binomial_classification",
+    apply_softmax = TRUE
+  )
+
+  # Create actual expected tests, where you curate a dataset, an aggregated version (all methods)
+  # and make sure the results are identical in all settings.
+
+
+  # ID level
+  data_ <- data_ %>%
+    dplyr::mutate(id = factor(rep(1:10, each=2)))
+
+  bn_eval_2 <- evaluate(
+    data = data_,
+    dependent_col = "cl_char",
+    prediction_cols = "class_1",
+    id_col = "id",
+    id_method = "mean",
+    type = "binomial_classification",
+    apply_softmax = TRUE
+  )
+
+  data_2 <- data_ %>% dplyr::mutate(fold_ = 1) %>% dplyr::bind_rows(data_ %>% dplyr::mutate(fold_ = 2))
+
+  bn_eval_3 <- evaluate(
+    data = data_2 %>% dplyr::group_by(fold_),
+    dependent_col = "cl_char",
+    prediction_cols = "class_1",
+    id_col = "id",
+    id_method = "majority",
+    type = "binomial_classification",
+    apply_softmax = FALSE
+  )
+
+
+})
+
 test_that("softmax works in create_multinomial_probability_tibble()",{
 
   # Test softmax was applied correctly in create_multinomial_probability_tibble

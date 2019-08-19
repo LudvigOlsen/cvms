@@ -1,7 +1,13 @@
 baseline_multinomial <- function(test_data,
                                  dependent_col,
                                  reps = 100,
+                                 na.rm = TRUE,
                                  parallel_ = FALSE){
+
+  # Check na.rm
+  if(!is_logical_scalar_not_na(na.rm)){
+    stop("'na.rm' must be logical scalar (TRUE/FALSE).")
+  }
 
   # Extract the dependent column from the test set
   targets <- as.character(test_data[[dependent_col]])
@@ -80,7 +86,7 @@ baseline_multinomial <- function(test_data,
     dplyr::select(-.data$Class)
 
   # Summarize the metrics
-  summarized_avg_metrics <- summarize_metric_cols(metric_cols_avg)
+  summarized_avg_metrics <- summarize_metric_cols(metric_cols_avg, na.rm = na.rm)
 
   # Find the class level summaries
   summarized_metrics_class_level <- plyr::ldply(classes, function(cl){
@@ -90,7 +96,8 @@ baseline_multinomial <- function(test_data,
       dplyr::select(-c(.data$Class, .data$`Overall Accuracy`))
 
     summarized_class_level_result <- summarize_metric_cols(
-      metric_cols_current_class) %>%
+      metric_cols_current_class,
+      na.rm = na.rm) %>%
       dplyr::bind_rows(
         all_or_nothing_evaluations(test_data = test_data,
                                    targets_col = dependent_col,

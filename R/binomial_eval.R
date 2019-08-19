@@ -11,8 +11,8 @@ binomial_eval <- function(data,
                           fold_info_cols,
                           fold_and_fold_col,
                           predictions_nested = NULL,
-                          models = NULL) {
-
+                          models = NULL,
+                          metrics) {
 
   confusion_matrices_list <- binomial_eval_confusion_matrices(
     data = data,
@@ -38,7 +38,8 @@ binomial_eval <- function(data,
                                    roc_curves_list = roc_curves_list,
                                    confusion_matrices_list = confusion_matrices_list,
                                    predictions_nested = predictions_nested,
-                                   models = models)
+                                   models = models,
+                                   metrics = metrics)
 
   if (!is.null(models)){
     results[["Coefficients"]] <- binomial_add_model_coefficients(models, fold_and_fold_col)
@@ -157,7 +158,9 @@ binomial_eval_roc_curves <- function(data, targets_col, predictions_col, unique_
 
 }
 
-binomial_eval_collect <- function(unique_fold_cols, roc_curves_list, confusion_matrices_list, predictions_nested, models){
+binomial_eval_collect <- function(unique_fold_cols, roc_curves_list,
+                                  confusion_matrices_list, predictions_nested,
+                                  models, metrics){
 
   # Unpack args
   roc_curves <- roc_curves_list[["roc_curves"]]
@@ -173,7 +176,8 @@ binomial_eval_collect <- function(unique_fold_cols, roc_curves_list, confusion_m
       binomial_classification_results_tibble(roc_curve = roc_curves[[fcol]],
                                              roc_nested = NULL,
                                              confusion_matrix = confusion_matrices[[fcol]],
-                                             predictions_nested = NULL) %>%
+                                             predictions_nested = NULL,
+                                             metrics = metrics) %>%
         dplyr::mutate(`Fold Column` = fcol)
     }) %>%
       dplyr::select(.data$`Fold Column`, dplyr::everything())
@@ -202,7 +206,8 @@ binomial_eval_collect <- function(unique_fold_cols, roc_curves_list, confusion_m
     results <- binomial_classification_results_tibble(roc_curve = roc_curves[[1]],
                                                       roc_nested = roc_nested,
                                                       confusion_matrix = confusion_matrices[[1]],
-                                                      predictions_nested = predictions_nested)
+                                                      predictions_nested = predictions_nested,
+                                                      metrics = metrics)
   }
 
   results[["Confusion Matrix"]] <- nested_confusion_matrices$confusion_matrices
@@ -232,9 +237,9 @@ binomial_add_model_coefficients <- function(models, fold_and_fold_col){
 
 }
 
-binomial_classification_NA_results_tibble <- function(){
+binomial_classification_NA_results_tibble <- function(metrics){
 
-  return(tibble::tibble("Balanced Accuracy" = NA,
+  eval_tibble <- tibble::tibble("Balanced Accuracy" = NA,
                         "F1" = NA, 'Sensitivity' = NA, 'Specificity' = NA,
                         'Pos Pred Value' = NA, "Neg Pred Value"=NA,
                         "AUC" = NA, "Lower CI" = NA, "Upper CI" = NA,
@@ -244,34 +249,43 @@ binomial_classification_NA_results_tibble <- function(){
                         "Detection Prevalence" = NA,
                         "Prevalence" = NA,
                         "Predictions" = NA,
-                        "ROC" = NA))
+                        "ROC" = NA)
+  eval_tibble %>%
+    dplyr::select(dplyr::one_of(intersect(metrics, colnames(eval_tibble))))
 }
 
-binomial_classification_results_tibble <- function(roc_curve, roc_nested, confusion_matrix, predictions_nested){
+binomial_classification_results_tibble <- function(roc_curve, roc_nested, confusion_matrix, predictions_nested, metrics){
 
-  tibble::tibble('Balanced Accuracy' = unname(confusion_matrix$byClass['Balanced Accuracy']),
-                 'F1' = unname(confusion_matrix$byClass['F1']),
-                 "Sensitivity" = unname(confusion_matrix$byClass['Sensitivity']),
-                 'Specificity' = unname(confusion_matrix$byClass['Specificity']),
-                 'Pos Pred Value' = unname(confusion_matrix$byClass['Pos Pred Value']),
-                 'Neg Pred Value' = unname(confusion_matrix$byClass['Neg Pred Value']),
-                 "AUC" = pROC::auc(roc_curve)[1],
-                 "Lower CI" = pROC::ci(roc_curve)[1],
-                 "Upper CI" = pROC::ci(roc_curve)[3],
-                 "Kappa" = unname(confusion_matrix$overall['Kappa']),
-                 'MCC' = mltools::mcc(
-                   TP = confusion_matrix$table[1],
-                   FP = confusion_matrix$table[3],
-                   TN = confusion_matrix$table[4],
-                   FN = confusion_matrix$table[2]
-                 ),
-                 'Detection Rate' = unname(confusion_matrix$byClass['Detection Rate']),
-                 'Detection Prevalence' = unname(confusion_matrix$byClass['Detection Prevalence']),
-                 'Prevalence' = unname(confusion_matrix$byClass['Prevalence']),
-                 "Predictions" = ifelse(!is.null(predictions_nested),
-                                        predictions_nested$predictions,
-                                        logical()),
-                 "ROC" = ifelse(!is.null(roc_nested), roc_nested$roc, logical()))
+  eval_tibble <- tibble::tibble(
+    'Balanced Accuracy' = unname(confusion_matrix$byClass['Balanced Accuracy']),
+    'F1' = unname(confusion_matrix$byClass['F1']),
+    "Sensitivity" = unname(confusion_matrix$byClass['Sensitivity']),
+    'Specificity' = unname(confusion_matrix$byClass['Specificity']),
+    'Pos Pred Value' = unname(confusion_matrix$byClass['Pos Pred Value']),
+    'Neg Pred Value' = unname(confusion_matrix$byClass['Neg Pred Value']),
+    "AUC" = pROC::auc(roc_curve)[1],
+    "Lower CI" = pROC::ci(roc_curve)[1],
+    "Upper CI" = pROC::ci(roc_curve)[3],
+    "Kappa" = unname(confusion_matrix$overall['Kappa']),
+    'MCC' = mltools::mcc(
+      TP = confusion_matrix$table[1],
+      FP = confusion_matrix$table[3],
+      TN = confusion_matrix$table[4],
+      FN = confusion_matrix$table[2]
+    ),
+    'Detection Rate' = unname(confusion_matrix$byClass['Detection Rate']),
+    'Detection Prevalence' = unname(confusion_matrix$byClass['Detection Prevalence']),
+    'Prevalence' = unname(confusion_matrix$byClass['Prevalence']),
+    "Predictions" = ifelse(!is.null(predictions_nested),
+                           predictions_nested$predictions,
+                           logical()),
+    "ROC" = ifelse(!is.null(roc_nested), roc_nested$roc, logical()))
+
+  eval_tibble %>%
+    dplyr::select(dplyr::one_of(c(
+      intersect(metrics, colnames(eval_tibble)),
+      "Predictions", "ROC"
+      )))
 }
 
 fit_confusion_matrix <- function(predicted_classes, targets, cat_levels, positive){

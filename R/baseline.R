@@ -226,7 +226,6 @@ baseline <- function(test_data,
                      # Parallelization
                      parallel = FALSE) {
 
-
   if (family == "binomial"){
 
     if (!is.null(train_data)){
@@ -257,7 +256,8 @@ baseline <- function(test_data,
                                            n_samplings = n,
                                            min_training_rows = min_training_rows,
                                            min_training_rows_left_out = min_training_rows_left_out,
-                                           parallel_ = parallel)
+                                           parallel_ = parallel
+                                           )
     )
   }
 

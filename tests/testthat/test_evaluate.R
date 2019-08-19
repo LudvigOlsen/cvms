@@ -42,6 +42,8 @@ test_that("multinomial evaluations are correct in evaluate()",{
   # TODO Add more tests
   expect_equal(mn_eval_1$Results$`Overall Accuracy`, 0.2)
   expect_equal(mn_eval_1$Results$`Balanced Accuracy`, 0.5)
+  expect_equal(mn_eval_1$Results$`Balanced Accuracy`,
+               mean(mn_eval_1$Class_level_results$`Balanced Accuracy`))
 
   expect_equal(mn_eval_1$Class_level_results$Class, c("cl_1","cl_2","cl_3","cl_4","cl_5"))
 

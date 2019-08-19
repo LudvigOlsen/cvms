@@ -5,6 +5,7 @@ create_gaussian_baseline_evaluations <- function(train_data,
                                                  n_samplings=100,
                                                  min_training_rows = 5,
                                                  min_training_rows_left_out = 3,
+                                                 na.rm = TRUE,
                                                  parallel_ = FALSE){
 
 
@@ -14,6 +15,11 @@ create_gaussian_baseline_evaluations <- function(train_data,
   stopifnot(nrow(train_data) > 10,
             min_training_rows >= 3,
             min_training_rows_left_out >= 2)
+
+  # Check na.rm
+  if(!is_logical_scalar_not_na(na.rm)){
+    stop("'na.rm' must be logical scalar (TRUE/FALSE).")
+  }
 
 
   train_data <- train_data %>%
@@ -142,12 +148,12 @@ create_gaussian_baseline_evaluations <- function(train_data,
   # This may be better solveable with pivot_* from tidyr, when it is on CRAN
   # This isn't exactly pretty.
   summarized_metrics <- dplyr::bind_rows(
-    metrics_cols %>% dplyr::summarize_all(.funs = list(~mean(., na.rm = TRUE))) %>% dplyr::mutate(f = "Mean"),
-    metrics_cols %>% dplyr::summarize_all(.funs = list(~median(., na.rm = TRUE))) %>% dplyr::mutate(f = "Median"),
-    metrics_cols %>% dplyr::summarize_all(.funs = list(~sd(., na.rm = TRUE))) %>% dplyr::mutate(f = "SD"),
-    metrics_cols %>% dplyr::summarize_all(.funs = list(~IQR(., na.rm = TRUE))) %>% dplyr::mutate(f = "IQR"),
-    metrics_cols %>% dplyr::summarize_all(.funs = list(~max(., na.rm = TRUE))) %>% dplyr::mutate(f = "Max"),
-    metrics_cols %>% dplyr::summarize_all(.funs = list(~min(., na.rm = TRUE))) %>% dplyr::mutate(f = "Min"),
+    metrics_cols %>% dplyr::summarize_all(.funs = list(~mean(., na.rm = na.rm))) %>% dplyr::mutate(f = "Mean"),
+    metrics_cols %>% dplyr::summarize_all(.funs = list(~median(., na.rm = na.rm))) %>% dplyr::mutate(f = "Median"),
+    metrics_cols %>% dplyr::summarize_all(.funs = list(~sd(., na.rm = na.rm))) %>% dplyr::mutate(f = "SD"),
+    metrics_cols %>% dplyr::summarize_all(.funs = list(~IQR(., na.rm = na.rm))) %>% dplyr::mutate(f = "IQR"),
+    metrics_cols %>% dplyr::summarize_all(.funs = list(~max(., na.rm = na.rm))) %>% dplyr::mutate(f = "Max"),
+    metrics_cols %>% dplyr::summarize_all(.funs = list(~min(., na.rm = na.rm))) %>% dplyr::mutate(f = "Min"),
     metrics_cols %>% dplyr::summarize_all(.funs = list(~sum(is.na(.)))) %>% dplyr::mutate(f = "NAs"),
     metrics_cols_with_infs %>% dplyr::summarize_all(.funs = list(~sum(is.infinite(.)))) %>% dplyr::mutate(f = "INFs")
   ) %>%

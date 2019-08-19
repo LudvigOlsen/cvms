@@ -5,10 +5,11 @@ linear_regression_eval <- function(data,
                                    models,
                                    predictions_col = "predictions",
                                    targets_col = "targets",
-                                   fold_info_cols = list(rel_fold="rel_fold",
-                                                         abs_fold="abs_fold",
-                                                         fold_column="fold_column"),
-                                   model_specifics=list()){
+                                   fold_info_cols = list(rel_fold = "rel_fold",
+                                                         abs_fold = "abs_fold",
+                                                         fold_column = "fold_column"),
+                                   model_specifics = list(),
+                                   metrics){
 
   REML <- tryCatch({
     model_specifics[["REML"]]
@@ -42,6 +43,8 @@ linear_regression_eval <- function(data,
       legacy_nest(1:4) %>%
       dplyr::rename(predictions = data)
 
+    # if ("RMSE" %in% metrics || "MAE" %in% metrics){ # TODO Refactor to avoid computing metrics the user doesn't want
+
     # Calculate RMSE and MAE
     rmse_mae_per_fold <- data %>%
       dplyr::group_by(!! as.name(fold_info_cols[["fold_column"]]),
@@ -68,11 +71,14 @@ linear_regression_eval <- function(data,
 
     # Get model metrics
     model_metrics_per_fold <- plyr::ldply(models, function(m){
-      linear_regression_model_eval(m, REML)
+      fold_eval <- linear_regression_model_eval(m, REML)
+      # Deselect disabled metrics
+      fold_eval %>%
+        dplyr::select(dplyr::one_of(intersect(metrics, colnames(fold_eval))))
     }) %>%
       mutate(abs_fold = 1:dplyr::n()) %>%
       dplyr::inner_join(fold_and_fold_col,
-                        by=c("abs_fold"=fold_info_cols[["abs_fold"]]))
+                        by = c("abs_fold" = fold_info_cols[["abs_fold"]]))
 
     # Average model metrics
     # First average per fold column, then average those
@@ -98,14 +104,13 @@ linear_regression_eval <- function(data,
     # Create NA results
     # TODO Make some comments and make it a bit prettier ;)
 
-    rmse_mae_per_fold <- tibble::tibble(
-      "RMSE"=rep(NA, num_folds))
+    rmse_mae_per_fold <- tibble::tibble("RMSE" = rep(NA, num_folds))
     rmse_mae_per_fold[[fold_info_cols[["fold_column"]]]] <- fold_and_fold_col[[fold_info_cols[["fold_column"]]]]
     rmse_mae_per_fold[[fold_info_cols[["abs_fold"]]]] <- fold_and_fold_col[[fold_info_cols[["abs_fold"]]]]
     rmse_mae_per_fold[[fold_info_cols[["rel_fold"]]]] <- fold_and_fold_col[[fold_info_cols[["rel_fold"]]]]
     rmse_mae_per_fold <- rmse_mae_per_fold %>%
       dplyr::select(-.data$RMSE, dplyr::everything()) # Move RMSE to the end (weird syntax)
-    avg_rmse_mae <- tibble::tibble("RMSE"=NA, "MAE"=NA)
+    avg_rmse_mae <- tibble::tibble("RMSE" = NA, "MAE" = NA)
     model_metrics_per_fold <- list(linear_regression_model_eval(NULL, NULL)) %>%
       rep(num_folds) %>%
       dplyr::bind_rows()
@@ -120,15 +125,22 @@ linear_regression_eval <- function(data,
   # Combine
   avg_results <- avg_rmse_mae %>%
     dplyr::bind_cols(avg_model_metrics)
+  avg_results <- avg_results %>%
+    dplyr::select(dplyr::one_of(intersect(metrics, colnames(avg_results))))
 
   results_per_fold <- rmse_mae_per_fold %>%
     dplyr::full_join(model_metrics_per_fold,
                      by = c(fold_info_cols[["fold_column"]],
-                            "abs_fold"=fold_info_cols[["abs_fold"]],
+                            "abs_fold" = fold_info_cols[["abs_fold"]],
                             fold_info_cols[["rel_fold"]])) %>%
     dplyr::rename(`Fold Column` = fold_info_cols[["fold_column"]],
                   Fold = fold_info_cols[["rel_fold"]]) %>%
     dplyr::select(-.data$abs_fold)
+
+  results_per_fold <- results_per_fold %>%
+    dplyr::select(dplyr::one_of(c(
+      "Fold Column", "Fold",
+      intersect(metrics, colnames(results_per_fold)))))
 
   if (!is.na(predictions_nested)){
     avg_results[["Predictions"]] <- predictions_nested$predictions
@@ -164,7 +176,6 @@ linear_regression_model_eval <- function(model, REML){
   tibble::tibble('r2m' = r2m_, 'r2c' = r2c_,
                  'AIC' = AIC_, 'AICc' = AICc_,
                  'BIC' = BIC_)
-
 }
 
 # Try to retrieve
@@ -173,7 +184,7 @@ get_nested_model_coefficients <- function(models, fold_info=list(folds=NULL,
                                                                  fold_columns=".folds")){
   # Note: models should be ordered by the fold they were fitted in
 
-  if(is.null(models)){
+  if (is.null(models)){
 
     nested_NA_coeffs <- tibble::tibble(
       'term' = NA,

@@ -1,5 +1,30 @@
 # TODO Find another name, as evaluate is already in generics::evaluate
 # Isn't there an appropriate synonym?
+
+#' evaluate
+#'
+#' @param metrics List for enabling/disabling metrics.
+#'
+#'   E.g. \code{list("RMSE" = FALSE)} would remove RMSE from the results.
+#'   Default values (TRUE/FALSE) will be used for the remaining metrics available.
+#'
+#'   N.B. Currently, disabled metrics are still computed. This is expected to change.
+#' @param type Type of evaluation to perform. Allowed values are
+#'  \code{"gaussian"} for linear regression;
+#'  \code{"binomial"} for binary classification;
+#'  \code{"multinomial"} for multiclass classification.
+#' @details
+#'  Info to add:
+#'  NB.: precision = positive prediction value
+#'
+#'  NB.: recall = sensitivity
+#'
+#'  NB.: overall accuracy = micro-F1 = micro-precision = micro-recall
+#'
+#'  NB.: Macro F1 is the arithmetic mean of the macro precision and macro recall
+#'
+#'  NB.: When type is \code{"multinomial"}, macro-averaging of metrics returns NaN,
+#'  if any of the class level results are NaN.
 evaluate <- function(data,
                      dependent_col,
                      prediction_cols,
@@ -9,21 +34,22 @@ evaluate <- function(data,
                      type = "linear_regression",
                      apply_softmax = TRUE,
                      cutoff = 0.5,
-                     positive = 2
+                     positive = 2,
+                     metrics = list()
 ){
 
-  # Test if family is allowed
+  # Test if type is allowed
   stopifnot(type %in% c("gaussian", "gaussian_regression", "linear_regression",
                         "binomial", "binomial_classification", "binary_classification",
                         "multinomial", "multinomial_classification", "multiclass_classification")) #"multilabel"))
 
   # Convert families to the internally used
   if (type %in% c("gaussian", "gaussian_regression", "linear_regression")){
-    family <- "gaussian"}
+    family_ <- "gaussian"}
   if (type %in% c("binomial", "binomial_classification", "binary_classification")){
-    family <- "binomial"}
+    family_ <- "binomial"}
   if (type %in% c("multinomial", "multinomial_classification", "multiclass_classification")){
-    family <- "multinomial"}
+    family_ <- "multinomial"}
 
   # Check the passed arguments TODO Add more checks
   check_args_evaluate(data = data,
@@ -39,7 +65,7 @@ evaluate <- function(data,
   # Create basic model_specifics object
   model_specifics <- list(
     model_formula = "",
-    family = family,
+    family = family_,
     REML = FALSE,
     link = NULL,
     cutoff = cutoff,
@@ -73,7 +99,7 @@ evaluate <- function(data,
       data = data,
       dependent_col = dependent_col,
       prediction_cols = prediction_cols,
-      family = family,
+      family = family_,
       cutoff = cutoff,
       id_col = id_col,
       id_method = id_method,
@@ -82,13 +108,13 @@ evaluate <- function(data,
       new_prediction_col_name = local_tmp_predictions_col_var
     ) %>% dplyr::ungroup()
 
-    if (family == "multinomial")
+    if (family_ == "multinomial")
       prediction_cols <- local_tmp_predictions_col_var
 
     # Run ID level evaluation
     evaluations <- run_evaluate_wrapper(
       data = data_for_id_evaluation,
-      type = family,
+      type = family_,
       predictions_col = prediction_cols,
       targets_col = dependent_col,
       id_col = id_col,
@@ -96,14 +122,15 @@ evaluate <- function(data,
       groups_col = local_tmp_grouping_factor_var,
       grouping_keys = grouping_keys,
       models = model,
-      model_specifics = model_specifics
+      model_specifics = model_specifics,
+      metrics = metrics
     )
 
   } else {
 
     # Regular evaluation
 
-    if (family == "multinomial"){
+    if (family_ == "multinomial"){
 
       # Prepare data for multinomial evaluation
       data <- prepare_multinomial_evaluation(data = data,
@@ -117,20 +144,21 @@ evaluate <- function(data,
 
     } else {
       if (length(prediction_cols) > 1) {
-        stop(paste0("'prediction_cols' must have length 1 when family is '", family, "'."))
+        stop(paste0("'prediction_cols' must have length 1 when family_ is '", family_, "'."))
       }
     }
 
     # Run evaluation
     evaluations <- run_evaluate_wrapper(
       data = data,
-      type = family,
+      type = family_,
       predictions_col = prediction_cols,
       targets_col = dependent_col,
       models = model,
       groups_col = local_tmp_grouping_factor_var,
       grouping_keys = grouping_keys,
-      model_specifics = model_specifics
+      model_specifics = model_specifics,
+      metrics = metrics
     )
   }
 
@@ -149,7 +177,8 @@ run_evaluate_wrapper <- function(data,
                                  id_col = NULL,
                                  id_method = NULL,
                                  fold_info_cols = NULL,
-                                 model_specifics) {
+                                 model_specifics,
+                                 metrics = list()) {
 
   num_classes <- length(unique(data[[targets_col]]))
 
@@ -180,7 +209,8 @@ run_evaluate_wrapper <- function(data,
                       id_col = id_col,
                       id_method = id_method,
                       fold_info_cols = fold_info_cols,
-                      model_specifics = model_specifics)
+                      model_specifics = model_specifics,
+                      metrics = metrics)
   })
 
   if (type == "multinomial"){
@@ -225,7 +255,7 @@ run_evaluate_wrapper <- function(data,
 prepare_id_level_evaluation <- function(data,
                                         dependent_col,
                                         prediction_cols,
-                                        family,
+                                        family_,
                                         id_col,
                                         id_method,
                                         groups_col,
@@ -253,12 +283,12 @@ prepare_id_level_evaluation <- function(data,
     data <- softmax(data, cols = prediction_cols)
   }
 
-  if (family == "binomial"){
+  if (family_ == "binomial"){
     if (is.null(cutoff)){
-      stop("when 'family' is 'binomial', 'cutoff' must be numeric between 0 and 1.")
+      stop("when 'family_' is 'binomial', 'cutoff' must be numeric between 0 and 1.")
     }
     if (is.null(cutoff)){
-      stop("when 'family' is 'binomial', 'cutoff' must be numeric between 0 and 1.")
+      stop("when 'family_' is 'binomial', 'cutoff' must be numeric between 0 and 1.")
     }
   }
 
@@ -282,7 +312,7 @@ prepare_id_level_evaluation <- function(data,
     ## By majority vote
     # If multiple classes share the majority, they also share the probability! #mustShare!
 
-    if (family == "multinomial"){
+    if (family_ == "multinomial"){
 
       data[["predicted_class_index"]] <- data %>%
         dplyr::select(dplyr::one_of(prediction_cols)) %>%
@@ -333,10 +363,10 @@ prepare_id_level_evaluation <- function(data,
       data_for_id_evaluation <- majority_vote_probabilities %>%
         dplyr::ungroup()
 
-    } else if (family == "binomial"){
+    } else if (family_ == "binomial"){
 
       if (length(prediction_cols)>1){
-        stop("when 'family' is 'binomial', length of 'prediction_cols' should be 1.")
+        stop("when 'family_' is 'binomial', length of 'prediction_cols' should be 1.")
       }
 
       data[["predicted_class"]] <- ifelse(data[[prediction_cols]] > cutoff, 1, 0)
@@ -355,11 +385,11 @@ prepare_id_level_evaluation <- function(data,
         dplyr::ungroup()
 
     } else {
-      stop(paste0("family ", family, " not currently supported for majority vote aggregated ID evaluation."))
+      stop(paste0("family_ ", family_, " not currently supported for majority vote aggregated ID evaluation."))
     }
   }
 
-  if (family == "multinomial") {
+  if (family_ == "multinomial") {
 
     data_for_id_evaluation <- prepare_multinomial_evaluation(
       data_for_id_evaluation,
@@ -415,11 +445,16 @@ internal_evaluate <- function(data,
                               models = NULL,
                               id_col = NULL,
                               id_method = NULL,
-                              model_specifics = list()) {
+                              model_specifics = list(),
+                              metrics = list()) {
 
 
   stopifnot(type %in% c("linear_regression", "gaussian", "binomial", "multinomial")) #, "multiclass", "multilabel"))
   if (type == "linear_regression") type <- "gaussian"
+
+  # Fill metrics with default values for non-specified metrics
+  # and get the names of the metrics
+  metrics <- set_metrics(family_ = type, metrics_list = metrics)
 
   # data is a table with predictions, targets and folds
   # predictions can be values, logits, or classes, depending on evaluation type
@@ -431,7 +466,8 @@ internal_evaluate <- function(data,
       predictions_col = predictions_col,
       targets_col = targets_col,
       fold_info_cols = fold_info_cols,
-      model_specifics = model_specifics)
+      model_specifics = model_specifics,
+      metrics = metrics)
 
   } else if (type == "binomial"){
 
@@ -442,7 +478,8 @@ internal_evaluate <- function(data,
       fold_info_cols = fold_info_cols,
       models = models,
       cutoff = model_specifics[["cutoff"]],
-      positive = model_specifics[["positive"]])
+      positive = model_specifics[["positive"]],
+      metrics = metrics)
 
   } else if (type == "multinomial"){
 
@@ -453,7 +490,8 @@ internal_evaluate <- function(data,
       id_col = id_col,
       id_method = id_method,
       fold_info_cols = fold_info_cols,
-      models = models)
+      models = models,
+      metrics = metrics)
 
   }
 

@@ -298,6 +298,11 @@ arg_is_number_ <- function(n){
   }
 
 }
+
+is_logical_scalar_not_na <- function(arg){
+  rlang::is_scalar_logical(arg) && !is.na(arg)
+}
+
 is_between_ <- function(x, a, b) {
 
   # Checks if x is between a and b

@@ -9,7 +9,8 @@ multinomial_classification_eval <- function(data,
                                               rel_fold = "rel_fold",
                                               abs_fold = "abs_fold",
                                               fold_column = "fold_column"),
-                                            models = NULL){
+                                            models = NULL,
+                                            metrics){
   # Note: predictions are floats (e.g. 0.7), targets are 0 or 1
 
   # Check and unnest the probabilities
@@ -118,7 +119,8 @@ multinomial_classification_eval <- function(data,
         fold_info_cols = fold_info_cols,
         fold_and_fold_col = fold_and_fold_col,
         predictions_nested = NULL,
-        models = models
+        models = models,
+        metrics = metrics
         ) %>%
         dplyr::mutate(Class = classes[[cl]])
 
@@ -132,14 +134,21 @@ multinomial_classification_eval <- function(data,
     average_metrics <- one_vs_all_evaluations %>%
       dplyr::mutate(Family = "multinomial") %>%
       select_metrics(include_definitions = FALSE) %>%
-      dplyr::summarise_all(list(mean), na.rm = TRUE)
+      dplyr::summarise_all(list(mean), na.rm = FALSE)
 
     overall_results <- average_metrics %>%
       dplyr::mutate(`Overall Accuracy` = overall_accuracy,
                     Predictions = predictions_nested$predictions)
 
+    # If we want the Overall Accuracy metric,
+    # place it first; otherwise remove it
+    if ("Overall Accuracy" %in% metrics){
       overall_results <- overall_results %>%
-      dplyr::select(dplyr::one_of("Overall Accuracy"), dplyr::everything())
+        dplyr::select(dplyr::one_of("Overall Accuracy"), dplyr::everything())
+    } else {
+      overall_results <- overall_results %>%
+        dplyr::select(-dplyr::one_of("Overall Accuracy"))
+    }
 
     # Add total counts confusion matrix
     # Try to use fit a confusion matrix with the predictions and targets

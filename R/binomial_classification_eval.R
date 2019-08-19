@@ -10,7 +10,8 @@ binomial_classification_eval <- function(data,
                                            fold_column = "fold_column"),
                                          models = NULL,
                                          cutoff = 0.5,
-                                         positive = 2){
+                                         positive = 2,
+                                         metrics){
   # Note: predictions are floats (e.g. 0.7), targets are 0 or 1
 
   # Check if there are NAs in predictions
@@ -62,12 +63,14 @@ binomial_classification_eval <- function(data,
         fold_info_cols = fold_info_cols,
         fold_and_fold_col = fold_and_fold_col,
         predictions_nested = predictions_nested,
-        models = models
+        models = models,
+        metrics = metrics
       )
 
   } else {
 
-    results <- binomial_classification_NA_results_tibble()
+    results <- binomial_classification_NA_results_tibble(
+      metrics = metrics)
 
     if (!is.null(models))
       results[["Coefficients"]] <- get_nested_model_coefficients(NULL)

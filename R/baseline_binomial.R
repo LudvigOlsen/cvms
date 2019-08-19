@@ -1,8 +1,9 @@
 create_binomial_baseline_evaluations <- function(test_data,
                                                  dependent_col,
-                                                 reps=100,
+                                                 reps = 100,
                                                  positive = 2,
                                                  cutoff = 0.5,
+                                                 na.rm = TRUE,
                                                  parallel_ = FALSE){
 
   # Check positive
@@ -45,6 +46,11 @@ create_binomial_baseline_evaluations <- function(test_data,
     else {
       stop("The dependent column must maximally contain 2 levels.")
     }
+  }
+
+  # Check na.rm
+  if(!is_logical_scalar_not_na(na.rm)){
+    stop("'na.rm' must be logical scalar (TRUE/FALSE).")
   }
 
   # Add fold info columns
@@ -103,7 +109,7 @@ create_binomial_baseline_evaluations <- function(test_data,
   # TODO Rename Fold Column to Repetition or similar in evaluations$Predictions
 
   metric_cols <- select_metrics(evaluations_random, include_definitions = FALSE)
-  summarized_metrics <- summarize_metric_cols(metric_cols)
+  summarized_metrics <- summarize_metric_cols(metric_cols, na.rm = na.rm)
 
   # Evaluate all 0s
 

@@ -19,6 +19,7 @@ set_metrics <- function(family_, metrics_list = NULL){
 
     default_metrics <- list(
       "Balanced Accuracy" = TRUE,
+      "Accuracy" = FALSE,
       "F1" = TRUE,
       "Sensitivity" = TRUE,
       "Specificity" = TRUE,
@@ -39,6 +40,7 @@ set_metrics <- function(family_, metrics_list = NULL){
     default_metrics <- list(
       "Overall Accuracy" = TRUE,
       "Balanced Accuracy" = TRUE,
+      "Accuracy" = FALSE,
       "F1" = TRUE,
       "Sensitivity" = TRUE,
       "Specificity" = TRUE,

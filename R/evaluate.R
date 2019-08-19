@@ -5,7 +5,9 @@
 #'
 #' @param metrics List for enabling/disabling metrics.
 #'
-#'   E.g. \code{list("RMSE" = FALSE)} would remove RMSE from the results.
+#'   E.g. \code{list("RMSE" = FALSE)} would remove RMSE from the results,
+#'   and \code{list("Accuracy" = TRUE)} would add the regular accuracy metric
+#'   to the classification results.
 #'   Default values (TRUE/FALSE) will be used for the remaining metrics available.
 #'
 #'   N.B. Currently, disabled metrics are still computed. This is expected to change.

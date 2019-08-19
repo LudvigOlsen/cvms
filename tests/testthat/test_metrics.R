@@ -51,6 +51,11 @@ test_that("Metrics work for glm in validate()",{
                                        factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
                              positive = levels(as.factor(test_data$diagnosis))[1])
   expect_equal(validated$Results$`Pos Pred Value`,posPredValue_)
+  # should be identical to precision as well
+  precision_ <- caret::precision(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
+                                       factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
+                                       positive = levels(as.factor(test_data$diagnosis))[1])
+  expect_equal(posPredValue_, posPredValue_)
 
   # negPredValue
   negPredValue_ <- caret::negPredValue(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
@@ -59,6 +64,9 @@ test_that("Metrics work for glm in validate()",{
   expect_equal(validated$Results$`Neg Pred Value`,negPredValue_)
 
   rm(test_data)
+
+
+
 })
 
 

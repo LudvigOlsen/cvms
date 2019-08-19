@@ -34,10 +34,18 @@ binomial_eval <- function(data,
     fold_info_cols = fold_info_cols
   )
 
+  # TODO: Should probably rename "extra_metrics" to something more meaningful
+  extra_metrics <- binomial_eval_extra_metrics(data = data,
+                                               targets_col = targets_col,
+                                               predicted_class_col = predicted_class_col,
+                                               unique_fold_cols = unique_fold_cols,
+                                               fold_info_cols = fold_info_cols)
+
   results <- binomial_eval_collect(unique_fold_cols = unique_fold_cols,
                                    roc_curves_list = roc_curves_list,
                                    confusion_matrices_list = confusion_matrices_list,
                                    predictions_nested = predictions_nested,
+                                   extra_metrics = extra_metrics,
                                    models = models,
                                    metrics = metrics)
 
@@ -115,7 +123,7 @@ binomial_eval_roc_curves <- function(data, targets_col, predictions_col, unique_
       # Subset data
       fcol_data <- data %>% dplyr::filter(!! as.name(fold_info_cols[["fold_column"]]) == fcol)
 
-      # Create confusion matrix and add to list
+      # Create ROC curve and add to list
       fcol_roc_curve <- list("x" = fit_roc_curve(predicted_probabilities = fcol_data[[predictions_col]],
                                                  targets = fcol_data[[targets_col]],
                                                  levels = roc_cat_levels,
@@ -158,8 +166,37 @@ binomial_eval_roc_curves <- function(data, targets_col, predictions_col, unique_
 
 }
 
+binomial_eval_extra_metrics <- function(data, targets_col,
+                                        predicted_class_col,
+                                        unique_fold_cols,
+                                        fold_info_cols){
+
+  extra_metrics <- plyr::llply(unique_fold_cols, function(fcol) {
+
+    # Subset data
+    fcol_data <-
+      data %>% dplyr::filter(!!as.name(fold_info_cols[["fold_column"]]) == fcol)
+
+    # Regular old accuracy
+    fcol_accuracy <- list("x" = list("accuracy" = calculate_accuracy(
+      predictions = data[[predicted_class_col]],
+      targets = data[[targets_col]]
+    )))
+
+    # Rename list element to the fold column name
+    names(fcol_accuracy) <- fcol
+
+    fcol_accuracy
+
+  }) %>% unlist(recursive = FALSE)
+
+  extra_metrics
+
+}
+
 binomial_eval_collect <- function(unique_fold_cols, roc_curves_list,
                                   confusion_matrices_list, predictions_nested,
+                                  extra_metrics,
                                   models, metrics){
 
   # Unpack args
@@ -177,6 +214,7 @@ binomial_eval_collect <- function(unique_fold_cols, roc_curves_list,
                                              roc_nested = NULL,
                                              confusion_matrix = confusion_matrices[[fcol]],
                                              predictions_nested = NULL,
+                                             extra_metrics = extra_metrics[[fcol]],
                                              metrics = metrics) %>%
         dplyr::mutate(`Fold Column` = fcol)
     }) %>%
@@ -191,7 +229,7 @@ binomial_eval_collect <- function(unique_fold_cols, roc_curves_list,
     # Average fold column results for reporting
     average_metrics <- fold_col_results %>%
       dplyr::select(-.data$`Fold Column`) %>%
-      dplyr::summarise_all(list(~mean(., na.rm=FALSE)))
+      dplyr::summarise_all(list( ~mean(., na.rm = FALSE)))
 
     # Gather the various results
     results <- average_metrics
@@ -207,6 +245,7 @@ binomial_eval_collect <- function(unique_fold_cols, roc_curves_list,
                                                       roc_nested = roc_nested,
                                                       confusion_matrix = confusion_matrices[[1]],
                                                       predictions_nested = predictions_nested,
+                                                      extra_metrics = extra_metrics[[1]],
                                                       metrics = metrics)
   }
 
@@ -239,25 +278,33 @@ binomial_add_model_coefficients <- function(models, fold_and_fold_col){
 
 binomial_classification_NA_results_tibble <- function(metrics){
 
-  eval_tibble <- tibble::tibble("Balanced Accuracy" = NA,
-                        "F1" = NA, 'Sensitivity' = NA, 'Specificity' = NA,
-                        'Pos Pred Value' = NA, "Neg Pred Value"=NA,
-                        "AUC" = NA, "Lower CI" = NA, "Upper CI" = NA,
-                        "Kappa" = NA,
-                        "MCC"=NA,
-                        "Detection Rate" = NA,
-                        "Detection Prevalence" = NA,
-                        "Prevalence" = NA,
-                        "Predictions" = NA,
-                        "ROC" = NA)
+  eval_tibble <- tibble::tibble(
+    "Balanced Accuracy" = NA,
+    "Accuracy" = NA,
+    "F1" = NA, 'Sensitivity' = NA, 'Specificity' = NA,
+    'Pos Pred Value' = NA, "Neg Pred Value" = NA,
+    "AUC" = NA, "Lower CI" = NA, "Upper CI" = NA,
+    "Kappa" = NA,
+    "MCC" = NA,
+    "Detection Rate" = NA,
+    "Detection Prevalence" = NA,
+    "Prevalence" = NA,
+    "Predictions" = NA,
+    "ROC" = NA)
   eval_tibble %>%
     dplyr::select(dplyr::one_of(intersect(metrics, colnames(eval_tibble))))
 }
 
-binomial_classification_results_tibble <- function(roc_curve, roc_nested, confusion_matrix, predictions_nested, metrics){
+binomial_classification_results_tibble <- function(roc_curve,
+                                                   roc_nested,
+                                                   confusion_matrix,
+                                                   predictions_nested,
+                                                   extra_metrics, # TODO rename arg
+                                                   metrics){
 
   eval_tibble <- tibble::tibble(
     'Balanced Accuracy' = unname(confusion_matrix$byClass['Balanced Accuracy']),
+    'Accuracy' = extra_metrics[["accuracy"]],
     'F1' = unname(confusion_matrix$byClass['F1']),
     "Sensitivity" = unname(confusion_matrix$byClass['Sensitivity']),
     'Specificity' = unname(confusion_matrix$byClass['Specificity']),

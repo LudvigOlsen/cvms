@@ -35,7 +35,8 @@ evaluate <- function(data,
                      apply_softmax = TRUE,
                      cutoff = 0.5,
                      positive = 2,
-                     metrics = list()
+                     metrics = list(),
+                     parallel = FALSE
 ){
 
   # Test if type is allowed
@@ -60,7 +61,8 @@ evaluate <- function(data,
                       type = type,
                       apply_softmax = apply_softmax,
                       cutoff = cutoff,
-                      positive = positive)
+                      positive = positive,
+                      parallel = parallel)
 
   # Create basic model_specifics object
   model_specifics <- list(
@@ -123,7 +125,8 @@ evaluate <- function(data,
       grouping_keys = grouping_keys,
       models = model,
       model_specifics = model_specifics,
-      metrics = metrics
+      metrics = metrics,
+      parallel = parallel
     )
 
   } else {
@@ -158,7 +161,8 @@ evaluate <- function(data,
       groups_col = local_tmp_grouping_factor_var,
       grouping_keys = grouping_keys,
       model_specifics = model_specifics,
-      metrics = metrics
+      metrics = metrics,
+      parallel = parallel
     )
   }
 
@@ -178,7 +182,8 @@ run_evaluate_wrapper <- function(data,
                                  id_method = NULL,
                                  fold_info_cols = NULL,
                                  model_specifics,
-                                 metrics = list()) {
+                                 metrics = list(),
+                                 parallel = FALSE) {
 
   num_classes <- length(unique(data[[targets_col]]))
 
@@ -198,7 +203,7 @@ run_evaluate_wrapper <- function(data,
                           fold_column = local_tmp_fold_col_var)
   }
 
-  evaluations <- plyr::llply(unique(data[[groups_col]]), function(gr){
+  evaluations <- plyr::llply(unique(data[[groups_col]]), .parallel = parallel, function(gr){
     data_for_current_group <- data %>%
       dplyr::filter(!!as.name(groups_col) == gr)
     internal_evaluate(data = data_for_current_group,
@@ -507,7 +512,8 @@ check_args_evaluate <- function(data,
                                 type,
                                 apply_softmax,
                                 cutoff,
-                                positive){
+                                positive,
+                                parallel){
 
   # TODO Add more checks !!
 
@@ -542,9 +548,16 @@ check_args_evaluate <- function(data,
   }
 
   # softmax
-  if (!is.logical(apply_softmax) || is.na(apply_softmax)){
-    stop("'apply_softmax' must be logical (TRUE/FALSE).")
+  if (!is_logical_scalar_not_na(apply_softmax)){
+    stop("'apply_softmax' must be logical scalar (TRUE/FALSE).")
   }
+
+  # parallel
+  if (!is_logical_scalar_not_na(parallel)){
+    stop("'parallel' must be a logical scalar (TRUE/FALSE).")
+  }
+
+
 
   # TODO add for rest of args
 

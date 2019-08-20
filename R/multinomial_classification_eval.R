@@ -96,17 +96,15 @@ multinomial_classification_eval <- function(data,
       legacy_nest(1:ncol(predictions_nested)) %>%
       dplyr::rename(predictions = data)
 
-    # print(predictions_nested$predictions)#[[1]]$Prediction)
-
+    # Create unique temporary variable names
     local_tmp_target_var <- create_tmp_var(data,"one_vs_all_targets")
     local_tmp_predicted_probability_var <- create_tmp_var(data,"one_vs_all_predicted_probability")
     local_tmp_predicted_class_var <- create_tmp_var(data,"one_vs_all_predicted_class")
 
     # Count how many times each class are in the targets_col
-    support <- data.frame(table(data[[targets_col]]), stringsAsFactors = F)
-    colnames(support) <- c("Class", "Support")
-    support[["Class"]] <- as.character(support[["Class"]])
+    support <- create_support_object(data[[targets_col]])
 
+    # Perform one vs all evaluations
     one_vs_all_evaluations <- plyr::llply(1:num_classes, function(cl){
 
       data[[local_tmp_target_var]] <- factor(ifelse(data[[targets_col]] == classes[[cl]], 1, 0))
@@ -133,10 +131,9 @@ multinomial_classification_eval <- function(data,
       dplyr::left_join(support, by = "Class")
 
     # Move Support column
-    support_vals <- one_vs_all_evaluations[["Support"]]
-    one_vs_all_evaluations[["Support"]] <- NULL
-    one_vs_all_evaluations <- one_vs_all_evaluations %>%
-      tibble::add_column("Support" = support_vals, .before = "Predictions")
+    one_vs_all_evaluations <- reposition_column(one_vs_all_evaluations,
+                                                "Support",
+                                                .before = "Predictions")
 
     # Place Class column first
     one_vs_all_evaluations <- one_vs_all_evaluations %>%
@@ -153,7 +150,8 @@ multinomial_classification_eval <- function(data,
 
     # Calculate the weighted average metrics
     weighted_average_metrics <- metrics_only %>%
-      dplyr::summarise_all(list(~weighted.mean(., w = support_vals)), na.rm = FALSE) %>%
+      dplyr::summarise_all(list(
+        ~ weighted.mean(., w = one_vs_all_evaluations[["Support"]])), na.rm = FALSE) %>%
       dplyr::rename_all(function(x) paste0("Weighted ", x))
 
     # Keep only the requested metrics
@@ -225,7 +223,13 @@ argmax <- function(data){
   purrr::pmap_dbl(data, .f = argmax_row)
 }
 
-
+# Counts how many times each class are in the targets_col
+create_support_object <- function(targets){
+  support <- data.frame(table(targets), stringsAsFactors = F)
+  colnames(support) <- c("Class", "Support")
+  support[["Class"]] <- as.character(support[["Class"]])
+  support
+}
 
 #
 # multinomial_classification_NA_results_tibble <- function(){

@@ -409,4 +409,11 @@ legacy_nest <- function(...){
   }
 }
 
+# Wraps tibble::add_column
+reposition_column <- function(data, col, .before = NULL, .after = NULL){
+  col_values <- data[[col]]
+  data[[col]] <- NULL
+  data %>%
+    tibble::add_column(!!(col) := col_values, .before = .before, .after = .after)
+}
 

@@ -102,6 +102,11 @@ multinomial_classification_eval <- function(data,
     local_tmp_predicted_probability_var <- create_tmp_var(data,"one_vs_all_predicted_probability")
     local_tmp_predicted_class_var <- create_tmp_var(data,"one_vs_all_predicted_class")
 
+    # Count how many times each class are in the targets_col
+    support <- data.frame(table(data[[targets_col]]), stringsAsFactors = F)
+    colnames(support) <- c("Class", "Support")
+    support[["Class"]] <- as.character(support[["Class"]])
+
     one_vs_all_evaluations <- plyr::llply(1:num_classes, function(cl){
 
       data[[local_tmp_target_var]] <- factor(ifelse(data[[targets_col]] == classes[[cl]], 1, 0))
@@ -124,28 +129,47 @@ multinomial_classification_eval <- function(data,
         ) %>%
         dplyr::mutate(Class = classes[[cl]])
 
-    }) %>% dplyr::bind_rows()
+    }) %>% dplyr::bind_rows() %>%
+      dplyr::left_join(support, by = "Class")
+
+    # Move Support column
+    support_vals <- one_vs_all_evaluations[["Support"]]
+    one_vs_all_evaluations[["Support"]] <- NULL
+    one_vs_all_evaluations <- one_vs_all_evaluations %>%
+      tibble::add_column("Support" = support_vals, .before = "Predictions")
 
     # Place Class column first
     one_vs_all_evaluations <- one_vs_all_evaluations %>%
       dplyr::select(.data$Class, dplyr::everything())
 
-    # Calculate the average metrics and add overall metrics
-    average_metrics <- one_vs_all_evaluations %>%
+    # Extract the metrics for calculating (weighted) averages
+    metrics_only <- one_vs_all_evaluations %>%
       dplyr::mutate(Family = "multinomial") %>%
-      select_metrics(include_definitions = FALSE) %>%
+      select_metrics(include_definitions = FALSE)
+
+    # Calculate the average metrics
+    average_metrics <- metrics_only %>%
       dplyr::summarise_all(list(mean), na.rm = FALSE)
 
+    # Calculate the weighted average metrics
+    weighted_average_metrics <- metrics_only %>%
+      dplyr::summarise_all(list(~weighted.mean(., w = support_vals)), na.rm = FALSE) %>%
+      dplyr::rename_all(function(x) paste0("Weighted ", x))
+
+    # Keep only the requested metrics
+    weighted_average_metrics_to_keep <- dplyr::intersect(metrics,
+                                                         colnames(weighted_average_metrics))
+    weighted_average_metrics <- weighted_average_metrics %>%
+      dplyr::select(dplyr::one_of(weighted_average_metrics_to_keep))
+
+    # Gather summarized metrics and add nested predictions
     overall_results <- average_metrics %>%
+      dplyr::bind_cols(weighted_average_metrics) %>%
       dplyr::mutate(`Overall Accuracy` = overall_accuracy,
                     Predictions = predictions_nested$predictions)
 
-    # If we want the Overall Accuracy metric,
-    # place it first; otherwise remove it
-    if ("Overall Accuracy" %in% metrics){
-      overall_results <- overall_results %>%
-        dplyr::select(dplyr::one_of("Overall Accuracy"), dplyr::everything())
-    } else {
+    # If we don't want the Overall Accuracy metric, remove it
+    if ("Overall Accuracy" %ni% metrics){
       overall_results <- overall_results %>%
         dplyr::select(-dplyr::one_of("Overall Accuracy"))
     }
@@ -162,6 +186,13 @@ multinomial_classification_eval <- function(data,
 
     overall_results[["Confusion Matrix"]] <- nest_multiclass_confusion_matrices(
       list(overall_confusion_matrix))[["confusion_matrices"]]
+
+    # Rearrange columns in overall results
+    all_cols <- colnames(overall_results)
+    non_metric_cols <- setdiff(all_cols, metrics)
+    new_order <- c(metrics, non_metric_cols)
+    overall_results <- overall_results %>%
+      dplyr::select(dplyr::one_of(new_order))
 
     results <- list("Results" = overall_results,
                     "Class_level_results" = one_vs_all_evaluations)

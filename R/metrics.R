@@ -133,4 +133,3 @@ accuracy <- function(predictions, targets, na.rm = TRUE){
   mean(targets == predictions, na.rm = na.rm)
 
 }
-

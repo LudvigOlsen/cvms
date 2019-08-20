@@ -40,21 +40,36 @@ set_metrics <- function(family_, metrics_list = NULL){
     default_metrics <- list(
       "Overall Accuracy" = TRUE,
       "Balanced Accuracy" = TRUE,
+      "Weighted Balanced Accuracy" = FALSE,
       "Accuracy" = FALSE,
+      "Weighted Accuracy" = FALSE,
       "F1" = TRUE,
+      "Weighted F1" = FALSE,
       "Sensitivity" = TRUE,
+      "Weighted Sensitivity" = FALSE,
       "Specificity" = TRUE,
+      "Weighted Specificity" = FALSE,
       "Pos Pred Value" = TRUE,
+      "Weighted Pos Pred Value" = FALSE,
       "Neg Pred Value" = TRUE,
+      "Weighted Neg Pred Value" = FALSE,
       "AUC" = TRUE,
+      "Weighted AUC" = FALSE,
       "Lower CI" = TRUE,
+      "Weighted Lower CI" = FALSE,
       "Upper CI" = TRUE,
+      "Weighted Upper CI" = FALSE,
       "Kappa" = TRUE,
+      "Weighted Kappa" = FALSE,
       "MCC" = TRUE,
+      "Weighted MCC" = FALSE,
       "Detection Rate" = TRUE,
+      "Weighted Detection Rate" = FALSE,
       "Detection Prevalence" = TRUE,
-      "Prevalence" = TRUE
-    ) # TODO Add weigted macro metrics?
+      "Weighted Detection Prevalence" = FALSE,
+      "Prevalence" = TRUE,
+      "Weighted Prevalence" = FALSE
+    )
 
   }
 

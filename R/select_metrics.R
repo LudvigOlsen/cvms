@@ -65,11 +65,23 @@ select_metrics <- function(results, include_definitions = TRUE,
 
   } else if (results[["Family"]][[1]] == "multinomial"){
 
-    metric_cols <- c("Overall Accuracy","Balanced Accuracy","Accuracy",
-                     "F1","Sensitivity","Specificity",
-                     "Pos Pred Value", "Neg Pred Value",
-                     "AUC","Lower CI","Upper CI","Kappa","MCC",
-                     "Detection Rate","Detection Prevalence","Prevalence")
+    metric_cols <- c("Overall Accuracy",
+                     "Balanced Accuracy", "Weighted Balanced Accuracy",
+                     "Accuracy", "Weighted Accuracy",
+                     "F1", "Weighted F1",
+                     "Sensitivity", "Weighted Sensitivity",
+                     "Specificity", "Weighted Specificity",
+                     "Pos Pred Value", "Weighted Pos Pred Value",
+                     "Neg Pred Value", "Weighted Neg Pred Value",
+                     "AUC", "Weighted AUC",
+                     "Lower CI", "Weighted Lower CI",
+                     "Upper CI", "Weighted Upper CI",
+                     "Kappa", "Weighted Kappa",
+                     "MCC", "Weighted MCC",
+                     "Detection Rate", "Weighted Detection Rate",
+                     "Detection Prevalence", "Weighted Detection Prevalence",
+                     "Prevalence", "Weighted Prevalence"
+                     )
 
     metric_cols <- add_additional_colnames(metric_cols, additional_includes)
     metric_cols <- dplyr::intersect(metric_cols, colnames(results))

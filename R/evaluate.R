@@ -10,7 +10,7 @@
 #'   to the classification results.
 #'   Default values (TRUE/FALSE) will be used for the remaining metrics available.
 #'
-#'   N.B. Currently, disabled metrics are still computed. This is expected to change.
+#'   N.B. Currently, disabled metrics are still computed.
 #' @param type Type of evaluation to perform. Allowed values are
 #'  \code{"gaussian"} for linear regression;
 #'  \code{"binomial"} for binary classification;
@@ -27,6 +27,10 @@
 #'
 #'  NB.: When type is \code{"multinomial"}, macro-averaging of metrics returns NaN,
 #'  if any of the class level results are NaN.
+#'
+#'  NB.: When type is \code{"multinomial"}, you can enable weighted averaged metrics
+#'  as well as regularly averaged metrics. You do this in the \code{metrics} list,
+#'  e.g. by \code{metrics = list("Weighted Accuracy" = TRUE)}.
 evaluate <- function(data,
                      dependent_col,
                      prediction_cols,

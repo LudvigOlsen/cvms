@@ -164,3 +164,56 @@ test_that("softmax works in create_multinomial_probability_tibble()",{
   expect_equal(colnames(softmax_row(c(1,2,3,4))), c("V1","V2","V3","V4"))
 
 })
+
+test_that("probability nesting works in multinomial evaluate",{
+
+  set_seed_for_R_compatibility(1)
+  random_probabilities_1 <- create_multinomial_probability_tibble(
+    num_classes = 3,
+    num_observations = 20,
+    apply_softmax = TRUE
+  )
+
+  system.time({
+  manually_nested_probs <- random_probabilities_1 %>%
+    dplyr::mutate(ind = 1:20) %>%
+    dplyr::group_by(ind) %>%
+    legacy_nest(1:3) %>%
+    dplyr::pull(.data$data)
+  })
+
+  # Changed to basically do the same as above
+  system.time({
+  package_nested_probs <- random_probabilities_1 %>%
+    nest_probabilities_rowwise()
+  })
+
+  expect_true(identical(manually_nested_probs,package_nested_probs))
+
+  unnested <- package_nested_probs %>%
+    dplyr::bind_rows()
+
+  expect_true(identical(random_probabilities_1,unnested))
+
+})
+
+
+
+# test_that("profiling",{
+#
+#   # Load file with prepared predictions and hparams
+#   load(file="")
+#
+#   evals <- predictions %>%
+#     dplyr::group_by(results_folder, epoch) %>%
+#     cvms:::evaluate(dependent_col = "target_string",
+#                     prediction_cols = current_hparams %>%
+#                       dplyr::arrange(class_indices_map_values) %>%
+#                       dplyr::pull(class_names) %>%
+#                       as.character(),
+#                     type = "multinomial",
+#                     apply_softmax = FALSE,
+#                     parallel = TRUE)
+#
+#
+# })

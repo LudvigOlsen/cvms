@@ -190,18 +190,14 @@ all_or_nothing_evaluations <- function(test_data, targets_col, current_class, re
 
 }
 
-
-nest_row <- function(...){
-  col_names <- names(c(...))
-  x <- unname(c(...))
-  x <- dplyr::as_tibble(t(matrix(x)),
-                        .name_repair = ~ col_names)
-  # colnames(x) <- col_names
-  legacy_nest(x) %>%
-    dplyr::rename(probabilities = data)
-}
-
+# Nests all columns rowwise
+# Note: I tried with pmap_dfr and a nest_row function
+# but it was a lot slower
 nest_probabilities_rowwise <- function(data){
-  purrr::pmap_dfr(data, .f = nest_row) %>%
-    dplyr::pull(.data$probabilities)
+  n_cols <- ncol(data)
+  tmp_index <- create_tmp_var(data)
+  data[[tmp_index]] <- 1:nrow(data)
+  data %>%
+    legacy_nest(1:n_cols) %>%
+    dplyr::pull(.data$data)
 }

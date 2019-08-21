@@ -4,34 +4,98 @@
 \alias{evaluate}
 \title{evaluate}
 \usage{
-evaluate(data, dependent_col, prediction_cols, id_col = NULL,
-  id_method = "mean", model = NULL, type = "linear_regression",
+evaluate(data, target_col, prediction_cols, id_col = NULL,
+  id_method = "mean", model = NULL, type = "gaussian",
   apply_softmax = TRUE, cutoff = 0.5, positive = 2,
-  metrics = list())
+  metrics = list(), parallel = FALSE)
 }
 \arguments{
-\item{type}{Type of evaluation to perform. Allowed values are
-\code{"gaussian"} for linear regression;
-\code{"binomial"} for binary classification;
-\code{"multinomial"} for multiclass classification.}
+\item{data}{Data frame with predictions, targets and (optionally) an ID column.
+
+ When \code{type} is \code{"multinomial"}, the predictions should be given as
+ a column for each class with the probability of that class. The columns should
+ have the name of their class, as they are named in the target column. E.g.:
+
+ \tabular{rrrrr}{
+  \strong{class_1} \tab \strong{class_2} \tab
+  \strong{class_3} \tab \strong{target}\cr
+  0.269 \tab 0.528 \tab 0.203 \tab class_2\cr
+  0.368 \tab 0.322 \tab 0.310 \tab class_3\cr
+  0.375 \tab 0.371 \tab 0.254 \tab class_2\cr
+  ... \tab ... \tab ... \tab ...
+ }
+
+ Can be grouped with \code{\link[dplyr]{group_by}}.}
+
+\item{target_col}{Name of the column with the true classes/values in \code{data}.
+
+ When \code{type} is \code{"multinomial"}, this column should contain the names of the classes,
+ not their indices.}
+
+\item{prediction_cols}{Name(s) of column(s) with the predictions.
+
+ When evaluating a classification task,
+ the(se) column(s) should be the predicted probabilities.}
+
+\item{id_col}{Name of ID column to aggregate by.}
+
+\item{id_method}{Method to use when aggregating IDs. Either \code{"mean"} or \code{"majority"}.
+
+ When \code{type} is \code{gaussian}, only the \code{"mean"} method is available.
+
+ When method is \code{"mean"}, the average prediction (value or probability) is found per ID and evaluated.
+
+ When method is \code{"majority"}, the most predicted class per ID is found and evaluated. In case of a tie,
+ the winning classes share the probability (e.g. \code{P = 0.5} each when two majority classes).}
+
+\item{model}{Fitted model for calculating R^2 metrics and information criterion metrics.
+May only work for some types of models.}
+
+\item{type}{Type of evaluation to perform:
+
+ \code{"gaussian"} for linear regression.
+
+ \code{"binomial"} for binary classification.
+
+ \code{"multinomial"} for multiclass classification.}
+
+\item{apply_softmax}{Whether to apply the softmax function to the
+prediction columns when \code{type} is \code{"multinomial"}.}
+
+\item{cutoff}{Threshold for predicted classes. (Numeric)
+
+N.B. Binomial models only.}
+
+\item{positive}{Level from dependent variable to predict.
+ Either as character or level index (1 or 2 - alphabetically).
+ Used when creating confusion matrices and ROC curves.
+
+ N.B. Only affects evaluation metrics, not the returned predictions.
+
+ N.B. Binomial models only.}
 
 \item{metrics}{List for enabling/disabling metrics.
 
-  E.g. \code{list("RMSE" = FALSE)} would remove RMSE from the results.
+  E.g. \code{list("RMSE" = FALSE)} would remove RMSE from the results,
+  and \code{list("Accuracy" = TRUE)} would add the regular accuracy metric
+  to the classification results.
   Default values (TRUE/FALSE) will be used for the remaining metrics available.
 
-  N.B. Currently, disabled metrics are still computed. This is expected to change.}
+  Also accepts the string \code{"all"}.
+
+  N.B. Currently, disabled metrics are still computed.}
+
+\item{parallel}{Whether to run evaluations in parallel,
+when \code{data} is grouped with \code{\link[dplyr]{group_by}}.}
 }
 \description{
 evaluate
 }
 \details{
-Info to add:
- NB.: precision = positive prediction value
- NB.: recall = sensitivity
- NB.: overall accuracy = micro-F1 = micro-precision = micro-recall
- NB.: Macro F1 is the arithmetic mean of the macro precision and macro recall
-
- NB.: When type is \code{"multinomial"}, macro-averaging of metrics returns NaN,
+NB.: When type is \code{"multinomial"}, macro-averaging of metrics returns NaN,
  if any of the class level results are NaN.
+
+ NB.: When type is \code{"multinomial"}, you can enable weighted averaged metrics
+ in addition to the regularly averaged metrics. You do this in the \code{metrics} list,
+ e.g. by \code{metrics = list("Weighted Accuracy" = TRUE)}.
 }

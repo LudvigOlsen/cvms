@@ -130,10 +130,15 @@ multinomial_classification_eval <- function(data,
     }) %>% dplyr::bind_rows() %>%
       dplyr::left_join(support, by = "Class")
 
+    # Remove Predictions column if it exists
+    if ("Predictions" %in% colnames(one_vs_all_evaluations)){
+      one_vs_all_evaluations[["Predictions"]] <- NULL
+    }
+
     # Move Support column
     one_vs_all_evaluations <- reposition_column(one_vs_all_evaluations,
                                                 "Support",
-                                                .before = "Predictions")
+                                                .before = "ROC")
 
     # Place Class column first
     one_vs_all_evaluations <- one_vs_all_evaluations %>%

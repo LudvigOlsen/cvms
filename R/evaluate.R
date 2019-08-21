@@ -3,6 +3,55 @@
 
 #' evaluate
 #'
+#' @param data Data frame with predictions, targets and (optionally) an ID column.
+#'
+#'  When \code{type} is \code{"multinomial"}, the predictions should be given as
+#'  a column for each class with the probability of that class. The columns should
+#'  have the name of their class, as they are named in the target column. E.g.:
+#'
+#'  \tabular{rrrrr}{
+#'   \strong{class_1} \tab \strong{class_2} \tab
+#'   \strong{class_3} \tab \strong{target}\cr
+#'   0.269 \tab 0.528 \tab 0.203 \tab class_2\cr
+#'   0.368 \tab 0.322 \tab 0.310 \tab class_3\cr
+#'   0.375 \tab 0.371 \tab 0.254 \tab class_2\cr
+#'   ... \tab ... \tab ... \tab ...
+#'  }
+#'
+#'  Can be grouped with \code{\link[dplyr]{group_by}}.
+#' @param target_col Name of the column with the true classes/values in \code{data}.
+#'
+#'  When \code{type} is \code{"multinomial"}, this column should contain the names of the classes,
+#'  not their indices.
+#' @param prediction_cols Name(s) of column(s) with the predictions.
+#'
+#'  When evaluating a classification task,
+#'  the(se) column(s) should be the predicted probabilities.
+#' @param id_col Name of ID column to aggregate by.
+#' @param id_method Method to use when aggregating IDs. Either \code{"mean"} or \code{"majority"}.
+#'
+#'  When \code{type} is \code{gaussian}, only the \code{"mean"} method is available.
+#'
+#'  When method is \code{"mean"}, the average prediction (value or probability) is found per ID and evaluated.
+#'
+#'  When method is \code{"majority"}, the most predicted class per ID is found and evaluated. In case of a tie,
+#'  the winning classes share the probability (e.g. \code{P = 0.5} each when two majority classes).
+#' @param model Fitted model for calculating R^2 metrics and information criterion metrics.
+#'  May only work for some types of models.
+#' @param apply_softmax Whether to apply the softmax function to the
+#'  prediction columns when \code{type} is \code{"multinomial"}.
+#' @param cutoff Threshold for predicted classes. (Numeric)
+#'
+#' N.B. Binomial models only.
+#' @param positive Level from dependent variable to predict.
+#'  Either as character or level index (1 or 2 - alphabetically).
+#'  Used when creating confusion matrices and ROC curves.
+#'
+#'  N.B. Only affects evaluation metrics, not the returned predictions.
+#'
+#'  N.B. Binomial models only.
+#' @param parallel Whether to run evaluations in parallel,
+#'  when \code{data} is grouped with \code{\link[dplyr]{group_by}}.
 #' @param metrics List for enabling/disabling metrics.
 #'
 #'   E.g. \code{list("RMSE" = FALSE)} would remove RMSE from the results,
@@ -10,34 +59,30 @@
 #'   to the classification results.
 #'   Default values (TRUE/FALSE) will be used for the remaining metrics available.
 #'
+#'   Also accepts the string \code{"all"}.
+#'
 #'   N.B. Currently, disabled metrics are still computed.
-#' @param type Type of evaluation to perform. Allowed values are
-#'  \code{"gaussian"} for linear regression;
-#'  \code{"binomial"} for binary classification;
+#' @param type Type of evaluation to perform:
+#'
+#'  \code{"gaussian"} for linear regression.
+#'
+#'  \code{"binomial"} for binary classification.
+#'
 #'  \code{"multinomial"} for multiclass classification.
 #' @details
-#'  Info to add:
-#'  NB.: precision = positive prediction value
-#'
-#'  NB.: recall = sensitivity
-#'
-#'  NB.: overall accuracy = micro-F1 = micro-precision = micro-recall
-#'
-#'  NB.: Macro F1 is the arithmetic mean of the macro precision and macro recall
-#'
 #'  NB.: When type is \code{"multinomial"}, macro-averaging of metrics returns NaN,
 #'  if any of the class level results are NaN.
 #'
 #'  NB.: When type is \code{"multinomial"}, you can enable weighted averaged metrics
-#'  as well as regularly averaged metrics. You do this in the \code{metrics} list,
+#'  in addition to the regularly averaged metrics. You do this in the \code{metrics} list,
 #'  e.g. by \code{metrics = list("Weighted Accuracy" = TRUE)}.
 evaluate <- function(data,
-                     dependent_col,
+                     target_col,
                      prediction_cols,
                      id_col = NULL,
                      id_method = "mean", # or majority
                      model = NULL,
-                     type = "linear_regression",
+                     type = "gaussian",
                      apply_softmax = TRUE,
                      cutoff = 0.5,
                      positive = 2,
@@ -52,15 +97,15 @@ evaluate <- function(data,
 
   # Convert families to the internally used
   if (type %in% c("gaussian", "gaussian_regression", "linear_regression")){
-    family_ <- "gaussian"}
+    family <- "gaussian"}
   if (type %in% c("binomial", "binomial_classification", "binary_classification")){
-    family_ <- "binomial"}
+    family <- "binomial"}
   if (type %in% c("multinomial", "multinomial_classification", "multiclass_classification")){
-    family_ <- "multinomial"}
+    family <- "multinomial"}
 
   # Check the passed arguments TODO Add more checks
   check_args_evaluate(data = data,
-                      dependent_col = dependent_col,
+                      target_col = target_col,
                       prediction_cols = prediction_cols,
                       id_col = id_col,
                       model = model,
@@ -68,12 +113,13 @@ evaluate <- function(data,
                       apply_softmax = apply_softmax,
                       cutoff = cutoff,
                       positive = positive,
-                      parallel = parallel)
+                      parallel = parallel,
+                      metrics = metrics)
 
   # Create basic model_specifics object
   model_specifics <- list(
     model_formula = "",
-    family = family_,
+    family = family,
     REML = FALSE,
     link = NULL,
     cutoff = cutoff,
@@ -105,9 +151,9 @@ evaluate <- function(data,
     # Prepare data for ID level evaluation
     data_for_id_evaluation <- prepare_id_level_evaluation(
       data = data,
-      dependent_col = dependent_col,
+      target_col = target_col,
       prediction_cols = prediction_cols,
-      family = family_,
+      family = family,
       cutoff = cutoff,
       id_col = id_col,
       id_method = id_method,
@@ -116,15 +162,15 @@ evaluate <- function(data,
       new_prediction_col_name = local_tmp_predictions_col_var
     ) %>% dplyr::ungroup()
 
-    if (family_ == "multinomial")
+    if (family == "multinomial")
       prediction_cols <- local_tmp_predictions_col_var
 
     # Run ID level evaluation
     evaluations <- run_evaluate_wrapper(
       data = data_for_id_evaluation,
-      type = family_,
+      type = family,
       predictions_col = prediction_cols,
-      targets_col = dependent_col,
+      targets_col = target_col,
       id_col = id_col,
       id_method = id_method,
       groups_col = local_tmp_grouping_factor_var,
@@ -139,11 +185,11 @@ evaluate <- function(data,
 
     # Regular evaluation
 
-    if (family_ == "multinomial"){
+    if (family == "multinomial"){
 
       # Prepare data for multinomial evaluation
       data <- prepare_multinomial_evaluation(data = data,
-                                             dependent_col = dependent_col,
+                                             target_col = target_col,
                                              prediction_cols = prediction_cols,
                                              apply_softmax = apply_softmax,
                                              new_prediction_col_name = local_tmp_predictions_col_var
@@ -153,16 +199,16 @@ evaluate <- function(data,
 
     } else {
       if (length(prediction_cols) > 1) {
-        stop(paste0("'prediction_cols' must have length 1 when family_ is '", family_, "'."))
+        stop(paste0("'prediction_cols' must have length 1 when family is '", family, "'."))
       }
     }
 
     # Run evaluation
     evaluations <- run_evaluate_wrapper(
       data = data,
-      type = family_,
+      type = family,
       predictions_col = prediction_cols,
-      targets_col = dependent_col,
+      targets_col = target_col,
       models = model,
       groups_col = local_tmp_grouping_factor_var,
       grouping_keys = grouping_keys,
@@ -264,9 +310,9 @@ run_evaluate_wrapper <- function(data,
 }
 
 prepare_id_level_evaluation <- function(data,
-                                        dependent_col,
+                                        target_col,
                                         prediction_cols,
-                                        family_,
+                                        family,
                                         id_col,
                                         id_method,
                                         groups_col,
@@ -294,12 +340,12 @@ prepare_id_level_evaluation <- function(data,
     data <- softmax(data, cols = prediction_cols)
   }
 
-  if (family_ == "binomial"){
+  if (family == "binomial"){
     if (is.null(cutoff)){
-      stop("when 'family_' is 'binomial', 'cutoff' must be numeric between 0 and 1.")
+      stop("when 'family' is 'binomial', 'cutoff' must be numeric between 0 and 1.")
     }
     if (is.null(cutoff)){
-      stop("when 'family_' is 'binomial', 'cutoff' must be numeric between 0 and 1.")
+      stop("when 'family' is 'binomial', 'cutoff' must be numeric between 0 and 1.")
     }
   }
 
@@ -307,7 +353,7 @@ prepare_id_level_evaluation <- function(data,
 
   # Add actual class
   id_classes <- data %>%
-    dplyr::select(!!as.name(groups_col), !!as.name(id_col), !!as.name(dependent_col)) %>%
+    dplyr::select(!!as.name(groups_col), !!as.name(id_col), !!as.name(target_col)) %>%
     dplyr::distinct()
 
   if (id_method == "mean") {
@@ -323,7 +369,7 @@ prepare_id_level_evaluation <- function(data,
     ## By majority vote
     # If multiple classes share the majority, they also share the probability! #mustShare!
 
-    if (family_ == "multinomial"){
+    if (family == "multinomial"){
 
       data[["predicted_class_index"]] <- data %>%
         dplyr::select(dplyr::one_of(prediction_cols)) %>%
@@ -359,7 +405,7 @@ prepare_id_level_evaluation <- function(data,
         majority_vote_probabilities <- majority_vote_probabilities %>%
           dplyr::bind_cols(na_cols) %>%
           dplyr::select(dplyr::one_of(
-            groups_col, id_col, dependent_col, prediction_cols))
+            groups_col, id_col, target_col, prediction_cols))
       }
 
       # Set NAs to 0
@@ -374,10 +420,10 @@ prepare_id_level_evaluation <- function(data,
       data_for_id_evaluation <- majority_vote_probabilities %>%
         dplyr::ungroup()
 
-    } else if (family_ == "binomial"){
+    } else if (family == "binomial"){
 
       if (length(prediction_cols)>1){
-        stop("when 'family_' is 'binomial', length of 'prediction_cols' should be 1.")
+        stop("when 'family' is 'binomial', length of 'prediction_cols' should be 1.")
       }
 
       data[["predicted_class"]] <- ifelse(data[[prediction_cols]] > cutoff, 1, 0)
@@ -396,15 +442,15 @@ prepare_id_level_evaluation <- function(data,
         dplyr::ungroup()
 
     } else {
-      stop(paste0("family_ ", family_, " not currently supported for majority vote aggregated ID evaluation."))
+      stop(paste0("family ", family, " not currently supported for majority vote aggregated ID evaluation."))
     }
   }
 
-  if (family_ == "multinomial") {
+  if (family == "multinomial") {
 
     data_for_id_evaluation <- prepare_multinomial_evaluation(
       data_for_id_evaluation,
-      dependent_col = dependent_col,
+      target_col = target_col,
       prediction_cols = prediction_cols,
       apply_softmax = TRUE,
       new_prediction_col_name = new_prediction_col_name
@@ -417,7 +463,7 @@ prepare_id_level_evaluation <- function(data,
 }
 
 prepare_multinomial_evaluation <- function(data,
-                                           dependent_col,
+                                           target_col,
                                            prediction_cols,
                                            apply_softmax,
                                            new_prediction_col_name){
@@ -438,8 +484,8 @@ prepare_multinomial_evaluation <- function(data,
   # TODO Do we need to do anything to the dependent column? E.g. make numeric or check against names in prediction_cols?
   # TODO What if the classes are numeric, then what will prediction_cols contain?
 
-  if (length(setdiff(levels_as_characters(data[[dependent_col]]), prediction_cols)) > 0){
-    stop("Not all levels in 'dependent_col' was found in 'prediction_cols'.")
+  if (length(setdiff(levels_as_characters(data[[target_col]]), prediction_cols)) > 0){
+    stop("Not all levels in 'target_col' was found in 'prediction_cols'.")
   }
 
   data
@@ -465,7 +511,7 @@ internal_evaluate <- function(data,
 
   # Fill metrics with default values for non-specified metrics
   # and get the names of the metrics
-  metrics <- set_metrics(family_ = type, metrics_list = metrics)
+  metrics <- set_metrics(family = type, metrics_list = metrics)
 
   # data is a table with predictions, targets and folds
   # predictions can be values, logits, or classes, depending on evaluation type
@@ -511,7 +557,7 @@ internal_evaluate <- function(data,
 }
 
 check_args_evaluate <- function(data,
-                                dependent_col,
+                                target_col,
                                 prediction_cols,
                                 id_col,
                                 model,
@@ -519,21 +565,22 @@ check_args_evaluate <- function(data,
                                 apply_softmax,
                                 cutoff,
                                 positive,
-                                parallel){
+                                parallel,
+                                metrics){
 
   # TODO Add more checks !!
 
   # Check columns
-  # dependent_col
-  if (!is.character(dependent_col)) {
-    stop("'dependent_col' must be name of the dependent column in 'data'.")
+  # target_col
+  if (!is.character(target_col)) {
+    stop("'target_col' must be name of the dependent column in 'data'.")
   }
-  if (dependent_col %ni% colnames(data)){
-    stop(paste0("the 'dependent_col', ",dependent_col,", was not found in 'data'"))
+  if (target_col %ni% colnames(data)){
+    stop(paste0("the 'target_col', ",target_col,", was not found in 'data'"))
   }
 
   # prediction_cols
-  if (!is.character(dependent_col)) {
+  if (!is.character(target_col)) {
     stop("'prediction_cols' must be name(s) of the prediction column(s) in 'data'.")
   }
   if (length(setdiff(prediction_cols, colnames(data))) > 0) {
@@ -563,7 +610,16 @@ check_args_evaluate <- function(data,
     stop("'parallel' must be a logical scalar (TRUE/FALSE).")
   }
 
+  # metrics
+  if (!(is.list(metrics) || metrics == "all")){
+    stop("'metrics' must be either a list or the string 'all'.")
+  }
 
+  if (is.list(metrics) && length(metrics)>0){
+    if (!rlang::is_named(metrics)){
+      stop("when 'metrics' is a non-empty list, it must be a named list.")
+    }
+  }
 
   # TODO add for rest of args
 

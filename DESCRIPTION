@@ -33,7 +33,8 @@ Imports:
     broom,
     stringr,
     mltools (>= 0.3.5),
-    rlang
+    rlang,
+    utils
 RoxygenNote: 6.1.1
 Suggests: knitr,
     groupdata2 (>= 1.1.1),

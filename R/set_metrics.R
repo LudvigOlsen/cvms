@@ -1,9 +1,9 @@
 
 # Returns a list of metric names
 # With default values unless
-set_metrics <- function(family_, metrics_list = NULL){
+set_metrics <- function(family, metrics_list = NULL){
 
-  if (family_ == "gaussian"){
+  if (family == "gaussian"){
 
     default_metrics <- list(
       "RMSE" = TRUE,
@@ -15,7 +15,7 @@ set_metrics <- function(family_, metrics_list = NULL){
       "BIC" = TRUE
     )
 
-  } else if (family_ == "binomial"){
+  } else if (family == "binomial"){
 
     default_metrics <- list(
       "Balanced Accuracy" = TRUE,
@@ -35,7 +35,7 @@ set_metrics <- function(family_, metrics_list = NULL){
       "Prevalence" = TRUE
     )
 
-  } else if (family_ == "multinomial"){
+  } else if (family == "multinomial"){
 
     default_metrics <- list(
       "Overall Accuracy" = TRUE,
@@ -75,7 +75,14 @@ set_metrics <- function(family_, metrics_list = NULL){
 
   metrics <- default_metrics
 
-  if (!is.null(metrics_list) && length(metrics_list) > 0){
+  if (!is.list(metrics_list) && metrics_list == "all"){
+
+    # Set all metrics to TRUE
+    for (met in seq_along(metrics)){
+      metrics[[met]] <- TRUE
+    }
+
+  } else if (!is.null(metrics_list) && length(metrics_list) > 0){
 
     # Check for unknown metric names
     unknown_metric_names <- setdiff(names(metrics_list), names(metrics))

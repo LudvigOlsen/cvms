@@ -394,7 +394,7 @@ create_multinomial_probability_tibble <- function(num_classes,
 
 # https://tidyr.tidyverse.org/dev/articles/in-packages.html
 tidyr_new_interface <- function() {
-  packageVersion("tidyr") > "0.8.99"
+  utils::packageVersion("tidyr") > "0.8.99"
 }
 
 # As the upcoming tidyr v1.0.0 has breaking changes

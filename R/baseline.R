@@ -243,6 +243,20 @@ baseline <- function(test_data,
       )
     )
 
+  } else if (family == "multinomial"){
+
+    if (!is.null(train_data)){
+      message("train_data was not used for multinomial baseline.")
+    }
+
+    return(
+      create_multinomial_baseline_evaluations(test_data = test_data,
+                                              dependent_col = dependent_col,
+                                              reps = n,
+                                              parallel_ = parallel
+      )
+    )
+
   } else if (family == "gaussian"){
 
     if (is.null(train_data)){

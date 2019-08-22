@@ -174,6 +174,96 @@ test_that("gaussian evaluation are correct in baseline()",{
 # TODO Create baseline test where both classes are 50% 50% , 100% 0%, 0% 100%, 30/70 etc.
 # Do we get what we expect?
 
+
+test_that("multinomial evaluation are correct in baseline()",{
+
+  set_seed_for_R_compatibility(1)
+  targets_1 <- dplyr::sample_n(tibble::enframe(rep(1:3, each=10), value = "targets_3"), 25) %>%
+    dplyr::select(-name)
+  targets_2 <- dplyr::sample_n(tibble::enframe(rep(1:4, each=10), value = "targets_4"), 25) %>%
+    dplyr::select(-name)
+  targets_3 <- dplyr::sample_n(tibble::enframe(rep(1:5, each=10), value = "targets_5"), 25) %>%
+    dplyr::select(-name)
+
+  different_targets <- targets_1 %>%
+    dplyr::bind_cols(targets_2, targets_3)
+
+  multinom_baseline <- baseline(test_data = different_targets,
+                                dependent_col = "targets_3",
+                                n = 10,
+                                family = "multinomial",
+                                parallel = FALSE)
+
+  # binom_baseline_summ <- binom_baseline$summarized_metrics
+  # binom_baseline_reval <- binom_baseline$random_evaluations
+
+  # # Summarized results
+  # expect_equal(binom_baseline_summ$Measure, c("Mean", "Median", "SD", "IQR", "Max",
+  #                                             "Min", "NAs", "INFs", "All_0", "All_1"))
+  # expect_equal(binom_baseline_summ$`Balanced Accuracy`,
+  #              c(0.49305556, 0.472, 0.09402822, 0.111, 0.6805, 0.3472,
+  #                0.0, 0.0, 0.50, 0.50), tolerance=1e-3)
+  #
+  # expect_equal(binom_baseline_summ$F1,
+  #              c(0.5080706, 0.5294118, 0.1486011, 0.1303922, 0.6875000,
+  #                0.1600000, 0.0000000, 0.0000000, NA, 0.7500000), tolerance=1e-3)
+  #
+  # expect_equal(binom_baseline_summ$AUC,
+  #              c(0.54907407, 0.54398148, 0.08210109, 0.09143519,
+  #                0.69907407, 0.43055556, 0.0, 0.0, 0.50, 0.50), tolerance=1e-3)
+  #
+  # expect_equal(binom_baseline_summ$`Pos Pred Value`,
+  #              c(0.5751821, 0.5729167, 0.1299251, 0.1009191,
+  #                0.7857143, 0.2857143, 0.0, 0.0, NaN, 0.60), tolerance=1e-3)
+  #
+  # expect_equal(binom_baseline_summ$`Neg Pred Value`,
+  #              c(0.39934657, 0.37301587, 0.07978087, 0.11401099,
+  #                0.5625, 0.30434783, 0.0, 0.0, 0.40, NaN), tolerance=1e-3)
+  #
+  # # The random evaluations
+  # expect_equal(binom_baseline_reval$`Balanced Accuracy`,
+  #              c(0.6805556, 0.5277778, 0.4861111, 0.4305556, 0.5555556,
+  #                0.4583333, 0.4583333, 0.5694444, 0.4166667, 0.3472222), tolerance=1e-3)
+  #
+  # expect_equal(binom_baseline_reval$F1,
+  #              c(0.6875, 0.5882353, 0.4666667, 0.4848485, 0.6285714,
+  #                0.5294118, 0.5294118, 0.6060606, 0.40, 0.160), tolerance=1e-3)
+  #
+  # expect_equal(binom_baseline_reval$AUC,
+  #              c(0.6990741, 0.5925926, 0.6527778, 0.500, 0.5555556,
+  #                0.4305556, 0.5601852, 0.5324074, 0.4907407, 0.4768519),
+  #              tolerance=1e-3)
+  #
+  # expect_equal(binom_baseline_reval$MCC,
+  #              c(0.35460407, 0.05455447, -0.0277, -0.13608276, 0.10984701,
+  #                -0.08183171, -0.08183171,  0.13608276, -0.166,-0.35391920),
+  #              tolerance=1e-3)
+  #
+  # expect_equal(binom_baseline_reval$Dependent,
+  #              rep("diagnosis", 10))
+  #
+  # expect_equal(binom_baseline_reval$Family,
+  #              rep("binomial", 10))
+  #
+  # expect_equal(length(binom_baseline_reval$Predictions), 10)
+  #
+  # all_predictions <- dplyr::bind_rows(binom_baseline_reval$Predictions)
+  # expect_equal(sum(as.numeric(all_predictions$Fold)), 300)
+  # expect_equal(sum(all_predictions$Target), 180)
+  # expect_equal(sum(as.numeric(all_predictions$`Predicted Class`)), 140)
+  # expect_equal(sum(all_predictions$Prediction), 147.0334, tolerance=1e-3)
+  #
+  # all_confmats <- dplyr::bind_rows(binom_baseline_reval$`Confusion Matrix`)
+  # expect_equal(sum(as.numeric(all_confmats$Prediction)), 20, tolerance=1e-3)
+  # expect_equal(sum(as.numeric(all_confmats$Reference)), 20, tolerance=1e-3)
+  # expect_equal(sum(all_confmats$N), 300, tolerance=1e-3)
+  # expect_equal(sum(all_confmats$`Fold Column`), 220, tolerance=1e-3) # Should be changed to Evaluation
+  #
+
+})
+
+
+
 test_that("baseline() throws expected errors",{
 
   # Binomial

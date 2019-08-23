@@ -43,13 +43,18 @@ Main functions:
 
 * `cross_validate()`  
 * `validate()`  
+* `evaluate()`
 * `baseline()`  
 * `combine_predictors()`  
 * `cv_plot()`  
 * `select_metrics()`  
-* `reconstruct_formulas()`  
+* `reconstruct_formulas()`   
 
 ## Important News
+
+* Adds 'multinomial' family to baseline() 
+
+* evaluate() is added. Evaluate your model's predictions with the same metrics as used in cross_validate().
 
 * AUC calculation has changed. Now explicitly sets the direction in `pROC::roc`. (27th of May 2019)
 

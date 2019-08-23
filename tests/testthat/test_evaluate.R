@@ -5,7 +5,7 @@ context("evaluate()")
 test_that("multinomial evaluations are correct in evaluate()",{
 
   set_seed_for_R_compatibility(1)
-  random_probabilities <- create_multinomial_probability_tibble(
+  random_probabilities <- multiclass_probability_tibble(
     num_classes = 5,
     num_observations = 20,
     apply_softmax = FALSE # Test with as well
@@ -90,7 +90,7 @@ test_that("multinomial evaluations are correct in evaluate()",{
                c(4,4,4,4,4))
   expect_equal(mn_eval_1$`Class Level Results`$`Confusion Matrix`[[1]]$Prediction,
                as.character(c(0,1,0,1)))
-  expect_equal(mn_eval_1$`Class Level Results`$`Confusion Matrix`[[1]]$Reference,
+  expect_equal(mn_eval_1$`Class Level Results`$`Confusion Matrix`[[1]]$Target,
                as.character(c(0,0,1,1)))
   expect_equal(mn_eval_1$`Class Level Results`$`Confusion Matrix`[[1]]$Pos_0,
                c("TP", "FN", "FP", "TN"))
@@ -100,7 +100,7 @@ test_that("multinomial evaluations are correct in evaluate()",{
                c(12,4,3,1))
   expect_equal(mn_eval_1$`Class Level Results`$`Confusion Matrix`[[2]]$Prediction,
                as.character(c(0,1,0,1)))
-  expect_equal(mn_eval_1$`Class Level Results`$`Confusion Matrix`[[2]]$Reference,
+  expect_equal(mn_eval_1$`Class Level Results`$`Confusion Matrix`[[2]]$Target,
                as.character(c(0,0,1,1)))
   expect_equal(mn_eval_1$`Class Level Results`$`Confusion Matrix`[[2]]$Pos_0,
                c("TP", "FN", "FP", "TN"))
@@ -123,9 +123,9 @@ test_that("multinomial evaluations are correct in evaluate()",{
   expect_equal(colnames(mn_eval_1$`Class Level Results`$ROC[[1]]),
                c("Sensitivities", "Specificities"))
   expect_equal(colnames(mn_eval_1$`Class Level Results`$`Confusion Matrix`[[1]]),
-               c("Prediction", "Reference", "Pos_0", "Pos_1", "N"))
+               c("Prediction", "Target", "Pos_0", "Pos_1", "N"))
   expect_equal(colnames(mn_eval_1$Results$`Confusion Matrix`[[1]]),
-               c("Prediction", "Reference", "N"))
+               c("Prediction", "Target", "N"))
 
 
   # Test Weighted metrics, and metrics == "all"
@@ -221,7 +221,7 @@ test_that("multinomial evaluations are correct in evaluate()",{
 
   expect_equal(mn_eval_2$`Class Level Results`$`Confusion Matrix`[[1]]$Prediction,
                as.character(c(0,1,0,1)))
-  expect_equal(mn_eval_2$`Class Level Results`$`Confusion Matrix`[[1]]$Reference,
+  expect_equal(mn_eval_2$`Class Level Results`$`Confusion Matrix`[[1]]$Target,
                as.character(c(0,0,1,1)))
   expect_equal(mn_eval_2$`Class Level Results`$`Confusion Matrix`[[1]]$Pos_0,
                c("TP", "FN", "FP", "TN"))
@@ -231,7 +231,7 @@ test_that("multinomial evaluations are correct in evaluate()",{
                c(11,2,3,1))
   expect_equal(mn_eval_2$`Class Level Results`$`Confusion Matrix`[[2]]$Prediction,
                as.character(c(0,1,0,1)))
-  expect_equal(mn_eval_2$`Class Level Results`$`Confusion Matrix`[[2]]$Reference,
+  expect_equal(mn_eval_2$`Class Level Results`$`Confusion Matrix`[[2]]$Target,
                as.character(c(0,0,1,1)))
   expect_equal(mn_eval_2$`Class Level Results`$`Confusion Matrix`[[2]]$Pos_0,
                c("TP", "FN", "FP", "TN"))
@@ -258,9 +258,9 @@ test_that("multinomial evaluations are correct in evaluate()",{
   expect_equal(colnames(mn_eval_2$`Class Level Results`$ROC[[1]]),
                c("Sensitivities", "Specificities"))
   expect_equal(colnames(mn_eval_2$`Class Level Results`$`Confusion Matrix`[[1]]),
-               c("Prediction", "Reference", "Pos_0", "Pos_1", "N"))
+               c("Prediction", "Target", "Pos_0", "Pos_1", "N"))
   expect_equal(colnames(mn_eval_2$Results$`Confusion Matrix`[[1]]),
-               c("Prediction", "Reference", "N"))
+               c("Prediction", "Target", "N"))
 
   # Enabling and disabling a few metrics
 
@@ -373,7 +373,7 @@ test_that("multinomial evaluations are correct in evaluate()",{
                c(2,2,2,1,2))
   expect_equal(mn_id_eval_1$`Class Level Results`$`Confusion Matrix`[[1]]$Prediction,
                c("0", "1", "0", "1"))
-  expect_equal(mn_id_eval_1$`Class Level Results`$`Confusion Matrix`[[1]]$Reference,
+  expect_equal(mn_id_eval_1$`Class Level Results`$`Confusion Matrix`[[1]]$Target,
                c("0", "0", "1", "1"))
   expect_equal(mn_id_eval_1$`Class Level Results`$`Confusion Matrix`[[1]]$Pos_0,
                c("TP", "FN", "FP", "TN"))
@@ -384,9 +384,9 @@ test_that("multinomial evaluations are correct in evaluate()",{
   expect_equal(colnames(mn_id_eval_1$`Class Level Results`$ROC[[1]]),
                c("Sensitivities", "Specificities"))
   expect_equal(colnames(mn_id_eval_1$`Class Level Results`$`Confusion Matrix`[[1]]),
-               c("Prediction", "Reference", "Pos_0", "Pos_1", "N"))
+               c("Prediction", "Target", "Pos_0", "Pos_1", "N"))
   expect_equal(colnames(mn_id_eval_1$Results$`Confusion Matrix`[[1]]),
-               c("Prediction", "Reference", "N"))
+               c("Prediction", "Target", "N"))
 
 
 
@@ -431,7 +431,7 @@ test_that("multinomial evaluations are correct in evaluate()",{
 test_that("arguments throw proper errors and warnings in evaluate()",{
 
   set_seed_for_R_compatibility(1)
-  random_probabilities <- create_multinomial_probability_tibble(
+  random_probabilities <- multiclass_probability_tibble(
     num_classes = 5,
     num_observations = 20,
     apply_softmax = FALSE # Test with as well
@@ -465,12 +465,25 @@ test_that("arguments throw proper errors and warnings in evaluate()",{
 
   # TODO add more
 
+  # Testing gaussian
+  expect_error(evaluate(
+    data = data_,
+    target_col = "cl_1",
+    prediction_cols = "cl_2",
+    type = "gaussian",
+    id_col = "cl",
+    id_method = "mean"
+    ), paste0("The targets must be constant within the IDs with the current ID method. ",
+              "These IDs had more than one unique value in the target column: 1, 2, 3, 4, 5."),
+    fixed=TRUE)
+
+
 })
 
 test_that("binomial evaluation works in evaluate()",{
 
   set_seed_for_R_compatibility(1)
-  random_probabilities <- create_multinomial_probability_tibble(
+  random_probabilities <- multiclass_probability_tibble(
     num_classes = 1,
     num_observations = 20,
     apply_softmax = FALSE # Test with as well
@@ -654,17 +667,17 @@ test_that("binomial evaluation works in evaluate()",{
 
 })
 
-test_that("softmax works in create_multinomial_probability_tibble()",{
+test_that("softmax works in multiclass_probability_tibble()",{
 
-  # Test softmax was applied correctly in create_multinomial_probability_tibble
+  # Test softmax was applied correctly in multiclass_probability_tibble
   set_seed_for_R_compatibility(1)
-  random_probabilities_1 <- create_multinomial_probability_tibble(
+  random_probabilities_1 <- multiclass_probability_tibble(
     num_classes = 3,
     num_observations = 20,
     apply_softmax = TRUE
   )
   set_seed_for_R_compatibility(1)
-  random_probabilities_2 <- create_multinomial_probability_tibble(
+  random_probabilities_2 <- multiclass_probability_tibble(
     num_classes = 3,
     num_observations = 20,
     apply_softmax = FALSE
@@ -683,7 +696,7 @@ test_that("softmax works in create_multinomial_probability_tibble()",{
 test_that("probability nesting works in multinomial evaluate",{
 
   set_seed_for_R_compatibility(1)
-  random_probabilities_1 <- create_multinomial_probability_tibble(
+  random_probabilities_1 <- multiclass_probability_tibble(
     num_classes = 3,
     num_observations = 20,
     apply_softmax = TRUE
@@ -778,8 +791,6 @@ test_that("gaussian evaluations are correct in evaluate()",{
                  "'models' must be either NULL or an unnamed list with fitted model object(s). ",
                  "'models' had length 0."),
                fixed = TRUE)
-
-
 
   expect_error(evaluate(eval_data, target_col = "score",
            prediction_cols = "score_predictions",

@@ -124,7 +124,124 @@
 #'  NB.: When type is \code{"multinomial"}, you can enable weighted averaged metrics
 #'  in addition to the regularly averaged metrics. You do this in the \code{metrics} list,
 #'  e.g. by \code{metrics = list("Weighted Accuracy" = TRUE)}.
+#' @return tibble or list of tibbles, depending on \code{type}.
 #'
+#'  ----------------------------------------------------------------
+#'
+#'  \subsection{Gaussian Results}{
+#'
+#'  ----------------------------------------------------------------
+#'
+#'  Single tibble containing the following metrics by default:
+#'
+#'  Average \strong{RMSE}, \strong{MAE}, \strong{r2m},
+#'  \strong{r2c}, \strong{AIC}, \strong{AICc}, and \strong{BIC}.
+#'
+#'  Note that some of the metrics will return \code{NA},
+#'  if they could not be extracted from the passed model objects or if
+#'  \code{models} is \code{NULL}.
+#'
+#'  Also includes:
+#'
+#'  A nested tibble with the \strong{Predictions} and targets
+#'
+#'  A nested tibble with the model \strong{Coefficients}.
+#'  }
+#'
+#'  ----------------------------------------------------------------
+#'
+#'  \subsection{Binomial Results}{
+#'
+#'  ----------------------------------------------------------------
+#'
+#'  A single tibble with the following evaluation metrics, based on a
+#'  confusion matrix and a ROC curve fitted to the predictions:
+#'
+#'  ROC:
+#'
+#'  \strong{AUC}, \strong{Lower CI}, and \strong{Upper CI}
+#'
+#'  Confusion Matrix:
+#'
+#'  \strong{Balanced Accuracy},
+#'  \strong{F1},
+#'  \strong{Sensitivity},
+#'  \strong{Specificity},
+#'  \strong{Positive Prediction Value},
+#'  \strong{Negative Prediction Value},
+#'  \strong{Kappa},
+#'  \strong{Detection Rate},
+#'  \strong{Detection Prevalence},
+#'  \strong{Prevalence}, and
+#'  \strong{MCC} (Matthews correlation coefficient).
+#'
+#'  Other available metrics (disabled by default, see \code{metrics}):
+#'  \strong{Accuracy}.
+#'
+#'  Also includes:
+#'
+#'  A nested tibble with the \strong{predictions} and targets.
+#'
+#'  A nested tibble with the sensativities and specificities from the \strong{ROC} curve.
+#'
+#'  A nested tibble with the \strong{confusion matrix}.
+#'  The \code{Pos_} columns tells you whether a row is a
+#'  True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
+#'  depending on which level is the "\code{positive}" class. I.e. the level you wish to predict.
+#'  }
+#'
+#' ----------------------------------------------------------------
+#'
+#'  \subsection{Multinomial Results}{
+#'
+#'  ----------------------------------------------------------------
+#'
+#'  A list with two tibbles:
+#'
+#'  \strong{Class Level Results}
+#'
+#'  The \code{Class Level Results} tibble contains the results of the \emph{one-vs-all}
+#'  binomial evaluations. It contains the same metrics as the binomial results described above.
+#'
+#'  Also includes:
+#'
+#'  A nested tibble with the \strong{Predictions} and targets used for the one-vs-all evaluation.
+#'
+#'  A nested tibble with the sensativities and specificities from the \strong{ROC} curve.
+#'
+#'  A nested tibble with the \strong{Confusion Matrix} from the one-vs-all evaluation.
+#'  The \code{Pos_} columns tells you whether a row is a
+#'  True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
+#'  depending on which level is the "positive" class. In our case, \code{1} is the current class
+#'  and \code{0} represents all the other classes together.
+#'
+#'  \strong{Results}
+#'
+#'  The \code{Results} tibble contains the overall/macro metrics. The metrics that share their name
+#'  with the metrics in the Class Level Results tibble are averages of those metrics
+#'  (note: does not remove \code{NA}s before averaging).
+#'  In addition to these, it also includes the \strong{Overall Accuracy} metric
+#'  and the \strong{Support} metric, which is simply a count of the class in the target column.
+#'
+#'  Other available metrics (disabled by default, see \code{metrics}):
+#'  \strong{Accuracy}, \strong{Weighted Balanced Accuracy}, \strong{Weighted Accuracy},
+#'  \strong{Weighted F1}, \strong{Weighted Sensitivity}, \strong{Weighted Sensitivity},
+#'  \strong{Weighted Specificity}, \strong{Weighted Pos Pred Value},
+#'  \strong{Weighted Neg Pred Value}, \strong{Weighted AUC}, \strong{Weighted Lower CI},
+#'  \strong{Weighted Upper CI}, \strong{Weighted Kappa}, \strong{Weighted MCC},
+#'  \strong{Weighted Detection Rate}, \strong{Weighted Detection Prevalence}, and
+#'  \strong{Weighted Prevalence}.
+#'
+#'  Note that "Weighted" metrics are averages weighted by the \code{Support}.
+#'
+#'  Also includes:
+#'
+#'  A nested tibble with the \strong{Predictions} and targets.
+#'
+#'  A nested tibble with the multiclass \strong{Confusion Matrix}.
+#'  }
+#' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
+#' @export
 #' @examples
 #'  # Attach libraries
 #'  library(cvms)
@@ -431,9 +548,13 @@ prepare_id_level_evaluation <- function(data,
   num_groups <- length(unique(data[[groups_col]]))
 
   # Add actual class
-  id_classes <- data %>%
-    dplyr::select(!!as.name(groups_col), !!as.name(id_col), !!as.name(target_col)) %>%
-    dplyr::distinct()
+  id_classes <-
+    extract_id_classes(
+      data = data,
+      groups_col = groups_col,
+      id_col = id_col,
+      target_col = target_col
+    )
 
   if (id_method == "mean") {
 
@@ -678,9 +799,9 @@ check_args_evaluate <- function(data,
     if (!is.character(id_col)) {
       stop("'id_col' must be either a column name or NULL.")
     }
-    if (type == "gaussian") {
-      warning(paste0("'id_col' is ignored when type is '", type, "'."))
-    }
+    # if (type == "gaussian") {
+    #   warning(paste0("'id_col' is ignored when type is '", type, "'."))
+    # }
     if (id_col %ni% colnames(data)) {
       stop(paste0("the 'id_col', ", id_col, ", was not found in 'data'."))
     }
@@ -748,4 +869,36 @@ extract_and_remove_probability_cols <- function(data, prediction_cols) {
 
   list("data" = data,
        "predicted_probabilities" = predicted_probabilities)
+}
+
+extract_id_classes <- function(data, groups_col, id_col, target_col){
+
+  id_classes <- data %>%
+    dplyr::select(!!as.name(groups_col), !!as.name(id_col), !!as.name(target_col)) %>%
+    dplyr::distinct()
+
+  # Make sure the targets are constant within IDs
+  check_constant_targets_within_ids(distinct_data = id_classes,
+                                    groups_col = groups_col,
+                                    id_col = id_col)
+
+  id_classes
+}
+
+check_constant_targets_within_ids <- function(distinct_data, groups_col, id_col){
+
+  # Checks that there's only one unique value for each ID (per group)
+
+  counts <- distinct_data %>%
+    dplyr::group_by(!!as.name(groups_col), !!as.name(id_col)) %>%
+    dplyr::summarize(n = dplyr::n())
+
+  if (any(counts$n > 1)){
+    stop(paste0("The targets must be constant within the IDs with the current ID method. ",
+                "These IDs had more than one unique value in the target column: ",
+                paste0(counts %>%
+                         dplyr::filter(.data$n>1) %>%
+                         dplyr::pull(!!as.name(id_col)),
+                       collapse = ", "),"."))
+  }
 }

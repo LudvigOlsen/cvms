@@ -6,8 +6,8 @@
 \usage{
 baseline(test_data, dependent_col, train_data = NULL, n = 100,
   family = "binomial", positive = 2, cutoff = 0.5,
-  min_training_rows = 5, min_training_rows_left_out = 3,
-  parallel = FALSE)
+  random_generator_fn = runif, min_training_rows = 5,
+  min_training_rows_left_out = 3, parallel = FALSE)
 }
 \arguments{
 \item{test_data}{Data Frame.}
@@ -42,6 +42,17 @@ baseline(test_data, dependent_col, train_data = NULL, n = 100,
 
  N.B. \strong{Binomial only}}
 
+\item{random_generator_fn}{Function for generating random numbers when \code{type} is \code{"multinomial"}.
+ The softmax function is applied to the generated numbers to transform them to probabilities.
+
+ The first argument must be the number of random numbers to generate,
+ as no other arguments are supplied.
+
+ To test the effect of using different functions,
+ see \code{\link[cvms:multiclass_probability_tibble]{multiclass_probability_tibble}}.
+
+ N.B. \strong{Multinomial only}}
+
 \item{min_training_rows}{Minimum number of rows in the random subsets of \code{train_data}.
 
  \strong{Gaussian only}. (Integer)}
@@ -70,7 +81,8 @@ List containing tbl (tibble) with summarized results and tbl with random evaluat
 
  The \strong{Summarized Results} tibble contains:
 
- Average \strong{RMSE}, \strong{MAE}, \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc}, and \strong{BIC}.
+ Average \strong{RMSE}, \strong{MAE}, \strong{r2m}, \strong{r2c},
+ \strong{AIC}, \strong{AICc}, and \strong{BIC}.
  }
 
  The \strong{Measure} column indicates the statistical descriptor used on the evaluations.

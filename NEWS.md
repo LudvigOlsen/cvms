@@ -2,13 +2,21 @@
 
 * Adds Zenodo DOI for easier citation.
 
+* In nested confusion matrices, the Reference column is renamed to Target, to use the same naming scheme as in the nested predictions.
+
+* evaluate() is added. Evaluate your model's predictions with the same metrics as used in cross_validate().
+
+* Adds 'multinomial' family to baseline() 
+
+* Adds multiclass_probability_tibble() for generating a random probability tibble. 
+
 # cvms 0.1.2
 
 * Bug fix: p-values are correctly added to the nested coefficients tibble. Adds tests of this table as well.
 
 * Adds extra unit tests to increase code coverage.
 
-* When argument "model_verbose"" is TRUE, the used model function is now messaged instead of printed.
+* When argument "model_verbose" is TRUE, the used model function is now messaged instead of printed.
 
 * Adds badges to README, including travis-ci status, AppVeyor status, 
 Codecov, min. required R version, CRAN version and monthly CRAN downloads. Note: Zenodo badge will be added post release.

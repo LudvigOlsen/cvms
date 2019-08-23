@@ -129,6 +129,124 @@ N.B. \strong{Binomial models only}.}
 \item{parallel}{Whether to run evaluations in parallel,
 when \code{data} is grouped with \code{\link[dplyr]{group_by}}.}
 }
+\value{
+tibble or list of tibbles, depending on \code{type}.
+
+ ----------------------------------------------------------------
+
+ \subsection{Gaussian Results}{
+
+ ----------------------------------------------------------------
+
+ Single tibble containing the following metrics by default:
+
+ Average \strong{RMSE}, \strong{MAE}, \strong{r2m},
+ \strong{r2c}, \strong{AIC}, \strong{AICc}, and \strong{BIC}.
+
+ Note that some of the metrics will return \code{NA},
+ if they could not be extracted from the passed model objects or if
+ \code{models} is \code{NULL}.
+
+ Also includes:
+
+ A nested tibble with the \strong{Predictions} and targets
+
+ A nested tibble with the model \strong{Coefficients}.
+ }
+
+ ----------------------------------------------------------------
+
+ \subsection{Binomial Results}{
+
+ ----------------------------------------------------------------
+
+ A single tibble with the following evaluation metrics, based on a
+ confusion matrix and a ROC curve fitted to the predictions:
+
+ ROC:
+
+ \strong{AUC}, \strong{Lower CI}, and \strong{Upper CI}
+
+ Confusion Matrix:
+
+ \strong{Balanced Accuracy},
+ \strong{F1},
+ \strong{Sensitivity},
+ \strong{Specificity},
+ \strong{Positive Prediction Value},
+ \strong{Negative Prediction Value},
+ \strong{Kappa},
+ \strong{Detection Rate},
+ \strong{Detection Prevalence},
+ \strong{Prevalence}, and
+ \strong{MCC} (Matthews correlation coefficient).
+
+ Other available metrics (disabled by default, see \code{metrics}):
+ \strong{Accuracy}.
+
+ Also includes:
+
+ A nested tibble with the \strong{predictions} and targets.
+
+ A nested tibble with the sensativities and specificities from the \strong{ROC} curve.
+
+ A nested tibble with the \strong{confusion matrix}.
+ The \code{Pos_} columns tells you whether a row is a
+ True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
+ depending on which level is the "\code{positive}" class. I.e. the level you wish to predict.
+ }
+
+----------------------------------------------------------------
+
+ \subsection{Multinomial Results}{
+
+ ----------------------------------------------------------------
+
+ A list with two tibbles:
+
+ \strong{Class Level Results}
+
+ The \code{Class Level Results} tibble contains the results of the \emph{one-vs-all}
+ binomial evaluations. It contains the same metrics as the binomial results described above.
+
+ Also includes:
+
+ A nested tibble with the \strong{Predictions} and targets used for the one-vs-all evaluation.
+
+ A nested tibble with the sensativities and specificities from the \strong{ROC} curve.
+
+ A nested tibble with the \strong{Confusion Matrix} from the one-vs-all evaluation.
+ The \code{Pos_} columns tells you whether a row is a
+ True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
+ depending on which level is the "positive" class. In our case, \code{1} is the current class
+ and \code{0} represents all the other classes together.
+
+ \strong{Results}
+
+ The \code{Results} tibble contains the overall/macro metrics. The metrics that share their name
+ with the metrics in the Class Level Results tibble are averages of those metrics
+ (note: does not remove \code{NA}s before averaging).
+ In addition to these, it also includes the \strong{Overall Accuracy} metric
+ and the \strong{Support} metric, which is simply a count of the class in the target column.
+
+ Other available metrics (disabled by default, see \code{metrics}):
+ \strong{Accuracy}, \strong{Weighted Balanced Accuracy}, \strong{Weighted Accuracy},
+ \strong{Weighted F1}, \strong{Weighted Sensitivity}, \strong{Weighted Sensitivity},
+ \strong{Weighted Specificity}, \strong{Weighted Pos Pred Value},
+ \strong{Weighted Neg Pred Value}, \strong{Weighted AUC}, \strong{Weighted Lower CI},
+ \strong{Weighted Upper CI}, \strong{Weighted Kappa}, \strong{Weighted MCC},
+ \strong{Weighted Detection Rate}, \strong{Weighted Detection Prevalence}, and
+ \strong{Weighted Prevalence}.
+
+ Note that "Weighted" metrics are averages weighted by the \code{Support}.
+
+ Also includes:
+
+ A nested tibble with the \strong{Predictions} and targets.
+
+ A nested tibble with the multiclass \strong{Confusion Matrix}.
+ }
+}
 \description{
 Evaluate your model's predictions
  on a set of evaluation metrics.
@@ -149,4 +267,7 @@ NB.: When type is \code{"multinomial"}, macro-averaging of metrics returns NaN,
 \examples{
  # Attach libraries
  library(cvms)
+}
+\author{
+Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
 }

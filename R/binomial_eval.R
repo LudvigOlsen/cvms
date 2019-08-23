@@ -405,8 +405,9 @@ nest_confusion_matrices <- function(confusion_matrices, cat_levels=c("0","1"), f
                     Pos1 = c("TN","FP","FN","TP"),
                     `Fold Column` = fold_cols[[i]])
   }) %>%
-    dplyr::rename(N=.data$n) %>%
-    dplyr::select(c(.data$`Fold Column`, .data$Prediction, .data$Reference,
+    dplyr::rename(N=.data$n,
+                  Target = .data$Reference) %>%
+    dplyr::select(c(.data$`Fold Column`, .data$Prediction, .data$Target,
                     .data$Pos0, .data$Pos1, .data$N)) %>%
     dplyr::rename_at(dplyr::vars(c("Pos0","Pos1")), ~ c(paste0("Pos_",cat_levels[[1]]),
                                                         paste0("Pos_",cat_levels[[2]])))
@@ -437,9 +438,10 @@ nest_multiclass_confusion_matrices <- function(confusion_matrices,
       dplyr::as_tibble() %>%
       dplyr::mutate(`Fold Column` = fold_cols[[i]])
   }) %>%
-    dplyr::rename(N=.data$n) %>%
+    dplyr::rename(N=.data$n,
+                  Target = .data$Reference) %>%
     dplyr::select(c(.data$`Fold Column`, .data$Prediction,
-                    .data$Reference, .data$N))
+                    .data$Target, .data$N))
 
   if (!isTRUE(include_fold_columns)){
     tidy_confusion_matrices <- tidy_confusion_matrices %>%

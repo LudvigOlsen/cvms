@@ -72,7 +72,7 @@ test_that("binomial evaluation are correct in baseline()",{
 
   all_confmats <- dplyr::bind_rows(binom_baseline_reval$`Confusion Matrix`)
   expect_equal(sum(as.numeric(all_confmats$Prediction)), 20, tolerance=1e-3)
-  expect_equal(sum(as.numeric(all_confmats$Reference)), 20, tolerance=1e-3)
+  expect_equal(sum(as.numeric(all_confmats$Target)), 20, tolerance=1e-3)
   expect_equal(sum(all_confmats$N), 300, tolerance=1e-3)
   expect_equal(sum(all_confmats$`Fold Column`), 220, tolerance=1e-3) # Should be changed to Evaluation
 
@@ -296,9 +296,9 @@ test_that("multinomial evaluation are correct in baseline()",{
                    "Upper CI", "Kappa", "MCC", "Detection Rate", "Detection Prevalence",
                    "Prevalence", "Predictions", "Confusion Matrix", "Family", "Dependent" ))
     expect_equal(colnames(multinom_baseline_random_eval_summ$`Confusion Matrix`[[1]]),
-                 c("Prediction", "Reference", "N"))
+                 c("Prediction", "Target", "N"))
     expect_equal(colnames(multinom_baseline_random_eval_summ$`Confusion Matrix`[[2]]),
-                 c("Prediction", "Reference", "N"))
+                 c("Prediction", "Target", "N"))
     expect_equal(colnames(multinom_baseline_random_eval_summ$Predictions[[1]]),
                  c("Target", "Prediction", "Predicted Class"))
 
@@ -387,7 +387,7 @@ test_that("multinomial evaluation are correct in baseline()",{
 
     expect_equal(multinom_baseline_random_eval_summ$`Confusion Matrix`[[1]]$Prediction,
                  c("1","2","3","1","2","3","1","2","3"))
-    expect_equal(multinom_baseline_random_eval_summ$`Confusion Matrix`[[1]]$Reference,
+    expect_equal(multinom_baseline_random_eval_summ$`Confusion Matrix`[[1]]$Target,
                  c("1","1","1","2","2","2","3","3","3"))
     expect_equal(multinom_baseline_random_eval_summ$`Confusion Matrix`[[1]]$N,
                  c(5,1,3,2,3,2,0,3,6))
@@ -404,10 +404,10 @@ test_that("multinomial evaluation are correct in baseline()",{
     expect_equal(length(multinom_baseline_random_eval_class$`Confusion Matrix`),
                  30)
     expect_equal(colnames(multinom_baseline_random_eval_class$`Confusion Matrix`[[1]]),
-                 c("Prediction","Reference","Pos_0","Pos_1","N"))
+                 c("Prediction","Target","Pos_0","Pos_1","N"))
     expect_equal(multinom_baseline_random_eval_class$`Confusion Matrix`[[1]]$Prediction,
                  c("0","1","0","1"))
-    expect_equal(multinom_baseline_random_eval_class$`Confusion Matrix`[[1]]$Reference,
+    expect_equal(multinom_baseline_random_eval_class$`Confusion Matrix`[[1]]$Target,
                  c("0","0","1","1"))
     expect_equal(multinom_baseline_random_eval_class$`Confusion Matrix`[[1]]$Pos_0,
                  c("TP", "FN", "FP", "TN"))

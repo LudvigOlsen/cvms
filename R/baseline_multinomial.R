@@ -2,6 +2,7 @@ create_multinomial_baseline_evaluations <- function(test_data,
                                                     dependent_col,
                                                     reps = 100,
                                                     na.rm = TRUE,
+                                                    random_generator_fn = runif,
                                                     parallel_ = FALSE) {
 
   # Check na.rm
@@ -36,9 +37,11 @@ create_multinomial_baseline_evaluations <- function(test_data,
 
   # Create predicted probability tibbles
 
-  random_probabilities <- create_multinomial_probability_tibble(num_classes = num_classes,
-                                                                num_observations = num_targets * reps,
-                                                                apply_softmax = TRUE) %>%
+  random_probabilities <- multiclass_probability_tibble(
+    num_classes = num_classes,
+    num_observations = num_targets * reps,
+    FUN = random_generator_fn,
+    apply_softmax = TRUE) %>%
     dplyr::rename_all(~classes) %>%
     nest_probabilities_rowwise() %>%
     split(f = factor(rep(1:reps, each = num_targets)))

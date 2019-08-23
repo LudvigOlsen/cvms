@@ -375,23 +375,6 @@ create_tmp_var <- function(data, tmp_var = ".tmp_index_"){
   tmp_var
 }
 
-create_multinomial_probability_tibble <- function(num_classes,
-                                                  num_observations,
-                                                  apply_softmax = TRUE,
-                                                  FUN = runif,
-                                                  class_name = "class_"){
-
-  probability_matrix <- matrix(FUN(num_classes * num_observations),
-                               ncol = num_classes) %>%
-    dplyr::as_tibble(.name_repair = ~ paste0(class_name, 1:num_classes))
-
-  if (isTRUE(apply_softmax)){
-    probability_matrix <- softmax(probability_matrix)
-  }
-
-  probability_matrix
-}
-
 # https://tidyr.tidyverse.org/dev/articles/in-packages.html
 tidyr_new_interface <- function() {
   utils::packageVersion("tidyr") > "0.8.99"

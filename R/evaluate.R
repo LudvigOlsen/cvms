@@ -1,12 +1,21 @@
 # TODO Find another name, as evaluate is already in generics::evaluate
 # Isn't there an appropriate synonym?
 
-#' evaluate
+#' @title Evaluate your model's performance
+#' @description Evaluate your model's predictions
+#'  on a set of evaluation metrics.
+#'
+#'  Create ID-aggregated evaluations by multiple methods.
+#'
+#'  Currently supports linear regression, binary classification
+#'  and multiclass classification (see \code{type}).
 #'
 #' @param data Data frame with predictions, targets and (optionally) an ID column.
+#'  Can be grouped with \code{\link[dplyr]{group_by}}.
 #'
-#'  When \code{type} is \code{"multinomial"}, the predictions should be given as
-#'  a column for each class with the probability of that class. The columns should
+#'  \subsection{Multinomial}{
+#'  When \code{type} is \code{"multinomial"}, the predictions should be passed as
+#'  one column per class with the probability of that class. The columns should
 #'  have the name of their class, as they are named in the target column. E.g.:
 #'
 #'  \tabular{rrrrr}{
@@ -15,10 +24,32 @@
 #'   0.269 \tab 0.528 \tab 0.203 \tab class_2\cr
 #'   0.368 \tab 0.322 \tab 0.310 \tab class_3\cr
 #'   0.375 \tab 0.371 \tab 0.254 \tab class_2\cr
-#'   ... \tab ... \tab ... \tab ...
+#'   ... \tab ... \tab ... \tab ...}
 #'  }
+#'  \subsection{Binomial}{
+#'  When \code{type} is \code{"binomial"}, the predictions should be passed as
+#'  one column with the probability of class being
+#'  the second class alphabetically
+#'  (1 if classes are 0 and 1). E.g.:
 #'
-#'  Can be grouped with \code{\link[dplyr]{group_by}}.
+#'  \tabular{rrrrr}{
+#'   \strong{prediction} \tab \strong{target}\cr
+#'   0.769 \tab 1\cr
+#'   0.368 \tab 1\cr
+#'   0.375 \tab 0\cr
+#'   ... \tab ...}
+#'  }
+#'  \subsection{Gaussian}{
+#'  When \code{type} is \code{"gaussian"}, the predictions should be passed as
+#'  one column with the predicted values. E.g.:
+#'
+#'  \tabular{rrrrr}{
+#'   \strong{prediction} \tab \strong{target}\cr
+#'   28.9 \tab 30.2\cr
+#'   33.2 \tab 27.1\cr
+#'   23.4 \tab 21.3\cr
+#'   ... \tab ...}
+#'  }
 #' @param target_col Name of the column with the true classes/values in \code{data}.
 #'
 #'  When \code{type} is \code{"multinomial"}, this column should contain the names of the classes,
@@ -26,30 +57,47 @@
 #' @param prediction_cols Name(s) of column(s) with the predictions.
 #'
 #'  When evaluating a classification task,
-#'  the(se) column(s) should be the predicted probabilities.
-#' @param id_col Name of ID column to aggregate by.
-#' @param id_method Method to use when aggregating IDs. Either \code{"mean"} or \code{"majority"}.
+#'  the column(s) should contain the predicted probabilities.
+#' @param id_col Name of ID column to aggregate predictions by.
+#'
+#'  N.B. Current methods assume that the target class/value is constant within the IDs.
+#' @param id_method Method to use when aggregating predictions by ID. Either \code{"mean"} or \code{"majority"}.
 #'
 #'  When \code{type} is \code{gaussian}, only the \code{"mean"} method is available.
 #'
-#'  When method is \code{"mean"}, the average prediction (value or probability) is found per ID and evaluated.
-#'
-#'  When method is \code{"majority"}, the most predicted class per ID is found and evaluated. In case of a tie,
+#'  \subsection{mean}{
+#'  The average prediction (value or probability) is calculated per ID and evaluated.
+#'  This method assumes that the target class/value is constant within the IDs.
+#'  }
+#'  \subsection{majority}{
+#'  The most predicted class per ID is found and evaluated. In case of a tie,
 #'  the winning classes share the probability (e.g. \code{P = 0.5} each when two majority classes).
-#' @param model Fitted model for calculating R^2 metrics and information criterion metrics.
+#'  This method assumes that the target class/value is constant within the IDs.
+#'  }
+#' @param models Unnamed list of fitted model(s) for calculating R^2 metrics and information criterion metrics.
 #'  May only work for some types of models.
+#'
+#'  When only passing one model, remember to pass it in a list (e.g. \code{list(m)}).
+#'
+#'  N.B. When \code{data} is grouped, provide one model per group in the same order as the groups.
 #' @param apply_softmax Whether to apply the softmax function to the
 #'  prediction columns when \code{type} is \code{"multinomial"}.
+#'
+#'  N.B. \strong{Multinomial models only}.
 #' @param cutoff Threshold for predicted classes. (Numeric)
 #'
-#' N.B. Binomial models only.
+#' N.B. \strong{Binomial models only}.
 #' @param positive Level from dependent variable to predict.
 #'  Either as character or level index (1 or 2 - alphabetically).
-#'  Used when creating confusion matrices and ROC curves.
 #'
-#'  N.B. Only affects evaluation metrics, not the returned predictions.
+#'  E.g. if we have the levels \code{"cat"} and \code{"dog"} and we want \code{"dog"} to be the positive class,
+#'  we can either provide \code{"dog"} or \code{2}, as alphabetically, \code{"dog"} comes after \code{"cat"}.
 #'
-#'  N.B. Binomial models only.
+#'  Used when calculating confusion matrix metrics and creating ROC curves.
+#'
+#'  N.B. Only affects the evaluation metrics.
+#'
+#'  N.B. \strong{Binomial models only}.
 #' @param parallel Whether to run evaluations in parallel,
 #'  when \code{data} is grouped with \code{\link[dplyr]{group_by}}.
 #' @param metrics List for enabling/disabling metrics.
@@ -76,13 +124,17 @@
 #'  NB.: When type is \code{"multinomial"}, you can enable weighted averaged metrics
 #'  in addition to the regularly averaged metrics. You do this in the \code{metrics} list,
 #'  e.g. by \code{metrics = list("Weighted Accuracy" = TRUE)}.
+#'
+#' @examples
+#'  # Attach libraries
+#'  library(cvms)
 evaluate <- function(data,
                      target_col,
                      prediction_cols,
-                     id_col = NULL,
-                     id_method = "mean", # or majority
-                     model = NULL,
                      type = "gaussian",
+                     id_col = NULL,
+                     id_method = "mean",
+                     models = NULL,
                      apply_softmax = TRUE,
                      cutoff = 0.5,
                      positive = 2,
@@ -108,7 +160,7 @@ evaluate <- function(data,
                       target_col = target_col,
                       prediction_cols = prediction_cols,
                       id_col = id_col,
-                      model = model,
+                      models = models,
                       type = type,
                       apply_softmax = apply_softmax,
                       cutoff = cutoff,
@@ -132,6 +184,11 @@ evaluate <- function(data,
   # so we can evaluate group wise
   grouping_factor <- dplyr::group_indices(data)
   grouping_keys <- dplyr::group_keys(data)
+
+  if (!is.null(models) && length(unique(grouping_factor)) != length(models)){
+    stop(paste0("When the dataframe is grouped, ",
+                "please provide a fitted model object per group or set models to NULL."))
+  }
 
   # Add grouping factor with a unique tmp var
   local_tmp_grouping_factor_var <- create_tmp_var(data, ".group")
@@ -175,7 +232,7 @@ evaluate <- function(data,
       id_method = id_method,
       groups_col = local_tmp_grouping_factor_var,
       grouping_keys = grouping_keys,
-      models = model,
+      models = models,
       model_specifics = model_specifics,
       metrics = metrics,
       parallel = parallel
@@ -209,7 +266,7 @@ evaluate <- function(data,
       type = family,
       predictions_col = prediction_cols,
       targets_col = target_col,
-      models = model,
+      models = models,
       groups_col = local_tmp_grouping_factor_var,
       grouping_keys = grouping_keys,
       model_specifics = model_specifics,
@@ -253,21 +310,39 @@ run_evaluate_wrapper <- function(data,
     fold_info_cols = list(rel_fold = local_tmp_rel_fold_col_var,
                           abs_fold = local_tmp_abs_fold_col_var,
                           fold_column = local_tmp_fold_col_var)
+    include_fold_columns <- FALSE
+  } else{
+    include_fold_columns <- TRUE
   }
 
-  evaluations <- plyr::llply(unique(data[[groups_col]]), .parallel = parallel, function(gr){
+  # Extract unique group identifiers
+  unique_group_levels <- unique(data[[groups_col]])
+
+  evaluations <- plyr::llply(seq_along(unique_group_levels), .parallel = parallel, function(gr_ind){
+
+    gr <- unique_group_levels[[gr_ind]]
+
     data_for_current_group <- data %>%
       dplyr::filter(!!as.name(groups_col) == gr)
+
+    # Assign current model
+    if (is.null(models)){
+      model <- NULL
+    } else {
+      model <- list(models[[gr_ind]])
+    }
+
     internal_evaluate(data = data_for_current_group,
                       type = type,
                       predictions_col = predictions_col,
                       targets_col = targets_col,
-                      models = models,
+                      models = model,
                       id_col = id_col,
                       id_method = id_method,
                       fold_info_cols = fold_info_cols,
                       model_specifics = model_specifics,
-                      metrics = metrics)
+                      metrics = metrics,
+                      include_fold_columns = include_fold_columns)
   })
 
   if (type == "multinomial"){
@@ -280,9 +355,9 @@ run_evaluate_wrapper <- function(data,
     results <- grouping_keys %>%
       dplyr::bind_cols(results)
 
-    # Extract all the Class_level_results tibbles
+    # Extract all the class level results tibbles
     # And add the grouping keys
-    class_level_results <- evaluations %c% "Class_level_results" %>%
+    class_level_results <- evaluations %c% "Class Level Results" %>%
       dplyr::bind_rows() %>%
       tibble::as_tibble()
     class_level_results <- grouping_keys %>%
@@ -291,7 +366,7 @@ run_evaluate_wrapper <- function(data,
 
     return(
       list("Results" = results,
-         "Class_level_results" = class_level_results)
+         "Class Level Results" = class_level_results)
     )
   } else {
 
@@ -303,6 +378,10 @@ run_evaluate_wrapper <- function(data,
     # Add grouping keys
     results <- grouping_keys %>%
       dplyr::bind_cols(evaluations)
+
+    if (type == "gaussian"){
+      results[["Results"]] <- NULL
+    }
 
     return(results)
   }
@@ -503,8 +582,9 @@ internal_evaluate <- function(data,
                               id_col = NULL,
                               id_method = NULL,
                               model_specifics = list(),
-                              metrics = list()) {
-
+                              metrics = list(),
+                              include_fold_columns = TRUE,
+                              include_predictions = TRUE) {
 
   stopifnot(type %in% c("linear_regression", "gaussian", "binomial", "multinomial")) #, "multiclass", "multilabel"))
   if (type == "linear_regression") type <- "gaussian"
@@ -524,7 +604,9 @@ internal_evaluate <- function(data,
       targets_col = targets_col,
       fold_info_cols = fold_info_cols,
       model_specifics = model_specifics,
-      metrics = metrics)
+      metrics = metrics,
+      include_fold_columns = include_fold_columns,
+      include_predictions = include_predictions)
 
   } else if (type == "binomial"){
 
@@ -536,7 +618,9 @@ internal_evaluate <- function(data,
       models = models,
       cutoff = model_specifics[["cutoff"]],
       positive = model_specifics[["positive"]],
-      metrics = metrics)
+      metrics = metrics,
+      include_fold_columns = include_fold_columns,
+      include_predictions = include_predictions)
 
   } else if (type == "multinomial"){
 
@@ -548,7 +632,9 @@ internal_evaluate <- function(data,
       id_method = id_method,
       fold_info_cols = fold_info_cols,
       models = models,
-      metrics = metrics)
+      metrics = metrics,
+      include_fold_columns = include_fold_columns,
+      include_predictions = include_predictions)
 
   }
 
@@ -560,7 +646,7 @@ check_args_evaluate <- function(data,
                                 target_col,
                                 prediction_cols,
                                 id_col,
-                                model,
+                                models,
                                 type,
                                 apply_softmax,
                                 cutoff,
@@ -620,6 +706,29 @@ check_args_evaluate <- function(data,
       stop("when 'metrics' is a non-empty list, it must be a named list.")
     }
   }
+
+  # models
+  if (!is.null(models)){
+    if (!is.list(models)){
+      stop("'models' must be provided as an unnamed list with fitted model object(s) or be set to NULL.")
+    }
+    if (length(models) == 0){
+      stop(paste0(
+        "'models' must be either NULL or an unnamed list with fitted model object(s). ",
+        "'models' had length 0."))
+    }
+    if (!is.null(names(models))){
+      if (length(intersect(names(models), c(
+        "coefficients", "residuals", "effects", "call",
+        "terms", "formula", "contrasts", "converged", "xlevels"
+      ))) > 0){
+        stop(paste0("'models' must be provided as an unnamed list with fitted model object(s). ",
+                    "Did you pass the model object without putting it in a list?"))
+      }
+      stop("'models' must be provided as an *unnamed* list with fitted model objects.")
+    }
+  }
+
 
   # TODO add for rest of args
 

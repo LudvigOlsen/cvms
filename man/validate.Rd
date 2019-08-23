@@ -32,7 +32,7 @@ validate(train_data, models, test_data = NULL,
 
 \item{family}{Name of family. (Character)
 
- Currently supports "gaussian" and "binomial".}
+ Currently supports \code{"gaussian"} and \code{"binomial"}.}
 
 \item{link}{Link function. (Character)
 
@@ -58,15 +58,19 @@ validate(train_data, models, test_data = NULL,
 
 \item{cutoff}{Threshold for predicted classes. (Numeric)
 
- N.B. Binomial models only.}
+ N.B. \strong{Binomial models only}}
 
 \item{positive}{Level from dependent variable to predict.
  Either as character or level index (\code{1} or \code{2} - alphabetically).
- Used when creating confusion matrices and ROC curves.
+
+ E.g. if we have the levels \code{"cat"} and \code{"dog"} and we want \code{"dog"} to be the positive class,
+ we can either provide \code{"dog"} or \code{2}, as alphabetically, \code{"dog"} comes after \code{"cat"}.
+
+ Used when calculating confusion matrix metrics and creating ROC curves.
 
  N.B. Only affects evaluation metrics, not the model training or returned predictions.
 
- N.B. Binomial models only.}
+ N.B. \strong{Binomial models only}.}
 
 \item{err_nc}{Raise error if model does not converge. (Logical)}
 

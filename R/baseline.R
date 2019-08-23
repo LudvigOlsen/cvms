@@ -18,24 +18,36 @@
 #' @param dependent_col Name of dependent variable in the supplied test and training sets.
 #' @param n Number of random samplings to perform.
 #'
-#'  For binomial: The number of sets of random predictions to evaluate.
+#'  For \code{binomial}: The number of sets of random predictions to evaluate.
 #'
-#'  For gaussian: The number of random samplings of train_data to fit baseline models on.
-#' @param positive Level from dependent variable to predict. Either as character or level index (1 or 2 - alphabetically). Used when creating confusion matrices and ROC curves.
+#'  For \code{gaussian}: The number of random samplings of train_data to fit baseline models on.
+#' @param family Name of family. (Character)
+#'
+#'  Currently supports \code{"gaussian"}, \code{"binomial"} and \code{"multinomial"}.
+#' @param positive Level from dependent variable to predict.
+#'  Either as character or level index (1 or 2 - alphabetically).
+#'
+#'  E.g. if we have the levels \code{"cat"} and \code{"dog"} and we want \code{"dog"} to be the positive class,
+#'  we can either provide \code{"dog"} or \code{2}, as alphabetically, \code{"dog"} comes after \code{"cat"}.
+#'
+#'  Used when calculating confusion matrix metrics and creating ROC curves.
 #'
 #'  N.B. Only affects evaluation metrics, not the returned predictions.
 #'
-#'  Binomial only. (Character or Integer)
+#'  \strong{N.B. Binomial only}. (Character or Integer)
+#' @param cutoff Threshold for predicted classes. (Numeric)
+#'
+#'  N.B. \strong{Binomial only}
 #' @param min_training_rows Minimum number of rows in the random subsets of \code{train_data}.
 #'
-#'  Gaussian only. (Integer)
+#'  \strong{Gaussian only}. (Integer)
 #' @param min_training_rows_left_out Minimum number of rows left out of the random subsets of \code{train_data}.
 #'
 #'  I.e. a subset will maximally have the size:
 #'
 #'  \code{max_rows_in_subset = nrow(train_data) - min_training_rows_left_out}.
 #'
-#'  Gaussian only. (Integer)
+#'  \strong{Gaussian only}. (Integer)
 #' @param parallel Whether to run the \code{n} evaluations in parallel. (Logical)
 #'
 #'  Remember to register a parallel backend first.

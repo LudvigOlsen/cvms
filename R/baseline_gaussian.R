@@ -98,7 +98,8 @@ create_gaussian_baseline_evaluations <- function(train_data,
     sampled_train_set <- train_data[inds,]
 
     # Fit baseline model
-    baseline_linear_model <- lm(model_specifics[["model_formula"]], data = sampled_train_set)
+    baseline_linear_model <- lm(model_specifics[["model_formula"]],
+                                data = sampled_train_set)
 
     # Predict test set with baseline model
     test_data[["prediction"]] <- stats::predict(baseline_linear_model,

@@ -11,7 +11,9 @@ binomial_classification_eval <- function(data,
                                          models = NULL,
                                          cutoff = 0.5,
                                          positive = 2,
-                                         metrics){
+                                         metrics,
+                                         include_fold_columns = TRUE,
+                                         include_predictions = TRUE){
   # Note: predictions are floats (e.g. 0.7), targets are 0 or 1
 
   # Check if there are NAs in predictions
@@ -46,9 +48,15 @@ binomial_classification_eval <- function(data,
                     `Fold Column` = fold_info_cols[["fold_column"]],
                     Target = !! as.name(targets_col),
                     Prediction = !! as.name(predictions_col),
-                    `Predicted Class` = .data$predicted_class
-                    ) %>%
-      legacy_nest(1:5) %>%
+                    `Predicted Class` = .data$predicted_class)
+
+    if (!isTRUE(include_fold_columns)){
+      predictions_nested <- predictions_nested %>%
+        dplyr::select(-dplyr::one_of("Fold","Fold Column"))
+    }
+
+    predictions_nested <- predictions_nested %>%
+      legacy_nest(1:ncol(predictions_nested)) %>%
       dplyr::rename(predictions = data)
 
     results <-
@@ -64,7 +72,9 @@ binomial_classification_eval <- function(data,
         fold_and_fold_col = fold_and_fold_col,
         predictions_nested = predictions_nested,
         models = models,
-        metrics = metrics
+        metrics = metrics,
+        include_fold_columns = include_fold_columns,
+        include_predictions = include_predictions
       )
 
   } else {
@@ -73,7 +83,8 @@ binomial_classification_eval <- function(data,
       metrics = metrics)
 
     if (!is.null(models))
-      results[["Coefficients"]] <- get_nested_model_coefficients(NULL)
+      results[["Coefficients"]] <- get_nested_model_coefficients(
+        models = NULL, include_fold_columns = include_fold_columns)
 
     if (length(unique_fold_cols) > 1){
       results[["Results"]] <- NA

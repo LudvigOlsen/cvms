@@ -1,4 +1,3 @@
-# Note - predictions should be softmaxed rowwise and nested - TODO create tool
 
 multinomial_classification_eval <- function(data,
                                             predictions_col,
@@ -10,7 +9,9 @@ multinomial_classification_eval <- function(data,
                                               abs_fold = "abs_fold",
                                               fold_column = "fold_column"),
                                             models = NULL,
-                                            metrics){
+                                            metrics,
+                                            include_fold_columns = TRUE,
+                                            include_predictions = TRUE){
   # Note: predictions are floats (e.g. 0.7), targets are 0 or 1
 
   # Check and unnest the probabilities
@@ -40,6 +41,9 @@ multinomial_classification_eval <- function(data,
 
   if (!na_in_targets && !na_in_predictions){
 
+    # Convert target column to type character
+    data[[targets_col]] <- as.character(data[[targets_col]])
+
     # Find the levels in the categorical target variable
     cat_levels <- levels_as_characters(data[[targets_col]])
     classes <- cat_levels # TODO FIX COPYING
@@ -65,9 +69,9 @@ multinomial_classification_eval <- function(data,
       dplyr::summarise(overall_accuracy = mean(.data$predicted_class == !!as.name(targets_col))) %>%
       dplyr::pull(.data$overall_accuracy)
 
-    # Nest predictions and targets
+    # Prepare predictions and targets for nesting
     # TODO This should not be included in class level results, only for average metrics
-    predictions_nested <- tibble::as_tibble(data) %>%
+    predictions_for_nesting <- tibble::as_tibble(data) %>%
       dplyr::select(!! as.name(fold_info_cols[["fold_column"]]),
                     !! as.name(fold_info_cols[["rel_fold"]]),
                     !! as.name(targets_col),
@@ -80,20 +84,29 @@ multinomial_classification_eval <- function(data,
       if (is.null(id_method))
         stop("when 'id_col' is specified, 'id_method' must be specified as well.")
 
-      predictions_nested[[id_col]] <- data[[id_col]]
-      predictions_nested[["id_method"]] <- id_method
+      predictions_for_nesting[[id_col]] <- data[[id_col]]
+      predictions_for_nesting[["id_method"]] <- id_method
 
     }
 
     # Rename some columns and nest, nest, nest
-    predictions_nested <- predictions_nested %>%
+    predictions_for_nesting <- predictions_for_nesting %>%
       dplyr::rename(Fold = fold_info_cols[["rel_fold"]],
                     `Fold Column` = fold_info_cols[["fold_column"]],
                     Target = !! as.name(targets_col),
                     Prediction = !! as.name(predictions_col),
                     `Predicted Class` = .data$predicted_class
-      ) %>%
-      legacy_nest(1:ncol(predictions_nested)) %>%
+      )
+
+    # Remove fold columns if they should not be included
+    if (!isTRUE(include_fold_columns)){
+      predictions_for_nesting <- predictions_for_nesting %>%
+        dplyr::select(-dplyr::one_of("Fold","Fold Column"))
+    }
+
+    # Nest predictions
+    predictions_nested <- predictions_for_nesting %>%
+      legacy_nest(1:ncol(predictions_for_nesting)) %>%
       dplyr::rename(predictions = data)
 
     # Create unique temporary variable names
@@ -123,7 +136,9 @@ multinomial_classification_eval <- function(data,
         fold_and_fold_col = fold_and_fold_col,
         predictions_nested = NULL,
         models = models,
-        metrics = metrics
+        metrics = metrics,
+        include_fold_columns = include_fold_columns,
+        include_predictions = include_predictions
         ) %>%
         dplyr::mutate(Class = classes[[cl]])
 
@@ -178,17 +193,17 @@ multinomial_classification_eval <- function(data,
     }
 
     # Add total counts confusion matrix
-    # Try to use fit a confusion matrix with the predictions and targets
+    # Try to fit a confusion matrix with the predictions and targets
     overall_confusion_matrix = tryCatch({
       caret::confusionMatrix(factor(data[["predicted_class"]], levels = cat_levels),
                              factor(data[[targets_col]], levels = cat_levels))
-
     }, error = function(e) {
       stop(paste0('Confusion matrix error: ',e))
     })
 
     overall_results[["Confusion Matrix"]] <- nest_multiclass_confusion_matrices(
-      list(overall_confusion_matrix))[["confusion_matrices"]]
+      list(overall_confusion_matrix),
+      include_fold_columns = include_fold_columns)[["confusion_matrices"]]
 
     # Rearrange columns in overall results
     all_cols <- colnames(overall_results)
@@ -198,7 +213,7 @@ multinomial_classification_eval <- function(data,
       dplyr::select(dplyr::one_of(new_order))
 
     results <- list("Results" = overall_results,
-                    "Class_level_results" = one_vs_all_evaluations)
+                    "Class Level Results" = one_vs_all_evaluations)
 
   } else {
 

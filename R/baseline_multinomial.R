@@ -77,7 +77,8 @@ create_multinomial_baseline_evaluations <- function(test_data,
         fold_column = "fold_column"
       ),
       # models=NULL,
-      model_specifics = model_specifics)
+      model_specifics = model_specifics,
+      include_fold_columns = FALSE)
 
     results
 
@@ -103,7 +104,8 @@ create_multinomial_baseline_evaluations <- function(test_data,
         fold_column = "fold_column"
       ),
       # models=NULL,
-      model_specifics = model_specifics)
+      model_specifics = model_specifics,
+      include_fold_columns = FALSE)
 
     results
 
@@ -112,9 +114,9 @@ create_multinomial_baseline_evaluations <- function(test_data,
   # Extract evaluations
 
   evaluations_random_results <- evaluations_random %c% "Results"
-  evaluations_random_class_level_results <- evaluations_random %c% "Class_level_results"
+  evaluations_random_class_level_results <- evaluations_random %c% "Class Level Results"
   evaluations_all_or_nothing_results <- evaluations_all_or_nothing %c% "Results"
-  evaluations_all_or_nothing_class_level_results <- evaluations_all_or_nothing %c% "Class_level_results"
+  evaluations_all_or_nothing_class_level_results <- evaluations_all_or_nothing %c% "Class Level Results"
 
   evaluations_random_results <- evaluations_random_results %>%
     dplyr::bind_rows(.id = "Repetition") %>%
@@ -150,7 +152,8 @@ create_multinomial_baseline_evaluations <- function(test_data,
   summarized_avg_metrics <- summarize_metric_cols(metric_cols_results, na.rm = na.rm) %>%
     dplyr::bind_rows(evaluations_all_or_nothing_results %>%
                        dplyr::mutate(Measure = paste0("All_", .data$All_class)) %>%
-                       dplyr::select(-dplyr::one_of("All_class")))
+                       select_metrics(include_definitions = FALSE,
+                                      additional_includes = "Measure"))
 
   # Find the class level summaries
   summarized_metrics_class_level <- plyr::ldply(classes, function(cl){
@@ -227,11 +230,12 @@ all_or_nothing_evaluations <- function(test_data, targets_col, current_class, re
       fold_column = "fold_column"
     ),
     # models = NULL,
-    model_specifics = model_specifics) %>%
+    model_specifics = model_specifics,
+    include_fold_columns = FALSE) %>%
     dplyr::mutate(Family = "multinomial",
                   Dependent = targets_col) %>%
     select_metrics(include_definitions = FALSE) %>%
-    dplyr::mutate( Measure = "All_0")
+    dplyr::mutate(Measure = "All_0")
 
   # Evaluate all 1s
 
@@ -249,11 +253,12 @@ all_or_nothing_evaluations <- function(test_data, targets_col, current_class, re
       fold_column = "fold_column"
     ),
     # models=NULL,
-    model_specifics = model_specifics) %>%
+    model_specifics = model_specifics,
+    include_fold_columns = FALSE) %>%
     dplyr::mutate(Family = "multinomial",
                   Dependent = targets_col) %>%
     select_metrics(include_definitions = FALSE) %>%
-    dplyr::mutate( Measure = "All_1")
+    dplyr::mutate(Measure = "All_1")
 
   # Collect and return the all or nothing results
   dplyr::bind_rows(evaluations_all_0,

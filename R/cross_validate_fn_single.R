@@ -84,7 +84,7 @@ cross_validate_fn_single <- function(data, model_fn, evaluation_type="linear_reg
 
   # Extract models
   models = fold_lists_list %c% 'model'
-  n_conv_warns <- count_named_nulls_in_list(models)
+  n_conv_warns <- count_nulls_in_list(models)
 
   # Extract singular fit message
   singular_fit_messages = fold_lists_list %c% 'yielded_singular_fit_message'

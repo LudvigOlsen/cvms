@@ -1,6 +1,4 @@
-# R CMD check NOTE handling
-if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
-
+# Internal linear regression evaluation
 linear_regression_eval <- function(data,
                                    models,
                                    predictions_col = "predictions",
@@ -9,7 +7,9 @@ linear_regression_eval <- function(data,
                                                          abs_fold = "abs_fold",
                                                          fold_column = "fold_column"),
                                    model_specifics = list(),
-                                   metrics){
+                                   metrics,
+                                   include_fold_columns = TRUE,
+                                   include_predictions = TRUE){
 
   REML <- tryCatch({
     model_specifics[["REML"]]
@@ -25,8 +25,11 @@ linear_regression_eval <- function(data,
   # so if a model object is NULL (didn't converge),
   # the list will be shorter than the number of folds
   # If the list is named, it may contain NULLs. Therefore we count these.
-  if(length(models) == num_folds && count_named_nulls_in_list(models) == 0){
-  #if(FALSE){
+
+  if(is.null(models) ||
+     (length(models) == num_folds && count_nulls_in_list(models) == 0)){
+
+    if (is.null(models)) models <- list(NULL)
 
     # Nest predictions and targets
     predictions_nested <- tibble::as_tibble(data) %>%
@@ -39,8 +42,13 @@ linear_regression_eval <- function(data,
                     `Fold Column` = fold_info_cols[["fold_column"]],
                     Target = !! as.name(targets_col),
                     Prediction = !! as.name(predictions_col)
-      ) %>%
-      legacy_nest(1:4) %>%
+      )
+    if (!isTRUE(include_fold_columns)){
+      predictions_nested <- predictions_nested %>%
+        dplyr::select(-dplyr::one_of("Fold", "Fold Column"))
+    }
+    predictions_nested <- predictions_nested %>%
+      legacy_nest(1:ncol(predictions_nested)) %>%
       dplyr::rename(predictions = data)
 
     # if ("RMSE" %in% metrics || "MAE" %in% metrics){ # TODO Refactor to avoid computing metrics the user doesn't want
@@ -93,10 +101,12 @@ linear_regression_eval <- function(data,
     # Get model coefficients
     nested_coefficients <- tryCatch({
       get_nested_model_coefficients(models, fold_info = list(folds = fold_and_fold_col[["rel_fold"]],
-                                                             fold_columns = fold_and_fold_col[["fold_column"]]))
+                                                             fold_columns = fold_and_fold_col[["fold_column"]]),
+                                    include_fold_columns = include_fold_columns)
     }, error = function(e){
 
-      get_nested_model_coefficients(NULL)
+      get_nested_model_coefficients(NULL,
+                                    include_fold_columns = include_fold_columns)
     })
 
   } else {
@@ -180,20 +190,28 @@ linear_regression_model_eval <- function(model, REML){
 
 # Try to retrieve
 # fold_info contains the fold and fold column for each model
-get_nested_model_coefficients <- function(models, fold_info=list(folds=NULL,
-                                                                 fold_columns=".folds")){
+get_nested_model_coefficients <- function(models, fold_info=list(folds = NULL,
+                                                                 fold_columns = ".folds"),
+                                          include_fold_columns = TRUE){
   # Note: models should be ordered by the fold they were fitted in
 
   if (is.null(models)){
 
-    nested_NA_coeffs <- tibble::tibble(
+    NA_coeffs <- tibble::tibble(
       'term' = NA,
       'estimate' = NA,
       'std.error' = NA,
       'statistic' = NA,
-      'fold' = NA,
-      "fold_column" = NA
-    ) %>%
+      'Fold' = NA,
+      "Fold Column" = NA
+    )
+
+    if (!isTRUE(include_fold_columns)){
+      NA_coeffs <- NA_coeffs %>%
+        dplyr::select(-dplyr::one_of("Fold", "Fold Column"))
+    }
+
+    nested_NA_coeffs <- NA_coeffs %>%
       nest_models() %>%
       dplyr::pull(.data$Coefficients)
 
@@ -210,12 +228,19 @@ get_nested_model_coefficients <- function(models, fold_info=list(folds=NULL,
   }
 
   tryCatch({
-    plyr::llply(1:length(models), function(i){
+    coefs_tidy <- plyr::llply(1:length(models), function(i){
       broom::tidy(models[[i]], effects = c("fixed")) %>%
         dplyr::mutate(Fold = folds[[i]],
                       `Fold Column` = fold_columns[[i]])
     }) %>%
-      dplyr::bind_rows() %>%
+      dplyr::bind_rows()
+
+    if (!isTRUE(include_fold_columns)){
+      coefs_tidy <- coefs_tidy %>%
+        dplyr::select(-dplyr::one_of("Fold", "Fold Column"))
+    }
+
+    coefs_tidy %>%
       nest_models() %>%
       dplyr::pull(.data$Coefficients)
   }, error = function(e){

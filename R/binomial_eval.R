@@ -12,7 +12,9 @@ binomial_eval <- function(data,
                           fold_and_fold_col,
                           predictions_nested = NULL,
                           models = NULL,
-                          metrics) {
+                          metrics,
+                          include_fold_columns = TRUE,
+                          include_predictions = TRUE) {
 
   confusion_matrices_list <- binomial_eval_confusion_matrices(
     data = data,
@@ -21,7 +23,8 @@ binomial_eval <- function(data,
     unique_fold_cols = unique_fold_cols,
     cat_levels = cat_levels,
     positive = positive,
-    fold_info_cols = fold_info_cols
+    fold_info_cols = fold_info_cols,
+    include_fold_columns = include_fold_columns
   )
 
   roc_curves_list <- binomial_eval_roc_curves(
@@ -47,10 +50,12 @@ binomial_eval <- function(data,
                                    predictions_nested = predictions_nested,
                                    extra_metrics = extra_metrics,
                                    models = models,
-                                   metrics = metrics)
+                                   metrics = metrics,
+                                   include_fold_columns = include_fold_columns)
 
   if (!is.null(models)){
-    results[["Coefficients"]] <- binomial_add_model_coefficients(models, fold_and_fold_col)
+    results[["Coefficients"]] <- binomial_add_model_coefficients(models, fold_and_fold_col,
+                                                                 include_fold_columns = include_fold_columns)
   }
 
   results
@@ -64,10 +69,12 @@ binomial_eval_confusion_matrices <- function(
   unique_fold_cols,
   cat_levels,
   positive,
-  fold_info_cols) {
+  fold_info_cols,
+  include_fold_columns) {
 
   # Confusion matrices
   if (length(unique_fold_cols) > 1){
+
     confusion_matrices <- plyr::llply(unique_fold_cols, function(fcol){
 
       # Subset data
@@ -85,7 +92,8 @@ binomial_eval_confusion_matrices <- function(
 
     }) %>% unlist(recursive=FALSE)
 
-    nested_confusion_matrices <- nest_confusion_matrices(confusion_matrices, cat_levels, unique_fold_cols)
+    nested_confusion_matrices <- nest_confusion_matrices(confusion_matrices, cat_levels, unique_fold_cols,
+                                                         include_fold_columns = include_fold_columns)
 
   } else {
 
@@ -96,7 +104,9 @@ binomial_eval_confusion_matrices <- function(
                                              cat_levels = cat_levels,
                                              positive = positive)
 
-    nested_confusion_matrices <- nest_confusion_matrices(list(confusion_matrix), cat_levels, unique_fold_cols)
+    nested_confusion_matrices <- nest_confusion_matrices(confusion_matrices = list(confusion_matrix),
+                                                         cat_levels = cat_levels, fold_cols = unique_fold_cols,
+                                                         include_fold_columns = include_fold_columns)
 
     confusion_matrices <- list(confusion_matrix)
   }
@@ -106,7 +116,9 @@ binomial_eval_confusion_matrices <- function(
 
 }
 
-binomial_eval_roc_curves <- function(data, targets_col, predictions_col, unique_fold_cols, cat_levels, positive, fold_info_cols){
+binomial_eval_roc_curves <- function(data, targets_col, predictions_col,
+                                     unique_fold_cols, cat_levels,
+                                     positive, fold_info_cols){
 
   # ROC curves
 
@@ -197,7 +209,8 @@ binomial_eval_extra_metrics <- function(data, targets_col,
 binomial_eval_collect <- function(unique_fold_cols, roc_curves_list,
                                   confusion_matrices_list, predictions_nested,
                                   extra_metrics,
-                                  models, metrics){
+                                  models, metrics,
+                                  include_fold_columns = TRUE){
 
   # Unpack args
   roc_curves <- roc_curves_list[["roc_curves"]]
@@ -223,13 +236,13 @@ binomial_eval_collect <- function(unique_fold_cols, roc_curves_list,
     # Nest fold column results
     fold_col_results_nested <- fold_col_results %>%
       dplyr::select(-c(.data$Predictions, .data$ROC)) %>%
-      legacy_nest(1 : (ncol(fold_col_results) - 2) ) %>% # -2 as we just remove two cols
+      legacy_nest(1 : (ncol(fold_col_results) - 2) ) %>% # -2 as we just removed two cols
       dplyr::rename(fold_col_results = data)
 
     # Average fold column results for reporting
     average_metrics <- fold_col_results %>%
       dplyr::select(-.data$`Fold Column`) %>%
-      dplyr::summarise_all(list( ~mean(., na.rm = FALSE)))
+      dplyr::summarise_all(list( ~ mean(., na.rm = FALSE)))
 
     # Gather the various results
     results <- average_metrics
@@ -254,7 +267,7 @@ binomial_eval_collect <- function(unique_fold_cols, roc_curves_list,
   results
 }
 
-binomial_add_model_coefficients <- function(models, fold_and_fold_col){
+binomial_add_model_coefficients <- function(models, fold_and_fold_col, include_fold_columns = TRUE){
 
   if (is.null(models)){
     stop("'models' is NULL.")
@@ -267,9 +280,11 @@ binomial_add_model_coefficients <- function(models, fold_and_fold_col){
   nested_coefficients <- tryCatch({
     get_nested_model_coefficients(models,
                                   fold_info = list(folds = fold_and_fold_col[["rel_fold"]],
-                                                   fold_columns = fold_and_fold_col[["fold_column"]]))
+                                                   fold_columns = fold_and_fold_col[["fold_column"]]),
+                                  include_fold_columns = include_fold_columns)
   }, error = function(e){
-    get_nested_model_coefficients(NULL)
+    get_nested_model_coefficients(models = NULL,
+                                  include_fold_columns = include_fold_columns)
   })
 
   nested_coefficients
@@ -376,15 +391,16 @@ fit_roc_curve <- function(predicted_probabilities, targets, levels = c(0,1), dir
   roc_curve
 }
 
-nest_confusion_matrices <- function(confusion_matrices, cat_levels=c("0","1"), fold_cols=".folds"){
+nest_confusion_matrices <- function(confusion_matrices, cat_levels=c("0","1"), fold_cols=".folds",
+                                    include_fold_columns = TRUE){
 
   if (length(fold_cols) == 1) {
     fold_cols <- rep(fold_cols, length(confusion_matrices))
   }
 
-  plyr::ldply(1:length(confusion_matrices), function(i){
-
-    dplyr::as_tibble(confusion_matrices[[i]]$table) %>%
+  tidy_confusion_matrix <- plyr::ldply(1:length(confusion_matrices), function(i){
+    confusion_matrices[[i]]$table %>%
+      dplyr::as_tibble() %>%
       dplyr::mutate(Pos0 = c("TP","FN","FP","TN"),
                     Pos1 = c("TN","FP","FN","TP"),
                     `Fold Column` = fold_cols[[i]])
@@ -393,8 +409,15 @@ nest_confusion_matrices <- function(confusion_matrices, cat_levels=c("0","1"), f
     dplyr::select(c(.data$`Fold Column`, .data$Prediction, .data$Reference,
                     .data$Pos0, .data$Pos1, .data$N)) %>%
     dplyr::rename_at(dplyr::vars(c("Pos0","Pos1")), ~ c(paste0("Pos_",cat_levels[[1]]),
-                                                        paste0("Pos_",cat_levels[[2]]))) %>%
-    legacy_nest(1:6) %>%
+                                                        paste0("Pos_",cat_levels[[2]])))
+
+  if (!isTRUE(include_fold_columns)){
+    tidy_confusion_matrix <- tidy_confusion_matrix %>%
+      dplyr::select(-dplyr::one_of("Fold Column"))
+  }
+
+  tidy_confusion_matrix %>%
+    legacy_nest(1:ncol(tidy_confusion_matrix)) %>%
     dplyr::rename(confusion_matrices = data)
 
 }
@@ -402,21 +425,29 @@ nest_confusion_matrices <- function(confusion_matrices, cat_levels=c("0","1"), f
 # Note, if only one confusion matrix object (from caret::confusionMatrix()),
 # pass it in a list
 nest_multiclass_confusion_matrices <- function(confusion_matrices,
-                                               fold_cols = ".folds") {
+                                               fold_cols = ".folds",
+                                               include_fold_columns = TRUE) {
 
   if (length(fold_cols) == 1) {
     fold_cols <- rep(fold_cols, length(confusion_matrices))
   }
 
-  plyr::ldply(1:length(confusion_matrices), function(i){
-
-    dplyr::as_tibble(confusion_matrices[[i]]$table) %>%
+  tidy_confusion_matrices <- plyr::ldply(1:length(confusion_matrices), function(i){
+    confusion_matrices[[i]]$table %>%
+      dplyr::as_tibble() %>%
       dplyr::mutate(`Fold Column` = fold_cols[[i]])
   }) %>%
     dplyr::rename(N=.data$n) %>%
     dplyr::select(c(.data$`Fold Column`, .data$Prediction,
-                    .data$Reference, .data$N)) %>%
-    legacy_nest(1:4) %>%
+                    .data$Reference, .data$N))
+
+  if (!isTRUE(include_fold_columns)){
+    tidy_confusion_matrices <- tidy_confusion_matrices %>%
+      dplyr::select(-dplyr::one_of("Fold Column"))
+  }
+
+  tidy_confusion_matrices %>%
+    legacy_nest(1:ncol(tidy_confusion_matrices)) %>%
     dplyr::rename(confusion_matrices = data)
 
 }

@@ -2,18 +2,20 @@
 % Please edit documentation in R/evaluate.R
 \name{evaluate}
 \alias{evaluate}
-\title{evaluate}
+\title{Evaluate your model's performance}
 \usage{
-evaluate(data, target_col, prediction_cols, id_col = NULL,
-  id_method = "mean", model = NULL, type = "gaussian",
+evaluate(data, target_col, prediction_cols, type = "gaussian",
+  id_col = NULL, id_method = "mean", models = NULL,
   apply_softmax = TRUE, cutoff = 0.5, positive = 2,
   metrics = list(), parallel = FALSE)
 }
 \arguments{
 \item{data}{Data frame with predictions, targets and (optionally) an ID column.
+ Can be grouped with \code{\link[dplyr]{group_by}}.
 
- When \code{type} is \code{"multinomial"}, the predictions should be given as
- a column for each class with the probability of that class. The columns should
+ \subsection{Multinomial}{
+ When \code{type} is \code{"multinomial"}, the predictions should be passed as
+ one column per class with the probability of that class. The columns should
  have the name of their class, as they are named in the target column. E.g.:
 
  \tabular{rrrrr}{
@@ -22,10 +24,32 @@ evaluate(data, target_col, prediction_cols, id_col = NULL,
   0.269 \tab 0.528 \tab 0.203 \tab class_2\cr
   0.368 \tab 0.322 \tab 0.310 \tab class_3\cr
   0.375 \tab 0.371 \tab 0.254 \tab class_2\cr
-  ... \tab ... \tab ... \tab ...
+  ... \tab ... \tab ... \tab ...}
  }
+ \subsection{Binomial}{
+ When \code{type} is \code{"binomial"}, the predictions should be passed as
+ one column with the probability of class being
+ the second class alphabetically
+ (1 if classes are 0 and 1). E.g.:
 
- Can be grouped with \code{\link[dplyr]{group_by}}.}
+ \tabular{rrrrr}{
+  \strong{prediction} \tab \strong{target}\cr
+  0.769 \tab 1\cr
+  0.368 \tab 1\cr
+  0.375 \tab 0\cr
+  ... \tab ...}
+ }
+ \subsection{Gaussian}{
+ When \code{type} is \code{"gaussian"}, the predictions should be passed as
+ one column with the predicted values. E.g.:
+
+ \tabular{rrrrr}{
+  \strong{prediction} \tab \strong{target}\cr
+  28.9 \tab 30.2\cr
+  33.2 \tab 27.1\cr
+  23.4 \tab 21.3\cr
+  ... \tab ...}
+ }}
 
 \item{target_col}{Name of the column with the true classes/values in \code{data}.
 
@@ -35,21 +59,7 @@ evaluate(data, target_col, prediction_cols, id_col = NULL,
 \item{prediction_cols}{Name(s) of column(s) with the predictions.
 
  When evaluating a classification task,
- the(se) column(s) should be the predicted probabilities.}
-
-\item{id_col}{Name of ID column to aggregate by.}
-
-\item{id_method}{Method to use when aggregating IDs. Either \code{"mean"} or \code{"majority"}.
-
- When \code{type} is \code{gaussian}, only the \code{"mean"} method is available.
-
- When method is \code{"mean"}, the average prediction (value or probability) is found per ID and evaluated.
-
- When method is \code{"majority"}, the most predicted class per ID is found and evaluated. In case of a tie,
- the winning classes share the probability (e.g. \code{P = 0.5} each when two majority classes).}
-
-\item{model}{Fitted model for calculating R^2 metrics and information criterion metrics.
-May only work for some types of models.}
+ the column(s) should contain the predicted probabilities.}
 
 \item{type}{Type of evaluation to perform:
 
@@ -59,20 +69,51 @@ May only work for some types of models.}
 
  \code{"multinomial"} for multiclass classification.}
 
+\item{id_col}{Name of ID column to aggregate predictions by.
+
+ N.B. Current methods assume that the target class/value is constant within the IDs.}
+
+\item{id_method}{Method to use when aggregating predictions by ID. Either \code{"mean"} or \code{"majority"}.
+
+ When \code{type} is \code{gaussian}, only the \code{"mean"} method is available.
+
+ \subsection{mean}{
+ The average prediction (value or probability) is calculated per ID and evaluated.
+ This method assumes that the target class/value is constant within the IDs.
+ }
+ \subsection{majority}{
+ The most predicted class per ID is found and evaluated. In case of a tie,
+ the winning classes share the probability (e.g. \code{P = 0.5} each when two majority classes).
+ This method assumes that the target class/value is constant within the IDs.
+ }}
+
+\item{models}{Unnamed list of fitted model(s) for calculating R^2 metrics and information criterion metrics.
+ May only work for some types of models.
+
+ When only passing one model, remember to pass it in a list (e.g. \code{list(m)}).
+
+ N.B. When \code{data} is grouped, provide one model per group in the same order as the groups.}
+
 \item{apply_softmax}{Whether to apply the softmax function to the
-prediction columns when \code{type} is \code{"multinomial"}.}
+ prediction columns when \code{type} is \code{"multinomial"}.
+
+ N.B. \strong{Multinomial models only}.}
 
 \item{cutoff}{Threshold for predicted classes. (Numeric)
 
-N.B. Binomial models only.}
+N.B. \strong{Binomial models only}.}
 
 \item{positive}{Level from dependent variable to predict.
  Either as character or level index (1 or 2 - alphabetically).
- Used when creating confusion matrices and ROC curves.
 
- N.B. Only affects evaluation metrics, not the returned predictions.
+ E.g. if we have the levels \code{"cat"} and \code{"dog"} and we want \code{"dog"} to be the positive class,
+ we can either provide \code{"dog"} or \code{2}, as alphabetically, \code{"dog"} comes after \code{"cat"}.
 
- N.B. Binomial models only.}
+ Used when calculating confusion matrix metrics and creating ROC curves.
+
+ N.B. Only affects the evaluation metrics.
+
+ N.B. \strong{Binomial models only}.}
 
 \item{metrics}{List for enabling/disabling metrics.
 
@@ -89,7 +130,13 @@ N.B. Binomial models only.}
 when \code{data} is grouped with \code{\link[dplyr]{group_by}}.}
 }
 \description{
-evaluate
+Evaluate your model's predictions
+ on a set of evaluation metrics.
+
+ Create ID-aggregated evaluations by multiple methods.
+
+ Currently supports linear regression, binary classification
+ and multiclass classification (see \code{type}).
 }
 \details{
 NB.: When type is \code{"multinomial"}, macro-averaging of metrics returns NaN,
@@ -98,4 +145,8 @@ NB.: When type is \code{"multinomial"}, macro-averaging of metrics returns NaN,
  NB.: When type is \code{"multinomial"}, you can enable weighted averaged metrics
  in addition to the regularly averaged metrics. You do this in the \code{metrics} list,
  e.g. by \code{metrics = list("Weighted Accuracy" = TRUE)}.
+}
+\examples{
+ # Attach libraries
+ library(cvms)
 }

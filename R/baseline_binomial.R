@@ -17,7 +17,7 @@ create_binomial_baseline_evaluations <- function(test_data,
     stop("'positive' must be either a whole number or character.")
   }
   if (arg_is_wholenumber_(positive) && positive %ni% c(1,2)){
-    stop("When 'positive' is numeric, it must be either 0 or 1.")
+    stop("When 'positive' is numeric, it must be either 1 or 2.")
   }
 
   # Check cutoff
@@ -134,7 +134,11 @@ create_binomial_baseline_evaluations <- function(test_data,
     dplyr::mutate(Family = "binomial",
                   Dependent = dependent_col) %>%
     select_metrics(include_definitions = FALSE) %>%
-    dplyr::mutate( Measure = "All_0")
+    dplyr::mutate(Measure = paste0("All_",
+                                  ifelse(
+                                    is.character(test_data[[dependent_col]]),
+                                    sort(unique(test_data[[dependent_col]]))[[1]],
+                                    0)))
 
   # Evaluate all 1s
 
@@ -158,7 +162,11 @@ create_binomial_baseline_evaluations <- function(test_data,
     dplyr::mutate(Family = "binomial",
                   Dependent = dependent_col) %>%
     select_metrics(include_definitions = FALSE) %>%
-    dplyr::mutate( Measure = "All_1")
+    dplyr::mutate( Measure = paste0("All_",
+                                    ifelse(
+                                      is.character(test_data[[dependent_col]]),
+                                      sort(unique(test_data[[dependent_col]]))[[2]],
+                                      1)))
 
   # Collect the summarized metrics
 

@@ -26,6 +26,16 @@
 #'                               num_observations = 10,
 #'                               apply_softmax = TRUE,
 #'                               FUN = rnorm)
+#'
+#' # Creating a custom generator function that
+#' # exponentiates the numbers to create more "certain" predictions
+#' rcertain <- function(n){
+#'     (runif(n, min = 1, max = 100)^1.4)/100
+#' }
+#' multiclass_probability_tibble(num_classes = 5,
+#'                               num_observations = 10,
+#'                               apply_softmax = TRUE,
+#'                               FUN = rcertain)
 multiclass_probability_tibble <- function(num_classes,
                                            num_observations,
                                            apply_softmax = TRUE,

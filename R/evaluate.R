@@ -232,7 +232,7 @@
 #'  \strong{Weighted Detection Rate}, \strong{Weighted Detection Prevalence}, and
 #'  \strong{Weighted Prevalence}.
 #'
-#'  Note that "Weighted" metrics are averages weighted by the \code{Support}.
+#'  Note that the "Weighted" metrics are weighted averages, weighted by the \code{Support}.
 #'
 #'  Also includes:
 #'

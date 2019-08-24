@@ -206,6 +206,7 @@ summarize_metric_cols <- function(metric_cols, na.rm = TRUE){
   # Summarize the metrics with a range of functions
   # Note: This may be better solveable with pivot_* from tidyr, when it is on CRAN
   # This isn't exactly pretty.
+
   summarized_metrics <- dplyr::bind_rows(
     metric_cols %>% dplyr::summarize_all(.funs = list(~mean(., na.rm = na.rm))) %>% dplyr::mutate(f = "Mean"),
     metric_cols %>% dplyr::summarize_all(.funs = list(~median(., na.rm = na.rm))) %>% dplyr::mutate(f = "Median"),

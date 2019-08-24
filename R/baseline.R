@@ -194,6 +194,7 @@
 #' library(cvms)
 #' library(groupdata2) # partition()
 #' library(dplyr) # %>% arrange()
+#' library(tibble)
 #'
 #' # Data is part of cvms
 #' data <- participant.scores
@@ -202,7 +203,7 @@
 #' set.seed(1)
 #'
 #' # Partition data
-#' partitions <- partition(data, p = 0.7, list_out=TRUE)
+#' partitions <- partition(data, p = 0.7, list_out = TRUE)
 #' train_set <- partitions[[1]]
 #' test_set <- partitions[[2]]
 #'
@@ -214,8 +215,19 @@
 #'          dependent_col = "score", n = 2, family = "gaussian")
 #'
 #' # Binomial
-#' baseline(test_data = test_set, dependent_col="diagnosis",
-#'          n = 2, family="binomial")
+#' baseline(test_data = test_set, dependent_col = "diagnosis",
+#'          n = 2, family = "binomial")
+#'
+#' # Multinomial
+#'
+#' # Create some data with multiple classes
+#' multiclass_data <- tibble(
+#'     "target" = rep(paste0("class_", 1:5), each = 10)) %>%
+#'     dplyr::sample_n(35)
+#'
+#' baseline(test_data = multiclass_data,
+#'          dependent_col = "target",
+#'          n = 4, family = "multinomial")
 #'
 #' # Parallelize evaluations
 #'
@@ -232,8 +244,29 @@
 #' baseline(test_data = test_set, train_data = train_set,
 #'          dependent_col = "score", n = 4, family = "gaussian",
 #'          parallel = TRUE)
+#'
+#' # Multinomial
+#' baseline(test_data = multiclass_data,
+#'          dependent_col = "target",
+#'          n = 4, family = "multinomial",
+#'          parallel = TRUE)
+#'
+#' # Multinomial with custom random generator function
+#' # that creates very "certain" predictions
+#' # (once softmax is applied)
+#'
+#' rcertain <- function(n){
+#'     (runif(n, min = 1, max = 100)^1.4)/100
 #' }
-#' @importFrom stats runif
+#'
+#' baseline(test_data = multiclass_data,
+#'          dependent_col = "target",
+#'          n = 4, family = "multinomial",
+#'          parallel = TRUE,
+#'          random_generator_fn = rcertain)
+#'
+#' }
+#' @importFrom stats runif rnorm
 baseline <- function(test_data,
                      dependent_col,
                      train_data = NULL,

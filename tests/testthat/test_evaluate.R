@@ -631,8 +631,28 @@ test_that("binomial evaluation works in evaluate()",{
   expect_equal(bn_eval_2$Prevalence,
                0.5, tolerance = 1e-4)
 
+  # not including predictions
+  bn_eval_2_no_preds <- evaluate(
+    data = data_,
+    target_col = "cl_char",
+    prediction_cols = "prediction",
+    type = "binomial_classification",
+    apply_softmax = TRUE,
+    positive = "cl_1",
+    metrics = list("Accuracy" = TRUE),
+    include_predictions = FALSE
+  )
 
-  # Create actual expected tests, where you curate a dataset, an aggregated version (all methods)
+  expect_equal(colnames(bn_eval_2_no_preds),
+               c("Balanced Accuracy","Accuracy","F1","Sensitivity",
+                 "Specificity","Pos Pred Value","Neg Pred Value","AUC",
+                 "Lower CI","Upper CI","Kappa","MCC",
+                 "Detection Rate","Detection Prevalence","Prevalence",
+                 "ROC","Confusion Matrix"))
+  expect_identical(bn_eval_2_no_preds, bn_eval_2 %>% dplyr::select(-dplyr::one_of("Predictions")))
+
+
+  # TODO Create actual expected tests, where you curate a dataset, an aggregated version (all methods)
   # and make sure the results are identical in all settings.
 
 
@@ -650,11 +670,112 @@ test_that("binomial evaluation works in evaluate()",{
     apply_softmax = TRUE
   )
 
+  expect_equal(colnames(bn_eval_3),
+               c("Balanced Accuracy","F1","Sensitivity",
+                 "Specificity","Pos Pred Value","Neg Pred Value","AUC",
+                 "Lower CI","Upper CI","Kappa","MCC",
+                 "Detection Rate","Detection Prevalence","Prevalence",
+                 "Predictions","ROC","Confusion Matrix"))
+  expect_equal(bn_eval_3$`Balanced Accuracy`, 0.6)
+  expect_equal(bn_eval_3$F1, 0.6666667, tolerance = 1e-4)
+  expect_equal(bn_eval_3$Sensitivity, 0.8, tolerance = 1e-4)
+  expect_equal(bn_eval_3$Specificity, 0.4, tolerance = 1e-4)
+  expect_equal(bn_eval_3$`Pos Pred Value`, 0.5714286, tolerance = 1e-4)
+  expect_equal(bn_eval_3$`Neg Pred Value`, 0.6666667, tolerance = 1e-4)
+  expect_equal(bn_eval_3$AUC, 0.52, tolerance = 1e-4)
+  expect_equal(bn_eval_3$`Lower CI`, 0.1051538, tolerance = 1e-4)
+  expect_equal(bn_eval_3$`Upper CI`, 0.9348462, tolerance = 1e-4)
+  expect_equal(bn_eval_3$Kappa, 0.2, tolerance = 1e-4)
+  expect_equal(bn_eval_3$MCC, 0.2182179, tolerance = 1e-4)
+  expect_equal(bn_eval_3$`Detection Rate`, 0.4, tolerance = 1e-4)
+  expect_equal(bn_eval_3$`Detection Prevalence`, 0.7, tolerance = 1e-4)
+  expect_equal(bn_eval_3$Prevalence, 0.5, tolerance = 1e-4)
+  expect_equal(length(bn_eval_3$Predictions), 1, tolerance = 1e-4)
+  expect_equal(bn_eval_3$Predictions[[1]]$Target,
+               c("cl_1","cl_1","cl_1","cl_1","cl_1",
+                 "cl_2","cl_2","cl_2","cl_2","cl_2"), tolerance = 1e-4)
+  expect_equal(bn_eval_3$Predictions[[1]]$Prediction,
+               c( 0.3188163,0.7405306,0.5500358,0.8027365,0.3454502,
+                  0.1912657,0.5355633,0.6337703,0.8547623,0.5787402), tolerance = 1e-4)
+  expect_equal(bn_eval_3$Predictions[[1]]$`Predicted Class`,
+               c("cl_1","cl_2","cl_2","cl_2","cl_1",
+                 "cl_1","cl_2","cl_2","cl_2","cl_2"), tolerance = 1e-4)
+  expect_equal(bn_eval_3$Predictions[[1]]$id,
+               factor(1:10), tolerance = 1e-4)
+  expect_equal(bn_eval_3$Predictions[[1]]$id_method,
+               rep("mean",10), tolerance = 1e-4)
+
+  bn_eval_3_no_preds <- evaluate(
+    data = data_,
+    target_col = "cl_char",
+    prediction_cols = "prediction",
+    id_col = "id",
+    id_method = "mean",
+    type = "binomial_classification",
+    apply_softmax = TRUE,
+    include_predictions = FALSE
+  )
+
+  expect_equal(colnames(bn_eval_3_no_preds),
+               c("Balanced Accuracy","F1","Sensitivity",
+                 "Specificity","Pos Pred Value","Neg Pred Value","AUC",
+                 "Lower CI","Upper CI","Kappa","MCC",
+                 "Detection Rate","Detection Prevalence","Prevalence",
+                 "ROC","Confusion Matrix"))
+
   # TODO ADD TESTS HERE!
 
-  data_2 <- data_ %>% dplyr::mutate(fold_ = 1) %>% dplyr::bind_rows(data_ %>% dplyr::mutate(fold_ = 2))
-
+  # Majority vote
   bn_eval_4 <- evaluate(
+    data = data_,
+    target_col = "cl_char",
+    prediction_cols = "prediction",
+    id_col = "id",
+    id_method = "majority",
+    type = "binomial_classification",
+    apply_softmax = FALSE
+  )
+
+
+  expect_equal(colnames(bn_eval_4),
+               c("Balanced Accuracy","F1","Sensitivity",
+                 "Specificity","Pos Pred Value","Neg Pred Value","AUC",
+                 "Lower CI","Upper CI","Kappa","MCC",
+                 "Detection Rate","Detection Prevalence","Prevalence",
+                 "Predictions","ROC","Confusion Matrix"))
+  expect_equal(bn_eval_4$`Balanced Accuracy`, 0.5)
+  expect_equal(bn_eval_4$F1, 0.6153846, tolerance = 1e-4)
+  expect_equal(bn_eval_4$Sensitivity, 0.8, tolerance = 1e-4)
+  expect_equal(bn_eval_4$Specificity, 0.2, tolerance = 1e-4)
+  expect_equal(bn_eval_4$`Pos Pred Value`, 0.5, tolerance = 1e-4)
+  expect_equal(bn_eval_4$`Neg Pred Value`, 0.5, tolerance = 1e-4)
+  expect_equal(bn_eval_4$AUC, 0.42, tolerance = 1e-4)
+  expect_equal(bn_eval_4$`Lower CI`, 0.05437346, tolerance = 1e-4)
+  expect_equal(bn_eval_4$`Upper CI`, 0.7856265, tolerance = 1e-4)
+  expect_equal(bn_eval_4$Kappa, 0, tolerance = 1e-4)
+  expect_equal(bn_eval_4$MCC, 0, tolerance = 1e-4)
+  expect_equal(bn_eval_4$`Detection Rate`, 0.4, tolerance = 1e-4)
+  expect_equal(bn_eval_4$`Detection Prevalence`, 0.8, tolerance = 1e-4)
+  expect_equal(bn_eval_4$Prevalence, 0.5, tolerance = 1e-4)
+  expect_equal(length(bn_eval_4$Predictions), 1, tolerance = 1e-4)
+  expect_equal(bn_eval_4$Predictions[[1]]$Target,
+               c("cl_1","cl_1","cl_1","cl_1","cl_1",
+                 "cl_2","cl_2","cl_2","cl_2","cl_2"), tolerance = 1e-4)
+  expect_equal(bn_eval_4$Predictions[[1]]$Prediction,
+               c(1e-40,1e+00,5e-01,1e+00,5e-01,
+                 1e-40,5e-01,5e-01,1e+00,5e-01), tolerance = 1e-4)
+  expect_equal(bn_eval_4$Predictions[[1]]$`Predicted Class`,
+               c("cl_1","cl_2","cl_2","cl_2","cl_2",
+                 "cl_1","cl_2","cl_2","cl_2","cl_2"), tolerance = 1e-4)
+  expect_equal(bn_eval_4$Predictions[[1]]$id,
+               factor(1:10), tolerance = 1e-4)
+  expect_equal(bn_eval_4$Predictions[[1]]$id_method,
+               rep("majority",10), tolerance = 1e-4)
+
+  data_2 <- data_ %>% dplyr::mutate(fold_ = 1) %>%
+    dplyr::bind_rows(data_ %>% dplyr::mutate(fold_ = 2))
+
+  bn_eval_5 <- evaluate(
     data = data_2 %>% dplyr::group_by(fold_),
     target_col = "cl_char",
     prediction_cols = "prediction",
@@ -664,6 +785,7 @@ test_that("binomial evaluation works in evaluate()",{
     apply_softmax = FALSE
   )
 
+  # TODO Add tests here that grouped dataframes work in binomial!
 
 })
 
@@ -941,6 +1063,17 @@ test_that("gaussian evaluations are correct in evaluate()",{
                rep("mean", 10), tolerance = 1e-4)
   expect_equal(e5$Predictions[[2]]$id_method,
                rep("mean", 10), tolerance = 1e-4)
+
+  # Not including predictions in the output
+  e6 <- evaluate(id_eval_data_4, target_col = "age",
+                 prediction_cols = "predicted_age",
+                 id_col = "participant",
+                 id_method = "mean",
+                 type = "gaussian",
+                 metrics = "all",
+                 include_predictions = FALSE)
+
+  expect_equal(colnames(e6), c("fold_","RMSE","MAE"))
 
   # Errors
 

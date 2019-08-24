@@ -369,7 +369,8 @@ evaluate <- function(data,
       models = models,
       model_specifics = model_specifics,
       metrics = metrics,
-      parallel = parallel
+      parallel = parallel,
+      include_predictions = include_predictions
     )
 
   } else {
@@ -405,7 +406,8 @@ evaluate <- function(data,
       grouping_keys = grouping_keys,
       model_specifics = model_specifics,
       metrics = metrics,
-      parallel = parallel
+      parallel = parallel,
+      include_predictions = include_predictions
     )
   }
 
@@ -426,6 +428,7 @@ run_evaluate_wrapper <- function(data,
                                  fold_info_cols = NULL,
                                  model_specifics,
                                  metrics = list(),
+                                 include_predictions = TRUE,
                                  parallel = FALSE) {
 
   num_classes <- length(unique(data[[targets_col]]))
@@ -476,7 +479,8 @@ run_evaluate_wrapper <- function(data,
                       fold_info_cols = fold_info_cols,
                       model_specifics = model_specifics,
                       metrics = metrics,
-                      include_fold_columns = include_fold_columns)
+                      include_fold_columns = include_fold_columns,
+                      include_predictions = include_predictions)
   })
 
   if (type == "multinomial"){

@@ -730,6 +730,7 @@ test_that("gaussian evaluations are correct in evaluate()",{
   set_seed_for_R_compatibility(1)
 
   score_model_1 <- lm("score ~ diagnosis", data = participant.scores)
+  score_model_2 <- lm("score ~ diagnosis+age", data = participant.scores)
 
   # summary(score_model_1)
 
@@ -760,27 +761,108 @@ test_that("gaussian evaluations are correct in evaluate()",{
   expect_equal(e1$Coefficients[[1]]$statistic, c(10.53879, -3.24662), tolerance = 1e-4)
   expect_equal(e1$Coefficients[[1]]$p.value, c(2.984260e-11, 3.025349e-03), tolerance = 1e-4)
 
-
+  # Not passing a model
+  # This should remove the metrics that depend on the models to be passed
   e2 <- evaluate(eval_data, target_col = "score",
                  prediction_cols = "score_predictions",
                  models = NULL,
                  type = "gaussian",
                  metrics = "all")
 
+  expect_equal(colnames(e2), c("RMSE","MAE","Predictions"))
   expect_equal(e2$RMSE, 16.16881, tolerance = 1e-4)
   expect_equal(e2$MAE, 13.47778, tolerance = 1e-4)
-  expect_equal(e2$r2m, NaN, tolerance = 1e-4)
-  expect_equal(e2$r2c, NaN, tolerance = 1e-4)
-  expect_equal(e2$AIC, NaN, tolerance = 1e-4)
-  expect_equal(e2$AICc, NaN, tolerance = 1e-4)
-  expect_equal(e2$BIC, NaN, tolerance = 1e-4)
   expect_equal(e2$Predictions[[1]][["Target"]], eval_data$score)
   expect_equal(e2$Predictions[[1]][["Prediction"]], eval_data$score_predictions)
-  expect_equal(e2$Coefficients[[1]]$term, NA)
-  expect_equal(e2$Coefficients[[1]]$estimate, NA)
-  expect_equal(e2$Coefficients[[1]]$std.error, NA, tolerance = 1e-4)
-  expect_equal(e2$Coefficients[[1]]$statistic, NA, tolerance = 1e-4)
-  expect_equal(e2$Coefficients[[1]]$p.value, NA, tolerance = 1e-4)
+
+  # Grouped with multiple models
+
+  eval_data_2 <- eval_data
+
+  score_predictions_2 <- stats::predict(score_model_2, participant.scores,
+                                        type = "response",  allow.new.levels = TRUE)
+
+  eval_data_2[["score_predictions"]] <- score_predictions_2
+
+  e3 <- evaluate(eval_data_2, target_col = "score",
+                 prediction_cols = "score_predictions",
+                 models = list(score_model_2),
+                 type = "gaussian",
+                 metrics = "all")
+
+
+  eval_data_3 <- dplyr::bind_rows(eval_data %>% dplyr::mutate(fold_ = 1),
+                                  eval_data_2 %>% dplyr::mutate(fold_ = 2)) %>%
+    dplyr::group_by(fold_)
+
+  # eval_data_3 %>% dplyr::group_keys()
+  # eval_data_3 %>% dplyr::group_indices()
+
+  e4 <- evaluate(eval_data_3, target_col = "score",
+                 prediction_cols = "score_predictions",
+                 models = list(score_model_1,
+                               score_model_2),
+                 type = "gaussian",
+                 metrics = "all") %>%
+    dplyr::mutate(fold_ = as.factor(.data$fold_))
+
+  e1_e3 <- dplyr::bind_rows(e1, e3) %>%
+    dplyr::mutate(fold_ = factor(1:2)) %>%
+    dplyr::select(.data$fold_, dplyr::everything())
+
+  expect_true(length(setdiff(colnames(e4), colnames(e1_e3))) == 0)
+  expect_identical(e4, e1_e3)
+
+  expect_equal(e4$fold_, factor(c(1,2)))
+  expect_equal(e4$RMSE, c(16.16881, 16.12762), tolerance = 1e-4)
+  expect_equal(e4$MAE, c(13.47778, 13.28942), tolerance = 1e-4)
+  expect_equal(e4$r2m, c(0.2665756, 0.2631030), tolerance = 1e-4)
+  expect_equal(e4$r2c, c(0.2665756, 0.2631030), tolerance = 1e-4)
+  expect_equal(e4$AIC, c(258.1214, 259.9683), tolerance = 1e-4)
+  expect_equal(e4$AICc, c(259.0444, 261.5683), tolerance = 1e-4)
+  expect_equal(e4$BIC, c(262.3250, 265.5731), tolerance = 1e-4)
+  expect_equal(e4$Predictions[[1]]$Target,
+               c(10,24,45,24,40,67,15,30,40,35,50,78,24,54,62,
+                 14,25,30,11,35,41,16,32,44,33,53,66,29,55,81), tolerance = 1e-4)
+  expect_equal(e4$Predictions[[2]]$Target,
+               c(10,24,45,24,40,67,15,30,40,35,50,78,24,54,62,
+                 14,25,30,11,35,41,16,32,44,33,53,66,29,55,81), tolerance = 1e-4)
+  expect_equal(e4$Predictions[[1]]$Prediction,
+               c(30.66667,30.66667,30.66667,50.91667,50.91667,
+                 50.91667,30.66667,30.66667,30.66667,50.91667,
+                 50.91667,50.91667,30.66667,30.66667,30.66667,
+                 30.66667,30.66667,30.66667,30.66667,30.66667,
+                 30.66667,30.66667,30.66667,30.66667,50.91667,
+                 50.91667,50.91667,50.91667,50.91667,50.91667), tolerance = 1e-4)
+  expect_equal(e4$Predictions[[2]]$Prediction,
+               c(29.17288,29.17288,29.17288,50.16977,50.16977,
+                 50.16977,30.33471,30.33471,30.33471,49.83782,
+                 49.83782,49.83782,31.16460,31.16460,31.16460,
+                 30.99862,30.99862,30.99862,32.99034,32.99034,
+                 32.99034,29.33885,29.33885,29.33885,51.99551,
+                 51.99551,51.99551,51.66356,51.66356,51.66356), tolerance = 1e-4)
+  expect_equal(colnames(e4$Coefficients[[1]]),
+               colnames(e4$Coefficients[[2]]), tolerance = 1e-4)
+  expect_equal(colnames(e4$Coefficients[[1]]),
+               c("term","estimate","std.error","statistic","p.value"))
+  binded_coefficients <- dplyr::bind_rows(e4$Coefficients)
+  expect_equal(binded_coefficients$term,
+               c("(Intercept)", "diagnosis", "(Intercept)",
+                 "diagnosis", "age"), tolerance = 1e-4)
+  expect_equal(binded_coefficients$estimate,
+               c(50.9166667,-20.2500000, 46.3523119,
+                 -20.4989648, 0.1659765), tolerance = 1e-4)
+  expect_equal(binded_coefficients$std.error,
+               c(4.8313574,6.2372555,13.2255733, 6.3708432,
+                 0.4465959), tolerance = 1e-4)
+  expect_equal(binded_coefficients$statistic,
+               c(10.5387913,-3.2466202,3.5047488,
+                 -3.2176219,0.3716482), tolerance = 1e-4)
+  expect_equal(binded_coefficients$p.value,
+               c(2.984260e-11,3.025349e-03,1.613661e-03,
+                 3.348279e-03,7.130556e-01), tolerance = 1e-4)
+
+  # Errors
 
   expect_error(evaluate(eval_data, target_col = "score",
                         prediction_cols = "score_predictions",
@@ -801,6 +883,77 @@ test_that("gaussian evaluations are correct in evaluate()",{
            " Did you pass the model object without putting it in a list?"),
            fixed = TRUE)
 
+  expect_error(evaluate(eval_data_3, target_col = "score",
+                        prediction_cols = "score_predictions",
+                        models = list(score_model_1),
+                        type = "gaussian",
+                        metrics = "all"),
+               paste0("When the dataframe is grouped, please provide ",
+                      "a fitted model object per group or set models to NULL."),
+               fixed = TRUE)
+
+
+  # ID evaluation
+  age_model_1 <- lm("age ~ diagnosis", participant.scores)
+  age_model_2 <- lm("age ~ diagnosis + score", participant.scores)
+  age_predictions_1 <- stats::predict(age_model_1, participant.scores,
+                                      type = "response",  allow.new.levels = TRUE)
+  age_predictions_2 <- stats::predict(age_model_2, participant.scores,
+                                      type = "response",  allow.new.levels = TRUE)
+
+  id_eval_data_4 <- participant.scores %>%
+    dplyr::mutate(fold_ = 1,
+                  predicted_age = age_predictions_1) %>%
+    dplyr::bind_rows(participant.scores %>%
+                       dplyr::mutate(fold_ = 2,
+                                     predicted_age = age_predictions_2)) %>%
+    dplyr::group_by(fold_)
+
+  e5 <- evaluate(id_eval_data_4, target_col = "age",
+                 prediction_cols = "predicted_age",
+                 id_col = "participant",
+                 id_method = "mean",
+                 type = "gaussian",
+                 metrics = "all")
+
+  expect_equal(e5$fold_, c(1,2))
+  expect_equal(e5$RMSE, c(6.949820, 6.917232), tolerance = 1e-4)
+  expect_equal(e5$MAE, c(6.0, 5.935604), tolerance = 1e-4)
+  expect_equal(length(e5$Predictions), 2, tolerance = 1e-4)
+  expect_equal(colnames(e5$Predictions[[1]]),
+               c("Target", "Prediction", "participant", "id_method"), tolerance = 1e-4)
+  expect_equal(colnames(e5$Predictions[[2]]),
+               c("Target", "Prediction", "participant", "id_method"), tolerance = 1e-4)
+  expect_equal(e5$Predictions[[1]]$Target,
+               c(20, 23, 27, 21, 32, 31, 43, 21, 34, 32), tolerance = 1e-4)
+  expect_equal(e5$Predictions[[2]]$Target,
+               c(20, 23, 27, 21, 32, 31, 43, 21, 34, 32), tolerance = 1e-4)
+  expect_equal(e5$Predictions[[1]]$Prediction,
+               c(29.0,27.5,29.0,27.5,29.0,29.0,29.0,29.0,27.5,27.5), tolerance = 1e-4)
+  expect_equal(e5$Predictions[[2]]$Prediction,
+               c(28.86712,27.27768,28.92845,27.60477,29.49063,
+                 28.76490,28.94889,29.00000,27.49233,27.62521), tolerance = 1e-4)
+  expect_equal(e5$Predictions[[1]]$participant,
+               factor(1:10), tolerance = 1e-4)
+  expect_equal(e5$Predictions[[2]]$participant,
+               factor(1:10), tolerance = 1e-4)
+  expect_equal(e5$Predictions[[1]]$id_method,
+               rep("mean", 10), tolerance = 1e-4)
+  expect_equal(e5$Predictions[[2]]$id_method,
+               rep("mean", 10), tolerance = 1e-4)
+
+  # Errors
+
+  expect_error(evaluate(id_eval_data_4, target_col = "age",
+                        prediction_cols = "predicted_age",
+                        models = list(age_model_1,
+                                      age_model_2),
+                        id_col = "participant",
+                        id_method = "mean",
+                        type = "gaussian",
+                        metrics = "all"),
+               "When aggregating by ID, 'models' should be NULL.",
+               fixed = T)
 
 })
 

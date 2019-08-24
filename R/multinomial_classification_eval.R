@@ -69,45 +69,21 @@ multinomial_classification_eval <- function(data,
       dplyr::summarise(overall_accuracy = mean(.data$predicted_class == !!as.name(targets_col))) %>%
       dplyr::pull(.data$overall_accuracy)
 
-    # Prepare predictions and targets for nesting
-    # TODO This should not be included in class level results, only for average metrics
-    predictions_for_nesting <- tibble::as_tibble(data) %>%
-      dplyr::select(!! as.name(fold_info_cols[["fold_column"]]),
-                    !! as.name(fold_info_cols[["rel_fold"]]),
-                    !! as.name(targets_col),
-                    !! as.name(predictions_col),
-                    .data$predicted_class
-      )
-
-    # If ID evaluation, add ID and method to nested predictions
-    if (!is.null(id_col)){
-      if (is.null(id_method))
-        stop("when 'id_col' is specified, 'id_method' must be specified as well.")
-
-      predictions_for_nesting[[id_col]] <- data[[id_col]]
-      predictions_for_nesting[["id_method"]] <- id_method
-
-    }
-
-    # Rename some columns and nest, nest, nest
-    predictions_for_nesting <- predictions_for_nesting %>%
-      dplyr::rename(Fold = fold_info_cols[["rel_fold"]],
-                    `Fold Column` = fold_info_cols[["fold_column"]],
-                    Target = !! as.name(targets_col),
-                    Prediction = !! as.name(predictions_col),
-                    `Predicted Class` = .data$predicted_class
-      )
-
-    # Remove fold columns if they should not be included
-    if (!isTRUE(include_fold_columns)){
-      predictions_for_nesting <- predictions_for_nesting %>%
-        dplyr::select(-dplyr::one_of("Fold","Fold Column"))
-    }
-
     # Nest predictions
-    predictions_nested <- predictions_for_nesting %>%
-      legacy_nest(1:ncol(predictions_for_nesting)) %>%
-      dplyr::rename(predictions = data)
+
+    if (isTRUE(include_predictions)){
+      predictions_nested <- nesting_predictions_multinomial(
+        data = data,
+        predictions_col = predictions_col,
+        targets_col = targets_col,
+        id_col = id_col,
+        id_method = id_method,
+        fold_info_cols = fold_info_cols,
+        include_fold_columns = include_fold_columns)
+    } else {
+      predictions_nested <- NULL
+    }
+
 
     # Create unique temporary variable names
     local_tmp_target_var <- create_tmp_var(data,"one_vs_all_targets")
@@ -138,7 +114,7 @@ multinomial_classification_eval <- function(data,
         models = models,
         metrics = metrics,
         include_fold_columns = include_fold_columns,
-        include_predictions = include_predictions
+        include_predictions = FALSE
         ) %>%
         dplyr::mutate(Class = classes[[cl]])
 
@@ -183,8 +159,11 @@ multinomial_classification_eval <- function(data,
     # Gather summarized metrics and add nested predictions
     overall_results <- average_metrics %>%
       dplyr::bind_cols(weighted_average_metrics) %>%
-      dplyr::mutate(`Overall Accuracy` = overall_accuracy,
-                    Predictions = predictions_nested$predictions)
+      dplyr::mutate(`Overall Accuracy` = overall_accuracy)
+
+    if (isTRUE(include_predictions) && !is.null(predictions_nested)){
+      overall_results[["Predictions"]] <- predictions_nested$predictions
+    }
 
     # If we don't want the Overall Accuracy metric, remove it
     if ("Overall Accuracy" %ni% metrics){

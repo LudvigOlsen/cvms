@@ -1,7 +1,7 @@
 
 # Returns a list of metric names
 # With default values unless
-set_metrics <- function(family, metrics_list = NULL){
+set_metrics <- function(family, metrics_list = NULL, include_model_object_metrics = FALSE){
 
   if (family == "gaussian"){
 
@@ -102,6 +102,19 @@ set_metrics <- function(family, metrics_list = NULL){
       metrics[[names(metrics_list)[[met]]]] <- metrics_list[[met]]
     }
 
+  }
+
+  if (!isTRUE(include_model_object_metrics)){
+
+    # Remove the metrics that require model objects
+    # Currently only used in Gaussian eval
+    if (family == "gaussian"){
+      metrics[["r2m"]] <- FALSE
+      metrics[["r2c"]] <- FALSE
+      metrics[["AIC"]] <- FALSE
+      metrics[["AICc"]] <- FALSE
+      metrics[["BIC"]] <- FALSE
+    }
   }
 
   # Extract the metric names

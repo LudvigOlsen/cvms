@@ -103,7 +103,7 @@ create_gaussian_baseline_evaluations <- function(train_data,
 
     # Predict test set with baseline model
     test_data[["prediction"]] <- stats::predict(baseline_linear_model,
-                                                test_data, allow.new.levels=TRUE)
+                                                test_data, allow.new.levels = TRUE)
 
     # This will be changed to evaluation repetition later on
     test_data[["fold_column"]] <- evaluation

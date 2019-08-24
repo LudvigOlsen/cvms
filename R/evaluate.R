@@ -61,6 +61,8 @@
 #' @param id_col Name of ID column to aggregate predictions by.
 #'
 #'  N.B. Current methods assume that the target class/value is constant within the IDs.
+#'
+#'  N.B. When aggregating by ID, some metrics (such as those from model objects) are excluded.
 #' @param id_method Method to use when aggregating predictions by ID. Either \code{"mean"} or \code{"majority"}.
 #'
 #'  When \code{type} is \code{gaussian}, only the \code{"mean"} method is available.
@@ -80,6 +82,10 @@
 #'  When only passing one model, remember to pass it in a list (e.g. \code{list(m)}).
 #'
 #'  N.B. When \code{data} is grouped, provide one model per group in the same order as the groups.
+#'
+#'  N.B. When aggregating by ID (i.e. when \code{id_col} is not \code{NULL}),
+#'  it's not currently possible to pass model objects,
+#'  as these would not be aggregated by the IDs.
 #' @param apply_softmax Whether to apply the softmax function to the
 #'  prediction columns when \code{type} is \code{"multinomial"}.
 #'
@@ -117,6 +123,8 @@
 #'  \code{"binomial"} for binary classification.
 #'
 #'  \code{"multinomial"} for multiclass classification.
+#' @param include_predictions Whether to include the predictions
+#'  in the output as a nested tibble. (Logical)
 #' @details
 #'  NB.: When type is \code{"multinomial"}, macro-averaging of metrics returns NaN,
 #'  if any of the class level results are NaN.
@@ -256,6 +264,7 @@ evaluate <- function(data,
                      cutoff = 0.5,
                      positive = 2,
                      metrics = list(),
+                     include_predictions = TRUE,
                      parallel = FALSE
 ){
 
@@ -283,6 +292,7 @@ evaluate <- function(data,
                       cutoff = cutoff,
                       positive = positive,
                       parallel = parallel,
+                      include_predictions = include_predictions,
                       metrics = metrics)
 
   # Create basic model_specifics object
@@ -321,6 +331,13 @@ evaluate <- function(data,
   if (!is.null(id_col)) {
 
     # ID level evaluation
+
+    # Currently don't support model object metrics
+    # in ID aggregation mode
+    if (!is.null(models)){
+      stop("When aggregating by ID, 'models' should be NULL.")
+    }
+
 
     # Prepare data for ID level evaluation
     data_for_id_evaluation <- prepare_id_level_evaluation(
@@ -712,7 +729,8 @@ internal_evaluate <- function(data,
 
   # Fill metrics with default values for non-specified metrics
   # and get the names of the metrics
-  metrics <- set_metrics(family = type, metrics_list = metrics)
+  metrics <- set_metrics(family = type, metrics_list = metrics,
+                         include_model_object_metrics = !is.null(models))
 
   # data is a table with predictions, targets and folds
   # predictions can be values, logits, or classes, depending on evaluation type
@@ -723,6 +741,8 @@ internal_evaluate <- function(data,
       models = models,
       predictions_col = predictions_col,
       targets_col = targets_col,
+      id_col = id_col,
+      id_method = id_method,
       fold_info_cols = fold_info_cols,
       model_specifics = model_specifics,
       metrics = metrics,
@@ -735,6 +755,8 @@ internal_evaluate <- function(data,
       data,
       predictions_col = predictions_col,
       targets_col = targets_col,
+      id_col = id_col,
+      id_method = id_method,
       fold_info_cols = fold_info_cols,
       models = models,
       cutoff = model_specifics[["cutoff"]],
@@ -759,7 +781,6 @@ internal_evaluate <- function(data,
 
   }
 
-
   return(results)
 }
 
@@ -773,6 +794,7 @@ check_args_evaluate <- function(data,
                                 cutoff,
                                 positive,
                                 parallel,
+                                include_predictions,
                                 metrics){
 
   # TODO Add more checks !!
@@ -815,6 +837,11 @@ check_args_evaluate <- function(data,
   # parallel
   if (!is_logical_scalar_not_na(parallel)){
     stop("'parallel' must be a logical scalar (TRUE/FALSE).")
+  }
+
+  # parallel
+  if (!is_logical_scalar_not_na(include_predictions)){
+    stop("'include_predictions' must be a logical scalar (TRUE/FALSE).")
   }
 
   # metrics

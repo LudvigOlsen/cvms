@@ -4,6 +4,8 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 binomial_classification_eval <- function(data,
                                          predictions_col,
                                          targets_col,
+                                         id_col = NULL,
+                                         id_method = NULL,
                                          fold_info_cols = list(
                                            rel_fold = "rel_fold",
                                            abs_fold = "abs_fold",
@@ -36,28 +38,24 @@ binomial_classification_eval <- function(data,
     # Create a column with the predicted class based on the chosen cutoff
     data[["predicted_class"]] <- ifelse(data[[predictions_col]] < cutoff, cat_levels[1], cat_levels[2])
 
-    # Nest predictions and targets
-    predictions_nested <- tibble::as_tibble(data) %>%
-      dplyr::select(!! as.name(fold_info_cols[["fold_column"]]),
-                    !! as.name(fold_info_cols[["rel_fold"]]),
-                    !! as.name(targets_col),
-                    !! as.name(predictions_col),
-                    .data$predicted_class
-      ) %>%
-      dplyr::rename(Fold = fold_info_cols[["rel_fold"]],
-                    `Fold Column` = fold_info_cols[["fold_column"]],
-                    Target = !! as.name(targets_col),
-                    Prediction = !! as.name(predictions_col),
-                    `Predicted Class` = .data$predicted_class)
+    if (isTRUE(include_predictions)){
 
-    if (!isTRUE(include_fold_columns)){
-      predictions_nested <- predictions_nested %>%
-        dplyr::select(-dplyr::one_of("Fold","Fold Column"))
+      # Nest predictions and targets
+      predictions_nested <- nesting_predictions_binomial(
+        data = data,
+        predictions_col = predictions_col,
+        targets_col = targets_col,
+        id_col = id_col,
+        id_method = id_method,
+        fold_info_cols = fold_info_cols,
+        include_fold_columns = include_fold_columns
+      )
+
+    } else {
+
+      predictions_nested <- NULL
+
     }
-
-    predictions_nested <- predictions_nested %>%
-      legacy_nest(1:ncol(predictions_nested)) %>%
-      dplyr::rename(predictions = data)
 
     results <-
       binomial_eval(
@@ -80,7 +78,7 @@ binomial_classification_eval <- function(data,
   } else {
 
     results <- binomial_classification_NA_results_tibble(
-      metrics = metrics)
+      metrics = metrics, include_predictions = include_predictions)
 
     if (!is.null(models))
       results[["Coefficients"]] <- get_nested_model_coefficients(

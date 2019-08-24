@@ -7,7 +7,7 @@
 evaluate(data, target_col, prediction_cols, type = "gaussian",
   id_col = NULL, id_method = "mean", models = NULL,
   apply_softmax = TRUE, cutoff = 0.5, positive = 2,
-  metrics = list(), parallel = FALSE)
+  metrics = list(), include_predictions = TRUE, parallel = FALSE)
 }
 \arguments{
 \item{data}{Data frame with predictions, targets and (optionally) an ID column.
@@ -71,7 +71,9 @@ evaluate(data, target_col, prediction_cols, type = "gaussian",
 
 \item{id_col}{Name of ID column to aggregate predictions by.
 
- N.B. Current methods assume that the target class/value is constant within the IDs.}
+ N.B. Current methods assume that the target class/value is constant within the IDs.
+
+ N.B. When aggregating by ID, some metrics (such as those from model objects) are excluded.}
 
 \item{id_method}{Method to use when aggregating predictions by ID. Either \code{"mean"} or \code{"majority"}.
 
@@ -92,7 +94,11 @@ evaluate(data, target_col, prediction_cols, type = "gaussian",
 
  When only passing one model, remember to pass it in a list (e.g. \code{list(m)}).
 
- N.B. When \code{data} is grouped, provide one model per group in the same order as the groups.}
+ N.B. When \code{data} is grouped, provide one model per group in the same order as the groups.
+
+ N.B. When aggregating by ID (i.e. when \code{id_col} is not \code{NULL}),
+ it's not currently possible to pass model objects,
+ as these would not be aggregated by the IDs.}
 
 \item{apply_softmax}{Whether to apply the softmax function to the
  prediction columns when \code{type} is \code{"multinomial"}.
@@ -125,6 +131,9 @@ N.B. \strong{Binomial models only}.}
   Also accepts the string \code{"all"}.
 
   N.B. Currently, disabled metrics are still computed.}
+
+\item{include_predictions}{Whether to include the predictions
+in the output as a nested tibble. (Logical)}
 
 \item{parallel}{Whether to run evaluations in parallel,
 when \code{data} is grouped with \code{\link[dplyr]{group_by}}.}
@@ -238,7 +247,7 @@ tibble or list of tibbles, depending on \code{type}.
  \strong{Weighted Detection Rate}, \strong{Weighted Detection Prevalence}, and
  \strong{Weighted Prevalence}.
 
- Note that "Weighted" metrics are averages weighted by the \code{Support}.
+ Note that the "Weighted" metrics are weighted averages, weighted by the \code{Support}.
 
  Also includes:
 

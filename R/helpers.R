@@ -400,3 +400,9 @@ reposition_column <- function(data, col, .before = NULL, .after = NULL){
     tibble::add_column(!!(col) := col_values, .before = .before, .after = .after)
 }
 
+
+arg_not_used <- function(arg, arg_name, family, current_fn, message_fn=message){
+  if (!is.null(arg)){
+    message_fn(paste0("'",arg_name,"' was not used for ", family, " version of ", current_fn, "()."))
+  }
+}

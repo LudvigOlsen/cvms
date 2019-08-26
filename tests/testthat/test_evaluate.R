@@ -787,6 +787,7 @@ test_that("binomial evaluation works in evaluate()",{
 
   # TODO Add tests here that grouped dataframes work in binomial!
 
+
 })
 
 test_that("softmax works in multiclass_probability_tibble()",{

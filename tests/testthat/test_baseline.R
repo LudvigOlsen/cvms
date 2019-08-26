@@ -2,7 +2,7 @@ library(cvms)
 context("baseline()")
 
 
-test_that("binomial evaluation are correct in baseline()",{
+test_that("binomial evaluations are correct in baseline()",{
 
   set_seed_for_R_compatibility(1)
   binom_baseline <- baseline(test_data = participant.scores,
@@ -79,7 +79,7 @@ test_that("binomial evaluation are correct in baseline()",{
 
 })
 
-test_that("gaussian evaluation are correct in baseline()",{
+test_that("gaussian evaluations are correct in baseline()",{
 
   set_seed_for_R_compatibility(2)
   # set.seed(1)
@@ -88,7 +88,7 @@ test_that("gaussian evaluation are correct in baseline()",{
   test_data <- dat[[2]]
   suppressWarnings(gaussian_baseline <- baseline(test_data = test_data,
                              train_data = train_data,
-                             dependent_col = "diagnosis",
+                             dependent_col = "score",
                              n = 10,
                              family = "gaussian",
                              parallel = FALSE))
@@ -100,16 +100,16 @@ test_that("gaussian evaluation are correct in baseline()",{
   expect_equal(gaussian_baseline_summ$Measure, c("Mean", "Median", "SD", "IQR", "Max",
                                               "Min", "NAs", "INFs", "All_rows"))
   expect_equal(gaussian_baseline_summ$RMSE,
-               c(0.61635445,0.62449980,0.04249801,0.06481080,0.67314560,
-                 0.54241837,0.00000000,0.00000000,0.58001703), tolerance=1e-3)
+               c(23.548673,22.631836,2.151282,1.774305,
+                 27.814396,20.671713,0.0,0.0,23.108507), tolerance=1e-3)
 
   expect_equal(gaussian_baseline_summ$MAE,
-               c(0.54700397,0.55000000,0.01239385,0.01835317,0.56250000,
-                 0.52380952,0.00000000,0.00000000,0.53703704), tolerance=1e-3)
+               c(20.601647,20.021429,1.559585,1.191468,
+                 23.645833,18.214286,0.0,0.0,20.370370), tolerance=1e-3)
 
   expect_equal(gaussian_baseline_summ$AIC,
-               c(14.010994,13.396725,5.303117,7.897265,
-                 23.129949,8.999233,0.0,0.0, 26.167375), tolerance=1e-3)
+               c(80.88782,73.28142,31.21325,46.54117,
+                 125.03483,40.63481,0.0,0.0,156.22826), tolerance=1e-3)
 
   expect_equal(gaussian_baseline_summ$`Training Rows`,
                c(9.50,9.0,3.341656,5.0,14.0,5.0,0.0,0.0,18.0), tolerance=1e-3)
@@ -120,25 +120,25 @@ test_that("gaussian evaluation are correct in baseline()",{
                rep(0.0, 9), tolerance=1e-3)
 
   expect_equal(gaussian_baseline_summ$AICc,
-               c(16.507272,15.719689,4.269571,4.773214,24.220858,
-                 11.399233,0.0,0.0, 26.967375), tolerance=1e-3)
+               c(83.38409,75.63857,29.84876,45.02450,
+                 126.12574,46.63481,0.0,0.0,157.02826), tolerance=1e-3)
 
   expect_equal(gaussian_baseline_summ$BIC,
-               c(14.395589,13.645220,5.965933,8.954378,24.408063,
-                 8.245354,0.0,0.0,27.948118), tolerance=1e-3)
+               c(81.27241,73.52992,31.93310,47.55239,
+                 126.31295,39.85369,0.0,0.0,158.0090), tolerance=1e-3)
 
   # The random evaluations
   expect_equal(gaussian_baseline_reval$RMSE,
-               c(0.6244998,0.6454972,0.5758756,0.6454972,0.6611164,
-                 0.5424184,0.6244998,0.5758756,0.5951190,0.6731456), tolerance=1e-3)
+               c(26.47565,22.39047,20.67171,24.70268,23.08974,
+                 22.57248,22.69119,22.51107,22.56734,27.81440), tolerance=1e-3)
 
   expect_equal(gaussian_baseline_reval$MAE,
-               c(0.5500000,0.5555556,0.5357143,0.5555556,0.5595238,
-                 0.5238095,0.5500000,0.5357143,0.5416667,0.5625000), tolerance=1e-3)
+               c(22.63333,19.83333,18.21429,21.38889,20.35714,
+                 19.97619,20.06667,19.92857,19.97222,23.64583), tolerance=1e-3)
 
   expect_equal(gaussian_baseline_reval$AIC,
-               c(9.026478,14.365552,12.740493,9.182776,9.164714,
-                 23.129949,14.052956,21.480986,17.966808,8.999233), tolerance=1e-3)
+               c(40.63481,96.54162,63.62098,46.39313,57.93568,
+                 123.76021,82.94187,125.03483,108.86128,63.15374), tolerance=1e-3)
 
   expect_equal(gaussian_baseline_reval$`Training Rows`,
                c(5,12,7,6,7,14,10,14,12,8), tolerance=1e-3)
@@ -147,27 +147,126 @@ test_that("gaussian evaluation are correct in baseline()",{
                rep("gaussian", 10), tolerance=1e-3)
 
   expect_equal(gaussian_baseline_reval$Dependent,
-               rep("diagnosis", 10), tolerance=1e-3)
+               rep("score", 10), tolerance=1e-3)
 
   expect_equal(gaussian_baseline_reval$Fixed,
                rep("1", 10), tolerance=1e-3)
 
   all_predictions <- dplyr::bind_rows(gaussian_baseline_reval$Predictions)
   expect_equal(sum(as.numeric(all_predictions$Fold)), 120)
-  expect_equal(sum(all_predictions$Target), 50)
-  expect_equal(sum(all_predictions$Prediction), 93.84286, tolerance=1e-3)
+  expect_equal(sum(all_predictions$Target), 5440)
+  expect_equal(sum(all_predictions$Prediction), 4085.043, tolerance=1e-3)
 
   all_coeffs <- dplyr::bind_rows(gaussian_baseline_reval$Coefficients)
   expect_equal(all_coeffs$estimate,
-               c(0.8,0.8333333,0.7142857,0.8333333,0.8571429,0.6428571,
-                 0.8,0.7142857,0.75,0.875), tolerance=1e-3)
+               c(28.40000,36.00000,41.71429,31.33333,34.42857,
+                 35.57143,35.30000,35.71429,35.58333,26.37500), tolerance=1e-3)
   expect_equal(all_coeffs$std.error,
-               c(0.2,0.1123666,0.1844278,0.1666667,0.1428571,0.1328944,
-                 0.1333333,0.1252940,0.1305582,0.125), tolerance=1e-3)
+               c(4.718050,3.448759,6.985408,3.702852,4.654016,
+                 4.834303,4.176788,5.059458,5.762284,3.688484), tolerance=1e-3)
   expect_equal(all_coeffs$p.value,
-               c(1.613009e-02,1.332505e-05,8.237354e-03,4.104716e-03,
-                 9.645352e-04,3.244011e-04,2.024993e-04,7.282309e-05,
-                 1.294017e-04,2.115549e-04), tolerance=1e-3)
+               c(3.836776e-03,4.806737e-07,9.888062e-04,3.785030e-04,
+                 3.133274e-04,5.518161e-06,1.423837e-05,8.556549e-06,
+                 6.954980e-05, 1.852572e-04), tolerance=1e-3)
+})
+
+test_that("gaussian evaluations of random effects models are correct in baseline()",{
+
+  set_seed_for_R_compatibility(2)
+  # set.seed(1)
+  dat <- groupdata2::partition(participant.scores, p = 0.6, list_out = TRUE)
+  train_data <- dat[[1]]
+  test_data <- dat[[2]]
+  suppressWarnings(gaussian_baseline_random_effects <- baseline(
+    test_data = test_data,
+    train_data = train_data,
+    dependent_col = "score",
+    random_effects = "( 1 | session )",
+    n = 10,
+    family = "gaussian",
+    parallel = FALSE))
+
+  gaussian_baseline_summ <- gaussian_baseline_random_effects$summarized_metrics
+  gaussian_baseline_reval <- gaussian_baseline_random_effects$random_evaluations
+
+  # Summarized results
+  expect_equal(gaussian_baseline_summ$Measure, c("Mean", "Median", "SD", "IQR", "Max",
+                                                 "Min", "NAs", "INFs", "All_rows"))
+  expect_equal(gaussian_baseline_summ$RMSE,
+               c(19.600875,19.568833,3.010504,5.332666,
+                 23.631064,15.792418,0.0,0.0,18.066222), tolerance=1e-3)
+
+  expect_equal(gaussian_baseline_summ$MAE,
+               c(17.231620,17.259500,2.284422,3.206596,
+                 20.680264,14.117023,0.0,0.0,16.173775), tolerance=1e-3)
+
+  expect_equal(gaussian_baseline_summ$AIC,
+               c(74.72007,68.53657,29.06934,44.68871,
+                 115.91591,37.04749,0.0,0.0,146.98744), tolerance=1e-3)
+
+  expect_equal(gaussian_baseline_summ$`Training Rows`,
+               c(9.50,9.0,3.341656,5.0,14.0,5.0,0.0,0.0,18.0), tolerance=1e-3)
+
+  expect_equal(gaussian_baseline_summ$r2m,
+               rep(0.0, 9), tolerance=1e-3)
+  expect_equal(gaussian_baseline_summ$r2c,
+               c(0.5689284,0.5931160,0.1248541,0.1792077,
+                 0.7194042,0.3450947,0.0,0.0,0.5092992), tolerance=1e-3)
+
+  expect_equal(gaussian_baseline_summ$AICc,
+               c(82.00007,74.53657,24.19749,39.18656,
+                 118.31591,54.54786,0.0,0.0,148.70173), tolerance=1e-3)
+
+  expect_equal(gaussian_baseline_summ$BIC,
+               c(75.2969607911245, 68.9093092222065, 30.1532384455176, 46.2055462747716,
+                 117.833083604798, 35.875805418616, 0, 0, 149.658560139426), tolerance=1e-3)
+
+  # The random evaluations
+  expect_equal(gaussian_baseline_reval$RMSE,
+               c(23.3023673893311, 20.2831211351759, 18.4653958494823, 23.6310640067372,
+                 19.6708765288482, 15.7924182217171, 19.4667891710134, 16.5250914306427,
+                 15.8422216462345, 23.0294037571561), tolerance=1e-3)
+
+  expect_equal(gaussian_baseline_reval$MAE,
+               c(19.9254197349807, 18.1852507167284, 17.0487074806514, 20.6802643236492,
+                 17.0551245625476, 14.2061291677316, 17.4638756853949, 14.8688972771474,
+                 14.1170229613728, 18.7655103243966), tolerance=1e-3)
+
+  expect_equal(gaussian_baseline_reval$AIC,
+               c(37.0474916813137, 92.0001975699801, 59.3199306240758, 42.5478613478296,
+                 51.7112998206263, 112.962482318462, 77.7532020941892, 115.915911615952,
+                 99.9577092947807, 57.9846047242755), tolerance=1e-3)
+
+  expect_equal(gaussian_baseline_reval$`Training Rows`,
+               c(5,12,7,6,7,14,10,14,12,8), tolerance=1e-3)
+
+  expect_equal(gaussian_baseline_reval$Family,
+               rep("gaussian", 10), tolerance=1e-3)
+
+  expect_equal(gaussian_baseline_reval$Dependent,
+               rep("score", 10), tolerance=1e-3)
+
+  expect_equal(gaussian_baseline_reval$Fixed,
+               rep("1", 10), tolerance=1e-3)
+  expect_equal(gaussian_baseline_reval$Random,
+               rep("(1|session)", 10), tolerance=1e-3)
+
+  all_predictions <- dplyr::bind_rows(gaussian_baseline_reval$Predictions)
+  expect_equal(sum(as.numeric(all_predictions$Fold)), 120)
+  expect_equal(sum(all_predictions$Target), 5440)
+  expect_equal(sum(all_predictions$Prediction), 4030.024, tolerance=1e-3)
+
+  all_coeffs <- dplyr::bind_rows(gaussian_baseline_reval$Coefficients)
+  expect_equal(all_coeffs$estimate,
+               c(29.4482246187172, 34.039741354335, 40.9321844272457, 29.7091048995076,
+                 31.6380887585632, 37.7282592375317, 34.1782347165533, 35.9506799949463,
+                 36.3068983754988, 27.2041030958495), tolerance=1e-3)
+  expect_equal(all_coeffs$std.error,
+               c(7.15564449282046, 5.53120659588499, 8.97275372070671, 4.96123227269955,
+                 7.05688044109226, 10.2739018309621, 6.56119887646549, 9.73185796300383,
+                 10.7798478381932, 5.86883171896131), tolerance=1e-3)
+  expect_equal(all_coeffs$p.value,
+               rep(NA, 10), tolerance=1e-3)
 })
 
 
@@ -175,7 +274,7 @@ test_that("gaussian evaluation are correct in baseline()",{
 # Do we get what we expect?
 
 
-test_that("multinomial evaluation are correct in baseline()",{
+test_that("multinomial evaluations are correct in baseline()",{
 
   set_seed_for_R_compatibility(1)
   targets_1 <- dplyr::sample_n(tibble::enframe(rep(1:3, each=10), value = "targets_3"), 25) %>%
@@ -551,9 +650,20 @@ test_that("baseline() throws expected errors",{
                           dependent_col = "diagnosis",
                           n = 2,
                           family = "binomial"),
-                 "train_data was not used for binomial baseline.",
+                 "'train_data' was not used for binomial version of baseline().",
                  fixed=T
                  )
+
+  expect_message(baseline(test_data = participant.scores,
+                          dependent_col = "diagnosis",
+                          n = 2,
+                          family = "binomial",
+                          random_generator_fn = rnorm),
+                 paste0("'random_generator_fn' was not default function. ",
+                        "Note that the 'random_generator_fn' is not used in ",
+                        "the binomial version of baseline()."),
+                 fixed=T
+  )
   expect_error(baseline(test_data = participant.scores,
                           dependent_col = "score",
                           n = 10,

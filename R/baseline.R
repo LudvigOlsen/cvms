@@ -3,13 +3,17 @@
 #' @title Create baseline evaluations
 #' @description Create a baseline evaluation of a test set.
 #'
-#'  When \code{family} is \code{binomial}: evaluates \code{n} sets of random predictions
-#'  against the dependent variable,
-#'  along with a set of all \code{0} predictions and a set of all \code{1} predictions.
-#'
 #'  When \code{family} is \code{gaussian}: fits baseline models (\code{y ~ 1}) on \code{n} random
 #'  subsets of \code{train_data} and evalutes each model on \code{test_data}. Also evaluates a
 #'  model fitted on all rows in \code{train_data}.
+#'
+#'  When \code{family} is \code{binomial}: evaluates \code{n} sets of random predictions
+#'  against the dependent variable, along with a set of all \code{0} predictions and
+#'  a set of all \code{1} predictions.
+#'
+#'  When \code{family} is \code{multinomial}: creates one-vs-all (binomial) baseline evaluations
+#'  on \code{n} sets of random predictions against the dependent variable,
+#'  along with sets of "all class x,y,z,..." predictions.
 #'
 #'  \strong{baseline() is under development! Large changes may occur.}
 #' @inheritParams cross_validate
@@ -18,9 +22,10 @@
 #' @param dependent_col Name of dependent variable in the supplied test and training sets.
 #' @param n Number of random samplings to perform.
 #'
-#'  For \code{binomial}: The number of sets of random predictions to evaluate.
-#'
 #'  For \code{gaussian}: The number of random samplings of train_data to fit baseline models on.
+#'
+#'  For \code{binomial} and \code{multinomial}: The number of sets of random predictions to evaluate.
+#'
 #' @param family Name of family. (Character)
 #'
 #'  Currently supports \code{"gaussian"}, \code{"binomial"} and \code{"multinomial"}.
@@ -38,6 +43,11 @@
 #' @param cutoff Threshold for predicted classes. (Numeric)
 #'
 #'  N.B. \strong{Binomial only}
+#' @param random_effects Random effects structure for Gaussian baseline model. (Character)
+#'
+#'  E.g. with \code{"(1|ID)"}, the model becomes \code{"y ~ 1 + (1|ID)"}.
+#'
+#'  N.B. \strong{Gaussian only}
 #' @param random_generator_fn Function for generating random numbers when \code{type} is \code{"multinomial"}.
 #'  The softmax function is applied to the generated numbers to transform them to probabilities.
 #'
@@ -83,11 +93,11 @@
 #'
 #'  BIC : \code{\link[stats:BIC]{stats::BIC}}
 #'
-#'  \strong{Binomial}:
+#'  \strong{Binomial} and \strong{Multinomial}:
 #'
-#'  Confusion matrix: \code{\link[caret:confusionMatrix]{caret::confusionMatrix}}
+#'  Confusion matrix and related metrics: \code{\link[caret:confusionMatrix]{caret::confusionMatrix}}
 #'
-#'  ROC: \code{\link[pROC:roc]{pROC::roc}}
+#'  ROC and related metrics: \code{\link[pROC:roc]{pROC::roc}}
 #'
 #'  MCC: \code{\link[mltools:mcc]{mltools::mcc}}
 #'
@@ -130,6 +140,8 @@
 #'  Name of \strong{dependent} variable.
 #'
 #'  Name of \strong{fixed} effect (bias term only).
+#'
+#'  \strong{Random} effects structure (if specified).
 #'
 #'  ----------------------------------------------------------------
 #'
@@ -212,7 +224,8 @@
 #'
 #' # Gaussian
 #' baseline(test_data = test_set, train_data = train_set,
-#'          dependent_col = "score", n = 2, family = "gaussian")
+#'          dependent_col = "score", random_effects = "(1|session)",
+#'          n = 2, family = "gaussian")
 #'
 #' # Binomial
 #' baseline(test_data = test_set, dependent_col = "diagnosis",
@@ -242,8 +255,8 @@
 #'
 #' # Gaussian
 #' baseline(test_data = test_set, train_data = train_set,
-#'          dependent_col = "score", n = 4, family = "gaussian",
-#'          parallel = TRUE)
+#'          dependent_col = "score", random_effects = "(1|session)",
+#'          n = 4, family = "gaussian", parallel = TRUE)
 #'
 #' # Multinomial
 #' baseline(test_data = multiclass_data,
@@ -266,7 +279,7 @@
 #'          random_generator_fn = rcertain)
 #'
 #' }
-#' @importFrom stats runif rnorm
+#' @importFrom stats runif rnorm terms
 baseline <- function(test_data,
                      dependent_col,
                      train_data = NULL,
@@ -279,6 +292,7 @@ baseline <- function(test_data,
                      # Multinomial
                      random_generator_fn = runif,
                      # Gaussian
+                     random_effects = NULL,
                      min_training_rows = 5,
                      min_training_rows_left_out = 3,
                      # Parallelization
@@ -286,8 +300,14 @@ baseline <- function(test_data,
 
   if (family == "binomial"){
 
-    if (!is.null(train_data)){
-      message("train_data was not used for binomial baseline.")
+    arg_not_used(arg = train_data, arg_name = "train_data",
+                 family = "binomial", current_fn = "baseline")
+    arg_not_used(arg = random_effects, arg_name = "random_effects",
+                 family = "binomial", current_fn = "baseline")
+    if (!isTRUE(all.equal(random_generator_fn, runif))){
+      message(paste0("'random_generator_fn' was not default function. ",
+                     "Note that the 'random_generator_fn' is not used in ",
+                     "the binomial version of baseline()."))
     }
 
     return(
@@ -303,8 +323,15 @@ baseline <- function(test_data,
 
   } else if (family == "multinomial"){
 
-    if (!is.null(train_data)){
-      message("train_data was not used for multinomial baseline.")
+    arg_not_used(arg = train_data, arg_name = "train_data",
+                 family = "multinomial", current_fn = "baseline")
+    arg_not_used(arg = random_effects, arg_name = "random_effects",
+                 family = "multinomial", current_fn = "baseline")
+
+    if (!isTRUE(all.equal(random_generator_fn, runif))){
+      message(paste0("'random_generator_fn' was not default function. ",
+                     "Note that the 'random_generator_fn' is not used in ",
+                     "the multinomial version of baseline()."))
     }
 
     return(
@@ -326,6 +353,7 @@ baseline <- function(test_data,
       create_gaussian_baseline_evaluations(train_data = train_data,
                                            test_data = test_data,
                                            dependent_col = dependent_col,
+                                           random_effects = random_effects,
                                            n_samplings = n,
                                            min_training_rows = min_training_rows,
                                            min_training_rows_left_out = min_training_rows_left_out,

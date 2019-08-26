@@ -10,6 +10,8 @@
 
 * Adds multiclass_probability_tibble() for generating a random probability tibble. 
 
+* Adds random_effects argument to baseline() for adding random effects to the Gaussian baseline model.  
+
 # cvms 0.1.2
 
 * Bug fix: p-values are correctly added to the nested coefficients tibble. Adds tests of this table as well.

@@ -6,8 +6,9 @@
 \usage{
 baseline(test_data, dependent_col, train_data = NULL, n = 100,
   family = "binomial", positive = 2, cutoff = 0.5,
-  random_generator_fn = runif, min_training_rows = 5,
-  min_training_rows_left_out = 3, parallel = FALSE)
+  random_generator_fn = runif, random_effects = NULL,
+  min_training_rows = 5, min_training_rows_left_out = 3,
+  parallel = FALSE)
 }
 \arguments{
 \item{test_data}{Data Frame.}
@@ -18,9 +19,9 @@ baseline(test_data, dependent_col, train_data = NULL, n = 100,
 
 \item{n}{Number of random samplings to perform.
 
- For \code{binomial}: The number of sets of random predictions to evaluate.
+ For \code{gaussian}: The number of random samplings of train_data to fit baseline models on.
 
- For \code{gaussian}: The number of random samplings of train_data to fit baseline models on.}
+ For \code{binomial} and \code{multinomial}: The number of sets of random predictions to evaluate.}
 
 \item{family}{Name of family. (Character)
 
@@ -52,6 +53,12 @@ baseline(test_data, dependent_col, train_data = NULL, n = 100,
  see \code{\link[cvms:multiclass_probability_tibble]{multiclass_probability_tibble}}.
 
  N.B. \strong{Multinomial only}}
+
+\item{random_effects}{Random effects structure for Gaussian baseline model. (Character)
+
+ E.g. with \code{"(1|ID)"}, the model becomes \code{"y ~ 1 + (1|ID)"}.
+
+ N.B. \strong{Gaussian only}}
 
 \item{min_training_rows}{Minimum number of rows in the random subsets of \code{train_data}.
 
@@ -109,6 +116,8 @@ List containing tbl (tibble) with summarized results and tbl with random evaluat
  Name of \strong{dependent} variable.
 
  Name of \strong{fixed} effect (bias term only).
+
+ \strong{Random} effects structure (if specified).
 
  ----------------------------------------------------------------
 
@@ -168,13 +177,17 @@ List containing tbl (tibble) with summarized results and tbl with random evaluat
 \description{
 Create a baseline evaluation of a test set.
 
- When \code{family} is \code{binomial}: evaluates \code{n} sets of random predictions
- against the dependent variable,
- along with a set of all \code{0} predictions and a set of all \code{1} predictions.
-
  When \code{family} is \code{gaussian}: fits baseline models (\code{y ~ 1}) on \code{n} random
  subsets of \code{train_data} and evalutes each model on \code{test_data}. Also evaluates a
  model fitted on all rows in \code{train_data}.
+
+ When \code{family} is \code{binomial}: evaluates \code{n} sets of random predictions
+ against the dependent variable, along with a set of all \code{0} predictions and
+ a set of all \code{1} predictions.
+
+ When \code{family} is \code{multinomial}: creates one-vs-all (binomial) baseline evaluations
+ on \code{n} sets of random predictions against the dependent variable,
+ along with sets of "all class x,y,z,..." predictions.
 
  \strong{baseline() is under development! Large changes may occur.}
 }
@@ -198,11 +211,11 @@ Packages used:
 
  BIC : \code{\link[stats:BIC]{stats::BIC}}
 
- \strong{Binomial}:
+ \strong{Binomial} and \strong{Multinomial}:
 
- Confusion matrix: \code{\link[caret:confusionMatrix]{caret::confusionMatrix}}
+ Confusion matrix and related metrics: \code{\link[caret:confusionMatrix]{caret::confusionMatrix}}
 
- ROC: \code{\link[pROC:roc]{pROC::roc}}
+ ROC and related metrics: \code{\link[pROC:roc]{pROC::roc}}
 
  MCC: \code{\link[mltools:mcc]{mltools::mcc}}
 
@@ -232,7 +245,8 @@ test_set <- partitions[[2]]
 
 # Gaussian
 baseline(test_data = test_set, train_data = train_set,
-         dependent_col = "score", n = 2, family = "gaussian")
+         dependent_col = "score", random_effects = "(1|session)",
+         n = 2, family = "gaussian")
 
 # Binomial
 baseline(test_data = test_set, dependent_col = "diagnosis",
@@ -262,8 +276,8 @@ baseline(test_data = test_set, dependent_col = "diagnosis",
 
 # Gaussian
 baseline(test_data = test_set, train_data = train_set,
-         dependent_col = "score", n = 4, family = "gaussian",
-         parallel = TRUE)
+         dependent_col = "score", random_effects = "(1|session)",
+         n = 4, family = "gaussian", parallel = TRUE)
 
 # Multinomial
 baseline(test_data = multiclass_data,

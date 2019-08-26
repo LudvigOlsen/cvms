@@ -173,6 +173,60 @@ List containing tbl (tibble) with summarized results and tbl with random evaluat
 
  Name of \strong{dependent} variable.
  }
+
+ ----------------------------------------------------------------
+
+ \subsection{Multinomial Results}{
+
+ ----------------------------------------------------------------
+
+ Based on the generated test set predictions,
+ one-vs-all (binomial) evaluations are performed and aggregated
+ to get the same metrics as in the \code{binomial} results, with the
+ addition of \strong{Overall Accuracy} in the summarized results.
+
+ A list of two lists with two tibbles each is returned.
+ The two sublists, \strong{Summarized} and \strong{Random Evaluations},
+ each contain a \strong{Results} tibble
+ and a \strong{Class Level Results} tibble:
+
+ ....................................................................
+
+ The \strong{Summarized Results} tibble contains:
+
+ Average metrics from the one-vs-all binomial evaluations (see \emph{Binomial Results} above),
+ and the \strong{Overall Accuracy} metric.
+
+ The \strong{Measure} column indicates the statistical descriptor used on the evaluations.
+ The \strong{Mean}, \strong{Median}, \strong{SD}, and \strong{IQR} describe the
+ repetition evaluations (like the \emph{Random Evaluations Results} tibble, but removing \code{NA}s before summarizing,
+ as the \code{NA}s and \code{INF}s are counted instead), while the \strong{Max}, \strong{Min}, \strong{NAs}, and
+ \strong{INFs} are extracted from the \emph{Random Evaluations Class Level Results} tibble, to get
+ the overall values. Only the \code{NA}s and \code{INF}s from the one-vs-all evaluations are counted.
+
+ The rows where \code{Measure == All_<<class name>>} are the evaluations when all
+ the observations are predicted to be in that class.
+
+ ....................................................................
+
+ The \strong{Summarized Class Level Results} tibble contains:
+
+ The same metrics and descriptors as the \emph{Summarized Results}, but per class.
+
+ The rows where \code{Measure == All_0} are the evaluations when none of the observations
+ are predicted to be that class, while the rows where \code{Measure == All_1} are the
+ evaluations when all of the observations are predicted to be that class.
+
+ ....................................................................
+
+ The \strong{Random Evaluation Results} tibble contains:
+
+ ....................................................................
+
+ The \strong{Random Evaluation Class Level Results} tibble contains:
+
+
+ }
 }
 \description{
 Create a baseline evaluation of a test set.

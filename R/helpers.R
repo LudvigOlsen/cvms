@@ -406,3 +406,9 @@ arg_not_used <- function(arg, arg_name, family, current_fn, message_fn=message){
     message_fn(paste0("'",arg_name,"' was not used for ", family, " version of ", current_fn, "()."))
   }
 }
+
+# rep_list <- function(l, n, recursive_unlist = FALSE){
+#   #unlist(
+#     rep(l, n) # , recursive = recursive_unlist)
+# }
+

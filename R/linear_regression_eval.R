@@ -11,7 +11,8 @@ linear_regression_eval <- function(data,
                                    model_specifics = list(),
                                    metrics,
                                    include_fold_columns = TRUE,
-                                   include_predictions = TRUE){
+                                   include_predictions = TRUE,
+                                   na.rm = TRUE){
 
   REML <- tryCatch({
     model_specifics[["REML"]]
@@ -76,10 +77,10 @@ linear_regression_eval <- function(data,
     # First average per fold column, then average those
     avg_rmse_mae <- rmse_mae_per_fold %>%
       dplyr::group_by(!! as.name(fold_info_cols[["fold_column"]])) %>%
-      dplyr::summarize(RMSE = mean(.data$RMSE, na.rm = TRUE),
-                       MAE = mean(.data$MAE, na.rm = TRUE)) %>%
-      dplyr::summarize(RMSE = mean(.data$RMSE, na.rm = TRUE),
-                       MAE = mean(.data$MAE, na.rm = TRUE))
+      dplyr::summarize(RMSE = mean(.data$RMSE, na.rm = na.rm),
+                       MAE = mean(.data$MAE, na.rm = na.rm)) %>%
+      dplyr::summarize(RMSE = mean(.data$RMSE, na.rm = na.rm),
+                       MAE = mean(.data$MAE, na.rm = na.rm))
 
     # Get model metrics
     model_metrics_per_fold <- plyr::ldply(models, function(m){
@@ -98,9 +99,9 @@ linear_regression_eval <- function(data,
       dplyr::select(-c(.data$abs_fold,
                        !! as.name(fold_info_cols[["rel_fold"]]))) %>%
       dplyr::group_by(!! as.name(fold_info_cols[["fold_column"]])) %>%
-      dplyr::summarise_all(.funs = list(~mean(., na.rm = TRUE))) %>%
+      dplyr::summarise_all(.funs = list(~mean(., na.rm = na.rm))) %>%
       dplyr::select(-c(!! as.name(fold_info_cols[["fold_column"]]))) %>%
-      dplyr::summarise_all(.funs = list(~mean(., na.rm = TRUE)))
+      dplyr::summarise_all(.funs = list(~mean(., na.rm = na.rm)))
 
     if (!isTRUE(models_was_null)){
       # Get model coefficients

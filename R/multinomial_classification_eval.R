@@ -11,7 +11,9 @@ multinomial_classification_eval <- function(data,
                                             models = NULL,
                                             metrics,
                                             include_fold_columns = TRUE,
-                                            include_predictions = TRUE){
+                                            include_predictions = TRUE,
+                                            na.rm = FALSE
+                                            ){
   # Note: predictions are floats (e.g. 0.7), targets are 0 or 1
 
   # Check and unnest the probabilities
@@ -38,6 +40,9 @@ multinomial_classification_eval <- function(data,
 
   # Unique fold columns
   unique_fold_cols <- unique(fold_and_fold_col[["fold_column"]])
+
+  # Keep both aggregates with and without removing NAs
+  both_keep_and_remove_NAs <- is.character(na.rm) && na.rm == "both"
 
   if (!na_in_targets && !na_in_predictions){
 
@@ -114,7 +119,8 @@ multinomial_classification_eval <- function(data,
         models = models,
         metrics = metrics,
         include_fold_columns = include_fold_columns,
-        include_predictions = FALSE
+        include_predictions = FALSE,
+        na.rm = na.rm
         ) %>%
         dplyr::mutate(Class = classes[[cl]])
 
@@ -140,29 +146,62 @@ multinomial_classification_eval <- function(data,
       dplyr::mutate(Family = "multinomial") %>%
       select_metrics(include_definitions = FALSE)
 
-    # Calculate the average metrics
-    average_metrics <- metrics_only %>%
-      dplyr::summarise_all(list(mean), na.rm = FALSE)
+    if (isTRUE(both_keep_and_remove_NAs)){
 
-    # Calculate the weighted average metrics
-    weighted_average_metrics <- metrics_only %>%
-      dplyr::summarise_all(list(
-        ~ weighted.mean(., w = one_vs_all_evaluations[["Support"]])), na.rm = FALSE) %>%
-      dplyr::rename_all(function(x) paste0("Weighted ", x))
+      # Calculate the average metrics
+      average_metrics <- plyr::ldply(c(TRUE,FALSE), function(nr){
+        metrics_only %>%
+          dplyr::summarise_all(list(mean), na.rm = isTRUE(nr)) %>%
+          dplyr::mutate(NAs_removed = isTRUE(nr))
+      })
+
+      # Calculate the weighted average metrics
+      weighted_average_metrics <- plyr::ldply(c(TRUE,FALSE), function(nr){
+        metrics_only %>%
+          dplyr::summarise_all(list(
+            ~ weighted.mean(., w = one_vs_all_evaluations[["Support"]])), na.rm = nr) %>%
+          dplyr::rename_all(function(x) paste0("Weighted ", x)) %>%
+          dplyr::mutate(NAs_removed = isTRUE(nr))
+      })
+
+    } else {
+      # Calculate the average metrics
+      average_metrics <- metrics_only %>%
+        dplyr::summarise_all(list(mean), na.rm = na.rm)
+
+      # Calculate the weighted average metrics
+      weighted_average_metrics <- metrics_only %>%
+        dplyr::summarise_all(list(
+          ~ weighted.mean(., w = one_vs_all_evaluations[["Support"]])), na.rm = na.rm) %>%
+        dplyr::rename_all(function(x) paste0("Weighted ", x))
+    }
 
     # Keep only the requested metrics
-    weighted_average_metrics_to_keep <- dplyr::intersect(metrics,
-                                                         colnames(weighted_average_metrics))
+    weighted_average_metrics_to_keep <- dplyr::intersect(c(metrics,"NAs_removed"),
+                                                         c(colnames(weighted_average_metrics)))
     weighted_average_metrics <- weighted_average_metrics %>%
       dplyr::select(dplyr::one_of(weighted_average_metrics_to_keep))
 
     # Gather summarized metrics and add nested predictions
     overall_results <- average_metrics %>%
+      tibble::as_tibble() %>%
       dplyr::bind_cols(weighted_average_metrics) %>%
       dplyr::mutate(`Overall Accuracy` = overall_accuracy)
 
+    # Remove one of the NAs_removed columns
+    if (length(intersect(c("NAs_removed","NAs_removed1"), colnames(overall_results)) == 2)){
+      if(!isTRUE(all.equal(overall_results[["NAs_removed"]], overall_results[["NAs_removed1"]]))){
+        stop("'NAs_removed' and 'NAs_removed1' were not identical.")
+      }
+      overall_results[["NAs_removed1"]] <- NULL
+    }
+
     if (isTRUE(include_predictions) && !is.null(predictions_nested)){
-      overall_results[["Predictions"]] <- predictions_nested$predictions
+      if (isTRUE(both_keep_and_remove_NAs)){
+        overall_results[["Predictions"]] <- rep(predictions_nested$predictions, 2)
+      } else {
+        overall_results[["Predictions"]] <- predictions_nested$predictions
+      }
     }
 
     # If we don't want the Overall Accuracy metric, remove it
@@ -180,9 +219,16 @@ multinomial_classification_eval <- function(data,
       stop(paste0('Confusion matrix error: ',e))
     })
 
-    overall_results[["Confusion Matrix"]] <- nest_multiclass_confusion_matrices(
+
+    nested_multiclass_confusion_matrices <- nest_multiclass_confusion_matrices(
       list(overall_confusion_matrix),
       include_fold_columns = include_fold_columns)[["confusion_matrices"]]
+
+    if (isTRUE(both_keep_and_remove_NAs)){
+      overall_results[["Confusion Matrix"]] <- rep(nested_multiclass_confusion_matrices, 2)
+    } else {
+      overall_results[["Confusion Matrix"]] <- nested_multiclass_confusion_matrices
+    }
 
     # Rearrange columns in overall results
     all_cols <- colnames(overall_results)

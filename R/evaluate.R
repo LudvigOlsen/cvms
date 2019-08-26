@@ -726,7 +726,12 @@ internal_evaluate <- function(data,
                               model_specifics = list(),
                               metrics = list(),
                               include_fold_columns = TRUE,
-                              include_predictions = TRUE) {
+                              include_predictions = TRUE,
+                              na.rm = dplyr::case_when(
+                                type == "gaussian" ~ TRUE,
+                                type == "binomial" ~ FALSE,
+                                type == "multinomial" ~ FALSE
+                              )) {
 
   stopifnot(type %in% c("linear_regression", "gaussian", "binomial", "multinomial")) #, "multiclass", "multilabel"))
   if (type == "linear_regression") type <- "gaussian"
@@ -751,7 +756,8 @@ internal_evaluate <- function(data,
       model_specifics = model_specifics,
       metrics = metrics,
       include_fold_columns = include_fold_columns,
-      include_predictions = include_predictions)
+      include_predictions = include_predictions,
+      na.rm = na.rm)
 
   } else if (type == "binomial"){
 
@@ -767,7 +773,8 @@ internal_evaluate <- function(data,
       positive = model_specifics[["positive"]],
       metrics = metrics,
       include_fold_columns = include_fold_columns,
-      include_predictions = include_predictions)
+      include_predictions = include_predictions,
+      na.rm = na.rm)
 
   } else if (type == "multinomial"){
 
@@ -781,7 +788,8 @@ internal_evaluate <- function(data,
       models = models,
       metrics = metrics,
       include_fold_columns = include_fold_columns,
-      include_predictions = include_predictions)
+      include_predictions = include_predictions,
+      na.rm = na.rm)
 
   }
 

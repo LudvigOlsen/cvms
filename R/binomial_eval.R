@@ -14,7 +14,8 @@ binomial_eval <- function(data,
                           models = NULL,
                           metrics,
                           include_fold_columns = TRUE,
-                          include_predictions = TRUE) {
+                          include_predictions = TRUE,
+                          na.rm = TRUE) {
 
   confusion_matrices_list <- binomial_eval_confusion_matrices(
     data = data,
@@ -52,7 +53,8 @@ binomial_eval <- function(data,
                                    models = models,
                                    metrics = metrics,
                                    include_fold_columns = include_fold_columns,
-                                   include_predictions = include_predictions)
+                                   include_predictions = include_predictions,
+                                   na.rm = na.rm)
 
   if (!is.null(models)){
     results[["Coefficients"]] <- binomial_add_model_coefficients(models, fold_and_fold_col,
@@ -214,13 +216,19 @@ binomial_eval_collect <- function(unique_fold_cols,
                                   extra_metrics,
                                   models, metrics,
                                   include_fold_columns = TRUE,
-                                  include_predictions = TRUE){
+                                  include_predictions = TRUE,
+                                  na.rm = FALSE){
 
   # Unpack args
   roc_curves <- roc_curves_list[["roc_curves"]]
   roc_nested <- roc_curves_list[["roc_nested"]]
   confusion_matrices <- confusion_matrices_list[["confusion_matrices"]]
   nested_confusion_matrices <- confusion_matrices_list[["nested_confusion_matrices"]]
+
+  # Whether we want to save the averages both with and without removing
+  # the NAs
+  # NOTE: na.rm == "both" is not currently used in this part!!
+  both_keep_and_remove_NAs <- is.character(na.rm) && na.rm == "both"
 
   if (length(unique_fold_cols) > 1){
 
@@ -244,18 +252,38 @@ binomial_eval_collect <- function(unique_fold_cols,
       legacy_nest(1 : (ncol(fold_col_results) - 2) ) %>% # -2 as we just removed two cols
       dplyr::rename(fold_col_results = data)
 
-    # Average fold column results for reporting
-    average_metrics <- fold_col_results %>%
-      dplyr::select(-.data$`Fold Column`) %>%
-      dplyr::summarise_all(list( ~ mean(., na.rm = FALSE)))
+    if (isTRUE(both_keep_and_remove_NAs)){
+      # Average fold column results for reporting
+      average_metrics_NAs_removed <- fold_col_results %>%
+        dplyr::select(-.data$`Fold Column`) %>%
+        dplyr::summarise_all(list( ~ mean(., na.rm = FALSE))) %>%
+        dplyr::mutate(NAs_removed = FALSE)
+      average_metrics_NAs_kept <- fold_col_results %>%
+        dplyr::select(-.data$`Fold Column`) %>%
+        dplyr::summarise_all(list( ~ mean(., na.rm = TRUE))) %>%
+        dplyr::mutate(NAs_removed = TRUE)
+      average_metrics <- average_metrics_NAs_removed %>%
+        dplyr::bind_rows(average_metrics_NAs_kept)
+    } else {
+      # Average fold column results for reporting
+      average_metrics <- fold_col_results %>%
+        dplyr::select(-.data$`Fold Column`) %>%
+        dplyr::summarise_all(list( ~ mean(., na.rm = na.rm)))
+    }
 
     # Gather the various results
     results <- average_metrics
     if (!is.null(predictions_nested)){
-      results[["Predictions"]] <- predictions_nested$predictions
+      results[["Predictions"]] <- ifelse(isTRUE(both_keep_and_remove_NAs),
+                                         unlist(rep(predictions_nested$predictions, 2), recursive = FALSE),
+                                         predictions_nested$predictions)
     }
-    results[["Results"]] <- fold_col_results_nested$fold_col_results
-    results[["ROC"]] <- roc_nested$roc
+    results[["Results"]] <- ifelse(isTRUE(both_keep_and_remove_NAs),
+                                   unlist(rep(fold_col_results_nested$fold_col_results, 2), recursive = FALSE),
+                                   fold_col_results_nested$fold_col_results)
+    results[["ROC"]] <- ifelse(isTRUE(both_keep_and_remove_NAs),
+                               rep(roc_nested$roc, 2),
+                               roc_nested$roc)
 
   } else {
 
@@ -268,7 +296,12 @@ binomial_eval_collect <- function(unique_fold_cols,
                                                       include_predictions = include_predictions)
   }
 
-  results[["Confusion Matrix"]] <- nested_confusion_matrices$confusion_matrices
+  if (isTRUE(both_keep_and_remove_NAs) && length(unique_fold_cols) > 1){
+    results[["Confusion Matrix"]] <- unlist(rep(nested_confusion_matrices$confusion_matrices, 2), recursive = FALSE)
+  } else {
+    results[["Confusion Matrix"]] <- nested_confusion_matrices$confusion_matrices
+  }
+
 
   results
 }

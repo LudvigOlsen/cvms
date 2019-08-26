@@ -66,7 +66,7 @@ building_combine_predictors_table <- function(n_fixed_effects = 5, max_interacti
   comparisons_that_add_effect <- comparisons %>%
     dplyr::filter(comparison %ni% comparisons_with_same_num_terms) %>%
     dplyr::summarise_at(.vars = fixed_effects, .funs = list(~sum(.))) %>%
-    dplyr::filter_at(.vars = fixed_effects, dplyr::any_vars(. == -1)) %>% # print() %>%
+    dplyr::filter_at(.vars = fixed_effects, dplyr::any_vars(. == -1)) %>%
     dplyr::pull(.data$comparison)
 
   # print(comparisons_that_add_effect)

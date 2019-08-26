@@ -15,7 +15,8 @@ binomial_classification_eval <- function(data,
                                          positive = 2,
                                          metrics,
                                          include_fold_columns = TRUE,
-                                         include_predictions = TRUE){
+                                         include_predictions = TRUE,
+                                         na.rm = TRUE){
   # Note: predictions are floats (e.g. 0.7), targets are 0 or 1
 
   # Check if there are NAs in predictions
@@ -72,7 +73,8 @@ binomial_classification_eval <- function(data,
         models = models,
         metrics = metrics,
         include_fold_columns = include_fold_columns,
-        include_predictions = include_predictions
+        include_predictions = include_predictions,
+        na.rm = na.rm
       )
 
   } else {

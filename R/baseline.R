@@ -11,8 +11,8 @@
 #'  against the dependent variable, along with a set of all \code{0} predictions and
 #'  a set of all \code{1} predictions.
 #'
-#'  When \code{family} is \code{multinomial}: creates one-vs-all (binomial) baseline evaluations
-#'  on \code{n} sets of random predictions against the dependent variable,
+#'  When \code{family} is \code{multinomial}: creates one-vs-all (binomial)
+#'  baseline evaluations for \code{n} sets of random predictions against the dependent variable,
 #'  along with sets of "all class x,y,z,..." predictions.
 #'
 #'  \strong{baseline() is under development! Large changes may occur.}
@@ -78,7 +78,7 @@
 #'
 #'  \subsection{Models}{
 #'
-#'  Gaussian: \link[stats:lm]{stats::lm}
+#'  Gaussian: \code{\link[stats:lm]{stats::lm}}
 #'  }
 #'  \subsection{Results}{
 #'  \strong{Gaussian}:
@@ -102,7 +102,15 @@
 #'  MCC: \code{\link[mltools:mcc]{mltools::mcc}}
 #'
 #'  }
-#' @return List containing tbl (tibble) with summarized results and tbl with random evaluations.
+#' @return List containing:
+#'
+#'  \enumerate{
+#'   \item a tibble with summarized results (called \code{summarized_metrics})
+#'   \item a tibble with random evaluations (\code{random_evaluations})
+#'   \item a tibble with the summarized class level results
+#'         (\code{summarized_class_level_results})
+#'         \strong{(Multinomial only)}
+#'  }
 #'
 #'  ----------------------------------------------------------------
 #'
@@ -209,24 +217,23 @@
 #'  to get the same metrics as in the \code{binomial} results, with the
 #'  addition of \strong{Overall Accuracy} in the summarized results.
 #'
-#'  A list of two lists with two tibbles each is returned.
-#'  The two sublists, \strong{Summarized} and \strong{Random Evaluations},
-#'  each contain a \strong{Results} tibble
-#'  and a \strong{Class Level Results} tibble:
-#'
 #'  ....................................................................
 #'
 #'  The \strong{Summarized Results} tibble contains:
 #'
-#'  Average metrics from the one-vs-all binomial evaluations (see \emph{Binomial Results} above),
-#'  and the \strong{Overall Accuracy} metric.
+#'  Summary of the random evaluations.
+#'
+#'  \strong{How}: First, the one-vs-all binomial evaluations are aggregated by repetition
+#'  (ignoring \code{NA}s), and then, these aggregations are summarized. Besides the
+#'  metrics from the binomial evaluations (see \emph{Binomial Results} above), it
+#'  also includes the \strong{Overall Accuracy} metric.
 #'
 #'  The \strong{Measure} column indicates the statistical descriptor used on the evaluations.
 #'  The \strong{Mean}, \strong{Median}, \strong{SD}, and \strong{IQR} describe the
-#'  repetition evaluations (like the \emph{Random Evaluations Results} tibble, but removing \code{NA}s before summarizing,
+#'  repetition evaluations (similar to the \emph{Random Evaluations} tibble, but ignoring \code{NA}s when aggregating,
 #'  as the \code{NA}s and \code{INF}s are counted instead), while the \strong{Max}, \strong{Min}, \strong{NAs}, and
-#'  \strong{INFs} are extracted from the \emph{Random Evaluations Class Level Results} tibble, to get
-#'  the overall values. Only the \code{NA}s and \code{INF}s from the one-vs-all evaluations are counted.
+#'  \strong{INFs} are extracted from the \emph{Summarized Class Level Results} tibble, to get
+#'  the overall values. The \code{NA}s and \code{INF}s are only counted in the one-vs-all evaluations.
 #'
 #'  The rows where \code{Measure == All_<<class name>>} are the evaluations when all
 #'  the observations are predicted to be in that class.
@@ -235,20 +242,40 @@
 #'
 #'  The \strong{Summarized Class Level Results} tibble contains:
 #'
-#'  The same metrics and descriptors as the \emph{Summarized Results}, but per class.
+#'  The (nested) summarized results for each class, with the same metrics and descriptors as
+#'  the \emph{Summarized Results} tibble. Use \code{\link[tidyr:unnest]{tidyr::unnest}}
+#'  on the tibble to inspect the results.
+#'
+#'  \strong{How}: The one-vs-all evaluations are summarized by class.
 #'
 #'  The rows where \code{Measure == All_0} are the evaluations when none of the observations
-#'  are predicted to be that class, while the rows where \code{Measure == All_1} are the
-#'  evaluations when all of the observations are predicted to be that class.
+#'  are predicted to be in that class, while the rows where \code{Measure == All_1} are the
+#'  evaluations when all of the observations are predicted to be in that class.
 #'
 #'  ....................................................................
 #'
-#'  The \strong{Random Evaluation Results} tibble contains:
+#'  The \strong{Random Evaluation} tibble contains:
 #'
-#'  ....................................................................
+#'  The repetition results with the same metrics as the \emph{Summarized Results} tibble.
 #'
-#'  The \strong{Random Evaluation Class Level Results} tibble contains:
+#'  \strong{How}: The one-vs-all evaluations are aggregated by repetition.
+#'  \code{NA}'s are not ignored, meaning that any \code{NA} from a one-vs-all evaluation
+#'  will lead to an \code{NA} result for that repetition.
 #'
+#'  Also includes:
+#'
+#'  A nested tibble with the one-vs-all binomial evaluations (\strong{Class Level Results}),
+#'  including nested \strong{ROC} curves and \strong{Confusion Matrices}, and the
+#'  \strong{Support} column, which is a count of how many observations from the
+#'  class is in the test set.
+#'
+#'  A nested tibble with the \strong{predictions} and targets.
+#'
+#'  A nested tibble with the multiclass \strong{confusion matrix}.
+#'
+#'  Specified \strong{family}.
+#'
+#'  Name of \strong{dependent} variable.
 #'
 #'  }
 #'
@@ -313,10 +340,16 @@
 #'          n = 4, family = "gaussian", parallel = TRUE)
 #'
 #' # Multinomial
-#' baseline(test_data = multiclass_data,
-#'          dependent_col = "target",
-#'          n = 4, family = "multinomial",
-#'          parallel = TRUE)
+#' (mb <- baseline(test_data = multiclass_data,
+#'                dependent_col = "target",
+#'                n = 4, family = "multinomial",
+#'                parallel = TRUE))
+#'
+#' # Inspect the summarized class level results
+#' # for class_2
+#' mb$summarized_class_level_results %>%
+#'  dplyr::filter(Class == "class_2") %>%
+#'  tidyr::unnest()
 #'
 #' # Multinomial with custom random generator function
 #' # that creates very "certain" predictions

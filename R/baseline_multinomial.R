@@ -139,13 +139,15 @@ create_multinomial_baseline_evaluations <- function(test_data,
     dplyr::select(-.data$NAs_removed)
   evaluations_random_results_NAs_kept <- evaluations_random_results %>%
     dplyr::filter(!.data$NAs_removed) %>%
-    dplyr::select(-.data$NAs_removed)
+    dplyr::select(-.data$NAs_removed) %>%
+    dplyr::mutate(Repetition = as.numeric(.data$Repetition))
 
   evaluations_random_class_level_results <- evaluations_random_class_level_results %>%
     dplyr::bind_rows(.id = "Repetition") %>%
     dplyr::mutate(
       Family = "binomial", # Note, the one-vs-all evals are binomial
-      Dependent = dependent_col
+      Dependent = dependent_col,
+      Repetition = as.numeric(.data$Repetition)
     )
 
   evaluations_all_or_nothing_results <- setNames(evaluations_all_or_nothing_results, classes) %>%
@@ -186,6 +188,7 @@ create_multinomial_baseline_evaluations <- function(test_data,
       dplyr::mutate(Class = cl)
 
   }) %>%
+    dplyr::as_tibble() %>%
     dplyr::select(.data$Class, dplyr::everything())  %>%
     dplyr::arrange(.data$Class)
 
@@ -246,27 +249,40 @@ create_multinomial_baseline_evaluations <- function(test_data,
                                       additional_includes = "Measure")) %>%
     dplyr::select(dplyr::one_of(c("Measure", metrics)))
 
-  # # Summarize the metrics
-  # # and add the all or nothing evaluations
-    # summarized_avg_metrics <- summarize_metric_cols(metric_cols_results, na.rm = na.rm) %>%
-  #   dplyr::bind_rows(evaluations_all_or_nothing_results %>%
-  #                      dplyr::mutate(Measure = paste0("All_", .data$All_class)) %>%
-  #                      select_metrics(include_definitions = FALSE,
-  #                                     additional_includes = "Measure"))
 
+  # Nest the repetition class level results
+  # And add to the random evaluations tibble
+
+  evaluations_random_results_NAs_kept <-
+    evaluations_random_results_NAs_kept %>%
+    tibble::add_column(
+      "Class Level Results" = evaluations_random_class_level_results %>%
+        dplyr::ungroup() %>%
+        dplyr::group_nest(.data$Repetition,
+                          .key = "Class Level Results",
+                          keep = TRUE) %>%
+        dplyr::pull(.data$`Class Level Results`),
+      .before = "Family"
+    )
+
+  # Group the summarized class level results for nesting
+  summarized_metrics_class_level <- summarized_metrics_class_level %>%
+    dplyr::ungroup() %>% # Just to make sure
+    dplyr::group_by(.data$Class)
+
+  # Nest the summarized class level results
+  nested_class_level <- tibble::tibble("Class" = unlist(dplyr::group_keys(summarized_metrics_class_level)))
+  nested_class_level[["Results"]] <- summarized_metrics_class_level %>%
+    dplyr::group_nest(.key = "Results", keep = FALSE) %>%
+    dplyr::pull(.data$Results)
 
 
   # TODO Rename to something meaningful.
   # Note, overall accuracy is not an average, so average metrics are not that meaningful!
   list(
-    "Summarized" = list(
-      "Results" = summarized_avg_metrics,
-      "Class Level Results" = summarized_metrics_class_level
-      ),
-    "Random Evaluations" = list(
-      "Results" = evaluations_random_results_NAs_kept,
-      "Class Level Results" = evaluations_random_class_level_results
-      )
+    "summarized_metrics" = summarized_avg_metrics,
+    "summarized_class_level_results" = nested_class_level,
+    "random_evaluations" = evaluations_random_results_NAs_kept
   )
 
 }

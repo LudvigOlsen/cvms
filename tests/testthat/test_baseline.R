@@ -293,10 +293,10 @@ test_that("multinomial evaluations are correct in baseline()",{
                                 family = "multinomial",
                                 parallel = FALSE)
 
-  multinom_baseline_summ <- multinom_baseline$Summarized$Results
-  multinom_baseline_class <- multinom_baseline$Summarized$`Class Level Results`
-  multinom_baseline_random_eval_summ <- multinom_baseline$`Random Evaluations`$Results
-  multinom_baseline_random_eval_class <- multinom_baseline$`Random Evaluations`$`Class Level Results`
+  multinom_baseline_summ <- multinom_baseline$summarized_metrics
+  multinom_baseline_class <- tidyr::unnest(multinom_baseline$summarized_class_level_results)
+  multinom_baseline_random_eval_summ <- multinom_baseline$random_evaluations
+  multinom_baseline_random_eval_class <- dplyr::bind_rows(multinom_baseline$random_evaluations$`Class Level Results`)
 
 
   # Summarized results
@@ -391,7 +391,8 @@ test_that("multinomial evaluations are correct in baseline()",{
                  c("Repetition", "Overall Accuracy", "Balanced Accuracy", "F1", "Sensitivity",
                    "Specificity", "Pos Pred Value", "Neg Pred Value", "AUC","Lower CI",
                    "Upper CI", "Kappa", "MCC", "Detection Rate", "Detection Prevalence",
-                   "Prevalence", "Predictions", "Confusion Matrix", "Family", "Dependent" ))
+                   "Prevalence", "Predictions", "Confusion Matrix", "Class Level Results",
+                   "Family", "Dependent" ))
     expect_equal(colnames(multinom_baseline_random_eval_summ$`Confusion Matrix`[[1]]),
                  c("Prediction", "Target", "N"))
     expect_equal(colnames(multinom_baseline_random_eval_summ$`Confusion Matrix`[[2]]),
@@ -400,7 +401,7 @@ test_that("multinomial evaluations are correct in baseline()",{
                  c("Target", "Prediction", "Predicted Class"))
 
     expect_equal(multinom_baseline_random_eval_summ$Repetition,
-                 as.character(1:10))
+                 1:10)
     expect_equal(multinom_baseline_random_eval_summ$`Overall Accuracy`,
                  c(0.56,0.36,0.64,0.28,0.52,0.24,0.44,0.40,0.32,0.44), tolerance = 1e-4)
     expect_equal(multinom_baseline_random_eval_summ$`Balanced Accuracy`,
@@ -513,7 +514,7 @@ test_that("multinomial evaluations are correct in baseline()",{
     expect_equal(multinom_baseline_random_eval_class$`Confusion Matrix`[[1]]$N,
                  c(14, 2, 4, 5))
     expect_equal(multinom_baseline_random_eval_class$Repetition,
-                 as.character(rep(1:10, each=3)))
+                 rep(1:10, each=3))
     expect_equal(multinom_baseline_random_eval_class$Class,
                  as.character(rep(1:3, 10)))
     expect_equal(sum(multinom_baseline_random_eval_class$`Balanced Accuracy`),

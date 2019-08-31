@@ -177,7 +177,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #'  Remember to register a parallel backend first.
 #'  E.g. with \code{doParallel::registerDoParallel}.
 #' @examples
-#' # Attach libraries
+#' # Attach packages
 #' library(cvms)
 #' library(groupdata2) # fold()
 #' library(dplyr) # %>% arrange()

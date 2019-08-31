@@ -478,6 +478,9 @@ test_that("arguments throw proper errors and warnings in evaluate()",{
     fixed=TRUE)
 
 
+  # TODO: What happens when a class has not been predicted in the test set
+  # but it still has a probability column? (Doesn't work currently) !!!
+
 })
 
 test_that("binomial evaluation works in evaluate()",{

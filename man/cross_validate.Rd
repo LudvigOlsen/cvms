@@ -196,7 +196,7 @@ Packages used:
  }
 }
 \examples{
-# Attach libraries
+# Attach packages
 library(cvms)
 library(groupdata2) # fold()
 library(dplyr) # \%>\% arrange()

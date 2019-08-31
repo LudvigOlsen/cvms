@@ -45,7 +45,7 @@
 #'  A model formula can contain multiple interactions.
 #' @param max_effect_frequency Maximum number of times an effect is included in a formula string.
 #' @examples
-#' # Attach libraries
+#' # Attach packages
 #' library(cvms)
 #'
 #' # Create effect names

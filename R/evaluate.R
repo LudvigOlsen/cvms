@@ -49,7 +49,7 @@
 #'  }
 #' @param target_col Name of the column with the true classes/values in \code{data}.
 #'
-#'  When \code{type} is \code{"multinomial"}, this column should contain the names of the classes,
+#'  When \code{type} is \code{"multinomial"}, this column should contain the class names,
 #'  not their indices.
 #' @param prediction_cols Name(s) of column(s) with the predictions.
 #'
@@ -83,6 +83,8 @@
 #'  N.B. When aggregating by ID (i.e. when \code{id_col} is not \code{NULL}),
 #'  it's not currently possible to pass model objects,
 #'  as these would not be aggregated by the IDs.
+#'
+#'  N.B. Currently, \strong{Gaussian only}.
 #' @param apply_softmax Whether to apply the softmax function to the
 #'  prediction columns when \code{type} is \code{"multinomial"}.
 #'
@@ -123,13 +125,28 @@
 #' @param include_predictions Whether to include the predictions
 #'  in the output as a nested tibble. (Logical)
 #' @details
-#'  NB.: When type is \code{"multinomial"}, macro-averaging of metrics returns NaN,
-#'  if any of the class level results are NaN.
 #'
-#'  NB.: When type is \code{"multinomial"}, you can enable weighted averaged metrics
-#'  in addition to the regularly averaged metrics. You do this in the \code{metrics} list,
-#'  e.g. by \code{metrics = list("Weighted Accuracy" = TRUE)}.
-#' @return tibble or list of tibbles, depending on \code{type}.
+#'  Packages used:
+#'
+#'  \strong{Gaussian}:
+#'
+#'  r2m : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
+#'
+#'  r2c : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
+#'
+#'  AIC : \code{\link[stats:AIC]{stats::AIC}}
+#'
+#'  AICc : \code{\link[AICcmodavg:AICc]{AICcmodavg::AICc}}
+#'
+#'  BIC : \code{\link[stats:BIC]{stats::BIC}}
+#'
+#'  \strong{Binomial} and \strong{Multinomial}:
+#'
+#'  Confusion matrix and related metrics: \code{\link[caret:confusionMatrix]{caret::confusionMatrix}}
+#'
+#'  ROC and related metrics: \code{\link[pROC:roc]{pROC::roc}}
+#'
+#'  MCC: \code{\link[mltools:mcc]{mltools::mcc}}
 #'
 #'  ----------------------------------------------------------------
 #'
@@ -142,9 +159,9 @@
 #'  Average \strong{RMSE}, \strong{MAE}, \strong{r2m},
 #'  \strong{r2c}, \strong{AIC}, \strong{AICc}, and \strong{BIC}.
 #'
-#'  Note that some of the metrics will return \code{NA},
-#'  if they could not be extracted from the passed model objects or if
-#'  \code{models} is \code{NULL}.
+#'  N.B. Some of the metrics will only be returned if model
+#'  objects were passed, and \code{NA} if they could not be
+#'  extracted from the passed model objects.
 #'
 #'  Also includes:
 #'
@@ -248,8 +265,88 @@
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
 #' @examples
-#'  # Attach libraries
+#'  # Attach packages
 #'  library(cvms)
+#'  library(dplyr)
+#'
+#'  # Load data
+#'  data <- participant.scores
+#'
+#'  # Fit models
+#'  gaussian_model <- lm(age ~ diagnosis, data = data)
+#'  binomial_model <- glm(diagnosis ~ score, data = data)
+#'
+#'  # Add predictions
+#'  data[["gaussian_predictions"]] <- predict(gaussian_model, data,
+#'                                            type = "response",
+#'                                            allow.new.levels = TRUE)
+#'  data[["binomial_predictions"]] <- predict(binomial_model, data,
+#'                                            allow.new.levels = TRUE)
+#'
+#'  # Gaussian evaluation
+#'  evaluate(data = data, target_col = "age",
+#'           prediction_cols = "gaussian_predictions",
+#'           models = list(gaussian_model),
+#'           type = "gaussian")
+#'
+#'  # Binomial evaluation
+#'  evaluate(data = data, target_col = "diagnosis",
+#'           prediction_cols = "binomial_predictions",
+#'           type = "binomial")
+#'
+#'  # Multinomial
+#'
+#'  # Create a dataset
+#'  data_mc <- multiclass_probability_tibble(num_classes = 3, num_observations = 30,
+#'                                           apply_softmax = TRUE, FUN = runif,
+#'                                           class_name = "class_")
+#'  # Add targets
+#'  class_names <- paste0("class_", c(1,2,3))
+#'  data_mc[["target"]] <- sample(x = class_names,
+#'                                size = 30, replace = TRUE)
+#'
+#'  # Multinomial evaluation
+#'  evaluate(data = data_mc, target_col = "target",
+#'           prediction_cols = class_names,
+#'           type = "multinomial")
+#'
+#'  # ID evaluation
+#'
+#'  # Gaussian ID evaluation
+#'  # Note that 'age' is the same for all observations
+#'  # of a participant
+#'  evaluate(data = data, target_col = "age",
+#'           prediction_cols = "gaussian_predictions",
+#'           id_col = "participant",
+#'           type = "gaussian")
+#'
+#'  # Binomial ID evaluation
+#'  evaluate(data = data, target_col = "diagnosis",
+#'           prediction_cols = "binomial_predictions",
+#'           id_col = "participant",
+#'           id_method = "mean", # alternatively: "majority"
+#'           type = "binomial")
+#'
+#'  # Multinomial ID evaluation
+#'
+#'  # Add IDs and new targets (must be constant within IDs)
+#'  data_mc[["target"]] <- NULL
+#'  data_mc[["id"]] <- rep(1:6, each = 5)
+#'  id_classes <- tibble::tibble(
+#'      "id" = 1:6,
+#'      target = sample(x = class_names, size = 6, replace = TRUE)
+#'  )
+#'  data_mc <- data_mc %>%
+#'      dplyr::left_join(id_classes, by = "id")
+#'
+#'  # Perform ID evaluation
+#'  evaluate(data = data_mc, target_col = "target",
+#'           prediction_cols = class_names,
+#'           id_col = "id",
+#'           id_method = "mean", # alternatively: "majority"
+#'           type = "multinomial")
+#'
+#'
 evaluate <- function(data,
                      target_col,
                      prediction_cols,
@@ -884,6 +981,10 @@ check_args_evaluate <- function(data,
       }
       stop("'models' must be provided as an *unnamed* list with fitted model objects.")
     }
+  }
+
+  if (type != "gaussian" && length(models) > 0){
+    stop("Currently, 'models' can only be passed when 'type' is 'gaussian'.")
   }
 
 

@@ -62,7 +62,7 @@ Create model formulas with every combination
  automatically included.
 }
 \examples{
-# Attach libraries
+# Attach packages
 library(cvms)
 
 # Create effect names

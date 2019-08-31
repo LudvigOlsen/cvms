@@ -116,7 +116,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
 #' @examples
-#' # Attach libraries
+#' # Attach packages
 #' library(cvms)
 #' library(groupdata2) # partition()
 #' library(dplyr) # %>% arrange()

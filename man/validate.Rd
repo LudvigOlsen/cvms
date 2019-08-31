@@ -184,7 +184,7 @@ Packages used:
  }
 }
 \examples{
-# Attach libraries
+# Attach packages
 library(cvms)
 library(groupdata2) # partition()
 library(dplyr) # \%>\% arrange()

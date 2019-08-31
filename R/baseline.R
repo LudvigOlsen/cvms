@@ -349,7 +349,7 @@
 #' # for class_2
 #' mb$summarized_class_level_results %>%
 #'  dplyr::filter(Class == "class_2") %>%
-#'  tidyr::unnest()
+#'  tidyr::unnest(Results)
 #'
 #' # Multinomial with custom random generator function
 #' # that creates very "certain" predictions

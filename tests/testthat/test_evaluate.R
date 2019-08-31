@@ -1091,6 +1091,62 @@ test_that("gaussian evaluations are correct in evaluate()",{
 
 })
 
+test_that("evaluate() treats dfs and tbls the same",{
+
+  # Gaussian
+
+  # Binomial
+
+  # Multinomial
+  set_seed_for_R_compatibility(1)
+  random_probabilities <- multiclass_probability_tibble(
+    num_classes = 5,
+    num_observations = 20,
+    apply_softmax = FALSE # Test with as well
+  )
+  expect_equal(sum(random_probabilities), 51.78471, tolerance = 1e-5)
+
+  data_ <- random_probabilities %>%
+    dplyr::mutate(cl = as.factor(rep(1:5, each = 4)),
+                  cl_char = paste0("cl_", cl)) %>%
+    dplyr::rename_at(dplyr::vars(paste0("class_", 1:5)), .funs = ~paste0("cl_", 1:5))
+
+  mn_eval_1_tbl <- evaluate(
+    data = data_,
+    target_col = "cl_char",
+    prediction_cols = paste0("cl_", 1:5),
+    type = "multinomial",
+    apply_softmax = TRUE
+  )
+
+  mn_eval_1_df <- evaluate(
+    data = as.data.frame(data_),
+    target_col = "cl_char",
+    prediction_cols = paste0("cl_", 1:5),
+    type = "multinomial",
+    apply_softmax = TRUE
+  )
+
+  mn_eval_1_dt <- evaluate(
+    data = as.data.table(data_),
+    target_col = "cl_char",
+    prediction_cols = paste0("cl_", 1:5),
+    type = "multinomial",
+    apply_softmax = TRUE
+  )
+
+  expect_identical(mn_eval_1_tbl, mn_eval_1_df)
+
+  # There is a "attr(*, ".internal.selfref")=<externalptr> " attribute added to the
+  # predictions list with the data.table.
+  expect_identical(mn_eval_1_tbl$Results$Predictions[[1]]$Prediction,
+                   mn_eval_1_dt$Results$Predictions[[1]]$Prediction)
+  mn_eval_1_dt$Results$Predictions <- NULL
+  mn_eval_1_tbl$Results$Predictions <- NULL
+  expect_identical(mn_eval_1_dt, mn_eval_1_tbl)
+
+})
+
 # test_that("profiling",{
 #
 #   # Load file with prepared predictions and hparams

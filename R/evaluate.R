@@ -1,6 +1,3 @@
-# TODO Find another name, as evaluate is already in generics::evaluate
-# Isn't there an appropriate synonym?
-
 #' @title Evaluate your model's performance
 #' @description Evaluate your model's predictions
 #'  on a set of evaluation metrics.

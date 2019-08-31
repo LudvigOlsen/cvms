@@ -294,7 +294,7 @@ test_that("multinomial evaluations are correct in baseline()",{
                                 parallel = FALSE)
 
   multinom_baseline_summ <- multinom_baseline$summarized_metrics
-  multinom_baseline_class <- tidyr::unnest(multinom_baseline$summarized_class_level_results)
+  multinom_baseline_class <- tidyr::unnest(multinom_baseline$summarized_class_level_results, .data$Results)
   multinom_baseline_random_eval_summ <- multinom_baseline$random_evaluations
   multinom_baseline_random_eval_class <- dplyr::bind_rows(multinom_baseline$random_evaluations$`Class Level Results`)
 

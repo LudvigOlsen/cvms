@@ -152,6 +152,13 @@ binomial_eval_roc_curves <- function(data, targets_col, predictions_col,
 
     # ROC sensitivities and specificities
     roc_nested <- plyr::ldply(1:length(roc_curves), function(i){
+      if (is.null(roc_curves[[i]])){
+        return(
+          tibble::tibble(`Fold Column` = NA,
+                       Sensitivities = NA,
+                       Specificities = NA)
+        )
+      }
       tibble::tibble(`Fold Column` = names(roc_curves)[[i]],
                      Sensitivities = roc_curves[[i]]$sensitivities,
                      Specificities = roc_curves[[i]]$specificities)
@@ -167,8 +174,17 @@ binomial_eval_roc_curves <- function(data, targets_col, predictions_col,
                                direction = roc_direction)
 
     # ROC sensitivities and specificities
-    roc_nested <- tibble::tibble(Sensitivities = roc_curve$sensitivities,
-                                 Specificities = roc_curve$specificities) %>%
+
+    if (is.null(roc_curve)){
+      roc_for_nesting <- tibble::tibble(Sensitivities = NA,
+                                        Specificities = NA)
+    } else {
+      roc_for_nesting <- tibble::tibble(
+        Sensitivities = roc_curve$sensitivities,
+        Specificities = roc_curve$specificities)
+    }
+
+    roc_nested <- roc_for_nesting %>%
       legacy_nest(1:2) %>%
       dplyr::rename(roc = data)
 
@@ -370,9 +386,9 @@ binomial_classification_results_tibble <- function(roc_curve,
     'Specificity' = unname(confusion_matrix$byClass['Specificity']),
     'Pos Pred Value' = unname(confusion_matrix$byClass['Pos Pred Value']),
     'Neg Pred Value' = unname(confusion_matrix$byClass['Neg Pred Value']),
-    "AUC" = pROC::auc(roc_curve)[1],
-    "Lower CI" = pROC::ci(roc_curve)[1],
-    "Upper CI" = pROC::ci(roc_curve)[3],
+    "AUC" = ifelse(!is.null(roc_curve), pROC::auc(roc_curve)[1], logical()),
+    "Lower CI" = ifelse(!is.null(roc_curve), pROC::ci(roc_curve)[1], logical()),
+    "Upper CI" = ifelse(!is.null(roc_curve), pROC::ci(roc_curve)[3], logical()),
     "Kappa" = unname(confusion_matrix$overall['Kappa']),
     'MCC' = mltools::mcc(
       TP = confusion_matrix$table[1],
@@ -409,6 +425,10 @@ fit_confusion_matrix <- function(predicted_classes, targets, cat_levels, positiv
                 "\n'positive' is ", positive, " and levels are ", paste(cat_levels, collapse = " and "),"."))
   }
 
+  if (length(cat_levels) < 2){
+    stop(paste0("found less than 2 levels in the target column."))
+  }
+
   # Try to use fit a confusion matrix with the predictions and targets
   conf_mat = tryCatch({
     caret::confusionMatrix(factor(predicted_classes, levels = cat_levels),
@@ -435,6 +455,11 @@ fit_roc_curve <- function(predicted_probabilities, targets, levels = c(0,1), dir
       levels = levels
     )
   }, error = function(e) {
+    if (grepl('No control observation', as.character(e), ignore.case = TRUE) ||
+        grepl('No case observation', as.character(e), ignore.case = TRUE)){
+      return(NULL)
+    }
+
     stop(paste0('Receiver Operator Characteristic (ROC) Curve error: ',e))
 
   })

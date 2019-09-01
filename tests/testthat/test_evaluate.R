@@ -418,7 +418,101 @@ test_that("multinomial evaluations are correct in evaluate()",{
   expect_equal(mn_id_eval_2$`Class Level Results`$`Confusion Matrix`[[1]],
                mn_id_eval_2$`Class Level Results`$`Confusion Matrix`[[6]])
 
+  # What happens when a class is not in the targets but has a probability column?
 
+  data_3 <- random_probabilities %>%
+    dplyr::mutate(cl = as.factor(rep(1:4, each = 5)),
+                  cl_char = paste0("cl_", cl)) %>%
+    dplyr::rename_at(dplyr::vars(paste0("class_", 1:5)), .funs = ~paste0("cl_", 1:5))
+
+  # Testing multinomial
+  mb_eval <- evaluate(
+    data = data_3,
+    target_col = "cl_char",
+    prediction_cols = paste0("cl_",1:5),
+    type = "multinomial"
+  )
+  expect_equal(mb_eval$Results$`Overall Accuracy`, 0.3)
+  expect_equal(mb_eval$Results$`Balanced Accuracy`, NaN)
+  expect_equal(mb_eval$Results$F1, NaN)
+  expect_equal(mb_eval$Results$Sensitivity, NaN)
+  expect_equal(mb_eval$Results$Specificity, 0.8266667, tolerance = 1e-4)
+  expect_equal(mb_eval$Results$`Pos Pred Value`, NaN, tolerance = 1e-4)
+  expect_equal(mb_eval$Results$`Neg Pred Value`, NaN, tolerance = 1e-4)
+  expect_equal(mb_eval$Results$AUC, NaN, tolerance = 1e-4)
+  expect_equal(mb_eval$Results$`Lower CI`, NaN, tolerance = 1e-4)
+  expect_equal(mb_eval$Results$`Upper CI`, NaN, tolerance = 1e-4)
+  expect_equal(mb_eval$Results$Kappa, 0.1133333, tolerance = 1e-4)
+  expect_equal(mb_eval$Results$MCC, 0.11849, tolerance = 1e-4)
+  expect_equal(mb_eval$Results$`Detection Rate`, 0.06, tolerance = 1e-4)
+  expect_equal(mb_eval$Results$`Detection Prevalence`, 0.2, tolerance = 1e-4)
+  expect_equal(mb_eval$Results$Prevalence, 0.2, tolerance = 1e-4)
+  expect_true("cl_5" %ni% mb_eval$Results$Predictions[[1]]$Target)
+  expect_equal(mb_eval$Results$`Confusion Matrix`[[1]]$Target,
+               rep(paste0("cl_",1:5), each = 5))
+  expect_equal(mb_eval$Results$`Confusion Matrix`[[1]]$Prediction,
+               rep(paste0("cl_",1:5), 5))
+  expect_equal(mb_eval$Results$`Confusion Matrix`[[1]]$N,
+               c(1L, 1L, 1L, 0L, 2L, 2L, 1L, 0L, 2L, 0L, 1L, 2L, 1L, 0L, 1L,
+                 1L, 0L, 0L, 3L, 1L, 0L, 0L, 0L, 0L, 0L))
+
+
+  expect_equal(mb_eval$`Class Level Results`$Class,
+               c("cl_1", "cl_2", "cl_3", "cl_4", "cl_5"))
+  expect_equal(mb_eval$`Class Level Results`$`Balanced Accuracy`,
+               c(0.466666666666667, 0.5, 0.566666666666667,
+                 0.733333333333333, NaN))
+  expect_equal(mb_eval$`Class Level Results`$F1,
+               c(0.2, 0.222222222222222, 0.285714285714286, 0.6, NaN))
+  expect_equal(mb_eval$`Class Level Results`$Sensitivity,
+               c(0.2, 0.2, 0.2, 0.6, NA))
+  expect_equal(mb_eval$`Class Level Results`$Specificity,
+               c(0.733333333333333, 0.8, 0.933333333333333,
+                 0.866666666666667, 0.8), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`$`Pos Pred Value`,
+               c(0.2, 0.25, 0.5, 0.6, NaN), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`$`Neg Pred Value`,
+               c(0.733333333333333, 0.75, 0.777777777777778,
+                 0.866666666666667, NaN), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`$AUC,
+               c(0.346666666666667, 0.44, 0.44, 0.733333333333333, NaN), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`$`Lower CI`,
+               c(0.0263773549911379, 0.0906454028758637, 0.0742734114063359,
+                 0.488384505520192, NaN), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`$`Upper CI`,
+               c(0.666955978342195, 0.789354597124136, 0.805726588593664,
+                 0.978282161146475, NaN), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`$Kappa,
+               c(-0.0666666666666667, -3.17206578464331e-16, 0.166666666666666,
+                 0.466666666666667, 0), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`$MCC,
+               c(-0.0666666666666667, 0, 0.192450089729875,
+                 0.466666666666667, 0), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`$`Detection Rate`,
+               c(0.05, 0.05, 0.05, 0.15, 0), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`$`Detection Prevalence`,
+               c(0.25, 0.2, 0.1, 0.25, 0.2), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`$Prevalence,
+               c(0.25, 0.25, 0.25, 0.25, 0), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`$Support,
+               c(5L, 5L, 5L, 5L, NaN), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`$ROC[[1]]$Sensitivities,
+               c(1, 0.8, 0.8, 0.8, 0.6, 0.6, 0.6, 0.6, 0.4, 0.4, 0.2, 0.2, 0.2,
+                 0.2, 0.2, 0.2, 0.2, 0.2, 0, 0, 0), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`$ROC[[1]]$Specificities,
+               c(0, 0, 0.0666666666666667, 0.133333333333333, 0.133333333333333,
+                 0.2, 0.266666666666667, 0.333333333333333, 0.333333333333333,
+                 0.4, 0.4, 0.466666666666667, 0.533333333333333, 0.6, 0.666666666666667,
+                 0.733333333333333, 0.8, 0.866666666666667, 0.866666666666667,
+                 0.933333333333333, 1), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`$ROC[[5]]$Sensitivities,
+               NA, tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`$ROC[[5]]$Specificities,
+               NA, tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`$`Confusion Matrix`[[1]]$N,
+               c(11,4,4,1), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`$`Confusion Matrix`[[5]]$N,
+               c(16,4,0,0), tolerance = 1e-4)
 
 
 
@@ -477,9 +571,30 @@ test_that("arguments throw proper errors and warnings in evaluate()",{
               "These IDs had more than one unique value in the target column: 1, 2, 3, 4, 5."),
     fixed=TRUE)
 
+  # Only one class in target column for binomial
+  data_3 <- data.frame("target" = c(1,1,1,1,1),
+                       "prediction" = c(0.1,0.2,0.7,0.8,0.9))
+  expect_error(evaluate(
+    data = data_3,
+    target_col = "target",
+    prediction_cols = "prediction",
+    cutoff = 0.5,
+    type = "binomial"
+  ), "found less than 2 levels in the target column.",
+  fixed = TRUE)
 
-  # TODO: What happens when a class has not been predicted in the test set
-  # but it still has a probability column? (Doesn't work currently) !!!
+
+  # Test that pROC::roc returns the expected error
+  # when there's only observations for one level in the target col ("response")
+
+  expect_error(pROC::roc(data.frame("target" = c(1,1,1),
+                                    preds = c(0.01,0.01,1-0.02)),
+                         response = "target",
+                         predictor = "preds",
+                         levels = c(0,1)),
+               "No control observation.",
+               fixed = TRUE)
+
 
 })
 

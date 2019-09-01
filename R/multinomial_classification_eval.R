@@ -50,12 +50,11 @@ multinomial_classification_eval <- function(data,
     data[[targets_col]] <- as.character(data[[targets_col]])
 
     # Find the levels in the categorical target variable
-    cat_levels <- levels_as_characters(data[[targets_col]])
-    classes <- cat_levels # TODO FIX COPYING
-    num_classes <- length(cat_levels)
+    cat_levels_in_targets_col <- levels_as_characters(data[[targets_col]])
+    classes <- colnames(predicted_probabilities)
+    num_classes <- length(classes)
 
-    if (ncol(predicted_probabilities) != num_classes ||
-        length(setdiff(classes, colnames(predicted_probabilities))) != 0){
+    if (length(setdiff(cat_levels_in_targets_col, classes)) != 0){
       stop("The column names in the nested predicted probabilities do not match the class names in the dependent column.")
     }
 
@@ -213,8 +212,8 @@ multinomial_classification_eval <- function(data,
     # Add total counts confusion matrix
     # Try to fit a confusion matrix with the predictions and targets
     overall_confusion_matrix = tryCatch({
-      caret::confusionMatrix(factor(data[["predicted_class"]], levels = cat_levels),
-                             factor(data[[targets_col]], levels = cat_levels))
+      caret::confusionMatrix(factor(data[["predicted_class"]], levels = classes),
+                             factor(data[[targets_col]], levels = classes))
     }, error = function(e) {
       stop(paste0('Confusion matrix error: ',e))
     })

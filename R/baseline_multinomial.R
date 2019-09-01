@@ -222,7 +222,7 @@ create_multinomial_baseline_evaluations <- function(test_data,
   # Remove
   summarized_repetitions <- summarized_repetitions %>%
     dplyr::select(-dplyr::one_of(repetition_result_metrics)) %>%
-    dplyr::filter(Measure %ni% c("Min","Max","NAs","INFs"))
+    dplyr::filter(.data$Measure %ni% c("Min","Max","NAs","INFs"))
 
   # Extract the overall max,min,NAs count, and INFs count
   # from the summarized class level results

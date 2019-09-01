@@ -369,7 +369,39 @@ Packages used:
           id_method = "mean", # alternatively: "majority"
           type = "multinomial")
 
+ # Training and evaluating a multinomial model with nnet
 
+ # Create a data frame with some predictors and a target column
+ class_names <- paste0("class_",1:4)
+ data_for_nnet <- multiclass_probability_tibble(
+     num_classes = 3,
+     num_observations = 30,
+     apply_softmax = FALSE,
+     FUN = rnorm,
+     class_name = "pred_") \%>\%
+     dplyr::mutate(class = sample(
+         class_names,
+         size = 30,
+         replace = TRUE))
+
+ # Train multinomial model using the nnest package
+ mn_model <- nnet::multinom(
+     "class ~ pred_1 + pred_2 + pred_3",
+     data = data_for_nnet)
+
+ # Predict the targets in the dataset
+ # (we would usually use a test set instead)
+ predictions <- predict(mn_model, data_for_nnet,
+                        type = "probs") \%>\%
+     dplyr::as_tibble()
+
+ # Add the targets
+ predictions[["target"]] <- data_for_nnet[["class"]]
+
+ # Evaluate predictions
+ evaluate(data = predictions, target_col = "target",
+          prediction_cols = class_names,
+          type = "multinomial")
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

@@ -44,5 +44,6 @@ Suggests: knitr,
     AUC,
     furrr,
     ModelMetrics,
-    covr
+    covr,
+    nnet
 VignetteBuilder: knitr

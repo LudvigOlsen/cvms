@@ -5,7 +5,12 @@
 
 
 ## R CMD check results  
-There were no ERRORs, WARNINGs or NOTEs.  
+There were no ERRORs or WARNINGs. There was 1 NOTE:
+
+Missing or unexported object: ‘tidyr::nest_legacy’
+
+This is for compatibility with the upcoming tidyr version, that makes changes to nest and unnest, 
+as per request by Hadley Wickham.
 
 ## Downstream dependencies
 There are currently no downstream dependencies.

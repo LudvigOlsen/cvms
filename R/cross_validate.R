@@ -136,7 +136,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #'  Include names of multiple grouping factors for repeated cross-validation.
 #' @param family Name of family. (Character)
 #'
-#'  Currently supports "gaussian" and "binomial".
+#'  Currently supports \code{"gaussian"} and \code{"binomial"}.
 #' @param link Link function. (Character)
 #'
 #'  E.g. \code{link = "log"} with \code{family = "gaussian"} will
@@ -158,14 +158,18 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #' @param REML Restricted Maximum Likelihood. (Logical)
 #' @param cutoff Threshold for predicted classes. (Numeric)
 #'
-#'  N.B. Binomial models only.
+#'  N.B. \strong{Binomial models only}
 #' @param positive Level from dependent variable to predict.
 #'  Either as character or level index (\code{1} or \code{2} - alphabetically).
-#'  Used when creating confusion matrices and ROC curves.
+#'
+#'  E.g. if we have the levels \code{"cat"} and \code{"dog"} and we want \code{"dog"} to be the positive class,
+#'  we can either provide \code{"dog"} or \code{2}, as alphabetically, \code{"dog"} comes after \code{"cat"}.
+#'
+#'  Used when calculating confusion matrix metrics and creating ROC curves.
 #'
 #'  N.B. Only affects evaluation metrics, not the model training or returned predictions.
 #'
-#'  N.B. Binomial models only.
+#'  N.B. \strong{Binomial models only}.
 #' @param rm_nc Remove non-converged models from output. (Logical)
 #' @param model_verbose Message name of used model function on each iteration. (Logical)
 #' @param parallel Whether to cross-validate the list of models in parallel. (Logical)
@@ -173,7 +177,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #'  Remember to register a parallel backend first.
 #'  E.g. with \code{doParallel::registerDoParallel}.
 #' @examples
-#' # Attach libraries
+#' # Attach packages
 #' library(cvms)
 #' library(groupdata2) # fold()
 #' library(dplyr) # %>% arrange()

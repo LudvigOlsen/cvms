@@ -39,7 +39,6 @@ extract_model_effects <- function(model_list) {
 
       # Then we clean up those strings a bit
       # From fixed we remove the last "+"
-      # From random we remove all "(" and ")"
       mutate(
         Fixed = gsub("[+]$", "", .data$Fixed),
         Random = ifelse(!is.na(.data$Random), paste0("(",.data$Random), .data$Random)

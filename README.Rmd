@@ -37,23 +37,28 @@ rvers <- substring(dep, 7, nchar(dep)-1)
 
 ## Overview
 
-R package: Cross-validate one or multiple regression models and get relevant evaluation metrics in a tidy format. Validate the best model on a test set and compare it to a baseline evaluation. Currently supports Gaussian and binomial regression.
+R package: Cross-validate one or multiple regression models and get relevant evaluation metrics in a tidy format. Validate the best model on a test set and compare it to a baseline evaluation. Alternatively, evaluate predictions from an external model. Currently supports linear regression, logistic regression and (some functions only) multiclass classification.
 
 Main functions:  
 
 * `cross_validate()`  
 * `validate()`  
+* `evaluate()`
 * `baseline()`  
 * `combine_predictors()`  
 * `cv_plot()`  
 * `select_metrics()`  
-* `reconstruct_formulas()`  
+* `reconstruct_formulas()`   
 
 ## Important News
 
+* Adds `'multinomial'` family to `baseline()` and `evaluate()`.
+
+* `evaluate()` is added. Evaluate your model's predictions with the same metrics as used in `cross_validate()`.
+
 * AUC calculation has changed. Now explicitly sets the direction in `pROC::roc`. (27th of May 2019)
 
-* Argument "positive" now defaults to 2. If a dependent variable has the values 0 and 1, 1 is now the default positive class, as that's the second smallest value. If the dependent variable is a character, it's in alphabetical order.
+* Argument `"positive"` now defaults to `2`. If a dependent variable has the values 0 and 1, 1 is now the default positive class, as that's the second smallest value. If the dependent variable is of type `character`, it's in alphabetical order.
 
 * Results now contain a count of singular fit messages. See `?lme4::isSingular` for more information.
 
@@ -76,7 +81,7 @@ Development version:
 ## Attach packages
 ```{r warning=FALSE, message=FALSE}
 library(cvms)
-library(groupdata2) # fold()
+library(groupdata2) # fold() partition()
 library(knitr) # kable()
 library(dplyr) # %>% arrange()
 library(ggplot2)
@@ -113,10 +118,10 @@ data %>% head(15) %>% kable()
 ### Gaussian
 
 ```{r warning=FALSE, message=FALSE}
-CV1 <- cross_validate(data, "score~diagnosis", 
-                     fold_cols = '.folds', 
-                     family='gaussian', 
-                     REML = FALSE)
+CV1 <- cross_validate(data, "score~diagnosis",
+                      fold_cols = '.folds',
+                      family = 'gaussian',
+                      REML = FALSE)
 
 # Show results
 CV1
@@ -147,9 +152,9 @@ CV1 %>% select(11:17) %>% kable()
 ### Binomial
 
 ```{r}
-CV2 <- cross_validate(data, "diagnosis~score", 
-                     fold_cols = '.folds', 
-                     family='binomial')
+CV2 <- cross_validate(data, "diagnosis~score",
+                      fold_cols = '.folds',
+                      family = 'binomial')
 
 # Show results
 CV2
@@ -174,17 +179,17 @@ CV2$`Confusion Matrix`[[1]] %>% kable()
 ### Create model formulas
 
 ```{r}
-models <- c("score~diagnosis","score~age")
-mixed_models <- c("score~diagnosis+(1|session)","score~age+(1|session)")
+models <- c("score~diagnosis", "score~age")
+mixed_models <- c("score~diagnosis+(1|session)", "score~age+(1|session)")
 ```
 
 ### Cross-validate fixed effects models
 
 ```{r}
-CV3 <- cross_validate(data, models, 
-                     fold_cols = '.folds', 
-                     family='gaussian', 
-                     REML = FALSE)
+CV3 <- cross_validate(data, models,
+                      fold_cols = '.folds',
+                      family = 'gaussian',
+                      REML = FALSE)
 
 # Show results
 CV3
@@ -193,10 +198,10 @@ CV3
 ### Cross-validate mixed effects models
 
 ```{r}
-CV4 <- cross_validate(data, mixed_models, 
-                     fold_cols = '.folds', 
-                     family='gaussian', 
-                     REML = FALSE)
+CV4 <- cross_validate(data, mixed_models,
+                      fold_cols = '.folds',
+                      family = 'gaussian',
+                      REML = FALSE)
 
 # Show results
 CV4
@@ -224,10 +229,10 @@ data %>% head(10) %>% kable()
 
 
 ```{r}
-CV5 <- cross_validate(data, "diagnosis ~ score", 
-                     fold_cols = paste0(".folds_", 1:4), 
-                     family='binomial', 
-                     REML = FALSE)
+CV5 <- cross_validate(data, "diagnosis ~ score",
+                      fold_cols = paste0(".folds_", 1:4),
+                      family = 'binomial',
+                      REML = FALSE)
 
 # Show results
 CV5
@@ -236,6 +241,74 @@ CV5
 # Let's see a subset of the columns
 CV5$Results[[1]] %>% select(1:8) %>%  kable()
 ```
+
+## Evaluating predictions
+
+Evaluate predictions from a model trained outside cvms. Works with linear regression (`gaussian`), logistic regression (`binomial`), and multiclass classification (`multinomial`). The following is an example of multinomial evaluation.
+
+### Multinomial
+
+Create a dataset with 3 predictors and a target column. Partition it with `groupdata2::partition()` to create a training set and a validation set. `multiclass_probability_tibble()` is a simple helper function for generating random tibbles.
+
+```{r}
+# Set seed
+set.seed(1)
+
+# Create class names
+class_names <- paste0("class_", 1:4)
+
+# Create random dataset with 100 observations 
+# Partition into training set (75%) and test set (25%)
+multiclass_partitions <- multiclass_probability_tibble(
+  num_classes = 3, # Here, number of predictors
+  num_observations = 100,
+  apply_softmax = FALSE,
+  FUN = rnorm,
+  class_name = "predictor_") %>%
+  dplyr::mutate(class = sample(
+    class_names,
+    size = 100,
+    replace = TRUE)) %>%
+  partition(p = 0.75,
+            cat_col = "class")
+
+# Extract partitions
+multiclass_train_set <- multiclass_partitions[[1]]
+multiclass_test_set <- multiclass_partitions[[2]]
+
+multiclass_test_set
+```
+
+Train multinomial model using the `nnet` package and get the predicted probabilities. 
+
+```{r}
+# Train multinomial model
+multiclass_model <- nnet::multinom(
+   "class ~ predictor_1 + predictor_2 + predictor_3",
+   data = multiclass_train_set)
+
+# Predict the targets in the test set
+predictions <- predict(multiclass_model, 
+                       multiclass_test_set,
+                       type = "probs") %>%
+  dplyr::as_tibble()
+
+# Add the targets
+predictions[["target"]] <- multiclass_test_set[["class"]]
+
+head(predictions, 10)
+```
+
+Perform the evaluation. This will create one-vs-all binomial evaluations and summarize the results.
+
+```{r}
+# Evaluate predictions
+evaluate(data = predictions,
+         target_col = "target",
+         prediction_cols = class_names,
+         type = "multinomial")
+```
+
 
 ## Baseline evaluations
 
@@ -252,7 +325,7 @@ Start by partitioning the dataset.
 set.seed(1)
 
 # Partition the dataset 
-partitions <- groupdata2::partition(participant.scores, 
+partitions <- groupdata2::partition(participant.scores,
                                     p = 0.7,
                                     cat_col = 'diagnosis',
                                     id_col = 'participant',
@@ -261,7 +334,7 @@ train_set <- partitions[[1]]
 test_set <- partitions[[2]]
 ```
 
-Create the baseline evaluations.
+Create the baseline evaluations:
 
 ```{r}
 baseline(test_data = test_set, train_data = train_set,
@@ -272,13 +345,37 @@ baseline(test_data = test_set, train_data = train_set,
 
 Approach: n random sets of predictions are evaluated against the dependent variable in the test set. We also evaluate a set of all 0s and a set of all 1s.
 
-Create the baseline evaluations.
+Create the baseline evaluations:
 
 ```{r}
 baseline(test_data = test_set, n = 100, 
          dependent_col = "diagnosis", family = "binomial")
 ```
 
+### Multinomial
+
+Approach: Creates one-vs-all (binomial) baseline evaluations for n sets of random predictions against the dependent variable, along with sets of "all class x,y,z,..." predictions.
+
+Create the baseline evaluations:
+
+```{r}
+multiclass_baseline <- baseline(
+  test_data = multiclass_test_set, n = 100,
+  dependent_col = "class", family = "multinomial")
+
+# Summarized metrics
+multiclass_baseline$summarized_metrics
+
+# Summarized class level results for class 1
+multiclass_baseline$summarized_class_level_results %>% 
+  dplyr::filter(Class == "class_1") %>%
+  tidyr::unnest(Results)
+
+# Random evaluations
+# Note, that the class level results for each repetition
+# is available as well
+multiclass_baseline$random_evaluations
+```
 
 ## Plot results
 

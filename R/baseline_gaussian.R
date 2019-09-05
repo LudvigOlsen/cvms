@@ -2,9 +2,11 @@
 create_gaussian_baseline_evaluations <- function(train_data,
                                                  test_data,
                                                  dependent_col,
-                                                 n_samplings=100,
+                                                 random_effects = NULL,
+                                                 n_samplings = 100,
                                                  min_training_rows = 5,
                                                  min_training_rows_left_out = 3,
+                                                 na.rm = TRUE,
                                                  parallel_ = FALSE){
 
 
@@ -15,12 +17,47 @@ create_gaussian_baseline_evaluations <- function(train_data,
             min_training_rows >= 3,
             min_training_rows_left_out >= 2)
 
+  # Check na.rm
+  if(!is_logical_scalar_not_na(na.rm)){
+    stop("'na.rm' must be logical scalar (TRUE/FALSE).")
+  }
+
+  if (!is.null(random_effects)){
+    model_formula <- formula(paste0(dependent_col, " ~ 1 + ", random_effects))
+  } else {
+    model_formula <- formula(paste0(dependent_col, " ~ 1"))
+  }
+
+  # Extract Dependent, Fixed, Random
+  model_effects <- extract_model_effects(list(model_formula))
+
+  # Extract all model variables
+  model_variables <- all.vars(terms(model_formula))
+
+  # Test that all model variables are in the data frames
+
+  if (length(setdiff(model_variables, colnames(train_data)))){
+    stop(paste0(
+      "could not find these variables in the training data: ",
+      paste0(setdiff(model_variables, colnames(train_data)),
+             collapse = ", ")
+    ))
+  }
+  if (length(setdiff(model_variables, colnames(test_data)))){
+    stop(paste0(
+      "could not find these variables in the test data: ",
+      paste0(setdiff(model_variables, colnames(test_data)),
+             collapse = ", ")
+    ))
+  }
+
+  # Subset data frames to only contain the relevant columns
 
   train_data <- train_data %>%
-    dplyr::select(!! as.name(dependent_col))
+    dplyr::select(dplyr::one_of(model_variables))
 
   test_data <- test_data %>%
-    dplyr::select(!! as.name(dependent_col))
+    dplyr::select(dplyr::one_of(model_variables))
 
   # Get targets
   test_targets <- test_data[[dependent_col]]
@@ -35,8 +72,8 @@ create_gaussian_baseline_evaluations <- function(train_data,
   # Create model_specifics object
   # Update to get default values when an argument was not specified
   model_specifics <- list(
-    model_formula = paste0(dependent_col, " ~ 1"),
-    family = "family",
+    model_formula = model_formula,
+    family = "gaussian",
     REML = FALSE,
     link = NULL,
     cutoff = 0.5,
@@ -81,7 +118,14 @@ create_gaussian_baseline_evaluations <- function(train_data,
   train_sets_indices <- split(train_sets_indices[["indices"]],
                               f = train_sets_indices[["split_factor"]])
 
-  # Evaluate randomly sampled train set with model "y~1"
+  # Fit baseline model
+  if (is.null(random_effects)){
+    lm_fn <- lm
+  } else {
+    lm_fn <- lme4::lmer
+  }
+
+  # Evaluate randomly sampled train set with model "y~1" (potentially plus random effects)
 
   evaluations_random <- plyr::llply(1:n_samplings, .parallel = parallel_, function(evaluation){
 
@@ -92,32 +136,36 @@ create_gaussian_baseline_evaluations <- function(train_data,
     sampled_train_set <- train_data[inds,]
 
     # Fit baseline model
-    baseline_linear_model <- lm(model_specifics[["model_formula"]], data = sampled_train_set)
+    baseline_linear_model <- lm_fn(model_specifics[["model_formula"]],
+                                data = sampled_train_set)
 
     # Predict test set with baseline model
     test_data[["prediction"]] <- stats::predict(baseline_linear_model,
-                                                test_data, allow.new.levels=TRUE)
+                                                test_data, allow.new.levels = TRUE)
 
     # This will be changed to evaluation repetition later on
     test_data[["fold_column"]] <- evaluation
 
-    evaluate(test_data,
-             type = "linear_regression",
-             predictions_col = "prediction",
-             targets_col = dependent_col,
-             fold_info_cols = list(rel_fold = "rel_fold",
-                                   abs_fold = "abs_fold",
-                                   fold_column = "fold_column"),
-             models = list(baseline_linear_model),
-             model_specifics = model_specifics) %>%
+    internal_evaluate(
+      test_data,
+      type = "gaussian",
+      predictions_col = "prediction",
+      targets_col = dependent_col,
+      fold_info_cols = list(
+        rel_fold = "rel_fold",
+        abs_fold = "abs_fold",
+        fold_column = "fold_column"
+      ),
+      models = list(baseline_linear_model),
+      model_specifics = model_specifics
+    ) %>%
       dplyr::select(-.data$Results) %>%
       dplyr::mutate(`Training Rows` = nrow(sampled_train_set))
   }) %>%  dplyr::bind_rows() %>%
     dplyr::mutate(
-      Family = "gaussian",
-      Dependent = dependent_col,
-      Fixed = "1"
-    )
+      Family = "gaussian"
+    ) %>%
+    tibble::add_column(!!! model_effects) # bind_cols for recycling 1-row tibble
 
   # TODO Rename Fold Column to Repetition or similar in evaluations$Predictions
 
@@ -138,12 +186,12 @@ create_gaussian_baseline_evaluations <- function(train_data,
   # This may be better solveable with pivot_* from tidyr, when it is on CRAN
   # This isn't exactly pretty.
   summarized_metrics <- dplyr::bind_rows(
-    metrics_cols %>% dplyr::summarize_all(.funs = list(~mean(., na.rm = TRUE))) %>% dplyr::mutate(f = "Mean"),
-    metrics_cols %>% dplyr::summarize_all(.funs = list(~median(., na.rm = TRUE))) %>% dplyr::mutate(f = "Median"),
-    metrics_cols %>% dplyr::summarize_all(.funs = list(~sd(., na.rm = TRUE))) %>% dplyr::mutate(f = "SD"),
-    metrics_cols %>% dplyr::summarize_all(.funs = list(~IQR(., na.rm = TRUE))) %>% dplyr::mutate(f = "IQR"),
-    metrics_cols %>% dplyr::summarize_all(.funs = list(~max(., na.rm = TRUE))) %>% dplyr::mutate(f = "Max"),
-    metrics_cols %>% dplyr::summarize_all(.funs = list(~min(., na.rm = TRUE))) %>% dplyr::mutate(f = "Min"),
+    metrics_cols %>% dplyr::summarize_all(.funs = list(~mean(., na.rm = na.rm))) %>% dplyr::mutate(f = "Mean"),
+    metrics_cols %>% dplyr::summarize_all(.funs = list(~median(., na.rm = na.rm))) %>% dplyr::mutate(f = "Median"),
+    metrics_cols %>% dplyr::summarize_all(.funs = list(~sd(., na.rm = na.rm))) %>% dplyr::mutate(f = "SD"),
+    metrics_cols %>% dplyr::summarize_all(.funs = list(~IQR(., na.rm = na.rm))) %>% dplyr::mutate(f = "IQR"),
+    metrics_cols %>% dplyr::summarize_all(.funs = list(~max(., na.rm = na.rm))) %>% dplyr::mutate(f = "Max"),
+    metrics_cols %>% dplyr::summarize_all(.funs = list(~min(., na.rm = na.rm))) %>% dplyr::mutate(f = "Min"),
     metrics_cols %>% dplyr::summarize_all(.funs = list(~sum(is.na(.)))) %>% dplyr::mutate(f = "NAs"),
     metrics_cols_with_infs %>% dplyr::summarize_all(.funs = list(~sum(is.infinite(.)))) %>% dplyr::mutate(f = "INFs")
   ) %>%
@@ -154,14 +202,15 @@ create_gaussian_baseline_evaluations <- function(train_data,
   if(nrow(metrics_cols_with_infs) > 0){
     NAs_row_number <- which(summarized_metrics$Measure == "NAs")
     INFs_row_number <- which(summarized_metrics$Measure == "INFs")
-    summarized_metrics[NAs_row_number,-1] <- summarized_metrics[NAs_row_number,-1] - summarized_metrics[INFs_row_number,-1]
+    summarized_metrics[NAs_row_number,-1] <- summarized_metrics[NAs_row_number,-1] -
+      summarized_metrics[INFs_row_number,-1]
   }
 
 
   # Fitting on all rows
 
   # Fit baseline model
-  baseline_linear_model_all_rows <- lm(model_specifics[["model_formula"]], data = train_data)
+  baseline_linear_model_all_rows <- lm_fn(model_specifics[["model_formula"]], data = train_data)
 
   # Predict test set with baseline model
   test_data[["prediction"]] <- stats::predict(baseline_linear_model_all_rows,
@@ -170,9 +219,9 @@ create_gaussian_baseline_evaluations <- function(train_data,
   # This will be changed to evaluation repetition later on
   test_data[["fold_column"]] <- n_samplings + 1
 
-  evaluation_all_rows <- evaluate(
+  evaluation_all_rows <- internal_evaluate(
     test_data,
-    type = "linear_regression",
+    type = "gaussian",
     predictions_col = "prediction",
     targets_col = dependent_col,
     fold_info_cols = list(rel_fold = "rel_fold",

@@ -1,13 +1,15 @@
 Package: cvms
 Title: Cross-Validation for Model Selection
-Version: 0.1.2.9000
+Version: 0.2.0
 Authors@R: c(
     person("Ludvig Renbo", "Olsen", email = "r-pkgs@ludvigolsen.dk", role = c("aut", "cre")),
     person("Benjamin Hugh", "Zachariae", role = "aut")
     )
 Description: Cross-validate one or multiple regression models and get relevant evaluation 
   metrics in a tidy format. Validate the best model on a test set and compare it to a baseline evaluation.
-  Currently supports Gaussian and binomial regression.
+  Alternatively, evaluate predictions from an external model. 
+  Currently supports linear regression, logistic regression and 
+  (some functions only) multiclass classification.
   Described in chp. 5 of Jeyaraman, B. P., Olsen, L. R., & Wambugu M. (2019, ISBN: 9781838550134).
 Depends:
     R (>= 3.5)
@@ -33,7 +35,8 @@ Imports:
     broom,
     stringr,
     mltools (>= 0.3.5),
-    rlang
+    rlang,
+    utils
 RoxygenNote: 6.1.1
 Suggests: knitr,
     groupdata2 (>= 1.1.1),
@@ -43,5 +46,6 @@ Suggests: knitr,
     AUC,
     furrr,
     ModelMetrics,
-    covr
+    covr,
+    nnet
 VignetteBuilder: knitr

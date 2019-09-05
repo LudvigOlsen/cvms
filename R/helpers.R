@@ -62,7 +62,7 @@ count_convergence_warnings <- function(convergences){ # "Yes" or "No"
   return(conv_warns)
 }
 
-count_named_nulls_in_list <- function(l){
+count_nulls_in_list <- function(l){
   plyr::llply(l, function(e){
     ifelse(is.null(e), 1, 0)
   }) %>% unlist() %>% sum()
@@ -107,7 +107,7 @@ nest_results <- function(results){
   iter_results <- tibble::as_tibble(results)
   rownames(iter_results) <- NULL
   iter_results <- iter_results %>%
-    tidyr::nest() %>%
+    legacy_nest() %>%
     dplyr::rename(results = data)
 
   iter_results
@@ -120,7 +120,7 @@ nest_models <- function(models){
     iter_models[["p.value"]] <- NA
   }
   iter_models <- iter_models %>%
-    tidyr::nest() %>%
+    legacy_nest() %>%
     dplyr::rename(Coefficients = data)
 
   iter_models
@@ -197,6 +197,9 @@ create_fold_and_fold_column_map <- function(data, fold_info_cols){
                                 fold_info_cols[["abs_fold"]],
                                 fold_info_cols[["rel_fold"]]
     )) %>%
+    dplyr::rename(fold_column = fold_info_cols[["fold_column"]],
+                  abs_fold = fold_info_cols[["abs_fold"]],
+                  rel_fold = fold_info_cols[["rel_fold"]]) %>%
     dplyr::distinct()
 }
 
@@ -295,9 +298,117 @@ arg_is_number_ <- function(n){
   }
 
 }
+
+is_logical_scalar_not_na <- function(arg){
+  rlang::is_scalar_logical(arg) && !is.na(arg)
+}
+
 is_between_ <- function(x, a, b) {
 
   # Checks if x is between a and b
 
   x > a & x < b
 }
+
+logsumexp <- function (x) {
+  y = max(x)
+  y + log(sum(exp(x - y)))
+}
+
+softmax_row <- function (...) {
+  x <- unname(c(...))
+  x <- exp(x - logsumexp(x))
+  # Convert to row in tibble
+  # TODO There must be a better way
+  x <- dplyr::as_tibble(t(matrix(x)),
+                        .name_repair = ~ paste0("V", 1:length(x)))
+  x
+}
+
+softmax_vector <- function(...){
+  x <- unname(c(...))
+  exp(x - logsumexp(x))
+}
+
+# TODO Add tests of this !!!
+softmax <- function(data, cols=NULL){
+
+  # Convert to tibble
+  data <- dplyr::as_tibble(data)
+
+  # TODO is this necessary?
+  if (!is.null(cols)){
+
+    if (is.numeric(cols)){
+      data_to_process <- data %>% dplyr::select(cols)
+      data_to_leave <- data %>% dplyr::select(-cols)
+      cols <- colnames(data_to_process)
+
+      } else if (is.character(cols)){
+      data_to_process <- data %>% dplyr::select(dplyr::one_of(cols))
+      data_to_leave <- data %>% dplyr::select(-dplyr::one_of(cols))
+      }
+
+  } else {
+    data_to_process <- data
+    data_to_leave <- NULL
+    cols <- colnames(data)
+  }
+
+  # Test that the probability columns are numeric
+  if (any(!sapply(data_to_process, is.numeric))) {
+    stop("softmax only works on numeric columns.")
+  }
+
+  processed_data <- purrr::pmap_dfr(data_to_process,
+           softmax_row)
+  colnames(processed_data) <- cols
+  dplyr::bind_cols(processed_data, data_to_leave)
+
+}
+
+# Add underscore until var name is unique
+create_tmp_var <- function(data, tmp_var = ".tmp_index_"){
+  while (tmp_var %in% colnames(data)){
+    tmp_var <- paste0(tmp_var, "_")
+  }
+  tmp_var
+}
+
+# https://tidyr.tidyverse.org/dev/articles/in-packages.html
+tidyr_new_interface <- function() {
+  utils::packageVersion("tidyr") > "0.8.99"
+}
+
+# As the upcoming tidyr v1.0.0 has breaking changes
+# to nest (and unnest!), we make sure it's compatible for now
+# TODO replace nest_legacy with the new nest syntax within the
+# code, once people have moved to that.
+legacy_nest <- function(...){
+  if (tidyr_new_interface()){
+    tidyr::nest_legacy(...)
+  } else {
+    tidyr::nest(...)
+  }
+}
+
+# Wraps tibble::add_column
+reposition_column <- function(data, col, .before = NULL, .after = NULL){
+  col_values <- data[[col]]
+  data[[col]] <- NULL
+  data %>%
+    tibble::add_column(!!(col) := col_values, .before = .before, .after = .after)
+}
+
+
+arg_not_used <- function(arg, arg_name, family, current_fn, message_fn=message){
+  if (!is.null(arg)){
+    message_fn(paste0("'",arg_name,"' was not used for ", family, " version of ", current_fn, "()."))
+  }
+}
+
+# rep_list <- function(l, n, recursive_unlist = FALSE){
+#   #unlist(
+#     rep(l, n) # , recursive = recursive_unlist)
+# }
+

@@ -23,6 +23,16 @@ calculate_MAE <- function(predictions, targets, raise_errors = FALSE){
   })
 }
 
+calculate_accuracy <- function(predictions, targets, raise_errors = FALSE){
+  tryCatch({
+    accuracy(predictions, targets)
+  }, error = function(e){
+    if (raise_errors) stop(e)
+    else warning(e)
+    return(NA)
+  })
+}
+
 
 calculate_r2m <- function(model, raise_errors = FALSE){
   tryCatch({
@@ -78,7 +88,7 @@ calculate_BIC <- function(model, raise_errors = FALSE){
   })
 }
 
-mae <- function(predictions, targets, na.rm=TRUE){
+mae <- function(predictions, targets, na.rm = TRUE){
 
   if (!(is.numeric(predictions) || is.integer(predictions))){
     stop("'predictions' must be numeric")
@@ -94,7 +104,7 @@ mae <- function(predictions, targets, na.rm=TRUE){
 
 }
 
-rmse <- function(predictions, targets, na.rm=TRUE){
+rmse <- function(predictions, targets, na.rm = TRUE){
 
   if (!(is.numeric(predictions) || is.integer(predictions))){
     stop("'predictions' must be numeric")
@@ -110,3 +120,16 @@ rmse <- function(predictions, targets, na.rm=TRUE){
 
 }
 
+accuracy <- function(predictions, targets, na.rm = TRUE){
+
+  # Convert both to characters
+  predictions <- as.character(predictions)
+  targets <- as.character(targets)
+
+  if (length(predictions) != length(targets)){
+    stop("predictions and targets must have same length")
+  }
+
+  mean(targets == predictions, na.rm = na.rm)
+
+}

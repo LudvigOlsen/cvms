@@ -415,12 +415,6 @@ baseline <- function(test_data,
     arg_not_used(arg = random_effects, arg_name = "random_effects",
                  family = "multinomial", current_fn = "baseline")
 
-    if (!isTRUE(all.equal(random_generator_fn, runif))){
-      message(paste0("'random_generator_fn' was not default function. ",
-                     "Note that the 'random_generator_fn' is not used in ",
-                     "the multinomial version of baseline()."))
-    }
-
     return(
       create_multinomial_baseline_evaluations(test_data = test_data,
                                               dependent_col = dependent_col,
@@ -434,6 +428,12 @@ baseline <- function(test_data,
 
     if (is.null(train_data)){
       stop("train_data must be passed for Gaussian baseline.")
+    }
+
+    if (!isTRUE(all.equal(random_generator_fn, runif))){
+      message(paste0("'random_generator_fn' was not default function. ",
+                     "Note that the 'random_generator_fn' is not used in ",
+                     "the gaussian version of baseline()."))
     }
 
     return(

@@ -10,13 +10,13 @@
 |collate  |en_US.UTF-8                  |
 |ctype    |en_US.UTF-8                  |
 |tz       |Europe/Copenhagen            |
-|date     |2019-08-05                   |
+|date     |2019-09-05                   |
 
 # Dependencies
 
-|package |old   |new        |Δ  |
-|:-------|:-----|:----------|:--|
-|cvms    |0.1.1 |0.1.1.9000 |*  |
+|package |old   |new   |Δ  |
+|:-------|:-----|:-----|:--|
+|cvms    |0.1.2 |0.2.0 |*  |
 
 # Revdeps
 

@@ -148,6 +148,8 @@ Evaluate your model's predictions
 
  Currently supports linear regression, binary classification
  and multiclass classification (see \code{type}).
+
+ \strong{evaluate() is under development! Large changes may occur.}
 }
 \details{
 Packages used:
@@ -288,120 +290,124 @@ Packages used:
  }
 }
 \examples{
- # Attach packages
- library(cvms)
- library(dplyr)
+\donttest{
+# Attach packages
+library(cvms)
+library(dplyr)
 
- # Load data
- data <- participant.scores
+# Load data
+data <- participant.scores
 
- # Fit models
- gaussian_model <- lm(age ~ diagnosis, data = data)
- binomial_model <- glm(diagnosis ~ score, data = data)
+# Fit models
+gaussian_model <- lm(age ~ diagnosis, data = data)
+binomial_model <- glm(diagnosis ~ score, data = data)
 
- # Add predictions
- data[["gaussian_predictions"]] <- predict(gaussian_model, data,
-                                           type = "response",
-                                           allow.new.levels = TRUE)
- data[["binomial_predictions"]] <- predict(binomial_model, data,
-                                           allow.new.levels = TRUE)
+# Add predictions
+data[["gaussian_predictions"]] <- predict(gaussian_model, data,
+                                          type = "response",
+                                          allow.new.levels = TRUE)
+data[["binomial_predictions"]] <- predict(binomial_model, data,
+                                          allow.new.levels = TRUE)
 
- # Gaussian evaluation
- evaluate(data = data, target_col = "age",
-          prediction_cols = "gaussian_predictions",
-          models = list(gaussian_model),
-          type = "gaussian")
+# Gaussian evaluation
+evaluate(data = data, target_col = "age",
+         prediction_cols = "gaussian_predictions",
+         models = list(gaussian_model),
+         type = "gaussian")
 
- # Binomial evaluation
- evaluate(data = data, target_col = "diagnosis",
-          prediction_cols = "binomial_predictions",
-          type = "binomial")
+# Binomial evaluation
+evaluate(data = data, target_col = "diagnosis",
+         prediction_cols = "binomial_predictions",
+         type = "binomial")
 
- # Multinomial
+# Multinomial
 
- # Create a dataset
- data_mc <- multiclass_probability_tibble(num_classes = 3, num_observations = 30,
-                                          apply_softmax = TRUE, FUN = runif,
-                                          class_name = "class_")
- # Add targets
- class_names <- paste0("class_", c(1,2,3))
- data_mc[["target"]] <- sample(x = class_names,
-                               size = 30, replace = TRUE)
+# Create a dataset
+data_mc <- multiclass_probability_tibble(
+    num_classes = 3, num_observations = 30,
+    apply_softmax = TRUE, FUN = runif,
+    class_name = "class_")
 
- # Multinomial evaluation
- evaluate(data = data_mc, target_col = "target",
-          prediction_cols = class_names,
-          type = "multinomial")
+# Add targets
+class_names <- paste0("class_", c(1,2,3))
+data_mc[["target"]] <- sample(x = class_names,
+                              size = 30, replace = TRUE)
 
- # ID evaluation
+# Multinomial evaluation
+evaluate(data = data_mc, target_col = "target",
+         prediction_cols = class_names,
+         type = "multinomial")
 
- # Gaussian ID evaluation
- # Note that 'age' is the same for all observations
- # of a participant
- evaluate(data = data, target_col = "age",
-          prediction_cols = "gaussian_predictions",
-          id_col = "participant",
-          type = "gaussian")
+# ID evaluation
 
- # Binomial ID evaluation
- evaluate(data = data, target_col = "diagnosis",
-          prediction_cols = "binomial_predictions",
-          id_col = "participant",
-          id_method = "mean", # alternatively: "majority"
-          type = "binomial")
+# Gaussian ID evaluation
+# Note that 'age' is the same for all observations
+# of a participant
+evaluate(data = data, target_col = "age",
+         prediction_cols = "gaussian_predictions",
+         id_col = "participant",
+         type = "gaussian")
 
- # Multinomial ID evaluation
+# Binomial ID evaluation
+evaluate(data = data, target_col = "diagnosis",
+         prediction_cols = "binomial_predictions",
+         id_col = "participant",
+         id_method = "mean", # alternatively: "majority"
+         type = "binomial")
 
- # Add IDs and new targets (must be constant within IDs)
- data_mc[["target"]] <- NULL
- data_mc[["id"]] <- rep(1:6, each = 5)
- id_classes <- tibble::tibble(
-     "id" = 1:6,
-     target = sample(x = class_names, size = 6, replace = TRUE)
- )
- data_mc <- data_mc \%>\%
-     dplyr::left_join(id_classes, by = "id")
+# Multinomial ID evaluation
 
- # Perform ID evaluation
- evaluate(data = data_mc, target_col = "target",
-          prediction_cols = class_names,
-          id_col = "id",
-          id_method = "mean", # alternatively: "majority"
-          type = "multinomial")
+# Add IDs and new targets (must be constant within IDs)
+data_mc[["target"]] <- NULL
+data_mc[["id"]] <- rep(1:6, each = 5)
+id_classes <- tibble::tibble(
+    "id" = 1:6,
+    target = sample(x = class_names, size = 6, replace = TRUE)
+)
+data_mc <- data_mc \%>\%
+    dplyr::left_join(id_classes, by = "id")
 
- # Training and evaluating a multinomial model with nnet
+# Perform ID evaluation
+evaluate(data = data_mc, target_col = "target",
+         prediction_cols = class_names,
+         id_col = "id",
+         id_method = "mean", # alternatively: "majority"
+         type = "multinomial")
 
- # Create a data frame with some predictors and a target column
- class_names <- paste0("class_",1:4)
- data_for_nnet <- multiclass_probability_tibble(
-     num_classes = 3,
-     num_observations = 30,
-     apply_softmax = FALSE,
-     FUN = rnorm,
-     class_name = "pred_") \%>\%
-     dplyr::mutate(class = sample(
-         class_names,
-         size = 30,
-         replace = TRUE))
+# Training and evaluating a multinomial model with nnet
 
- # Train multinomial model using the nnest package
- mn_model <- nnet::multinom(
-     "class ~ pred_1 + pred_2 + pred_3",
-     data = data_for_nnet)
+# Create a data frame with some predictors and a target column
+class_names <- paste0("class_", 1:4)
+data_for_nnet <- multiclass_probability_tibble(
+    num_classes = 3, # Here, number of predictors
+    num_observations = 30,
+    apply_softmax = FALSE,
+    FUN = rnorm,
+    class_name = "predictor_") \%>\%
+    dplyr::mutate(class = sample(
+        class_names,
+        size = 30,
+        replace = TRUE))
 
- # Predict the targets in the dataset
- # (we would usually use a test set instead)
- predictions <- predict(mn_model, data_for_nnet,
-                        type = "probs") \%>\%
-     dplyr::as_tibble()
+# Train multinomial model using the nnet package
+mn_model <- nnet::multinom(
+    "class ~ predictor_1 + predictor_2 + predictor_3",
+    data = data_for_nnet)
 
- # Add the targets
- predictions[["target"]] <- data_for_nnet[["class"]]
+# Predict the targets in the dataset
+# (we would usually use a test set instead)
+predictions <- predict(mn_model, data_for_nnet,
+                       type = "probs") \%>\%
+    dplyr::as_tibble()
 
- # Evaluate predictions
- evaluate(data = predictions, target_col = "target",
-          prediction_cols = class_names,
-          type = "multinomial")
+# Add the targets
+predictions[["target"]] <- data_for_nnet[["class"]]
+
+# Evaluate predictions
+evaluate(data = predictions, target_col = "target",
+         prediction_cols = class_names,
+         type = "multinomial")
+}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

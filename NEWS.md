@@ -1,3 +1,5 @@
+# cvms 0.2.0.9000
+
 # cvms 0.2.0
 
 * `evaluate()` is added. Evaluate your model's predictions with the same metrics as used in `cross_validate()`.
@@ -6,7 +8,7 @@
 
 * Adds `multiclass_probability_tibble()` for generating a random probability tibble. 
 
-* Adds `random_effects` argument to `baseline()` for adding random effects to the Gaussian baseline model.  
+* Adds `random_effects` argument to `baseline()` for adding random effects to the Gaussian baseline model.
 
 * Adds Zenodo DOI for easier citation.
 

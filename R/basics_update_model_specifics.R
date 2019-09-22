@@ -3,6 +3,7 @@ basics_update_model_specifics <- function(model_specifics){
   # Check required arguments
   check_argument_in_model_specifics("model_formula", model_specifics)
   check_argument_in_model_specifics("family", model_specifics)
+  check_argument_in_model_specifics("caller", model_specifics)
 
   # Set default arguments
   model_specifics[["link"]] = default_link(model_specifics[["link"]], family = model_specifics[["family"]])

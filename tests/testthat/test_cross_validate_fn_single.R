@@ -20,7 +20,8 @@ test_that("gaussian models with cross_validate_single_fn()",{
                                           REML=FALSE,
                                           link="identity",
                                           control=lme4::lmerControl(optimizer="nloptwrap"),
-                                          model_verbose = FALSE),
+                                          model_verbose = FALSE,
+                                          caller = "cross_validate()"),
                                         model_specifics_update_fn = basics_update_model_specifics,
                                         fold_cols =".folds")
 
@@ -46,7 +47,8 @@ test_that("gaussian models with cross_validate_single_fn()",{
                                           family="gaussian",
                                           REML=FALSE,
                                           link="identity",
-                                          model_verbose = FALSE),
+                                          model_verbose = FALSE,
+                                          caller = "cross_validate()"),
                                         model_specifics_update_fn = basics_update_model_specifics,
                                         fold_cols =".folds")
 
@@ -85,7 +87,8 @@ test_that("binomial models with cross_validate_single_fn()",{
                                           link=NULL,
                                           positive=1,
                                           cutoff=0.5,
-                                          model_verbose = FALSE),
+                                          model_verbose = FALSE,
+                                          caller = "cross_validate()"),
                                         model_specifics_update_fn = basics_update_model_specifics,
                                         fold_cols =".folds")
 
@@ -119,7 +122,8 @@ test_that("binomial models with cross_validate_single_fn()",{
                                           link=NULL,
                                           positive=1,
                                           cutoff=0.5,
-                                          model_verbose = FALSE),
+                                          model_verbose = FALSE,
+                                          caller = "cross_validate()"),
                                         model_specifics_update_fn = basics_update_model_specifics,
                                         fold_cols =".folds")
 

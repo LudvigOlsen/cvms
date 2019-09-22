@@ -1,6 +1,3 @@
-# R CMD check NOTE handling
-if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
-
 #' @importFrom plyr ldply
 #' @importFrom dplyr mutate %>%
 #' @importFrom tidyr separate
@@ -53,12 +50,14 @@ basics_cross_validate_list = function(data,
     REML = REML,
     link = link,
     cutoff = cutoff,
+    control = control,
     positive = positive,
-    model_verbose = model_verbose
+    model_verbose = model_verbose,
+    caller = "cross_validate()"
   ) %>%
     basics_update_model_specifics()
 
-  # cross_validate() all the models using ldply()
+  # cross_validate all the models using ldply()
   model_cvs_df = ldply(model_list, .parallel = all(parallel_, parallelize == "models"), .fun = function(model_formula){
     model_specifics[["model_formula"]] <- model_formula
     cross_validate_fn_single(data = data, model_fn = basics_model_fn,

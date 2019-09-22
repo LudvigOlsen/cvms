@@ -4,9 +4,9 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #' @importFrom dplyr %>%
 validate_fn_single = function(train_data,
                               model_fn,
-                              evaluation_type="linear_regression",
-                              model_specifics=list(),
-                              model_specifics_update_fn=NULL,
+                              evaluation_type = "gaussian",
+                              model_specifics = list(),
+                              model_specifics_update_fn = NULL,
                               test_data = NULL,
                               partitions_col = '.partitions',
                               err_nc = FALSE) {
@@ -44,8 +44,8 @@ validate_fn_single = function(train_data,
 
   fitting_output <- model_fn(train_data = train_data,
                              test_data = test_data,
-                             fold_info = list(rel_fold=1, abs_fold=1, fold_column=1), # we'll remove this later
-                             model_specifics=model_specifics)
+                             fold_info = list(rel_fold = 1, abs_fold = 1, fold_column = 1), # we'll remove this later
+                             model_specifics = model_specifics)
 
   predictions_and_targets <- fitting_output[["predictions_and_targets"]]
 
@@ -53,7 +53,7 @@ validate_fn_single = function(train_data,
   model = fitting_output[["model"]]
 
   # Extract singular fit message
-  yielded_singular_fit_message = fitting_output[["yielded_singular_fit_message"]]
+  threw_singular_fit_message = fitting_output[["threw_singular_fit_message"]]
 
   model_evaluation <- internal_evaluate(
     predictions_and_targets,
@@ -69,7 +69,7 @@ validate_fn_single = function(train_data,
     model_specifics = model_specifics
   ) %>%
     dplyr::mutate(`Convergence Warnings` = ifelse(is.null(model), 1, 0),
-                  `Singular Fit Messages` = ifelse(isTRUE(yielded_singular_fit_message), 1, 0))
+                  `Singular Fit Messages` = ifelse(isTRUE(threw_singular_fit_message), 1, 0))
 
 
   # Remove Results tibble if linear regression

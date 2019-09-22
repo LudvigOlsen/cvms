@@ -66,7 +66,8 @@ create_binomial_baseline_evaluations <- function(test_data,
     link = NULL,
     cutoff = cutoff,
     positive = positive,
-    model_verbose = FALSE
+    model_verbose = FALSE,
+    caller = "baseline()"
   ) %>%
     basics_update_model_specifics()
 

@@ -1,5 +1,9 @@
 # cvms 0.2.0.9000
 
+* Bug fix: the `control` argument in cross_validate was not being used. Now it is.
+
+* The model is no longer fitted twice when a warning is thrown during fitting.
+
 # cvms 0.2.0
 
 * `evaluate()` is added. Evaluate your model's predictions with the same metrics as used in `cross_validate()`.

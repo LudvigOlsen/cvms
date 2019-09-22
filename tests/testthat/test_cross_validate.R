@@ -243,42 +243,63 @@ test_that("binomial models work with control specified in cross_validate()",{
                           cat_col = 'diagnosis',
                           id_col = 'participant')
 
+  expect_equal(evaluate_promise(
+    cross_validate(
+      dat,
+      models = c("diagnosis~score + (1|session)"),
+      fold_cols = '.folds',
+      family = 'binomial',
+      REML = FALSE,
+      link = NULL,
+      control = lme4::glmerControl(optimizer = "bobyqa", #
+                                   #optCtrl = list(maxfun = 1000))
+                                   ),
+      model_verbose = FALSE,
+      positive = 1
+      )
+    )$warnings, c(
+      "\n-------------------------------------\ncross_validate(): Warning:\nIn model:\ndiagnosis~score + (1|session)\nFor fold column:\n.folds\nIn fold:\n3\nunable to evaluate scaled gradient",
+      "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\ndiagnosis~score + (1|session)\nFor fold column:\n.folds\nIn fold:\n3\nModel failed to converge: degenerate  Hessian with 1 negative eigenvalues"
+    ), fixed = TRUE)
 
-  CVbinomlistrand <- cross_validate(dat,
-                                    models = c("diagnosis~score + (1|session)"),
-                                    fold_cols = '.folds',
-                                    family='binomial',
-                                    REML = FALSE,
-                                    link = NULL,
-                                    control = lme4::glmerControl(optimizer="bobyqa",
-                                                           optCtrl=list(maxfun=1000000)),
-                                    model_verbose=FALSE,
-                                    positive=1)
-
-  expect_equal(CVbinomlistrand$AUC, c(0.7986111), tolerance=1e-3)
-  expect_equal(CVbinomlistrand$`Convergence Warnings`, c(0))
+  # expect_equal(CVbinomlistrand$AUC, c(0.7986111), tolerance=1e-3)
+  # expect_equal(CVbinomlistrand$`Convergence Warnings`, c(0))
 
   # Singular fit message
   set_seed_for_R_compatibility(2)
-  expect_message(cross_validate(dat,
-                                models = c("diagnosis ~ score + age + (1|session) + (1|age)"),
-                                fold_cols = '.folds',
-                                family='binomial',
-                                REML = FALSE,
-                                link = NULL,
-                                control = lme4::glmerControl(optimizer="bobyqa",
-                                                             optCtrl=list(maxfun=100)),
-                                model_verbose=FALSE), "cross_validate(): Boundary (Singular) Fit Message:", fixed = TRUE)
-  set_seed_for_R_compatibility(2)
-  cv_messages <- suppressMessages(cross_validate(dat,
-                                models = c("diagnosis ~ score + age + (1|session) + (1|age)"),
-                                fold_cols = '.folds',
-                                family='binomial',
-                                REML = FALSE,
-                                link = NULL,
-                                control = lme4::glmerControl(optimizer="bobyqa",
-                                                             optCtrl=list(maxfun=100))))
-  expect_equal(cv_messages$`Singular Fit Messages`, 2)
+
+  expect_equal(evaluate_promise(
+    cross_validate(dat,
+                   models = c("diagnosis ~ score + age + (1|session) + (1|age)"),
+                   fold_cols = '.folds',
+                   family = 'binomial',
+                   REML = FALSE,
+                   link = NULL,
+                   control = lme4::glmerControl(optimizer = "bobyqa",
+                                                optCtrl = list(maxfun = 100)),
+                   model_verbose = FALSE))$warnings,
+    c("\n-------------------------------------\ncross_validate(): Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n1\nmaxfun < 10 * length(par)^2 is not recommended.",
+      "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n1\nconvergence code 1 from bobyqa: bobyqa -- maximum number of function evaluations exceeded",
+      "\n-------------------------------------\ncross_validate(): Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n2\nmaxfun < 10 * length(par)^2 is not recommended.",
+      "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n2\nconvergence code 1 from bobyqa: bobyqa -- maximum number of function evaluations exceeded",
+      "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n2\nModel failed to converge with max|grad| = 0.0405867 (tol = 0.001, component 1)",
+      "\n-------------------------------------\ncross_validate(): Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n3\nmaxfun < 10 * length(par)^2 is not recommended.",
+      "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n3\nconvergence code 1 from bobyqa: bobyqa -- maximum number of function evaluations exceeded",
+      "\n-------------------------------------\ncross_validate(): Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n3\nunable to evaluate scaled gradient",
+      "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n3\nModel failed to converge: degenerate  Hessian with 1 negative eigenvalues"
+    ), fixed = TRUE)
+
+
+  # set_seed_for_R_compatibility(2)
+  # cv_messages <- suppressMessages(cross_validate(dat,
+  #                               models = c("diagnosis ~ score + age + (1|session) + (1|age)"),
+  #                               fold_cols = '.folds',
+  #                               family='binomial',
+  #                               REML = FALSE,
+  #                               link = NULL,
+  #                               control = lme4::glmerControl(optimizer="bobyqa",
+  #                                                            optCtrl=list(maxfun=100))))
+  # expect_equal(cv_messages$`Singular Fit Messages`, 2)
 
 
 })
@@ -306,6 +327,23 @@ test_that("gaussian models work with control specified in cross_validate()",{
 
   expect_equal(CVgausslistrand$RMSE, c(10.44299), tolerance=1e-3)
   expect_equal(CVgausslistrand$`Convergence Warnings`, c(0))
+
+  expect_equal(evaluate_promise(cross_validate(dat,
+                                    models = c("score~diagnosis + (1|session)"),
+                                    fold_cols = '.folds',
+                                    family='gaussian',
+                                    REML = FALSE,
+                                    link = NULL,
+                                    control = lme4::lmerControl(optimizer="bobyqa",
+                                                                optCtrl=list(maxfun=10)),
+                                    model_verbose=FALSE))$warnings,
+               c("\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\nscore~diagnosis + (1|session)\nFor fold column:\n.folds\nIn fold:\n1\nconvergence code 1 from bobyqa: bobyqa -- maximum number of function evaluations exceeded",
+                 "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\nscore~diagnosis + (1|session)\nFor fold column:\n.folds\nIn fold:\n1\nModel failed to converge with max|grad| = 0.429297 (tol = 0.002, component 1)",
+                 "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\nscore~diagnosis + (1|session)\nFor fold column:\n.folds\nIn fold:\n2\nconvergence code 1 from bobyqa: bobyqa -- maximum number of function evaluations exceeded",
+                 "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\nscore~diagnosis + (1|session)\nFor fold column:\n.folds\nIn fold:\n3\nconvergence code 1 from bobyqa: bobyqa -- maximum number of function evaluations exceeded"
+               ),
+               fixed = TRUE)
+
 
   # TODO When counting singular (boundary fit) messages, uncomment and change expected warning/message
   # # Warning because of too few iterations
@@ -750,9 +788,9 @@ test_that("model_verbose reports the correct model functions in cross_validate()
   # Test the list of verbose messages
   # glm()
   expect_equal(evaluate_promise(cross_validate(dat, models = c("diagnosis~score"),
-                                                 fold_cols = paste0(".folds_",1), family='binomial',
-                                                 REML = FALSE, model_verbose=TRUE,
-                                                 positive=1))$messages,
+                                               fold_cols = paste0(".folds_",1), family='binomial',
+                                               REML = FALSE, model_verbose=TRUE,
+                                               positive=1))$messages,
                  as.character(c(
                    "Updated model_specifics to { model_formula = , family = binomial, link = logit, control = (c(\"bobyqa\", \"Nelder_Mead\"), TRUE, FALSE, FALSE, 1e-05, 1e-07, TRUE, TRUE, list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), list(check.conv.grad = list(action = \"warning\", tol = 0.001, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), list()), REML = FALSE, positive = 1, cutoff = 0.5, model_verbose = TRUE }. Note: If incorrect, remember to name arguments in model_specific.\n",
                    "Model function: Used glm()\n",

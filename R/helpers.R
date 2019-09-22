@@ -99,6 +99,12 @@ replace_argument_in_model_specifics_if_null <- function(var_name, model_specific
   model_specifics
 }
 
+stop_if_argument_not_null <- function(var_name, model_specifics){
+  if (!is.null(model_specifics[[var_name]])){
+    stop(paste0("'", var_name, "' was not NULL."))
+  }
+}
+
 ### Results
 
 nest_results <- function(results){

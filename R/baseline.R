@@ -433,7 +433,7 @@ baseline <- function(test_data,
     if (!isTRUE(all.equal(random_generator_fn, runif))){
       message(paste0("'random_generator_fn' was not default function. ",
                      "Note that the 'random_generator_fn' is not used in ",
-                     "the gaussian version of baseline()."))
+                     "the Gaussian version of baseline()."))
     }
 
     return(

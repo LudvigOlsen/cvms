@@ -33,7 +33,8 @@ create_multinomial_baseline_evaluations <- function(test_data,
     family = "multinomial",
     REML = FALSE,
     link = NULL,
-    model_verbose = FALSE
+    model_verbose = FALSE,
+    caller = "baseline()"
   ) %>%
     basics_update_model_specifics()
 
@@ -309,7 +310,8 @@ all_or_nothing_evaluations <- function(test_data, targets_col, current_class, re
     link = NULL,
     positive = 2,
     cutoff = 0.5,
-    model_verbose = FALSE
+    model_verbose = FALSE,
+    caller = "baseline()"
   ) %>%
     basics_update_model_specifics()
 

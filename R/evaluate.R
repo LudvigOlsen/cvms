@@ -434,7 +434,8 @@ evaluate <- function(data,
     link = NULL,
     cutoff = cutoff,
     positive = positive,
-    model_verbose = FALSE
+    model_verbose = FALSE,
+    caller = "evaluate()"
   ) %>%
     basics_update_model_specifics()
 

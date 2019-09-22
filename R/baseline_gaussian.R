@@ -78,7 +78,8 @@ create_gaussian_baseline_evaluations <- function(train_data,
     link = NULL,
     cutoff = 0.5,
     positive = 2,
-    model_verbose = FALSE) %>%
+    model_verbose = FALSE,
+    caller = "baseline()") %>%
     basics_update_model_specifics()
 
   # Sample probability of a row being included

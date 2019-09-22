@@ -40,8 +40,10 @@ basics_validate_list = function(train_data, model_list, family = 'gaussian',
     REML = REML,
     link = link,
     cutoff = cutoff,
+    control = control,
     positive = positive,
-    model_verbose = model_verbose) %>%
+    model_verbose = model_verbose,
+    caller = "validate()") %>%
     basics_update_model_specifics()
 
   # validate() all the models using ldply()
@@ -65,7 +67,6 @@ basics_validate_list = function(train_data, model_list, family = 'gaussian',
                   Link = model_specifics[["link"]])
 
   models <- validation_output %c% "Model"
-
 
   # Now we want to take the model from the model_list and split it up into
   # fixed effects and random effects

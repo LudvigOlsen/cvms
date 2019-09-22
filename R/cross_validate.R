@@ -260,20 +260,17 @@ cross_validate <- function(data, models, fold_cols = '.folds', family = 'gaussia
 
 
   return(basics_cross_validate_list(data = data,
-                                   model_list = models,
-                                   fold_cols = fold_cols,
-                                   family = family,
-                                   link = link,
-                                   control=control,
-                                   REML = REML,
-                                   cutoff = cutoff,
-                                   positive = positive,
-                                   rm_nc = rm_nc,
-                                   model_verbose = model_verbose,
-                                   parallel_ = parallel,
-                                   parallelize = "models"))
-
-
-
+                                    model_list = models,
+                                    fold_cols = fold_cols,
+                                    family = family,
+                                    link = link,
+                                    control = control,
+                                    REML = REML,
+                                    cutoff = cutoff,
+                                    positive = positive,
+                                    rm_nc = rm_nc,
+                                    model_verbose = model_verbose,
+                                    parallel_ = parallel,
+                                    parallelize = "models"))
 }
 

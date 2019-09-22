@@ -69,7 +69,7 @@
 #' }
 #' @importFrom purrr pmap_dbl pmap_df
 #' @importFrom rlang .data
-#' @importFrom utils combn head
+#' @importFrom utils combn head capture.output
 #' @importFrom stats setNames formula terms.formula
 #' @import data.table
 combine_predictors <- function(dependent,

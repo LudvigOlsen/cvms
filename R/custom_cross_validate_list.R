@@ -51,7 +51,7 @@ custom_cross_validate_list = function(data,
     custom_update_model_specifics()
 
   # cross_validate all the models using ldply()
-  model_cvs_df = ldply(model_list, .parallel = all(parallel_, parallelize == "models"), .fun = function(model_formula){
+  model_cvs_df = ldply(formulas, .parallel = all(parallel_, parallelize == "models"), .fun = function(model_formula){
     model_specifics[["model_formula"]] <- model_formula
     cross_validate_fn_single(data = data, model_fn = custom_model_fn,
                              evaluation_type = evaluation_type,
@@ -63,7 +63,7 @@ custom_cross_validate_list = function(data,
     tibble::as_tibble() %>%
     dplyr::mutate(Family = model_specifics[["family"]])
 
-  # Now we want to take the model from the model_list and split it up into
+  # Now we want to take the formula from the formulas and split it up into
   # fixed effects and random effects
   # Some users might want to mix models with an without random effects,
   # and so we first try to seperate into fixed and random,
@@ -71,7 +71,7 @@ custom_cross_validate_list = function(data,
   # we remove the column "random".
   # Models without random effects will get NA in the random column.
 
-  mixed_effects <- extract_model_effects(model_list)
+  mixed_effects <- extract_model_effects(formulas)
 
   # we put the two data frames together
   output <- dplyr::bind_cols(model_cvs_df, mixed_effects)

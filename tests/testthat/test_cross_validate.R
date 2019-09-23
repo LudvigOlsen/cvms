@@ -243,6 +243,22 @@ test_that("binomial models work with control specified in cross_validate()",{
                           cat_col = 'diagnosis',
                           id_col = 'participant')
 
+  print(evaluate_promise(
+    cross_validate(
+      dat,
+      models = c("diagnosis~score + (1|session)"),
+      fold_cols = '.folds',
+      family = 'binomial',
+      REML = FALSE,
+      link = NULL,
+      control = lme4::glmerControl(optimizer = "bobyqa" # ,
+                                   #optCtrl = list(maxfun = 1000))
+      ),
+      model_verbose = FALSE,
+      positive = 1
+    )
+  ))
+
   expect_equal(evaluate_promise(
     cross_validate(
       dat,
@@ -251,15 +267,14 @@ test_that("binomial models work with control specified in cross_validate()",{
       family = 'binomial',
       REML = FALSE,
       link = NULL,
-      control = lme4::glmerControl(optimizer = "bobyqa", #
+      control = lme4::glmerControl(optimizer = "bobyqa" # ,
                                    #optCtrl = list(maxfun = 1000))
                                    ),
       model_verbose = FALSE,
       positive = 1
       )
-    )$warnings, c(
-      "\n-------------------------------------\ncross_validate(): Warning:\nIn model:\ndiagnosis~score + (1|session)\nFor fold column:\n.folds\nIn fold:\n3\nunable to evaluate scaled gradient",
-      "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\ndiagnosis~score + (1|session)\nFor fold column:\n.folds\nIn fold:\n3\nModel failed to converge: degenerate  Hessian with 1 negative eigenvalues"
+    )$warnings, c("\n-------------------------------------\ncross_validate(): Warning:\nIn model:\ndiagnosis~score + (1|session)\nFor fold column:\n.folds\nIn fold:\n3\nunable to evaluate scaled gradient",
+                  "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\ndiagnosis~score + (1|session)\nFor fold column:\n.folds\nIn fold:\n3\nModel failed to converge: degenerate  Hessian with 1 negative eigenvalues"
     ), fixed = TRUE)
 
   # expect_equal(CVbinomlistrand$AUC, c(0.7986111), tolerance=1e-3)
@@ -268,7 +283,7 @@ test_that("binomial models work with control specified in cross_validate()",{
   # Singular fit message
   set_seed_for_R_compatibility(2)
 
-  expect_equal(evaluate_promise(
+  expect_equal(testthat::evaluate_promise(
     cross_validate(dat,
                    models = c("diagnosis ~ score + age + (1|session) + (1|age)"),
                    fold_cols = '.folds',

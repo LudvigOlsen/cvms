@@ -258,30 +258,9 @@ test_that("binomial models work with control specified in cross_validate()",{
     expect_true(grepl("unable to evaluate scaled gradient", as.character(w)))
   })
 
-  # expect_equal(
-  #   evaluate_promise(
-  #   cross_validate(
-  #     dat,
-  #     models = c("diagnosis~score + (1|session)"),
-  #     fold_cols = '.folds',
-  #     family = 'binomial',
-  #     REML = FALSE,
-  #     link = NULL,
-  #     control = lme4::glmerControl(optimizer = "bobyqa"),
-  #     model_verbose = FALSE,
-  #     positive = 1
-  #     )
-  #   )$warnings, c("\n-------------------------------------\ncross_validate(): Warning:\nIn model:\ndiagnosis~score + (1|session)\nFor fold column:\n.folds\nIn fold:\n3\nunable to evaluate scaled gradient",
-  #                 "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\ndiagnosis~score + (1|session)\nFor fold column:\n.folds\nIn fold:\n3\nModel failed to converge: degenerate  Hessian with 1 negative eigenvalues"
-  #   ), fixed = TRUE)
-
-  # expect_equal(CVbinomlistrand$AUC, c(0.7986111), tolerance=1e-3)
-  # expect_equal(CVbinomlistrand$`Convergence Warnings`, c(0))
-
-  # Singular fit message
   set_seed_for_R_compatibility(2)
 
-  expect_equal(testthat::evaluate_promise(
+  tryCatch({
     cross_validate(dat,
                    models = c("diagnosis ~ score + age + (1|session) + (1|age)"),
                    fold_cols = '.folds',
@@ -290,17 +269,10 @@ test_that("binomial models work with control specified in cross_validate()",{
                    link = NULL,
                    control = lme4::glmerControl(optimizer = "bobyqa",
                                                 optCtrl = list(maxfun = 100)),
-                   model_verbose = FALSE))$warnings,
-    c("\n-------------------------------------\ncross_validate(): Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n1\nmaxfun < 10 * length(par)^2 is not recommended.",
-      "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n1\nconvergence code 1 from bobyqa: bobyqa -- maximum number of function evaluations exceeded",
-      "\n-------------------------------------\ncross_validate(): Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n2\nmaxfun < 10 * length(par)^2 is not recommended.",
-      "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n2\nconvergence code 1 from bobyqa: bobyqa -- maximum number of function evaluations exceeded",
-      "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n2\nModel failed to converge with max|grad| = 0.0405867 (tol = 0.001, component 1)",
-      "\n-------------------------------------\ncross_validate(): Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n3\nmaxfun < 10 * length(par)^2 is not recommended.",
-      "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n3\nconvergence code 1 from bobyqa: bobyqa -- maximum number of function evaluations exceeded",
-      "\n-------------------------------------\ncross_validate(): Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n3\nunable to evaluate scaled gradient",
-      "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n3\nModel failed to converge: degenerate  Hessian with 1 negative eigenvalues"
-    ), fixed = TRUE)
+                   model_verbose = FALSE)},
+    warning = function(w){
+      expect_true(grepl("maxfun < 10 * length(par)^2 is not recommended", as.character(w)))
+    })
 
 
   # set_seed_for_R_compatibility(2)

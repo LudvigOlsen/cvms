@@ -1,8 +1,15 @@
 # cvms 0.2.0.9000
 
-* Bug fix: the `control` argument in cross_validate was not being used. Now it is.
+* Bug fix: the `control` argument in `cross_validate()` was not being used. Now it is.
 
-* The model is no longer fitted twice when a warning is thrown during fitting.
+* In `cross_validate()`, the model is no longer fitted twice when a warning is thrown during fitting.
+
+* In `baseline()`, `lmer` models are now fitted with `REML = FALSE` by default.
+
+* Adds `REML` argument to `baseline()`.
+
+* `AICc` is now computed with the `MuMIn` package instead of the `AICcmodavg` package, which
+is no longer a dependency.
 
 # cvms 0.2.0
 

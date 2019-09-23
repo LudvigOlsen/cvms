@@ -16,7 +16,7 @@ test_that("gaussian models with link functions with cross_validate()",{
   # Cross-validate the data
   CV_gauss <- cross_validate(dat, "score~diagnosis",
                         fold_cols = '.folds',
-                        family='gaussian', link = 'log',
+                        family = 'gaussian', link = 'log',
                         model_verbose=FALSE)
 
   expect_equal(CV_gauss$RMSE, 40.57058, tolerance=1e-3)

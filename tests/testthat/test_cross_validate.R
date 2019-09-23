@@ -16,10 +16,10 @@ test_that("binomial models work with cross_validate()",{
                           cat_col = 'diagnosis',
                           id_col = 'participant')
 
-  CVbinomlist <- cross_validate(dat, models = c("diagnosis~score","diagnosis~age"),
-                                fold_cols = '.folds', family='binomial',
-                                REML = FALSE, model_verbose=FALSE,
-                                positive=1)
+  CVbinomlist <- cross_validate(dat, models = c("diagnosis~score", "diagnosis~age"),
+                                fold_cols = '.folds', family = 'binomial',
+                                REML = FALSE, model_verbose = FALSE,
+                                positive = 1 )
 
   expect_equal(CVbinomlist$AUC, c(0.7615741, 0.1666667), tolerance=1e-3)
   expect_equal(CVbinomlist$`Lower CI`, c(0.58511535, 0.01748744), tolerance=1e-3)

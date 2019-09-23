@@ -43,19 +43,34 @@ basics_model_fn <- function(train_data,
   #   Create a list of NA predictions the length of y_column
 
   if (is.null(model)){
-    predictions <- rep(NA, length(test_data[[y_col]]))
+
+    predictions <- tibble::tibble("prediction" = rep(NA, length(test_data[[y_col]])))
+
   } else {
-    if (model_specifics[["family"]] == "gaussian")
-      predictions <- stats::predict(model, test_data, allow.new.levels=TRUE)
-    if (model_specifics[["family"]] == "binomial")
-      predictions <- stats::predict(model, test_data, type="response", allow.new.levels=TRUE)
+
+    if (model_specifics[["family"]] == "gaussian"){
+      predictions <- tibble::enframe(
+        stats::predict(model, test_data, allow.new.levels = TRUE),
+        value = "prediction") %>% dplyr::select(.data$prediction)
+
+    } else if (model_specifics[["family"]] == "binomial"){
+      predictions <- tibble::enframe(
+        stats::predict(model, test_data, type = "response",
+                       allow.new.levels = TRUE),
+        value = "prediction") %>% dplyr::select(.data$prediction)
+
+    } else if (model_specifics[["family"]] == "multinomial"){
+      predictions <- dplyr::as_tibble(
+        stats::predict(model, test_data, type = "probs",
+                       allow.new.levels = TRUE))
+    }
   }
 
-  predictions_and_targets <- tibble::tibble("target" = test_data[[y_col]],
-                                            "prediction" = predictions,
-                                            "rel_fold" = fold_info[["rel_fold"]],
-                                            "abs_fold" = fold_info[["abs_fold"]],
-                                            "fold_column" = fold_info[["fold_column"]])
+  predictions_and_targets <- tibble::tibble("target" = test_data[[y_col]]) %>%
+    dplyr::bind_cols(predictions) %>%
+    dplyr::mutate(rel_fold = fold_info[["rel_fold"]],
+                  abs_fold = fold_info[["abs_fold"]],
+                  fold_column = fold_info[["fold_column"]])
 
   list(
     predictions_and_targets = predictions_and_targets,

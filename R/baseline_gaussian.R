@@ -6,6 +6,7 @@ create_gaussian_baseline_evaluations <- function(train_data,
                                                  n_samplings = 100,
                                                  min_training_rows = 5,
                                                  min_training_rows_left_out = 3,
+                                                 REML = FALSE,
                                                  na.rm = TRUE,
                                                  parallel_ = FALSE){
 
@@ -74,7 +75,7 @@ create_gaussian_baseline_evaluations <- function(train_data,
   model_specifics <- list(
     model_formula = model_formula,
     family = "gaussian",
-    REML = FALSE,
+    REML = REML,
     link = NULL,
     cutoff = 0.5,
     positive = 2,
@@ -123,7 +124,7 @@ create_gaussian_baseline_evaluations <- function(train_data,
   if (is.null(random_effects)){
     lm_fn <- lm
   } else {
-    lm_fn <- lme4::lmer
+    lm_fn <- function(...){lme4::lmer(..., REML = model_specifics[["REML"]])}
   }
 
   # Evaluate randomly sampled train set with model "y~1" (potentially plus random effects)
@@ -137,8 +138,8 @@ create_gaussian_baseline_evaluations <- function(train_data,
     sampled_train_set <- train_data[inds,]
 
     # Fit baseline model
-    baseline_linear_model <- lm_fn(model_specifics[["model_formula"]],
-                                data = sampled_train_set)
+    baseline_linear_model <- lm_fn(formula = model_specifics[["model_formula"]],
+                                   data = sampled_train_set)
 
     # Predict test set with baseline model
     test_data[["prediction"]] <- stats::predict(baseline_linear_model,
@@ -211,7 +212,8 @@ create_gaussian_baseline_evaluations <- function(train_data,
   # Fitting on all rows
 
   # Fit baseline model
-  baseline_linear_model_all_rows <- lm_fn(model_specifics[["model_formula"]], data = train_data)
+  baseline_linear_model_all_rows <- lm_fn(model_specifics[["model_formula"]],
+                                          data = train_data)
 
   # Predict test set with baseline model
   test_data[["prediction"]] <- stats::predict(baseline_linear_model_all_rows,

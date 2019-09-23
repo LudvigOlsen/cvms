@@ -67,7 +67,10 @@
 #'
 #'  \code{max_rows_in_subset = nrow(train_data) - min_training_rows_left_out}.
 #'
-#'  \strong{Gaussian only}. (Integer)
+#'  N.B. \strong{Gaussian only}. (Integer)
+#' @param REML Whether to use Restricted Maximum Likelihood. (Logical)
+#'
+#'  N.B. \strong{Gaussian only}. (Integer)
 #' @param parallel Whether to run the \code{n} evaluations in parallel. (Logical)
 #'
 #'  Remember to register a parallel backend first.
@@ -89,7 +92,7 @@
 #'
 #'  AIC : \code{\link[stats:AIC]{stats::AIC}}
 #'
-#'  AICc : \code{\link[AICcmodavg:AICc]{AICcmodavg::AICc}}
+#'  AICc : \code{\link[MuMIn:AICc]{MuMIn::AICc}}
 #'
 #'  BIC : \code{\link[stats:BIC]{stats::BIC}}
 #'
@@ -382,6 +385,7 @@ baseline <- function(test_data,
                      random_effects = NULL,
                      min_training_rows = 5,
                      min_training_rows_left_out = 3,
+                     REML = FALSE,
                      # Parallelization
                      parallel = FALSE) {
 
@@ -444,6 +448,7 @@ baseline <- function(test_data,
                                            n_samplings = n,
                                            min_training_rows = min_training_rows,
                                            min_training_rows_left_out = min_training_rows_left_out,
+                                           REML = REML,
                                            parallel_ = parallel
                                            )
     )

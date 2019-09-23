@@ -1,6 +1,7 @@
 
-
-# model_fn = function(data,fm){lm(formula=fm, data = data)}
+# Note that the model object metrics (r2, AIC, etc.) can only be computed for certain models
+# Turn them off by metrics_list = list("default_model_metrics" = FALSE)
+# model_fn = function(data,formula){lm(formula=formula, data = data)}
 cross_validate_fn <- function(data, model_fn, formulas,
                               fold_cols = '.folds', type = 'gaussian',
                               cutoff = 0.5, positive = 2, rm_nc = FALSE,

@@ -137,7 +137,7 @@
 #'
 #'  AIC : \code{\link[stats:AIC]{stats::AIC}}
 #'
-#'  AICc : \code{\link[AICcmodavg:AICc]{AICcmodavg::AICc}}
+#'  AICc : \code{\link[MuMIn:AICc]{MuMIn::AICc}}
 #'
 #'  BIC : \code{\link[stats:BIC]{stats::BIC}}
 #'

@@ -8,7 +8,7 @@ baseline(test_data, dependent_col, train_data = NULL, n = 100,
   family = "binomial", positive = 2, cutoff = 0.5,
   random_generator_fn = runif, random_effects = NULL,
   min_training_rows = 5, min_training_rows_left_out = 3,
-  parallel = FALSE)
+  REML = FALSE, parallel = FALSE)
 }
 \arguments{
 \item{test_data}{Data Frame.}
@@ -70,7 +70,11 @@ baseline(test_data, dependent_col, train_data = NULL, n = 100,
 
  \code{max_rows_in_subset = nrow(train_data) - min_training_rows_left_out}.
 
- \strong{Gaussian only}. (Integer)}
+ N.B. \strong{Gaussian only}. (Integer)}
+
+\item{REML}{Whether to use Restricted Maximum Likelihood. (Logical)
+
+ N.B. \strong{Gaussian only}. (Integer)}
 
 \item{parallel}{Whether to run the \code{n} evaluations in parallel. (Logical)
 
@@ -288,7 +292,7 @@ Packages used:
 
  AIC : \code{\link[stats:AIC]{stats::AIC}}
 
- AICc : \code{\link[AICcmodavg:AICc]{AICcmodavg::AICc}}
+ AICc : \code{\link[MuMIn:AICc]{MuMIn::AICc}}
 
  BIC : \code{\link[stats:BIC]{stats::BIC}}
 

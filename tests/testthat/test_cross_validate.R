@@ -243,22 +243,6 @@ test_that("binomial models work with control specified in cross_validate()",{
                           cat_col = 'diagnosis',
                           id_col = 'participant')
 
-  print(evaluate_promise(
-    cross_validate(
-      dat,
-      models = c("diagnosis~score + (1|session)"),
-      fold_cols = '.folds',
-      family = 'binomial',
-      REML = FALSE,
-      link = NULL,
-      control = lme4::glmerControl(optimizer = "bobyqa" # ,
-                                   #optCtrl = list(maxfun = 1000))
-      ),
-      model_verbose = FALSE,
-      positive = 1
-    )
-  ))
-
   expect_equal(evaluate_promise(
     cross_validate(
       dat,

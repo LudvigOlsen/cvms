@@ -257,7 +257,7 @@ test_that("binomial models work with control specified in cross_validate()",{
     model_verbose = FALSE,
     positive = 1
   )}, warning = function(w){
-    expect_true(grepl("unable to evaluate scaled gradient", as.character(w)))
+    expect_true(grepl("unable to evaluate scaled gradient", as.character(w), ignore.case = TRUE))
   })
 
 

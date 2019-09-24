@@ -5,6 +5,8 @@ custom_cross_validate_list = function(data,
                                       family = 'gaussian',
                                       cutoff = 0.5,
                                       positive = 2,
+                                      predict_type = NULL,
+                                      predict_fn = NULL,
                                       rm_nc = FALSE,
                                       model_verbose = FALSE,
                                       parallel_ = FALSE,
@@ -15,6 +17,10 @@ custom_cross_validate_list = function(data,
   stopifnot(is.data.frame(data),
             is.character(positive) || positive %in% c(1,2)
   )
+
+  if (!is.null(predict_type) && !is.null(predict_fn)){
+    stop("cross_validate_fn(): Both 'predict_type' and 'predict_fn' were specified. Please specify only one of them.")
+  }
 
   # Check that the fold column(s) is/are factor(s)
   if (length(fold_cols) == 1){
@@ -46,6 +52,8 @@ custom_cross_validate_list = function(data,
     positive = positive,
     model_verbose = model_verbose,
     model_fn = model_fn,
+    predict_type = predict_type,
+    predict_fn = predict_fn,
     caller = "cross_validate_fn()"
   ) %>%
     custom_update_model_specifics()

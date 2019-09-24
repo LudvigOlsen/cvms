@@ -1,4 +1,4 @@
-# Model function for cross-validating lm, lmer, glm, and glmer
+# Model function for cross-validating custom model functions like svm, randomForest, etc.
 
 custom_model_fn <- function(train_data,
                             test_data,
@@ -9,6 +9,7 @@ custom_model_fn <- function(train_data,
                               model_formula = NULL, family = NULL, link = NULL,
                               control = NULL, REML = FALSE, positive = 2,
                               cutoff = 0.5, model_verbose = FALSE, model_fn = NULL,
+                              predict_type = NULL, predict_fn = NULL,
                               caller = NULL)){
 
   # Make sure, a model function was actually passed
@@ -22,7 +23,9 @@ custom_model_fn <- function(train_data,
   # Check if there are random effects (Logical)
   contains_random_effects = rand_effects(model_specifics[["model_formula"]])
 
-  # Choose model_type
+  user_predict_fn <- model_specifics[["predict_fn"]]
+
+  # Check task/evaluation type
   if (model_specifics[["family"]] %ni% c("gaussian","binomial","multinomial")){
     stop(paste0("Does not recognize '", model_specifics[["family"]], "'."))
   }
@@ -51,10 +54,70 @@ custom_model_fn <- function(train_data,
 
   } else {
 
-    if (model_specifics[["family"]] == "gaussian"){
-      predictions <- tibble::enframe(
-        stats::predict(model, test_data, allow.new.levels = TRUE),
-        value = "prediction") %>% dplyr::select(.data$prediction)
+    if (!is.null(user_predict_fn)){
+
+      # Use user's predict function
+      predictions <- run_user_predict_fn(
+        user_predict_fn = user_predict_fn,
+        test_data = test_data,
+        model = model,
+        caller = model_specifics[["caller"]])
+
+    } else {
+
+      # Use default predict function
+      predictions <- internal_predict_fn(
+        model = model,
+        test_data = test_data,
+        family = model_specifics[["family"]],
+        predict_type = model_specifics[["predict_type"]],
+        caller = model_specifics[["caller"]])
+
+    }
+
+    if (model_specifics[["family"]] %in% c("gaussian","binomial")){
+
+      if (is.matrix(predictions)){
+        if (ncol(predictions) > 1){
+
+          stop(paste0(model_specifics[["caller"]],": When type/family is ", model_specifics[["family"]],
+                      ", the predictions must be a vector or matrix / data frame with one column but was a matrix with ",
+                      ncol(predictions), " columns. ",
+                      "Did you specify 'predict_type' or 'predict_fn' correctly?"))
+        }
+
+        # Convert column to vector then tibble
+        predictions <- tibble::enframe(as.vector(predictions),
+                        value = "prediction",
+                        name = NULL)
+
+      } else if (is.data.frame(predictions)){
+        if (ncol(predictions) > 1){
+
+          stop(paste0(model_specifics[["caller"]],": When type/family is ", model_specifics[["family"]],
+                      ", the predictions must be a vector or matrix / data frame with one column but was a data frame with ",
+                      ncol(predictions), " columns. ",
+                      "Did you specify 'predict_type' or 'predict_fn' correctly?"))
+        }
+
+        # Make sure the data frame has the correct column name
+        colnames(predictions) <- "prediction"
+        # Convert to tibble
+        predictions <- dplyr::as_tibble(predictions)
+
+      } else {
+
+        predictions <- tryCatch({
+          tibble::enframe(as.vector(predictions),
+                          value = "prediction",
+                          name = NULL)
+          }, error = function(e){
+            stop(paste0(model_specifics[["caller"]],": Could not use the obtained predictions. ",
+                        "Did you specify 'predict_type' or 'predict_fn' correctly? ",
+                        "The original error was: ", e))
+          })
+
+      }
 
       # Force type numeric
       predictions[["prediction"]] <- force_numeric(
@@ -65,25 +128,16 @@ custom_model_fn <- function(train_data,
       predictions <- predictions %>%
         dplyr::select(.data$prediction)
 
-    } else if (model_specifics[["family"]] == "binomial"){
-      predictions <- tibble::enframe(
-        stats::predict(model, test_data, type = "response",
-                       allow.new.levels = TRUE),
-        value = "prediction")
-
-      # Force type numeric and extract prediction column
-      predictions[["prediction"]] <- force_numeric(
-        predictions_vector = predictions[["prediction"]],
-        caller = model_specifics[["caller"]])
-
-      # Select prediction column
-      predictions <- predictions %>%
-        dplyr::select(.data$prediction)
-
     } else if (model_specifics[["family"]] == "multinomial"){
+
+      # TODO DO ALL SORTS OF CHECKS HERE
+
+      # Convert to tibble
       predictions <- dplyr::as_tibble(
-        stats::predict(model, test_data, type = "probs",
-                       allow.new.levels = TRUE))
+        predictions)
+
+      # TODO Potentially need to force type numeric to
+      # all probability columns?
     }
   }
 
@@ -120,7 +174,8 @@ force_numeric <- function(predictions_vector, caller = ""){
     }, warning = function(w) {
       warning(paste0(
         caller,
-        ": Could not convert predictions to type numeric."
+        ": Warning thrown while converting predictions to type numeric: ",
+        w
       ))
     })
   }
@@ -128,3 +183,111 @@ force_numeric <- function(predictions_vector, caller = ""){
   predictions_vector
 }
 
+internal_predict_fn <- function(model, test_data, family, predict_type = NULL, caller = ""){
+  # If predict_type is specified by user
+  if (!is.null(predict_type)){
+
+    preds <- try_predicting(
+      fn = function() {
+        stats::predict(model,
+                       test_data,
+                       type = predict_type,
+                       allow.new.levels = TRUE)
+      },
+      caller = caller,
+      predict_type = predict_type
+    )
+
+  } else {
+
+    # Default predict_type per family
+    if (family == "gaussian"){
+      preds <- try_predicting(
+        fn = function() {
+          stats::predict(model, test_data, allow.new.levels = TRUE)
+        },
+        caller = caller,
+        predict_type = predict_type
+      )
+
+    } else if (family == "binomial"){
+      preds <- try_predicting(
+        fn = function() {
+          stats::predict(model,
+                         test_data,
+                         type = "response",
+                         allow.new.levels = TRUE)
+        },
+        caller = caller,
+        predict_type = predict_type
+      )
+
+    } else if (family == "multinomial"){
+      preds <- try_predicting(
+        fn = function() {
+          stats::predict(model,
+                         test_data,
+                         type = "probs",
+                         allow.new.levels = TRUE)
+        },
+        caller = caller,
+        predict_type = predict_type
+      )
+    }
+  }
+  preds
+}
+
+try_predicting <- function(fn, caller, predict_type){
+  tryCatch({
+    fn()
+  }, error = function(e){
+    if (grepl("'arg' should be", as.character(e), ignore.case = TRUE)){
+      if (is.null(predict_type)){
+        stop(paste0(caller, ": Could not use the default 'predict_type' in stats::predict(). ",
+                    "Specify 'predict_type' or pass a custom 'predict_fn'. ",
+                    "The original error was: ", e))
+      } else {
+        stop(paste0(caller, ": Could not use the specified 'predict_type.' ",
+                    "Try changing 'predict_type' or pass a custom 'predict_fn'. ",
+                    "The original error was: ", e))
+      }
+    } else {
+      stop(paste0(caller, ": Could not call stats::predict() with current settings (typically 'predict_type'). ",
+                  "Try changing 'predict_type' or pass a custom 'predict_fn'. ",
+                  "The original error was: ", e))
+    }
+  }, warning = function(w){
+    warning(paste0(caller, ": ", w))
+  })
+}
+
+run_user_predict_fn <- function(user_predict_fn, test_data, model, caller=""){
+
+  tryCatch({
+    # Use user's predict function
+    user_predict_fn(test_data = test_data,
+                    model = model)
+
+  }, error = function(e){
+
+    stop(paste0(
+      caller,
+      ": ",
+      "Got the following error while using specified 'predict_fn': ",
+      e
+    ))
+
+  }, warning = function(w){
+
+    warning(paste0(
+      caller,
+      ": ",
+      "Got the following warning while using specified 'predict_fn': ",
+      e
+    ))
+
+    return(user_predict_fn(test_data = test_data,
+                           model = model))
+  })
+}

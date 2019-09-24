@@ -22,7 +22,7 @@ Imports:
     data.table (>= 1.12),
     dplyr,
     plyr,
-    tidyr (>= 0.7.0),
+    tidyr (>= 1.0.0),
     ggplot2,
     purrr,
     tibble (>= 2.1.1),
@@ -31,21 +31,21 @@ Imports:
     stats,
     lme4 (>= 1.1-21),
     MuMIn (>= 1.43.6),
-    broom,
+    broom (>= 0.5.2),
     stringr,
     mltools (>= 0.3.5),
     rlang,
     utils
 RoxygenNote: 6.1.1
 Suggests: knitr,
-    groupdata2 (>= 1.1.1),
-    e1071,
+    groupdata2 (>= 1.1.2),
+    e1071 (>= 1.7-2),
     rmarkdown,
     testthat (>= 2.2.1),
     AUC,
     furrr,
-    ModelMetrics,
-    covr,
-    nnet,
-    randomForest
+    ModelMetrics (>= 1.2.2),
+    covr (>= 3.3.1),
+    nnet (>= 7.3-12),
+    randomForest (>= 4.6-14)
 VignetteBuilder: knitr

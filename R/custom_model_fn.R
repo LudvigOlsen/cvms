@@ -284,7 +284,7 @@ run_user_predict_fn <- function(user_predict_fn, test_data, model, caller=""){
       caller,
       ": ",
       "Got the following warning while using specified 'predict_fn': ",
-      e
+      w
     ))
 
     return(user_predict_fn(test_data = test_data,

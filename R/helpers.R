@@ -381,6 +381,8 @@ create_tmp_var <- function(data, tmp_var = ".tmp_index_"){
   tmp_var
 }
 
+# Tidyr legacy
+
 # https://tidyr.tidyverse.org/dev/articles/in-packages.html
 tidyr_new_interface <- function() {
   utils::packageVersion("tidyr") > "0.8.99"
@@ -397,6 +399,14 @@ legacy_nest <- function(...){
     tidyr::nest(...)
   }
 }
+
+# Keras check
+# testthat utilty for skipping tests when Keras isn't available
+skip_if_no_keras <- function(version = NULL) {
+  if (!keras::is_keras_available(version))
+    testthat::skip("Required keras version not available for testing")
+}
+
 
 # Wraps tibble::add_column
 reposition_column <- function(data, col, .before = NULL, .after = NULL){

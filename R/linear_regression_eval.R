@@ -266,7 +266,7 @@ get_nested_model_coefficients <- function(models, fold_info=list(folds = NULL,
                   as.character(e), ignore.case = TRUE)){
 
           # Try to extract coefficients
-          coefs <- tryCatch({coef(models[[i]])},
+          coefs <- tryCatch({stats::coef(models[[i]])},
                             error = function(e){return(NA)})
 
           # If successful, manually create tidy tibble

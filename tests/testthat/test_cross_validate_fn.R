@@ -10,8 +10,8 @@ test_that("binomial glm models work with cross_validate_fn()",{
                           cat_col = 'diagnosis',
                           id_col = 'participant')
 
-  glm_model_fn <- function(data, formula){
-    glm(formula = formula, data = data, family = "binomial")
+  glm_model_fn <- function(train_data, formula){
+    glm(formula = formula, data = train_data, family = "binomial")
   }
 
   CVbinomlist <- cross_validate_fn(dat,
@@ -62,8 +62,8 @@ test_that("gaussian lm model with cross_validate_fn()",{
                           cat_col = 'diagnosis',
                           id_col = 'participant')
 
-  lm_model_fn <- function(data, formula){
-    lm(formula = formula, data = data)
+  lm_model_fn <- function(train_data, formula){
+    lm(formula = formula, data = train_data)
   }
   # summary(lmm <- lm_model_fn(dat, "score ~ diagnosis"))
   # MuMIn::AICc(lmm, REML = F) # The one used in the package
@@ -101,10 +101,10 @@ test_that("binomial svm models from e1071 work with cross_validate_fn()",{
                           id_col = 'participant')
   dat[["diagnosis"]] <- factor(dat[["diagnosis"]])
 
-  svm_model_fn <- function(data, formula){
+  svm_model_fn <- function(train_data, formula){
 
     e1071::svm(formula = formula, # converted to formula object within custom_fit_model()
-               data = data,
+               data = train_data,
                kernel = "linear",
                cost = 10,
                scale = FALSE,
@@ -160,10 +160,10 @@ test_that("gaussian svm models from e1071 work with cross_validate_fn()",{
                           cat_col = 'diagnosis',
                           id_col = 'participant')
 
-  svm_model_fn <- function(data, formula){
+  svm_model_fn <- function(train_data, formula){
 
     e1071::svm(formula = formula, # converted to formula object within custom_fit_model()
-               data = data,
+               data = train_data,
                kernel = "linear",
                cost = 10,
                scale = FALSE,
@@ -218,15 +218,15 @@ test_that("binomial naiveBayes models from e1071 work with cross_validate_fn()",
                           id_col = 'participant')
   dat[["diagnosis"]] <- factor(dat[["diagnosis"]])
 
-  nb_model_fn <- function(data, formula){
+  nb_model_fn <- function(train_data, formula){
 
     e1071::naiveBayes(formula = formula, # converted to formula object within custom_fit_model()
-                      data = data)
+                      data = train_data)
   }
 
   # nb_ <- nb_model_fn(data = dat, formula = as.formula("diagnosis~score"))
 
-  nb_predict_fn <- function(test_data, model){
+  nb_predict_fn <- function(test_data, model, formula = NULL){
     stats::predict(object = model, newdata = test_data, type = "raw", allow.new.levels = TRUE)[,2]
   }
 
@@ -307,10 +307,10 @@ test_that("binomial nnet models work with cross_validate_fn()",{
                           id_col = 'participant')
   dat[["diagnosis"]] <- factor(dat[["diagnosis"]])
 
-  nnet_model_fn <- function(data, formula){
+  nnet_model_fn <- function(train_data, formula){
 
     nnet::nnet(formula = formula, # converted to formula object within custom_fit_model()
-               data = data,
+               data = train_data,
                size = 50)
   }
   # nn <- nnet_model_fn(data = dat, formula = as.formula("diagnosis~score"))
@@ -365,10 +365,10 @@ test_that("gaussian nnet models work with cross_validate_fn()",{
                           cat_col = 'diagnosis',
                           id_col = 'participant')
 
-  nnet_model_fn <- function(data, formula){
+  nnet_model_fn <- function(train_data, formula){
 
     nnet::nnet(formula = formula, # converted to formula object within custom_fit_model()
-               data = data,
+               data = train_data,
                size = 10,
                linout = TRUE)
   }
@@ -425,11 +425,11 @@ test_that("binomial randomForest models work with cross_validate_fn()",{
                           id_col = 'participant')
   dat[["diagnosis"]] <- factor(dat[["diagnosis"]])
 
-  rf_model_fn <- function(data, formula){
+  rf_model_fn <- function(train_data, formula){
 
     randomForest::randomForest(
       formula = formula,
-      data = data)
+      data = train_data)
   }
   # nn <- nnet_model_fn(data = dat, formula = as.formula("diagnosis~score"))
   # predict(nn, dat, type = "raw", allow.new.levels = TRUE)
@@ -483,11 +483,11 @@ test_that("gaussian randomForest models work with cross_validate_fn()",{
                           cat_col = 'diagnosis',
                           id_col = 'participant')
 
-  rf_model_fn <- function(data, formula){
+  rf_model_fn <- function(train_data, formula){
 
     randomForest::randomForest(
       formula = formula,
-      data = data)
+      data = train_data)
   }
   # rf <- rf_model_fn(data = dat, formula = as.formula("score~diagnosis+age"))
   # predict(rf, dat, allow.new.levels = TRUE)
@@ -528,4 +528,133 @@ test_that("gaussian randomForest models work with cross_validate_fn()",{
                NA)
   expect_equal(CVed$Coefficients[[1]]$p.value,
                NA)
+})
+
+test_that("binomial keras models work with cross_validate_fn()",{
+
+  testthat::skip("keras and tensorflow take too long and have too many dependencies")
+
+  # Uncomment to run (avoids having keras as dependency just for this)
+#   # skip_test_if_old_R_version()
+#   skip_if_no_keras()
+#   library(keras)
+#   suppressMessages(use_session_with_seed(42))
+#
+#   # Load data and fold it
+#   set_seed_for_R_compatibility(4)
+#   dat <- groupdata2::fold(participant.scores, k = 4,
+#                           cat_col = 'diagnosis',
+#                           id_col = 'participant')
+#
+#   extract_data <- function(data, formula){
+#
+#     # Extract vars
+#     variables <- rownames(attr(terms.formula(formula), "factors"))
+#     target_var <- variables[[1]]
+#     predictor_vars <- tail(variables, (length(variables)-1))
+#
+#     term_labels <- attr(terms.formula(formula), "term.labels")
+#
+#     stopifnot(length(predictor_vars) == length(term_labels))
+#
+#     # Extract predictors
+#     x <- data %>% dplyr::ungroup() %>%
+#       dplyr::select(!!!predictor_vars) %>%
+#       as.matrix()
+#
+#     # Extract targets
+#     y <- as.matrix(data[[target_var]])
+#
+#     list("X" = x, "y" = y)
+#   }
+#
+#   keras_model_fn <- function(train_data, formula){
+#
+#     # Extract variables and make sure formula doesn't have interaction terms, etc.
+#     # We could technically use interactions here
+#     # but a neural will find interactions anyway
+#     data_list <- extract_data(train_data, formula)
+#     x_train <- data_list[["X"]]
+#     y_train <- to_categorical(data_list[["y"]])
+#
+#     # Model
+#
+#     # Specify model
+#     model <- keras_model_sequential()
+#     model %>%
+#       layer_dense(units = 25, activation = 'relu', input_shape = c(ncol(x_train))) %>%
+#       layer_dense(units = 25, activation = 'relu') %>%
+#       layer_dense(units = 2, activation = "softmax") # output layer
+#
+#     # Compile model
+#     model %>% compile(
+#       loss = 'categorical_crossentropy',
+#       optimizer = optimizer_rmsprop(),
+#       metrics = list("accuracy")
+#     )
+#
+#     # Fit model
+#     model %>% fit(
+#       x_train,
+#       y_train,
+#       epochs = 5,
+#       batch_size = NULL
+#     )
+#
+#     model
+#   }
+#
+#   keras_predict_fn <- function(test_data, model, formula = NULL){
+#
+#     # Prepare data
+#     data_list <- extract_data(test_data, formula)
+#     x_test <- data_list[["X"]]
+#
+#     # Predict test set
+#     predict(model, x_test)[,2]
+#
+#   }
+#
+#   # kn <- keras_model_fn(train_data = dat, formula = stats::as.formula("diagnosis~score+age"))
+#   # keras_predict_fn(test_data = dat, model = kn, formula = stats::as.formula("score~diagnosis+age"))
+#
+#   # Cross-validate the data
+#   CVbinomlist <- cross_validate_fn(
+#     dat,
+#     model_fn = keras_model_fn,
+#     formulas = "diagnosis~score+age",
+#     fold_cols = '.folds',
+#     type = 'binomial',
+#     predict_fn = keras_predict_fn,
+#     model_verbose = FALSE
+#   )
+#
+#   expect_equal(CVbinomlist$AUC, 0.5833333, tolerance=1e-3)
+#   expect_equal(CVbinomlist$`Lower CI`, 0.3624639, tolerance=1e-3)
+#   expect_equal(CVbinomlist$`Upper CI`, 0.8042027, tolerance=1e-3)
+#   expect_equal(CVbinomlist$Kappa, 0.1666667, tolerance=1e-3)
+#   expect_equal(CVbinomlist$Sensitivity, 0.6666667, tolerance=1e-3)
+#   expect_equal(CVbinomlist$Specificity, 0.5, tolerance=1e-3)
+#   expect_equal(CVbinomlist$`Pos Pred Value`, 0.6666667, tolerance=1e-3)
+#   expect_equal(CVbinomlist$`Neg Pred Value`, 0.5, tolerance=1e-3)
+#   expect_equal(CVbinomlist$F1, 0.6666667, tolerance=1e-3)
+#   expect_equal(CVbinomlist$Prevalence, 0.6, tolerance=1e-3)
+#   expect_equal(CVbinomlist$`Detection Rate`, 0.4, tolerance=1e-3)
+#   expect_equal(CVbinomlist$`Detection Prevalence`, 0.6, tolerance=1e-3)
+#   expect_equal(CVbinomlist$`Balanced Accuracy`, 0.5833333, tolerance=1e-3)
+#   expect_equal(CVbinomlist$MCC, 0.1666667, tolerance=1e-3)
+#   expect_equal(CVbinomlist$Folds, 4)
+#   expect_equal(CVbinomlist$`Fold Columns`, 1)
+#   expect_equal(CVbinomlist$`Convergence Warnings`, 0)
+#   expect_equal(CVbinomlist$Family, 'binomial')
+#   expect_equal(CVbinomlist$Dependent, 'diagnosis')
+#   expect_equal(CVbinomlist$Fixed, "score+age")
+#
+#   # Enter sub tibbles
+#   expect_is(CVbinomlist$Predictions[[1]], "tbl_df")
+#   expect_is(CVbinomlist$ROC[[1]], "tbl_df")
+#   expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
+#   expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Sensitivities","Specificities"))
+#   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
+#   expect_equal(nrow(CVbinomlist$ROC[[1]]),31)
 })

@@ -43,7 +43,7 @@ custom_update_model_specifics <- function(model_specifics){
 
 capture_fn <- function(fn){
   if (!is.null(fn)){
-    return(paste0(capture.output(fn), collapse = " \n "))
+    return(paste0(utils::capture.output(fn), collapse = " \n "))
   }
   return("NULL")
 }

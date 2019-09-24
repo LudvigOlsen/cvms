@@ -61,6 +61,7 @@ custom_model_fn <- function(train_data,
         user_predict_fn = user_predict_fn,
         test_data = test_data,
         model = model,
+        formula = model_specifics[["model_formula"]],
         caller = model_specifics[["caller"]])
 
     } else {
@@ -262,12 +263,13 @@ try_predicting <- function(fn, caller, predict_type){
   })
 }
 
-run_user_predict_fn <- function(user_predict_fn, test_data, model, caller=""){
+run_user_predict_fn <- function(user_predict_fn, test_data, model, formula, caller = ""){
 
   tryCatch({
     # Use user's predict function
     user_predict_fn(test_data = test_data,
-                    model = model)
+                    model = model,
+                    formula = stats::as.formula(formula))
 
   }, error = function(e){
 

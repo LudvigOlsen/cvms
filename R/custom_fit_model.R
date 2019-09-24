@@ -7,9 +7,9 @@ custom_fit_model <- function(model_specifics, train_set){
   # Some model types don't accept string formulas
   # so we convert it to an actual formula object
   if (is.character(model_formula))
-    model_formula <- as.formula(model_formula)
+    model_formula <- stats::as.formula(model_formula)
 
   model_fn(formula = model_formula,
-           data = train_set)
+           train_data = train_set)
 
 }

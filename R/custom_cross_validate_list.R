@@ -7,6 +7,7 @@ custom_cross_validate_list = function(data,
                                       positive = 2,
                                       predict_type = NULL,
                                       predict_fn = NULL,
+                                      metrics = list(),
                                       rm_nc = FALSE,
                                       model_verbose = FALSE,
                                       parallel_ = FALSE,
@@ -20,6 +21,18 @@ custom_cross_validate_list = function(data,
 
   if (!is.null(predict_type) && !is.null(predict_fn)){
     stop("cross_validate_fn(): Both 'predict_type' and 'predict_fn' were specified. Please specify only one of them.")
+  }
+
+  # metrics
+
+  if (!(is.list(metrics) || metrics == "all")){
+    stop("'metrics' must be either a list or the string 'all'.")
+  }
+
+  if (is.list(metrics) && length(metrics) > 0){
+    if (!rlang::is_named(metrics)){
+      stop("when 'metrics' is a non-empty list, it must be a named list.")
+    }
   }
 
   # Check that the fold column(s) is/are factor(s)

@@ -1,9 +1,13 @@
 # R CMD check NOTE handling
 if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 
-cross_validate_fn_single <- function(data, model_fn, evaluation_type = "gaussian",
-                                     model_specifics = list(), model_specifics_update_fn = NULL,
-                                     fold_cols =".folds", parallel_ = FALSE){
+cross_validate_fn_single <- function(data, model_fn,
+                                     evaluation_type = "gaussian",
+                                     model_specifics = list(),
+                                     model_specifics_update_fn = NULL,
+                                     metrics = list(),
+                                     fold_cols = ".folds",
+                                     parallel_ = FALSE){
 
   # TODO: the below comment is not correct
   # eval_fn: "regression", "binomial", "multiclass", "multilabel", "custom"/function
@@ -108,7 +112,8 @@ cross_validate_fn_single <- function(data, model_fn, evaluation_type = "gaussian
       fold_column = "fold_column"
     ),
     models = models,
-    model_specifics = model_specifics) %>%
+    model_specifics = model_specifics,
+    metrics = metrics) %>%
     mutate(Folds = n_folds,
            `Fold Columns` = length(fold_cols),
            `Convergence Warnings` = n_conv_warns,

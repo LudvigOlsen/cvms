@@ -1,5 +1,7 @@
 # cvms 0.2.0.9000
 
+* `cross_validate_fn()` is added. Cross-validate custom model functions.
+
 * Bug fix: the `control` argument in `cross_validate()` was not being used. Now it is.
 
 * In `cross_validate()`, the model is no longer fitted twice when a warning is thrown during fitting.

@@ -161,6 +161,9 @@ Cross-validate one or multiple gaussian or binomial
  models at once. Perform repeated cross-validation.
  Returns results in a tibble for easy comparison,
  reporting and further analysis.
+
+ See \code{\link[cvms:cross_validate_fn]{cross_validate_fn()}} for use
+ with custom model functions.
 }
 \details{
 Packages used:
@@ -219,7 +222,7 @@ data <- fold(data, k = 4,
 # Gaussian
 cross_validate(data,
                models = "score~diagnosis",
-               family='gaussian',
+               family = 'gaussian',
                REML = FALSE)
 
 # Binomial
@@ -234,7 +237,7 @@ models <- c("score~diagnosis+(1|session)",
 
 cross_validate(data,
                models = models,
-               family='gaussian',
+               family = 'gaussian',
                REML = FALSE)
 
 # Use non-default link functions

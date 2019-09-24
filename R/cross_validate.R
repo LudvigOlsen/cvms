@@ -6,6 +6,9 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #'  models at once. Perform repeated cross-validation.
 #'  Returns results in a tibble for easy comparison,
 #'  reporting and further analysis.
+#'
+#'  See \code{\link[cvms:cross_validate_fn]{cross_validate_fn()}} for use
+#'  with custom model functions.
 #' @details
 #'
 #'  Packages used:
@@ -200,7 +203,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #' # Gaussian
 #' cross_validate(data,
 #'                models = "score~diagnosis",
-#'                family='gaussian',
+#'                family = 'gaussian',
 #'                REML = FALSE)
 #'
 #' # Binomial
@@ -215,7 +218,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #'
 #' cross_validate(data,
 #'                models = models,
-#'                family='gaussian',
+#'                family = 'gaussian',
 #'                REML = FALSE)
 #'
 #' # Use non-default link functions

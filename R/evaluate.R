@@ -4,8 +4,8 @@
 #'
 #'  Create ID-aggregated evaluations by multiple methods.
 #'
-#'  Currently supports linear regression, binary classification
-#'  and multiclass classification (see \code{type}).
+#'  Currently supports regression, binary classification
+#'  and multiclass classification tasks (see \code{type}).
 #'
 #'  \strong{evaluate() is under development! Large changes may occur.}
 #' @param data Data frame with predictions, targets and (optionally) an ID column.
@@ -118,7 +118,7 @@
 #'   N.B. Currently, disabled metrics are still computed.
 #' @param type Type of evaluation to perform:
 #'
-#'  \code{"gaussian"} for linear regression.
+#'  \code{"gaussian"} for regression (like linear regression).
 #'
 #'  \code{"binomial"} for binary classification.
 #'

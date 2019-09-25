@@ -25,6 +25,16 @@
 #' @family validation functions
 #' @inheritParams cross_validate
 #' @inheritParams evaluate
+#' @param formulas Model formulas as strings. (Character)
+#'
+#'  Will be converted to \code{\link[stats:formula]{formula}} objects
+#'  before being passed to \code{model_fn}.
+#'
+#'  E.g. \code{c("y~x", "y~z")}.
+#'
+#'  Can contain random effects.
+#'
+#'  E.g. \code{c("y~x+(1|r)", "y~z+(1|r)")}.
 #' @param model_fn Model function that returns a fitted model object.
 #'  Will usually wrap an existing model function like \code{\link[e1071:svm]{e1071::svm}}
 #'  or \code{\link[nnet:multinom]{nnet::multinom}}.
@@ -37,19 +47,21 @@
 #'  When the defaults fail, provide it such that the \code{\link[stats:predict]{predict()}}
 #'  output is as follows:
 #'
-#'  \subsection{Binomial}
+#'  \subsection{Binomial}{
 #'  Vector or one-column matrix / data frame with probabilies (0-1).
 #'  E.g.:
 #'
 #'  \code{c(0.3, 0.5, 0.1, 0.5)}
+#'  }
 #'
-#'  \subsection{Gaussian}
+#'  \subsection{Gaussian}{
 #'  Vector or one-column matrix / data frame with the predicted value.
 #'  E.g.:
 #'
 #'  \code{c(3.7, 0.9, 1.2, 7.3)}
+#'  }
 #'
-#'  \subsection{Multinomial}
+#'  \subsection{Multinomial}{
 #'  Data frame with one column per class containing probabilities of the class.
 #'  Column names should be identical to how the class names are written in the target column.
 #'  E.g.:
@@ -63,6 +75,7 @@
 #'   ... \tab ... \tab ...}
 #'
 #'  N.B. \code{predict_fn} and \code{predict_type} are mutually exclusive. Specify only one of them.
+#'  }
 #' @param predict_fn Function for predicting the targets in the test folds using the fitted model object.
 #'  Will usually wrap \code{\link[stats:predict]{predict()}}, but doesn't have to.
 #'  Must return predictions in the format described in \code{predict_type} above.

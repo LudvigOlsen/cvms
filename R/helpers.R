@@ -402,10 +402,10 @@ legacy_nest <- function(...){
 
 # Keras check
 # testthat utilty for skipping tests when Keras isn't available
-skip_if_no_keras <- function(version = NULL) {
-  if (!keras::is_keras_available(version))
-    testthat::skip("Required keras version not available for testing")
-}
+# skip_if_no_keras <- function(version = NULL) {
+#   if (!keras::is_keras_available(version))
+#     testthat::skip("Required keras version not available for testing")
+# }
 
 
 # Wraps tibble::add_column

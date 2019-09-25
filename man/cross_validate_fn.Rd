@@ -23,6 +23,17 @@ cross_validate_fn(data, model_fn, formulas, fold_cols = ".folds",
 
  \code{function(train_data, formula)}}
 
+\item{formulas}{Model formulas as strings. (Character)
+
+ Will be converted to \code{\link[stats:formula]{formula}} objects
+ before being passed to \code{model_fn}.
+
+ E.g. \code{c("y~x", "y~z")}.
+
+ Can contain random effects.
+
+ E.g. \code{c("y~x+(1|r)", "y~z+(1|r)")}.}
+
 \item{fold_cols}{Name(s) of grouping factor(s) for identifying folds. (Character)
 
  Include names of multiple grouping factors for repeated cross-validation.}
@@ -56,19 +67,21 @@ cross_validate_fn(data, model_fn, formulas, fold_cols = ".folds",
  When the defaults fail, provide it such that the \code{\link[stats:predict]{predict()}}
  output is as follows:
 
- \subsection{Binomial}
+ \subsection{Binomial}{
  Vector or one-column matrix / data frame with probabilies (0-1).
  E.g.:
 
  \code{c(0.3, 0.5, 0.1, 0.5)}
+ }
 
- \subsection{Gaussian}
+ \subsection{Gaussian}{
  Vector or one-column matrix / data frame with the predicted value.
  E.g.:
 
  \code{c(3.7, 0.9, 1.2, 7.3)}
+ }
 
- \subsection{Multinomial}
+ \subsection{Multinomial}{
  Data frame with one column per class containing probabilities of the class.
  Column names should be identical to how the class names are written in the target column.
  E.g.:
@@ -81,7 +94,8 @@ cross_validate_fn(data, model_fn, formulas, fold_cols = ".folds",
   0.375 \tab 0.371 \tab 0.254\cr
   ... \tab ... \tab ...}
 
- N.B. \code{predict_fn} and \code{predict_type} are mutually exclusive. Specify only one of them.}
+ N.B. \code{predict_fn} and \code{predict_type} are mutually exclusive. Specify only one of them.
+ }}
 
 \item{predict_fn}{Function for predicting the targets in the test folds using the fitted model object.
  Will usually wrap \code{\link[stats:predict]{predict()}}, but doesn't have to.

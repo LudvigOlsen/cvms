@@ -46,7 +46,7 @@ custom_cross_validate_list = function(data,
 
   # Get evaluation functions
   if (family == "gaussian"){
-    evaluation_type = "linear_regression"
+    evaluation_type = "gaussian"
   } else if (family == "binomial"){
     evaluation_type = "binomial"
   } else if (family == "multinomial"){
@@ -72,7 +72,7 @@ custom_cross_validate_list = function(data,
     custom_update_model_specifics()
 
   # cross_validate all the models using ldply()
-  model_cvs_df = ldply(formulas, .parallel = all(parallel_, parallelize == "models"), .fun = function(model_formula){
+  cross_validations <- plyr::llply(formulas, .parallel = all(parallel_, parallelize == "models"), .fun = function(model_formula){
     model_specifics[["model_formula"]] <- model_formula
     cross_validate_fn_single(data = data, model_fn = custom_model_fn,
                              evaluation_type = evaluation_type,
@@ -80,9 +80,32 @@ custom_cross_validate_list = function(data,
                              model_specifics_update_fn = NULL, # did this above
                              fold_cols = fold_cols,
                              parallel_ = all(parallel_, parallelize == "folds"))
-  }) %>%
-    tibble::as_tibble() %>%
-    dplyr::mutate(Family = model_specifics[["family"]])
+  })
+
+  if (family %in% c("binomial","gaussian")){
+
+    cross_validations_results <- cross_validations %>%
+      dplyr::bind_rows() %>%
+      tibble::as_tibble() %>%
+      dplyr::mutate(Family = model_specifics[["family"]])
+
+  } else if (family == "multinomial"){
+
+    # Extract and nest class level results
+    cross_validations_class_level_results <-
+      plyr::ldply(cross_validations %c% "Class Level Results", function(clr) {
+        legacy_nest(clr, 1:ncol(clr))
+        }) %>%
+      tibble::as_tibble() %>%
+      dplyr::pull(.data$data)
+
+    # Extact results and add family and class level results
+    cross_validations_results <- dplyr::bind_rows(cross_validations %c% "Results") %>%
+      tibble::as_tibble() %>%
+      dplyr::mutate(Family = model_specifics[["family"]]) %>%
+      tibble::add_column(`Class Level Results` = cross_validations_class_level_results,
+                         .before = "Predictions")
+  }
 
   # Now we want to take the formula from the formulas and split it up into
   # fixed effects and random effects
@@ -94,8 +117,8 @@ custom_cross_validate_list = function(data,
 
   mixed_effects <- extract_model_effects(formulas)
 
-  # we put the two data frames together
-  output <- dplyr::bind_cols(model_cvs_df, mixed_effects)
+  # We put the two data frames together
+  output <- dplyr::bind_cols(cross_validations_results, mixed_effects)
 
   # If asked to remove non-converged models from output
   if (isTRUE(rm_nc)){

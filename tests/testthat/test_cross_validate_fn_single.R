@@ -13,7 +13,7 @@ test_that("gaussian models with cross_validate_single_fn()",{
 
   ### LMER
   cv_result <- cross_validate_fn_single(dat, basics_model_fn,
-                                        evaluation_type = "linear_regression",
+                                        evaluation_type = "gaussian",
                                         model_specifics = list(
                                           model_formula="score~diagnosis+(1|session)",
                                           family="gaussian",
@@ -41,7 +41,7 @@ test_that("gaussian models with cross_validate_single_fn()",{
 
   ### LM
   cv_result <- cross_validate_fn_single(dat, basics_model_fn,
-                                        evaluation_type = "linear_regression",
+                                        evaluation_type = "gaussian",
                                         model_specifics = list(
                                           model_formula="score~diagnosis",
                                           family="gaussian",

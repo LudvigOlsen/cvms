@@ -27,6 +27,10 @@ validate_fn_single = function(train_data,
     model_specifics <- model_specifics_update_fn(model_specifics)
   }
 
+  if (evaluation_type %ni% c("gaussian", "binomial")){
+    stop("'evaluation_type' must be either 'gaussian' or 'binomial'.")
+  }
+
   # If train and test data is not already split,
   # get train and test set
   if (is.null(test_data)) {
@@ -73,11 +77,10 @@ validate_fn_single = function(train_data,
 
 
   # Remove Results tibble if linear regression
-  if (evaluation_type == "linear_regression"){
+  if (evaluation_type == "gaussian"){
     model_evaluation <- model_evaluation %>%
     dplyr::select(-dplyr::one_of("Results"))
   }
-
 
   if (isTRUE(err_nc) && model_evaluation[["Convergence Warnings"]] != 0) {
     stop("Model did not converge.")

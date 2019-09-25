@@ -14,6 +14,9 @@ cross_validate_fn_single <- function(data, model_fn,
   #   custom: returns predictions and true labels/values in tibble
   # Actually, it might be better that the user passes the premade functions or a custom function
 
+  if (evaluation_type %ni% c("gaussian","binomial","multinomial")){
+    stop("evaluation_type must be either 'gaussian', 'binomial', or 'multinomial'.")
+  }
 
   # Check arguments
   # Check model_specifics arguments
@@ -113,12 +116,26 @@ cross_validate_fn_single <- function(data, model_fn,
     ),
     models = models,
     model_specifics = model_specifics,
-    metrics = metrics) %>%
-    mutate(Folds = n_folds,
-           `Fold Columns` = length(fold_cols),
-           `Convergence Warnings` = n_conv_warns,
-           `Singular Fit Messages` = n_singular_fit_messages,
-           `Other Warnings` = n_unknown_warns)
+    metrics = metrics)
+
+  if (evaluation_type %in% c("binomial","gaussian")){
+
+    model_evaluation <- model_evaluation %>%
+      mutate(Folds = n_folds,
+             `Fold Columns` = length(fold_cols),
+             `Convergence Warnings` = n_conv_warns,
+             `Singular Fit Messages` = n_singular_fit_messages,
+             `Other Warnings` = n_unknown_warns)
+
+  } else if (evaluation_type == "multinomial"){
+
+    model_evaluation[["Results"]] <- model_evaluation[["Results"]] %>%
+      mutate(Folds = n_folds,
+             `Fold Columns` = length(fold_cols),
+             `Convergence Warnings` = n_conv_warns,
+             `Singular Fit Messages` = n_singular_fit_messages,
+             `Other Warnings` = n_unknown_warns)
+  }
 
   return(model_evaluation)
 

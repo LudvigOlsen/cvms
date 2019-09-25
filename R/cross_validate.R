@@ -123,6 +123,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @author Benjamin Hugh Zachariae
 #' @export
+#' @family validation functions
 #' @param data Data frame.
 #'
 #'  Must include grouping factor for identifying folds

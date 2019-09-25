@@ -37,7 +37,7 @@ basics_cross_validate_list = function(data,
 
   # Get evaluation functions
   if (family == "gaussian"){
-    evaluation_type = "linear_regression"
+    evaluation_type = "gaussian"
   } else if (family == "binomial"){
     evaluation_type = "binomial"
   } else {stop("Only 'gaussian' and 'binomial' families are currently allowed.")}

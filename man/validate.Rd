@@ -251,6 +251,11 @@ validate(train_data,
          REML = FALSE)
 
 }
+\seealso{
+Other validation functions: \code{\link{cross_validate_fn}},
+  \code{\link{cross_validate}}
+}
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
 }
+\concept{validation functions}

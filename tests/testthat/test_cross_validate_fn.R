@@ -416,6 +416,169 @@ test_that("gaussian nnet models work with cross_validate_fn()",{
                rep(NA, 124))
 })
 
+test_that("multinomial nnet models work with cross_validate_fn()",{
+
+  # Load data and fold it
+  set_seed_for_R_compatibility(1)
+
+  # Create and fold dataset
+  data_mc <- multiclass_probability_tibble(
+    num_classes = 3, num_observations = 50,
+    apply_softmax = TRUE, FUN = runif,
+    class_name = "predictor_")
+  class_names <- paste0("class_", c(1,2,3))
+  data_mc[["target"]] <- factor(sample(x = class_names,
+                                size = 50, replace = TRUE))
+  dat <- groupdata2::fold(data_mc, k = 4)
+
+  multinom_model_fn <- function(train_data, formula){
+
+    nnet::multinom(formula = formula, # converted to formula object within custom_fit_model()
+                   data = train_data)
+  }
+  if (FALSE){
+  # nn <- multinom_model_fn(train_data = dat,
+  #                         formula = "target ~ predictor_1 + predictor_2 + predictor_3")
+  # nn2 <- nnet::multinom(formula = "target ~ predictor_1 + predictor_2 + predictor_3", # converted to formula object within custom_fit_model()
+  #                       data = dat)
+  # fm <- "target ~ predictor_1 + predictor_2 + predictor_3"
+  # nn3 <- nnet::multinom(formula = fm, # converted to formula object within custom_fit_model()
+  #                       data = dat)
+  # # predict(nn, dat, type = "probs", allow.new.levels = TRUE)
+  # broom::tidy(nn3)
+
+  # summary(nn)
+  }
+
+  CVmultinomlist <- cross_validate_fn(dat,
+                                   multinom_model_fn,
+                                   formulas = c("target ~ predictor_1 + predictor_2 + predictor_3",
+                                                "target ~ predictor_1"),
+                                   fold_cols = '.folds', type = 'multinomial',
+                                   predict_type = "probs",
+                                   model_verbose = FALSE,
+                                   positive = 1)
+
+  expect_equal(CVmultinomlist$AUC, c(0.338293650793651, 0.38640873015873), tolerance=1e-3)
+  expect_equal(CVmultinomlist$`Lower CI`, c(0.174368857734496, 0.229532941913765), tolerance=1e-3)
+  expect_equal(CVmultinomlist$`Upper CI`, c(0.502218443852806, 0.543284518403696), tolerance=1e-3)
+  expect_equal(CVmultinomlist$Kappa, c(-0.234940592679204, -0.0826903354960317), tolerance=1e-3)
+  expect_equal(CVmultinomlist$Sensitivity, c(0.177248677248677, 0.283068783068783), tolerance=1e-3)
+  expect_equal(CVmultinomlist$Specificity, c(0.585648148148148, 0.642361111111111), tolerance=1e-3)
+  expect_equal(CVmultinomlist$`Pos Pred Value`, c(0.182234432234432, 0.254255548373195), tolerance=1e-3)
+  expect_equal(CVmultinomlist$`Neg Pred Value`, c(0.582223196827659, 0.646699553676298), tolerance=1e-3)
+  expect_equal(CVmultinomlist$F1, c(0.179096139880454, 0.259451659451659), tolerance=1e-3)
+  expect_equal(CVmultinomlist$Prevalence, c(0.333333333333333, 0.333333333333333), tolerance=1e-3)
+  expect_equal(CVmultinomlist$`Detection Rate`, c(0.06, 0.1), tolerance=1e-3)
+  expect_equal(CVmultinomlist$`Detection Prevalence`, c(0.33333, 0.3333), tolerance=1e-3)
+  expect_equal(CVmultinomlist$`Balanced Accuracy`, c(0.381448412698413, 0.462714947089947), tolerance=1e-3)
+  expect_equal(CVmultinomlist$MCC, c(-0.236236444573951, -0.0854444055482041), tolerance=1e-3)
+  expect_equal(CVmultinomlist$Folds, c(4,4))
+  expect_equal(CVmultinomlist$`Fold Columns`, c(1,1))
+  expect_equal(CVmultinomlist$`Convergence Warnings`, c(0,0))
+  expect_equal(CVmultinomlist$Family, c('multinomial','multinomial'))
+  expect_equal(CVmultinomlist$Dependent, c("target", "target"))
+  expect_equal(CVmultinomlist$Fixed, c("predictor_1+predictor_2+predictor_3", "predictor_1"))
+
+  # Enter sub tibbles
+  class_level_results <- CVmultinomlist$`Class Level Results`
+
+  expect_equal(class_level_results[[1]]$Class,
+               c("class_1", "class_2", "class_3"))
+  expect_equal(class_level_results[[2]]$Class,
+               c("class_1", "class_2", "class_3"))
+  expect_equal(class_level_results[[1]]$`Balanced Accuracy`,
+               c(0.418650793650794, 0.302083333333333, 0.423611111111111))
+  expect_equal(class_level_results[[2]]$`Balanced Accuracy`,
+               c(0.452380952380952, 0.407986111111111, 0.527777777777778))
+  expect_equal(class_level_results[[1]]$F1,
+               c(0.148148148148148, 0.153846153846154, 0.235294117647059))
+  expect_equal(class_level_results[[2]]$F1,
+               c(0.0952380952380952, 0.228571428571429, 0.454545454545455))
+  expect_equal(class_level_results[[1]]$Sensitivity,
+               c(0.142857142857143, 0.166666666666667, 0.222222222222222))
+  expect_equal(class_level_results[[2]]$Sensitivity,
+               c(0.0714285714285714, 0.222222222222222, 0.555555555555556))
+  expect_equal(class_level_results[[1]]$Specificity,
+               c(0.694444444444444, 0.4375, 0.625))
+  expect_equal(class_level_results[[2]]$Specificity,
+               c(0.833333333333333, 0.59375, 0.5))
+  expect_equal(class_level_results[[1]]$`Pos Pred Value`,
+               c(0.153846153846154, 0.142857142857143, 0.25))
+  expect_equal(class_level_results[[2]]$`Pos Pred Value`,
+               c(0.142857142857143, 0.235294117647059, 0.384615384615385))
+  expect_equal(class_level_results[[1]]$`Neg Pred Value`,
+               c(0.675675675675676, 0.482758620689655, 0.588235294117647))
+  expect_equal(class_level_results[[2]]$`Neg Pred Value`,
+               c(0.697674418604651, 0.575757575757576, 0.666666666666667))
+  expect_equal(class_level_results[[1]]$AUC,
+               c(0.341269841269841, 0.274305555555556, 0.399305555555556))
+  expect_equal(class_level_results[[2]]$AUC,
+               c(0.259920634920635, 0.364583333333333, 0.534722222222222))
+  expect_equal(class_level_results[[1]]$`Lower CI`,
+               c(0.162964881346796, 0.128288746158909, 0.231852945697782))
+  expect_equal(class_level_results[[2]]$`Lower CI`,
+               c(0.114038680733862, 0.204985144784346, 0.369575000223086))
+  expect_equal(class_level_results[[1]]$`Upper CI`,
+               c(0.519574801192887, 0.420322364952202, 0.566758165413329))
+  expect_equal(class_level_results[[2]]$`Upper CI`,
+               c(0.405802589107408, 0.524181521882321, 0.699869444221358))
+  expect_equal(class_level_results[[1]]$Kappa,
+               c(-0.166328600405679, -0.381909547738693, -0.156583629893238))
+  expect_equal(class_level_results[[2]]$Kappa,
+               c(-0.112412177985948, -0.186291739894552, 0.0506329113924052))
+  expect_equal(class_level_results[[1]]$MCC,
+               c(-0.166542870566493, -0.384959426774726, -0.157207036380633))
+  expect_equal(class_level_results[[2]]$MCC,
+               c(-0.123237455089644, -0.186471812823331, 0.0533760512683624))
+  expect_equal(class_level_results[[1]]$`Detection Rate`,
+               c(0.04, 0.06, 0.08))
+  expect_equal(class_level_results[[2]]$`Detection Rate`,
+               c(0.02, 0.08, 0.2))
+  expect_equal(class_level_results[[1]]$`Detection Prevalence`,
+               c(0.26, 0.42, 0.32))
+  expect_equal(class_level_results[[2]]$`Detection Prevalence`,
+               c(0.14, 0.34, 0.52))
+  expect_equal(class_level_results[[1]]$Prevalence,
+               c(0.28, 0.36, 0.36))
+  expect_equal(class_level_results[[2]]$Prevalence,
+               c(0.28, 0.36, 0.36))
+  expect_equal(class_level_results[[1]]$Support,
+               c(14, 18, 18))
+  expect_equal(class_level_results[[2]]$Support,
+               c(14, 18, 18))
+
+  clr_confmat_1 <- dplyr::bind_rows(class_level_results[[1]]$`Confusion Matrix`)
+  clr_confmat_2 <- dplyr::bind_rows(class_level_results[[2]]$`Confusion Matrix`)
+  clr_confmat <- dplyr::bind_rows(clr_confmat_1, clr_confmat_2)
+  expect_equal(clr_confmat$`Fold Column`,
+               rep(".folds",24))
+  expect_equal(clr_confmat$Prediction,
+               rep(c("0","1"),12))
+  expect_equal(clr_confmat$Target,
+               rep(c("0","0","1","1"),6))
+  expect_equal(clr_confmat$Pos_0,
+               rep(c("TP","FN","FP","TN"),6))
+  expect_equal(clr_confmat$Pos_1,
+               rep(c("TN","FP","FN","TP"),6))
+  expect_equal(clr_confmat$N,
+               c(25L, 11L, 12L, 2L, 14L, 18L, 15L, 3L, 20L, 12L, 14L, 4L, 30L,
+                 6L, 13L, 1L, 19L, 13L, 14L, 4L, 16L, 16L, 8L, 10L))
+
+  # ROC
+  expect_is(class_level_results[[1]]$ROC[[1]], "tbl_df")
+  expect_equal(colnames(class_level_results[[1]]$ROC[[1]]), c("Sensitivities","Specificities"))
+  expect_equal(nrow(class_level_results[[1]]$ROC[[1]]),51)
+
+  # Predictions
+  expect_is(CVmultinomlist$Predictions[[1]], "tbl_df")
+  expect_equal(colnames(CVmultinomlist$Predictions[[1]]),
+               c("Fold Column","Fold","Target","Prediction","Predicted Class"))
+  expect_equal(nrow(CVmultinomlist$Predictions[[1]]),50)
+
+
+})
+
 test_that("binomial randomForest models work with cross_validate_fn()",{
 
   # Load data and fold it

@@ -134,11 +134,11 @@ custom_model_fn <- function(train_data,
       # TODO DO ALL SORTS OF CHECKS HERE
 
       # Convert to tibble
-      predictions <- dplyr::as_tibble(
-        predictions)
-
-      # TODO Potentially need to force type numeric to
-      # all probability columns?
+      predictions <- dplyr::as_tibble(predictions) %>%
+        dplyr::mutate_all(~ force_numeric(predictions_vector = .,
+                                          caller = model_specifics[["caller"]])) %>%
+        nest_probabilities_rowwise() %>%
+        tibble::enframe(value = "prediction", name = NULL)
     }
   }
 

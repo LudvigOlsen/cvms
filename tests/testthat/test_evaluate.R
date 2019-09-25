@@ -269,7 +269,7 @@ test_that("multinomial evaluations are correct in evaluate()",{
     data = data_ %>% dplyr::sample_n(17),
     target_col = "cl_char",
     prediction_cols = paste0("cl_", 1:5),
-    type = "multiclass_classification",
+    type = "multinomial",
     apply_softmax = TRUE,
     metrics = list("Accuracy" = TRUE, "Overall Accuracy" = FALSE, "F1" = FALSE)
   )
@@ -298,7 +298,7 @@ test_that("multinomial evaluations are correct in evaluate()",{
     prediction_cols = paste0("cl_", 1:5),
     id_col = "id",
     id_method = "mean",
-    type = "multiclass_classification",
+    type = "multinomial",
     apply_softmax = TRUE,
     metrics = "all"
   ))
@@ -399,7 +399,7 @@ test_that("multinomial evaluations are correct in evaluate()",{
     prediction_cols = paste0("cl_", 1:5),
     id_col = "id",
     id_method = "majority",
-    type = "multiclass_classification",
+    type = "multinomial",
     apply_softmax = TRUE
   )
 
@@ -541,7 +541,7 @@ test_that("arguments throw proper errors and warnings in evaluate()",{
     data = data_,
     target_col = "cl_char",
     prediction_cols = paste0("cl_", 1:5),
-    type = "multiclass_classification",
+    type = "multinomial",
     apply_softmax = TRUE,
     metrics = "none"
   ), "'metrics' must be either a list or the string 'all'.",
@@ -551,7 +551,7 @@ test_that("arguments throw proper errors and warnings in evaluate()",{
     data = data_,
     target_col = "cl_char",
     prediction_cols = paste0("cl_", 1:5),
-    type = "multiclass_classification",
+    type = "multinomial",
     apply_softmax = TRUE,
     metrics = list(TRUE,FALSE)
   ), "when 'metrics' is a non-empty list, it must be a named list.",
@@ -626,7 +626,7 @@ test_that("binomial evaluation works in evaluate()",{
     data = data_,
     target_col = "cl_char",
     prediction_cols = "prediction",
-    type = "binomial_classification",
+    type = "binomial",
     apply_softmax = TRUE,
     metrics = list("Accuracy" = TRUE)
   )
@@ -634,7 +634,7 @@ test_that("binomial evaluation works in evaluate()",{
     data = data_,
     target_col = "cl_char",
     prediction_cols = "inv_prediction",
-    type = "binomial_classification",
+    type = "binomial",
     apply_softmax = TRUE,
     metrics = list("Accuracy" = TRUE)
   )
@@ -710,7 +710,7 @@ test_that("binomial evaluation works in evaluate()",{
     data = data_,
     target_col = "cl_char",
     prediction_cols = "prediction",
-    type = "binomial_classification",
+    type = "binomial",
     apply_softmax = TRUE,
     positive = "cl_1",
     metrics = list("Accuracy" = TRUE)
@@ -754,7 +754,7 @@ test_that("binomial evaluation works in evaluate()",{
     data = data_,
     target_col = "cl_char",
     prediction_cols = "prediction",
-    type = "binomial_classification",
+    type = "binomial",
     apply_softmax = TRUE,
     positive = "cl_1",
     metrics = list("Accuracy" = TRUE),
@@ -784,7 +784,7 @@ test_that("binomial evaluation works in evaluate()",{
     prediction_cols = "prediction",
     id_col = "id",
     id_method = "mean",
-    type = "binomial_classification",
+    type = "binomial",
     apply_softmax = TRUE
   )
 
@@ -829,7 +829,7 @@ test_that("binomial evaluation works in evaluate()",{
     prediction_cols = "prediction",
     id_col = "id",
     id_method = "mean",
-    type = "binomial_classification",
+    type = "binomial",
     apply_softmax = TRUE,
     include_predictions = FALSE
   )
@@ -850,7 +850,7 @@ test_that("binomial evaluation works in evaluate()",{
     prediction_cols = "prediction",
     id_col = "id",
     id_method = "majority",
-    type = "binomial_classification",
+    type = "binomial",
     apply_softmax = FALSE
   )
 
@@ -899,7 +899,7 @@ test_that("binomial evaluation works in evaluate()",{
     prediction_cols = "prediction",
     id_col = "id",
     id_method = "majority",
-    type = "binomial_classification",
+    type = "binomial",
     apply_softmax = FALSE
   )
 

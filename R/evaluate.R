@@ -149,6 +149,7 @@
 #'
 #'  MCC: \code{\link[mltools:mcc]{mltools::mcc}}
 #'
+#' @return
 #'  ----------------------------------------------------------------
 #'
 #'  \subsection{Gaussian Results}{
@@ -224,7 +225,8 @@
 #'  \strong{Class Level Results}
 #'
 #'  The \code{Class Level Results} tibble contains the results of the \emph{one-vs-all}
-#'  binomial evaluations. It contains the same metrics as the binomial results described above.
+#'  binomial evaluations. It contains the same metrics as the binomial results described above,
+#'  along with the \strong{Support} metric, which is simply a count of the class in the target column.
 #'
 #'  Also includes:
 #'
@@ -243,8 +245,7 @@
 #'  The \code{Results} tibble contains the overall/macro metrics. The metrics that share their name
 #'  with the metrics in the Class Level Results tibble are averages of those metrics
 #'  (note: does not remove \code{NA}s before averaging).
-#'  In addition to these, it also includes the \strong{Overall Accuracy} metric
-#'  and the \strong{Support} metric, which is simply a count of the class in the target column.
+#'  In addition to these, it also includes the \strong{Overall Accuracy} metric.
 #'
 #'  Other available metrics (disabled by default, see \code{metrics}):
 #'  \strong{Accuracy}, \strong{Weighted Balanced Accuracy}, \strong{Weighted Accuracy},
@@ -298,7 +299,7 @@
 #'
 #' # Multinomial
 #'
-#' # Create a dataset
+#' # Create a tibble with predicted probabilities
 #' data_mc <- multiclass_probability_tibble(
 #'     num_classes = 3, num_observations = 30,
 #'     apply_softmax = TRUE, FUN = runif,
@@ -400,17 +401,12 @@ evaluate <- function(data,
 ){
 
   # Test if type is allowed
-  stopifnot(type %in% c("gaussian", "gaussian_regression", "linear_regression",
-                        "binomial", "binomial_classification", "binary_classification",
-                        "multinomial", "multinomial_classification", "multiclass_classification")) #"multilabel"))
+  stopifnot(type %in% c("gaussian",
+                        "binomial",
+                        "multinomial"))
 
   # Convert families to the internally used
-  if (type %in% c("gaussian", "gaussian_regression", "linear_regression")){
-    family <- "gaussian"}
-  if (type %in% c("binomial", "binomial_classification", "binary_classification")){
-    family <- "binomial"}
-  if (type %in% c("multinomial", "multinomial_classification", "multiclass_classification")){
-    family <- "multinomial"}
+  family <- type
 
   # Check the passed arguments TODO Add more checks
   check_args_evaluate(data = data,
@@ -697,8 +693,7 @@ internal_evaluate <- function(data,
                                 type == "multinomial" ~ FALSE
                               )) {
 
-  stopifnot(type %in% c("linear_regression", "gaussian", "binomial", "multinomial")) #, "multiclass", "multilabel"))
-  if (type == "linear_regression") type <- "gaussian"
+  stopifnot(type %in% c("gaussian", "binomial", "multinomial")) #, "multiclass", "multilabel"))
 
   # Fill metrics with default values for non-specified metrics
   # and get the names of the metrics

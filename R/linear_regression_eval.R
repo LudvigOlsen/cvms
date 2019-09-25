@@ -263,7 +263,15 @@ get_nested_model_coefficients <- function(models, fold_info=list(folds = NULL,
         # let's grab the coefficients manually if possible
 
         if (grepl("Error: No tidy method for objects of class",
-                  as.character(e), ignore.case = TRUE)){
+                  as.character(e), ignore.case = TRUE) ||
+
+            # Multinom requires training data in tidy()
+            # This doesn't work anyway right now though
+            # TODO? We would probably have to call tidy() in
+            # a different environment with the training data
+            # but that would require a major rewrite
+            grepl("object 'train_data' not found",
+                   as.character(e), ignore.case = TRUE)){
 
           # Try to extract coefficients
           coefs <- tryCatch({stats::coef(models[[i]])},

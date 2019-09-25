@@ -140,41 +140,8 @@ in the output as a nested tibble. (Logical)}
 \item{parallel}{Whether to run evaluations in parallel,
 when \code{data} is grouped with \code{\link[dplyr]{group_by}}.}
 }
-\description{
-Evaluate your model's predictions
- on a set of evaluation metrics.
-
- Create ID-aggregated evaluations by multiple methods.
-
- Currently supports regression, binary classification
- and multiclass classification tasks (see \code{type}).
-
- \strong{evaluate() is under development! Large changes may occur.}
-}
-\details{
-Packages used:
-
- \strong{Gaussian}:
-
- r2m : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
-
- r2c : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
-
- AIC : \code{\link[stats:AIC]{stats::AIC}}
-
- AICc : \code{\link[MuMIn:AICc]{MuMIn::AICc}}
-
- BIC : \code{\link[stats:BIC]{stats::BIC}}
-
- \strong{Binomial} and \strong{Multinomial}:
-
- Confusion matrix and related metrics: \code{\link[caret:confusionMatrix]{caret::confusionMatrix}}
-
- ROC and related metrics: \code{\link[pROC:roc]{pROC::roc}}
-
- MCC: \code{\link[mltools:mcc]{mltools::mcc}}
-
- ----------------------------------------------------------------
+\value{
+----------------------------------------------------------------
 
  \subsection{Gaussian Results}{
 
@@ -249,7 +216,8 @@ Packages used:
  \strong{Class Level Results}
 
  The \code{Class Level Results} tibble contains the results of the \emph{one-vs-all}
- binomial evaluations. It contains the same metrics as the binomial results described above.
+ binomial evaluations. It contains the same metrics as the binomial results described above,
+ along with the \strong{Support} metric, which is simply a count of the class in the target column.
 
  Also includes:
 
@@ -268,8 +236,7 @@ Packages used:
  The \code{Results} tibble contains the overall/macro metrics. The metrics that share their name
  with the metrics in the Class Level Results tibble are averages of those metrics
  (note: does not remove \code{NA}s before averaging).
- In addition to these, it also includes the \strong{Overall Accuracy} metric
- and the \strong{Support} metric, which is simply a count of the class in the target column.
+ In addition to these, it also includes the \strong{Overall Accuracy} metric.
 
  Other available metrics (disabled by default, see \code{metrics}):
  \strong{Accuracy}, \strong{Weighted Balanced Accuracy}, \strong{Weighted Accuracy},
@@ -288,6 +255,40 @@ Packages used:
 
  A nested tibble with the multiclass \strong{Confusion Matrix}.
  }
+}
+\description{
+Evaluate your model's predictions
+ on a set of evaluation metrics.
+
+ Create ID-aggregated evaluations by multiple methods.
+
+ Currently supports regression, binary classification
+ and multiclass classification tasks (see \code{type}).
+
+ \strong{evaluate() is under development! Large changes may occur.}
+}
+\details{
+Packages used:
+
+ \strong{Gaussian}:
+
+ r2m : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
+
+ r2c : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
+
+ AIC : \code{\link[stats:AIC]{stats::AIC}}
+
+ AICc : \code{\link[MuMIn:AICc]{MuMIn::AICc}}
+
+ BIC : \code{\link[stats:BIC]{stats::BIC}}
+
+ \strong{Binomial} and \strong{Multinomial}:
+
+ Confusion matrix and related metrics: \code{\link[caret:confusionMatrix]{caret::confusionMatrix}}
+
+ ROC and related metrics: \code{\link[pROC:roc]{pROC::roc}}
+
+ MCC: \code{\link[mltools:mcc]{mltools::mcc}}
 }
 \examples{
 \donttest{
@@ -322,7 +323,7 @@ evaluate(data = data, target_col = "diagnosis",
 
 # Multinomial
 
-# Create a dataset
+# Create a tibble with predicted probabilities
 data_mc <- multiclass_probability_tibble(
     num_classes = 3, num_observations = 30,
     apply_softmax = TRUE, FUN = runif,

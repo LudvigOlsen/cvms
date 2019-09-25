@@ -115,6 +115,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #'
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
+#' @family validation functions
 #' @examples
 #' # Attach packages
 #' library(cvms)

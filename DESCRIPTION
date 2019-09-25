@@ -22,7 +22,7 @@ Imports:
     data.table (>= 1.12),
     dplyr,
     plyr,
-    tidyr (>= 1.0.0),
+    tidyr (>= 0.8.3),
     ggplot2,
     purrr,
     tibble (>= 2.1.1),

@@ -821,3 +821,71 @@ test_that("binomial keras models work with cross_validate_fn()",{
 #   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
 #   expect_equal(nrow(CVbinomlist$ROC[[1]]),31)
 })
+
+test_that("binomial tidymodels work with cross_validate_fn()",{
+
+  testthat::skip("tidymodels have too many dependencies")
+
+  # # Load data and fold it
+  # set_seed_for_R_compatibility(1)
+  # dat <- groupdata2::fold(participant.scores, k = 4,
+  #                         cat_col = 'diagnosis',
+  #                         id_col = 'participant')
+  # dat[["diagnosis"]] <- factor(dat[["diagnosis"]])
+  #
+  # library(tidymodels)
+  #
+  # tidyrf_model_fn <- function(train_data, formula){
+  #
+  #   rand_forest(trees = 100, mode = "classification") %>%
+  #     set_engine("randomForest") %>%
+  #     fit(formula, data = train_data)
+  # }
+  #
+  # tidyrf_predict_fn <- function(test_data, model, formula = NULL){
+  #   stats::predict(object = model, new_data = test_data, type = "prob")[[2]]
+  # }
+  #
+  # CVbinomlist <- cross_validate_fn(dat,
+  #                                  model_fn = tidyrf_model_fn,
+  #                                  formulas = c("diagnosis~score", "diagnosis~age"),
+  #                                  fold_cols = '.folds',
+  #                                  type = 'binomial',
+  #                                  predict_fn = tidyrf_predict_fn,
+  #                                  model_verbose = FALSE,
+  #                                  positive = 1)
+  #
+  #
+  # # rf <- tidyrf_model_fn(train_data = dat, formula = as.formula("diagnosis~score"))
+  # # tidyrf_predict_fn(model = rf, test_data = dat)
+  #
+  # expect_equal(CVbinomlist$AUC, c(0.659722222222222, 0.208333333333333), tolerance=1e-3)
+  # # expect_equal(CVbinomlist$`Lower CI`, c(0.367800267130833, 0.161076004187493), tolerance=1e-3)
+  # # expect_equal(CVbinomlist$`Upper CI`, c(0.743310843980278, 0.505590662479174), tolerance=1e-3)
+  # # expect_equal(CVbinomlist$Kappa, c(0.10958904109589, -0.296296296296296), tolerance=1e-3)
+  # # expect_equal(CVbinomlist$Sensitivity, c(0.5,0.5), tolerance=1e-3)
+  # # expect_equal(CVbinomlist$Specificity, c(0.611111111111111, 0.166666666666667), tolerance=1e-3)
+  # # expect_equal(CVbinomlist$`Pos Pred Value`, c(0.461538461538462, 0.285714285714286), tolerance=1e-3)
+  # # expect_equal(CVbinomlist$`Neg Pred Value`, c(0.647058823529412, 0.333333333333333), tolerance=1e-3)
+  # # expect_equal(CVbinomlist$F1, c(0.48, 0.363636363636364), tolerance=1e-3)
+  # # expect_equal(CVbinomlist$Prevalence, c(0.4,0.4), tolerance=1e-3)
+  # # expect_equal(CVbinomlist$`Detection Rate`, c(0.2, 0.2), tolerance=1e-3)
+  # # expect_equal(CVbinomlist$`Detection Prevalence`, c(0.433333333333333, 0.7), tolerance=1e-3)
+  # # expect_equal(CVbinomlist$`Balanced Accuracy`, c(0.555555555555556, 0.333333333333333), tolerance=1e-3)
+  # # expect_equal(CVbinomlist$MCC, c(0.109847007276218, -0.356348322549899), tolerance=1e-3)
+  # expect_equal(CVbinomlist$Folds, c(4,4))
+  # expect_equal(CVbinomlist$`Fold Columns`, c(1,1))
+  # expect_equal(CVbinomlist$`Convergence Warnings`, c(0,0))
+  # expect_equal(CVbinomlist$Family, c('binomial','binomial'))
+  # expect_equal(CVbinomlist$Dependent, c('diagnosis','diagnosis'))
+  # expect_equal(CVbinomlist$Fixed, c('score','age'))
+  #
+  # # Enter sub tibbles
+  # expect_is(CVbinomlist$Predictions[[1]], "tbl_df")
+  # expect_is(CVbinomlist$ROC[[1]], "tbl_df")
+  # expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
+  # expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Sensitivities","Specificities"))
+  # expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
+  # expect_equal(nrow(CVbinomlist$ROC[[1]]),23)
+
+})

@@ -1,5 +1,8 @@
 #' @title Generate model formulas by combining predictors
-#' @description Create model formulas with every combination
+#' @description
+#'  \Sexpr[results=rd, stage=render]{lifecycle::badge("maturing")}
+#'
+#'  Create model formulas with every combination
 #'  of your fixed effects, along with the dependent variable and random effects.
 #'  \code{259,358} formulas have been precomputed with two- and three-way interactions
 #'  for up to \code{8} fixed effects, with up to \code{5} included effects per formula.

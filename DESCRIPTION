@@ -1,23 +1,26 @@
 Package: cvms
 Title: Cross-Validation for Model Selection
 Version: 0.2.0.9000
-Authors@R: c(
-    person("Ludvig Renbo", "Olsen", email = "r-pkgs@ludvigolsen.dk", role = c("aut", "cre")),
-    person("Benjamin Hugh", "Zachariae", role = "aut")
-    )
-Description: Cross-validate one or multiple regression models and get relevant evaluation 
-  metrics in a tidy format. Validate the best model on a test set and compare it to a baseline evaluation.
-  Alternatively, evaluate predictions from an external model. 
-  Currently supports linear regression, logistic regression and 
-  (some functions only) multiclass classification.
-  Described in chp. 5 of Jeyaraman, B. P., Olsen, L. R., & Wambugu M. (2019, ISBN: 9781838550134).
-Depends:
-    R (>= 3.5)
+Authors@R: 
+    c(person(given = "Ludvig Renbo",
+             family = "Olsen",
+             role = c("aut", "cre"),
+             email = "r-pkgs@ludvigolsen.dk"),
+      person(given = "Benjamin Hugh",
+             family = "Zachariae",
+             role = "aut"))
+Description: Cross-validate one or multiple regression models
+    and get relevant evaluation metrics in a tidy format. Validate the
+    best model on a test set and compare it to a baseline evaluation.
+    Alternatively, evaluate predictions from an external model.  Currently
+    supports linear regression, logistic regression and (some functions
+    only) multiclass classification.  Described in chp. 5 of Jeyaraman, B.
+    P., Olsen, L. R., & Wambugu M. (2019, ISBN: 9781838550134).
 License: MIT + file LICENSE
 URL: https://github.com/ludvigolsen/cvms
 BugReports: https://github.com/ludvigolsen/cvms/issues
-Encoding: UTF-8
-LazyData: true
+Depends:
+    R (>= 3.5)
 Imports:
     data.table (>= 1.12),
     dplyr,
@@ -35,9 +38,10 @@ Imports:
     stringr,
     mltools (>= 0.3.5),
     rlang,
-    utils
-RoxygenNote: 6.1.1
-Suggests: knitr,
+    utils,
+    lifecycle
+Suggests: 
+    knitr,
     groupdata2 (>= 1.1.2),
     e1071 (>= 1.7-2),
     rmarkdown,
@@ -48,4 +52,10 @@ Suggests: knitr,
     covr (>= 3.3.1),
     nnet (>= 7.3-12),
     randomForest (>= 4.6-14)
-VignetteBuilder: knitr
+VignetteBuilder: 
+    knitr
+RdMacros: 
+    lifecycle
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.1

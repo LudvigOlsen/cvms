@@ -1,13 +1,10 @@
 
-#
-# Note that the model object metrics (r2, AIC, etc.) can only be computed for certain models
-# Turn them off by metrics_list = list("default_model_metrics" = FALSE)
-
-
-
-#' @title Cross-validate custom model function for model selection
-#' @description Cross-validate your model function with
-#'  one or multiple model formulas at once. Perform repeated cross-validation.
+#' @title Cross-validate custom model functions for model selection
+#' @description
+#'  \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
+#'
+#'  Cross-validate your model function with one or multiple model formulas at once.
+#'  Perform repeated cross-validation.
 #'  Returns results in a tibble for easy comparison,
 #'  reporting and further analysis.
 #'
@@ -15,7 +12,7 @@
 #'  this function allows you supply a custom model function
 #'  and (if needed) a custom prediction function.
 #'
-#'  Supports regression and classification (binary and multiclass) tasks.
+#'  Supports regression and classification (binary and multiclass). See \code{type}.
 #'
 #'  Note that some metrics may not be computable for all types
 #'  of model objects.
@@ -400,7 +397,8 @@ cross_validate_fn <- function(data, model_fn, formulas,
                               predict_fn = NULL,
                               metrics = list(),
                               rm_nc = FALSE,
-                              parallel = FALSE, model_verbose = FALSE){
+                              parallel = FALSE,
+                              model_verbose = FALSE){
 
   return(custom_cross_validate_list(data = data,
                                     formulas = formulas,

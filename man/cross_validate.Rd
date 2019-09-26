@@ -157,7 +157,9 @@ Tbl (tibble) with results for each model.
  }
 }
 \description{
-Cross-validate one or multiple gaussian or binomial
+\Sexpr[results=rd, stage=render]{lifecycle::badge("stable")}
+
+ Cross-validate one or multiple gaussian or binomial
  models at once. Perform repeated cross-validation.
  Returns results in a tibble for easy comparison,
  reporting and further analysis.

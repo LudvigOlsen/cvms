@@ -1,5 +1,8 @@
 #' @title Generate a multiclass probability tibble
-#' @description Generate a tibble with random numbers containing one column per specified class.
+#' @description
+#'  \Sexpr[results=rd, stage=render]{lifecycle::badge("maturing")}
+#'
+#'  Generate a tibble with random numbers containing one column per specified class.
 #'  When the softmax function is applied, the numbers become probabilities that sum to \code{1} rowwise.
 #' @param num_classes The number of classes. Also the number of columns in the tibble.
 #' @param num_observations The number of observations. Also the number of rows in the tibble.

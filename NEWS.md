@@ -13,6 +13,10 @@
 * `AICc` is now computed with the `MuMIn` package instead of the `AICcmodavg` package, which
 is no longer a dependency.
 
+* In `evaluate()`, when `type` is `multinomial`, the output is now a single tibble. The `Class Level Results` is included as a nested tibble.
+
+* Adds `lifecycle` badges to the function documentation.
+
 # cvms 0.2.0
 
 * `evaluate()` is added. Evaluate your model's predictions with the same metrics as used in `cross_validate()`.

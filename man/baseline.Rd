@@ -260,7 +260,9 @@ List containing:
  }
 }
 \description{
-Create a baseline evaluation of a test set.
+\Sexpr[results=rd, stage=render]{lifecycle::badge("maturing")}
+
+ Create a baseline evaluation of a test set.
 
  When \code{family} is \code{gaussian}: fits baseline models (\code{y ~ 1}) on \code{n} random
  subsets of \code{train_data} and evalutes each model on \code{test_data}. Also evaluates a
@@ -273,8 +275,6 @@ Create a baseline evaluation of a test set.
  When \code{family} is \code{multinomial}: creates one-vs-all (binomial)
  baseline evaluations for \code{n} sets of random predictions against the dependent variable,
  along with sets of "all class x,y,z,..." predictions.
-
- \strong{baseline() is under development! Large changes may occur.}
 }
 \details{
 Packages used:

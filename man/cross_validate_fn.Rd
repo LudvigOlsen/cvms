@@ -2,7 +2,7 @@
 % Please edit documentation in R/cross_validate_fn.R
 \name{cross_validate_fn}
 \alias{cross_validate_fn}
-\title{Cross-validate custom model function for model selection}
+\title{Cross-validate custom model functions for model selection}
 \usage{
 cross_validate_fn(data, model_fn, formulas, fold_cols = ".folds",
   type = "gaussian", cutoff = 0.5, positive = 2,
@@ -278,8 +278,10 @@ Tbl (tibble) with results for each model.
  }
 }
 \description{
-Cross-validate your model function with
- one or multiple model formulas at once. Perform repeated cross-validation.
+\Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
+
+ Cross-validate your model function with one or multiple model formulas at once.
+ Perform repeated cross-validation.
  Returns results in a tibble for easy comparison,
  reporting and further analysis.
 
@@ -287,7 +289,7 @@ Cross-validate your model function with
  this function allows you supply a custom model function
  and (if needed) a custom prediction function.
 
- Supports regression and classification (binary and multiclass) tasks.
+ Supports regression and classification (binary and multiclass). See \code{type}.
 
  Note that some metrics may not be computable for all types
  of model objects.

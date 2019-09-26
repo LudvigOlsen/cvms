@@ -1,7 +1,10 @@
 
 
 #' @title Create baseline evaluations
-#' @description Create a baseline evaluation of a test set.
+#' @description
+#'  \Sexpr[results=rd, stage=render]{lifecycle::badge("maturing")}
+#'
+#'  Create a baseline evaluation of a test set.
 #'
 #'  When \code{family} is \code{gaussian}: fits baseline models (\code{y ~ 1}) on \code{n} random
 #'  subsets of \code{train_data} and evalutes each model on \code{test_data}. Also evaluates a
@@ -15,7 +18,6 @@
 #'  baseline evaluations for \code{n} sets of random predictions against the dependent variable,
 #'  along with sets of "all class x,y,z,..." predictions.
 #'
-#'  \strong{baseline() is under development! Large changes may occur.}
 #' @inheritParams cross_validate
 #' @param test_data Data Frame.
 #' @param train_data Data Frame. Only used when \code{family == "gaussian"}.

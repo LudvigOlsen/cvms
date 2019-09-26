@@ -148,8 +148,10 @@ List containing tbl (tibble) with results and the trained model object.
  }
 }
 \description{
-Train gaussian or binomial models on a
- full training set and validate it by predicting the test/validation set.
+\Sexpr[results=rd, stage=render]{lifecycle::badge("stable")}
+
+ Train gaussian or binomial models on a full training set and validate it by
+ predicting the test/validation set.
  Returns results in a tibble for easy reporting, along with the trained models.
 }
 \details{

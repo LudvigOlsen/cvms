@@ -2,7 +2,10 @@
 if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 
 #' @title Cross-validate regression models for model selection
-#' @description Cross-validate one or multiple gaussian or binomial
+#' @description
+#'  \Sexpr[results=rd, stage=render]{lifecycle::badge("stable")}
+#'
+#'  Cross-validate one or multiple gaussian or binomial
 #'  models at once. Perform repeated cross-validation.
 #'  Returns results in a tibble for easy comparison,
 #'  reporting and further analysis.

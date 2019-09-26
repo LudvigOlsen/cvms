@@ -22,7 +22,9 @@ as no other arguments are supplied.}
 \item{class_name}{The prefix for the column names. The column index is appended.}
 }
 \description{
-Generate a tibble with random numbers containing one column per specified class.
+\Sexpr[results=rd, stage=render]{lifecycle::badge("maturing")}
+
+ Generate a tibble with random numbers containing one column per specified class.
  When the softmax function is applied, the numbers become probabilities that sum to \code{1} rowwise.
 }
 \examples{

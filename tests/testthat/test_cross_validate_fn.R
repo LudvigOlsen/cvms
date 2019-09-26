@@ -301,7 +301,7 @@ test_that("binomial naiveBayes models from e1071 work with cross_validate_fn()",
 test_that("binomial nnet models work with cross_validate_fn()",{
 
   # Load data and fold it
-  set_seed_for_R_compatibility(1)
+  set_seed_for_R_compatibility(10)
   dat <- groupdata2::fold(participant.scores, k = 4,
                           cat_col = 'diagnosis',
                           id_col = 'participant')
@@ -324,20 +324,20 @@ test_that("binomial nnet models work with cross_validate_fn()",{
                                    model_verbose = FALSE,
                                    positive = 1)
 
-  expect_equal(CVbinomlist$AUC, c(0.638888888888889, 0.0416666666666667), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Lower CI`, c(0.42727682717822, 0), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Upper CI`, c(0.850500950599558, 0.103151638535899), tolerance=1e-3)
-  expect_equal(CVbinomlist$Kappa, c(0.133333333333333, -0.8), tolerance=1e-3)
-  expect_equal(CVbinomlist$Sensitivity, c(0.5833333,0.0000000), tolerance=1e-3)
-  expect_equal(CVbinomlist$Specificity, c(0.555555555555556, 0.166666666666667), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Pos Pred Value`, c(0.466666666666667, 0), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Neg Pred Value`, c(0.666666666666667, 0.2), tolerance=1e-3)
-  expect_equal(CVbinomlist$F1, c(0.518518518518519, NaN), tolerance=1e-3)
+  expect_equal(CVbinomlist$AUC, c(0.668981481481482, 0.5625), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Lower CI`, c(0.466988044012812, 0.334899025834253), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Upper CI`,c(0.870974918950151, 0.790100974165747), tolerance=1e-3)
+  expect_equal(CVbinomlist$Kappa, c(0.202898550724638, -0.153846153846154), tolerance=1e-3)
+  expect_equal(CVbinomlist$Sensitivity, c(0.416666666666667, 0.5), tolerance=1e-3)
+  expect_equal(CVbinomlist$Specificity, c(0.777777777777778, 0.333333333333333), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Pos Pred Value`,c(0.555555555555556, 0.333333333333333), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Neg Pred Value`, c(0.666666666666667, 0.5), tolerance=1e-3)
+  expect_equal(CVbinomlist$F1, c(0.476190476190476, 0.4), tolerance=1e-3)
   expect_equal(CVbinomlist$Prevalence, c(0.4,0.4), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Detection Rate`, c(0.2333333,0.0000000), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Detection Prevalence`, c(0.5,0.5), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Balanced Accuracy`, c(0.569444444444444, 0.0833333333333333), tolerance=1e-3)
-  expect_equal(CVbinomlist$MCC, c(0.136082763487954, -0.816496580927726), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Detection Rate`, c(0.1666667, 0.2000000), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Detection Prevalence`, c(0.3,0.6), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Balanced Accuracy`, c(0.597222222222222, 0.416666666666667), tolerance=1e-3)
+  expect_equal(CVbinomlist$MCC, c(0.207869854820775, -0.166666666666667), tolerance=1e-3)
   expect_equal(CVbinomlist$Folds, c(4,4))
   expect_equal(CVbinomlist$`Fold Columns`, c(1,1))
   expect_equal(CVbinomlist$`Convergence Warnings`, c(0,0))
@@ -351,7 +351,7 @@ test_that("binomial nnet models work with cross_validate_fn()",{
   expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
   expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Sensitivities","Specificities"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
-  expect_equal(nrow(CVbinomlist$ROC[[1]]),20)
+  expect_equal(nrow(CVbinomlist$ROC[[1]]),18)
 
 })
 

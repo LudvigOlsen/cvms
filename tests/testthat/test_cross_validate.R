@@ -8,15 +8,14 @@ context("cross_validate()")
 
 test_that("binomial models work with cross_validate()",{
 
-  # skip_test_if_old_R_version()
-
   # Load data and fold it
   set_seed_for_R_compatibility(1)
   dat <- groupdata2::fold(participant.scores, k = 4,
                           cat_col = 'diagnosis',
                           id_col = 'participant')
 
-  CVbinomlist <- cross_validate(dat, models = c("diagnosis~score", "diagnosis~age"),
+  CVbinomlist <- cross_validate(dat,
+                                models = c("diagnosis~score", "diagnosis~age"),
                                 fold_cols = '.folds', family = 'binomial',
                                 REML = FALSE, model_verbose = FALSE,
                                 positive = 1 )
@@ -281,6 +280,9 @@ test_that("binomial models work with control specified in cross_validate()",{
   expect_equal(cv_process[[1]]$messages,
                "\n--------------------------------------------------\ncross_validate(): Boundary (Singular) Fit Message:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n1\nboundary (singular) fit: see ?isSingular\n",
                fixed=TRUE)
+
+  ### NOTE: The warnings are different between mac and linux
+  # So we cannot check the below :/
   expect_equal(cv_process[[1]]$warnings,
                c("\n-------------------------------------\ncross_validate(): Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n1\nmaxfun < 10 * length(par)^2 is not recommended.",
                  "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n1\nconvergence code 1 from bobyqa: bobyqa -- maximum number of function evaluations exceeded",

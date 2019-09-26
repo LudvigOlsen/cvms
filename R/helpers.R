@@ -407,6 +407,13 @@ legacy_nest <- function(...){
 #     testthat::skip("Required keras version not available for testing")
 # }
 
+# Used for checking warnings in testthat
+# Why?:
+# I had a case where test() used '' but console outputted ‘’
+# So I just strip for punctuation in such cases (Should be used sparingly)
+strip_for_punctuation <- function(strings){
+  gsub("[[:punct:][:blank:]]+", " ", strings)
+}
 
 # Wraps tibble::add_column
 reposition_column <- function(data, col, .before = NULL, .after = NULL){

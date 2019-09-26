@@ -236,7 +236,9 @@ test_that("binomial models work with control specified in cross_validate()",{
 
   # skip_test_if_old_R_version()
 
-  testthat::skip("For some reason, travis gets different warnings/messages than local?")
+  testthat::skip("mac and ubuntu give different warnings")
+  # Tested on both platforms on travis as well
+  # Local test should run on mac as is
 
   # Load data and fold it
   set_seed_for_R_compatibility(7)

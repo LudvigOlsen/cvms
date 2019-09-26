@@ -353,6 +353,14 @@ test_that("binomial nnet models work with cross_validate_fn()",{
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
   expect_equal(nrow(CVbinomlist$ROC[[1]]),18)
 
+  expect_equal(CVbinomlist$Predictions[[1]]$Prediction,
+               c(0.65065179574317, 0.651590466950271, 0, 1, 0.630141605640758,
+                 0.651547221432569, 0.637622766392249, 0.697372951073726, 0, 1,
+                 0.627914003186229, 0.485877637042375, 1, 0.606554847890491, 0.446686243554834,
+                 1, 0.571420802528193, 0, 1, 0.571422843868964, 0.571420670478912,
+                 0.666666600173345, 0, 0, 0.666666696548977, 0, 0, 1, 0.666666600173345,
+                 0.666666600173345))
+
 })
 
 test_that("gaussian nnet models work with cross_validate_fn()",{

@@ -255,24 +255,23 @@ test_that("nnet gives same predictions on mac and ubuntu",{
 
 })
 
-test_that("glm throws same warnings on mac and ubuntu",{
+test_that("glmer throws same warnings on mac and ubuntu",{
 
   set_seed_for_R_compatibility(10)
 
   dat <- participant.scores %>%
     dplyr::mutate(diagnosis = as.factor(diagnosis))
 
-  formula = "diagnosis ~ score + age + (1|session) + (1|age)"
-  family = 'binomial'
-  REML = FALSE
-  control = lme4::glmerControl(optimizer = "bobyqa",
-                               optCtrl = list(maxfun = 10))
+  formula <- "diagnosis ~ score + age + (1|session) + (1|age)"
+  family <- 'binomial'
+  REML <- FALSE
+  control <- lme4::glmerControl(optimizer = "bobyqa")
 
   warnings_and_messages <- plyr::llply(1:10, function(s){
     process_ <- testthat::evaluate_promise({
       set_seed_for_R_compatibility(s)
       lme4::glmer(formula = formula, family = family, data = dplyr::sample_frac(dat, 0.95),
-                  REML = REML, control = lme4::glmerControl(optimizer = "bobyqa"))
+                  REML = REML, control = control)
     })
     list("warnings" = process_$warnings,
          "messages" = process_$messages)

@@ -6,6 +6,9 @@ cache: packages
 matrix:
   include:
   - r: devel
+  - r: devel
+    os: osx
+    name: devel osx
   - r: release
     after_success:
     - Rscript -e 'covr::codecov()'

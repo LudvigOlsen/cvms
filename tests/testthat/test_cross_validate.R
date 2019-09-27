@@ -794,26 +794,12 @@ test_that("that singular fit messages are caught, counted and messaged about in 
 
   expect_equal(CVbinom$`Singular Fit Messages`, 3)
 
-  # Can't expect this to give same answer on mac and ubuntu
-  expect_equal(CVbinom$`Warnings and Messages`[[1]],
-               structure(
-                 list(
-                   `Fold Column` = c(".folds", ".folds", ".folds",
-                                     ".folds"),
-                   Fold = 1:4,
-                   Type = c("message", "message", "warning",
-                            "message"),
-                   Message = c(
-                     "boundary (singular) fit: see ?isSingular\n",
-                     "boundary (singular) fit: see ?isSingular\n",
-                     "Model failed to converge with max|grad| = 0.0281933 (tol = 0.001, component 1)",
-                     "boundary (singular) fit: see ?isSingular\n"
-                   )
-                 ),
-                 row.names = c(NA,-4L),
-                 class = c("tbl_df", "tbl", "data.frame")
-               ))
-
+  # Can't expect the same warnings on mac and ubuntu
+  # so we just check that the singular fit message is there
+  expect_true(
+    "boundary (singular) fit: see ?isSingular\n" %in%
+      CVbinom$`Warnings and Messages`[[1]]$Message
+  )
 })
 
 test_that("the expected errors are thrown by cross_validate()",{

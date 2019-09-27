@@ -18,7 +18,9 @@ reconstruct_formulas(results, topn = NULL)
 List of model formulas.
 }
 \description{
-In the results tibble from cross_validate and validate,
+\Sexpr[results=rd, stage=render]{lifecycle::badge("maturing")}
+
+ In the results tibble from cross_validate and validate,
  the model formulas have been split into the columns Dependent, Fixed and Random.
  Quickly reconstruct the model formulas from these columns.
 }

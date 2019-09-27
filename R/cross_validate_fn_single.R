@@ -1,15 +1,22 @@
 # R CMD check NOTE handling
 if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 
-cross_validate_fn_single <- function(data, model_fn, evaluation_type = "gaussian",
-                                     model_specifics = list(), model_specifics_update_fn = NULL,
-                                     fold_cols =".folds", parallel_ = FALSE){
+cross_validate_fn_single <- function(data, model_fn,
+                                     evaluation_type = "gaussian",
+                                     model_specifics = list(),
+                                     model_specifics_update_fn = NULL,
+                                     metrics = list(),
+                                     fold_cols = ".folds",
+                                     parallel_ = FALSE){
 
   # TODO: the below comment is not correct
   # eval_fn: "regression", "binomial", "multiclass", "multilabel", "custom"/function
   #   custom: returns predictions and true labels/values in tibble
   # Actually, it might be better that the user passes the premade functions or a custom function
 
+  if (evaluation_type %ni% c("gaussian","binomial","multinomial")){
+    stop("evaluation_type must be either 'gaussian', 'binomial', or 'multinomial'.")
+  }
 
   # Check arguments
   # Check model_specifics arguments
@@ -76,25 +83,34 @@ cross_validate_fn_single <- function(data, model_fn, evaluation_type = "gaussian
   })
 
   # Extract model data frame from fold_lists_list
-  predictions_and_targets_list = fold_lists_list %c% 'predictions_and_targets'
-  predictions_and_targets = dplyr::bind_rows(predictions_and_targets_list)
+  predictions_and_targets_list <- fold_lists_list %c% 'predictions_and_targets'
+  predictions_and_targets <- dplyr::bind_rows(predictions_and_targets_list)
 
   # TODO Check that the right columns exist !!!
 
   # Extract models
-  models = fold_lists_list %c% 'model'
+  models <- fold_lists_list %c% 'model'
+
+  # Extract warnings and messages
+  warnings_and_messages <- dplyr::bind_rows(
+    fold_lists_list %c% 'warnings_and_messages')
+
+  # Nest warnings and messages tibble
+  nested_warnings_and_messages <- warnings_and_messages %>%
+    legacy_nest(1:ncol(warnings_and_messages)) %>%
+    dplyr::pull(.data$data)
 
   # Extract singular fit message flags
-  singular_fit_messages = fold_lists_list %c% 'threw_singular_fit_message'
+  singular_fit_messages <- fold_lists_list %c% 'threw_singular_fit_message'
   n_singular_fit_messages <- sum(unlist(singular_fit_messages))
 
   # Extract convergence warning flags
-  convergence_warnings = fold_lists_list %c% 'threw_convergence_warning'
+  convergence_warnings <- fold_lists_list %c% 'threw_convergence_warning'
   n_conv_warns <- sum(unlist(convergence_warnings))
   stopifnot(count_nulls_in_list(models) == n_conv_warns)
 
   # Extract unknown warning flags
-  unknown_warnings = fold_lists_list %c% 'threw_unknown_warning'
+  unknown_warnings <- fold_lists_list %c% 'threw_unknown_warning'
   n_unknown_warns <- sum(unlist(unknown_warnings))
 
   model_evaluation <- internal_evaluate(
@@ -108,12 +124,29 @@ cross_validate_fn_single <- function(data, model_fn, evaluation_type = "gaussian
       fold_column = "fold_column"
     ),
     models = models,
-    model_specifics = model_specifics) %>%
-    mutate(Folds = n_folds,
-           `Fold Columns` = length(fold_cols),
-           `Convergence Warnings` = n_conv_warns,
-           `Singular Fit Messages` = n_singular_fit_messages,
-           `Other Warnings` = n_unknown_warns)
+    model_specifics = model_specifics,
+    metrics = metrics)
+
+  if (evaluation_type %in% c("binomial","gaussian")){
+
+    model_evaluation <- model_evaluation %>%
+      mutate(Folds = n_folds,
+             `Fold Columns` = length(fold_cols),
+             `Convergence Warnings` = n_conv_warns,
+             `Singular Fit Messages` = n_singular_fit_messages,
+             `Other Warnings` = n_unknown_warns,
+             `Warnings and Messages` = nested_warnings_and_messages)
+
+  } else if (evaluation_type == "multinomial"){
+
+    model_evaluation[["Results"]] <- model_evaluation[["Results"]] %>%
+      mutate(Folds = n_folds,
+             `Fold Columns` = length(fold_cols),
+             `Convergence Warnings` = n_conv_warns,
+             `Singular Fit Messages` = n_singular_fit_messages,
+             `Other Warnings` = n_unknown_warns,
+             `Warnings and Messages` = nested_warnings_and_messages)
+  }
 
   return(model_evaluation)
 

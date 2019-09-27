@@ -1,6 +1,9 @@
 
 #' @title Select columns with evaluation metrics and model definitions.
-#' @description When reporting results, we might not want all
+#' @description
+#'  \Sexpr[results=rd, stage=render]{lifecycle::badge("maturing")}
+#'
+#'  When reporting results, we might not want all
 #'  the nested tibbles and process information columns.
 #'  This function selects the evaluation metrics and model formulas only.
 #' @return

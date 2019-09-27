@@ -9,6 +9,7 @@ validate_fn_single = function(train_data,
                               model_specifics_update_fn = NULL,
                               test_data = NULL,
                               partitions_col = '.partitions',
+                              metrics = list(),
                               err_nc = FALSE) {
 
   # Set errors if input variables aren't what we expect / can handle
@@ -25,6 +26,10 @@ validate_fn_single = function(train_data,
   # Check model_specifics arguments
   if (!is.null(model_specifics_update_fn)){
     model_specifics <- model_specifics_update_fn(model_specifics)
+  }
+
+  if (evaluation_type %ni% c("gaussian", "binomial")){
+    stop("'evaluation_type' must be either 'gaussian' or 'binomial'.")
   }
 
   # If train and test data is not already split,
@@ -66,18 +71,18 @@ validate_fn_single = function(train_data,
       fold_column = "fold_column"
     ),
     models = list(model),
-    model_specifics = model_specifics
+    model_specifics = model_specifics,
+    metrics = metrics
   ) %>%
     dplyr::mutate(`Convergence Warnings` = ifelse(is.null(model), 1, 0),
                   `Singular Fit Messages` = ifelse(isTRUE(threw_singular_fit_message), 1, 0))
 
 
   # Remove Results tibble if linear regression
-  if (evaluation_type == "linear_regression"){
+  if (evaluation_type == "gaussian"){
     model_evaluation <- model_evaluation %>%
     dplyr::select(-dplyr::one_of("Results"))
   }
-
 
   if (isTRUE(err_nc) && model_evaluation[["Convergence Warnings"]] != 0) {
     stop("Model did not converge.")

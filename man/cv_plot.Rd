@@ -29,7 +29,9 @@ cv_plot(x, type)
  }}
 }
 \description{
-Creates various plots based on
+\Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
+
+ Creates various plots based on
  the output of cvms::\link{cross_validate}()
 }
 \examples{

@@ -63,7 +63,7 @@ evaluate(data, target_col, prediction_cols, type = "gaussian",
 
 \item{type}{Type of evaluation to perform:
 
- \code{"gaussian"} for linear regression.
+ \code{"gaussian"} for regression (like linear regression).
 
  \code{"binomial"} for binary classification.
 
@@ -140,60 +140,30 @@ in the output as a nested tibble. (Logical)}
 \item{parallel}{Whether to run evaluations in parallel,
 when \code{data} is grouped with \code{\link[dplyr]{group_by}}.}
 }
-\description{
-Evaluate your model's predictions
- on a set of evaluation metrics.
-
- Create ID-aggregated evaluations by multiple methods.
-
- Currently supports linear regression, binary classification
- and multiclass classification (see \code{type}).
-
- \strong{evaluate() is under development! Large changes may occur.}
-}
-\details{
-Packages used:
-
- \strong{Gaussian}:
-
- r2m : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
-
- r2c : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
-
- AIC : \code{\link[stats:AIC]{stats::AIC}}
-
- AICc : \code{\link[AICcmodavg:AICc]{AICcmodavg::AICc}}
-
- BIC : \code{\link[stats:BIC]{stats::BIC}}
-
- \strong{Binomial} and \strong{Multinomial}:
-
- Confusion matrix and related metrics: \code{\link[caret:confusionMatrix]{caret::confusionMatrix}}
-
- ROC and related metrics: \code{\link[pROC:roc]{pROC::roc}}
-
- MCC: \code{\link[mltools:mcc]{mltools::mcc}}
-
- ----------------------------------------------------------------
+\value{
+----------------------------------------------------------------
 
  \subsection{Gaussian Results}{
 
  ----------------------------------------------------------------
 
- Single tibble containing the following metrics by default:
+ Tibble containing the following metrics by default:
 
  Average \strong{RMSE}, \strong{MAE}, \strong{r2m},
  \strong{r2c}, \strong{AIC}, \strong{AICc}, and \strong{BIC}.
 
  N.B. Some of the metrics will only be returned if model
- objects were passed, and \code{NA} if they could not be
+ objects were passed, and will be \code{NA} if they could not be
  extracted from the passed model objects.
 
  Also includes:
 
- A nested tibble with the \strong{Predictions} and targets
+ A nested tibble with the \strong{Predictions} and targets.
 
- A nested tibble with the model \strong{Coefficients}.
+ A nested tibble with the model \strong{Coefficients}. The coefficients
+ are extracted from the model object with \code{\link[broom:tidy]{broom::tidy()}} or
+ \code{\link[stats:coef]{coef()}} (with some restrictions on the output).
+ If these attempts fail, a default coefficients tibble filled with \code{NA}s is returned.
  }
 
  ----------------------------------------------------------------
@@ -202,7 +172,7 @@ Packages used:
 
  ----------------------------------------------------------------
 
- A single tibble with the following evaluation metrics, based on a
+ Tibble with the following evaluation metrics, based on a
  confusion matrix and a ROC curve fitted to the predictions:
 
  ROC:
@@ -238,38 +208,24 @@ Packages used:
  depending on which level is the "\code{positive}" class. I.e. the level you wish to predict.
  }
 
-----------------------------------------------------------------
+ ----------------------------------------------------------------
 
  \subsection{Multinomial Results}{
 
  ----------------------------------------------------------------
 
- A list with two tibbles:
+ For each class, a \emph{one-vs-all} binomial evaluation is performed. This creates
+ a \strong{Class Level Results} tibble containing the same metrics as the binomial results
+ described above, along with the \strong{Support} metric, which is simply a
+ count of the class in the target column. These metrics are used to calculate the macro metrics
+ in the output tibble. The nested class level results tibble is also included in the output tibble,
+ and would usually be reported along with the macro and overall metrics.
 
- \strong{Class Level Results}
-
- The \code{Class Level Results} tibble contains the results of the \emph{one-vs-all}
- binomial evaluations. It contains the same metrics as the binomial results described above.
-
- Also includes:
-
- A nested tibble with the \strong{Predictions} and targets used for the one-vs-all evaluation.
-
- A nested tibble with the sensativities and specificities from the \strong{ROC} curve.
-
- A nested tibble with the \strong{Confusion Matrix} from the one-vs-all evaluation.
- The \code{Pos_} columns tells you whether a row is a
- True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
- depending on which level is the "positive" class. In our case, \code{1} is the current class
- and \code{0} represents all the other classes together.
-
- \strong{Results}
-
- The \code{Results} tibble contains the overall/macro metrics. The metrics that share their name
- with the metrics in the Class Level Results tibble are averages of those metrics
+ The output tibble contains the macro and overall metrics.
+ The metrics that share their name with the metrics in the nested
+ class level results tibble are averages of those metrics
  (note: does not remove \code{NA}s before averaging).
- In addition to these, it also includes the \strong{Overall Accuracy} metric
- and the \strong{Support} metric, which is simply a count of the class in the target column.
+ In addition to these, it also includes the \strong{Overall Accuracy} metric.
 
  Other available metrics (disabled by default, see \code{metrics}):
  \strong{Accuracy}, \strong{Weighted Balanced Accuracy}, \strong{Weighted Accuracy},
@@ -288,6 +244,54 @@ Packages used:
 
  A nested tibble with the multiclass \strong{Confusion Matrix}.
  }
+
+ \strong{Class Level Results}
+
+ Besides the binomial evaluation metrics and the \code{Support} metric,
+ the nested class level results tibble also contains:
+
+ A nested tibble with the sensativities and specificities from the \strong{ROC} curve.
+
+ A nested tibble with the \strong{Confusion Matrix} from the one-vs-all evaluation.
+ The \code{Pos_} columns tells you whether a row is a
+ True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
+ depending on which level is the "positive" class. In our case, \code{1} is the current class
+ and \code{0} represents all the other classes together.
+}
+\description{
+\Sexpr[results=rd, stage=render]{lifecycle::badge("maturing")}
+
+ Evaluate your model's predictions
+ on a set of evaluation metrics.
+
+ Create ID-aggregated evaluations by multiple methods.
+
+ Currently supports regression and classification
+ (binary and multiclass). See \code{type}.
+}
+\details{
+Packages used:
+
+ \strong{Gaussian}:
+
+ r2m : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
+
+ r2c : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
+
+ AIC : \code{\link[stats:AIC]{stats::AIC}}
+
+ AICc : \code{\link[MuMIn:AICc]{MuMIn::AICc}}
+
+ BIC : \code{\link[stats:BIC]{stats::BIC}}
+
+ \strong{Binomial} and \strong{Multinomial}:
+
+ Confusion matrix and related metrics:
+ \code{\link[caret:confusionMatrix]{caret::confusionMatrix}}
+
+ ROC and related metrics: \code{\link[pROC:roc]{pROC::roc}}
+
+ MCC: \code{\link[mltools:mcc]{mltools::mcc}}
 }
 \examples{
 \donttest{
@@ -322,7 +326,7 @@ evaluate(data = data, target_col = "diagnosis",
 
 # Multinomial
 
-# Create a dataset
+# Create a tibble with predicted probabilities
 data_mc <- multiclass_probability_tibble(
     num_classes = 3, num_observations = 30,
     apply_softmax = TRUE, FUN = runif,

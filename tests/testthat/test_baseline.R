@@ -115,9 +115,9 @@ test_that("gaussian evaluations are correct in baseline()",{
                c(9.50,9.0,3.341656,5.0,14.0,5.0,0.0,0.0,18.0), tolerance=1e-3)
 
   expect_equal(gaussian_baseline_summ$r2m,
-               rep(0.0, 9), tolerance=1e-3)
+               rep(0.0, 9))
   expect_equal(gaussian_baseline_summ$r2c,
-               rep(0.0, 9), tolerance=1e-3)
+               rep(0.0, 9))
 
   expect_equal(gaussian_baseline_summ$AICc,
                c(83.38409,75.63857,29.84876,45.02450,
@@ -184,6 +184,7 @@ test_that("gaussian evaluations of random effects models are correct in baseline
     random_effects = "( 1 | session )",
     n = 10,
     family = "gaussian",
+    REML = TRUE, # Usually FALSE, but TRUE to avoid changing the tests
     parallel = FALSE))
 
   gaussian_baseline_summ <- gaussian_baseline_random_effects$summarized_metrics
@@ -268,6 +269,108 @@ test_that("gaussian evaluations of random effects models are correct in baseline
   expect_equal(all_coeffs$p.value,
                rep(NA, 10), tolerance=1e-3)
 })
+
+test_that("gaussian evaluations of random effects models are correct with REML FALSE in baseline()",{
+
+  set_seed_for_R_compatibility(2)
+  # set.seed(1)
+  dat <- groupdata2::partition(participant.scores, p = 0.6, list_out = TRUE)
+  train_data <- dat[[1]]
+  test_data <- dat[[2]]
+  suppressWarnings(gaussian_baseline_random_effects <- baseline(
+    test_data = test_data,
+    train_data = train_data,
+    dependent_col = "score",
+    random_effects = "( 1 | session )",
+    n = 10,
+    family = "gaussian",
+    REML = FALSE,
+    parallel = FALSE))
+
+  gaussian_baseline_summ <- gaussian_baseline_random_effects$summarized_metrics
+  gaussian_baseline_reval <- gaussian_baseline_random_effects$random_evaluations
+
+  # Summarized results
+  expect_equal(gaussian_baseline_summ$Measure, c("Mean", "Median", "SD", "IQR", "Max",
+                                                 "Min", "NAs", "INFs", "All_rows"))
+  expect_equal(gaussian_baseline_summ$RMSE,
+               c(19.9461643038004, 19.8243992085347, 3.16669902505845, 5.45212618245324,
+                 24.498950920267, 15.8922827970791, 0, 0, 18.2579833481909), tolerance=1e-3)
+
+  expect_equal(gaussian_baseline_summ$MAE,
+               c(17.5688071767949, 17.5664123038964, 2.36581521783252, 3.32573044194396,
+                 20.960459513901, 14.4129406656979, 0, 0, 16.3907116308631), tolerance=1e-3)
+
+  expect_equal(gaussian_baseline_summ$AIC,
+               c(80.3465725153843, 74.2525560821578, 29.4337002888526, 45.288244994372,
+                 122.097050951734, 42.4261074987794, 0, 0, 152.799138513963), tolerance=1e-3)
+
+  expect_equal(gaussian_baseline_summ$`Training Rows`,
+               c(9.50,9.0,3.341656,5.0,14.0,5.0,0.0,0.0,18.0), tolerance=1e-3)
+
+  expect_equal(gaussian_baseline_summ$r2m,
+               rep(0.0, 9), tolerance=1e-3)
+  expect_equal(gaussian_baseline_summ$r2c,
+               c(0.43613229083168, 0.474672230635666, 0.149845112686991, 0.23376511982053,
+                 0.624606985762511, 0.200718929950735, 0, 0, 0.397952267974043
+               ), tolerance=1e-3)
+
+  expect_equal(gaussian_baseline_summ$AICc,
+               c(87.6265725153843, 80.2525560821578, 24.5752651300548, 39.9130171335876,
+                 124.497050951734, 59.3905521226883, 0, 0, 154.513424228249), tolerance=1e-3)
+
+  expect_equal(gaussian_baseline_summ$BIC,
+               c(80.9234641973603, 74.6252989452318, 30.5156235782933, 46.8050859521017,
+                 124.01422294058, 41.2544212360817, 0, 0, 155.470253787652), tolerance=1e-3)
+
+  # The random evaluations
+  expect_equal(gaussian_baseline_reval$RMSE,
+               c(24.498950920267, 20.5418159984439, 18.992695846541, 23.6559983524106,
+                 19.8835818741749, 15.8922827970791, 19.7652165428946, 16.7141367039409,
+                 16.0496991056741, 23.4672648965776), tolerance=1e-3)
+
+  expect_equal(gaussian_baseline_reval$MAE,
+               c(20.960459513901, 18.4479900242695, 17.3968470787666, 20.6756807573846,
+                 17.3014038386473, 14.4129406656979, 17.7359775290262, 15.1341822802114,
+                 14.4362959391151, 19.1862941409292), tolerance=1e-3)
+
+  expect_equal(gaussian_baseline_reval$AIC,
+               c(42.4261074987794, 97.0575891839717, 65.3436873296684, 47.3905521226883,
+                 57.2591370177335, 119.245364275572, 83.1614248346471, 122.097050951734,
+                 106.339403446441, 63.1454084926068), tolerance=1e-3)
+
+  expect_equal(gaussian_baseline_reval$`Training Rows`,
+               c(5,12,7,6,7,14,10,14,12,8), tolerance=1e-3)
+
+  expect_equal(gaussian_baseline_reval$Family,
+               rep("gaussian", 10), tolerance=1e-3)
+
+  expect_equal(gaussian_baseline_reval$Dependent,
+               rep("score", 10), tolerance=1e-3)
+
+  expect_equal(gaussian_baseline_reval$Fixed,
+               rep("1", 10), tolerance=1e-3)
+  expect_equal(gaussian_baseline_reval$Random,
+               rep("(1|session)", 10), tolerance=1e-3)
+
+  all_predictions <- dplyr::bind_rows(gaussian_baseline_reval$Predictions)
+  expect_equal(sum(as.numeric(all_predictions$Fold)), 120)
+  expect_equal(sum(all_predictions$Target), 5440)
+  expect_equal(sum(all_predictions$Prediction), 4042.804, tolerance=1e-3)
+
+  all_coeffs <- dplyr::bind_rows(gaussian_baseline_reval$Coefficients)
+  expect_equal(all_coeffs$estimate,
+               c(29.0475640591351, 34.3203425052484, 41.2416418477926, 29.944216654405,
+                 31.7864586462034, 37.6658072225419, 34.3377960494584, 35.9622550910097,
+                 36.2791461299582, 27.1152376447763), tolerance=1e-3)
+  expect_equal(all_coeffs$std.error,
+               c(5.0066788799575, 4.58125952668684, 7.415753419446, 4.1185058577398,
+                 5.86297959144672, 8.4064394096518, 5.47687440034061, 8.01519324303267,
+                 8.84195558284918, 4.79166575929533), tolerance=1e-3)
+  expect_equal(all_coeffs$p.value,
+               rep(NA, 10), tolerance=1e-3)
+})
+
 
 
 # TODO Create baseline test where both classes are 50% 50% , 100% 0%, 0% 100%, 30/70 etc.

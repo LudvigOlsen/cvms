@@ -89,9 +89,14 @@ set_metrics <- function(family, metrics_list = NULL, include_model_object_metric
     if (length(unknown_metric_names) > 0) {
       stop(paste0(
         "'metrics_list' contained unknown metric names: ",
-        unknown_metric_names,
+        paste0(unknown_metric_names, collapse = ", "),
         "."
       ))
+    }
+
+    # Check for unknown values (Those not TRUE/FALSE)
+    if (any(unlist(lapply(metrics_list, function(x){!(is.logical(x) && !is.na(x))})))){
+      stop("The values in the 'metrics' list must be either TRUE or FALSE.")
     }
 
     # Update metrics as specified by user

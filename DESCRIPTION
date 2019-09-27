@@ -1,28 +1,31 @@
 Package: cvms
 Title: Cross-Validation for Model Selection
 Version: 0.2.0.9000
-Authors@R: c(
-    person("Ludvig Renbo", "Olsen", email = "r-pkgs@ludvigolsen.dk", role = c("aut", "cre")),
-    person("Benjamin Hugh", "Zachariae", role = "aut")
-    )
-Description: Cross-validate one or multiple regression models and get relevant evaluation 
-  metrics in a tidy format. Validate the best model on a test set and compare it to a baseline evaluation.
-  Alternatively, evaluate predictions from an external model. 
-  Currently supports linear regression, logistic regression and 
-  (some functions only) multiclass classification.
-  Described in chp. 5 of Jeyaraman, B. P., Olsen, L. R., & Wambugu M. (2019, ISBN: 9781838550134).
-Depends:
-    R (>= 3.5)
+Authors@R: 
+    c(person(given = "Ludvig Renbo",
+             family = "Olsen",
+             role = c("aut", "cre"),
+             email = "r-pkgs@ludvigolsen.dk"),
+      person(given = "Benjamin Hugh",
+             family = "Zachariae",
+             role = "aut"))
+Description: Cross-validate one or multiple regression models
+    and get relevant evaluation metrics in a tidy format. Validate the
+    best model on a test set and compare it to a baseline evaluation.
+    Alternatively, evaluate predictions from an external model.  Currently
+    supports linear regression, logistic regression and (some functions
+    only) multiclass classification.  Described in chp. 5 of Jeyaraman, B.
+    P., Olsen, L. R., & Wambugu M. (2019, ISBN: 9781838550134).
 License: MIT + file LICENSE
 URL: https://github.com/ludvigolsen/cvms
 BugReports: https://github.com/ludvigolsen/cvms/issues
-Encoding: UTF-8
-LazyData: true
+Depends:
+    R (>= 3.5)
 Imports:
     data.table (>= 1.12),
     dplyr,
     plyr,
-    tidyr (>= 0.7.0),
+    tidyr (>= 0.8.3),
     ggplot2,
     purrr,
     tibble (>= 2.1.1),
@@ -31,21 +34,28 @@ Imports:
     stats,
     lme4 (>= 1.1-21),
     MuMIn (>= 1.43.6),
-    AICcmodavg (>= 2.2-1),
-    broom,
+    broom (>= 0.5.2),
     stringr,
     mltools (>= 0.3.5),
     rlang,
-    utils
-RoxygenNote: 6.1.1
-Suggests: knitr,
-    groupdata2 (>= 1.1.1),
-    e1071,
+    utils,
+    lifecycle
+Suggests: 
+    knitr,
+    groupdata2 (>= 1.1.2),
+    e1071 (>= 1.7-2),
     rmarkdown,
-    testthat,
+    testthat (>= 2.2.1),
     AUC,
     furrr,
-    ModelMetrics,
-    covr,
-    nnet
-VignetteBuilder: knitr
+    ModelMetrics (>= 1.2.2),
+    covr (>= 3.3.1),
+    nnet (>= 7.3-12),
+    randomForest (>= 4.6-14)
+VignetteBuilder: 
+    knitr
+RdMacros: 
+    lifecycle
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.1

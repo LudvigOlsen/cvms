@@ -1,7 +1,10 @@
 
 
 #' @title Create baseline evaluations
-#' @description Create a baseline evaluation of a test set.
+#' @description
+#'  \Sexpr[results=rd, stage=render]{lifecycle::badge("maturing")}
+#'
+#'  Create a baseline evaluation of a test set.
 #'
 #'  When \code{family} is \code{gaussian}: fits baseline models (\code{y ~ 1}) on \code{n} random
 #'  subsets of \code{train_data} and evalutes each model on \code{test_data}. Also evaluates a
@@ -15,7 +18,6 @@
 #'  baseline evaluations for \code{n} sets of random predictions against the dependent variable,
 #'  along with sets of "all class x,y,z,..." predictions.
 #'
-#'  \strong{baseline() is under development! Large changes may occur.}
 #' @inheritParams cross_validate
 #' @param test_data Data Frame.
 #' @param train_data Data Frame. Only used when \code{family == "gaussian"}.
@@ -67,7 +69,10 @@
 #'
 #'  \code{max_rows_in_subset = nrow(train_data) - min_training_rows_left_out}.
 #'
-#'  \strong{Gaussian only}. (Integer)
+#'  N.B. \strong{Gaussian only}. (Integer)
+#' @param REML Whether to use Restricted Maximum Likelihood. (Logical)
+#'
+#'  N.B. \strong{Gaussian only}. (Integer)
 #' @param parallel Whether to run the \code{n} evaluations in parallel. (Logical)
 #'
 #'  Remember to register a parallel backend first.
@@ -89,7 +94,7 @@
 #'
 #'  AIC : \code{\link[stats:AIC]{stats::AIC}}
 #'
-#'  AICc : \code{\link[AICcmodavg:AICc]{AICcmodavg::AICc}}
+#'  AICc : \code{\link[MuMIn:AICc]{MuMIn::AICc}}
 #'
 #'  BIC : \code{\link[stats:BIC]{stats::BIC}}
 #'
@@ -382,6 +387,7 @@ baseline <- function(test_data,
                      random_effects = NULL,
                      min_training_rows = 5,
                      min_training_rows_left_out = 3,
+                     REML = FALSE,
                      # Parallelization
                      parallel = FALSE) {
 
@@ -444,6 +450,7 @@ baseline <- function(test_data,
                                            n_samplings = n,
                                            min_training_rows = min_training_rows,
                                            min_training_rows_left_out = min_training_rows_left_out,
+                                           REML = REML,
                                            parallel_ = parallel
                                            )
     )

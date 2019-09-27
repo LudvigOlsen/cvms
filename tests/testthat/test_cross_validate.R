@@ -8,18 +8,17 @@ context("cross_validate()")
 
 test_that("binomial models work with cross_validate()",{
 
-  # skip_test_if_old_R_version()
-
   # Load data and fold it
   set_seed_for_R_compatibility(1)
   dat <- groupdata2::fold(participant.scores, k = 4,
                           cat_col = 'diagnosis',
                           id_col = 'participant')
 
-  CVbinomlist <- cross_validate(dat, models = c("diagnosis~score","diagnosis~age"),
-                                fold_cols = '.folds', family='binomial',
-                                REML = FALSE, model_verbose=FALSE,
-                                positive=1)
+  CVbinomlist <- cross_validate(dat,
+                                models = c("diagnosis~score", "diagnosis~age"),
+                                fold_cols = '.folds', family = 'binomial',
+                                REML = FALSE, model_verbose = FALSE,
+                                positive = 1 )
 
   expect_equal(CVbinomlist$AUC, c(0.7615741, 0.1666667), tolerance=1e-3)
   expect_equal(CVbinomlist$`Lower CI`, c(0.58511535, 0.01748744), tolerance=1e-3)
@@ -49,6 +48,10 @@ test_that("binomial models work with cross_validate()",{
   expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Sensitivities","Specificities"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
   expect_equal(nrow(CVbinomlist$ROC[[1]]),29)
+  expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
+               structure(list(`Fold Column` = character(0), Fold = integer(0),
+                              Type = character(0), Message = character(0)),
+                         row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
 })
 
@@ -98,6 +101,10 @@ test_that("binomial models checks that dependent variable is numeric with cross_
   expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Sensitivities","Specificities"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
   expect_equal(nrow(CVbinomlist$ROC[[1]]),30)
+  expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
+               structure(list(`Fold Column` = character(0), Fold = integer(0),
+                              Type = character(0), Message = character(0)),
+                         row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
 
 })
@@ -160,8 +167,12 @@ test_that("binomial models work with cross_validate()",{
   expect_equal(nrow(CVbinomlistrand$Predictions[[2]]),30)
   expect_equal(nrow(CVbinomlistrand$ROC[[2]]),11) # Why?
 
-})
+  expect_equal(CVbinomlistrand$`Warnings and Messages`[[1]],
+               structure(list(`Fold Column` = character(0), Fold = integer(0),
+                              Type = character(0), Message = character(0)),
+                         row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
+})
 
 test_that("gaussian model with cross_validate()",{
 
@@ -193,9 +204,12 @@ test_that("gaussian model with cross_validate()",{
   expect_equal(CVed$Family, 'gaussian')
   expect_equal(CVed$Dependent, 'score')
   expect_equal(CVed$Fixed, 'diagnosis')
+  expect_equal(CVed$`Warnings and Messages`[[1]],
+               structure(list(`Fold Column` = character(0), Fold = integer(0),
+                              Type = character(0), Message = character(0)),
+                         row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
 })
-
 
 test_that("gaussian mixed models with cross_validate()",{
 
@@ -228,15 +242,88 @@ test_that("gaussian mixed models with cross_validate()",{
   expect_equal(CVed$Dependent, c('score','score'))
   expect_equal(CVed$Fixed, c('diagnosis', 'age'))
   expect_equal(CVed$Random, c('(1|session)', '(1|session)'))
+  expect_equal(CVed$`Warnings and Messages`[[1]],
+               structure(list(`Fold Column` = character(0), Fold = integer(0),
+                              Type = character(0), Message = character(0)),
+                         row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
 
 })
-
 
 test_that("binomial models work with control specified in cross_validate()",{
 
   testthat::skip(message = "travis get different results. Fix")
   # TODO fix such that travis get same results
+  # skip_test_if_old_R_version()
+
+  skip("testing different optimizers is too difficult given platform differences")
+
+  # Load data and fold it
+  set_seed_for_R_compatibility(7)
+  dat <- groupdata2::fold(participant.scores, k = 3,
+                          cat_col = 'diagnosis',
+                          id_col = 'participant')
+
+  tryCatch({
+    cross_validate(
+    dat,
+    models = c("diagnosis~score + (1|session)"),
+    fold_cols = '.folds',
+    family = 'binomial',
+    REML = FALSE,
+    link = NULL,
+    control = lme4::glmerControl(optimizer = "bobyqa"),
+    model_verbose = FALSE,
+    positive = 1
+  )}, warning = function(w){
+    expect_true(grepl("unable to evaluate scaled gradient", as.character(w), ignore.case = TRUE))
+  })
+
+
+  cv_Nelder_Mead <- cross_validate(
+    dat %>% dplyr::bind_rows(dat,dat,dat,dat),
+    models = c("diagnosis~score + age + (1|session)"),
+    fold_cols = '.folds',
+    family = 'binomial',
+    REML = FALSE,
+    link = NULL,
+    control = lme4::glmerControl(optimizer = "Nelder_Mead"),
+    model_verbose = FALSE,
+    positive = 1
+  )
+
+  cv_bobyqa <- cross_validate(
+    dat %>% dplyr::bind_rows(dat,dat,dat,dat),
+    models = c("diagnosis~score + age + (1|session)"),
+    fold_cols = '.folds',
+    family = 'binomial',
+    REML = FALSE,
+    link = NULL,
+    control = lme4::glmerControl(optimizer = "bobyqa"),
+    model_verbose = FALSE,
+    positive = 1
+  )
+
+  # Gather the results from the two different optimizers
+  cv <- cv_Nelder_Mead %>%
+    dplyr::bind_rows(cv_bobyqa)
+
+  # Appears to be different on linux
+  expect_true(cv$`Balanced Accuracy`[[1]] != cv$`Balanced Accuracy`[[2]]) # , c(0.736111111111111, 0.777777777777778))
+  expect_true(cv$AUC[[1]] != cv$AUC[[2]]) # c(0.824074074074074, 0.875))
+  expect_true(cv$F1[[1]] != cv$F1[[2]]) # c(0.666666666666667, 0.727272727272727))
+  expect_equal(cv$Fixed, c("score+age", "score+age"))
+  expect_equal(cv$Random, c("(1|session)", "(1|session)"))
+  expect_equal(cv$Dependent, c("diagnosis", "diagnosis"))
+
+})
+
+test_that("binomial models gives warnings with control specified in cross_validate()",{
+
+  testthat::skip("mac and ubuntu give different warnings")
+  # Tested on both platforms on travis as well
+  # Local test should run on mac as is
+
   # skip_test_if_old_R_version()
 
   # Load data and fold it
@@ -245,51 +332,41 @@ test_that("binomial models work with control specified in cross_validate()",{
                           cat_col = 'diagnosis',
                           id_col = 'participant')
 
-  expect_equal(evaluate_promise(
-    cross_validate(
-      dat,
-      models = c("diagnosis~score + (1|session)"),
-      fold_cols = '.folds',
-      family = 'binomial',
-      REML = FALSE,
-      link = NULL,
-      control = lme4::glmerControl(optimizer = "bobyqa", #
-                                   #optCtrl = list(maxfun = 1000))
-                                   ),
-      model_verbose = FALSE,
-      positive = 1
-      )
-    )$warnings, c(
-      "\n-------------------------------------\ncross_validate(): Warning:\nIn model:\ndiagnosis~score + (1|session)\nFor fold column:\n.folds\nIn fold:\n3\nunable to evaluate scaled gradient",
-      "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\ndiagnosis~score + (1|session)\nFor fold column:\n.folds\nIn fold:\n3\nModel failed to converge: degenerate  Hessian with 1 negative eigenvalues"
-    ), fixed = TRUE)
-
-  # expect_equal(CVbinomlistrand$AUC, c(0.7986111), tolerance=1e-3)
-  # expect_equal(CVbinomlistrand$`Convergence Warnings`, c(0))
-
   # Singular fit message
-  set_seed_for_R_compatibility(2)
 
-  expect_equal(evaluate_promise(
-    cross_validate(dat,
-                   models = c("diagnosis ~ score + age + (1|session) + (1|age)"),
-                   fold_cols = '.folds',
-                   family = 'binomial',
-                   REML = FALSE,
-                   link = NULL,
-                   control = lme4::glmerControl(optimizer = "bobyqa",
-                                                optCtrl = list(maxfun = 100)),
-                   model_verbose = FALSE))$warnings,
-    c("\n-------------------------------------\ncross_validate(): Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n1\nmaxfun < 10 * length(par)^2 is not recommended.",
-      "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n1\nconvergence code 1 from bobyqa: bobyqa -- maximum number of function evaluations exceeded",
-      "\n-------------------------------------\ncross_validate(): Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n2\nmaxfun < 10 * length(par)^2 is not recommended.",
-      "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n2\nconvergence code 1 from bobyqa: bobyqa -- maximum number of function evaluations exceeded",
-      "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n2\nModel failed to converge with max|grad| = 0.0405867 (tol = 0.001, component 1)",
-      "\n-------------------------------------\ncross_validate(): Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n3\nmaxfun < 10 * length(par)^2 is not recommended.",
-      "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n3\nconvergence code 1 from bobyqa: bobyqa -- maximum number of function evaluations exceeded",
-      "\n-------------------------------------\ncross_validate(): Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n3\nunable to evaluate scaled gradient",
-      "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n3\nModel failed to converge: degenerate  Hessian with 1 negative eigenvalues"
-    ), fixed = TRUE)
+  cv_process <- tryCatch({
+    purrr::map(.x = 1, .f = purrr::quietly(function(.x){
+      set_seed_for_R_compatibility(2)
+      cross_validate(dat,
+                     models = c("diagnosis ~ score + age + (1|session) + (1|age)"),
+                     fold_cols = '.folds',
+                     family = 'binomial',
+                     REML = FALSE,
+                     link = NULL,
+                     control = lme4::glmerControl(optimizer = "bobyqa",
+                                                  optCtrl = list(maxfun = 100)),
+                     model_verbose = FALSE)
+    }))
+  })
+
+  expect_equal(cv_process[[1]]$messages,
+               "\n--------------------------------------------------\ncross_validate(): Boundary (Singular) Fit Message:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n1\nboundary (singular) fit: see ?isSingular\n",
+               fixed=TRUE)
+
+  ### NOTE: The warnings are different between mac and linux
+  # So we cannot check the below :/
+  expect_equal(cv_process[[1]]$warnings,
+               c("\n-------------------------------------\ncross_validate(): Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n1\nmaxfun < 10 * length(par)^2 is not recommended.",
+                 "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n1\nconvergence code 1 from bobyqa: bobyqa -- maximum number of function evaluations exceeded",
+                 "\n-------------------------------------\ncross_validate(): Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n2\nmaxfun < 10 * length(par)^2 is not recommended.",
+                 "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n2\nconvergence code 1 from bobyqa: bobyqa -- maximum number of function evaluations exceeded",
+                 "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n2\nModel failed to converge with max|grad| = 0.0405867 (tol = 0.001, component 1)",
+                 "\n-------------------------------------\ncross_validate(): Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n3\nmaxfun < 10 * length(par)^2 is not recommended.",
+                 "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n3\nconvergence code 1 from bobyqa: bobyqa -- maximum number of function evaluations exceeded",
+                 "\n-------------------------------------\ncross_validate(): Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n3\nunable to evaluate scaled gradient",
+                 "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\ndiagnosis ~ score + age + (1|session) + (1|age)\nFor fold column:\n.folds\nIn fold:\n3\nModel failed to converge: degenerate  Hessian with 1 negative eigenvalues"
+               ),
+               fixed=TRUE)
 
 
   # set_seed_for_R_compatibility(2)
@@ -362,8 +439,6 @@ test_that("gaussian models work with control specified in cross_validate()",{
 
 })
 
-
-
 test_that("model using dot in formula ( y ~ . ) works with cross_validate()",{
 
   # skip_test_if_old_R_version()
@@ -394,7 +469,6 @@ test_that("model using dot in formula ( y ~ . ) works with cross_validate()",{
 
 
 })
-
 
 test_that("binomial models work with repeated cross_validate()",{
 
@@ -512,6 +586,11 @@ test_that("binomial models work with repeated cross_validate()",{
   expect_equal(CVbinomlist$Results[[1]]$`Detection Prevalence`,c(0.3000000, 0.33333), tolerance=1e-3)
   expect_equal(CVbinomlist$Results[[1]]$Prevalence,c(0.4, 0.4), tolerance=1e-3)
   expect_equal(CVbinomlist$Results[[1]]$MCC,c(0.5048268, 0.4330127), tolerance=1e-3)
+
+  expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
+               structure(list(`Fold Column` = character(0), Fold = integer(0),
+                              Type = character(0), Message = character(0)),
+                         row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 })
 
 test_that("binomial models work with positive as.character in cross_validate()",{
@@ -623,9 +702,12 @@ test_that("binomial models work with positive as.character in cross_validate()",
   expect_equal(CVbinomlist$F1, c(0.8049933,0.5384615), tolerance=1e-3)
 
 
+  expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
+               structure(list(`Fold Column` = character(0), Fold = integer(0),
+                              Type = character(0), Message = character(0)),
+                         row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
+
   })
-
-
 
 test_that("gaussian models work with repeated cross_validate()",{
 
@@ -705,6 +787,11 @@ test_that("gaussian models work with repeated cross_validate()",{
                  1.48500220,0.47578805,1.76704442,0.18970340,
                  2.55731400,-0.05895694,2.50729719,-0.44890594), tolerance = 1e-6)
 
+  expect_equal(CVgausslist$`Warnings and Messages`[[1]],
+               structure(list(`Fold Column` = character(0), Fold = integer(0),
+                              Type = character(0), Message = character(0)),
+                         row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
+
 })
 
 test_that("that wrong model formulas are warned about in cross_validate()",{
@@ -732,7 +819,6 @@ test_that("that wrong model formulas are warned about in cross_validate()",{
 
   })
 
-
 test_that("that singular fit messages are caught, counted and messaged about in cross_validate()",{
 
   # skip_test_if_old_R_version()
@@ -751,6 +837,12 @@ test_that("that singular fit messages are caught, counted and messaged about in 
 
   expect_equal(CVbinom$`Singular Fit Messages`, 3)
 
+  # Can't expect the same warnings on mac and ubuntu
+  # so we just check that the singular fit message is there
+  expect_true(
+    "boundary (singular) fit: see ?isSingular\n" %in%
+      CVbinom$`Warnings and Messages`[[1]]$Message
+  )
 })
 
 test_that("the expected errors are thrown by cross_validate()",{
@@ -869,3 +961,99 @@ test_that("model_verbose reports the correct model functions in cross_validate()
 
 
 })
+
+test_that("binomial models with metrics list work with cross_validate()",{
+
+  # Load data and fold it
+  set_seed_for_R_compatibility(1)
+  dat <- groupdata2::fold(participant.scores, k = 4,
+                          cat_col = 'diagnosis',
+                          id_col = 'participant')
+
+  CVbinomlist <- cross_validate(dat,
+                                models = c("diagnosis~score", "diagnosis~age"),
+                                fold_cols = '.folds', family = 'binomial',
+                                REML = FALSE,
+                                metrics = list("AUC" = FALSE,
+                                               "Accuracy" = TRUE,
+                                               "Prevalence" = FALSE),
+                                model_verbose = FALSE,
+                                positive = 1 )
+
+  expect_equal(colnames(CVbinomlist),
+               c("Balanced Accuracy", "Accuracy", "F1", "Sensitivity", "Specificity",
+                 "Pos Pred Value", "Neg Pred Value", "Lower CI", "Upper CI", "Kappa",
+                 "MCC", "Detection Rate", "Detection Prevalence", "Predictions",
+                 "ROC", "Confusion Matrix", "Coefficients", "Folds", "Fold Columns",
+                 "Convergence Warnings", "Singular Fit Messages", "Other Warnings",
+                 "Warnings and Messages", "Family", "Link", "Dependent", "Fixed"
+               ))
+
+  expect_equal(CVbinomlist$Accuracy, c(0.766666666666667, 0.4), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Balanced Accuracy`, c(0.7361111,0.3333333), tolerance=1e-3)
+
+  expect_error(cross_validate(dat,
+                              models = c("diagnosis~score", "diagnosis~age"),
+                              fold_cols = '.folds', family = 'binomial',
+                              REML = FALSE,
+                              metrics = list("AKG" = FALSE, # error here
+                                             "Accuracy" = TRUE,
+                                             "Prevalencer" = FALSE),
+                              model_verbose = FALSE,
+                              positive = 1 ),
+               "'metrics_list' contained unknown metric names: AKG, Prevalencer.",
+               fixed = TRUE)
+  expect_error(cross_validate(dat,
+                              models = c("diagnosis~score", "diagnosis~age"),
+                              fold_cols = '.folds', family = 'binomial',
+                              REML = FALSE,
+                              metrics = list("AUC" = 1,
+                                             "Accuracy" = TRUE,
+                                             "Prevalence" = FALSE),
+                              model_verbose = FALSE,
+                              positive = 1 ),
+               "The values in the 'metrics' list must be either TRUE or FALSE.",
+               fixed = TRUE)
+
+})
+
+test_that("gaussian models with metrics list work with cross_validate()",{
+
+  # skip_test_if_old_R_version()
+
+  # Load data and fold it
+  set_seed_for_R_compatibility(1)
+  dat <- groupdata2::fold(participant.scores, k = 4,
+                          cat_col = 'diagnosis',
+                          id_col = 'participant')
+
+  # Cross-validate the data
+  CVed <- cross_validate(dat, "score~diagnosis",
+                         fold_cols = '.folds',
+                         family = 'gaussian', link = NULL,
+                         REML = FALSE,
+                         metrics = list("RMSE" = FALSE,
+                                        "r2m" = TRUE),
+                         model_verbose = FALSE)
+
+  expect_equal(colnames(CVed),
+               c("MAE", "r2m", "r2c", "AIC", "AICc", "BIC", "Predictions", "Results",
+                 "Coefficients", "Folds", "Fold Columns", "Convergence Warnings",
+                 "Singular Fit Messages", "Other Warnings", "Warnings and Messages",
+                 "Family", "Link", "Dependent", "Fixed"))
+  expect_equal(colnames(CVed$Results[[1]]),
+               c("Fold Column", "Fold", "MAE", "r2m", "r2c", "AIC", "AICc",
+                 "BIC"))
+
+  # Cross-validate the data
+  expect_error(cross_validate(dat, "score~diagnosis",
+                         fold_cols = '.folds',
+                         family = 'gaussian', link = NULL,
+                         REML = FALSE,
+                         metrics = list("Accuracy" = TRUE, # Should error in gaussian
+                                        "r2m" = TRUE),
+                         model_verbose = FALSE),
+               "'metrics_list' contained unknown metric names: Accuracy.",
+               fixed = TRUE)
+})
+

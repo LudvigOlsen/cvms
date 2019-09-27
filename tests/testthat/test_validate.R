@@ -69,6 +69,49 @@ test_that("binomial model work with validate()", {
 
 })
 
+test_that("binomial model with metrics list work with validate()", {
+
+  # skip_test_if_old_R_version()
+
+  # Load data and partition it
+  set_seed_for_R_compatibility(2)
+  dat <- groupdata2::partition(
+    participant.scores,
+    p = 0.8,
+    cat_col = 'diagnosis',
+    id_col = 'participant',
+    list_out = FALSE
+  )
+
+  Vbinom <- validate(
+    train_data = dat,
+    models = "diagnosis~score",
+    test_data = NULL,
+    partitions_col = ".partitions",
+    family = 'binomial',
+    REML = FALSE,
+    metrics = list("Accuracy" = TRUE,
+                   "Lower CI" = FALSE),
+    model_verbose = FALSE,
+    positive = 1
+  )
+
+  Vbinom_results <- Vbinom$Results
+
+  expect_equal(Vbinom_results$`Balanced Accuracy`, 0.8333333,
+               tolerance = 1e-3)
+  expect_equal(Vbinom_results$Accuracy, 0.8888889,
+               tolerance = 1e-3)
+  expect_equal(colnames(Vbinom_results),
+               c("Balanced Accuracy", "Accuracy", "F1", "Sensitivity", "Specificity",
+                 "Pos Pred Value", "Neg Pred Value", "AUC", "Upper CI", "Kappa",
+                 "MCC", "Detection Rate", "Detection Prevalence", "Prevalence",
+                 "Predictions", "ROC", "Confusion Matrix", "Coefficients", "Convergence Warnings",
+                 "Singular Fit Messages", "Family", "Link", "Dependent", "Fixed"
+               ))
+})
+
+
 test_that("binomial mixed model work with validate()", {
 
   # skip_test_if_old_R_version()
@@ -244,6 +287,42 @@ test_that("gaussian model with validate()", {
   expect_equal(Vgauss_results$Fixed, 'diagnosis')
   expect_equal(Vgauss_results$Random, '(1|session)')
 
+})
+
+test_that("gaussian model with metrics list works with validate()", {
+
+  # Load data and fold it
+  set_seed_for_R_compatibility(4)
+
+  dat <- groupdata2::partition(
+    participant.scores,
+    p = 0.7,
+    cat_col = 'diagnosis',
+    id_col = 'participant',
+    list_out = FALSE
+  )
+
+  Vgauss <-
+    validate(
+      train_data = dat,
+      models = "score~diagnosis+(1|session)",
+      test_data = NULL,
+      partitions_col = ".partitions",
+      link = NULL,
+      family = 'gaussian',
+      REML = FALSE,
+      metrics = list("RMSE" = FALSE,
+                     "r2m" = TRUE),
+      model_verbose = FALSE
+    )
+
+  Vgauss_results <- Vgauss$Results
+
+  expect_equal(Vgauss_results$r2m, 0.305, tolerance = 1e-3)
+  expect_equal(colnames(Vgauss_results),
+               c("MAE", "r2m", "r2c", "AIC", "AICc", "BIC", "Predictions", "Coefficients",
+                 "Convergence Warnings", "Singular Fit Messages", "Family", "Link",
+                 "Dependent", "Fixed", "Random"))
 })
 
 

@@ -2,7 +2,10 @@
 if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 
 #' @title Wrapper for plotting common plots using ggplot2
-#' @description Creates various plots based on
+#' @description
+#'  \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
+#'
+#'  Creates various plots based on
 #'  the output of cvms::\link{cross_validate}()
 #' @param x Object returned by cvms::\link{cross_validate}() (tbl)
 #' @param type Type of plot.

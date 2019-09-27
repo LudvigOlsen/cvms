@@ -24,16 +24,18 @@ status](https://ci.appveyor.com/api/projects/status/github/LudvigOlsen/cvms?bran
 
 ## Overview
 
-R package: Cross-validate one or multiple regression models and get
-relevant evaluation metrics in a tidy format. Validate the best model on
-a test set and compare it to a baseline evaluation. Alternatively,
-evaluate predictions from an external model. Currently supports linear
-regression, logistic regression and (some functions only) multiclass
-classification.
+R package: Cross-validate one or multiple regression or classification
+models and get relevant evaluation metrics in a tidy format. Validate
+the best model on a test set and compare it to a baseline evaluation.
+Alternatively, evaluate predictions from an external model. Currently
+supports regression (`'gaussian'`), binary classification
+(`'binomial'`), and (some functions only) multiclass classification
+(`'multinomial'`).
 
 Main functions:
 
   - `cross_validate()`  
+  - `cross_validate_fn()`  
   - `validate()`  
   - `evaluate()`
   - `baseline()`  
@@ -42,7 +44,61 @@ Main functions:
   - `select_metrics()`  
   - `reconstruct_formulas()`
 
+## Table of Contents
+
+  - [cvms](#cvms)
+      - [Overview](#overview)
+          - [The difference between `cross_validate()` and
+            `cross_validate_fn()`](#diff-cv-fn)
+      - [Important News](#news)
+      - [Installation](#installation)
+  - [Examples](#examples)
+      - [Attach packages](#packages)
+      - [Load data](#load-data)
+      - [Fold data](#fold)
+      - [Cross-validate a single model](#cv-single)
+          - [Gaussian](#cv-single-gaussian)
+          - [Binomial](#cv-single-binomial)
+      - [Cross-validate multiple models](#cv-multi)
+          - [Create model formulas](#cv-multi-formulas)
+          - [Cross-validate fixed effects models](#cv-multi-fixed)
+          - [Cross-validate mixed effects models](#cv-multi-mixed)
+      - [Repeated cross-validation](#cv-repeated)
+      - [Cross-validating custom model functions](#cv-custom)
+          - [SVM](#cv-custom-svm)
+          - [Naive Bayes](#cv-custom-naive)
+      - [Evaluating predictions](#evaluate)
+          - [Multinomial](#evaluate-multinomial)
+      - [Baseline evaluations](#baseline)
+          - [Gaussian](#baseline-gaussian)
+          - [Binomial](#baseline-binomial)
+          - [Multinomial](#baseline-multinomial)
+      - [Plot results](#plot)
+          - [Gaussian](#plot-gaussian)
+          - [Binomial](#plot-binomial)
+      - [Generate model formulas](#generate-formulas)
+
+### The difference between `cross_validate()` and `cross_validate_fn()`
+
+Originally, `cvms` only provided the option to cross-validate Gaussian
+and binomial regression models, fitting the models internally with the
+`lm()`, `lmer()`, `glm()`, and `glmer()` functions. The
+`cross_validate()` function has thus been designed specifically to work
+with those functions.
+
+To allow cross-validation of custom model functions like support-vector
+machines, neural networks, etc., the `cross_validate_fn()` function has
+been added. You provide a model function and (if defaults fail) a
+predict function, and it does the rest (see examples below).
+
 ## Important News
+
+  - `cross_validate_fn()` is added. Cross-validate custom model
+    functions.
+
+  - In `evaluate()`, when `type` is `multinomial`, the output is now a
+    single tibble. The `Class Level Results` are included as a nested
+    tibble.
 
   - Adds `'multinomial'` family to `baseline()` and `evaluate()`.
 
@@ -52,13 +108,10 @@ Main functions:
   - AUC calculation has changed. Now explicitly sets the direction in
     `pROC::roc`. (27th of May 2019)
 
-  - Argument `"positive"` now defaults to `2`. If a dependent variable
-    has the values 0 and 1, 1 is now the default positive class, as
-    that’s the second smallest value. If the dependent variable is of
-    type `character`, it’s in alphabetical order.
-
-  - Results now contain a count of singular fit messages. See
-    `?lme4::isSingular` for more information.
+  - Argument `positive` now defaults to `2`. If a dependent variable has
+    the values 0 and 1, 1 is now the default positive class, as that’s
+    the second smallest value. If the dependent variable is of type
+    `character`, it’s in alphabetical order.
 
 ## Installation
 
@@ -143,13 +196,14 @@ CV1 <- cross_validate(data, "score~diagnosis",
 
 # Show results
 CV1
-#> # A tibble: 1 x 18
+#> # A tibble: 1 x 20
 #>    RMSE   MAE   r2m   r2c   AIC  AICc   BIC Predictions Results
 #>   <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <list>      <list> 
 #> 1  16.4  13.8 0.271 0.271  195.  196.  198. <tibble [3… <tibbl…
-#> # … with 9 more variables: Coefficients <list>, Folds <int>, `Fold
-#> #   Columns` <int>, `Convergence Warnings` <dbl>, `Singular Fit
-#> #   Messages` <int>, Family <chr>, Link <chr>, Dependent <chr>,
+#> # … with 11 more variables: Coefficients <list>, Folds <int>, `Fold
+#> #   Columns` <int>, `Convergence Warnings` <int>, `Singular Fit
+#> #   Messages` <int>, `Other Warnings` <int>, `Warnings and
+#> #   Messages` <list>, Family <chr>, Link <chr>, Dependent <chr>,
 #> #   Fixed <chr>
 
 # Let's take a closer look at the different parts of the output 
@@ -217,9 +271,9 @@ CV1$Coefficients[[1]] %>% kable()
 CV1 %>% select(11:17) %>% kable()
 ```
 
-| Folds | Fold Columns | Convergence Warnings | Singular Fit Messages | Family   | Link     | Dependent |
-| ----: | -----------: | -------------------: | --------------------: | :------- | :------- | :-------- |
-|     4 |            1 |                    0 |                     0 | gaussian | identity | score     |
+| Folds | Fold Columns | Convergence Warnings | Singular Fit Messages | Other Warnings | Warnings and Messages                                                                              | Family   |
+| ----: | -----------: | -------------------: | --------------------: | -------------: | :------------------------------------------------------------------------------------------------- | :------- |
+|     4 |            1 |                    0 |                     0 |              0 | list(`Fold Column` = character(0), Fold = integer(0), Type = character(0), Message = character(0)) | gaussian |
 
 ### Binomial
 
@@ -230,16 +284,17 @@ CV2 <- cross_validate(data, "diagnosis~score",
 
 # Show results
 CV2
-#> # A tibble: 1 x 26
+#> # A tibble: 1 x 28
 #>   `Balanced Accur…    F1 Sensitivity Specificity `Pos Pred Value`
 #>              <dbl> <dbl>       <dbl>       <dbl>            <dbl>
 #> 1            0.736 0.821       0.889       0.583            0.762
-#> # … with 21 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
+#> # … with 23 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
 #> #   CI` <dbl>, `Upper CI` <dbl>, Kappa <dbl>, MCC <dbl>, `Detection
 #> #   Rate` <dbl>, `Detection Prevalence` <dbl>, Prevalence <dbl>,
 #> #   Predictions <list>, ROC <list>, `Confusion Matrix` <list>,
 #> #   Coefficients <list>, Folds <int>, `Fold Columns` <int>, `Convergence
-#> #   Warnings` <dbl>, `Singular Fit Messages` <int>, Family <chr>,
+#> #   Warnings` <int>, `Singular Fit Messages` <int>, `Other
+#> #   Warnings` <int>, `Warnings and Messages` <list>, Family <chr>,
 #> #   Link <chr>, Dependent <chr>, Fixed <chr>
 
 # Let's take a closer look at the different parts of the output 
@@ -308,14 +363,15 @@ CV3 <- cross_validate(data, models,
 
 # Show results
 CV3
-#> # A tibble: 2 x 18
+#> # A tibble: 2 x 20
 #>    RMSE   MAE    r2m    r2c   AIC  AICc   BIC Predictions Results
 #>   <dbl> <dbl>  <dbl>  <dbl> <dbl> <dbl> <dbl> <list>      <list> 
 #> 1  16.4  13.8 0.271  0.271   195.  196.  198. <tibble [3… <tibbl…
 #> 2  22.4  18.9 0.0338 0.0338  201.  202.  204. <tibble [3… <tibbl…
-#> # … with 9 more variables: Coefficients <list>, Folds <int>, `Fold
-#> #   Columns` <int>, `Convergence Warnings` <dbl>, `Singular Fit
-#> #   Messages` <int>, Family <chr>, Link <chr>, Dependent <chr>,
+#> # … with 11 more variables: Coefficients <list>, Folds <int>, `Fold
+#> #   Columns` <int>, `Convergence Warnings` <int>, `Singular Fit
+#> #   Messages` <int>, `Other Warnings` <int>, `Warnings and
+#> #   Messages` <list>, Family <chr>, Link <chr>, Dependent <chr>,
 #> #   Fixed <chr>
 ```
 
@@ -329,14 +385,15 @@ CV4 <- cross_validate(data, mixed_models,
 
 # Show results
 CV4
-#> # A tibble: 2 x 19
+#> # A tibble: 2 x 21
 #>    RMSE   MAE    r2m   r2c   AIC  AICc   BIC Predictions Results
 #>   <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <list>      <list> 
 #> 1  7.95  6.41 0.290  0.811  176.  178.  180. <tibble [3… <tibbl…
 #> 2 17.5  16.2  0.0366 0.526  194.  196.  198. <tibble [3… <tibbl…
-#> # … with 10 more variables: Coefficients <list>, Folds <int>, `Fold
-#> #   Columns` <int>, `Convergence Warnings` <dbl>, `Singular Fit
-#> #   Messages` <int>, Family <chr>, Link <chr>, Dependent <chr>,
+#> # … with 12 more variables: Coefficients <list>, Folds <int>, `Fold
+#> #   Columns` <int>, `Convergence Warnings` <int>, `Singular Fit
+#> #   Messages` <int>, `Other Warnings` <int>, `Warnings and
+#> #   Messages` <list>, Family <chr>, Link <chr>, Dependent <chr>,
 #> #   Fixed <chr>, Random <chr>
 ```
 
@@ -385,17 +442,18 @@ CV5 <- cross_validate(data, "diagnosis ~ score",
 
 # Show results
 CV5
-#> # A tibble: 1 x 27
+#> # A tibble: 1 x 29
 #>   `Balanced Accur…    F1 Sensitivity Specificity `Pos Pred Value`
 #>              <dbl> <dbl>       <dbl>       <dbl>            <dbl>
 #> 1            0.729 0.813       0.875       0.583            0.759
-#> # … with 22 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
+#> # … with 24 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
 #> #   CI` <dbl>, `Upper CI` <dbl>, Kappa <dbl>, MCC <dbl>, `Detection
 #> #   Rate` <dbl>, `Detection Prevalence` <dbl>, Prevalence <dbl>,
 #> #   Predictions <list>, ROC <list>, Results <list>, `Confusion
 #> #   Matrix` <list>, Coefficients <list>, Folds <int>, `Fold
-#> #   Columns` <int>, `Convergence Warnings` <dbl>, `Singular Fit
-#> #   Messages` <int>, Family <chr>, Link <chr>, Dependent <chr>,
+#> #   Columns` <int>, `Convergence Warnings` <int>, `Singular Fit
+#> #   Messages` <int>, `Other Warnings` <int>, `Warnings and
+#> #   Messages` <list>, Family <chr>, Link <chr>, Dependent <chr>,
 #> #   Fixed <chr>
 
 # The binomial output now has a nested 'Results' tibble
@@ -410,10 +468,138 @@ CV5$Results[[1]] %>% select(1:8) %>%  kable()
 | .folds\_3   |         0.7083333 | 0.7894737 |   0.8333333 |   0.5833333 |      0.7500000 |      0.7000000 | 0.7476852 |
 | .folds\_4   |         0.7361111 | 0.8205128 |   0.8888889 |   0.5833333 |      0.7619048 |      0.7777778 | 0.7662037 |
 
+## Cross-validating custom model functions
+
+`cross_validate_fn()` works with regression (`gaussian`), binary
+classification (`binomial`), and multiclass classification
+(`multinomial`).
+
+### SVM
+
+Let’s cross-validate a support-vector machine using the `svm()` function
+from the `e1071` package. First, we will create a model function. You
+can do anything you want in it, as long as it takes the arguments
+`train_data` and `formula` and returns the fitted model object.
+
+``` r
+# Create model function
+#
+# train_data : tibble with the training data
+# formula : a formula object
+
+svm_model_fn <- function(train_data, formula){
+  
+  # Note that `formula` must be specified first
+  # when calling svm(), otherwise it fails
+  e1071::svm(formula = formula,
+             data = train_data, 
+             kernel = "linear",
+             type = "C-classification")
+}
+```
+
+For the `svm()` function, the default predict function and settings
+within `cross_validate_fn()` works, so we don’t have to specify a
+predict function. In many cases, it’s probably safer to supply a predict
+function anyway, so you’re sure everything is correct. We will see how
+in the naive Bayes example below, but first, let’s cross-validate the
+model function. Note, that some of the arguments have changed names
+(`models -> formulas`, `family -> type`).
+
+``` r
+# Cross-validate svm_model_fn
+CV6 <- cross_validate_fn(data = data,
+                         model_fn = svm_model_fn,
+                         formulas = c("diagnosis~score", "diagnosis~age"),
+                         fold_cols = '.folds_1', 
+                         type = 'binomial')
+
+CV6
+#> # A tibble: 2 x 26
+#>   `Balanced Accur…    F1 Sensitivity Specificity `Pos Pred Value`
+#>              <dbl> <dbl>       <dbl>       <dbl>            <dbl>
+#> 1            0.694 0.80        0.889         0.5            0.727
+#> 2            0.417 0.667       0.833         0              0.556
+#> # … with 21 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
+#> #   CI` <dbl>, `Upper CI` <dbl>, Kappa <dbl>, MCC <dbl>, `Detection
+#> #   Rate` <dbl>, `Detection Prevalence` <dbl>, Prevalence <dbl>,
+#> #   Predictions <list>, ROC <list>, `Confusion Matrix` <list>,
+#> #   Coefficients <list>, Folds <int>, `Fold Columns` <int>, `Convergence
+#> #   Warnings` <int>, `Other Warnings` <int>, `Warnings and
+#> #   Messages` <list>, Family <chr>, Dependent <chr>, Fixed <chr>
+```
+
+### Naive Bayes
+
+The naive Bayes classifier requires us to supply a predict function, so
+we will go through that next. First, let’s create the model function.
+
+``` r
+# Create model function
+#
+# train_data : tibble with the training data
+# formula : a formula object
+
+nb_model_fn <- function(train_data, formula){
+  e1071::naiveBayes(formula = formula, 
+                    data = train_data)
+}
+```
+
+Now, we will create a predict function. This will usually wrap
+`stats::predict()` and just make sure, the predictions have the correct
+format. When `type` is `binomial`, the predictions should be a vector,
+or a one-column matrix / data frame, with the probabilities of the
+second class (alphabetically). That is, if we have the classes `0` and
+`1`, it should be the probabilities of the observations being in class
+`1`. The help file, `?cross_validate_fn`, describes the formats for the
+other types (`gaussian` and `multinomial`).
+
+The predict function should take the arguments `test_data`, `model`, and
+`formula`. You do not need to use the `formula` within your function.
+
+``` r
+# Create predict function
+#
+# test_data : tibble with the test data
+# model : fitted model object
+# formula : a formula object
+nb_predict_fn <- function(test_data, model, formula){
+    stats::predict(object = model, newdata = test_data, 
+                   type = "raw", allow.new.levels = TRUE)[,2]
+  }
+```
+
+With both functions specified, we are ready to cross-validate our naive
+Bayes classifier.
+
+``` r
+CV7 <- cross_validate_fn(data,
+                         model_fn = nb_model_fn,
+                         formulas = c("diagnosis~score", "diagnosis~age"),
+                         type = 'binomial',
+                         predict_fn = nb_predict_fn,
+                         fold_cols = '.folds_1')
+
+CV7
+#> # A tibble: 2 x 26
+#>   `Balanced Accur…    F1 Sensitivity Specificity `Pos Pred Value`
+#>              <dbl> <dbl>       <dbl>       <dbl>            <dbl>
+#> 1            0.736 0.821       0.889       0.583            0.762
+#> 2            0.25  0.462       0.5         0                0.429
+#> # … with 21 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
+#> #   CI` <dbl>, `Upper CI` <dbl>, Kappa <dbl>, MCC <dbl>, `Detection
+#> #   Rate` <dbl>, `Detection Prevalence` <dbl>, Prevalence <dbl>,
+#> #   Predictions <list>, ROC <list>, `Confusion Matrix` <list>,
+#> #   Coefficients <list>, Folds <int>, `Fold Columns` <int>, `Convergence
+#> #   Warnings` <int>, `Other Warnings` <int>, `Warnings and
+#> #   Messages` <list>, Family <chr>, Dependent <chr>, Fixed <chr>
+```
+
 ## Evaluating predictions
 
 Evaluate predictions from a model trained outside cvms. Works with
-linear regression (`gaussian`), logistic regression (`binomial`), and
+regression (`gaussian`), binary classification (`binomial`), and
 multiclass classification (`multinomial`). The following is an example
 of multinomial evaluation.
 
@@ -511,22 +697,29 @@ and summarize the results.
 
 ``` r
 # Evaluate predictions
-evaluate(data = predictions,
-         target_col = "target",
-         prediction_cols = class_names,
-         type = "multinomial")
-#> $Results
-#> # A tibble: 1 x 17
+ev <- evaluate(data = predictions,
+                 target_col = "target",
+                 prediction_cols = class_names,
+                 type = "multinomial")
+
+ev
+#> # A tibble: 1 x 18
 #>   `Overall Accura… `Balanced Accur…    F1 Sensitivity Specificity
 #>              <dbl>            <dbl> <dbl>       <dbl>       <dbl>
 #> 1            0.154            0.427   NaN       0.143       0.712
-#> # … with 12 more variables: `Pos Pred Value` <dbl>, `Neg Pred
+#> # … with 13 more variables: `Pos Pred Value` <dbl>, `Neg Pred
 #> #   Value` <dbl>, AUC <dbl>, `Lower CI` <dbl>, `Upper CI` <dbl>,
 #> #   Kappa <dbl>, MCC <dbl>, `Detection Rate` <dbl>, `Detection
-#> #   Prevalence` <dbl>, Prevalence <dbl>, Predictions <list>, `Confusion
-#> #   Matrix` <list>
-#> 
-#> $`Class Level Results`
+#> #   Prevalence` <dbl>, Prevalence <dbl>, `Class Level Results` <list>,
+#> #   Predictions <list>, `Confusion Matrix` <list>
+```
+
+The class level results (i.e., the one-vs-all evaluations) are also
+included, and would usually be reported alongside the above results.
+
+``` r
+ev$`Class Level Results`
+#> [[1]]
 #> # A tibble: 4 x 18
 #>   Class `Balanced Accur…      F1 Sensitivity Specificity `Pos Pred Value`
 #>   <chr>            <dbl>   <dbl>       <dbl>       <dbl>            <dbl>
@@ -750,28 +943,28 @@ cv_plot(CV1, type = "RMSE") +
   theme_bw()
 ```
 
-<img src="man/figures/README-unnamed-chunk-19-1.png" width="644" />
+<img src="man/figures/README-unnamed-chunk-25-1.png" width="644" />
 
 ``` r
 cv_plot(CV1, type = "r2") +
   theme_bw()
 ```
 
-<img src="man/figures/README-unnamed-chunk-19-2.png" width="644" />
+<img src="man/figures/README-unnamed-chunk-25-2.png" width="644" />
 
 ``` r
 cv_plot(CV1, type = "IC") +
   theme_bw()
 ```
 
-<img src="man/figures/README-unnamed-chunk-19-3.png" width="644" />
+<img src="man/figures/README-unnamed-chunk-25-3.png" width="644" />
 
 ``` r
 cv_plot(CV1, type = "coefficients") +
   theme_bw()
 ```
 
-<img src="man/figures/README-unnamed-chunk-19-4.png" width="644" />
+<img src="man/figures/README-unnamed-chunk-25-4.png" width="644" />
 
 ### Binomial
 
@@ -780,7 +973,7 @@ cv_plot(CV2, type = "ROC") +
   theme_bw()
 ```
 
-<img src="man/figures/README-unnamed-chunk-20-1.png" width="644" />
+<img src="man/figures/README-unnamed-chunk-26-1.png" width="644" />
 
 ## Generate model formulas
 

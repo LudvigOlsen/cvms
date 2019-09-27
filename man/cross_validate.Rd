@@ -6,7 +6,7 @@
 \usage{
 cross_validate(data, models, fold_cols = ".folds", family = "gaussian",
   link = NULL, control = NULL, REML = FALSE, cutoff = 0.5,
-  positive = 2, rm_nc = FALSE, parallel = FALSE,
+  positive = 2, metrics = list(), rm_nc = FALSE, parallel = FALSE,
   model_verbose = FALSE)
 }
 \arguments{
@@ -69,6 +69,17 @@ cross_validate(data, models, fold_cols = ".folds", family = "gaussian",
 
  N.B. \strong{Binomial models only}.}
 
+\item{metrics}{List for enabling/disabling metrics.
+
+  E.g. \code{list("RMSE" = FALSE)} would remove RMSE from the results,
+  and \code{list("Accuracy" = TRUE)} would add the regular accuracy metric
+  to the classification results.
+  Default values (TRUE/FALSE) will be used for the remaining metrics available.
+
+  Also accepts the string \code{"all"}.
+
+  N.B. Currently, disabled metrics are still computed.}
+
 \item{rm_nc}{Remove non-converged models from output. (Logical)}
 
 \item{parallel}{Whether to cross-validate the list of models in parallel. (Logical)
@@ -91,7 +102,11 @@ Tbl (tibble) with results for each model.
  Count of \strong{convergence warnings}. Consider discarding models that did not converge on all
  iterations. Note: you might still see results, but these should be taken with a grain of salt!
 
+ Count of \strong{other warnings}. These are warnings without keywords such as "convergence".
+
  Count of \strong{Singular Fit messages}. See \code{?\link[lme4:isSingular]{lme4::isSingular}} for more information.
+
+ Nested tibble with the \strong{warnings and messages} caught for each model.
 
  Specified \strong{family}.
 
@@ -104,7 +119,12 @@ Tbl (tibble) with results for each model.
  Names of \strong{random} effects, if any.
  }
 
+ ----------------------------------------------------------------
+
  \subsection{Gaussian Results}{
+
+ ----------------------------------------------------------------
+
  Average \strong{RMSE}, \strong{MAE}, \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
  and \strong{BIC} of all the iterations*,
  \emph{\strong{omitting potential NAs} from non-converged iterations}.
@@ -119,9 +139,18 @@ Tbl (tibble) with results for each model.
 
  }
 
+ ----------------------------------------------------------------
+
  \subsection{Binomial Results}{
- Based on the collected predictions from the test folds*,
+
+ ----------------------------------------------------------------
+
+ Based on the \strong{collected} predictions from the test folds*,
  a confusion matrix and a ROC curve are created to get the following:
+
+ ROC:
+
+ \strong{AUC}, \strong{Lower CI}, and \strong{Upper CI}
 
  Confusion Matrix:
 
@@ -135,9 +164,10 @@ Tbl (tibble) with results for each model.
  \strong{Prevalence}, and
  \strong{MCC} (Matthews correlation coefficient).
 
- ROC:
+ Other available metrics (disabled by default, see \code{metrics}):
+ \strong{Accuracy}.
 
- \strong{AUC}, \strong{Lower CI}, and \strong{Upper CI}
+ Also includes:
 
  A nested tibble with \strong{predictions}, predicted classes (depends on \code{cutoff}), and the targets.
  Note, that the \strong{predictions are not necessarily of the specified \code{positive} class}, but of
@@ -150,17 +180,22 @@ Tbl (tibble) with results for each model.
  True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
  depending on which level is the "positive" class. I.e. the level you wish to predict.
 
- A nested tibble with the \strong{results} from all fold columns, if using repeated cross-validation.
+ A nested tibble with the \strong{results} from all fold columns, when using \emph{repeated cross-validation}.
 
  * In \emph{repeated cross-validation}, an evaluation is made per fold column (repetition) and averaged.
 
  }
 }
 \description{
-Cross-validate one or multiple gaussian or binomial
+\Sexpr[results=rd, stage=render]{lifecycle::badge("stable")}
+
+ Cross-validate one or multiple gaussian or binomial
  models at once. Perform repeated cross-validation.
  Returns results in a tibble for easy comparison,
  reporting and further analysis.
+
+ See \code{\link[cvms:cross_validate_fn]{cross_validate_fn()}} for use
+ with custom model functions.
 }
 \details{
 Packages used:
@@ -180,7 +215,7 @@ Packages used:
 
  AIC : \code{\link[stats:AIC]{stats::AIC}}
 
- AICc : \code{\link[AICcmodavg:AICc]{AICcmodavg::AICc}}
+ AICc : \code{\link[MuMIn:AICc]{MuMIn::AICc}}
 
  BIC : \code{\link[stats:BIC]{stats::BIC}}
 
@@ -209,8 +244,8 @@ set.seed(7)
 
 # Fold data
 data <- fold(data, k = 4,
-          cat_col = 'diagnosis',
-          id_col = 'participant') \%>\%
+             cat_col = 'diagnosis',
+             id_col = 'participant') \%>\%
         arrange(.folds)
 
 # Cross-validate a single model
@@ -219,7 +254,7 @@ data <- fold(data, k = 4,
 # Gaussian
 cross_validate(data,
                models = "score~diagnosis",
-               family='gaussian',
+               family = 'gaussian',
                REML = FALSE)
 
 # Binomial
@@ -234,7 +269,7 @@ models <- c("score~diagnosis+(1|session)",
 
 cross_validate(data,
                models = models,
-               family='gaussian',
+               family = 'gaussian',
                REML = FALSE)
 
 # Use non-default link functions
@@ -271,8 +306,13 @@ system.time({cross_validate(data,
 }
 
 }
+\seealso{
+Other validation functions: \code{\link{cross_validate_fn}},
+  \code{\link{validate}}
+}
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
 
 Benjamin Hugh Zachariae
 }
+\concept{validation functions}

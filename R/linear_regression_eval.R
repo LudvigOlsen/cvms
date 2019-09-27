@@ -106,13 +106,14 @@ linear_regression_eval <- function(data,
     if (!isTRUE(models_was_null)){
       # Get model coefficients
       nested_coefficients <- tryCatch({
-        get_nested_model_coefficients(models, fold_info = list(folds = fold_and_fold_col[["rel_fold"]],
-                                                               fold_columns = fold_and_fold_col[["fold_column"]]),
-                                      include_fold_columns = include_fold_columns)
+        get_nested_model_coefficients(models, fold_info = list(
+          folds = fold_and_fold_col[["rel_fold"]],
+          fold_columns = fold_and_fold_col[["fold_column"]]),
+          include_fold_columns = include_fold_columns)
       }, error = function(e){
 
-        get_nested_model_coefficients(NULL,
-                                      include_fold_columns = include_fold_columns)
+        get_nested_model_coefficients(
+          NULL, include_fold_columns = include_fold_columns)
       })
     } else {
       nested_coefficients <- NULL
@@ -251,8 +252,52 @@ get_nested_model_coefficients <- function(models, fold_info=list(folds = NULL,
   }
 
   tryCatch({
+
     coefs_tidy <- plyr::llply(1:length(models), function(i){
-      broom::tidy(models[[i]], effects = c("fixed")) %>%
+
+      tryCatch({
+        broom::tidy(models[[i]], effects = c("fixed"))
+      }, error = function(e){
+
+        # If broom::tidy wasn't implemented for the model type
+        # let's grab the coefficients manually if possible
+
+        if (grepl("Error: No tidy method for objects of class",
+                  as.character(e), ignore.case = TRUE) ||
+
+            # Multinom requires training data in tidy()
+            # This doesn't work anyway right now though
+            # TODO? We would probably have to call tidy() in
+            # a different environment with the training data
+            # but that would require a major rewrite
+            grepl("object 'train_data' not found",
+                   as.character(e), ignore.case = TRUE)){
+
+          # Try to extract coefficients
+          coefs <- tryCatch({stats::coef(models[[i]])},
+                            error = function(e){return(NA)})
+
+          # If successful, manually create tidy tibble
+          if ((length(coefs) == 1 && !is.na(coefs)) ||
+              length(coefs) > 1){
+            terms <- names(coefs)
+            return(tibble::tibble(term = terms, estimate = coefs))
+
+            # Else, return default NA coefficient tibble
+          } else {
+            return(get_nested_model_coefficients(
+              NULL, include_fold_columns = include_fold_columns))
+          }
+
+        } else {
+
+          warning(e)
+          # Return default NA coefficient tibble
+          return(get_nested_model_coefficients(
+            NULL, include_fold_columns = include_fold_columns))
+        }
+
+      }) %>%
         dplyr::mutate(Fold = folds[[i]],
                       `Fold Column` = fold_columns[[i]])
     }) %>%
@@ -266,6 +311,7 @@ get_nested_model_coefficients <- function(models, fold_info=list(folds = NULL,
     coefs_tidy %>%
       nest_models() %>%
       dplyr::pull(.data$Coefficients)
+
   }, error = function(e){
     stop(paste0("Error when extracting model coefficients: ", e))
   })

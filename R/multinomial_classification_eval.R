@@ -88,7 +88,6 @@ multinomial_classification_eval <- function(data,
       predictions_nested <- NULL
     }
 
-
     # Create unique temporary variable names
     local_tmp_target_var <- create_tmp_var(data,"one_vs_all_targets")
     local_tmp_predicted_probability_var <- create_tmp_var(data,"one_vs_all_predicted_probability")
@@ -131,6 +130,11 @@ multinomial_classification_eval <- function(data,
       one_vs_all_evaluations[["Predictions"]] <- NULL
     }
 
+    # Remove Coefficients column if it exists
+    if ("Coefficients" %in% colnames(one_vs_all_evaluations)){
+      one_vs_all_evaluations[["Coefficients"]] <- NULL
+    }
+
     # Move Support column
     one_vs_all_evaluations <- reposition_column(one_vs_all_evaluations,
                                                 "Support",
@@ -148,22 +152,23 @@ multinomial_classification_eval <- function(data,
     if (isTRUE(both_keep_and_remove_NAs)){
 
       # Calculate the average metrics
-      average_metrics <- plyr::ldply(c(TRUE,FALSE), function(nr){
+      average_metrics <- plyr::ldply(c(TRUE, FALSE), function(nr){
         metrics_only %>%
-          dplyr::summarise_all(list(mean), na.rm = isTRUE(nr)) %>%
-          dplyr::mutate(NAs_removed = isTRUE(nr))
+          dplyr::summarise_all(list(mean), na.rm = nr) %>%
+          dplyr::mutate(NAs_removed = nr)
       })
 
       # Calculate the weighted average metrics
-      weighted_average_metrics <- plyr::ldply(c(TRUE,FALSE), function(nr){
+      weighted_average_metrics <- plyr::ldply(c(TRUE, FALSE), function(nr){
         metrics_only %>%
           dplyr::summarise_all(list(
             ~ weighted.mean(., w = one_vs_all_evaluations[["Support"]])), na.rm = nr) %>%
           dplyr::rename_all(function(x) paste0("Weighted ", x)) %>%
-          dplyr::mutate(NAs_removed = isTRUE(nr))
+          dplyr::mutate(NAs_removed = nr)
       })
 
     } else {
+
       # Calculate the average metrics
       average_metrics <- metrics_only %>%
         dplyr::summarise_all(list(mean), na.rm = na.rm)
@@ -211,13 +216,12 @@ multinomial_classification_eval <- function(data,
 
     # Add total counts confusion matrix
     # Try to fit a confusion matrix with the predictions and targets
-    overall_confusion_matrix = tryCatch({
+    overall_confusion_matrix <- tryCatch({
       caret::confusionMatrix(factor(data[["predicted_class"]], levels = classes),
                              factor(data[[targets_col]], levels = classes))
     }, error = function(e) {
       stop(paste0('Confusion matrix error: ',e))
     })
-
 
     nested_multiclass_confusion_matrices <- nest_multiclass_confusion_matrices(
       list(overall_confusion_matrix),
@@ -227,6 +231,13 @@ multinomial_classification_eval <- function(data,
       overall_results[["Confusion Matrix"]] <- rep(nested_multiclass_confusion_matrices, 2)
     } else {
       overall_results[["Confusion Matrix"]] <- nested_multiclass_confusion_matrices
+    }
+
+    if (!is.null(models)){
+      # Add model coefficients to overall results
+      overall_results[["Coefficients"]] <- binomial_add_model_coefficients(
+        models = models, fold_and_fold_col = fold_and_fold_col,
+        include_fold_columns = include_fold_columns)
     }
 
     # Rearrange columns in overall results

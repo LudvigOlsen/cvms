@@ -129,7 +129,7 @@
 #'  along with other warnings. Consider discarding models that did not converge on all
 #'  iterations. Note: you might still see results, but these should be taken with a grain of salt!
 #'
-#'  Count of \strong{Singular Fit messages}. See \code{?\link[lme4:isSingular]{lme4::isSingular}} for more information.
+#'  Nested tibble with the \strong{warnings and messages} caught for each model.
 #'
 #'  Specified \strong{family}.
 #'
@@ -397,8 +397,7 @@ cross_validate_fn <- function(data, model_fn, formulas,
                               predict_fn = NULL,
                               metrics = list(),
                               rm_nc = FALSE,
-                              parallel = FALSE,
-                              model_verbose = FALSE){
+                              parallel = FALSE){
 
   return(custom_cross_validate_list(data = data,
                                     formulas = formulas,
@@ -411,7 +410,7 @@ cross_validate_fn <- function(data, model_fn, formulas,
                                     predict_fn = predict_fn,
                                     metrics = metrics,
                                     rm_nc = rm_nc,
-                                    model_verbose = model_verbose,
+                                    model_verbose = FALSE,
                                     parallel_ = parallel,
                                     parallelize = "models"))
 }

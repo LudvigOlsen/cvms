@@ -72,9 +72,16 @@ basics_model_fn <- function(train_data,
                   abs_fold = fold_info[["abs_fold"]],
                   fold_column = fold_info[["fold_column"]])
 
+  warnings_and_messages <- fitted_model[["warnings_and_messages"]] %>%
+    dplyr::mutate(Fold = fold_info[["rel_fold"]],
+                  `Fold Column` = fold_info[["fold_column"]]) %>%
+    dplyr::select(dplyr::one_of(
+      c("Fold Column","Fold","Type", "Message")))
+
   list(
     predictions_and_targets = predictions_and_targets,
     model = model,
+    warnings_and_messages = warnings_and_messages,
     threw_singular_fit_message = fitted_model[["threw_singular_fit_message"]],
     threw_unknown_message = fitted_model[["threw_unknown_message"]],
     threw_convergence_warning = fitted_model[["threw_convergence_warning"]],

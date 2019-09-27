@@ -18,7 +18,6 @@ test_that("binomial glm models work with cross_validate_fn()",{
                                    glm_model_fn,
                                    formulas = c("diagnosis~score","diagnosis~age"),
                                    fold_cols = '.folds', type = 'binomial',
-                                   model_verbose = FALSE,
                                    positive = 1)
 
   expect_equal(CVbinomlist$AUC, c(0.7615741, 0.1666667), tolerance=1e-3)
@@ -49,6 +48,10 @@ test_that("binomial glm models work with cross_validate_fn()",{
   expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Sensitivities","Specificities"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
   expect_equal(nrow(CVbinomlist$ROC[[1]]),29)
+  expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
+               structure(list(`Fold Column` = character(0), Fold = integer(0),
+                              Type = character(0), Message = character(0)),
+                         row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
 })
 
@@ -73,8 +76,7 @@ test_that("gaussian lm model with cross_validate_fn()",{
                             model_fn = lm_model_fn,
                             formulas = "score~diagnosis",
                             fold_cols = '.folds',
-                            type = 'gaussian',
-                            model_verbose = FALSE)
+                            type = 'gaussian')
 
   expect_equal(CVed$RMSE, 17.16817, tolerance=1e-3)
   expect_equal(CVed$MAE, 14.26914, tolerance=1e-3)
@@ -89,6 +91,10 @@ test_that("gaussian lm model with cross_validate_fn()",{
   expect_equal(CVed$Family, 'gaussian')
   expect_equal(CVed$Dependent, 'score')
   expect_equal(CVed$Fixed, 'diagnosis')
+  expect_equal(CVed$`Warnings and Messages`[[1]],
+               structure(list(`Fold Column` = character(0), Fold = integer(0),
+                              Type = character(0), Message = character(0)),
+                         row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
 })
 
@@ -116,7 +122,6 @@ test_that("binomial svm models from e1071 work with cross_validate_fn()",{
                                    svm_model_fn,
                                    formulas = c("diagnosis~score","diagnosis~age"),
                                    fold_cols = '.folds', type = 'binomial',
-                                   model_verbose = FALSE,
                                    positive = 1)
 
   expect_equal(CVbinomlist$AUC, c(0.736111111111111, 0.5), tolerance=1e-3)
@@ -147,6 +152,10 @@ test_that("binomial svm models from e1071 work with cross_validate_fn()",{
   expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Sensitivities","Specificities"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
   expect_equal(nrow(CVbinomlist$ROC[[1]]),3)
+  expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
+               structure(list(`Fold Column` = character(0), Fold = integer(0),
+                              Type = character(0), Message = character(0)),
+                         row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
 })
 
@@ -175,8 +184,7 @@ test_that("gaussian svm models from e1071 work with cross_validate_fn()",{
                             model_fn = svm_model_fn,
                             formulas = "score~diagnosis",
                             fold_cols = '.folds',
-                            type = 'gaussian',
-                            model_verbose = FALSE)
+                            type = 'gaussian')
 
   expect_equal(CVed$RMSE, 18.01026, tolerance=1e-3)
   expect_equal(CVed$MAE, 15.27778, tolerance=1e-3)
@@ -188,7 +196,6 @@ test_that("gaussian svm models from e1071 work with cross_validate_fn()",{
   expect_equal(CVed$Folds, 4)
   expect_equal(CVed$`Fold Columns`, 1)
   expect_equal(CVed$`Convergence Warnings`, 0)
-  expect_equal(CVed$`Singular Fit Messages`, 0)
   expect_equal(CVed$Family, 'gaussian')
   expect_equal(CVed$Dependent, 'score')
   expect_equal(CVed$Fixed, 'diagnosis')
@@ -206,6 +213,11 @@ test_that("gaussian svm models from e1071 work with cross_validate_fn()",{
                rep(".folds", 8))
   expect_equal(CVed$Coefficients[[1]]$p.value,
                rep(NA, 8))
+  expect_equal(CVed$`Warnings and Messages`[[1]],
+               structure(list(`Fold Column` = character(0), Fold = integer(0),
+                              Type = character(0), Message = character(0)),
+                         row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
+
 
 })
 
@@ -238,7 +250,6 @@ test_that("binomial naiveBayes models from e1071 work with cross_validate_fn()",
                                  formulas = c("diagnosis~score", "diagnosis~age"),
                                  fold_cols = '.folds',
                                  type = 'binomial',
-                                 model_verbose = FALSE,
                                  predict_type = "raw",
                                  positive = 1),
                paste0("cross_validate_fn(): When type/family is binomial, ",
@@ -251,7 +262,6 @@ test_that("binomial naiveBayes models from e1071 work with cross_validate_fn()",
                                    formulas = c("diagnosis~score","diagnosis~age"),
                                    fold_cols = '.folds',
                                    type = 'binomial',
-                                   model_verbose = FALSE,
                                    predict_type = "raw",
                                    predict_fn = nb_predict_fn,
                                    positive = 1),
@@ -263,7 +273,6 @@ test_that("binomial naiveBayes models from e1071 work with cross_validate_fn()",
                                    formulas = c("diagnosis~score","diagnosis~age"),
                                    fold_cols = '.folds',
                                    type = 'binomial',
-                                   model_verbose = FALSE,
                                    predict_fn = nb_predict_fn,
                                    positive = 1)
 
@@ -295,6 +304,10 @@ test_that("binomial naiveBayes models from e1071 work with cross_validate_fn()",
   expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Sensitivities","Specificities"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
   expect_equal(nrow(CVbinomlist$ROC[[1]]),29)
+  expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
+               structure(list(`Fold Column` = character(0), Fold = integer(0),
+                              Type = character(0), Message = character(0)),
+                         row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
 })
 
@@ -326,7 +339,6 @@ test_that("binomial nnet models work with cross_validate_fn()",{
                                    formulas = c("diagnosis~score","diagnosis~age"),
                                    fold_cols = '.folds', type = 'binomial',
                                    predict_type = "raw",
-                                   model_verbose = FALSE,
                                    positive = 1)
 
   expect_equal(CVbinomlist$AUC, c(0.668981481481482, 0.5625), tolerance=1e-3)
@@ -357,6 +369,10 @@ test_that("binomial nnet models work with cross_validate_fn()",{
   expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Sensitivities","Specificities"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
   expect_equal(nrow(CVbinomlist$ROC[[1]]),18)
+  expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
+               structure(list(`Fold Column` = character(0), Fold = integer(0),
+                              Type = character(0), Message = character(0)),
+                         row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
   expect_equal(CVbinomlist$Predictions[[1]]$Prediction,
                c(0.65065179574317, 0.651590466950271, 0, 1, 0.630141605640758,
@@ -393,8 +409,7 @@ test_that("gaussian nnet models work with cross_validate_fn()",{
                             model_fn = nnet_model_fn,
                             formulas = "score~diagnosis",
                             fold_cols = '.folds',
-                            type = 'gaussian',
-                            model_verbose = FALSE)
+                            type = 'gaussian')
 
   expect_equal(CVed$RMSE, 16.5414, tolerance=1e-3)
   expect_equal(CVed$MAE, 13.76884, tolerance=1e-3)
@@ -406,7 +421,6 @@ test_that("gaussian nnet models work with cross_validate_fn()",{
   expect_equal(CVed$Folds, 4)
   expect_equal(CVed$`Fold Columns`, 1)
   expect_equal(CVed$`Convergence Warnings`, 0)
-  expect_equal(CVed$`Singular Fit Messages`, 0)
   expect_equal(CVed$Family, 'gaussian')
   expect_equal(CVed$Dependent, 'score')
   expect_equal(CVed$Fixed, 'diagnosis')
@@ -427,6 +441,10 @@ test_that("gaussian nnet models work with cross_validate_fn()",{
                rep(".folds", 124))
   expect_equal(CVed$Coefficients[[1]]$p.value,
                rep(NA, 124))
+  expect_equal(CVed$`Warnings and Messages`[[1]],
+               structure(list(`Fold Column` = character(0), Fold = integer(0),
+                              Type = character(0), Message = character(0)),
+                         row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 })
 
 test_that("multinomial nnet models work with cross_validate_fn()",{
@@ -469,7 +487,6 @@ test_that("multinomial nnet models work with cross_validate_fn()",{
                                                 "target ~ predictor_1"),
                                    fold_cols = '.folds', type = 'multinomial',
                                    predict_type = "probs",
-                                   model_verbose = FALSE,
                                    positive = 1)
 
   expect_equal(CVmultinomlist$AUC, c(0.338293650793651, 0.38640873015873), tolerance=1e-3)
@@ -492,6 +509,11 @@ test_that("multinomial nnet models work with cross_validate_fn()",{
   expect_equal(CVmultinomlist$Family, c('multinomial','multinomial'))
   expect_equal(CVmultinomlist$Dependent, c("target", "target"))
   expect_equal(CVmultinomlist$Fixed, c("predictor_1+predictor_2+predictor_3", "predictor_1"))
+
+  expect_equal(CVmultinomlist$`Warnings and Messages`[[1]],
+               structure(list(`Fold Column` = character(0), Fold = integer(0),
+                              Type = character(0), Message = character(0)),
+                         row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
   # Enter sub tibbles
   class_level_results <- CVmultinomlist$`Class Level Results`
@@ -615,7 +637,6 @@ test_that("binomial randomForest models work with cross_validate_fn()",{
                                    formulas = c("diagnosis~score","diagnosis~age"),
                                    fold_cols = '.folds', type = 'binomial',
                                    # predict_type = "raw",
-                                   model_verbose = FALSE,
                                    positive = 1)
 
   expect_equal(CVbinomlist$AUC, c(0.555555555555556, 0.333333333333333), tolerance=1e-3)
@@ -646,6 +667,11 @@ test_that("binomial randomForest models work with cross_validate_fn()",{
   expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Sensitivities","Specificities"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
   expect_equal(nrow(CVbinomlist$ROC[[1]]),3)
+  expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
+               structure(list(`Fold Column` = character(0), Fold = integer(0),
+                              Type = character(0), Message = character(0)),
+                         row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
+
 
 })
 
@@ -673,8 +699,7 @@ test_that("gaussian randomForest models work with cross_validate_fn()",{
                             model_fn = rf_model_fn,
                             formulas = "score~diagnosis",
                             fold_cols = '.folds',
-                            type = 'gaussian',
-                            model_verbose = FALSE)
+                            type = 'gaussian')
 
   expect_equal(CVed$RMSE, 16.56476, tolerance=1e-3)
   expect_equal(CVed$MAE, 13.77846, tolerance=1e-3)
@@ -686,7 +711,6 @@ test_that("gaussian randomForest models work with cross_validate_fn()",{
   expect_equal(CVed$Folds, 4)
   expect_equal(CVed$`Fold Columns`, 1)
   expect_equal(CVed$`Convergence Warnings`, 0)
-  expect_equal(CVed$`Singular Fit Messages`, 0)
   expect_equal(CVed$Family, 'gaussian')
   expect_equal(CVed$Dependent, 'score')
   expect_equal(CVed$Fixed, 'diagnosis')
@@ -704,6 +728,10 @@ test_that("gaussian randomForest models work with cross_validate_fn()",{
                NA)
   expect_equal(CVed$Coefficients[[1]]$p.value,
                NA)
+  expect_equal(CVed$`Warnings and Messages`[[1]],
+               structure(list(`Fold Column` = character(0), Fold = integer(0),
+                              Type = character(0), Message = character(0)),
+                         row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 })
 
 test_that("binomial keras models work with cross_validate_fn()",{
@@ -801,8 +829,7 @@ test_that("binomial keras models work with cross_validate_fn()",{
 #     formulas = "diagnosis~score+age",
 #     fold_cols = '.folds',
 #     type = 'binomial',
-#     predict_fn = keras_predict_fn,
-#     model_verbose = FALSE
+#     predict_fn = keras_predict_fn
 #   )
 #
 #   expect_equal(CVbinomlist$AUC, 0.5833333, tolerance=1e-3)
@@ -865,7 +892,6 @@ test_that("binomial tidymodels work with cross_validate_fn()",{
   #                                  fold_cols = '.folds',
   #                                  type = 'binomial',
   #                                  predict_fn = tidyrf_predict_fn,
-  #                                  model_verbose = FALSE,
   #                                  positive = 1)
   #
   #

@@ -87,7 +87,8 @@ custom_cross_validate_list = function(data,
     cross_validations_results <- cross_validations %>%
       dplyr::bind_rows() %>%
       tibble::as_tibble() %>%
-      dplyr::mutate(Family = model_specifics[["family"]])
+      dplyr::mutate(Family = model_specifics[["family"]]) %>%
+      dplyr::select(-.data$`Singular Fit Messages`)
 
   } else if (family == "multinomial"){
 
@@ -103,6 +104,7 @@ custom_cross_validate_list = function(data,
     cross_validations_results <- dplyr::bind_rows(cross_validations %c% "Results") %>%
       tibble::as_tibble() %>%
       dplyr::mutate(Family = model_specifics[["family"]]) %>%
+      dplyr::select(-.data$`Singular Fit Messages`) %>%
       tibble::add_column(`Class Level Results` = cross_validations_class_level_results,
                          .before = "Predictions")
   }

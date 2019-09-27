@@ -7,7 +7,7 @@
 cross_validate_fn(data, model_fn, formulas, fold_cols = ".folds",
   type = "gaussian", cutoff = 0.5, positive = 2,
   predict_type = NULL, predict_fn = NULL, metrics = list(),
-  rm_nc = FALSE, parallel = FALSE, model_verbose = FALSE)
+  rm_nc = FALSE, parallel = FALSE)
 }
 \arguments{
 \item{data}{Data frame.
@@ -124,8 +124,6 @@ cross_validate_fn(data, model_fn, formulas, fold_cols = ".folds",
 
  Remember to register a parallel backend first.
  E.g. with \code{doParallel::registerDoParallel}.}
-
-\item{model_verbose}{Message name of used model function on each iteration. (Logical)}
 }
 \value{
 Tbl (tibble) with results for each model.
@@ -145,7 +143,7 @@ Tbl (tibble) with results for each model.
  along with other warnings. Consider discarding models that did not converge on all
  iterations. Note: you might still see results, but these should be taken with a grain of salt!
 
- Count of \strong{Singular Fit messages}. See \code{?\link[lme4:isSingular]{lme4::isSingular}} for more information.
+ Nested tibble with the \strong{warnings and messages} caught for each model.
 
  Specified \strong{family}.
 

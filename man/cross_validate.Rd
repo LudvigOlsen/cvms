@@ -93,6 +93,8 @@ Tbl (tibble) with results for each model.
 
  Count of \strong{Singular Fit messages}. See \code{?\link[lme4:isSingular]{lme4::isSingular}} for more information.
 
+ Nested tibble with the \strong{warnings and messages} caught for each model.
+
  Specified \strong{family}.
 
  Specified \strong{link} function.

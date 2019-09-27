@@ -48,6 +48,10 @@ test_that("binomial models work with cross_validate()",{
   expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Sensitivities","Specificities"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
   expect_equal(nrow(CVbinomlist$ROC[[1]]),29)
+  expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
+               structure(list(`Fold Column` = character(0), Fold = integer(0),
+                              Type = character(0), Message = character(0)),
+                         row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
 })
 
@@ -97,6 +101,10 @@ test_that("binomial models checks that dependent variable is numeric with cross_
   expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Sensitivities","Specificities"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
   expect_equal(nrow(CVbinomlist$ROC[[1]]),30)
+  expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
+               structure(list(`Fold Column` = character(0), Fold = integer(0),
+                              Type = character(0), Message = character(0)),
+                         row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
 
 })
@@ -159,6 +167,11 @@ test_that("binomial models work with cross_validate()",{
   expect_equal(nrow(CVbinomlistrand$Predictions[[2]]),30)
   expect_equal(nrow(CVbinomlistrand$ROC[[2]]),11) # Why?
 
+  expect_equal(CVbinomlistrand$`Warnings and Messages`[[1]],
+               structure(list(`Fold Column` = character(0), Fold = integer(0),
+                              Type = character(0), Message = character(0)),
+                         row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
+
 })
 
 
@@ -192,6 +205,10 @@ test_that("gaussian model with cross_validate()",{
   expect_equal(CVed$Family, 'gaussian')
   expect_equal(CVed$Dependent, 'score')
   expect_equal(CVed$Fixed, 'diagnosis')
+  expect_equal(CVed$`Warnings and Messages`[[1]],
+               structure(list(`Fold Column` = character(0), Fold = integer(0),
+                              Type = character(0), Message = character(0)),
+                         row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
 })
 
@@ -227,6 +244,10 @@ test_that("gaussian mixed models with cross_validate()",{
   expect_equal(CVed$Dependent, c('score','score'))
   expect_equal(CVed$Fixed, c('diagnosis', 'age'))
   expect_equal(CVed$Random, c('(1|session)', '(1|session)'))
+  expect_equal(CVed$`Warnings and Messages`[[1]],
+               structure(list(`Fold Column` = character(0), Fold = integer(0),
+                              Type = character(0), Message = character(0)),
+                         row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
 
 })
@@ -519,6 +540,11 @@ test_that("binomial models work with repeated cross_validate()",{
   expect_equal(CVbinomlist$Results[[1]]$`Detection Prevalence`,c(0.3000000, 0.33333), tolerance=1e-3)
   expect_equal(CVbinomlist$Results[[1]]$Prevalence,c(0.4, 0.4), tolerance=1e-3)
   expect_equal(CVbinomlist$Results[[1]]$MCC,c(0.5048268, 0.4330127), tolerance=1e-3)
+
+  expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
+               structure(list(`Fold Column` = character(0), Fold = integer(0),
+                              Type = character(0), Message = character(0)),
+                         row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 })
 
 test_that("binomial models work with positive as.character in cross_validate()",{
@@ -630,6 +656,11 @@ test_that("binomial models work with positive as.character in cross_validate()",
   expect_equal(CVbinomlist$F1, c(0.8049933,0.5384615), tolerance=1e-3)
 
 
+  expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
+               structure(list(`Fold Column` = character(0), Fold = integer(0),
+                              Type = character(0), Message = character(0)),
+                         row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
+
   })
 
 
@@ -712,6 +743,11 @@ test_that("gaussian models work with repeated cross_validate()",{
                  1.48500220,0.47578805,1.76704442,0.18970340,
                  2.55731400,-0.05895694,2.50729719,-0.44890594), tolerance = 1e-6)
 
+  expect_equal(CVgausslist$`Warnings and Messages`[[1]],
+               structure(list(`Fold Column` = character(0), Fold = integer(0),
+                              Type = character(0), Message = character(0)),
+                         row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
+
 })
 
 test_that("that wrong model formulas are warned about in cross_validate()",{
@@ -757,6 +793,26 @@ test_that("that singular fit messages are caught, counted and messaged about in 
                  "cross_validate(): Convergence Warning:", fixed=TRUE)
 
   expect_equal(CVbinom$`Singular Fit Messages`, 3)
+
+  # Can't expect this to give same answer on mac and ubuntu
+  expect_equal(CVbinom$`Warnings and Messages`[[1]],
+               structure(
+                 list(
+                   `Fold Column` = c(".folds", ".folds", ".folds",
+                                     ".folds"),
+                   Fold = 1:4,
+                   Type = c("message", "message", "warning",
+                            "message"),
+                   Message = c(
+                     "boundary (singular) fit: see ?isSingular\n",
+                     "boundary (singular) fit: see ?isSingular\n",
+                     "Model failed to converge with max|grad| = 0.0281933 (tol = 0.001, component 1)",
+                     "boundary (singular) fit: see ?isSingular\n"
+                   )
+                 ),
+                 row.names = c(NA,-4L),
+                 class = c("tbl_df", "tbl", "data.frame")
+               ))
 
 })
 

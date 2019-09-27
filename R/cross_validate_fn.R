@@ -168,7 +168,7 @@
 #'
 #'  ----------------------------------------------------------------
 #'
-#'  Based on the collected predictions from the test folds*,
+#'  Based on the \strong{collected} predictions from the test folds*,
 #'  a confusion matrix and a ROC curve are created to get the following:
 #'
 #'  ROC:
@@ -203,7 +203,7 @@
 #'  True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
 #'  depending on which level is the "positive" class. I.e. the level you wish to predict.
 #'
-#'  A nested tibble with the \strong{results} from all fold columns, if using repeated cross-validation.
+#'  A nested tibble with the \strong{results} from all fold columns, when using \emph{repeated cross-validation}.
 #'
 #'  * In \emph{repeated cross-validation}, an evaluation is made per fold column (repetition) and averaged.
 #'
@@ -248,8 +248,6 @@
 #'  \strong{Class Level Results}
 #'
 #'  The nested class level results tibble also includes:
-#'
-#'  A nested tibble with the \strong{predictions} and targets used for the one-vs-all evaluation.
 #'
 #'  A nested tibble with the sensativities and specificities from the \strong{ROC} curve.
 #'

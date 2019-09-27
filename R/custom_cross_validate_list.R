@@ -24,25 +24,10 @@ custom_cross_validate_list = function(data,
   }
 
   # metrics
-
-  if (!(is.list(metrics) || metrics == "all")){
-    stop("'metrics' must be either a list or the string 'all'.")
-  }
-
-  if (is.list(metrics) && length(metrics) > 0){
-    if (!rlang::is_named(metrics)){
-      stop("when 'metrics' is a non-empty list, it must be a named list.")
-    }
-  }
+  check_metrics_list(metrics)
 
   # Check that the fold column(s) is/are factor(s)
-  if (length(fold_cols) == 1){
-    stopifnot(is.factor(data[[fold_cols]]))
-  } else {
-    fcols <- data %>% dplyr::select(dplyr::one_of(fold_cols)) %>%
-      sapply(is.factor)
-    if (FALSE %in% fcols) {stop("At least one of the fold columns is not a factor.")}
-  }
+  check_fold_col_factor(data = data, fold_cols = fold_cols)
 
   # Get evaluation functions
   if (family == "gaussian"){
@@ -78,6 +63,7 @@ custom_cross_validate_list = function(data,
                              evaluation_type = evaluation_type,
                              model_specifics = model_specifics,
                              model_specifics_update_fn = NULL, # did this above
+                             metrics = metrics,
                              fold_cols = fold_cols,
                              parallel_ = all(parallel_, parallelize == "folds"))
   })

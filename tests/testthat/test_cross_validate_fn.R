@@ -2,7 +2,7 @@ library(cvms)
 context("cross_validate_fn()")
 
 
-test_that("binomial glm models work with cross_validate_fn()",{
+test_that("binomial glm model works with cross_validate_fn()",{
 
   # Load data and fold it
   set_seed_for_R_compatibility(1)
@@ -55,7 +55,7 @@ test_that("binomial glm models work with cross_validate_fn()",{
 
 })
 
-test_that("gaussian lm model with cross_validate_fn()",{
+test_that("gaussian lm model works with cross_validate_fn()",{
 
   # skip_test_if_old_R_version()
 
@@ -926,5 +926,141 @@ test_that("binomial tidymodels work with cross_validate_fn()",{
   # expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Sensitivities","Specificities"))
   # expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
   # expect_equal(nrow(CVbinomlist$ROC[[1]]),23)
+
+})
+
+# Metrics list arg
+
+test_that("binomial glm model with metrics list works with cross_validate_fn()",{
+
+  # Load data and fold it
+  set_seed_for_R_compatibility(1)
+  dat <- groupdata2::fold(participant.scores, k = 4,
+                          cat_col = 'diagnosis',
+                          id_col = 'participant')
+
+  glm_model_fn <- function(train_data, formula){
+    glm(formula = formula, data = train_data, family = "binomial")
+  }
+
+  CVbinomlist <- cross_validate_fn(dat,
+                                   glm_model_fn,
+                                   formulas = c("diagnosis~score","diagnosis~age"),
+                                   fold_cols = '.folds', type = 'binomial',
+                                   metrics = list("Balanced Accuracy" = FALSE,
+                                                  "Accuracy" = TRUE,
+                                                  "Specificity" = FALSE),
+                                   positive = 1)
+
+  expect_equal(CVbinomlist$Accuracy, c(0.766666666666667, 0.4), tolerance=1e-3)
+  expect_equal(colnames(CVbinomlist),
+               c("Accuracy", "F1", "Sensitivity", "Pos Pred Value", "Neg Pred Value",
+                 "AUC", "Lower CI", "Upper CI", "Kappa", "MCC", "Detection Rate",
+                 "Detection Prevalence", "Prevalence", "Predictions", "ROC", "Confusion Matrix",
+                 "Coefficients", "Folds", "Fold Columns", "Convergence Warnings",
+                 "Other Warnings", "Warnings and Messages", "Family", "Dependent",
+                 "Fixed"))
+})
+
+test_that("gaussian lm model with metrics list works with cross_validate_fn()",{
+
+  # skip_test_if_old_R_version()
+
+  # Load data and fold it
+  set_seed_for_R_compatibility(1)
+  dat <- groupdata2::fold(participant.scores, k = 4,
+                          cat_col = 'diagnosis',
+                          id_col = 'participant')
+
+  lm_model_fn <- function(train_data, formula){
+    lm(formula = formula, data = train_data)
+  }
+
+  # Cross-validate the data
+  CVed <- cross_validate_fn(dat,
+                            model_fn = lm_model_fn,
+                            formulas = "score~diagnosis",
+                            fold_cols = '.folds',
+                            metrics = list("RMSE" = FALSE,
+                                           "r2m" = FALSE),
+                            type = 'gaussian')
+
+  expect_equal(colnames(CVed),
+               c("MAE", "r2c", "AIC", "AICc", "BIC", "Predictions", "Results",
+                 "Coefficients", "Folds", "Fold Columns", "Convergence Warnings",
+                 "Other Warnings", "Warnings and Messages", "Family", "Dependent",
+                 "Fixed"))
+
+})
+
+test_that("multinomial nnet model with metrics list works with cross_validate_fn()",{
+
+  # Load data and fold it
+  set_seed_for_R_compatibility(1)
+
+  # Create and fold dataset
+  data_mc <- multiclass_probability_tibble(
+    num_classes = 3, num_observations = 50,
+    apply_softmax = TRUE, FUN = runif,
+    class_name = "predictor_")
+  class_names <- paste0("class_", c(1,2,3))
+  data_mc[["target"]] <- factor(sample(x = class_names,
+                                       size = 50, replace = TRUE))
+  dat <- groupdata2::fold(data_mc, k = 4)
+
+  multinom_model_fn <- function(train_data, formula){
+
+    nnet::multinom(formula = formula, # converted to formula object within custom_fit_model()
+                   data = train_data)
+  }
+
+  CVmultinomlist <- cross_validate_fn(dat,
+                                      multinom_model_fn,
+                                      formulas = c("target ~ predictor_1 + predictor_2 + predictor_3",
+                                                   "target ~ predictor_1"),
+                                      fold_cols = '.folds', type = 'multinomial',
+                                      predict_type = "probs",
+                                      metrics = list(
+                                        "Accuracy" = TRUE,
+                                        "F1" = FALSE,
+                                        "Weighted Accuracy" = TRUE,
+                                        "Weighted AUC" = TRUE
+                                      ),
+                                      positive = 1)
+
+  expect_equal(CVmultinomlist$`Overall Accuracy`, c(0.18, 0.3), tolerance=1e-3)
+  expect_equal(CVmultinomlist$Accuracy, c(0.453333333333333, 0.533333333333333), tolerance=1e-3)
+  expect_equal(CVmultinomlist$`Balanced Accuracy`, c(0.381448412698413, 0.462714947089947), tolerance=1e-3)
+  expect_equal(CVmultinomlist$`Weighted Accuracy`, c(0.4464, 0.5264), tolerance=1e-3)
+  expect_equal(CVmultinomlist$`Weighted AUC`, c(0.338055555555556, 0.396527777777778), tolerance=1e-3)
+  expect_equal(colnames(CVmultinomlist),
+               c("Overall Accuracy", "Balanced Accuracy", "Accuracy", "Weighted Accuracy",
+                 "Sensitivity", "Specificity", "Pos Pred Value", "Neg Pred Value",
+                 "AUC", "Weighted AUC", "Lower CI", "Upper CI", "Kappa", "MCC",
+                 "Detection Rate", "Detection Prevalence", "Prevalence", "Class Level Results",
+                 "Predictions", "Confusion Matrix", "Coefficients", "Folds", "Fold Columns",
+                 "Convergence Warnings", "Other Warnings", "Warnings and Messages",
+                 "Family", "Dependent", "Fixed"))
+
+  # Enter sub tibbles
+  class_level_results <- CVmultinomlist$`Class Level Results`
+
+  expect_equal(class_level_results[[1]]$Class,
+               c("class_1", "class_2", "class_3"))
+  expect_equal(class_level_results[[2]]$Class,
+               c("class_1", "class_2", "class_3"))
+  expect_equal(class_level_results[[1]]$Accuracy,
+               c(0.54, 0.34, 0.48))
+  expect_equal(class_level_results[[2]]$Accuracy,
+               c(0.62, 0.46, 0.52))
+  expect_equal(class_level_results[[1]]$`Balanced Accuracy`,
+               c(0.418650793650794, 0.302083333333333, 0.423611111111111))
+  expect_equal(class_level_results[[2]]$`Balanced Accuracy`,
+               c(0.452380952380952, 0.407986111111111, 0.527777777777778))
+  expect_equal(colnames(class_level_results[[1]]),
+               c("Class", "Balanced Accuracy", "Accuracy", "Sensitivity", "Specificity",
+                 "Pos Pred Value", "Neg Pred Value", "AUC", "Lower CI", "Upper CI",
+                 "Kappa", "MCC", "Detection Rate", "Detection Prevalence", "Prevalence",
+                 "Support", "ROC", "Confusion Matrix"))
 
 })

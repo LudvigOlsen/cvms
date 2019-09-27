@@ -250,8 +250,6 @@ when \code{data} is grouped with \code{\link[dplyr]{group_by}}.}
  Besides the binomial evaluation metrics and the \code{Support} metric,
  the nested class level results tibble also contains:
 
- A nested tibble with the \strong{Predictions} and targets used for the one-vs-all evaluation.
-
  A nested tibble with the sensativities and specificities from the \strong{ROC} curve.
 
  A nested tibble with the \strong{Confusion Matrix} from the one-vs-all evaluation.

@@ -174,7 +174,6 @@ test_that("binomial models work with cross_validate()",{
 
 })
 
-
 test_that("gaussian model with cross_validate()",{
 
   # skip_test_if_old_R_version()
@@ -211,7 +210,6 @@ test_that("gaussian model with cross_validate()",{
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
 })
-
 
 test_that("gaussian mixed models with cross_validate()",{
 
@@ -252,14 +250,9 @@ test_that("gaussian mixed models with cross_validate()",{
 
 })
 
-
 test_that("binomial models work with control specified in cross_validate()",{
 
   # skip_test_if_old_R_version()
-
-  testthat::skip("mac and ubuntu give different warnings")
-  # Tested on both platforms on travis as well
-  # Local test should run on mac as is
 
   # Load data and fold it
   set_seed_for_R_compatibility(7)
@@ -281,6 +274,59 @@ test_that("binomial models work with control specified in cross_validate()",{
   )}, warning = function(w){
     expect_true(grepl("unable to evaluate scaled gradient", as.character(w), ignore.case = TRUE))
   })
+
+
+  cv_Nelder_Mead <- cross_validate(
+    dat %>% dplyr::bind_rows(dat,dat,dat,dat),
+    models = c("diagnosis~score + age + (1|session)"),
+    fold_cols = '.folds',
+    family = 'binomial',
+    REML = FALSE,
+    link = NULL,
+    control = lme4::glmerControl(optimizer = "Nelder_Mead"),
+    model_verbose = FALSE,
+    positive = 1
+  )
+
+  cv_bobyqa <- cross_validate(
+    dat %>% dplyr::bind_rows(dat,dat,dat,dat),
+    models = c("diagnosis~score + age + (1|session)"),
+    fold_cols = '.folds',
+    family = 'binomial',
+    REML = FALSE,
+    link = NULL,
+    control = lme4::glmerControl(optimizer = "bobyqa"),
+    model_verbose = FALSE,
+    positive = 1
+  )
+
+  # Gather the results from the two different optimizers
+  cv <- cv_Nelder_Mead %>%
+    dplyr::bind_rows(cv_bobyqa)
+
+  expect_equal(cv$`Balanced Accuracy`, c(0.736111111111111, 0.777777777777778))
+  expect_equal(cv$F1, c(0.666666666666667, 0.727272727272727))
+  expect_equal(cv$AUC, c(0.824074074074074, 0.875))
+  expect_equal(cv$Fixed, c("score+age", "score+age"))
+  expect_equal(cv$Random, c("(1|session)", "(1|session)"))
+  expect_equal(cv$Dependent, c("diagnosis", "diagnosis"))
+
+})
+
+test_that("binomial models gives warnings with control specified in cross_validate()",{
+
+  # skip_test_if_old_R_version()
+
+  # Load data and fold it
+  set_seed_for_R_compatibility(7)
+  dat <- groupdata2::fold(participant.scores, k = 3,
+                          cat_col = 'diagnosis',
+                          id_col = 'participant')
+
+
+  testthat::skip("mac and ubuntu give different warnings")
+  # Tested on both platforms on travis as well
+  # Local test should run on mac as is
 
 
   # Singular fit message
@@ -390,8 +436,6 @@ test_that("gaussian models work with control specified in cross_validate()",{
 
 })
 
-
-
 test_that("model using dot in formula ( y ~ . ) works with cross_validate()",{
 
   # skip_test_if_old_R_version()
@@ -422,7 +466,6 @@ test_that("model using dot in formula ( y ~ . ) works with cross_validate()",{
 
 
 })
-
 
 test_that("binomial models work with repeated cross_validate()",{
 
@@ -663,8 +706,6 @@ test_that("binomial models work with positive as.character in cross_validate()",
 
   })
 
-
-
 test_that("gaussian models work with repeated cross_validate()",{
 
   # skip_test_if_old_R_version()
@@ -774,7 +815,6 @@ test_that("that wrong model formulas are warned about in cross_validate()",{
                "The model formula does not contain a dependent variable.")
 
   })
-
 
 test_that("that singular fit messages are caught, counted and messaged about in cross_validate()",{
 
@@ -918,3 +958,99 @@ test_that("model_verbose reports the correct model functions in cross_validate()
 
 
 })
+
+test_that("binomial models with metrics list work with cross_validate()",{
+
+  # Load data and fold it
+  set_seed_for_R_compatibility(1)
+  dat <- groupdata2::fold(participant.scores, k = 4,
+                          cat_col = 'diagnosis',
+                          id_col = 'participant')
+
+  CVbinomlist <- cross_validate(dat,
+                                models = c("diagnosis~score", "diagnosis~age"),
+                                fold_cols = '.folds', family = 'binomial',
+                                REML = FALSE,
+                                metrics = list("AUC" = FALSE,
+                                               "Accuracy" = TRUE,
+                                               "Prevalence" = FALSE),
+                                model_verbose = FALSE,
+                                positive = 1 )
+
+  expect_equal(colnames(CVbinomlist),
+               c("Balanced Accuracy", "Accuracy", "F1", "Sensitivity", "Specificity",
+                 "Pos Pred Value", "Neg Pred Value", "Lower CI", "Upper CI", "Kappa",
+                 "MCC", "Detection Rate", "Detection Prevalence", "Predictions",
+                 "ROC", "Confusion Matrix", "Coefficients", "Folds", "Fold Columns",
+                 "Convergence Warnings", "Singular Fit Messages", "Other Warnings",
+                 "Warnings and Messages", "Family", "Link", "Dependent", "Fixed"
+               ))
+
+  expect_equal(CVbinomlist$Accuracy, c(0.766666666666667, 0.4), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Balanced Accuracy`, c(0.7361111,0.3333333), tolerance=1e-3)
+
+  expect_error(cross_validate(dat,
+                              models = c("diagnosis~score", "diagnosis~age"),
+                              fold_cols = '.folds', family = 'binomial',
+                              REML = FALSE,
+                              metrics = list("AKG" = FALSE, # error here
+                                             "Accuracy" = TRUE,
+                                             "Prevalencer" = FALSE),
+                              model_verbose = FALSE,
+                              positive = 1 ),
+               "'metrics_list' contained unknown metric names: AKG, Prevalencer.",
+               fixed = TRUE)
+  expect_error(cross_validate(dat,
+                              models = c("diagnosis~score", "diagnosis~age"),
+                              fold_cols = '.folds', family = 'binomial',
+                              REML = FALSE,
+                              metrics = list("AUC" = 1,
+                                             "Accuracy" = TRUE,
+                                             "Prevalence" = FALSE),
+                              model_verbose = FALSE,
+                              positive = 1 ),
+               "The values in the 'metrics' list must be either TRUE or FALSE.",
+               fixed = TRUE)
+
+})
+
+test_that("gaussian models with metrics list work with cross_validate()",{
+
+  # skip_test_if_old_R_version()
+
+  # Load data and fold it
+  set_seed_for_R_compatibility(1)
+  dat <- groupdata2::fold(participant.scores, k = 4,
+                          cat_col = 'diagnosis',
+                          id_col = 'participant')
+
+  # Cross-validate the data
+  CVed <- cross_validate(dat, "score~diagnosis",
+                         fold_cols = '.folds',
+                         family = 'gaussian', link = NULL,
+                         REML = FALSE,
+                         metrics = list("RMSE" = FALSE,
+                                        "r2m" = TRUE),
+                         model_verbose = FALSE)
+
+  expect_equal(colnames(CVed),
+               c("MAE", "r2m", "r2c", "AIC", "AICc", "BIC", "Predictions", "Results",
+                 "Coefficients", "Folds", "Fold Columns", "Convergence Warnings",
+                 "Singular Fit Messages", "Other Warnings", "Warnings and Messages",
+                 "Family", "Link", "Dependent", "Fixed"))
+  expect_equal(colnames(CVed$Results[[1]]),
+               c("Fold Column", "Fold", "MAE", "r2m", "r2c", "AIC", "AICc",
+                 "BIC"))
+
+  # Cross-validate the data
+  expect_error(cross_validate(dat, "score~diagnosis",
+                         fold_cols = '.folds',
+                         family = 'gaussian', link = NULL,
+                         REML = FALSE,
+                         metrics = list("Accuracy" = TRUE, # Should error in gaussian
+                                        "r2m" = TRUE),
+                         model_verbose = FALSE),
+               "'metrics_list' contained unknown metric names: Accuracy.",
+               fixed = TRUE)
+})
+

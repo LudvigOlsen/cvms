@@ -32,6 +32,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #'
 #'  Binomial: \code{\link[stats:glm]{stats::glm}}, \code{\link[lme4:glmer]{lme4::glmer}}
 #'  }
+#'
 #'  \subsection{Results}{
 #'  \strong{Gaussian}:
 #'
@@ -56,27 +57,49 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #' @return List containing tbl (tibble) with results and the trained model object.
 #'  The tibble contains:
 #'
-#'  \subsection{Gaussian Results}{
-#'  \strong{RMSE}, \strong{MAE}, \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
-#'  and \strong{BIC}.
+#'  \subsection{Shared across families}{
 #'
-#'  Count of \strong{convergence warnings}. Consider discarding the model if it did not converge.
+#'  A nested tibble with \strong{coefficients} of the models from all iterations.
+#'
+#'  Count of \strong{convergence warnings}. Consider discarding models that did not converge on all
+#'  iterations. Note: you might still see results, but these should be taken with a grain of salt!
+#'
+#'  Count of \strong{other warnings}. These are warnings without keywords such as "convergence".
+#'
+#'  Count of \strong{Singular Fit messages}. See
+#'  \code{?\link[lme4:isSingular]{lme4::isSingular}} for more information.
+#'
+#'  Nested tibble with the \strong{warnings and messages} caught for each model.
 #'
 #'  Specified \strong{family}.
 #'
-#'  A nested tibble with model \strong{coefficients}.
-#'
-#'  A nested tibble with the \strong{predictions} and targets.
+#'  Specified \strong{link} function.
 #'
 #'  Name of \strong{dependent} variable.
 #'
 #'  Names of \strong{fixed} effects.
 #'
-#'  Names of \strong{random} effects if any.
-#'
+#'  Names of \strong{random} effects, if any.
 #'  }
 #'
+#'  ----------------------------------------------------------------
+#'
+#'  \subsection{Gaussian Results}{
+#'
+#'  ----------------------------------------------------------------
+#'
+#'  \strong{RMSE}, \strong{MAE}, \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
+#'  and \strong{BIC}.
+#'
+#'  A nested tibble with the \strong{predictions} and targets.
+#'  }
+#'
+#'  ----------------------------------------------------------------
+#'
 #'  \subsection{Binomial Results}{
+#'
+#'  ----------------------------------------------------------------
+#'
 #'  Based on predictions of the test set,
 #'  a confusion matrix and ROC curve are used to get the following:
 #'
@@ -96,23 +119,15 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #'  \strong{Prevalence}, and
 #'  \strong{MCC} (Matthews correlation coefficient).
 #'
-#'  A nested tibble with model \strong{coefficients}.
+#'  Other available metrics (disabled by default, see \code{metrics}):
+#'  \strong{Accuracy}.
 #'
-#'  Count of \strong{convergence warnings}. Consider discarding the model if it did not converge.
+#'  Also includes:
 #'
-#'  Count of \strong{Singular Fit messages}. See \code{?\link[lme4:isSingular]{lme4::isSingular}} for more information.
-#'
-#'  Specified \strong{family}.
-#'
-#'  A tibble with \strong{predictions}, predicted classes (depends on \code{cutoff}), and the targets.
+#'  A tibble with \strong{predictions}, predicted classes (depends on \code{cutoff}),
+#'  and the targets.
 #'
 #'  A tibble with the sensativities and specificities from the \strong{ROC} curve.
-#'
-#'  Name of \strong{dependent} variable.
-#'
-#'  Names of \strong{fixed} effects.
-#'
-#'  Names of \strong{random} effects if any.
 #'
 #'  }
 #'
@@ -196,6 +211,7 @@ validate <- function(train_data,
                      REML = FALSE,
                      cutoff = 0.5,
                      positive = 2,
+                     metrics = list(),
                      err_nc = FALSE,
                      rm_nc = FALSE,
                      parallel = FALSE,
@@ -211,6 +227,7 @@ validate <- function(train_data,
     REML = REML,
     cutoff = cutoff,
     positive = positive,
+    metrics = metrics,
     err_nc = err_nc,
     rm_nc = rm_nc,
     parallel_ = parallel,

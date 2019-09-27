@@ -435,3 +435,31 @@ arg_not_used <- function(arg, arg_name, family, current_fn, message_fn=message){
 #     rep(l, n) # , recursive = recursive_unlist)
 # }
 
+
+## *_cross_validate_list args
+
+check_fold_col_factor <- function(data, fold_cols){
+  # Check that the fold column(s) is/are factor(s)
+  if (length(fold_cols) == 1){
+    stopifnot(is.factor(data[[fold_cols]]))
+  } else {
+    fcols <- data %>% dplyr::select(dplyr::one_of(fold_cols)) %>%
+      sapply(is.factor)
+    if (FALSE %in% fcols) {stop("At least one of the fold columns is not a factor.")}
+  }
+}
+
+# Check metrics argument
+check_metrics_list <- function(metrics){
+
+  if (!(is.list(metrics) || metrics == "all")){
+    stop("'metrics' must be either a list or the string 'all'.")
+  }
+
+  if (is.list(metrics) && length(metrics) > 0){
+    if (!rlang::is_named(metrics)){
+      stop("when 'metrics' is a non-empty list, it must be a named list.")
+    }
+  }
+}
+

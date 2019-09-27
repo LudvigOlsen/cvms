@@ -9,6 +9,7 @@ validate_fn_single = function(train_data,
                               model_specifics_update_fn = NULL,
                               test_data = NULL,
                               partitions_col = '.partitions',
+                              metrics = list(),
                               err_nc = FALSE) {
 
   # Set errors if input variables aren't what we expect / can handle
@@ -70,7 +71,8 @@ validate_fn_single = function(train_data,
       fold_column = "fold_column"
     ),
     models = list(model),
-    model_specifics = model_specifics
+    model_specifics = model_specifics,
+    metrics = metrics
   ) %>%
     dplyr::mutate(`Convergence Warnings` = ifelse(is.null(model), 1, 0),
                   `Singular Fit Messages` = ifelse(isTRUE(threw_singular_fit_message), 1, 0))

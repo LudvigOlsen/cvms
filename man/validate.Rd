@@ -7,8 +7,8 @@
 validate(train_data, models, test_data = NULL,
   partitions_col = ".partitions", family = "gaussian", link = NULL,
   control = NULL, REML = FALSE, cutoff = 0.5, positive = 2,
-  err_nc = FALSE, rm_nc = FALSE, parallel = FALSE,
-  model_verbose = FALSE)
+  metrics = list(), err_nc = FALSE, rm_nc = FALSE,
+  parallel = FALSE, model_verbose = FALSE)
 }
 \arguments{
 \item{train_data}{Data Frame.}
@@ -72,6 +72,17 @@ validate(train_data, models, test_data = NULL,
 
  N.B. \strong{Binomial models only}.}
 
+\item{metrics}{List for enabling/disabling metrics.
+
+  E.g. \code{list("RMSE" = FALSE)} would remove RMSE from the results,
+  and \code{list("Accuracy" = TRUE)} would add the regular accuracy metric
+  to the classification results.
+  Default values (TRUE/FALSE) will be used for the remaining metrics available.
+
+  Also accepts the string \code{"all"}.
+
+  N.B. Currently, disabled metrics are still computed.}
+
 \item{err_nc}{Raise error if model does not converge. (Logical)}
 
 \item{rm_nc}{Remove non-converged models from output. (Logical)}
@@ -87,27 +98,49 @@ validate(train_data, models, test_data = NULL,
 List containing tbl (tibble) with results and the trained model object.
  The tibble contains:
 
- \subsection{Gaussian Results}{
- \strong{RMSE}, \strong{MAE}, \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
- and \strong{BIC}.
+ \subsection{Shared across families}{
 
- Count of \strong{convergence warnings}. Consider discarding the model if it did not converge.
+ A nested tibble with \strong{coefficients} of the models from all iterations.
+
+ Count of \strong{convergence warnings}. Consider discarding models that did not converge on all
+ iterations. Note: you might still see results, but these should be taken with a grain of salt!
+
+ Count of \strong{other warnings}. These are warnings without keywords such as "convergence".
+
+ Count of \strong{Singular Fit messages}. See
+ \code{?\link[lme4:isSingular]{lme4::isSingular}} for more information.
+
+ Nested tibble with the \strong{warnings and messages} caught for each model.
 
  Specified \strong{family}.
 
- A nested tibble with model \strong{coefficients}.
-
- A nested tibble with the \strong{predictions} and targets.
+ Specified \strong{link} function.
 
  Name of \strong{dependent} variable.
 
  Names of \strong{fixed} effects.
 
- Names of \strong{random} effects if any.
-
+ Names of \strong{random} effects, if any.
  }
 
+ ----------------------------------------------------------------
+
+ \subsection{Gaussian Results}{
+
+ ----------------------------------------------------------------
+
+ \strong{RMSE}, \strong{MAE}, \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
+ and \strong{BIC}.
+
+ A nested tibble with the \strong{predictions} and targets.
+ }
+
+ ----------------------------------------------------------------
+
  \subsection{Binomial Results}{
+
+ ----------------------------------------------------------------
+
  Based on predictions of the test set,
  a confusion matrix and ROC curve are used to get the following:
 
@@ -127,23 +160,15 @@ List containing tbl (tibble) with results and the trained model object.
  \strong{Prevalence}, and
  \strong{MCC} (Matthews correlation coefficient).
 
- A nested tibble with model \strong{coefficients}.
+ Other available metrics (disabled by default, see \code{metrics}):
+ \strong{Accuracy}.
 
- Count of \strong{convergence warnings}. Consider discarding the model if it did not converge.
+ Also includes:
 
- Count of \strong{Singular Fit messages}. See \code{?\link[lme4:isSingular]{lme4::isSingular}} for more information.
-
- Specified \strong{family}.
-
- A tibble with \strong{predictions}, predicted classes (depends on \code{cutoff}), and the targets.
+ A tibble with \strong{predictions}, predicted classes (depends on \code{cutoff}),
+ and the targets.
 
  A tibble with the sensativities and specificities from the \strong{ROC} curve.
-
- Name of \strong{dependent} variable.
-
- Names of \strong{fixed} effects.
-
- Names of \strong{random} effects if any.
 
  }
 }
@@ -163,6 +188,7 @@ Packages used:
 
  Binomial: \code{\link[stats:glm]{stats::glm}}, \code{\link[lme4:glmer]{lme4::glmer}}
  }
+
  \subsection{Results}{
  \strong{Gaussian}:
 

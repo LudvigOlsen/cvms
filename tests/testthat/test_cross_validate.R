@@ -254,6 +254,8 @@ test_that("binomial models work with control specified in cross_validate()",{
 
   # skip_test_if_old_R_version()
 
+  skip("testing different optimizers is too difficult given platform differences")
+
   # Load data and fold it
   set_seed_for_R_compatibility(7)
   dat <- groupdata2::fold(participant.scores, k = 3,
@@ -316,6 +318,10 @@ test_that("binomial models work with control specified in cross_validate()",{
 
 test_that("binomial models gives warnings with control specified in cross_validate()",{
 
+  testthat::skip("mac and ubuntu give different warnings")
+  # Tested on both platforms on travis as well
+  # Local test should run on mac as is
+
   # skip_test_if_old_R_version()
 
   # Load data and fold it
@@ -323,12 +329,6 @@ test_that("binomial models gives warnings with control specified in cross_valida
   dat <- groupdata2::fold(participant.scores, k = 3,
                           cat_col = 'diagnosis',
                           id_col = 'participant')
-
-
-  testthat::skip("mac and ubuntu give different warnings")
-  # Tested on both platforms on travis as well
-  # Local test should run on mac as is
-
 
   # Singular fit message
 

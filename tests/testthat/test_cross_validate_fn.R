@@ -109,6 +109,7 @@ test_that("binomial svm models from e1071 work with cross_validate_fn()",{
 
   svm_model_fn <- function(train_data, formula){
 
+    # NOTE: formula must be first when calling svm()
     e1071::svm(formula = formula, # converted to formula object within custom_fit_model()
                data = train_data,
                kernel = "linear",
@@ -116,7 +117,7 @@ test_that("binomial svm models from e1071 work with cross_validate_fn()",{
                scale = FALSE,
                type = "C-classification")
   }
-  # sm_ <- svm_model_fn(data = dat, formula = "diagnosis~score")
+  # sm_ <- svm_model_fn(train_data = data, formula = as.formula("diagnosis~score"))
 
   CVbinomlist <- cross_validate_fn(dat,
                                    svm_model_fn,
@@ -158,6 +159,7 @@ test_that("binomial svm models from e1071 work with cross_validate_fn()",{
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
 })
+
 
 test_that("gaussian svm models from e1071 work with cross_validate_fn()",{
 

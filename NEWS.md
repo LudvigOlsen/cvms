@@ -1,6 +1,6 @@
 # cvms 0.2.0.9000
 
-* Breaking change: In `evaluate()`, when `type` is `multinomial`, the output is now a single tibble. The `Class Level Results` is included as a nested tibble.
+* Breaking change: In `evaluate()`, when `type` is `multinomial`, the output is now a single tibble. The `Class Level Results` are included as a nested tibble.
 
 * Breaking change: In `baseline()`, `lmer` models are now fitted with `REML = FALSE` by default.
 

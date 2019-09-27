@@ -1,19 +1,22 @@
 # cvms 0.2.0.9000
 
+* Breaking change: In `evaluate()`, when `type` is `multinomial`, the output is now a single tibble. The `Class Level Results` is included as a nested tibble.
+
+* Breaking change: In `baseline()`, `lmer` models are now fitted with `REML = FALSE` by default.
+
+* Adds `REML` argument to `baseline()`.
+
 * `cross_validate_fn()` is added. Cross-validate custom model functions.
 
 * Bug fix: the `control` argument in `cross_validate()` was not being used. Now it is.
 
 * In `cross_validate()`, the model is no longer fitted twice when a warning is thrown during fitting.
 
-* In `baseline()`, `lmer` models are now fitted with `REML = FALSE` by default.
-
-* Adds `REML` argument to `baseline()`.
+* Adds `metrics` argument to `cross_validate()` and `validate()`. Allows enabling the regular `Accuracy` metric
+in `binomial` or to disable metrics (will currently still be computed but not included in the output).
 
 * `AICc` is now computed with the `MuMIn` package instead of the `AICcmodavg` package, which
 is no longer a dependency.
-
-* In `evaluate()`, when `type` is `multinomial`, the output is now a single tibble. The `Class Level Results` is included as a nested tibble.
 
 * Adds `lifecycle` badges to the function documentation.
 

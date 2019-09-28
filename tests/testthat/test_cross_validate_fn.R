@@ -771,8 +771,9 @@ test_that("binomial randomForest models work with cross_validate_fn()",{
                                    # predict_type = "raw",
                                    positive = 1)
 
-  numeric_between <- function(x, min_ = 0.0, max_ = 1.0){
-    all(unlist(lapply(x, function(i){is.numeric(i) && is_between_(i,min_,max_)})))
+
+  numeric_between_na <- function(x, min_ = -0.000000001, max_ = 1.000000001){
+    all(unlist(lapply(x, function(i){is.na(i) || (is.numeric(i) && is_between_(i,min_,max_))})))
   }
 
   # Because the actual values fail on winbuilder (not appveyor)
@@ -780,20 +781,20 @@ test_that("binomial randomForest models work with cross_validate_fn()",{
   # We simply check that the values are useful
   # As it's not actually that relevant that this specific model function
   # gives the same results
-  expect_true(numeric_between(CVbinomlist$AUC))
-  expect_true(numeric_between(CVbinomlist$`Lower CI`))
-  expect_true(numeric_between(CVbinomlist$`Upper CI`))
-  expect_true(numeric_between(CVbinomlist$Kappa, min_ = -1))
-  expect_true(numeric_between(CVbinomlist$Sensitivity))
-  expect_true(numeric_between(CVbinomlist$Specificity))
-  expect_true(numeric_between(CVbinomlist$`Pos Pred Value`))
-  expect_true(numeric_between(CVbinomlist$`Neg Pred Value`))
-  expect_true(numeric_between(CVbinomlist$F1))
-  expect_true(numeric_between(CVbinomlist$Prevalence))
-  expect_true(numeric_between(CVbinomlist$`Detection Rate`))
-  expect_true(numeric_between(CVbinomlist$`Detection Prevalence`))
-  expect_true(numeric_between(CVbinomlist$`Balanced Accuracy`))
-  expect_true(numeric_between(CVbinomlist$MCC, min_ = -1))
+  expect_true(numeric_between_na(CVbinomlist$AUC))
+  expect_true(numeric_between_na(CVbinomlist$`Lower CI`))
+  expect_true(numeric_between_na(CVbinomlist$`Upper CI`))
+  expect_true(numeric_between_na(CVbinomlist$Kappa, min_ = -1))
+  expect_true(numeric_between_na(CVbinomlist$Sensitivity))
+  expect_true(numeric_between_na(CVbinomlist$Specificity))
+  expect_true(numeric_between_na(CVbinomlist$`Pos Pred Value`))
+  expect_true(numeric_between_na(CVbinomlist$`Neg Pred Value`))
+  expect_true(numeric_between_na(CVbinomlist$F1))
+  expect_true(numeric_between_na(CVbinomlist$Prevalence))
+  expect_true(numeric_between_na(CVbinomlist$`Detection Rate`))
+  expect_true(numeric_between_na(CVbinomlist$`Detection Prevalence`))
+  expect_true(numeric_between_na(CVbinomlist$`Balanced Accuracy`))
+  expect_true(numeric_between_na(CVbinomlist$MCC, min_ = -1))
 
   expect_equal(CVbinomlist$Folds, c(4,4))
   expect_equal(CVbinomlist$`Fold Columns`, c(1,1))

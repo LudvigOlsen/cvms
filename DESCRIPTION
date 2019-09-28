@@ -1,6 +1,6 @@
 Package: cvms
 Title: Cross-Validation for Model Selection
-Version: 0.2.0.9000
+Version: 0.3.0
 Authors@R: 
     c(person(given = "Ludvig Renbo",
              family = "Olsen",
@@ -9,13 +9,13 @@ Authors@R:
       person(given = "Benjamin Hugh",
              family = "Zachariae",
              role = "aut"))
-Description: Cross-validate one or multiple regression models
+Description: Cross-validate one or multiple regression and classification models
     and get relevant evaluation metrics in a tidy format. Validate the
     best model on a test set and compare it to a baseline evaluation.
-    Alternatively, evaluate predictions from an external model.  Currently
-    supports linear regression, logistic regression and (some functions
-    only) multiclass classification.  Described in chp. 5 of Jeyaraman, B.
-    P., Olsen, L. R., & Wambugu M. (2019, ISBN: 9781838550134).
+    Alternatively, evaluate predictions from an external model. Currently
+    supports regression and classification (binary and multiclass).
+    Described in chp. 5 of Jeyaraman, B. P., Olsen, L. R., 
+    & Wambugu M. (2019, ISBN: 9781838550134).
 License: MIT + file LICENSE
 URL: https://github.com/ludvigolsen/cvms
 BugReports: https://github.com/ludvigolsen/cvms/issues

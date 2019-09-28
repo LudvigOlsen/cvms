@@ -15,8 +15,5 @@ matrix:
   - r: release
     os: osx
     name: release osx
-  - r: release
-    os: windows
-    name: release windows
   - r: oldrel
 

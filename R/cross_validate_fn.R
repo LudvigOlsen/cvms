@@ -45,7 +45,7 @@
 #'  output is as follows:
 #'
 #'  \subsection{Binomial}{
-#'  Vector or one-column matrix / data frame with probabilies (0-1).
+#'  Vector or one-column matrix / data frame with probabilities (0-1).
 #'  E.g.:
 #'
 #'  \code{c(0.3, 0.5, 0.1, 0.5)}

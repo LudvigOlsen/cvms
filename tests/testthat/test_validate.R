@@ -397,6 +397,8 @@ test_that("Right glmer model used in validate()", {
                tolerance = 1e-3)
   expect_equal(validated$Models[[1]]@beta, same_model@beta, tolerance = 1e-3)
 
+  expect_equal(validated$Results$Predictions[[1]]$Target,
+               c(0, 0, 0, 1, 1, 1, 1, 1, 1))
 })
 
 
@@ -478,6 +480,21 @@ test_that("the expected errors are thrown by validate()",{
                        REML = FALSE, model_verbose=FALSE,
                        positive=1),
                "Only 'gaussian' and 'binomial' families are currently allowed.", fixed=TRUE)
+
+  expect_error(suppressWarnings(
+    validate(
+      train_data = dat,
+      test_data = dplyr::sample_frac(dat, 0.2),
+      models = c("diagnosis~score*age+(1|session)"),
+      family = 'gaussian',
+      REML = FALSE,
+      model_verbose = FALSE,
+      control = lme4::lmerControl(optimizer = "bobyqa",
+                                  optCtrl = list(maxfun = 10)),
+      err_nc = TRUE
+    )
+  ),
+  "Model did not converge.", fixed = TRUE)
 
 })
 

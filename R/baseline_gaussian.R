@@ -182,7 +182,7 @@ create_gaussian_baseline_evaluations <- function(train_data,
   # Replace infs with NA
   if(nrow(metrics_cols_with_infs) > 0){
     metrics_cols <- do.call(data.frame,c(lapply(metrics_cols, function(x) replace(x, is.infinite(x), NA)),
-                                         check.names=FALSE,fix.empty.names = FALSE, stringsAsFactors=FALSE))
+                                         check.names=FALSE, fix.empty.names = FALSE, stringsAsFactors=FALSE))
   }
 
   # This may be better solveable with pivot_* from tidyr, when it is on CRAN
@@ -202,12 +202,8 @@ create_gaussian_baseline_evaluations <- function(train_data,
 
   # Remove the INFs from the NAs count
   if(nrow(metrics_cols_with_infs) > 0){
-    NAs_row_number <- which(summarized_metrics$Measure == "NAs")
-    INFs_row_number <- which(summarized_metrics$Measure == "INFs")
-    summarized_metrics[NAs_row_number,-1] <- summarized_metrics[NAs_row_number,-1] -
-      summarized_metrics[INFs_row_number,-1]
+    summarized_metrics <- subtract_inf_count_from_na_count(summarized_metrics)
   }
-
 
   # Fitting on all rows
 
@@ -246,5 +242,21 @@ create_gaussian_baseline_evaluations <- function(train_data,
   return(list("summarized_metrics" = overall_evaluations,
               "random_evaluations" = evaluations_random))
 
+}
+
+# Remove the INFs from the NAs count
+subtract_inf_count_from_na_count <- function(summarized_metrics){
+
+  # Find the row indices of the NA and INF counts
+  NAs_row_number <- which(summarized_metrics$Measure == "NAs")
+  INFs_row_number <- which(summarized_metrics$Measure == "INFs")
+
+  # Subtract the INF counts from the NA counts
+  summarized_metrics[NAs_row_number,-1] <- summarized_metrics[NAs_row_number,-1] -
+    summarized_metrics[INFs_row_number,-1]
+
+  summarized_metrics
 
 }
+
+

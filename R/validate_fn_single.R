@@ -36,9 +36,9 @@ validate_fn_single = function(train_data,
   # get train and test set
   if (is.null(test_data)) {
     # Create test set
-    test_data = train_data[train_data[[partitions_col]] == 2,]
+    test_data <- train_data[train_data[[partitions_col]] == 2,]
     # Create training set
-    train_data = train_data[train_data[[partitions_col]] == 1,]
+    train_data <- train_data[train_data[[partitions_col]] == 1,]
   }
 
   # Remove partitions column to allow for "y ~ ." definitions in the model formula
@@ -55,10 +55,10 @@ validate_fn_single = function(train_data,
   predictions_and_targets <- fitting_output[["predictions_and_targets"]]
 
   # Extract models
-  model = fitting_output[["model"]]
+  model <- fitting_output[["model"]]
 
   # Extract singular fit message
-  threw_singular_fit_message = fitting_output[["threw_singular_fit_message"]]
+  threw_singular_fit_message <- fitting_output[["threw_singular_fit_message"]]
 
   model_evaluation <- internal_evaluate(
     predictions_and_targets,

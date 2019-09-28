@@ -463,3 +463,20 @@ check_metrics_list <- function(metrics){
   }
 }
 
+# Never used, but removes R CMD check NOTEs
+rcmd_import_handler <- function(){
+  lifecycle::deprecate_soft()
+}
+
+# Wraps dplyr::as_tibble()
+# If x is NULL, returns NULL
+to_tibble <- function(x, x_name, caller=""){
+  if (!is.null(x)){
+    x <- tryCatch({
+      dplyr::as_tibble(x)
+    }, error = function(e){
+      stop(paste0(caller, ": Could not convert '", x_name, "' to a tibble."))
+    })
+  }
+  x
+}

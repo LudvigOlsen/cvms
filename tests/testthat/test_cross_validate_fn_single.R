@@ -162,4 +162,23 @@ test_that("binomial models with cross_validate_single_fn()",{
                               Type = character(0), Message = character(0)),
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
+
+  ### Errors
+  expect_error(cross_validate_fn_single(dat, basics_model_fn,
+                           evaluation_type = "fishandcat",
+                          model_specifics = list(
+                            model_formula="diagnosis~score",
+                            family="binomial",
+                            REML=FALSE,
+                            link=NULL,
+                            positive=1,
+                            cutoff=0.5,
+                            model_verbose = FALSE,
+                            caller = "cross_validate()"),
+                          model_specifics_update_fn = basics_update_model_specifics,
+                          fold_cols =".folds"),
+               "evaluation_type must be either 'gaussian', 'binomial', or 'multinomial'.",
+               fixed = TRUE)
+
 })
+

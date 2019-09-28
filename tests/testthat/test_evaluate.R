@@ -906,6 +906,20 @@ test_that("binomial evaluation works in evaluate()",{
   # TODO Add tests here that grouped dataframes work in binomial!
 
 
+  # Errors
+
+  expect_error(evaluate(
+    data = data_ %>% dplyr::mutate(cl = ifelse(dplyr::row_number() == 5, 3, cl),
+                                   cl_char = ifelse(dplyr::row_number() == 5, "cl_3", cl_char)),
+    target_col = "cl_char",
+    prediction_cols = "prediction",
+    type = "binomial",
+    apply_softmax = TRUE,
+    metrics = list("Accuracy" = TRUE)
+  ),
+  "The target column must maximally contain 2 levels.",
+  fixed = TRUE)
+
 })
 
 test_that("softmax works in multiclass_probability_tibble()",{

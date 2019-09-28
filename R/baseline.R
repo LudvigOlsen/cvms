@@ -391,6 +391,11 @@ baseline <- function(test_data,
                      # Parallelization
                      parallel = FALSE) {
 
+  # Start by converting the train and test data to tibbles
+  # Will be NULL if they were NULL before
+  test_data <- to_tibble(test_data, "test_data", caller = "baseline()")
+  train_data <- to_tibble(train_data, "train_data", caller = "baseline()")
+
   if (family == "binomial"){
 
     arg_not_used(arg = train_data, arg_name = "train_data",

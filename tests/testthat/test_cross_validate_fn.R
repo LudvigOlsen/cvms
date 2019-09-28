@@ -53,6 +53,136 @@ test_that("binomial glm model works with cross_validate_fn()",{
                               Type = character(0), Message = character(0)),
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
+  # Check error when no model_fn is provided
+  expect_error(cross_validate_fn(dat,
+                    model_fn = NULL,
+                    formulas = c("diagnosis~score","diagnosis~age"),
+                    fold_cols = '.folds', type = 'binomial'),
+               "'model_fn' was NULL.", fixed = TRUE)
+
+  # Check error when no model_fn is provided
+  expect_error(cross_validate_fn(dat,
+                                 model_fn = 3,
+                                 formulas = c("diagnosis~score","diagnosis~age"),
+                                 fold_cols = '.folds', type = 'binomial'),
+               "could not find function \"model_fn\"", fixed = TRUE)
+
+  expect_error(cross_validate_fn(dat,
+                                 model_fn = glm_model_fn,
+                                 formulas = c("score","diagnosis~age"),
+                                 fold_cols = '.folds', type = 'binomial'),
+               "The model formula does not contain a dependent variable.",
+               fixed = TRUE)
+
+  expect_error(cross_validate_fn(dat,
+                                 model_fn = glm_model_fn,
+                                 formulas = c("score","diagnosis~age"),
+                                 fold_cols = '.folds',
+                                 type = 'fishcat'),
+               "Only 'gaussian', 'binomial', and 'multinomial' evaluation types are currently allowed.",
+               fixed = TRUE)
+
+  # wrong predict fn
+  wrong_predict_fn <- function(test_data, model, formula = NULL){
+    tibble::tibble("1" = stats::predict(object = model, newdata = test_data,
+                                        type = "response", allow.new.levels = TRUE),
+                   "2" = stats::predict(object = model, newdata = test_data,
+                                        type = "response", allow.new.levels = TRUE))
+  }
+
+  expect_error(cross_validate_fn(dat,
+                                 model_fn = glm_model_fn,
+                                 formulas = c("diagnosis~score","diagnosis~age"),
+                                 fold_cols = '.folds',
+                                 predict_fn = wrong_predict_fn,
+                                 type = 'binomial'),
+               paste0("When type/family is binomial, the predictions must ",
+                      "be a vector or matrix / data frame with one column ",
+                      "but was a data frame with 2 columns. Did you specify",
+                      " 'predict_type' or 'predict_fn' correctly?"),
+               fixed = TRUE)
+
+  expect_error(cross_validate_fn(dat,
+                                 model_fn = glm_model_fn,
+                                 formulas = c("diagnosis~score","diagnosis~age"),
+                                 fold_cols = '.folds',
+                                 predict_fn = function(test_data, model, formula = NULL){NULL},
+                                 type = 'binomial'),
+               paste0("cross_validate_fn(): predictions were NULL."),
+               fixed = TRUE)
+  expect_error(cross_validate_fn(dat,
+                                 model_fn = glm_model_fn,
+                                 formulas = c("diagnosis~score","diagnosis~age"),
+                                 fold_cols = '.folds',
+                                 predict_fn = function(test_data, model, formula = NULL){lm},
+                                 type = 'binomial'),
+               paste0("cross_validate_fn(): Could not use the obtained predictions. ",
+                      "Did you specify 'predict_type' or 'predict_fn' correctly? ",
+                      "The original error was: Error in as.vector(x, mode): cannot coerce ",
+                      "type 'closure' to vector of type 'any'"),
+               fixed = TRUE)
+  expect_error(cross_validate_fn(dat,
+                                 model_fn = glm_model_fn,
+                                 formulas = c("diagnosis~score","diagnosis~age"),
+                                 fold_cols = '.folds',
+                                 predict_fn = NULL,
+                                 predict_type = "lol",
+                                 type = 'binomial'),
+               paste0("cross_validate_fn(): Could not use the specified 'predict_type.' ",
+                      "Try changing 'predict_type' or pass a custom 'predict_fn'. ",
+                      "The original error was: Error in match.arg(type): 'arg' should ",
+                      "be one of "),   # was "“link”, “response”, “terms”" but fails due to locale settings
+               fixed = TRUE)
+  expect_error(cross_validate_fn(dat,
+                                 model_fn = glm_model_fn,
+                                 formulas = c("diagnosis~score","diagnosis~age"),
+                                 fold_cols = '.folds',
+                                 predict_fn = wrong_predict_fn,
+                                 predict_type = "lol",
+                                 type = 'binomial'),
+               paste0("cross_validate_fn(): Both 'predict_type' and 'predict_fn' ",
+                      "were specified. Please specify only one of them."),
+               fixed = TRUE)
+  expect_error(cross_validate_fn(dat,
+                                 model_fn = glm_model_fn,
+                                 formulas = c("diagnosis~score","diagnosis~age"),
+                                 fold_cols = '.folds',
+                                 predict_fn = function(test_data, model, formula = NULL){c("a","b","d")},
+                                 type = 'binomial'),
+               paste0("cross_validate_fn(): The number of predictions did not match the number of rows in the test set."),
+               fixed = TRUE)
+  expect_error(cross_validate_fn(dat,
+                                 model_fn = glm_model_fn,
+                                 formulas = c("diagnosis~score","diagnosis~age"),
+                                 fold_cols = '.folds',
+                                 predict_fn = function(test_data, model, formula = NULL){head(LETTERS, nrow(test_data))},
+                                 type = 'binomial'),
+               paste0("cross_validate_fn(): Could not convert predictions to type numeric."),
+               fixed = TRUE)
+  expect_error(cross_validate_fn(dat,
+                                 model_fn = glm_model_fn,
+                                 formulas = c("diagnosis~score","diagnosis~age"),
+                                 fold_cols = '.folds',
+                                 predict_fn = function(test_data, model, formula = NULL){stop("predict_fn error")},
+                                 type = 'binomial'),
+               paste0("cross_validate_fn(): Got the following error while using ",
+                      "specified 'predict_fn': Error in ",
+                      "user_predict_fn(test_data = test_data, model = model, ",
+                      "formula = stats::as.formula(formula)): predict_fn error"),
+               fixed = TRUE)
+  expect_error(cross_validate_fn(dat,
+                                 model_fn = glm_model_fn,
+                                 formulas = c("diagnosis~score","diagnosis~age"),
+                                 fold_cols = '.folds',
+                                 predict_fn = function(t_data, model, formula = NULL){NULL},
+                                 type = 'binomial'),
+               paste0("cross_validate_fn(): Got the following error while using ",
+                      "specified 'predict_fn': Error in user_predict_fn(test_data = ",
+                      "test_data, model = model, formula = stats::as.formula(formula)): ",
+                      "unused argument (test_data = test_data)"),
+               fixed = TRUE)
+
+
 })
 
 test_that("gaussian lm model works with cross_validate_fn()",{

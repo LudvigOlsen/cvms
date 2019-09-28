@@ -305,7 +305,25 @@ test_that("the expected errors are thrown by combine_predictors()",{
   expect_error(combine_predictors(dependent = "Price",
                                   fixed_effects = c(1,2,3)),
                "fixed_effects must be of type character.", fixed=T)
+  expect_error(combine_predictors(dependent = "Price",
+                                  fixed_effects = c("Mileage", "Cylinder",
+                                                    "Doors", "Cruise"),
+                                  random_effects = 28),
+               "random_effects must be either a string or NULL. Example: '(1|x)'.", fixed=T)
 
 
 })
 
+test_that("get_terms_matrix() works",{
+  terms_matrix <- get_terms_matrix(c("a","b","c"))
+  expect_equal(terms_matrix$terms,
+               c("a", "b", "c", "a * b", "a * c", "b * c", "a * b * c"))
+  expect_equal(terms_matrix$a,
+               c(1L, 0L, 0L, 1L, 1L, 0L, 1L))
+  expect_equal(terms_matrix$b,
+               c(0L, 1L, 0L, 1L, 0L, 1L, 1L))
+  expect_equal(terms_matrix$c,
+               c(0L, 0L, 1L, 0L, 1L, 1L, 1L))
+  expect_equal(terms_matrix$num_terms,
+               c(1, 1, 1, 2, 2, 2, 3))
+})

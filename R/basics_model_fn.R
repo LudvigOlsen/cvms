@@ -59,11 +59,12 @@ basics_model_fn <- function(train_data,
                        allow.new.levels = TRUE),
         value = "prediction") %>% dplyr::select(.data$prediction)
 
-    } else if (model_specifics[["family"]] == "multinomial"){
-      predictions <- dplyr::as_tibble(
-        stats::predict(model, test_data, type = "probs",
-                       allow.new.levels = TRUE))
     }
+    # else if (model_specifics[["family"]] == "multinomial"){
+    #   predictions <- dplyr::as_tibble(
+    #     stats::predict(model, test_data, type = "probs",
+    #                    allow.new.levels = TRUE))
+    # }
   }
 
   predictions_and_targets <- tibble::tibble("target" = test_data[[y_col]]) %>%

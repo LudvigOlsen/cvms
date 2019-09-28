@@ -76,6 +76,10 @@ custom_model_fn <- function(train_data,
 
     }
 
+    if (is.null(predictions)){
+      stop(paste0(model_specifics[["caller"]],": predictions were NULL."))
+    }
+
     if (model_specifics[["family"]] %in% c("gaussian","binomial")){
 
       if (is.matrix(predictions)){
@@ -118,6 +122,11 @@ custom_model_fn <- function(train_data,
                         "The original error was: ", e))
           })
 
+      }
+
+      if (nrow(predictions) != nrow(test_data)){
+        stop(paste0(model_specifics[["caller"]],
+                    ": The number of predictions did not match the number of rows in the test set."))
       }
 
       # Force type numeric
@@ -181,10 +190,9 @@ force_numeric <- function(predictions_vector, caller = ""){
         ": Could not convert predictions to type numeric."
       ))
     }, warning = function(w) {
-      warning(paste0(
+      stop(paste0(
         caller,
-        ": Warning thrown while converting predictions to type numeric: ",
-        w
+        ": Could not convert predictions to type numeric."
       ))
     })
   }
@@ -213,7 +221,9 @@ internal_predict_fn <- function(model, test_data, family, predict_type = NULL, c
     if (family == "gaussian"){
       preds <- try_predicting(
         fn = function() {
-          stats::predict(model, test_data, allow.new.levels = TRUE)
+          stats::predict(model,
+                         test_data,
+                         allow.new.levels = TRUE)
         },
         caller = caller,
         predict_type = predict_type

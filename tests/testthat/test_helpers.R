@@ -24,6 +24,13 @@ test_that("Helper count_convergence_warnings() works", {
   )
 })
 
+test_that("capture_fn()",{
+
+  expect_equal(substr(capture_fn(function(x,y,z){x+y+z}), 1, 22),
+               "function(x,y,z){x+y+z}")
+  expect_equal(capture_fn(NULL),
+               "NULL")
+})
 
 test_that("nnet gives same predictions on mac and ubuntu",{
 

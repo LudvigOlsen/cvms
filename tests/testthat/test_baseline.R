@@ -268,6 +268,7 @@ test_that("gaussian evaluations of random effects models are correct in baseline
                  10.7798478381932, 5.86883171896131), tolerance=1e-3)
   expect_equal(all_coeffs$p.value,
                rep(NA, 10), tolerance=1e-3)
+
 })
 
 test_that("gaussian evaluations of random effects models are correct with REML FALSE in baseline()",{
@@ -400,7 +401,6 @@ test_that("multinomial evaluations are correct in baseline()",{
   multinom_baseline_class <- tidyr::unnest(multinom_baseline$summarized_class_level_results, .data$Results)
   multinom_baseline_random_eval_summ <- multinom_baseline$random_evaluations
   multinom_baseline_random_eval_class <- dplyr::bind_rows(multinom_baseline$random_evaluations$`Class Level Results`)
-
 
   # Summarized results
   if (TRUE){
@@ -1069,6 +1069,19 @@ test_that("baseline() throws expected errors",{
                         "the binomial version of baseline()."),
                  fixed=T
   )
+
+  expect_message(suppressWarnings(baseline(
+    test_data = participant.scores,
+    train_data = participant.scores,
+    dependent_col = "score",
+    random_generator_fn = rnorm,
+    n = 10,
+    family = "gaussian",
+    parallel = FALSE)),
+    paste0("'random_generator_fn' was not default function. ",
+           "Note that the 'random_generator_fn' is not used in ",
+           "the Gaussian version of baseline()."))
+
   expect_error(baseline(test_data = participant.scores,
                           dependent_col = "score",
                           n = 10,
@@ -1076,6 +1089,48 @@ test_that("baseline() throws expected errors",{
                  "train_data must be passed for Gaussian baseline.",
                  fixed=T
   )
+
+  expect_error(baseline(
+    train_data = participant.scores,
+    test_data = participant.scores,
+    dependent_col = "xxx",
+    n = 10,
+    family = "gaussian"),
+    "could not find these variables in the training data: xxx",
+    fixed=T
+  )
+  expect_error(baseline(
+    train_data = participant.scores,
+    test_data = dplyr::select(participant.scores, -.data$score),
+    dependent_col = "score",
+    n = 10,
+    family = "gaussian"),
+    "could not find these variables in the test data: score",
+    fixed=T
+  )
+
+  expect_equal(subtract_inf_count_from_na_count(tibble::tibble("Measure" = c("Mean","NAs","INFs","Lol"),
+                                                  "Accuracy" = c(1,3,4,2),
+                                                  "Balanced Accuracy" = c(3,2,5,2))),
+               tibble::tibble("Measure" = c("Mean","NAs","INFs","Lol"),
+                              "Accuracy" = c(1,-1,4,2),
+                              "Balanced Accuracy" = c(3,-3,5,2)))
+
+  expect_error(create_multinomial_baseline_evaluations(data.frame(),
+                                                       dependent_col = "",
+                                                       na.rm = NULL,
+                                                       random_generator_fn = runif,
+                                                       parallel_ = FALSE),
+               "'na.rm' must be logical scalar (TRUE/FALSE).",
+               fixed = TRUE)
+
+  expect_error(create_gaussian_baseline_evaluations(as.data.frame(matrix(1,11,1)),
+                                       data.frame(),
+                                       dependent_col = "",
+                                       na.rm = NULL),
+               "'na.rm' must be logical scalar (TRUE/FALSE).",
+               fixed = TRUE)
+
 
   set_seed_for_R_compatibility(1)
   dat <- participant.scores

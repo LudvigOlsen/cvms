@@ -252,7 +252,7 @@ test_that("gaussian mixed models with cross_validate()",{
 
 test_that("binomial models work with control specified in cross_validate()",{
 
-  testthat::skip(message = "travis get different results. Fix")
+  testthat::skip("mac and ubuntu give different warnings")
   # TODO fix such that travis get same results
   # skip_test_if_old_R_version()
 
@@ -866,6 +866,32 @@ test_that("the expected errors are thrown by cross_validate()",{
                               REML = FALSE, model_verbose=FALSE,
                               positive=1),
                "Only 'gaussian' and 'binomial' families are currently allowed.", fixed=TRUE)
+
+  # With rm_nc, the non-converged model is removed
+  # and we only have an empty data frame left
+  # Note, this may fail on ubuntu?
+  set_seed_for_R_compatibility(2)
+  expect_identical(suppressMessages(suppressWarnings(
+    cross_validate(
+      dplyr::sample_frac(dat, 0.2),
+      models = c("diagnosis~score*age+(1|session)"),
+      family = 'gaussian',
+      fold_cols = ".folds_1",
+      REML = FALSE,
+      model_verbose = FALSE,
+      control = lme4::lmerControl(optimizer = "bobyqa",
+                                  optCtrl = list(maxfun = 10)),
+      rm_nc = TRUE
+    ))),
+    structure(list(RMSE = logical(0), MAE = logical(0), r2m = logical(0),
+                   r2c = logical(0), AIC = logical(0), AICc = logical(0), BIC = logical(0),
+                   Predictions = logical(0), Results = list(), Coefficients = list(),
+                   Folds = integer(0), `Fold Columns` = integer(0), `Convergence Warnings` = integer(0),
+                   `Singular Fit Messages` = integer(0), `Other Warnings` = integer(0),
+                   `Warnings and Messages` = list(), Family = character(0),
+                   Link = character(0), Dependent = character(0), Fixed = character(0),
+                   Random = character(0)), class = c("tbl_df", "tbl", "data.frame"
+                   ), row.names = c(NA, 0L)))
 
 })
 

@@ -816,7 +816,7 @@ test_that("binomial randomForest models work with cross_validate_fn()",{
 
   # The actual values
   # Skip on windows. Appveyour works but winbuilder gives different results
-  skip_on_os(os = "windows", message = "different results on some windows servers apparently")
+  skip_on_os(os = "windows")
 
   expect_equal(CVbinomlist$AUC, c(0.555555555555556, 0.333333333333333), tolerance=1e-3)
   expect_equal(CVbinomlist$`Lower CI`, c(0.367800267130833, 0.161076004187493), tolerance=1e-3)
@@ -1288,7 +1288,7 @@ test_that("binomial random predictions work with cross_validate_fn()",{
   expect_equal(colnames(CVrandom$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
   expect_equal(colnames(CVrandom$ROC[[1]]), c("Sensitivities","Specificities"))
   expect_equal(nrow(CVrandom$Predictions[[1]]),30)
-  expect_equal(nrow(CVrandom$ROC[[1]]),18)
+  expect_equal(nrow(CVrandom$ROC[[1]]),31)
   expect_equal(CVrandom$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
                               Type = character(0), Message = character(0)),

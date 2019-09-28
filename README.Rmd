@@ -416,9 +416,9 @@ Perform the evaluation. This will create one-vs-all binomial evaluations and sum
 ```{r}
 # Evaluate predictions
 ev <- evaluate(data = predictions,
-                 target_col = "target",
-                 prediction_cols = class_names,
-                 type = "multinomial")
+               target_col = "target",
+               prediction_cols = class_names,
+               type = "multinomial")
 
 ev
 ```

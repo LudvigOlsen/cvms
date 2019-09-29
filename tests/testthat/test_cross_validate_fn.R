@@ -229,7 +229,7 @@ test_that("gaussian lm model works with cross_validate_fn()",{
   # Error when formulas have random effects but lm model
 
   # Cross-validate the model function
-  expect_error(cross_validate_fn(data,
+  expect_error(cross_validate_fn(dat,
                     model_fn = lm_model_fn,
                     formulas = c("score~diagnosis+(1|session)",
                                  "score~age+(1|session)"),

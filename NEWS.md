@@ -1,3 +1,5 @@
+# cvms 0.3.0.9000
+
 # cvms 0.3.0
 
 * Breaking change: In `evaluate()`, when `type` is `multinomial`, the output is now a single tibble. The `Class Level Results` are included as a nested tibble.

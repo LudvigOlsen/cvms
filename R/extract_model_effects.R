@@ -9,11 +9,11 @@
 
 extract_model_effects <- function(model_list) {
   # First we create a data frame with the list of models
-  mixed_effects = tibble::tibble("model" = as.character(model_list))
+  mixed_effects <- tibble::tibble("model" = as.character(model_list))
 
   suppressWarnings((
     # Then we use tidyr() to create a pipeline
-    mixed_effects = mixed_effects %>%
+    mixed_effects <- mixed_effects %>%
 
       # First remove all whitespaces
       mutate(model = gsub("\\s", "", .$model)) %>%
@@ -50,7 +50,7 @@ extract_model_effects <- function(model_list) {
   # If all models are without random effects,
   # drop column random
   if (all(is.na(mixed_effects$Random))) {
-    mixed_effects$Random = NULL
+    mixed_effects$Random <- NULL
 
   }
 

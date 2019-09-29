@@ -36,7 +36,7 @@ nesting_predictions_gaussian <- function(data,
   }
 
   predictions_nested <- predictions_for_nesting %>%
-    legacy_nest(1:ncol(predictions_for_nesting)) %>%
+    legacy_nest(seq_len(ncol(predictions_for_nesting))) %>%
     dplyr::rename(predictions = data)
 
   predictions_nested
@@ -83,7 +83,7 @@ nesting_predictions_binomial <- function(data,
 
   # Nest predictions
   predictions_nested <- predictions_for_nesting %>%
-    legacy_nest(1:ncol(predictions_for_nesting)) %>%
+    legacy_nest(seq_len(ncol(predictions_for_nesting))) %>%
     dplyr::rename(predictions = data)
 
   predictions_nested
@@ -136,7 +136,7 @@ nesting_predictions_multinomial <- function(data,
 
   # Nest predictions
   predictions_nested <- predictions_for_nesting %>%
-    legacy_nest(1:ncol(predictions_for_nesting)) %>%
+    legacy_nest(seq_len(ncol(predictions_for_nesting))) %>%
     dplyr::rename(predictions = data)
 
   predictions_nested

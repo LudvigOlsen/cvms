@@ -1,7 +1,7 @@
 #' @importFrom plyr ldply
 #' @importFrom dplyr mutate %>%
 #' @importFrom tidyr separate
-basics_cross_validate_list = function(data,
+basics_cross_validate_list <- function(data,
                                       model_list,
                                       fold_cols = '.folds',
                                       family = 'gaussian',
@@ -35,9 +35,9 @@ basics_cross_validate_list = function(data,
 
   # Get evaluation functions
   if (family == "gaussian"){
-    evaluation_type = "gaussian"
+    evaluation_type <- "gaussian"
   } else if (family == "binomial"){
-    evaluation_type = "binomial"
+    evaluation_type <- "binomial"
   } else {stop("Only 'gaussian' and 'binomial' families are currently allowed.")}
 
   # Create model_specifics object

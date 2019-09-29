@@ -19,11 +19,11 @@ test_that("Metrics work for glm in validate()",{
                         positive=1)
   same_model <- glm(diagnosis~score, data=dat[dat$.partitions==1,], family = 'binomial')
 
-  train_data <- dat[dat$.partitions==1,]
-  test_data <- dat[dat$.partitions==2,]
-  prob=predict(same_model, newdata=test_data, type=c("response"))
+  train_data <- dat[dat$.partitions == 1, ]
+  test_data <- dat[dat$.partitions == 2, ]
+  prob <- predict(same_model, newdata = test_data, type = c("response"))
 
-  test_data$prob=prob
+  test_data$prob <- prob
   test_data <- test_data %>%
     dplyr::mutate(pred = dplyr::if_else(prob>0.5,1,0))
 
@@ -88,9 +88,9 @@ test_that("Metrics work for glmer in validate()",{
 
   train_data <- dat[dat$.partitions==1,]
   test_data <- dat[dat$.partitions==2,]
-  prob=predict(same_model, newdata=test_data, type=c("response"))
+  prob <- predict(same_model, newdata=test_data, type=c("response"))
 
-  test_data$prob=prob
+  test_data$prob <- prob
   test_data <- test_data %>%
     dplyr::mutate(pred = dplyr::if_else(prob>0.5,1,0))
 
@@ -150,9 +150,9 @@ test_that("Metrics work for glm in validate()",{
 
   train_data <- dat[dat$.partitions==1,]
   test_data <- dat[dat$.partitions==2,]
-  prob=predict(same_model, newdata=test_data, type=c("response"))
+  prob <- predict(same_model, newdata=test_data, type=c("response"))
 
-  test_data$prob=prob
+  test_data$prob <- prob
   test_data <- test_data %>%
     dplyr::mutate(pred = dplyr::if_else(prob>0.5,1,0))
 
@@ -212,9 +212,9 @@ test_that("Metrics work for glmer in validate()",{
 
   train_data <- dat[dat$.partitions==1,]
   test_data <- dat[dat$.partitions==2,]
-  prob=predict(same_model, newdata=test_data, type=c("response"))
+  prob <- predict(same_model, newdata=test_data, type=c("response"))
 
-  test_data$prob=prob
+  test_data$prob <- prob
   test_data <- test_data %>%
     dplyr::mutate(pred = dplyr::if_else(prob>0.5,1,0))
 
@@ -515,8 +515,8 @@ test_that("Metrics work in cross_validate()",{
   FP <- confMat$table[3]
   FN <- confMat$table[2]
   TN <- confMat$table[4]
-  precision = TP / (TP + FP)
-  recall = TP / (TP + FN)
+  precision <- TP / (TP + FP)
+  recall <- TP / (TP + FN)
   F1_2 <- 2 * precision * recall / (precision + recall)
   expect_equal(F1_2,0.6666667, tolerance = 1e-3)
 

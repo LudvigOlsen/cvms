@@ -32,7 +32,7 @@ binomial_classification_eval <- function(data,
   if (!na_in_targets && !na_in_predictions){
 
     # Find the levels in the categorical target variable
-    cat_levels = levels_as_characters(data[[targets_col]])
+    cat_levels <- levels_as_characters(data[[targets_col]])
 
     if (length(cat_levels) > 2){ stop("The target column must maximally contain 2 levels.") }
 

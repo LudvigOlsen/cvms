@@ -1,4 +1,4 @@
-custom_cross_validate_list = function(data,
+custom_cross_validate_list <- function(data,
                                       formulas,
                                       model_fn,
                                       fold_cols = '.folds',
@@ -31,11 +31,11 @@ custom_cross_validate_list = function(data,
 
   # Get evaluation functions
   if (family == "gaussian"){
-    evaluation_type = "gaussian"
+    evaluation_type <- "gaussian"
   } else if (family == "binomial"){
-    evaluation_type = "binomial"
+    evaluation_type <- "binomial"
   } else if (family == "multinomial"){
-    evaluation_type = "multinomial"
+    evaluation_type <- "multinomial"
   } else {stop("Only 'gaussian', 'binomial', and 'multinomial' evaluation types are currently allowed.")}
 
   # Create model_specifics object
@@ -81,7 +81,7 @@ custom_cross_validate_list = function(data,
     # Extract and nest class level results
     cross_validations_class_level_results <-
       plyr::ldply(cross_validations %c% "Class Level Results", function(clr) {
-        legacy_nest(clr, 1:ncol(clr))
+        legacy_nest(clr, seq_len(ncol(clr)))
         }) %>%
       tibble::as_tibble() %>%
       dplyr::pull(.data$data)

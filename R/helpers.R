@@ -55,9 +55,9 @@ count_convergence_warnings <- function(convergences){ # "Yes" or "No"
       paste0(setdiff(convergences, c("Yes", "No")), collapse = ", "), "."
     ))
   }
-  conv_warns = as.integer(table(convergences)['No'])
+  conv_warns <- as.integer(table(convergences)['No'])
   if (is.na(conv_warns)){
-    conv_warns = 0
+    conv_warns <- 0
   }
   return(conv_warns)
 }
@@ -92,7 +92,7 @@ replace_argument_in_model_specifics_if_null <- function(var_name, model_specific
                   var_name, " = ??? when passing model_specifics."))
     }
 
-    model_specifics[[var_name]] = new_value
+    model_specifics[[var_name]] <- new_value
 
   }
 
@@ -136,7 +136,7 @@ levels_as_characters <- function(col){
 
   levs <- levels(factor(col))
 
-  cat_levels <- plyr::llply(1:length(levs), function(i){
+  cat_levels <- plyr::llply(seq_len(length(levs)), function(i){
     as.character(levs[i])
   }) %>% unlist()
 
@@ -164,7 +164,7 @@ create_folds_map <- function(data, fold_cols){
 
   # Create a map of number of folds per fold column
   # The range tells what fold column a specific fold belongs to.
-  folds_map <- plyr::llply(1:length(fold_cols), function(fold_column){
+  folds_map <- plyr::llply(seq_len(length(fold_cols)), function(fold_column){
     nlevels(data[[ fold_cols[[fold_column]] ]])
   }) %>%
     unlist() %>%
@@ -180,12 +180,15 @@ create_folds_map <- function(data, fold_cols){
   n_folds <- sum(folds_map$num_folds)
 
   # Expand ranges to long format
-  folds_map_expanded <- plyr::ldply(1:length(fold_cols), function(fold_column){
-    data.frame("fold_col_idx"=fold_column,
-               "fold_col_name"=fold_cols[[fold_column]],
-               abs_fold=c(folds_map[["start_"]][[fold_column]]:folds_map[["end_"]][[fold_column]]),
-               rel_fold=c(1:folds_map[["num_folds"]][[fold_column]]))
-  }) %>% dplyr::as_tibble()
+  folds_map_expanded <-
+    plyr::ldply(seq_len(length(fold_cols)), function(fold_column) {
+      data.frame(
+        "fold_col_idx" = fold_column,
+        "fold_col_name" = fold_cols[[fold_column]],
+        abs_fold = c(folds_map[["start_"]][[fold_column]]:folds_map[["end_"]][[fold_column]]),
+        rel_fold = c(1:folds_map[["num_folds"]][[fold_column]])
+      )
+    }) %>% dplyr::as_tibble()
 
   return(
     list(
@@ -316,18 +319,18 @@ is_between_ <- function(x, a, b) {
   x > a & x < b
 }
 
-logsumexp <- function (x) {
-  y = max(x)
+logsumexp <- function(x) {
+  y <- max(x)
   y + log(sum(exp(x - y)))
 }
 
-softmax_row <- function (...) {
+softmax_row <- function(...) {
   x <- unname(c(...))
   x <- exp(x - logsumexp(x))
   # Convert to row in tibble
   # TODO There must be a better way
   x <- dplyr::as_tibble(t(matrix(x)),
-                        .name_repair = ~ paste0("V", 1:length(x)))
+                        .name_repair = ~ paste0("V", seq_len(length(x))))
   x
 }
 

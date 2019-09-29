@@ -371,7 +371,7 @@ all_or_nothing_evaluations <- function(test_data, targets_col, current_class, re
 nest_probabilities_rowwise <- function(data){
   n_cols <- ncol(data)
   tmp_index <- create_tmp_var(data)
-  data[[tmp_index]] <- 1:nrow(data)
+  data[[tmp_index]] <- seq_len(nrow(data))
   data %>%
     legacy_nest(1:n_cols) %>%
     dplyr::pull(.data$data)

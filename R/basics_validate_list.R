@@ -3,7 +3,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 
 #' @importFrom dplyr mutate %>%
 #' @importFrom tidyr separate
-basics_validate_list = function(train_data, model_list, family = 'gaussian',
+basics_validate_list <- function(train_data, model_list, family = 'gaussian',
                                 link = NULL, control = NULL, REML = FALSE,
                                 cutoff = 0.5, positive = 2,
                                 metrics = list(), err_nc = FALSE,
@@ -24,16 +24,16 @@ basics_validate_list = function(train_data, model_list, family = 'gaussian',
   # get train and test set
   if (is.null(test_data)) {
     # Create test set
-    test_data = train_data[train_data[[partitions_col]] == 2,]
+    test_data <- train_data[train_data[[partitions_col]] == 2,]
     # Create training set
-    train_data = train_data[train_data[[partitions_col]] == 1,]
+    train_data <- train_data[train_data[[partitions_col]] == 1,]
   }
 
   # Get evaluation functions
   if (family == "gaussian"){
-    evaluation_type = "gaussian"
+    evaluation_type <- "gaussian"
   } else if (family == "binomial"){
-    evaluation_type = "binomial"
+    evaluation_type <- "binomial"
   } else {stop("Only 'gaussian' and 'binomial' families are currently allowed.")}
 
   # Create model_specifics object

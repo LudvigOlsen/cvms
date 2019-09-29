@@ -1,7 +1,7 @@
 # R CMD check NOTE handling
 if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 
-create_boxplot_ = function(data, var_start=NULL, var_end=NULL){
+create_boxplot_ <- function(data, var_start=NULL, var_end=NULL){
 
   # Data: gaussian_return or likewise
   # Vars (Variables to plot):

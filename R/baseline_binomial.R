@@ -41,7 +41,8 @@ create_binomial_baseline_evaluations <- function(test_data,
   # Check dependent variable
   if (length(unique(targets)) > 2){
     if (is.numeric(targets) || is.integer(targets)){
-      stop("The dependent column must maximally contain 2 levels. Did you specify the correct family?")
+      stop(paste0("The dependent column must maximally contain 2 levels.",
+                  " Did you specify the correct family?"))
     }
     else {
       stop("The dependent column must maximally contain 2 levels.")
@@ -81,7 +82,8 @@ create_binomial_baseline_evaluations <- function(test_data,
 
   # Evaluate random probabilities
 
-  evaluations_random <- plyr::llply(1:reps, .parallel = parallel_, function(evaluation){
+  evaluations_random <- plyr::llply(1:reps, .parallel = parallel_,
+                                    function(evaluation){
 
     test_data[["prediction"]] <- random_probabilities[[evaluation]]
 
@@ -135,11 +137,11 @@ create_binomial_baseline_evaluations <- function(test_data,
     dplyr::mutate(Family = "binomial",
                   Dependent = dependent_col) %>%
     select_metrics(include_definitions = FALSE) %>%
-    dplyr::mutate(Measure = paste0("All_",
-                                  ifelse(
-                                    is.character(test_data[[dependent_col]]),
-                                    sort(unique(test_data[[dependent_col]]))[[1]],
-                                    0)))
+    dplyr::mutate(Measure = paste0(
+      "All_",
+      ifelse(is.character(test_data[[dependent_col]]),
+             sort(unique(test_data[[dependent_col]]))[[1]],
+             0)))
 
   # Evaluate all 1s
 
@@ -163,11 +165,11 @@ create_binomial_baseline_evaluations <- function(test_data,
     dplyr::mutate(Family = "binomial",
                   Dependent = dependent_col) %>%
     select_metrics(include_definitions = FALSE) %>%
-    dplyr::mutate( Measure = paste0("All_",
-                                    ifelse(
-                                      is.character(test_data[[dependent_col]]),
-                                      sort(unique(test_data[[dependent_col]]))[[2]],
-                                      1)))
+    dplyr::mutate(Measure = paste0(
+      "All_",
+      ifelse(is.character(test_data[[dependent_col]]),
+             sort(unique(test_data[[dependent_col]]))[[2]],
+             1)))
 
   # Collect the summarized metrics
 
@@ -188,8 +190,17 @@ replace_inf_with_na <- function(metric_cols){
 
   # Replace infs with NA
   if(nrow(metric_cols_with_infs) > 0){
-    metric_cols <- do.call(data.frame,c(lapply(metric_cols, function(x) replace(x, is.infinite(x), NA)),
-                                         check.names=FALSE,fix.empty.names = FALSE, stringsAsFactors=FALSE))
+    metric_cols <- do.call(
+      data.frame,
+      c(
+        lapply(metric_cols,
+               function(x)
+                 replace(x, is.infinite(x), NA)),
+        check.names = FALSE,
+        fix.empty.names = FALSE,
+        stringsAsFactors = FALSE
+      )
+    )
   }
 
   list("metric_cols" = metric_cols,

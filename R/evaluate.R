@@ -595,7 +595,7 @@ run_evaluate_wrapper <- function(data,
     data[[local_tmp_rel_fold_col_var]] <- 1
     data[[local_tmp_abs_fold_col_var]] <- 1
 
-    fold_info_cols = list(rel_fold = local_tmp_rel_fold_col_var,
+    fold_info_cols <- list(rel_fold = local_tmp_rel_fold_col_var,
                           abs_fold = local_tmp_abs_fold_col_var,
                           fold_column = local_tmp_fold_col_var)
     include_fold_columns <- FALSE

@@ -194,11 +194,11 @@ linear_regression_eval <- function(data,
 linear_regression_model_eval <- function(model, REML){
 
   if (is.null(model)){
-    r2m_ = NA
-    r2c_ = NA
-    AIC_ = NA
-    AICc_ = NA
-    BIC_ = NA
+    r2m_ <- NA
+    r2c_ <- NA
+    AIC_ <- NA
+    AICc_ <- NA
+    BIC_ <- NA
   } else {
     r2m_ <- calculate_r2m(model)
     r2c_ <- calculate_r2c(model)
@@ -244,7 +244,7 @@ get_nested_model_coefficients <- function(models, fold_info=list(folds = NULL,
   }
 
   if (is.null(fold_info[["folds"]])){
-    folds <- 1:length(models)
+    folds <- seq_len(length(models))
     fold_columns <- rep(fold_info[["fold_columns"]], length(models))
   } else {
     folds <- fold_info[["folds"]]
@@ -253,7 +253,7 @@ get_nested_model_coefficients <- function(models, fold_info=list(folds = NULL,
 
   tryCatch({
 
-    coefs_tidy <- plyr::llply(1:length(models), function(i){
+    coefs_tidy <- plyr::llply(seq_len(length(models)), function(i){
 
       tryCatch({
         broom::tidy(models[[i]], effects = c("fixed"))

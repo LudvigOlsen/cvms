@@ -151,7 +151,7 @@ binomial_eval_roc_curves <- function(data, targets_col, predictions_col,
     }) %>% unlist(recursive=FALSE)
 
     # ROC sensitivities and specificities
-    roc_nested <- plyr::ldply(1:length(roc_curves), function(i){
+    roc_nested <- plyr::ldply(seq_len(length(roc_curves)), function(i){
       if (is.null(roc_curves[[i]])){
         return(
           tibble::tibble(`Fold Column` = NA,
@@ -430,7 +430,7 @@ fit_confusion_matrix <- function(predicted_classes, targets, cat_levels, positiv
   }
 
   # Try to use fit a confusion matrix with the predictions and targets
-  conf_mat = tryCatch({
+  conf_mat <- tryCatch({
     caret::confusionMatrix(factor(predicted_classes, levels = cat_levels),
                            factor(targets, levels = cat_levels),
                            positive = positive)
@@ -447,7 +447,7 @@ fit_confusion_matrix <- function(predicted_classes, targets, cat_levels, positiv
 fit_roc_curve <- function(predicted_probabilities, targets, levels = c(0,1), direction = "<"){
 
   # Try to fit a ROC curve on the data
-  roc_curve = tryCatch({
+  roc_curve <- tryCatch({
     pROC::roc(
       response = targets,
       predictor = predicted_probabilities,
@@ -474,7 +474,7 @@ nest_confusion_matrices <- function(confusion_matrices, cat_levels=c("0","1"), f
     fold_cols <- rep(fold_cols, length(confusion_matrices))
   }
 
-  tidy_confusion_matrix <- plyr::ldply(1:length(confusion_matrices), function(i){
+  tidy_confusion_matrix <- plyr::ldply(seq_len(length(confusion_matrices)), function(i){
     confusion_matrices[[i]]$table %>%
       dplyr::as_tibble() %>%
       dplyr::mutate(Pos0 = c("TP","FN","FP","TN"),
@@ -494,7 +494,7 @@ nest_confusion_matrices <- function(confusion_matrices, cat_levels=c("0","1"), f
   }
 
   tidy_confusion_matrix %>%
-    legacy_nest(1:ncol(tidy_confusion_matrix)) %>%
+    legacy_nest(seq_len(ncol(tidy_confusion_matrix))) %>%
     dplyr::rename(confusion_matrices = data)
 
 }
@@ -509,7 +509,7 @@ nest_multiclass_confusion_matrices <- function(confusion_matrices,
     fold_cols <- rep(fold_cols, length(confusion_matrices))
   }
 
-  tidy_confusion_matrices <- plyr::ldply(1:length(confusion_matrices), function(i){
+  tidy_confusion_matrices <- plyr::ldply(seq_len(length(confusion_matrices)), function(i){
     confusion_matrices[[i]]$table %>%
       dplyr::as_tibble() %>%
       dplyr::mutate(`Fold Column` = fold_cols[[i]])
@@ -525,7 +525,7 @@ nest_multiclass_confusion_matrices <- function(confusion_matrices,
   }
 
   tidy_confusion_matrices %>%
-    legacy_nest(1:ncol(tidy_confusion_matrices)) %>%
+    legacy_nest(seq_len(ncol(tidy_confusion_matrices))) %>%
     dplyr::rename(confusion_matrices = data)
 
 }

@@ -97,7 +97,7 @@ cross_validate_fn_single <- function(data, model_fn,
 
   # Nest warnings and messages tibble
   nested_warnings_and_messages <- warnings_and_messages %>%
-    legacy_nest(1:ncol(warnings_and_messages)) %>%
+    legacy_nest(seq_len(ncol(warnings_and_messages))) %>%
     dplyr::pull(.data$data)
 
   # Extract singular fit message flags

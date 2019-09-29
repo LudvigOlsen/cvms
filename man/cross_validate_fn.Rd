@@ -68,7 +68,7 @@ cross_validate_fn(data, model_fn, formulas, fold_cols = ".folds",
  output is as follows:
 
  \subsection{Binomial}{
- Vector or one-column matrix / data frame with probabilies (0-1).
+ Vector or one-column matrix / data frame with probabilities (0-1).
  E.g.:
 
  \code{c(0.3, 0.5, 0.1, 0.5)}
@@ -139,9 +139,9 @@ Tbl (tibble) with results for each model.
  Number of \strong{fold columns}.
 
  Count of \strong{convergence warnings}, using a limited set of keywords (e.g. "convergence"). If a
- convergence warning does not contain one of these keywords, it will be counted in \strong{other warnings}
- along with other warnings. Consider discarding models that did not converge on all
- iterations. Note: you might still see results, but these should be taken with a grain of salt!
+ convergence warning does not contain one of these keywords, it will be counted with \strong{other warnings}.
+ Consider discarding models that did not converge on all iterations.
+ Note: you might still see results, but these should be taken with a grain of salt!
 
  Nested tibble with the \strong{warnings and messages} caught for each model.
 
@@ -163,7 +163,7 @@ Tbl (tibble) with results for each model.
  Average \strong{RMSE}, \strong{MAE}, \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
  and \strong{BIC} of all the iterations*,
  \emph{\strong{omitting potential NAs} from non-converged iterations}. Some metrics will
- return \code{NA} if they can't be extracted from the passed model objects.
+ return \code{NA} if they can't be extracted from the fitted model objects.
 
  N.B. The Information Criteria metrics (AIC, AICc, and BIC) are also averages.
 
@@ -283,7 +283,7 @@ Tbl (tibble) with results for each model.
 
  Compared to \code{\link[cvms:cross_validate]{cross_validate()}},
  this function allows you supply a custom model function
- and (if needed) a custom prediction function.
+ and (if needed) a custom predict function.
 
  Supports regression and classification (binary and multiclass). See \code{type}.
 
@@ -338,8 +338,10 @@ data <- fold(data, k = 4,
 
 # Cross-validate multiple formulas
 
-formulas <- c("score~diagnosis+(1|session)",
-              "score~age+(1|session)")
+formulas_gaussian <- c("score ~ diagnosis",
+                       "score ~ age")
+formulas_binomial <- c("diagnosis ~ score",
+                       "diagnosis ~ age")
 
 \donttest{
 # Gaussian
@@ -353,10 +355,9 @@ lm_model_fn <- function(train_data, formula){
 # Cross-validate the model function
 cross_validate_fn(data,
                   model_fn = lm_model_fn,
-                  formulas = formulas,
-                  family = 'gaussian',
-                  fold_cols = ".folds",
-                  REML = FALSE)
+                  formulas = formulas_gaussian,
+                  type = 'gaussian',
+                  fold_cols = ".folds")
 
 # Binomial
 
@@ -369,8 +370,8 @@ glm_model_fn <- function(train_data, formula){
 # Cross-validate the model function
 cross_validate_fn(data,
                   model_fn = glm_model_fn,
-                  formulas = formulas,
-                  family = 'binomial',
+                  formulas = formulas_binomial,
+                  type = 'binomial',
                   fold_cols = ".folds")
 
 # Support Vector Machine (svm)
@@ -387,8 +388,8 @@ svm_model_fn <- function(train_data, formula){
 # Cross-validate the model function
 cross_validate_fn(data,
                   model_fn = svm_model_fn,
-                  formulas = formulas,
-                  family = 'binomial',
+                  formulas = formulas_binomial,
+                  type = 'binomial',
                   fold_cols = ".folds")
 
 # Naive Bayes
@@ -410,10 +411,10 @@ nb_predict_fn <- function(test_data, model, formula = NULL){
 
 # Cross-validate the model function
 cross_validate_fn(data,
-                  model_fn = svm_model_fn,
-                  formulas = formulas,
-                  family = 'binomial',
-                  prediction_fn = nb_predict_fn,
+                  model_fn = nb_model_fn,
+                  formulas = formulas_binomial,
+                  type = 'binomial',
+                  predict_fn = nb_predict_fn,
                   fold_cols = ".folds")
 
 }
@@ -433,7 +434,7 @@ formulas <- rep(c("score~diagnosis",
 system.time({cross_validate_fn(data,
                                model_fn = lm_model_fn,
                                formulas = formulas,
-                               family = 'gaussian',
+                               type = 'gaussian',
                                fold_cols = ".folds",
                                parallel = TRUE)})
 
@@ -441,7 +442,7 @@ system.time({cross_validate_fn(data,
 system.time({cross_validate_fn(data,
                                model_fn = lm_model_fn,
                                formulas = formulas,
-                               family = 'gaussian',
+                               type = 'gaussian',
                                fold_cols = ".folds",
                                parallel = FALSE)})
 }

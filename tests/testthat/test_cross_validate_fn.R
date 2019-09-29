@@ -226,6 +226,21 @@ test_that("gaussian lm model works with cross_validate_fn()",{
                               Type = character(0), Message = character(0)),
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
+  # Error when formulas have random effects but lm model
+
+  # Cross-validate the model function
+  expect_error(cross_validate_fn(data,
+                    model_fn = lm_model_fn,
+                    formulas = c("score~diagnosis+(1|session)",
+                                 "score~age+(1|session)"),
+                    type = 'gaussian',
+                    fold_cols = ".folds"),
+               paste0("cross_validate_fn(): simpleWarning in predict.lm(model, ",
+                      "test_data, allow.new.levels = TRUE): prediction from a ",
+                      "rank-deficient fit may be misleading"),
+               fixed = TRUE)
+
+
 })
 
 test_that("binomial svm models from e1071 work with cross_validate_fn()",{

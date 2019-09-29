@@ -220,7 +220,7 @@ internal_predict_fn <- function(model, test_data, family, predict_type = NULL, c
     # Default predict_type per family
     if (family == "gaussian"){
       preds <- try_predicting(
-        fn = function() {
+        fn <- function() {
           stats::predict(model,
                          test_data,
                          allow.new.levels = TRUE)
@@ -277,7 +277,7 @@ try_predicting <- function(fn, caller, predict_type){
                   "The original error was: ", e))
     }
   }, warning = function(w){
-    warning(paste0(caller, ": ", w))
+    stop(paste0(caller, ": ", w))
   })
 }
 

@@ -463,6 +463,17 @@ check_metrics_list <- function(metrics){
   }
 }
 
+# Creates initial warnings and messages tibble
+# cols: Message, Type, Function
+create_warnings_and_messages_tibble <- function(warnings, messages, fn){
+  tibble::tibble("Message" = warnings,
+                 "Type" = "warning") %>%
+    dplyr::bind_rows(tibble::tibble("Message" = messages,
+                                    "Type" = "message")) %>%
+    dplyr::mutate(Function = fn)
+}
+
+
 # Never used, but removes R CMD check NOTEs
 rcmd_import_handler <- function(){
   lifecycle::deprecate_soft()

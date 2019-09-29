@@ -1,5 +1,10 @@
 # cvms 0.3.0.9000
 
+* Fixes documentation in cross_validate_fn(). The examples contained an unreasonable number of mistakes :-)
+
+* In `cross_validate_fn()`, warnings and messages from the predict function are now included in 
+`Warnings and Messages`. The warnings are counted in `Other Warnings`.
+
 # cvms 0.3.0
 
 * Breaking change: In `evaluate()`, when `type` is `multinomial`, the output is now a single tibble. The `Class Level Results` are included as a nested tibble.

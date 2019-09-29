@@ -50,7 +50,7 @@ test_that("binomial glm model works with cross_validate_fn()",{
   expect_equal(nrow(CVbinomlist$ROC[[1]]),29)
   expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
-                              Type = character(0), Message = character(0)),
+                              Function = character(0), Type = character(0), Message = character(0)),
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
   # Check error when no model_fn is provided
@@ -116,7 +116,7 @@ test_that("binomial glm model works with cross_validate_fn()",{
                                  fold_cols = '.folds',
                                  predict_fn = function(test_data, model, formula = NULL){lm},
                                  type = 'binomial'),
-               paste0("cross_validate_fn(): Could not use the obtained predictions. ",
+               paste0("Could not use the obtained predictions. ",
                       "Did you specify 'predict_type' or 'predict_fn' correctly? ",
                       "The original error was: Error in as.vector(x, mode): cannot coerce ",
                       "type 'closure' to vector of type 'any'"),
@@ -128,7 +128,7 @@ test_that("binomial glm model works with cross_validate_fn()",{
                                  predict_fn = NULL,
                                  predict_type = "lol",
                                  type = 'binomial'),
-               paste0("cross_validate_fn(): Could not use the specified 'predict_type.' ",
+               paste0("Could not use the specified 'predict_type.' ",
                       "Try changing 'predict_type' or pass a custom 'predict_fn'. ",
                       "The original error was: Error in match.arg(type): 'arg' should ",
                       "be one of "),   # was "“link”, “response”, “terms”" but fails due to locale settings
@@ -149,7 +149,7 @@ test_that("binomial glm model works with cross_validate_fn()",{
                                  fold_cols = '.folds',
                                  predict_fn = function(test_data, model, formula = NULL){c("a","b","d")},
                                  type = 'binomial'),
-               paste0("cross_validate_fn(): The number of predictions did not match the number of rows in the test set."),
+               paste0("The number of predictions did not match the number of rows in the test set."),
                fixed = TRUE)
   expect_error(cross_validate_fn(dat,
                                  model_fn = glm_model_fn,
@@ -157,7 +157,7 @@ test_that("binomial glm model works with cross_validate_fn()",{
                                  fold_cols = '.folds',
                                  predict_fn = function(test_data, model, formula = NULL){head(LETTERS, nrow(test_data))},
                                  type = 'binomial'),
-               paste0("cross_validate_fn(): Could not convert predictions to type numeric."),
+               paste0("Could not convert predictions to type numeric."),
                fixed = TRUE)
   expect_error(cross_validate_fn(dat,
                                  model_fn = glm_model_fn,
@@ -165,7 +165,7 @@ test_that("binomial glm model works with cross_validate_fn()",{
                                  fold_cols = '.folds',
                                  predict_fn = function(test_data, model, formula = NULL){stop("predict_fn error")},
                                  type = 'binomial'),
-               paste0("cross_validate_fn(): Got the following error while using ",
+               paste0("Got the following error while using ",
                       "specified 'predict_fn': Error in ",
                       "user_predict_fn(test_data = test_data, model = model, ",
                       "formula = stats::as.formula(formula)): predict_fn error"),
@@ -176,11 +176,21 @@ test_that("binomial glm model works with cross_validate_fn()",{
                                  fold_cols = '.folds',
                                  predict_fn = function(t_data, model, formula = NULL){NULL},
                                  type = 'binomial'),
-               paste0("cross_validate_fn(): Got the following error while using ",
+               paste0("Got the following error while using ",
                       "specified 'predict_fn': Error in user_predict_fn(test_data = ",
                       "test_data, model = model, formula = stats::as.formula(formula)): ",
                       "unused argument (test_data = test_data)"),
                fixed = TRUE)
+
+  expect_equal(custom_run_predict_fn(test_data = data.frame(), model = NULL,
+                        model_formula = "",
+                        y_col = "",
+                        user_predict_fn = NULL,
+                        model_specifics = list()),
+               structure(list(prediction = logical(0)),
+                         row.names = integer(0),
+                         class = c("tbl_df",
+                                   "tbl", "data.frame")))
 
 
 })
@@ -223,23 +233,32 @@ test_that("gaussian lm model works with cross_validate_fn()",{
   expect_equal(CVed$Fixed, 'diagnosis')
   expect_equal(CVed$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
-                              Type = character(0), Message = character(0)),
+                              Function = character(0), Type = character(0), Message = character(0)),
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
   # Error when formulas have random effects but lm model
 
   # Cross-validate the model function
-  expect_error(cross_validate_fn(dat,
-                    model_fn = lm_model_fn,
-                    formulas = c("score~diagnosis+(1|session)",
-                                 "score~age+(1|session)"),
-                    type = 'gaussian',
-                    fold_cols = ".folds"),
-               paste0("cross_validate_fn(): simpleWarning in predict.lm(model, ",
-                      "test_data, allow.new.levels = TRUE): prediction from a ",
-                      "rank-deficient fit may be misleading"),
-               fixed = TRUE)
+  warnings_and_messages <- dplyr::bind_rows(
+    suppressWarnings(
+      cross_validate_fn(
+        dat,
+        model_fn = lm_model_fn,
+        formulas = c("score~diagnosis+(1|session)",
+                     "score~age+(1|session)"),
+        type = 'gaussian',
+        fold_cols = ".folds"
+      ))$`Warnings and Messages`)
 
+  expect_equal(warnings_and_messages$`Fold Column`,
+               rep(".folds", 16))
+  expect_equal(warnings_and_messages$Fold,
+               c(1L, 1L, 2L, 2L, 3L, 3L, 4L, 4L,
+                 1L, 1L, 2L, 2L, 3L, 3L, 4L, 4L))
+  expect_equal(warnings_and_messages$Function,
+               rep("predict_fn", 16))
+  expect_equal(warnings_and_messages$Message,
+               rep("prediction from a rank-deficient fit may be misleading", 16))
 
 })
 
@@ -300,7 +319,7 @@ test_that("binomial svm models from e1071 work with cross_validate_fn()",{
   expect_equal(nrow(CVbinomlist$ROC[[1]]),3)
   expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
-                              Type = character(0), Message = character(0)),
+                              Function = character(0), Type = character(0), Message = character(0)),
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
 })
@@ -362,7 +381,7 @@ test_that("gaussian svm models from e1071 work with cross_validate_fn()",{
                rep(NA, 8))
   expect_equal(CVed$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
-                              Type = character(0), Message = character(0)),
+                              Function = character(0), Type = character(0), Message = character(0)),
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
 
@@ -399,7 +418,7 @@ test_that("binomial naiveBayes models from e1071 work with cross_validate_fn()",
                                  type = 'binomial',
                                  predict_type = "raw",
                                  positive = 1),
-               paste0("cross_validate_fn(): When type/family is binomial, ",
+               paste0("When type/family is binomial, ",
                       "the predictions must be a vector or matrix / data frame ",
                       "with one column but was a matrix with 2 columns. ",
                       "Did you specify 'predict_type' or 'predict_fn' correctly?"), fixed = TRUE)
@@ -453,7 +472,7 @@ test_that("binomial naiveBayes models from e1071 work with cross_validate_fn()",
   expect_equal(nrow(CVbinomlist$ROC[[1]]),29)
   expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
-                              Type = character(0), Message = character(0)),
+                              Function = character(0), Type = character(0), Message = character(0)),
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
 })
@@ -518,7 +537,7 @@ test_that("binomial nnet models work with cross_validate_fn()",{
   expect_equal(nrow(CVbinomlist$ROC[[1]]),18)
   expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
-                              Type = character(0), Message = character(0)),
+                              Function = character(0), Type = character(0), Message = character(0)),
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
   expect_equal(CVbinomlist$Predictions[[1]]$Prediction,
@@ -590,7 +609,7 @@ test_that("gaussian nnet models work with cross_validate_fn()",{
                rep(NA, 124))
   expect_equal(CVed$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
-                              Type = character(0), Message = character(0)),
+                              Function = character(0), Type = character(0), Message = character(0)),
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 })
 
@@ -659,7 +678,7 @@ test_that("multinomial nnet models work with cross_validate_fn()",{
 
   expect_equal(CVmultinomlist$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
-                              Type = character(0), Message = character(0)),
+                              Function = character(0), Type = character(0), Message = character(0)),
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
   # Enter sub tibbles
@@ -827,7 +846,7 @@ test_that("binomial randomForest models work with cross_validate_fn()",{
   expect_equal(nrow(CVbinomlist$ROC[[1]]),3)
   expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
-                              Type = character(0), Message = character(0)),
+                              Function = character(0), Type = character(0), Message = character(0)),
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
   # The actual values
@@ -909,7 +928,7 @@ test_that("gaussian randomForest models work with cross_validate_fn()",{
                NA)
   expect_equal(CVed$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
-                              Type = character(0), Message = character(0)),
+                              Function = character(0), Type = character(0), Message = character(0)),
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 })
 
@@ -1307,7 +1326,7 @@ test_that("binomial random predictions work with cross_validate_fn()",{
   expect_equal(nrow(CVrandom$ROC[[1]]),31)
   expect_equal(CVrandom$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
-                              Type = character(0), Message = character(0)),
+                              Function = character(0), Type = character(0), Message = character(0)),
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
   expect_equal(CVrandom$Predictions[[1]]$Prediction,
@@ -1363,7 +1382,7 @@ test_that("gaussian random predictions work with cross_validate_fn()",{
   expect_equal(CVed$Fixed, 'diagnosis')
   expect_equal(CVed$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
-                              Type = character(0), Message = character(0)),
+                              Function = character(0), Type = character(0), Message = character(0)),
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
 })
@@ -1428,7 +1447,7 @@ test_that("multinomial random predictions work with cross_validate_fn()",{
 
   expect_equal(CVmultinomlist$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
-                              Type = character(0), Message = character(0)),
+                              Function = character(0), Type = character(0), Message = character(0)),
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
   # Enter sub tibbles

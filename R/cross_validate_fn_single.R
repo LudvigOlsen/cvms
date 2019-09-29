@@ -113,6 +113,16 @@ cross_validate_fn_single <- function(data, model_fn,
   unknown_warnings <- fold_lists_list %c% 'threw_unknown_warning'
   n_unknown_warns <- sum(unlist(unknown_warnings))
 
+  # Possibly add predict_fn warnings
+  n_prediction_warnings <- tryCatch({
+    sum(unlist(fold_lists_list %c% 'n_prediction_warnings'))
+  }, error = function(e){
+    NULL
+  })
+  if(!is.null(n_prediction_warnings))
+    n_unknown_warns <- n_unknown_warns + n_prediction_warnings
+
+  # Perform evaluation
   model_evaluation <- internal_evaluate(
     data = predictions_and_targets,
     type = evaluation_type,

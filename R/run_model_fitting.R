@@ -160,15 +160,10 @@ run_model_fitting <- function(
     }
   }
 
-  # Add warnings and messages to nested tibble
-  warnings_and_messages <-
-    tibble::tibble("Message" = warnings,
-           "Type" = "warning") %>%
-    dplyr::bind_rows(
-      tibble::tibble("Message" = messages,
-             "Type" = "message")
-    )
-
+  # Create tibble with warnings and messages
+  warnings_and_messages <- create_warnings_and_messages_tibble(warnings = warnings,
+                                                               messages = messages,
+                                                               fn = "model_fn")
 
   # If it threw a message or warning, we want to count that.
   return(

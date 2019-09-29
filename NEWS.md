@@ -1,6 +1,6 @@
-# cvms 0.3.0.9000
+# cvms 0.3.1
 
-* Fixes documentation in cross_validate_fn(). The examples contained an unreasonable number of mistakes :-)
+* Fixes documentation in cross_validate_fn(). The examples section contained an unreasonable number of mistakes :-)
 
 * In `cross_validate_fn()`, warnings and messages from the predict function are now included in 
 `Warnings and Messages`. The warnings are counted in `Other Warnings`.

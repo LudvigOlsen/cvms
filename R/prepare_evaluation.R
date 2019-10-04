@@ -174,7 +174,7 @@ prepare_multinomial_evaluation <- function(data,
   }
 
   data[[new_prediction_col_name]] <- predicted_probabilities %>%
-    nest_probabilities_rowwise()
+    nest_rowwise()
 
   # TODO Do we need to do anything to the dependent column? E.g. make numeric or check against names in prediction_cols?
   # TODO What if the classes are numeric, then what will prediction_cols contain?

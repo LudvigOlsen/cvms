@@ -119,9 +119,9 @@ nest_results <- function(results){
   iter_results
 }
 
-nest_models <- function(models){
+nest_models <- function(model_coefs){
   # Make tidied models into a tibble
-  iter_models <- tibble::as_tibble(models)
+  iter_models <- tibble::as_tibble(model_coefs)
   if ("p.value" %ni% colnames(iter_models)){
     iter_models[["p.value"]] <- NA
   }
@@ -216,7 +216,7 @@ create_fold_and_fold_column_map <- function(data, fold_info_cols){
 check_R_version <- function(){
   major <- as.integer(R.Version()$major)
   minor <- as.numeric(strsplit(R.Version()$minor, ".", fixed = TRUE)[[1]][[1]])
-  list("major"=major, "minor"=minor)
+  list("major" = major, "minor" = minor)
 }
 
 # Skips testthat test, if the R version is below 3.6.0
@@ -400,6 +400,14 @@ legacy_nest <- function(...){
     tidyr::nest_legacy(...)
   } else {
     tidyr::nest(...)
+  }
+}
+
+legacy_unnest <- function(...){
+  if (tidyr_new_interface()){
+    tidyr::unnest_legacy(...)
+  } else {
+    tidyr::unnest(...)
   }
 }
 

@@ -172,7 +172,7 @@ CV1$Coefficients[[1]] %>% kable()
 
 # Additional information about the model
 # and the training process
-CV1 %>% select(11:17) %>% kable()
+CV1 %>% select(11:20) %>% kable()
 
 ```
 

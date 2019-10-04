@@ -48,7 +48,7 @@ create_multinomial_baseline_evaluations <- function(test_data,
     FUN = random_generator_fn,
     apply_softmax = TRUE) %>%
     dplyr::rename_all(~classes) %>%
-    nest_probabilities_rowwise() %>%
+    nest_rowwise() %>%
     split(f = factor(rep(1:reps, each = num_targets)))
 
   # Create data frame with either 1 or 0 probability for a class for all targets
@@ -61,7 +61,7 @@ create_multinomial_baseline_evaluations <- function(test_data,
       dplyr::slice(rep(1:dplyr::n(), each = num_targets)) %>%
       dplyr::mutate_at(dplyr::vars(classes[[cl]]), ~(1-0.000000001))
   }) %>%
-    nest_probabilities_rowwise() %>%
+    nest_rowwise() %>%
     split(f = factor(rep(1:num_classes, each = num_targets)))
 
   # Evaluate the probability tibbles
@@ -368,7 +368,7 @@ all_or_nothing_evaluations <- function(test_data, targets_col, current_class, re
 # Nests all columns rowwise
 # Note: I tried with pmap_dfr and a nest_row function
 # but it was a lot slower
-nest_probabilities_rowwise <- function(data){
+nest_rowwise <- function(data){
   n_cols <- ncol(data)
   tmp_index <- create_tmp_var(data)
   data[[tmp_index]] <- seq_len(nrow(data))

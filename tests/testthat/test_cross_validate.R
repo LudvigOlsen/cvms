@@ -6,6 +6,23 @@ context("cross_validate()")
 # This will allow me to see if something changes, but it shouldn't give false confidence.
 
 
+# test_that("binomial models work with cross_validate()",{
+#
+#   # Load data and fold it
+#   set_seed_for_R_compatibility(1)
+#   dat <- groupdata2::fold(participant.scores, k = 4,
+#                           num_fold_cols = 3,
+#                           cat_col = 'diagnosis',
+#                           id_col = 'participant')
+#
+#   CVbinomlist <- cross_validate(dat,
+#                                 models = c("diagnosis~score", "diagnosis~age"),
+#                                 fold_cols = c('.folds_1','.folds_2','.folds_3'),
+#                                 family = 'binomial',
+#                                 REML = FALSE, model_verbose = FALSE,
+#                                 positive = 1 )
+# })
+
 test_that("binomial models work with cross_validate()",{
 
   # Load data and fold it

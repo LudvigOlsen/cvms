@@ -1,6 +1,3 @@
-# R CMD check NOTE handling
-if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
-
 cross_validate_fn_single <- function(data, model_fn,
                                      evaluation_type = "gaussian",
                                      model_specifics = list(),
@@ -26,7 +23,7 @@ cross_validate_fn_single <- function(data, model_fn,
 
   if (length(fold_cols) > 1){
     # Create a "map" of folds per fold column
-    folds_map_and_n_folds <- create_folds_map(data, fold_cols)
+    folds_map_and_n_folds <- create_folds_map(data, fold_cols) # %>% print()
     folds_map <- folds_map_and_n_folds[["folds_map"]]
     n_folds <- folds_map_and_n_folds[["n_folds"]]
 

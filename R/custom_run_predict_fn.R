@@ -192,7 +192,7 @@ custom_run_predict_fn <- function(test_data,
       predictions <- dplyr::as_tibble(predictions) %>%
         dplyr::mutate_all(~ force_numeric(predictions_vector = .,
                                           caller = model_specifics[["caller"]])) %>%
-        nest_probabilities_rowwise() %>%
+        nest_rowwise() %>%
         tibble::enframe(value = "prediction", name = NULL)
     }
   }

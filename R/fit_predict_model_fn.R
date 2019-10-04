@@ -1,16 +1,24 @@
 # Model function for cross-validating custom model functions like svm, randomForest, etc.
 
-custom_model_fn <- function(train_data,
-                            test_data,
-                            fold_info = list(rel_fold = NULL,
-                                             abs_fold = NULL,
-                                             fold_column = NULL),
-                            model_specifics = list(
-                              model_formula = NULL, family = NULL, link = NULL,
-                              control = NULL, REML = FALSE, positive = 2,
-                              cutoff = 0.5, model_verbose = FALSE, model_fn = NULL,
-                              predict_type = NULL, predict_fn = NULL,
-                              caller = NULL)){
+fit_predict_model_fn <- function(train_data,
+                                 test_data,
+                                 fold_info = list(rel_fold = NULL,
+                                                  abs_fold = NULL,
+                                                  fold_column = NULL),
+                                 model_specifics = list(
+                                   model_formula = NULL,
+                                   family = NULL,
+                                   link = NULL,
+                                   control = NULL,
+                                   REML = NULL,
+                                   positive = 2,
+                                   cutoff = 0.5,
+                                   model_verbose = FALSE,
+                                   model_fn = NULL,
+                                   predict_type = NULL,
+                                   predict_fn = NULL,
+                                   caller = NULL
+                                 )){
 
   # Make sure, a model function was actually passed
   if (is.null(model_specifics[["model_fn"]])){
@@ -21,8 +29,7 @@ custom_model_fn <- function(train_data,
   if (is.null(y_col)) stop("The model formula does not contain a dependent variable.")
 
   # Check if there are random effects (Logical)
-  contains_random_effects <- rand_effects(model_specifics[["model_formula"]])
-
+  contains_random_effects <- rand_effects(model_specifics[["model_formula"]]) # TODO Not used?
   user_predict_fn <- model_specifics[["predict_fn"]]
 
   # Check task/evaluation type
@@ -73,11 +80,12 @@ custom_model_fn <- function(train_data,
     predictions_and_targets = predictions_and_targets,
     model = model,
     warnings_and_messages = warnings_and_messages,
-    threw_singular_fit_message = fitted_model[["threw_singular_fit_message"]],
-    threw_unknown_message = fitted_model[["threw_unknown_message"]],
-    threw_convergence_warning = fitted_model[["threw_convergence_warning"]],
-    threw_unknown_warning = fitted_model[["threw_unknown_warning"]],
-    n_prediction_warnings = prediction_process[["n_unknown_warnings"]]
+    n_singular_fit_messages = sum(fitted_model[["threw_singular_fit_message"]]),
+    n_unknown_messages = sum(fitted_model[["threw_unknown_message"]]),
+    n_convergence_warnings = sum(fitted_model[["threw_convergence_warning"]]),
+    n_unknown_warnings = sum(fitted_model[["threw_unknown_warning"]]),
+    n_prediction_warnings = ifelse(is.null(prediction_process[["n_unknown_warnings"]]), 0,
+                                   prediction_process[["n_unknown_warnings"]])
   )
 }
 

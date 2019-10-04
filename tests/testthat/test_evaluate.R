@@ -968,7 +968,7 @@ test_that("probability nesting works in multinomial evaluate",{
   # Changed to basically do the same as above
   system.time({
   package_nested_probs <- random_probabilities_1 %>%
-    nest_probabilities_rowwise()
+    nest_rowwise()
   })
 
   expect_true(identical(manually_nested_probs,package_nested_probs))

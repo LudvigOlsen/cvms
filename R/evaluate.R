@@ -765,7 +765,7 @@ internal_evaluate <- function(data,
 
   }
 
-  return(results)
+  results
 }
 
 check_args_evaluate <- function(data,

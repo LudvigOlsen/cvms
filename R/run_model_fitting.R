@@ -199,11 +199,8 @@ paste_hparams <- function(hparams){
 
 # Extract hparams, either as list or tibble, or NULL if
 # hparams wasn't passed originally
-extract_hparams <- function(model_specifics, as_list = TRUE){
-  if (isTRUE(as_list))
-    hparams <- unlist(model_specifics[["hparams"]])
-  else
-    hparams <- dplyr::bind_rows(model_specifics[["hparams"]])
+extract_hparams <- function(model_specifics){
+  hparams <- dplyr::bind_rows(model_specifics[["hparams"]])
   if (".__NA__" %in% names(hparams) && length(hparams) == 1){
     return(NULL)
   }

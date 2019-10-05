@@ -3,7 +3,7 @@ custom_cross_validate_list <- function(data,
                                        model_fn,
                                        predict_fn,
                                        preprocess_fn = NULL,
-                                       preprocess_once = TRUE,
+                                       preprocess_once = FALSE,
                                        hyperparameters = NULL,
                                        fold_cols = '.folds',
                                        family = 'gaussian',
@@ -81,6 +81,14 @@ custom_cross_validate_list <- function(data,
   message(paste0("Will cross-validate ", n_models,
                  " models. This requires fitting ",
                  n_model_instances, " model instances."))
+
+  if(isTRUE(preprocess_once)){
+
+    data <- run_preprocess_once(data = data,
+                                computation_grid = computation_grid,
+                                model_specifics = model_specifics,
+                                fold_cols = fold_cols)
+  }
 
   # cross_validate all the models using ldply()
   validated_folds <- plyr::llply(seq_len(nrow(computation_grid)),

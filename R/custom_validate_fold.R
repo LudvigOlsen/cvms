@@ -18,10 +18,22 @@ custom_validate_fold <- function(data,
   }
 
   if (isTRUE(model_specifics[["preprocess_once"]])){
-    print("NOT YET IMPLEMENTED! (preprocess_once)")
-    # Extract train_data, test_data and warnings from data
+
+    # The preprocessing will have happened in the parent function
+    # so we simply need to extract it
+
+    train_test <- fold_info %>%
+      dplyr::as_tibble() %>%
+      dplyr::left_join(data, by = c("fold_column", "abs_fold", "rel_fold"))
+
+    train_data <- train_test[["train"]][[1]]
+    test_data <- train_test[["test"]][[1]]
+    preprocess_warnings_and_messages <- train_test[["warnings_and_messages"]][[1]]
+    preprocess_n_unknown_warnings <- train_test[["n_unknown_warnings"]][[1]]
+
   } else {
 
+    # Subset and preprocess train/test split
     train_test <- prepare_train_test(
       data = data,
       fold_info = fold_info,

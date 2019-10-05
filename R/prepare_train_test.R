@@ -8,22 +8,19 @@ prepare_train_test <- function(data, fold_info, fold_cols, model_specifics){
   test_data <- data_subset[["test"]]
 
   # Preprocess data
-  # TODO Should catch warnings and error here
-  # So probably want to do a wrapper for subsetting and preprocessing?
+
+  # Extract formula and hparams
+  if (isTRUE(model_specifics[["preprocess_once"]])){
+    current_formula <- NULL
+    current_hparams <- NULL
+  } else {
+    current_formula <- model_specifics[["formula"]]
+    current_hparams <- extract_hparams(model_specifics)
+  }
+
   preprocess_fn <- model_specifics[["preprocess_fn"]]
 
   if (!is.null(preprocess_fn)){
-
-    # Extract formula and hparams
-
-    if (isTRUE(model_specifics[["preprocess_once"]])){
-      current_formula <- NULL
-      current_hparams <- NULL
-    } else {
-      current_formula <- model_specifics[["formula"]]
-      current_hparams <- extract_hparams(model_specifics,
-                                         as_list = FALSE)
-    }
 
     # Preprocess
     preprocess_process <- tryCatch({
@@ -43,6 +40,8 @@ prepare_train_test <- function(data, fold_info, fold_cols, model_specifics){
                  fold_info[["fold_column"]],
                  'In fold:',
                  fold_info[["rel_fold"]],
+                 'Hyperparameters:',
+                 paste_hparams(current_hparams),
                  e, sep = "\n"))
     })
 
@@ -83,6 +82,45 @@ prepare_train_test <- function(data, fold_info, fold_cols, model_specifics){
     dplyr::select(dplyr::one_of(
       c("Fold Column", "Fold", "Function", "Type", "Message")))
 
+  # Message the caught messages to the user
+  for (m in messages){
+
+    # purrr::quietly adds \n to end of messages, which we're not interested in here
+    m <- gsub('\\\n$', '', m)
+
+    message(paste('',
+                  '-----------------------------',
+                  paste0(model_specifics[["caller"]], ': Message:'),
+                  'In formula:',
+                  current_formula,
+                  'For fold column:',
+                  fold_info[["fold_column"]],
+                  'In fold:',
+                  fold_info[["rel_fold"]],
+                  'Hyperparameters:',
+                  paste_hparams(current_hparams),
+                  m, sep = "\n"))
+  }
+
+  # Throw the caught warnings
+  for(w in warnings){
+
+    warning(paste('',
+                  '---------------------------------------',
+                  paste0(model_specifics[["caller"]], ': Warning:'),
+                  'In formula:',
+                  current_formula,
+                  'For fold column:',
+                  fold_info[["fold_column"]],
+                  'In fold:',
+                  fold_info[["rel_fold"]],
+                  'Hyperparameters:',
+                  paste_hparams(current_hparams),
+                  w, sep = "\n"))
+
+  }
+
+
   list("train" = train_data,
        "test" = test_data,
        "warnings_and_messages" = warnings_and_messages,
@@ -90,6 +128,54 @@ prepare_train_test <- function(data, fold_info, fold_cols, model_specifics){
 }
 
 
+run_preprocess_once <- function(data,
+                                computation_grid,
+                                model_specifics,
+                                fold_cols){
+
+  # Extract fold grid for model 1
+  fold_grid_model_1 <- computation_grid %>%
+    dplyr::filter(model == 1) %>%
+    dplyr::select(dplyr::one_of(c("fold_col_name","rel_fold","abs_fold")))
+
+  # Subset and preprocess each train/test split
+  # Nest each split
+  data <- plyr::ldply(fold_grid_model_1[["abs_fold"]], function(a_f){
+
+    # Extract current fold info
+    current_fold_info <- fold_grid_model_1 %>%
+      dplyr::filter(.data$abs_fold == a_f)
+
+    # Subset and preprocess train/test splits
+    train_test <- prepare_train_test(
+      data = data,
+      fold_info = list("rel_fold" = current_fold_info[["rel_fold"]],
+                       "fold_column" = current_fold_info[["fold_col_name"]]),
+      fold_cols = fold_cols,
+      model_specifics = model_specifics)
+
+    extract_and_nest <- function(train_test, element){
+      train_test[[element]] %>%
+        legacy_nest(seq_len(ncol(train_test[[element]]))) %>%
+        dplyr::pull(.data$data)
+    }
+
+    # Extract train and test sets
+    # Nest both and add to tibble
+    tibble::tibble("train" = extract_and_nest(train_test, "train"),
+                   "test" = extract_and_nest(train_test, "test"),
+                   "warnings_and_messages" = extract_and_nest(train_test, "warnings_and_messages"),
+                   "n_unknown_warnings" = train_test[["n_unknown_warnings"]],
+                   "abs_fold" = a_f,
+                   "rel_fold" = current_fold_info[["rel_fold"]],
+                   "fold_column" = current_fold_info[["fold_col_name"]])
+
+  }) %>% dplyr::as_tibble()
+
+
+  data
+
+}
 
 
 subset_data <- function(data, fold_info, fold_cols){

@@ -3,8 +3,7 @@ custom_fit_model <- function(model_specifics, train_set){
   # Extract arguments from model_specifics
   model_formula <- model_specifics[["model_formula"]]
   model_fn <- model_specifics[["model_fn"]]
-  hparams <- extract_hparams(model_specifics,
-                             as_list = FALSE)
+  hparams <- extract_hparams(model_specifics)
 
   # Some model types don't accept string formulas
   # so we convert it to an actual formula object

@@ -426,10 +426,13 @@ test_that("gaussian svm models with hparams and preprocessing work with cross_va
     warning("This is a preprocess_fn warning")
     message("This is a preprocess_fn message")
 
-    # Get center and scaling parameters
+    # Get center parameters
     # from the train_data
+    # Note that scaling seems to make the model converge to the same results
+    # for every hparams combination, which is great but we
+    # prefer differences in our tests
     preprocess_params <- caret::preProcess(train_data,
-                                           method = c("center", "scale"))
+                                           method = c("center"))
 
     train_data <- predict(preprocess_params, train_data)
     test_data <- predict(preprocess_params, test_data)

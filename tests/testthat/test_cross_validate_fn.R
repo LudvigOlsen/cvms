@@ -338,7 +338,7 @@ test_that("gaussian svm models from e1071 work with cross_validate_fn()",{
                           cat_col = 'diagnosis',
                           id_col = 'participant')
 
-  svm_model_fn <- function(train_data, formula){
+  svm_model_fn <- function(train_data, formula, hyperparameters){
 
     e1071::svm(formula = formula, # converted to formula object within custom_fit_model()
                data = train_data,
@@ -490,7 +490,6 @@ test_that("gaussian svm models with hparams and preprocessing work with cross_va
 
 
 })
-
 
 test_that("binomial naiveBayes models from e1071 work with cross_validate_fn()",{
 

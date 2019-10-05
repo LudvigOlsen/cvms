@@ -17,7 +17,6 @@
 #'  Note that some metrics may not be computable for all types
 #'  of model objects.
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
-#' @author Benjamin Hugh Zachariae
 #' @export
 #' @family validation functions
 #' @inheritParams cross_validate

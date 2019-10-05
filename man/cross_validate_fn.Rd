@@ -90,17 +90,21 @@ cross_validate_fn(data, formulas, model_fn, predict_fn,
 
  \verb{     }\code{"test" = test_data)}
 
- N.B. When \code{preprocess_once} is FALSE, the current formula and hyperparameters will be provided. Otherwise,
+ N.B. When \code{preprocess_once} is FALSE, the current formula and
+ hyperparameters will be provided. Otherwise,
  these arguments will be \code{NULL}.}
 
 \item{preprocess_once}{Whether to apply the preprocessing once
- (ignoring the formula and hyperparameters arguments in \code{preprocess_fn}) or for every model separately.
+ (ignoring the formula and hyperparameters arguments in \code{preprocess_fn})
+ or for every model separately. (Logical)
 
- When preprocessing does not depend on the current formula or hyperparameters, we can do the preprocessing
- of each train/test split once, to save time. This \strong{may require holding a lot more data in memory} though, why
+ When preprocessing does not depend on the current formula or hyperparameters,
+ we can do the preprocessing of each train/test split once, to save time.
+ This \strong{may require holding a lot more data in memory} though, why
  why it is not the default setting.}
 
-\item{hyperparameters}{List of hyperparameter values to cross-validate. Every combination will be created.
+\item{hyperparameters}{List of hyperparameter values to cross-validate.
+Every combination will be created.
 
  Add \code{".n"} to sample the combinations. Can be the number of combinations to use,
  or a percentage between \code{0} and \code{1}.
@@ -489,7 +493,5 @@ Other validation functions: \code{\link{cross_validate}},
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
-
-Benjamin Hugh Zachariae
 }
 \concept{validation functions}

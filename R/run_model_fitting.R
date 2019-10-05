@@ -44,6 +44,7 @@ run_model_fitting <- function(
       model_fitting_fn(model_specifics, train_data)
     }))
   }, error = function(e){
+
     stop(paste('',
                '-------------------------------------',
                paste0(caller, ': Error:'),
@@ -53,6 +54,8 @@ run_model_fitting <- function(
                fold_column,
                'In fold:',
                rel_fold,
+               "Hyperparameters:",
+               paste_hparams(extract_hparams(model_specifics)),
                e, sep = "\n"))
   })
 
@@ -84,6 +87,8 @@ run_model_fitting <- function(
                     fold_column,
                     'In fold:',
                     rel_fold,
+                    "Hyperparameters:",
+                    paste_hparams(extract_hparams(model_specifics)),
                     m, sep = "\n"))
 
       threw_singular_message <- TRUE
@@ -102,6 +107,8 @@ run_model_fitting <- function(
                     fold_column,
                     'In fold:',
                     rel_fold,
+                    "Hyperparameters:",
+                    paste_hparams(extract_hparams(model_specifics)),
                     m, sep = "\n"))
     }
   }
@@ -132,6 +139,8 @@ run_model_fitting <- function(
                     fold_column,
                     'In fold:',
                     rel_fold,
+                    "Hyperparameters:",
+                    paste_hparams(extract_hparams(model_specifics)),
                     w, sep = "\n"))
 
       threw_convergence_warning <- TRUE
@@ -154,6 +163,8 @@ run_model_fitting <- function(
                     fold_column,
                     'In fold:',
                     rel_fold,
+                    "Hyperparameters:",
+                    paste_hparams(extract_hparams(model_specifics)),
                     w, sep = "\n"))
 
       threw_unknown_warning <- TRUE
@@ -177,4 +188,24 @@ run_model_fitting <- function(
     )
   )
 
+}
+
+paste_hparams <- function(hparams){
+  if (is.null(hparams)){
+    return("")
+  }
+  paste(names(hparams), hparams, sep = " : ", collapse = ", ")
+}
+
+# Extract hparams, either as list or tibble, or NULL if
+# hparams wasn't passed originally
+extract_hparams <- function(model_specifics, as_list = TRUE){
+  if (isTRUE(as_list))
+    hparams <- unlist(model_specifics[["hparams"]])
+  else
+    hparams <- dplyr::bind_rows(model_specifics[["hparams"]])
+  if (".__NA__" %in% names(hparams) && length(hparams) == 1){
+    return(NULL)
+  }
+  hparams
 }

@@ -113,6 +113,7 @@ custom_run_predict_fn <- function(test_data,
 
     } else {
 
+      # TODO Remove this part !!!!!!!!!!!!!!
       # Use default predict function
       predictions <- internal_predict_fn(
         model = model,
@@ -135,7 +136,7 @@ custom_run_predict_fn <- function(test_data,
           stop(paste0("When type/family is ", model_specifics[["family"]],
                       ", the predictions must be a vector or matrix / data frame with one column but was a matrix with ",
                       ncol(predictions), " columns. ",
-                      "Did you specify 'predict_type' or 'predict_fn' correctly?"))
+                      "Did you specify 'predict_fn' correctly?"))
         }
 
         # Convert column to vector then tibble
@@ -149,7 +150,7 @@ custom_run_predict_fn <- function(test_data,
           stop(paste0("When type/family is ", model_specifics[["family"]],
                       ", the predictions must be a vector or matrix / data frame with one column but was a data frame with ",
                       ncol(predictions), " columns. ",
-                      "Did you specify 'predict_type' or 'predict_fn' correctly?"))
+                      "Did you specify 'predict_fn' correctly?"))
         }
 
         # Make sure the data frame has the correct column name
@@ -165,7 +166,7 @@ custom_run_predict_fn <- function(test_data,
                           name = NULL)
         }, error = function(e){
           stop(paste0("Could not use the obtained predictions. ",
-                      "Did you specify 'predict_type' or 'predict_fn' correctly? ",
+                      "Did you specify 'predict_fn' correctly? ",
                       "The original error was: ", e))
         })
 
@@ -220,6 +221,8 @@ force_numeric <- function(predictions_vector, caller = ""){
   predictions_vector
 }
 
+# TODO Dont use this for cross_validate_fn. Perhaps for baseline? Probably still
+# better to use the common api about to be created?
 internal_predict_fn <- function(model, test_data, family, predict_type = NULL, caller = ""){
   # If predict_type is specified by user
   if (!is.null(predict_type)){

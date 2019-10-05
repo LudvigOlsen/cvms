@@ -5,8 +5,10 @@ custom_update_model_specifics <- function(model_specifics){
   check_argument_in_model_specifics("family", model_specifics)
   check_argument_in_model_specifics("model_fn", model_specifics)
   check_argument_in_model_specifics("caller", model_specifics)
-  check_argument_in_model_specifics("predict_type", model_specifics)
   check_argument_in_model_specifics("predict_fn", model_specifics)
+  check_argument_in_model_specifics("preprocess_fn", model_specifics)
+  check_argument_in_model_specifics("preprocess_once", model_specifics)
+  check_argument_in_model_specifics("hparams", model_specifics)
 
 
   # These args should be NULL in custom
@@ -29,7 +31,6 @@ custom_update_model_specifics <- function(model_specifics){
       ", family = ", model_specifics[["family"]],
       ", positive = ", model_specifics[["positive"]],
       ", cutoff = ", model_specifics[["cutoff"]],
-      ", predict_type = ", model_specifics[["predict_type"]],
       ", predict_fn = ", capture_fn(model_specifics[["predict_fn"]]),",",
       ", model_verbose = ", model_specifics[["model_verbose"]],
       ", model_fn = ", capture_fn(model_specifics[["model_fn"]]),",",

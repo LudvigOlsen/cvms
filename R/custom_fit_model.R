@@ -3,6 +3,8 @@ custom_fit_model <- function(model_specifics, train_set){
   # Extract arguments from model_specifics
   model_formula <- model_specifics[["model_formula"]]
   model_fn <- model_specifics[["model_fn"]]
+  hparams <- extract_hparams(model_specifics,
+                             as_list = FALSE)
 
   # Some model types don't accept string formulas
   # so we convert it to an actual formula object
@@ -10,6 +12,6 @@ custom_fit_model <- function(model_specifics, train_set){
     model_formula <- stats::as.formula(model_formula)
 
   model_fn(formula = model_formula,
-           train_data = train_set)
-
+           train_data = train_set,
+           hyperparameters = hparams)
 }

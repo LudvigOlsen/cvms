@@ -4,24 +4,17 @@
 \alias{cross_validate_fn}
 \title{Cross-validate custom model functions for model selection}
 \usage{
-cross_validate_fn(data, model_fn, formulas, fold_cols = ".folds",
-  type = "gaussian", cutoff = 0.5, positive = 2,
-  predict_type = NULL, predict_fn = NULL, metrics = list(),
-  rm_nc = FALSE, parallel = FALSE)
+cross_validate_fn(data, formulas, model_fn, predict_fn,
+  preprocess_fn = NULL, preprocess_once = FALSE,
+  hyperparameters = NULL, fold_cols = ".folds", type = "gaussian",
+  cutoff = 0.5, positive = 2, metrics = list(), rm_nc = FALSE,
+  parallel = FALSE)
 }
 \arguments{
 \item{data}{Data frame.
 
  Must include grouping factor for identifying folds
   - as made with \code{\link[groupdata2:fold]{groupdata2::fold()}}.}
-
-\item{model_fn}{Model function that returns a fitted model object.
- Will usually wrap an existing model function like \code{\link[e1071:svm]{e1071::svm}}
- or \code{\link[nnet:multinom]{nnet::multinom}}.
-
- Must have the following function arguments:
-
- \code{function(train_data, formula)}}
 
 \item{formulas}{Model formulas as strings. (Character)
 
@@ -33,6 +26,94 @@ cross_validate_fn(data, model_fn, formulas, fold_cols = ".folds",
  Can contain random effects.
 
  E.g. \code{c("y~x+(1|r)", "y~z+(1|r)")}.}
+
+\item{model_fn}{Model function that returns a fitted model object.
+ Will usually wrap an existing model function like \code{\link[e1071:svm]{e1071::svm}}
+ or \code{\link[nnet:multinom]{nnet::multinom}}.
+
+ Must have the following function arguments:
+
+ \code{function(train_data, formula, hyperparameters)}}
+
+\item{predict_fn}{Function for predicting the targets in the test folds using the fitted model object.
+ Will usually wrap \code{\link[stats:predict]{stats::predict()}}, but doesn't have to.
+
+ Must have the following function arguments:
+
+ \code{function(test_data, model, formula)}
+
+ Must return predictions in the following formats, depending on \code{type}:
+
+ \subsection{Binomial}{
+ Vector or one-column matrix / data frame with probabilities (0-1)
+ of the second class, alphabetically.
+ E.g.:
+
+ \code{c(0.3, 0.5, 0.1, 0.5)}
+ }
+
+ \subsection{Gaussian}{
+ Vector or one-column matrix / data frame with the predicted value.
+ E.g.:
+
+ \code{c(3.7, 0.9, 1.2, 7.3)}
+ }
+
+ \subsection{Multinomial}{
+ Data frame with one column per class containing probabilities of the class.
+ Column names should be identical to how the class names are written in the target column.
+ E.g.:
+
+ \tabular{rrr}{
+  \strong{class_1} \tab \strong{class_2} \tab
+  \strong{class_3} \cr
+  0.269 \tab 0.528 \tab 0.203\cr
+  0.368 \tab 0.322 \tab 0.310\cr
+  0.375 \tab 0.371 \tab 0.254\cr
+  ... \tab ... \tab ...}
+ }}
+
+\item{preprocess_fn}{Function for preprocessing the training and test sets.
+
+ Can, for instance, be used to standardize both the training and test sets with the scaling and centering parameters
+ from the training set.
+
+ Must have the following function arguments:
+
+ \code{function(train_data, test_data,}
+
+ \verb{         }\code{formula, hyperparameters)}
+
+ Must return a list with the preprocessed \code{train_data} and the \code{test_data}:
+
+ \code{list("train" = train_data,}
+
+ \verb{     }\code{"test" = test_data)}
+
+ N.B. When \code{preprocess_once} is FALSE, the current formula and hyperparameters will be provided. Otherwise,
+ these arguments will be \code{NULL}.}
+
+\item{preprocess_once}{Whether to apply the preprocessing once
+ (ignoring the formula and hyperparameters arguments in \code{preprocess_fn}) or for every model separately.
+
+ When preprocessing does not depend on the current formula or hyperparameters, we can do the preprocessing
+ of each train/test split once, to save time. This \strong{may require holding a lot more data in memory} though, why
+ why it is not the default setting.}
+
+\item{hyperparameters}{List of hyperparameter values to cross-validate. Every combination will be created.
+
+ Add \code{".n"} to sample the combinations. Can be the number of combinations to use,
+ or a percentage between \code{0} and \code{1}.
+
+ E.g.
+
+ \code{list(".n" = 10,  # sample 10 combinations}
+
+ \verb{     }\code{"lrn_rate" = c(0.1, 0.01, 0.001),}
+
+ \verb{     }\code{"h_layers" = c(10, 100, 1000),}
+
+ \verb{     }\code{"drop_out" = runif(5, 0.3, 0.7))}}
 
 \item{fold_cols}{Name(s) of grouping factor(s) for identifying folds. (Character)
 
@@ -61,51 +142,6 @@ cross_validate_fn(data, model_fn, formulas, fold_cols = ".folds",
  N.B. Only affects evaluation metrics, not the model training or returned predictions.
 
  N.B. \strong{Binomial models only}.}
-
-\item{predict_type}{The \code{type} argument for \code{\link[stats:predict]{predict()}}.
-
- When the defaults fail, provide it such that the \code{\link[stats:predict]{predict()}}
- output is as follows:
-
- \subsection{Binomial}{
- Vector or one-column matrix / data frame with probabilities (0-1).
- E.g.:
-
- \code{c(0.3, 0.5, 0.1, 0.5)}
- }
-
- \subsection{Gaussian}{
- Vector or one-column matrix / data frame with the predicted value.
- E.g.:
-
- \code{c(3.7, 0.9, 1.2, 7.3)}
- }
-
- \subsection{Multinomial}{
- Data frame with one column per class containing probabilities of the class.
- Column names should be identical to how the class names are written in the target column.
- E.g.:
-
- \tabular{rrr}{
-  \strong{class_1} \tab \strong{class_2} \tab
-  \strong{class_3} \cr
-  0.269 \tab 0.528 \tab 0.203\cr
-  0.368 \tab 0.322 \tab 0.310\cr
-  0.375 \tab 0.371 \tab 0.254\cr
-  ... \tab ... \tab ...}
-
- N.B. \code{predict_fn} and \code{predict_type} are mutually exclusive. Specify only one of them.
- }}
-
-\item{predict_fn}{Function for predicting the targets in the test folds using the fitted model object.
- Will usually wrap \code{\link[stats:predict]{predict()}}, but doesn't have to.
- Must return predictions in the format described in \code{predict_type} above.
-
- Must have the following function arguments:
-
- \code{function(test_data, model, formula = NULL)}
-
- N.B. \code{predict_fn} and \code{predict_type} are mutually exclusive. Specify only one of them.}
 
 \item{metrics}{List for enabling/disabling metrics.
 

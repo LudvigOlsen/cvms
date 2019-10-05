@@ -492,7 +492,7 @@ rcmd_import_handler <- function(){
 
 # Wraps dplyr::as_tibble()
 # If x is NULL, returns NULL
-to_tibble <- function(x, x_name, caller=""){
+to_tibble <- function(x, x_name, caller = ""){
   if (!is.null(x)){
     x <- tryCatch({
       dplyr::as_tibble(x)

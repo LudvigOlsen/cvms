@@ -1,12 +1,14 @@
 custom_cross_validate_list <- function(data,
                                        formulas,
                                        model_fn,
+                                       predict_fn,
+                                       preprocess_fn = NULL,
+                                       preprocess_once = TRUE,
+                                       hyperparameters = NULL,
                                        fold_cols = '.folds',
                                        family = 'gaussian',
                                        cutoff = 0.5,
                                        positive = 2,
-                                       predict_type = NULL,
-                                       predict_fn = NULL,
                                        metrics = list(),
                                        rm_nc = FALSE,
                                        model_verbose = FALSE,
@@ -21,10 +23,6 @@ custom_cross_validate_list <- function(data,
 
   data <- dplyr::as_tibble(data) %>%
     dplyr::ungroup()
-
-  if (!is.null(predict_type) && !is.null(predict_fn)){
-    stop("cross_validate_fn(): Both 'predict_type' and 'predict_fn' were specified. Please specify only one of them.")
-  }
 
   # Check metrics
   check_metrics_list(metrics)
@@ -58,8 +56,9 @@ custom_cross_validate_list <- function(data,
     positive = positive,
     model_verbose = model_verbose,
     model_fn = model_fn,
-    predict_type = predict_type,
     predict_fn = predict_fn,
+    preprocess_fn = preprocess_fn,
+    preprocess_once = preprocess_once,
     hparams = NULL,
     caller = "cross_validate_fn()"
   ) %>%
@@ -68,12 +67,9 @@ custom_cross_validate_list <- function(data,
   ## Create computational grid
 
   computation_grid <- create_computation_grid(data = data,
-                                              hparams = list("a" = c(-1, 0, 1),
-                                                             "b" = 7,
-                                                             "c" = c(5, 2, 4, 5)),
+                                              hparams = hyperparameters,
                                               formulas = formulas,
-                                              fold_cols = fold_cols,
-                                              n_hparam_combinations = NULL)
+                                              fold_cols = fold_cols)
 
   n_models <- length(unique(computation_grid[["model"]]))
   n_model_instances <- nrow(computation_grid)
@@ -282,9 +278,14 @@ custom_cross_validate_list <- function(data,
 
   # We put the two data frames together
   output <- dplyr::bind_cols(cross_validations_results,
-                             mixed_effects) %>%
-    tibble::add_column("HParams" = hparams,
-                       .before = names(cross_validations_results)[1])
+                             mixed_effects)
+
+  if (!is.null(hyperparameters)){
+    output <- output %>%
+      tibble::add_column("HParams" = hparams,
+                         .before = "Dependent")
+  }
+
 
   # If asked to remove non-converged models from output
   if (isTRUE(rm_nc)){

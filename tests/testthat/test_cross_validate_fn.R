@@ -99,7 +99,7 @@ test_that("binomial glm model works with cross_validate_fn()",{
                paste0("When type/family is binomial, the predictions must ",
                       "be a vector or matrix / data frame with one column ",
                       "but was a data frame with 2 columns. Did you specify",
-                      " 'predict_type' or 'predict_fn' correctly?"),
+                      " 'predict_fn' correctly?"),
                fixed = TRUE)
 
   expect_error(cross_validate_fn(dat,
@@ -117,7 +117,7 @@ test_that("binomial glm model works with cross_validate_fn()",{
                                  predict_fn = function(test_data, model, formula = NULL){lm},
                                  type = 'binomial'),
                paste0("Could not use the obtained predictions. ",
-                      "Did you specify 'predict_type' or 'predict_fn' correctly? ",
+                      "Did you specify 'predict_fn' correctly? ",
                       "The original error was: Error in as.vector(x, mode): cannot coerce ",
                       "type 'closure' to vector of type 'any'"),
                fixed = TRUE)
@@ -126,7 +126,6 @@ test_that("binomial glm model works with cross_validate_fn()",{
                                  formulas = c("diagnosis~score","diagnosis~age"),
                                  fold_cols = '.folds',
                                  predict_fn = NULL,
-                                 predict_type = "lol",
                                  type = 'binomial'),
                paste0("Could not use the specified 'predict_type.' ",
                       "Try changing 'predict_type' or pass a custom 'predict_fn'. ",
@@ -205,15 +204,20 @@ test_that("gaussian lm model works with cross_validate_fn()",{
                           cat_col = 'diagnosis',
                           id_col = 'participant')
 
-  lm_model_fn <- function(train_data, formula){
+  lm_model_fn <- function(train_data, formula, hyperparameters){
     lm(formula = formula, data = train_data)
   }
   # summary(lmm <- lm_model_fn(dat, "score ~ diagnosis"))
   # MuMIn::AICc(lmm, REML = F) # The one used in the package
 
+  lm_predict_fn <- function(test_data, model, formula){
+    stats::predict(model, test_data, allow.new.levels = TRUE)
+  }
+
   # Cross-validate the data
   CVed <- cross_validate_fn(dat,
                             model_fn = lm_model_fn,
+                            predict_fn = lm_predict_fn,
                             formulas = "score~diagnosis",
                             fold_cols = '.folds',
                             type = 'gaussian')
@@ -324,7 +328,6 @@ test_that("binomial svm models from e1071 work with cross_validate_fn()",{
 
 })
 
-
 test_that("gaussian svm models from e1071 work with cross_validate_fn()",{
 
   # skip_test_if_old_R_version()
@@ -386,6 +389,105 @@ test_that("gaussian svm models from e1071 work with cross_validate_fn()",{
 
 
 })
+
+test_that("gaussian svm models with hparams and preprocessing work with cross_validate_fn()",{
+
+  # skip_test_if_old_R_version()
+
+  # Load data and fold it
+  set_seed_for_R_compatibility(1)
+  dat <- groupdata2::fold(participant.scores, k = 4,
+                          cat_col = 'diagnosis',
+                          id_col = 'participant')
+
+  svm_model_fn <- function(train_data, formula, hyperparameters){
+
+    warning("This is a model_fn warning")
+    message("This is a model_fn message")
+    e1071::svm(formula = formula, # converted to formula object within custom_fit_model()
+               data = train_data,
+               kernel = hyperparameters[["kernel"]],
+               cost = hyperparameters[["cost"]],
+               scale = FALSE,
+               type = "eps-regression")
+  }
+
+  svm_predict_fn <- function(test_data, model, formula){
+
+    warning("This is a predict_fn warning")
+    message("This is a predict_fn message")
+
+    stats::predict(model, test_data, allow.new.levels = TRUE)
+  }
+
+  svm_preprocess_fn <- function(train_data, test_data, formula, hyperparameters){
+
+    # Test that warnings and messages are caught
+    warning("This is a preprocess_fn warning")
+    message("This is a preprocess_fn message")
+
+    # Get center and scaling parameters
+    # from the train_data
+    preprocess_params <- caret::preProcess(train_data,
+                                           method = c("center", "scale"))
+
+    train_data <- predict(preprocess_params, train_data)
+    test_data <- predict(preprocess_params, test_data)
+
+    list("train" = train_data,
+         "test" = test_data)
+  }
+
+  hparams <- list(".n" = 5,
+                  "kernel" = c("linear", "polynomial", "sigmoid"),
+                  "cost" = c(1, 5, 10))
+
+  # Cross-validate the data
+  CVed <- cross_validate_fn(dat,
+                            model_fn = svm_model_fn,
+                            predict_fn = svm_predict_fn,
+                            preprocess_fn = svm_preprocess_fn,
+                            preprocess_once = FALSE, # TODO Try with TRUE as well
+                            hyperparameters = hparams,
+                            formulas = "score~diagnosis",
+                            fold_cols = '.folds',
+                            type = 'gaussian')
+
+  expect_equal(CVed$RMSE, 18.01026, tolerance=1e-3)
+  expect_equal(CVed$MAE, 15.27778, tolerance=1e-3)
+  expect_equal(CVed$r2m, NaN, tolerance=1e-3)
+  expect_equal(CVed$r2c, NaN, tolerance=1e-3)
+  expect_equal(CVed$AIC, NaN, tolerance=1e-3)
+  expect_equal(CVed$AICc, NaN, tolerance=1e-3)
+  expect_equal(CVed$BIC, NaN, tolerance=1e-3)
+  expect_equal(CVed$Folds, 4)
+  expect_equal(CVed$`Fold Columns`, 1)
+  expect_equal(CVed$`Convergence Warnings`, 0)
+  expect_equal(CVed$Family, 'gaussian')
+  expect_equal(CVed$Dependent, 'score')
+  expect_equal(CVed$Fixed, 'diagnosis')
+
+  expect_equal(colnames(CVed$Coefficients[[1]]),
+               c("term", "estimate", "Fold",
+                 "Fold Column", "p.value"))
+  expect_equal(CVed$Coefficients[[1]]$term,
+               rep(c("(Intercept)","diagnosis"), 4))
+  expect_equal(CVed$Coefficients[[1]]$estimate,
+               c(40.1, -10, 50.1, -20, 40.1, -10, 45, -10))
+  expect_equal(CVed$Coefficients[[1]]$Fold,
+               c(1L, 1L, 2L, 2L, 3L, 3L, 4L, 4L))
+  expect_equal(CVed$Coefficients[[1]]$`Fold Column`,
+               rep(".folds", 8))
+  expect_equal(CVed$Coefficients[[1]]$p.value,
+               rep(NA, 8))
+  expect_equal(CVed$`Warnings and Messages`[[1]],
+               structure(list(`Fold Column` = character(0), Fold = integer(0),
+                              Function = character(0), Type = character(0), Message = character(0)),
+                         row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
+
+
+})
+
 
 test_that("binomial naiveBayes models from e1071 work with cross_validate_fn()",{
 

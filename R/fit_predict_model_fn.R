@@ -15,7 +15,6 @@ fit_predict_model_fn <- function(train_data,
                                    cutoff = 0.5,
                                    model_verbose = FALSE,
                                    model_fn = NULL,
-                                   predict_type = NULL,
                                    predict_fn = NULL,
                                    caller = NULL
                                  )){

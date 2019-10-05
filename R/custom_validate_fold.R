@@ -17,12 +17,23 @@ custom_validate_fold <- function(data,
     model_specifics <- model_specifics_update_fn(model_specifics)
   }
 
-  # Extract train and test sets
-  data_subset <- subset_data(data = data,
-                             fold_info = fold_info,
-                             fold_cols = fold_cols)
-  train_data <- data_subset[["train"]]
-  test_data <- data_subset[["test"]]
+  if (isTRUE(model_specifics[["preprocess_once"]])){
+    print("NOT YET IMPLEMENTED! (preprocess_once)")
+    # Extract train_data, test_data and warnings from data
+  } else {
+
+    train_test <- prepare_train_test(
+      data = data,
+      fold_info = fold_info,
+      fold_cols = fold_cols,
+      model_specifics = model_specifics)
+
+    train_data <- train_test[["train"]]
+    test_data <- train_test[["test"]]
+    preprocess_warnings_and_messages <- train_test[["warnings_and_messages"]]
+    preprocess_n_unknown_warnings <- train_test[["n_unknown_warnings"]]
+
+  }
 
   # Fit model, predict test set, and collect warnings
   fitted_model_process <- fit_predict_model_fn(
@@ -40,7 +51,8 @@ custom_validate_fold <- function(data,
     dplyr::mutate(model_was_null = is.null(model))
 
   # Extract warnings and messages
-  warnings_and_messages <- fitted_model_process[["warnings_and_messages"]]
+  warnings_and_messages <- fitted_model_process[["warnings_and_messages"]] %>%
+    dplyr::bind_rows(preprocess_warnings_and_messages)
 
   # Nest warnings and messages tibble
   nested_warnings_and_messages <- warnings_and_messages %>%
@@ -61,7 +73,8 @@ custom_validate_fold <- function(data,
     mutate(`Convergence Warnings` = fitted_model_process[['n_convergence_warnings']],
            `Singular Fit Messages` = fitted_model_process[['n_singular_fit_messages']],
            `Other Warnings` = fitted_model_process[['n_unknown_warnings']] +
-             fitted_model_process[['n_prediction_warnings']],
+             fitted_model_process[['n_prediction_warnings']] +
+             preprocess_n_unknown_warnings,
            `Warnings and Messages` = nested_warnings_and_messages)
 
   # TODO: These should be added in parent
@@ -74,27 +87,3 @@ custom_validate_fold <- function(data,
 }
 
 
-subset_data <- function(data, fold_info, fold_cols){
-
-  # Important to ensure it is character instead of factor
-  # As that will match the rel_fold with the level index column instead
-  current_fold_column <- as.character(fold_info[["fold_column"]])
-
-  # Create training set for this iteration
-  train_data <- data[data[[current_fold_column]] != fold_info[["rel_fold"]],]
-  # Create test set for this iteration
-  test_data <- data[data[[current_fold_column]] == fold_info[["rel_fold"]],]
-
-  # Remove folds column(s) from subsets, so we can use "y ~ ." method
-  # when defining the model formula.
-  train_data <- train_data %>%
-    dplyr::ungroup() %>%
-    dplyr::select(-dplyr::one_of(fold_cols))
-
-  test_data <- test_data %>%
-    dplyr::ungroup() %>%
-    dplyr::select(-dplyr::one_of(fold_cols))
-
-  list("train" = train_data,
-       "test" = test_data)
-}

@@ -1,6 +1,21 @@
+# cvms 0.3.1.9000
+
+* Breaking change: In `cross_validate_fn()`, the `predict_type` argument is removed. You now have to pass a predict function,
+as that is safer and more transparent.
+
+* Adds optional `hyperparameter` argument to `cross_validate_fn()`. Pass a list of hyperparameters and 
+every combination of these will be cross-validated. 
+
+* Adds optional `preprocess_fn` argument to `cross_validate_fn()`. This can, for instance, be used to standardize the training and test sets within the function. E.g., by extracting the scaling and centering parameters from the training set and apply them to both the training set and the test fold.
+
+* Adds `preprocess_once` argument to `cross_validate_fn()`. When preprocessing does not depend on the current formula or hyperparameters, we might as well perform it on each train/test split once, instead of for every model.
+
+* Warnings and messages from preprocess_fn are caught and added to `Warnings and Messages`. 
+Warnings are counted in `Other Warnings`.
+
 # cvms 0.3.1
 
-* Fixes documentation in cross_validate_fn(). The examples section contained an unreasonable number of mistakes :-)
+* Fixes documentation in `cross_validate_fn()`. The examples section contained an unreasonable number of mistakes :-)
 
 * In `cross_validate_fn()`, warnings and messages from the predict function are now included in 
 `Warnings and Messages`. The warnings are counted in `Other Warnings`.

@@ -67,6 +67,8 @@ example_preprocess_functions <- function(name){
       list("train" = train_data,
            "test" = test_data)
     }
+  } else {
+    stop(paste0("Could not find '", name, "'."))
   }
 
   preprocess_fn

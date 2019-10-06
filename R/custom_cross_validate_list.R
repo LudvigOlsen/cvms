@@ -24,6 +24,13 @@ custom_cross_validate_list <- function(data,
   data <- dplyr::as_tibble(data) %>%
     dplyr::ungroup()
 
+  # Get evaluation type
+  if (family %in% c("gaussian", "binomial", "multinomial")){
+    evaluation_type <- family
+  } else {
+    stop(paste0("Only 'gaussian', 'binomial', and 'multinomial' ",
+                "evaluation types are currently allowed."))}
+
   # Check metrics
   check_metrics_list(metrics)
 
@@ -34,15 +41,6 @@ custom_cross_validate_list <- function(data,
 
   # Check that the fold column(s) is/are factor(s)
   check_fold_col_factor(data = data, fold_cols = fold_cols)
-
-  # Get evaluation functions
-  if (family == "gaussian"){
-    evaluation_type <- "gaussian"
-  } else if (family == "binomial"){
-    evaluation_type <- "binomial"
-  } else if (family == "multinomial"){
-    evaluation_type <- "multinomial"
-  } else {stop("Only 'gaussian', 'binomial', and 'multinomial' evaluation types are currently allowed.")}
 
   # Create model_specifics object
   # Update to get default values when an argument was not specified
@@ -207,6 +205,7 @@ custom_cross_validate_list <- function(data,
     )
 
     if (family == "gaussian"){
+
       # Extract the prediction fold results tibble
       fold_results <- prediction_evaluation[["Results"]][[1]]
       prediction_evaluation[["Results"]] <- NULL
@@ -216,10 +215,47 @@ custom_cross_validate_list <- function(data,
                          by = c(`Fold Column` = fold_info_cols[["fold_column"]],
                                 Fold = fold_info_cols[["rel_fold"]]))
     } else {
+
       # In classification, we evaluate the collected (all folds) predictions
       # per fold column. So if the Results column exists,
       # we will join them per
-      fold_results <- current_model_metrics
+      # TODO: Make sure, Results is always included in prediction_evaluation !!!
+      fold_results <- prediction_evaluation[["Results"]][[1]]
+      prediction_evaluation[["Results"]] <- NULL
+
+      # Prepare model metrics for joining with the prediction results
+
+      # Extract model metric names
+      model_metric_names <- intersect(names(current_model_metrics), metrics)
+
+      if (length(model_metric_names) > 0){
+
+        # TODO The new tidyr::nest interface might be able to do this part
+        # without the loop and stuff (kind of messy). Requires v1.0.0 though
+        # so for now we will do it this way, and change it if profiling
+        # marks it as problematic. Note: It seems to be fairly taxing, so
+        # perhaps it is worth checking the tidyr version and only using
+        # this when necessary?
+
+        fold_col_model_metrics_nested <- plyr::ldply(model_metric_names, function(mn){
+          current_model_metrics %>%
+            dplyr::select(dplyr::one_of(c(
+              fold_info_cols[["fold_column"]],
+              mn
+            ))) %>%
+            dplyr::group_by(!! as.name(fold_info_cols[["fold_column"]])) %>%
+            legacy_nest(2, .key = "value") %>%
+            dplyr::mutate(metric = mn)
+        }) %>%
+          dplyr::as_tibble() %>%
+          tidyr::spread(key = "metric",
+                        value = "value")
+
+        fold_results <- fold_results %>%
+          dplyr::full_join(fold_col_model_metrics_nested,
+                           by = c(`Fold Column` = fold_info_cols[["fold_column"]]))
+      }
+
     }
 
     # Nest fold results
@@ -228,14 +264,13 @@ custom_cross_validate_list <- function(data,
       dplyr::pull(.data$data)
 
     # Combine the various columns
-    prediction_evaluation %>%
+    evaluation <- prediction_evaluation %>%
       dplyr::bind_cols(average_model_metrics) %>%
       tibble::add_column(Results = nested_fold_results,
                          Coefficients = nested_current_coefficients) %>%
       reposition_column("Predictions", .before = "Results") %>%
       dplyr::bind_cols(current_warnings_and_messages_counts) %>%
       dplyr::mutate(`Warnings and Messages` = nested_current_warnings_and_messages)
-
   })
 
   if (family %in% c("binomial", "gaussian")){
@@ -287,10 +322,18 @@ custom_cross_validate_list <- function(data,
   # we remove the column "random".
   # Models without random effects will get NA in the random column.
 
-  # Could this be sped up with dynamic programming? (simple lookup thing?)
-  # Instead of doing the same thing for a lot of formulas?
-  # Probably the lookup will make it similar in performance?
-  mixed_effects <- extract_model_effects(model_formulas)
+  # Extract model effects from the original formulas
+  # (as we need their order in a moment)
+  original_formula_order <- extract_model_effects(formulas) %>%
+    dplyr::mutate(Formula = formulas)
+
+  # Get model effects for the current output rows
+  mixed_effects <- original_formula_order %>%
+    dplyr::right_join(tibble::tibble("Formula" = model_formulas), by = "Formula") %>%
+    dplyr::select(-.data$Formula)
+
+  # Remove Formula column
+  original_formula_order[["Formula"]] <- NULL
 
   # We put the two data frames together
   output <- dplyr::bind_cols(cross_validations_results,
@@ -302,6 +345,13 @@ custom_cross_validate_list <- function(data,
                          .before = "Dependent")
   }
 
+  # Reorder data frame
+  new_col_order <- c(metrics, setdiff(colnames(output), metrics))
+  output <- output %>%
+    dplyr::select(dplyr::one_of(new_col_order)) %>%
+    # Reorder rows by original formula order
+    dplyr::right_join(original_formula_order,
+                      by = names(original_formula_order))
 
   # If asked to remove non-converged models from output
   if (isTRUE(rm_nc)){

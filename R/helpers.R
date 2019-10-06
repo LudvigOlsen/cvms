@@ -109,6 +109,12 @@ stop_if_argument_not_null <- function(var_name, model_specifics){
   }
 }
 
+stop_if_argument_is_null <- function(var_name, model_specifics){
+  if (is.null(model_specifics[[var_name]])){
+    stop(paste0("'", var_name, "' was NULL."))
+  }
+}
+
 ### Results
 
 nest_results <- function(results){
@@ -456,6 +462,9 @@ arg_not_used <- function(arg, arg_name, family, current_fn, message_fn=message){
 check_fold_col_factor <- function(data, fold_cols){
   # Check that the fold column(s) is/are factor(s)
   if (length(fold_cols) == 1){
+    if (fold_cols %ni% names(data)){
+      stop(paste0("'",fold_cols,"' not found in 'data'."))
+    }
     stopifnot(is.factor(data[[fold_cols]]))
   } else {
     fcols <- data %>% dplyr::select(dplyr::one_of(fold_cols)) %>%

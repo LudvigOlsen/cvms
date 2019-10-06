@@ -52,10 +52,11 @@ select_metrics <- function(results, include_definitions = TRUE,
 
   } else if (results[["Family"]][[1]] == "binomial"){
 
-    metric_cols <- c("Balanced Accuracy","Accuracy",
-                     "F1","Sensitivity","Specificity","Pos Pred Value",
-                     "Neg Pred Value","AUC","Lower CI","Upper CI","Kappa",
-                     "MCC","Detection Rate","Detection Prevalence","Prevalence")
+    metric_cols <- c("Balanced Accuracy", "Accuracy",
+                     "F1", "Sensitivity", "Specificity", "Pos Pred Value",
+                     "Neg Pred Value", "AUC", "Lower CI", "Upper CI", "Kappa",
+                     "MCC", "Detection Rate", "Detection Prevalence", "Prevalence",
+                     "AIC", "AICc", "BIC")
 
     metric_cols <- add_additional_colnames(metric_cols, additional_includes)
     metric_cols <- dplyr::intersect(metric_cols, colnames(results))
@@ -83,7 +84,8 @@ select_metrics <- function(results, include_definitions = TRUE,
                      "MCC", "Weighted MCC",
                      "Detection Rate", "Weighted Detection Rate",
                      "Detection Prevalence", "Weighted Detection Prevalence",
-                     "Prevalence", "Weighted Prevalence"
+                     "Prevalence", "Weighted Prevalence",
+                     "AIC", "AICc", "BIC"
                      )
 
     metric_cols <- add_additional_colnames(metric_cols, additional_includes)

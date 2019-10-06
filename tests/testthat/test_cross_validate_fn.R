@@ -10,14 +10,25 @@ test_that("binomial glm model works with cross_validate_fn()",{
                           cat_col = 'diagnosis',
                           id_col = 'participant')
 
-  glm_model_fn <- function(train_data, formula){
+  # Not used atm.
+  dat2 <- groupdata2::fold(participant.scores, k = 4,
+                           num_fold_cols = 3,
+                           cat_col = 'diagnosis',
+                           id_col = 'participant')
+
+  glm_model_fn <- function(train_data, formula, hyperparameters){
     glm(formula = formula, data = train_data, family = "binomial")
   }
 
-  CVbinomlist <- cross_validate_fn(dat,
-                                   glm_model_fn,
+  glm_predict_fn <- example_predict_functions("glm_binomial")
+
+  CVbinomlist <- cross_validate_fn(data = dat,
+                                   model_fn = glm_model_fn,
+                                   predict_fn = glm_predict_fn,
                                    formulas = c("diagnosis~score","diagnosis~age"),
                                    fold_cols = '.folds', type = 'binomial',
+                                   metrics = list("AIC" = TRUE, "AICc" = TRUE,
+                                                  "BIC" = TRUE),
                                    positive = 1)
 
   expect_equal(CVbinomlist$AUC, c(0.7615741, 0.1666667), tolerance=1e-3)
@@ -34,6 +45,9 @@ test_that("binomial glm model works with cross_validate_fn()",{
   expect_equal(CVbinomlist$`Detection Prevalence`, c(0.3,0.2), tolerance=1e-3)
   expect_equal(CVbinomlist$`Balanced Accuracy`, c(0.7361111,0.3333333), tolerance=1e-3)
   expect_equal(CVbinomlist$MCC, c(0.5048268, -0.4082483), tolerance=1e-3)
+  expect_equal(CVbinomlist$AIC, c(27.30328, 33.25823), tolerance=1e-3)
+  expect_equal(CVbinomlist$AICc, c(27.92233, 33.87728), tolerance=1e-3)
+  expect_equal(CVbinomlist$BIC, c(29.52586, 35.48081), tolerance=1e-3)
   expect_equal(CVbinomlist$Folds, c(4,4))
   expect_equal(CVbinomlist$`Fold Columns`, c(1,1))
   expect_equal(CVbinomlist$`Convergence Warnings`, c(0,0))
@@ -45,7 +59,7 @@ test_that("binomial glm model works with cross_validate_fn()",{
   expect_is(CVbinomlist$Predictions[[1]], "tbl_df")
   expect_is(CVbinomlist$ROC[[1]], "tbl_df")
   expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
-  expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Sensitivities","Specificities"))
+  expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Fold Column","Sensitivities","Specificities"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
   expect_equal(nrow(CVbinomlist$ROC[[1]]),29)
   expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
@@ -56,6 +70,7 @@ test_that("binomial glm model works with cross_validate_fn()",{
   # Check error when no model_fn is provided
   expect_error(cross_validate_fn(dat,
                     model_fn = NULL,
+                    predict_fn = glm_predict_fn,
                     formulas = c("diagnosis~score","diagnosis~age"),
                     fold_cols = '.folds', type = 'binomial'),
                "'model_fn' was NULL.", fixed = TRUE)
@@ -63,12 +78,14 @@ test_that("binomial glm model works with cross_validate_fn()",{
   # Check error when no model_fn is provided
   expect_error(cross_validate_fn(dat,
                                  model_fn = 3,
+                                 predict_fn = glm_predict_fn,
                                  formulas = c("diagnosis~score","diagnosis~age"),
                                  fold_cols = '.folds', type = 'binomial'),
                "could not find function \"model_fn\"", fixed = TRUE)
 
   expect_error(cross_validate_fn(dat,
                                  model_fn = glm_model_fn,
+                                 predict_fn = glm_predict_fn,
                                  formulas = c("score","diagnosis~age"),
                                  fold_cols = '.folds', type = 'binomial'),
                "The model formula does not contain a dependent variable.",
@@ -76,6 +93,7 @@ test_that("binomial glm model works with cross_validate_fn()",{
 
   expect_error(cross_validate_fn(dat,
                                  model_fn = glm_model_fn,
+                                 predict_fn = glm_predict_fn,
                                  formulas = c("score","diagnosis~age"),
                                  fold_cols = '.folds',
                                  type = 'fishcat'),
@@ -127,20 +145,7 @@ test_that("binomial glm model works with cross_validate_fn()",{
                                  fold_cols = '.folds',
                                  predict_fn = NULL,
                                  type = 'binomial'),
-               paste0("Could not use the specified 'predict_type.' ",
-                      "Try changing 'predict_type' or pass a custom 'predict_fn'. ",
-                      "The original error was: Error in match.arg(type): 'arg' should ",
-                      "be one of "),   # was "“link”, “response”, “terms”" but fails due to locale settings
-               fixed = TRUE)
-  expect_error(cross_validate_fn(dat,
-                                 model_fn = glm_model_fn,
-                                 formulas = c("diagnosis~score","diagnosis~age"),
-                                 fold_cols = '.folds',
-                                 predict_fn = wrong_predict_fn,
-                                 predict_type = "lol",
-                                 type = 'binomial'),
-               paste0("cross_validate_fn(): Both 'predict_type' and 'predict_fn' ",
-                      "were specified. Please specify only one of them."),
+               "'predict_fn' was NULL.",
                fixed = TRUE)
   expect_error(cross_validate_fn(dat,
                                  model_fn = glm_model_fn,
@@ -248,6 +253,7 @@ test_that("gaussian lm model works with cross_validate_fn()",{
       cross_validate_fn(
         dat,
         model_fn = lm_model_fn,
+        predict_fn = lm_predict_fn,
         formulas = c("score~diagnosis+(1|session)",
                      "score~age+(1|session)"),
         type = 'gaussian',
@@ -261,7 +267,7 @@ test_that("gaussian lm model works with cross_validate_fn()",{
                  1L, 1L, 2L, 2L, 3L, 3L, 4L, 4L))
   expect_equal(warnings_and_messages$Function,
                rep("predict_fn", 16))
-  expect_equal(warnings_and_messages$Message,
+  expect_equal(warnings_and_messages$Message, # TODO It shouldn't catch it twice!
                rep("prediction from a rank-deficient fit may be misleading", 16))
 
 })

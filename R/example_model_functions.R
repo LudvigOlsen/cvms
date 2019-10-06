@@ -87,6 +87,8 @@ example_model_functions <- function(name){
         data = train_data,
         laplace = hyperparameters[["laplace"]])
     }
+  } else {
+    stop(paste0("Could not find '", name, "'."))
   }
 
   model_fn

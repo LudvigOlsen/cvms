@@ -11,6 +11,12 @@ custom_update_model_specifics <- function(model_specifics){
   check_argument_in_model_specifics("hparams", model_specifics)
 
 
+  # These args should not be NULL in custom
+  stop_if_argument_is_null("model_fn", model_specifics)
+  stop_if_argument_is_null("predict_fn", model_specifics)
+  stop_if_argument_is_null("preprocess_once", model_specifics)
+  stop_if_argument_is_null("caller", model_specifics)
+
   # These args should be NULL in custom
   stop_if_argument_not_null("REML", model_specifics)
   stop_if_argument_not_null("link", model_specifics)
@@ -31,9 +37,12 @@ custom_update_model_specifics <- function(model_specifics){
       ", family = ", model_specifics[["family"]],
       ", positive = ", model_specifics[["positive"]],
       ", cutoff = ", model_specifics[["cutoff"]],
-      ", predict_fn = ", capture_fn(model_specifics[["predict_fn"]]),",",
       ", model_verbose = ", model_specifics[["model_verbose"]],
       ", model_fn = ", capture_fn(model_specifics[["model_fn"]]),",",
+      ", predict_fn = ", capture_fn(model_specifics[["predict_fn"]]),",",
+      ", preprocess_fn = ", capture_fn(model_specifics[["preprocess_fn"]]),",",
+      ", preprocess_once = ", model_specifics[["preprocess_once"]],
+      ", hparams = ", paste_hparams(extract_hparams(model_specifics[["hparams"]])),",",
       " }. Note: If incorrect, remember to name arguments in model_specific."
     ))
   }

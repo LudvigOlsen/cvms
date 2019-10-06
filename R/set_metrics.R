@@ -32,7 +32,10 @@ set_metrics <- function(family, metrics_list = NULL, include_model_object_metric
       "MCC" = TRUE,
       "Detection Rate" = TRUE,
       "Detection Prevalence" = TRUE,
-      "Prevalence" = TRUE
+      "Prevalence" = TRUE,
+      "AIC" = FALSE,
+      "AICc" = FALSE,
+      "BIC" = FALSE
     )
 
   } else if (family == "multinomial"){
@@ -68,7 +71,10 @@ set_metrics <- function(family, metrics_list = NULL, include_model_object_metric
       "Detection Prevalence" = TRUE,
       "Weighted Detection Prevalence" = FALSE,
       "Prevalence" = TRUE,
-      "Weighted Prevalence" = FALSE
+      "Weighted Prevalence" = FALSE,
+      "AIC" = FALSE, # TODO: does the IC metrics work with multinomial?
+      "AICc" = FALSE,
+      "BIC" = FALSE
     )
 
   }
@@ -112,10 +118,13 @@ set_metrics <- function(family, metrics_list = NULL, include_model_object_metric
   if (!isTRUE(include_model_object_metrics)){
 
     # Remove the metrics that require model objects
-    # Currently only used in Gaussian eval
     if (family == "gaussian"){
       metrics[["r2m"]] <- FALSE
       metrics[["r2c"]] <- FALSE
+      metrics[["AIC"]] <- FALSE
+      metrics[["AICc"]] <- FALSE
+      metrics[["BIC"]] <- FALSE
+    } else if (family %in% c("binomial","multinomial")){
       metrics[["AIC"]] <- FALSE
       metrics[["AICc"]] <- FALSE
       metrics[["BIC"]] <- FALSE

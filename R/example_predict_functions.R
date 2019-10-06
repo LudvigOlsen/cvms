@@ -83,6 +83,8 @@ example_predict_functions <- function(name){
                      type = "probs",
                      allow.new.levels = TRUE)
     }
+  } else {
+    stop(paste0("Could not find '", name, "'."))
   }
 
   predict_fn

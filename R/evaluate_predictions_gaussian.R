@@ -1,45 +1,39 @@
-gaussian_predictions_eval <- function(data,
-                                      predictions_col,
-                                      targets_col,
-                                      model_was_null_col,
-                                      id_col,
-                                      id_method,
-                                      type,
-                                      fold_info_cols = list(rel_fold = "rel_fold",
-                                                            abs_fold = "abs_fold",
-                                                            fold_column = "fold_column"),
-                                      model_specifics,
-                                      metrics,
-                                      include_fold_columns,
-                                      include_predictions,
-                                      na.rm = TRUE){
-
+evaluate_predictions_gaussian <- function(data,
+                                          predictions_col,
+                                          targets_col,
+                                          model_was_null_col,
+                                          id_col,
+                                          id_method,
+                                          type,
+                                          fold_info_cols = list(rel_fold = "rel_fold",
+                                                                abs_fold = "abs_fold",
+                                                                fold_column = "fold_column"),
+                                          model_specifics,
+                                          metrics,
+                                          include_fold_columns,
+                                          include_predictions,
+                                          na.rm = TRUE) {
 
   # Create fold and fold column map
   fold_and_fold_col <- create_fold_and_fold_column_map(data, fold_info_cols)
 
-  if (!any(data[[model_was_null_col]]) &&
-      isTRUE(include_predictions)) {
+  # Nest predictions, will be NA
+  # if any model_was_null is TRUE and
+  # include_predictions is TRUE
+  # If include_predictions is FALSE,
+  # will always return NULL
+  predictions_nested <- nest_predictions(
+    data = data,
+    predictions_col = predictions_col,
+    targets_col = targets_col,
+    model_was_null_col = model_was_null_col,
+    type = type,
+    id_col = id_col,
+    id_method = id_method,
+    fold_info_cols = fold_info_cols,
+    include_fold_columns = include_fold_columns,
+    include_predictions = include_predictions)
 
-    # Nest predictions and targets
-    predictions_nested <- nesting_predictions_gaussian(
-      data = data,
-      predictions_col = predictions_col,
-      targets_col = targets_col,
-      id_col = id_col,
-      id_method = id_method,
-      fold_info_cols = fold_info_cols,
-      include_fold_columns = include_fold_columns)
-
-  } else {
-
-    if (isTRUE(include_predictions)) {
-      predictions_nested <- NA
-    } else {
-      predictions_nested <- NULL
-    }
-
-  }
 
   # Group the data frame to prepare for calculating RMSE and MAE
   data <- data %>%
@@ -48,7 +42,7 @@ gaussian_predictions_eval <- function(data,
                     !!as.name(fold_info_cols[["rel_fold"]]))
 
   # Calculate RMSE
-  rmse_results <- calculate_prediction_metric(
+  rmse_results <- calculate_gaussian_prediction_metric(
     data = data,
     predictions_col = predictions_col,
     targets_col = targets_col,
@@ -64,7 +58,7 @@ gaussian_predictions_eval <- function(data,
   avg_rmse <- rmse_results[["avg_metric"]]
 
   # Calculate MAE
-  mae_results <- calculate_prediction_metric(
+  mae_results <- calculate_gaussian_prediction_metric(
     data = data,
     predictions_col = predictions_col,
     targets_col = targets_col,
@@ -135,7 +129,7 @@ gaussian_predictions_eval <- function(data,
 }
 
 
-calculate_prediction_metric <- function(data,
+calculate_gaussian_prediction_metric <- function(data,
                                         predictions_col,
                                         targets_col,
                                         model_was_null_col,
@@ -150,7 +144,7 @@ calculate_prediction_metric <- function(data,
     # If one or more of the model objects were NULL
     # Return NA results
     return(
-      calculate_prediction_metric_NA(data = data,
+      calculate_gaussian_prediction_metric_NA(data = data,
                                      metric_name = metric_name,
                                      metrics = metrics,
                                      fold_info_cols = fold_info_cols,
@@ -183,7 +177,7 @@ calculate_prediction_metric <- function(data,
 
 }
 
-calculate_prediction_metric_NA <- function(data,
+calculate_gaussian_prediction_metric_NA <- function(data,
                                            metric_name,
                                            metrics,
                                            fold_info_cols,

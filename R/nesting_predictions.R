@@ -1,7 +1,59 @@
 # Functions for nesting predictions
 
+nest_predictions <- function(data,
+                             predictions_col,
+                             predicted_class_col = NULL,
+                             targets_col,
+                             model_was_null_col,
+                             type,
+                             id_col,
+                             id_method,
+                             fold_info_cols,
+                             include_fold_columns,
+                             include_predictions){
+
+  if (!any(data[[model_was_null_col]]) &&
+      isTRUE(include_predictions)) {
+
+    # Get nesting function
+    if (type == "gaussian"){
+      nest_fn <- nesting_predictions_gaussian
+    } else if (type == "binomial"){
+      nest_fn <- nesting_predictions_binomial
+    } else if (type == "multinomial"){
+      nest_fn <- nesting_predictions_multinomial
+    }
+
+    # Nest predictions and targets
+    predictions_nested <- nest_fn(
+      data = data,
+      predictions_col = predictions_col,
+      predicted_class_col = predicted_class_col,
+      targets_col = targets_col,
+      id_col = id_col,
+      id_method = id_method,
+      fold_info_cols = fold_info_cols,
+      include_fold_columns = include_fold_columns)
+
+  } else {
+
+    if (isTRUE(include_predictions)) {
+      predictions_nested <- NA
+    } else {
+      predictions_nested <- NULL
+    }
+
+  }
+
+  predictions_nested
+
+}
+
+
+
 nesting_predictions_gaussian <- function(data,
                                          predictions_col,
+                                         predicted_class_col = NULL, # not used
                                          targets_col,
                                          id_col,
                                          id_method,
@@ -45,6 +97,7 @@ nesting_predictions_gaussian <- function(data,
 
 nesting_predictions_binomial <- function(data,
                                          predictions_col,
+                                         predicted_class_col,
                                          targets_col,
                                          id_col,
                                          id_method,
@@ -58,13 +111,13 @@ nesting_predictions_binomial <- function(data,
                   !! as.name(fold_info_cols[["rel_fold"]]),
                   !! as.name(targets_col),
                   !! as.name(predictions_col),
-                  .data$predicted_class
+                  !! as.name(predicted_class_col)
     ) %>%
     dplyr::rename(Fold = fold_info_cols[["rel_fold"]],
                   `Fold Column` = fold_info_cols[["fold_column"]],
                   Target = !! as.name(targets_col),
                   Prediction = !! as.name(predictions_col),
-                  `Predicted Class` = .data$predicted_class)
+                  `Predicted Class` = !! as.name(predicted_class_col))
 
   # If ID evaluation, add ID and method to nested predictions
   if (!is.null(id_col)){
@@ -93,6 +146,7 @@ nesting_predictions_binomial <- function(data,
 
 nesting_predictions_multinomial <- function(data,
                                             predictions_col,
+                                            predicted_class_col,
                                             targets_col,
                                             id_col,
                                             id_method,
@@ -106,7 +160,7 @@ nesting_predictions_multinomial <- function(data,
                   !! as.name(fold_info_cols[["rel_fold"]]),
                   !! as.name(targets_col),
                   !! as.name(predictions_col),
-                  .data$predicted_class
+                  !! as.name(predicted_class_col)
     )
 
   # If ID evaluation, add ID and method to nested predictions
@@ -125,7 +179,7 @@ nesting_predictions_multinomial <- function(data,
                   `Fold Column` = fold_info_cols[["fold_column"]],
                   Target = !! as.name(targets_col),
                   Prediction = !! as.name(predictions_col),
-                  `Predicted Class` = .data$predicted_class
+                  `Predicted Class` = !! as.name(predicted_class_col)
     )
 
   # Remove fold columns if they should not be included

@@ -8,10 +8,13 @@ example_predict_functions(name)
 }
 \arguments{
 \item{name}{Name of model to get predict function for,
- as it appears in the following list:
+ as it appears in the following table.
+
+ The \strong{Model Params} column lists parameters used
+ in the respective model function.
 
  \tabular{rrr}{
-  \strong{Name} \tab \strong{Function} \tab \strong{Params} \cr
+  \strong{Name} \tab \strong{Function} \tab \strong{Model Params} \cr
   "lm" \tab \code{\link[stats:lm]{stats::lm()}} \tab \cr
   "lmer" \tab \code{\link[lme4:lmer]{lme4::lmer()}} \tab \cr
   "glm_binomial" \tab \code{\link[stats:lm]{stats::glm()}} \tab \code{family = "binomial"}\cr
@@ -19,6 +22,7 @@ example_predict_functions(name)
   "svm_gaussian" \tab \code{\link[e1071:svm]{e1071::svm()}} \tab \code{type = "eps-regression"}\cr
   "svm_binomial" \tab \code{\link[e1071:svm]{e1071::svm()}} \tab \code{type = "C-classification"}\cr
   "naive_bayes" \tab \code{\link[e1071:naiveBayes]{e1071::naiveBayes()}} \tab \cr
+  "multinom" \tab \code{\link[nnet:multinom]{nnet::multinom()}} \tab \cr
   }}
 }
 \description{

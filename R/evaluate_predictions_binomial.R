@@ -1,69 +1,133 @@
-# Whereas binomial_classification_eval.R and multinomial_classification_eval.R
-# prepares the actual evaluation, these function do the actual evaluation
+evaluate_predictions_binomial <- function(data,
+                                          predictions_col,
+                                          targets_col,
+                                          model_was_null_col,
+                                          id_col,
+                                          id_method,
+                                          type,
+                                          fold_info_cols = list(rel_fold = "rel_fold",
+                                                                abs_fold = "abs_fold",
+                                                                fold_column = "fold_column"),
+                                          model_specifics,
+                                          metrics,
+                                          include_fold_columns,
+                                          include_predictions,
+                                          na.rm = TRUE) {
 
-binomial_eval <- function(data,
-                          targets_col,
-                          predictions_col,
-                          predicted_class_col,
-                          unique_fold_cols,
-                          cat_levels,
-                          positive,
-                          fold_info_cols,
-                          fold_and_fold_col,
-                          predictions_nested = NULL,
-                          models = NULL,
-                          metrics,
-                          include_fold_columns = TRUE,
-                          include_predictions = TRUE,
-                          na.rm = TRUE) {
+  # Map of fold column, abs_fold and rel_fold
+  fold_and_fold_col <- create_fold_and_fold_column_map(data, fold_info_cols)
+  # Unique fold columns
+  unique_fold_cols <- unique(fold_and_fold_col[["fold_column"]])
 
-  confusion_matrices_list <- binomial_eval_confusion_matrices(
-    data = data,
-    targets_col = targets_col,
-    predicted_class_col = predicted_class_col,
-    unique_fold_cols = unique_fold_cols,
-    cat_levels = cat_levels,
-    positive = positive,
-    fold_info_cols = fold_info_cols,
-    include_fold_columns = include_fold_columns
-  )
+  # Check if there are NAs in predictions or targets
+  na_in_predictions <- contains_na(data[[predictions_col]])
+  na_in_targets <- contains_na(data[[targets_col]])
 
-  roc_curves_list <- binomial_eval_roc_curves(
-    data = data,
-    targets_col = targets_col,
-    predictions_col = predictions_col,
-    unique_fold_cols = unique_fold_cols,
-    cat_levels = cat_levels,
-    positive = positive,
-    fold_info_cols = fold_info_cols
-  )
-
-  # TODO: Should probably rename "extra_metrics" to something more meaningful
-  extra_metrics <- binomial_eval_extra_metrics(data = data,
-                                               targets_col = targets_col,
-                                               predicted_class_col = predicted_class_col,
-                                               unique_fold_cols = unique_fold_cols,
-                                               fold_info_cols = fold_info_cols)
-
-  results <- binomial_eval_collect(unique_fold_cols = unique_fold_cols,
-                                   roc_curves_list = roc_curves_list,
-                                   confusion_matrices_list = confusion_matrices_list,
-                                   predictions_nested = predictions_nested,
-                                   extra_metrics = extra_metrics,
-                                   models = models,
-                                   metrics = metrics,
-                                   include_fold_columns = include_fold_columns,
-                                   include_predictions = include_predictions,
-                                   na.rm = na.rm)
-
-  if (!is.null(models)){
-    results[["Coefficients"]] <- binomial_add_model_coefficients(models, fold_and_fold_col,
-                                                                 include_fold_columns = include_fold_columns)
+  # Warn if NA in predictions
+  if (!isTRUE(na_in_predictions)){
+    warning(paste0(
+      model_specifics[["caller"]], ": ",
+      "predictions contained NA."
+    ))
   }
 
-  results
+  # Warn if NA in targets
+  if (!isTRUE(na_in_targets)){
+    warning(paste0(
+      model_specifics[["caller"]], ": ",
+      "targets contained NA."
+    ))
+  }
+
+  if (!na_in_targets && !na_in_predictions){
+
+    # Find the levels in the categorical target variable
+    cat_levels <- levels_as_characters(data[[targets_col]])
+
+    if (length(cat_levels) > 2){ stop("The target column must maximally contain 2 levels.") }
+
+    # Create a column with the predicted class based on the chosen cutoff
+    data[["predicted_class"]] <- ifelse(data[[predictions_col]] < model_specifics[["cutoff"]],
+                                        cat_levels[1], cat_levels[2])
+
+    # Nest predictions and targets
+    # Will be NA if any model_was_null is TRUE and
+    # include_predictions is TRUE
+    # If include_predictions is FALSE,
+    # will always return NULL
+    predictions_nested <- nest_predictions(
+      data = data,
+      predictions_col = predictions_col,
+      predicted_class_col = "predicted_class",
+      targets_col = targets_col,
+      model_was_null_col = model_was_null_col,
+      type = type,
+      id_col = id_col,
+      id_method = id_method,
+      fold_info_cols = fold_info_cols,
+      include_fold_columns = include_fold_columns,
+      include_predictions = include_predictions)
+
+    # Create confusion matrices
+    confusion_matrices_list <- binomial_eval_confusion_matrices(
+      data = data,
+      targets_col = targets_col,
+      predicted_class_col = predicted_class_col,
+      unique_fold_cols = unique_fold_cols,
+      cat_levels = cat_levels,
+      positive = model_specifics[["positive"]],
+      fold_info_cols = fold_info_cols,
+      include_fold_columns = include_fold_columns
+    )
+
+    # Create ROC curves
+    roc_curves_list <- binomial_eval_roc_curves(
+      data = data,
+      targets_col = targets_col,
+      predictions_col = predictions_col,
+      unique_fold_cols = unique_fold_cols,
+      cat_levels = cat_levels,
+      positive = model_specifics[["positive"]],
+      fold_info_cols = fold_info_cols
+    )
+
+    # TODO: Should probably rename "extra_metrics" to something more meaningful
+    # Currently calculates the regular accuracy
+    extra_metrics <- binomial_eval_extra_metrics(data = data,
+                                                 targets_col = targets_col,
+                                                 predicted_class_col = predicted_class_col,
+                                                 unique_fold_cols = unique_fold_cols,
+                                                 fold_info_cols = fold_info_cols)
+
+    # Combine the different metrics and nested tibbles
+    results <- binomial_eval_collect(unique_fold_cols = unique_fold_cols,
+                                     roc_curves_list = roc_curves_list,
+                                     confusion_matrices_list = confusion_matrices_list,
+                                     predictions_nested = predictions_nested,
+                                     extra_metrics = extra_metrics,
+                                     metrics = metrics,
+                                     include_fold_columns = include_fold_columns,
+                                     include_predictions = include_predictions,
+                                     na.rm = na.rm)
+
+  } else {
+
+    results <- binomial_classification_NA_results_tibble(
+      metrics = metrics, include_predictions = include_predictions)
+
+    if (!is.null(models))
+      results[["Coefficients"]] <- get_nested_model_coefficients(
+        models = NULL, include_fold_columns = include_fold_columns)
+
+    if (length(unique_fold_cols) > 1){
+      results[["Results"]] <- NA
+    }
+  }
+
+  return(results)
 
 }
+
 
 binomial_eval_confusion_matrices <- function(
   data,
@@ -155,8 +219,8 @@ binomial_eval_roc_curves <- function(data, targets_col, predictions_col,
       if (is.null(roc_curves[[i]])){
         return(
           tibble::tibble(`Fold Column` = NA,
-                       Sensitivities = NA,
-                       Specificities = NA)
+                         Sensitivities = NA,
+                         Specificities = NA)
         )
       }
       tibble::tibble(`Fold Column` = names(roc_curves)[[i]],
@@ -230,7 +294,7 @@ binomial_eval_collect <- function(unique_fold_cols,
                                   confusion_matrices_list,
                                   predictions_nested,
                                   extra_metrics,
-                                  models, metrics,
+                                  metrics,
                                   include_fold_columns = TRUE,
                                   include_predictions = TRUE,
                                   na.rm = FALSE){
@@ -322,29 +386,6 @@ binomial_eval_collect <- function(unique_fold_cols,
   results
 }
 
-binomial_add_model_coefficients <- function(models, fold_and_fold_col, include_fold_columns = TRUE){
-
-  if (is.null(models)){
-    stop("'models' is NULL.")
-  }
-
-  # Add model coefficients
-
-  # Get model coefficients
-  # If broom::tidy does not work with the model objects, return NAs.
-  nested_coefficients <- tryCatch({
-    get_nested_model_coefficients(models,
-                                  fold_info = list(folds = fold_and_fold_col[["rel_fold"]],
-                                                   fold_columns = fold_and_fold_col[["fold_column"]]),
-                                  include_fold_columns = include_fold_columns)
-  }, error = function(e){
-    get_nested_model_coefficients(models = NULL,
-                                  include_fold_columns = include_fold_columns)
-  })
-
-  nested_coefficients
-
-}
 
 binomial_classification_NA_results_tibble <- function(metrics, include_predictions = TRUE){
 
@@ -408,7 +449,7 @@ binomial_classification_results_tibble <- function(roc_curve,
     dplyr::select(dplyr::one_of(c(
       intersect(metrics, colnames(eval_tibble)),
       "Predictions", "ROC"
-      )))
+    )))
 
   if (!isTRUE(include_predictions)){
     eval_tibble[["Predictions"]] <- NULL
@@ -529,3 +570,5 @@ nest_multiclass_confusion_matrices <- function(confusion_matrices,
     dplyr::rename(confusion_matrices = data)
 
 }
+
+

@@ -68,6 +68,10 @@ count_nulls_in_list <- function(l){
   }) %>% unlist() %>% sum()
 }
 
+contains_na <- function(v){
+  sum(is.na(v)) > 0
+}
+
 ### Model specifics
 
 check_model_specifics <- function(passed_model_specifics, required_named_arguments){

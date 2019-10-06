@@ -32,13 +32,13 @@ Imports:
     caret (>= 6.0-84),
     pROC (>= 1.14.0),
     stats,
+    rlang,
+    utils,
     lme4 (>= 1.1-21),
     MuMIn (>= 1.43.6),
     broom (>= 0.5.2),
     stringr,
     mltools (>= 0.3.5),
-    rlang,
-    utils,
     lifecycle
 Suggests: 
     knitr,

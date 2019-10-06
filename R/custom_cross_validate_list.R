@@ -206,14 +206,22 @@ custom_cross_validate_list <- function(data,
       include_predictions = TRUE # TODO Perhaps should be arg in main fn?
     )
 
-    # Extract the prediction fold results tibble
-    fold_results <- prediction_evaluation[["Results"]][[1]]
-    prediction_evaluation[["Results"]] <- NULL
-    # Add the model metric object results
-    fold_results <- fold_results %>%
-      dplyr::full_join(current_model_metrics,
-                       by = c(`Fold Column` = fold_info_cols[["fold_column"]],
-                              Fold = fold_info_cols[["rel_fold"]]))
+    if (family == "gaussian"){
+      # Extract the prediction fold results tibble
+      fold_results <- prediction_evaluation[["Results"]][[1]]
+      prediction_evaluation[["Results"]] <- NULL
+      # Add the model metric object results
+      fold_results <- fold_results %>%
+        dplyr::full_join(current_model_metrics,
+                         by = c(`Fold Column` = fold_info_cols[["fold_column"]],
+                                Fold = fold_info_cols[["rel_fold"]]))
+    } else {
+      # In classification, we evaluate the collected (all folds) predictions
+      # per fold column. So if the Results column exists,
+      # we will join them per
+      fold_results <- current_model_metrics
+    }
+
     # Nest fold results
     nested_fold_results <- fold_results %>%
       legacy_nest(seq_len(ncol(fold_results))) %>%

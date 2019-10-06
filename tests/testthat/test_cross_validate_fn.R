@@ -181,7 +181,7 @@ test_that("binomial glm model works with cross_validate_fn()",{
                       "unused argument (test_data = test_data)"),
                fixed = TRUE)
 
-  expect_equal(custom_run_predict_fn(test_data = data.frame(), model = NULL,
+  expect_equal(run_predict_fn(test_data = data.frame(), model = NULL,
                         model_formula = "",
                         y_col = "",
                         user_predict_fn = NULL,

@@ -9,7 +9,7 @@ custom_process_predictions <- function(test_data,
 
   prediction_process <- tryCatch({
     purrr::map(.x = 1, .f = purrr::quietly(function(.x){
-      custom_run_predict_fn(test_data = test_data,
+      run_predict_fn(test_data = test_data,
                             model = model,
                             model_formula = model_formula,
                             y_col = y_col,
@@ -84,7 +84,7 @@ custom_process_predictions <- function(test_data,
 }
 
 
-custom_run_predict_fn <- function(test_data,
+run_predict_fn <- function(test_data,
                                   model,
                                   model_formula,
                                   y_col,
@@ -92,10 +92,11 @@ custom_run_predict_fn <- function(test_data,
                                   model_specifics){
 
   # Predict test set
-  # If models is NULL (e.g. didn't converge)
-  #   Create a list of NA predictions the length of y_column
 
   if (is.null(model)){
+
+    # If model is NULL (e.g. didn't converge)
+    # Create a list of NA predictions the length of y_column
 
     predictions <- tibble::tibble("prediction" = rep(NA, length(test_data[[y_col]])))
 
@@ -112,29 +113,21 @@ custom_run_predict_fn <- function(test_data,
         caller = model_specifics[["caller"]])
 
     } else {
-
-      # TODO Remove this part !!!!!!!!!!!!!!
-      # Use default predict function
-      predictions <- internal_predict_fn(
-        model = model,
-        test_data = test_data,
-        family = model_specifics[["family"]],
-        predict_type = model_specifics[["predict_type"]],
-        caller = model_specifics[["caller"]])
-
+      stop("'predict_fn' was NULL")
     }
 
     if (is.null(predictions)){
       stop(paste0(model_specifics[["caller"]],": predictions were NULL."))
     }
 
-    if (model_specifics[["family"]] %in% c("gaussian","binomial")){
+    if (model_specifics[["family"]] %in% c("gaussian", "binomial")){
 
       if (is.matrix(predictions)){
         if (ncol(predictions) > 1){
 
           stop(paste0("When type/family is ", model_specifics[["family"]],
-                      ", the predictions must be a vector or matrix / data frame with one column but was a matrix with ",
+                      ", the predictions must be a vector or matrix / data frame ",
+                      "with one column but was a matrix with ",
                       ncol(predictions), " columns. ",
                       "Did you specify 'predict_fn' correctly?"))
         }
@@ -148,7 +141,8 @@ custom_run_predict_fn <- function(test_data,
         if (ncol(predictions) > 1){
 
           stop(paste0("When type/family is ", model_specifics[["family"]],
-                      ", the predictions must be a vector or matrix / data frame with one column but was a data frame with ",
+                      ", the predictions must be a vector or matrix / data frame ",
+                      "with one column but was a data frame with ",
                       ncol(predictions), " columns. ",
                       "Did you specify 'predict_fn' correctly?"))
         }
@@ -173,7 +167,8 @@ custom_run_predict_fn <- function(test_data,
       }
 
       if (nrow(predictions) != nrow(test_data)){
-        stop(paste0("The number of predictions did not match the number of rows in the test set."))
+        stop(paste0("The number of predictions did not match the ",
+                    "number of rows in the test set."))
       }
 
       # Force type numeric
@@ -191,8 +186,8 @@ custom_run_predict_fn <- function(test_data,
 
       # Convert to tibble
       predictions <- dplyr::as_tibble(predictions) %>%
-        dplyr::mutate_all(~ force_numeric(predictions_vector = .,
-                                          caller = model_specifics[["caller"]])) %>%
+        dplyr::mutate_all(~ force_numeric(
+          predictions_vector = ., caller = model_specifics[["caller"]])) %>%
         nest_rowwise() %>%
         tibble::enframe(value = "prediction", name = NULL)
     }
@@ -221,87 +216,10 @@ force_numeric <- function(predictions_vector, caller = ""){
   predictions_vector
 }
 
-# TODO Dont use this for cross_validate_fn. Perhaps for baseline? Probably still
-# better to use the common api about to be created?
-internal_predict_fn <- function(model, test_data, family, predict_type = NULL, caller = ""){
-  # If predict_type is specified by user
-  if (!is.null(predict_type)){
-
-    preds <- try_predicting(
-      fn = function() {
-        stats::predict(model,
-                       test_data,
-                       type = predict_type,
-                       allow.new.levels = TRUE)
-      },
-      predict_type = predict_type
-    )
-
-  } else {
-
-    # Default predict_type per family
-    if (family == "gaussian"){
-      preds <- try_predicting(
-        fn <- function() {
-          stats::predict(model,
-                         test_data,
-                         allow.new.levels = TRUE)
-        },
-        predict_type = predict_type
-      )
-
-    } else if (family == "binomial"){
-      preds <- try_predicting(
-        fn = function() {
-          stats::predict(model,
-                         test_data,
-                         type = "response",
-                         allow.new.levels = TRUE)
-        },
-        predict_type = predict_type
-      )
-
-    } else if (family == "multinomial"){
-      preds <- try_predicting(
-        fn = function() {
-          stats::predict(model,
-                         test_data,
-                         type = "probs",
-                         allow.new.levels = TRUE)
-        },
-        predict_type = predict_type
-      )
-    }
-  }
-  preds
-}
-
-try_predicting <- function(fn, predict_type){
-  tryCatch({
-    fn()
-  }, error = function(e){
-    if (grepl("'arg' should be", as.character(e), ignore.case = TRUE)){
-      if (is.null(predict_type)){
-        stop(paste0("Could not use the default 'predict_type' in stats::predict(). ",
-                    "Specify 'predict_type' or pass a custom 'predict_fn'. ",
-                    "The original error was: ", e))
-      } else {
-        stop(paste0("Could not use the specified 'predict_type.' ",
-                    "Try changing 'predict_type' or pass a custom 'predict_fn'. ",
-                    "The original error was: ", e))
-      }
-    } else {
-      stop(paste0("Could not call stats::predict() with current settings (typically 'predict_type'). ",
-                  "Try changing 'predict_type' or pass a custom 'predict_fn'. ",
-                  "The original error was: ", e))
-    }
-  }, warning = function(w){
-    warning(w)
-    fn()
-  })
-}
-
 run_user_predict_fn <- function(user_predict_fn, test_data, model, formula, caller = ""){
+
+  # TODO Catch and rethrow the warnings instead,
+  # to avoid running the predict_fn twice
 
   tryCatch({
     # Use user's predict function

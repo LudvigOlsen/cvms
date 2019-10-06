@@ -31,7 +31,8 @@ example_preprocess_functions <- function(name){
       preprocess_params <- caret::preProcess(train_data,
                                              method = c("scale", "center"))
 
-      # Apply normalization to train_data and test_data
+      # Apply standardization to all numeric variables in
+      # train_data and test_data
       train_data <- predict(preprocess_params, train_data)
       test_data <- predict(preprocess_params, test_data)
 
@@ -46,7 +47,8 @@ example_preprocess_functions <- function(name){
                                                method = c("range"),
                                                rangeBounds = c(0,1))
 
-        # Apply normalization to train_data and test_data
+        # Apply normalization to all numeric variables in
+        # train_data and test_data
         train_data <- predict(preprocess_params, train_data)
         test_data <- predict(preprocess_params, test_data)
 

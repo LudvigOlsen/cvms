@@ -21,7 +21,8 @@ internal_evaluate_predictions <- function(data,
                                           )){
 
   if (type == "gaussian") {
-    results <- gaussian_predictions_eval(
+
+    results <- evaluate_predictions_gaussian(
       data = data,
       predictions_col = predictions_col,
       targets_col = targets_col,
@@ -38,8 +39,7 @@ internal_evaluate_predictions <- function(data,
 
   } else if (type == "binomial"){
 
-    stop("NOT YET IMPLEMENTED")
-    results <- binomial_predictions_eval(
+    results <- evaluate_predictions_binomial(
       data = data,
       predictions_col = predictions_col,
       targets_col = targets_col,
@@ -57,7 +57,7 @@ internal_evaluate_predictions <- function(data,
   } else if (type == "multinomial"){
 
     stop("NOT YET IMPLEMENTED")
-    results <- multinomial_predictions_eval(
+    results <- evaluate_predictions_multinomial(
       data = data,
       predictions_col = predictions_col,
       targets_col = targets_col,

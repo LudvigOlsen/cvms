@@ -21,59 +21,25 @@ internal_evaluate_predictions <- function(data,
                                           )){
 
   if (type == "gaussian") {
-
-    results <- evaluate_predictions_gaussian(
-      data = data,
-      predictions_col = predictions_col,
-      targets_col = targets_col,
-      model_was_null_col = model_was_null_col,
-      id_col = id_col,
-      id_method = id_method,
-      type = type,
-      fold_info_cols = fold_info_cols,
-      model_specifics = model_specifics,
-      metrics = metrics,
-      include_fold_columns = include_fold_columns,
-      include_predictions = include_predictions,
-      na.rm = na.rm)
-
-  } else if (type == "binomial"){
-
-    results <- evaluate_predictions_binomial(
-      data = data,
-      predictions_col = predictions_col,
-      targets_col = targets_col,
-      model_was_null_col = model_was_null_col,
-      id_col = id_col,
-      id_method = id_method,
-      type = type,
-      fold_info_cols = fold_info_cols,
-      model_specifics = model_specifics,
-      metrics = metrics,
-      include_fold_columns = include_fold_columns,
-      include_predictions = include_predictions,
-      na.rm = na.rm)
-
-  } else if (type == "multinomial"){
-
-    stop("NOT YET IMPLEMENTED")
-    results <- evaluate_predictions_multinomial(
-      data = data,
-      predictions_col = predictions_col,
-      targets_col = targets_col,
-      model_was_null_col = model_was_null_col,
-      id_col = id_col,
-      id_method = id_method,
-      type = type,
-      fold_info_cols = fold_info_cols,
-      model_specifics = model_specifics,
-      metrics = metrics,
-      include_fold_columns = include_fold_columns,
-      include_predictions = include_predictions,
-      na.rm = na.rm)
-
+    eval_pred_fn <- evaluate_predictions_gaussian
+  } else if (type == "binomial") {
+    eval_pred_fn <- evaluate_predictions_binomial
+  } else if (type == "multinomial") {
+    eval_pred_fn <- evaluate_predictions_multinomial
   }
 
-  results
+  eval_pred_fn(
+    data = data,
+    predictions_col = predictions_col,
+    targets_col = targets_col,
+    model_was_null_col = model_was_null_col,
+    id_col = id_col,
+    id_method = id_method,
+    fold_info_cols = fold_info_cols,
+    model_specifics = model_specifics,
+    metrics = metrics,
+    include_fold_columns = include_fold_columns,
+    include_predictions = include_predictions,
+    na.rm = na.rm)
 
 }

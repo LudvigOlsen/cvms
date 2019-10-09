@@ -18,6 +18,13 @@ Warnings are counted in `Other Warnings`.
 
 * `example_preprocess_functions()` is added. Contains simple `preprocess_fn` examples that can be used in `cross_validate_fn()` or as starting points.
 
+* `multinomial` evaluation results now contain the `Results` tibble with the results for each fold column. The main metrics
+are now averages of these fold column results. Previously, they were not aggregated by fold column first. In my tests, this
+has not altered the results, but it is a more correct approach.
+
+* Adds Information Criteria metrics (AIC, AICc, BIC) to the `binomial` and `multinomial` output (disabled by default). 
+These are based on the fitted model objects and may not work for some model functions.
+
 # cvms 0.3.1
 
 * Fixes documentation in `cross_validate_fn()`. The examples section contained an unreasonable number of mistakes :-)

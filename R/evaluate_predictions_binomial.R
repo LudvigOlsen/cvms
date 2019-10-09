@@ -1,21 +1,26 @@
 evaluate_predictions_binomial <- function(data,
                                           predictions_col,
+                                          predicted_class_col = NULL,
                                           targets_col,
                                           model_was_null_col,
                                           id_col,
                                           id_method,
-                                          type,
+                                          cat_levels = NULL,
                                           fold_info_cols = list(rel_fold = "rel_fold",
                                                                 abs_fold = "abs_fold",
                                                                 fold_column = "fold_column"),
+                                          fold_and_fold_col = NULL,
                                           model_specifics,
                                           metrics,
                                           include_fold_columns,
                                           include_predictions,
                                           na.rm = TRUE) {
 
-  # Map of fold column, abs_fold and rel_fold
-  fold_and_fold_col <- create_fold_and_fold_column_map(data, fold_info_cols)
+  if (is.null(fold_and_fold_col)){
+    # Map of fold column, abs_fold and rel_fold
+    fold_and_fold_col <- create_fold_and_fold_column_map(data, fold_info_cols)
+  }
+
   # Unique fold columns
   unique_fold_cols <- unique(fold_and_fold_col[["fold_column"]])
 
@@ -41,15 +46,20 @@ evaluate_predictions_binomial <- function(data,
 
   if (!na_in_targets && !na_in_predictions){
 
-    # Find the levels in the categorical target variable
-    cat_levels <- levels_as_characters(data[[targets_col]])
+    if (is.null(cat_levels)){
+      # Find the levels in the categorical target variable
+      cat_levels <- levels_as_characters(data[[targets_col]])
+    }
 
     if (length(cat_levels) > 2){ stop("The target column must maximally contain 2 levels.") }
 
     # Create a column with the predicted class based on the chosen cutoff
-    predicted_class_col <- "predicted_class" # TODO tmp var? shouldnt be needed
-    data[[predicted_class_col]] <- ifelse(data[[predictions_col]] < model_specifics[["cutoff"]],
-                                        cat_levels[1], cat_levels[2])
+    # If it wasn't passed by parent function
+    if (is.null(predicted_class_col)){
+      predicted_class_col <- create_tmp_var(data, "predicted_class")
+      data[[predicted_class_col]] <- ifelse(data[[predictions_col]] < model_specifics[["cutoff"]],
+                                            cat_levels[1], cat_levels[2])
+    }
 
     # Nest predictions and targets
     # Will be NA if any model_was_null is TRUE and
@@ -62,7 +72,7 @@ evaluate_predictions_binomial <- function(data,
       predicted_class_col = predicted_class_col,
       targets_col = targets_col,
       model_was_null_col = model_was_null_col,
-      type = type,
+      type = "binomial",
       id_col = id_col,
       id_method = id_method,
       fold_info_cols = fold_info_cols,

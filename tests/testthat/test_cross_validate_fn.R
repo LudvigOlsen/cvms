@@ -736,34 +736,25 @@ test_that("multinomial nnet models work with cross_validate_fn()",{
   class_names <- paste0("class_", c(1,2,3))
   data_mc[["target"]] <- factor(sample(x = class_names,
                                 size = 50, replace = TRUE))
-  dat <- groupdata2::fold(data_mc, k = 4)
+  dat <- groupdata2::fold(data_mc, k = 4, num_fold_cols = 3)
 
-  multinom_model_fn <- function(train_data, formula){
+  multinom_model_fn <- function(train_data, formula, hyperparameters){
 
     nnet::multinom(formula = formula, # converted to formula object within custom_fit_model()
                    data = train_data)
   }
-  if (FALSE){
-  # nn <- multinom_model_fn(train_data = dat,
-  #                         formula = "target ~ predictor_1 + predictor_2 + predictor_3")
-  # nn2 <- nnet::multinom(formula = "target ~ predictor_1 + predictor_2 + predictor_3", # converted to formula object within custom_fit_model()
-  #                       data = dat)
-  # fm <- "target ~ predictor_1 + predictor_2 + predictor_3"
-  # nn3 <- nnet::multinom(formula = fm, # converted to formula object within custom_fit_model()
-  #                       data = dat)
-  # # predict(nn, dat, type = "probs", allow.new.levels = TRUE)
-  # broom::tidy(nn3)
 
-  # summary(nn)
-  }
+  multinom_predict_fn <- example_predict_functions("multinom")
+
 
   CVmultinomlist <- cross_validate_fn(dat,
-                                   multinom_model_fn,
-                                   formulas = c("target ~ predictor_1 + predictor_2 + predictor_3",
-                                                "target ~ predictor_1"),
-                                   fold_cols = '.folds', type = 'multinomial',
-                                   predict_type = "probs",
-                                   positive = 1)
+                                      model_fn = multinom_model_fn,
+                                      predict_fn = multinom_predict_fn,
+                                      formulas = c("target ~ predictor_1 + predictor_2 + predictor_3",
+                                                   "target ~ predictor_1"),
+                                      fold_cols = c('.folds_1'),
+                                      type = 'multinomial',
+                                      metrics = "all")
 
   expect_equal(CVmultinomlist$AUC, c(0.338293650793651, 0.38640873015873), tolerance=1e-3)
   expect_equal(CVmultinomlist$`Lower CI`, c(0.174368857734496, 0.229532941913765), tolerance=1e-3)
@@ -863,7 +854,7 @@ test_that("multinomial nnet models work with cross_validate_fn()",{
   clr_confmat_2 <- dplyr::bind_rows(class_level_results[[2]]$`Confusion Matrix`)
   clr_confmat <- dplyr::bind_rows(clr_confmat_1, clr_confmat_2)
   expect_equal(clr_confmat$`Fold Column`,
-               rep(".folds",24))
+               rep(".folds_1",24))
   expect_equal(clr_confmat$Prediction,
                rep(c("0","1"),12))
   expect_equal(clr_confmat$Target,

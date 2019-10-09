@@ -214,47 +214,48 @@ custom_cross_validate_list <- function(data,
         dplyr::full_join(current_model_metrics,
                          by = c(`Fold Column` = fold_info_cols[["fold_column"]],
                                 Fold = fold_info_cols[["rel_fold"]]))
-    } else {
 
-      # In classification, we evaluate the collected (all folds) predictions
-      # per fold column. So if the Results column exists,
-      # we will join them per
-      # TODO: Make sure, Results is always included in prediction_evaluation !!!
-      fold_results <- prediction_evaluation[["Results"]][[1]]
-      prediction_evaluation[["Results"]] <- NULL
+    } else if (family %in% c("binomial", "multinomial")){
 
-      # Prepare model metrics for joining with the prediction results
+        # In classification, we evaluate the collected (all folds) predictions
+        # per fold column. So if the Results column exists,
+        # we will join them per
+        # TODO: Make sure, Results is always included in prediction_evaluation !!!
+        fold_results <- prediction_evaluation[["Results"]][[1]]
+        prediction_evaluation[["Results"]] <- NULL
 
-      # Extract model metric names
-      model_metric_names <- intersect(names(current_model_metrics), metrics)
+        # Prepare model metrics for joining with the prediction results
 
-      if (length(model_metric_names) > 0){
+        # Extract model metric names
+        model_metric_names <- intersect(names(current_model_metrics), metrics)
 
-        # TODO The new tidyr::nest interface might be able to do this part
-        # without the loop and stuff (kind of messy). Requires v1.0.0 though
-        # so for now we will do it this way, and change it if profiling
-        # marks it as problematic. Note: It seems to be fairly taxing, so
-        # perhaps it is worth checking the tidyr version and only using
-        # this when necessary?
+        if (length(model_metric_names) > 0){
 
-        fold_col_model_metrics_nested <- plyr::ldply(model_metric_names, function(mn){
-          current_model_metrics %>%
-            dplyr::select(dplyr::one_of(c(
-              fold_info_cols[["fold_column"]],
-              mn
-            ))) %>%
-            dplyr::group_by(!! as.name(fold_info_cols[["fold_column"]])) %>%
-            legacy_nest(2, .key = "value") %>%
-            dplyr::mutate(metric = mn)
-        }) %>%
-          dplyr::as_tibble() %>%
-          tidyr::spread(key = "metric",
-                        value = "value")
+          # TODO The new tidyr::nest interface might be able to do this part
+          # without the loop and stuff (kind of messy). Requires v1.0.0 though
+          # so for now we will do it this way, and change it if profiling
+          # marks it as problematic. Note: It seems to be fairly taxing, so
+          # perhaps it is worth checking the tidyr version and only using
+          # this when necessary?
 
-        fold_results <- fold_results %>%
-          dplyr::full_join(fold_col_model_metrics_nested,
-                           by = c(`Fold Column` = fold_info_cols[["fold_column"]]))
-      }
+          fold_col_model_metrics_nested <- plyr::ldply(model_metric_names, function(mn){
+            current_model_metrics %>%
+              dplyr::select(dplyr::one_of(c(
+                fold_info_cols[["fold_column"]],
+                mn
+              ))) %>%
+              dplyr::group_by(!! as.name(fold_info_cols[["fold_column"]])) %>%
+              legacy_nest(2, .key = "value") %>%
+              dplyr::mutate(metric = mn)
+          }) %>%
+            dplyr::as_tibble() %>%
+            tidyr::spread(key = "metric",
+                          value = "value")
+
+          fold_results <- fold_results %>%
+            dplyr::full_join(fold_col_model_metrics_nested,
+                             by = c(`Fold Column` = fold_info_cols[["fold_column"]]))
+        }
 
     }
 
@@ -271,34 +272,12 @@ custom_cross_validate_list <- function(data,
       reposition_column("Predictions", .before = "Results") %>%
       dplyr::bind_cols(current_warnings_and_messages_counts) %>%
       dplyr::mutate(`Warnings and Messages` = nested_current_warnings_and_messages)
-  })
 
-  if (family %in% c("binomial", "gaussian")){
-
-    cross_validations_results <- cross_validations %>%
-      dplyr::bind_rows() %>%
-      tibble::as_tibble() %>%
-      dplyr::mutate(Family = model_specifics[["family"]]) %>%
-      dplyr::select(-.data$`Singular Fit Messages`)
-
-  } else if (family == "multinomial"){
-
-    # Extract and nest class level results
-    cross_validations_class_level_results <-
-      plyr::ldply(cross_validations %c% "Class Level Results", function(clr) {
-        legacy_nest(clr, seq_len(ncol(clr)))
-        }) %>%
-      tibble::as_tibble() %>%
-      dplyr::pull(.data$data)
-
-    # Extact results and add family and class level results
-    cross_validations_results <- dplyr::bind_rows(cross_validations %c% "Results") %>%
-      tibble::as_tibble() %>%
-      dplyr::mutate(Family = model_specifics[["family"]]) %>%
-      dplyr::select(-.data$`Singular Fit Messages`) %>%
-      tibble::add_column(`Class Level Results` = cross_validations_class_level_results,
-                         .before = "Predictions")
-  }
+  }) %>%
+    dplyr::bind_rows() %>%
+    tibble::as_tibble() %>%
+    dplyr::mutate(Family = model_specifics[["family"]]) %>%
+    dplyr::select(-.data$`Singular Fit Messages`)
 
   # Extract the first row for each model in the computation grid
   grid_first_rows <- computation_grid %>%
@@ -336,7 +315,7 @@ custom_cross_validate_list <- function(data,
   original_formula_order[["Formula"]] <- NULL
 
   # We put the two data frames together
-  output <- dplyr::bind_cols(cross_validations_results,
+  output <- dplyr::bind_cols(cross_validations,
                              mixed_effects)
 
   if (!is.null(hyperparameters)){

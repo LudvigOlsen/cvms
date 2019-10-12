@@ -40,7 +40,7 @@ cross_validate_fn(data, formulas, model_fn, predict_fn,
 
  Must have the following function arguments:
 
- \code{function(test_data, model, formula)}
+ \code{function(test_data, model, formula, hyperparameters)}
 
  Must return predictions in the following formats, depending on \code{type}:
 

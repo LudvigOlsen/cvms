@@ -1,5 +1,3 @@
-# R CMD check NOTE handling
-if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 
 # Get all lists in a list with a certain name
 # Use: list_of_lists %c% 'list_name'

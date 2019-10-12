@@ -1,7 +1,4 @@
-# R CMD check NOTE handling
-if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 
-#' @importFrom dplyr %>%
 validate_fn_single <- function(train_data,
                               model_fn,
                               evaluation_type = "gaussian",

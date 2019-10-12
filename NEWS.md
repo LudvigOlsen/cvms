@@ -9,6 +9,10 @@ Pass a list of hyperparameters and every combination of these will be cross-vali
 
 * Adds `preprocess_once` argument to `cross_validate_fn()`. When preprocessing does not depend on the current formula or hyperparameters, we might as well perform it on each train/test split once, instead of for every model.
 
+* Changes the required arguments in the `predict_fn` function passed to `cross_validate_fn()`.
+
+* Changes the required arguments in the `model_fn` function passed to `cross_validate_fn()`.
+
 * Warnings and messages from preprocess_fn are caught and added to `Warnings and Messages`. 
 Warnings are counted in `Other Warnings`.
 

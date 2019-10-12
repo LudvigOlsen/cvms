@@ -43,7 +43,7 @@
 #'
 #'  Must have the following function arguments:
 #'
-#'  \code{function(test_data, model, formula)}
+#'  \code{function(test_data, model, formula, hyperparameters)}
 #'
 #'  Must return predictions in the following formats, depending on \code{type}:
 #'
@@ -437,20 +437,21 @@ cross_validate_fn <- function(data,
                               rm_nc = FALSE,
                               parallel = FALSE){
 
-  return(custom_cross_validate_list(data = data,
-                                    formulas = formulas,
-                                    model_fn = model_fn,
-                                    predict_fn = predict_fn,
-                                    preprocess_fn = preprocess_fn,
-                                    preprocess_once = preprocess_once,
-                                    hyperparameters = hyperparameters,
-                                    fold_cols = fold_cols,
-                                    family = type,
-                                    cutoff = cutoff,
-                                    positive = positive,
-                                    metrics = metrics,
-                                    rm_nc = rm_nc,
-                                    model_verbose = FALSE,
-                                    parallel_ = parallel,
-                                    parallelize = "models"))
+  return(cross_validate_list(
+    data = data,
+    formulas = formulas,
+    model_fn = model_fn,
+    predict_fn = predict_fn,
+    preprocess_fn = preprocess_fn,
+    preprocess_once = preprocess_once,
+    hyperparameters = hyperparameters,
+    fold_cols = fold_cols,
+    family = type,
+    cutoff = cutoff,
+    positive = positive,
+    metrics = metrics,
+    rm_nc = rm_nc,
+    model_verbose = FALSE,
+    parallel_ = parallel
+  ))
 }

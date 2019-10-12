@@ -23,7 +23,7 @@ example_predict_functions(name)
   "svm_binomial" \tab \code{\link[e1071:svm]{e1071::svm()}} \tab \code{type = "C-classification"}\cr
   "naive_bayes" \tab \code{\link[e1071:naiveBayes]{e1071::naiveBayes()}} \tab \cr
   "multinom" \tab \code{\link[nnet:multinom]{nnet::multinom()}} \tab \cr
-  }}
+ }}
 }
 \description{
 \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}

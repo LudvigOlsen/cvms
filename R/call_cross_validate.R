@@ -1,5 +1,5 @@
 #' @importFrom plyr ldply
-#' @importFrom dplyr mutate %>%
+#' @importFrom dplyr %>%
 #' @importFrom tidyr separate
 call_cross_validate <- function(data,
                                 formulas,

@@ -1,5 +1,3 @@
-# R CMD check NOTE handling
-if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 
 #' @title Cross-validate regression models for model selection
 #' @description

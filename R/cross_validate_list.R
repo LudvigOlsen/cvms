@@ -1,19 +1,19 @@
-custom_cross_validate_list <- function(data,
-                                       formulas,
-                                       model_fn,
-                                       predict_fn,
-                                       preprocess_fn = NULL,
-                                       preprocess_once = FALSE,
-                                       hyperparameters = NULL,
-                                       fold_cols = '.folds',
-                                       family = 'gaussian',
-                                       cutoff = 0.5,
-                                       positive = 2,
-                                       metrics = list(),
-                                       rm_nc = FALSE,
-                                       model_verbose = FALSE,
-                                       parallel_ = FALSE,
-                                       parallelize = "models") {
+cross_validate_list <- function(data,
+                                formulas,
+                                model_fn,
+                                predict_fn,
+                                preprocess_fn = NULL,
+                                preprocess_once = FALSE,
+                                hyperparameters = NULL,
+                                fold_cols = '.folds',
+                                family = 'gaussian',
+                                cutoff = 0.5,
+                                positive = 2,
+                                metrics = list(),
+                                rm_nc = FALSE,
+                                model_verbose = FALSE,
+                                parallel_ = FALSE) {
+
 
   # Set errors if input variables aren't what we expect / can handle
   # WORK ON THIS SECTION!
@@ -117,7 +117,7 @@ custom_cross_validate_list <- function(data,
 
   # cross_validate all the models using ldply()
   validated_folds <- plyr::llply(seq_len(nrow(computation_grid)),
-                                 .parallel = all(parallel_, parallelize == "models"), # TODO change to folds
+                                 .parallel = parallel_,
                                  .fun = function(r){
 
     # Extract current row from computation grid
@@ -162,7 +162,9 @@ custom_cross_validate_list <- function(data,
                         fold_column = "fold_column")
 
   # Evaluate predictions
-  cross_validations <- plyr::llply(seq_len(n_models), function(m){
+  cross_validations <- plyr::llply(seq_len(n_models),
+                                   .parallel = parallel_,
+                                   .fun = function(m){
 
     # Extract grid for current model
     current_grid <- computation_grid %>%
@@ -244,45 +246,45 @@ custom_cross_validate_list <- function(data,
 
     } else if (family %in% c("binomial", "multinomial")){
 
-        # In classification, we evaluate the collected (all folds) predictions
-        # per fold column. So if the Results column exists,
-        # we will join them per
-        # TODO: Make sure, Results is always included in prediction_evaluation !!!
-        fold_results <- prediction_evaluation[["Results"]][[1]]
-        prediction_evaluation[["Results"]] <- NULL
+      # In classification, we evaluate the collected (all folds) predictions
+      # per fold column. So if the Results column exists,
+      # we will join them per
+      # TODO: Make sure, Results is always included in prediction_evaluation !!!
+      fold_results <- prediction_evaluation[["Results"]][[1]]
+      prediction_evaluation[["Results"]] <- NULL
 
-        # Prepare model metrics for joining with the prediction results
+      # Prepare model metrics for joining with the prediction results
 
-        # Extract model metric names
-        model_metric_names <- intersect(names(current_model_metrics), metrics)
+      # Extract model metric names
+      model_metric_names <- intersect(names(current_model_metrics), metrics)
 
-        if (length(model_metric_names) > 0){
+      if (length(model_metric_names) > 0){
 
-          # TODO The new tidyr::nest interface might be able to do this part
-          # without the loop and stuff (kind of messy). Requires v1.0.0 though
-          # so for now we will do it this way, and change it if profiling
-          # marks it as problematic. Note: It seems to be fairly taxing, so
-          # perhaps it is worth checking the tidyr version and only using
-          # this when necessary?
+        # TODO The new tidyr::nest interface might be able to do this part
+        # without the loop and stuff (kind of messy). Requires v1.0.0 though
+        # so for now we will do it this way, and change it if profiling
+        # marks it as problematic. Note: It seems to be fairly taxing, so
+        # perhaps it is worth checking the tidyr version and only using
+        # this when necessary?
 
-          fold_col_model_metrics_nested <- plyr::ldply(model_metric_names, function(mn){
-            current_model_metrics %>%
-              dplyr::select(dplyr::one_of(c(
-                fold_info_cols[["fold_column"]],
-                mn
-              ))) %>%
-              dplyr::group_by(!! as.name(fold_info_cols[["fold_column"]])) %>%
-              legacy_nest(2, .key = "value") %>%
-              dplyr::mutate(metric = mn)
-          }) %>%
-            dplyr::as_tibble() %>%
-            tidyr::spread(key = "metric",
-                          value = "value")
+        fold_col_model_metrics_nested <- plyr::ldply(model_metric_names, function(mn){
+          current_model_metrics %>%
+            dplyr::select(dplyr::one_of(c(
+              fold_info_cols[["fold_column"]],
+              mn
+            ))) %>%
+            dplyr::group_by(!! as.name(fold_info_cols[["fold_column"]])) %>%
+            legacy_nest(2, .key = "value") %>%
+            dplyr::mutate(metric = mn)
+        }) %>%
+          dplyr::as_tibble() %>%
+          tidyr::spread(key = "metric",
+                        value = "value")
 
-          fold_results <- fold_results %>%
-            dplyr::full_join(fold_col_model_metrics_nested,
-                             by = c(`Fold Column` = fold_info_cols[["fold_column"]]))
-        }
+        fold_results <- fold_results %>%
+          dplyr::full_join(fold_col_model_metrics_nested,
+                           by = c(`Fold Column` = fold_info_cols[["fold_column"]]))
+      }
 
     }
 

@@ -41,7 +41,7 @@ create_computation_grid <- function(data, hparams, formulas, fold_cols){
 create_hparams_grid <- function(hparams, n = NULL){
 
   # Create grid of
-  grid <- expand.grid(hparams) %>%
+  grid <- expand.grid(hparams, stringsAsFactors = FALSE) %>%
     dplyr::as_tibble()
 
   # Randomly pick  n (number or percentage)

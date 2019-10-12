@@ -42,9 +42,9 @@ extract_y <- function(model){
 }
 
 # Check if there are random effects
-# returns a list, e.g. (False, False, True)
+# returns TRUE or FALSE
 rand_effects <- function(model){
-  grepl('\\(\\d', model, perl=TRUE)
+  any(grepl('\\(\\d', model, perl=TRUE))
 }
 
 count_convergence_warnings <- function(convergences){ # "Yes" or "No"

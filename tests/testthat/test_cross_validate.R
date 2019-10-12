@@ -62,11 +62,11 @@ test_that("binomial models work with cross_validate()",{
   expect_is(CVbinomlist$Predictions[[1]], "tbl_df")
   expect_is(CVbinomlist$ROC[[1]], "tbl_df")
   expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
-  expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Sensitivities","Specificities"))
+  expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Fold Column","Sensitivities","Specificities"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
   expect_equal(nrow(CVbinomlist$ROC[[1]]),29)
   expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
-               structure(list(`Fold Column` = character(0), Fold = integer(0),
+               structure(list(`Fold Column` = character(0), Fold = integer(0), Function = character(0),
                               Type = character(0), Message = character(0)),
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 

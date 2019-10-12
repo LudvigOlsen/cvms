@@ -42,14 +42,39 @@ custom_cross_validate_list <- function(data,
   # Check that the fold column(s) is/are factor(s)
   check_fold_col_factor(data = data, fold_cols = fold_cols)
 
+  # When using cross_validate() we need to extract a few hparams
+  # Hyperparameters for REML, link, control, is_cross_validate
+  is_cross_validate <- extract_from_hparams_for_cross_validate(
+    hyperparameters = hyperparameters,
+    param = "is_cross_validate")
+
+  if (isTRUE(is_cross_validate)){
+    # Note that we do not fill in defaults here, as that would mean,
+    # they could be different from their settings in the hyperparameters
+    # which could lead to mistakes. They are instead filled in
+    # within call_cross_validate().
+
+    REML <- extract_from_hparams_for_cross_validate(hyperparameters = hyperparameters,
+                                                    param = "REML")
+    link <- extract_from_hparams_for_cross_validate(hyperparameters = hyperparameters,
+                                                    param = "link")
+    control <- extract_from_hparams_for_cross_validate(hyperparameters = hyperparameters,
+                                                       param = "control")
+
+  } else {
+    REML <- NULL
+    link <- NULL
+    control <- NULL
+  }
+
   # Create model_specifics object
   # Update to get default values when an argument was not specified
   model_specifics <- list(
     model_formula = "",
     family = family,
-    REML = NULL,
-    link = NULL,
-    control = NULL,
+    REML = REML, # TODO Anyway to safely remove this and link and control from model_specifics?
+    link = link,
+    control = control,
     cutoff = cutoff,
     positive = positive,
     model_verbose = model_verbose,
@@ -58,7 +83,9 @@ custom_cross_validate_list <- function(data,
     preprocess_fn = preprocess_fn,
     preprocess_once = preprocess_once,
     hparams = NULL,
-    caller = "cross_validate_fn()"
+    caller = ifelse(isTRUE(is_cross_validate),
+                    "cross_validate()",
+                    "cross_validate_fn()")
   ) %>%
     custom_update_model_specifics()
 
@@ -200,8 +227,8 @@ custom_cross_validate_list <- function(data,
       fold_info_cols = fold_info_cols,
       model_specifics = model_specifics,
       metrics = metrics,
-      include_fold_columns = TRUE, # TODO Perhaps should be arg in main fn?
-      include_predictions = TRUE # TODO Perhaps should be arg in main fn?
+      include_fold_columns = TRUE,  # TODO Perhaps should be arg in main fn?
+      include_predictions = TRUE    # TODO Perhaps should be arg in main fn?
     )
 
     if (family == "gaussian"){
@@ -343,4 +370,12 @@ custom_cross_validate_list <- function(data,
   # and return it
   return(output)
 
+}
+
+extract_from_hparams_for_cross_validate <- function(hyperparameters, param){
+  if (!is.null(hyperparameters) &&
+      param %in% names(hyperparameters)){
+    return(hyperparameters[[param]])
+  }
+  NULL
 }

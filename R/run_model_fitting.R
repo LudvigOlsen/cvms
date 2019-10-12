@@ -9,7 +9,7 @@ run_model_fitting <- function(
       abs_fold = NULL,
       fold_column = NULL),
     model_verbose = FALSE,
-    caller = "cross_validate()"
+    caller = "cross_validate_fn()"
   )) {
 
   # Tries to fit the given model with the given model_type
@@ -38,13 +38,13 @@ run_model_fitting <- function(
 
   # We run the model fitting function once, but use map, so we can use the
   # quietly function from purrr. Perhaps there's a way to avoid map() ?
-
   fitted_model_process <- tryCatch({
     purrr::map(.x = 1, .f = purrr::quietly(function(.x){
       model_fitting_fn(model_specifics, train_data)
     }))
   }, error = function(e){
-
+    message(e) # The error is not always shown in full, in the below
+               # making it hard to debug
     stop(paste('',
                '-------------------------------------',
                paste0(caller, ': Error:'),

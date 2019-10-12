@@ -2,6 +2,7 @@ library(cvms)
 context("cross_validate_fn()")
 
 
+# runs (except folds and fold columns count)
 test_that("binomial glm model works with cross_validate_fn()",{
 
   # Load data and fold it
@@ -199,6 +200,7 @@ test_that("binomial glm model works with cross_validate_fn()",{
 
 })
 
+# almost runs (except folds and fold columns count and double warnings in predict_fn)
 test_that("gaussian lm model works with cross_validate_fn()",{
 
   # skip_test_if_old_R_version()
@@ -272,6 +274,7 @@ test_that("gaussian lm model works with cross_validate_fn()",{
 
 })
 
+# runs (except folds and fold columns count)
 test_that("binomial svm models from e1071 work with cross_validate_fn()",{
 
   # Load data and fold it
@@ -281,7 +284,7 @@ test_that("binomial svm models from e1071 work with cross_validate_fn()",{
                           id_col = 'participant')
   dat[["diagnosis"]] <- factor(dat[["diagnosis"]])
 
-  svm_model_fn <- function(train_data, formula){
+  svm_model_fn <- function(train_data, formula, hyperparameters){
 
     # NOTE: formula must be first when calling svm()
     e1071::svm(formula = formula, # converted to formula object within custom_fit_model()
@@ -291,10 +294,12 @@ test_that("binomial svm models from e1071 work with cross_validate_fn()",{
                scale = FALSE,
                type = "C-classification")
   }
-  # sm_ <- svm_model_fn(train_data = data, formula = as.formula("diagnosis~score"))
+
+  svm_predict_fn <- example_predict_functions("svm_binomial")
 
   CVbinomlist <- cross_validate_fn(dat,
-                                   svm_model_fn,
+                                   model_fn = svm_model_fn,
+                                   predict_fn = svm_predict_fn,
                                    formulas = c("diagnosis~score","diagnosis~age"),
                                    fold_cols = '.folds', type = 'binomial',
                                    positive = 1)
@@ -324,7 +329,7 @@ test_that("binomial svm models from e1071 work with cross_validate_fn()",{
   expect_is(CVbinomlist$Predictions[[1]], "tbl_df")
   expect_is(CVbinomlist$ROC[[1]], "tbl_df")
   expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
-  expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Sensitivities","Specificities"))
+  expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Fold Column","Sensitivities","Specificities"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
   expect_equal(nrow(CVbinomlist$ROC[[1]]),3)
   expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
@@ -334,6 +339,7 @@ test_that("binomial svm models from e1071 work with cross_validate_fn()",{
 
 })
 
+# runs (except folds and fold columns count)
 test_that("gaussian svm models from e1071 work with cross_validate_fn()",{
 
   # skip_test_if_old_R_version()
@@ -357,6 +363,7 @@ test_that("gaussian svm models from e1071 work with cross_validate_fn()",{
   # Cross-validate the data
   CVed <- cross_validate_fn(dat,
                             model_fn = svm_model_fn,
+                            predict_fn = example_predict_functions("svm_gaussian"),
                             formulas = "score~diagnosis",
                             fold_cols = '.folds',
                             type = 'gaussian')
@@ -376,8 +383,7 @@ test_that("gaussian svm models from e1071 work with cross_validate_fn()",{
   expect_equal(CVed$Fixed, 'diagnosis')
 
   expect_equal(colnames(CVed$Coefficients[[1]]),
-               c("term", "estimate", "Fold",
-                 "Fold Column", "p.value"))
+               c("Fold Column", "Fold", "term", "estimate",  "p.value"))
   expect_equal(CVed$Coefficients[[1]]$term,
                rep(c("(Intercept)","diagnosis"), 4))
   expect_equal(CVed$Coefficients[[1]]$estimate,
@@ -396,6 +402,8 @@ test_that("gaussian svm models from e1071 work with cross_validate_fn()",{
 
 })
 
+# almost runs (except folds and fold columns count and
+# (wont fail currently) double warnings in predict_fn)
 test_that("gaussian svm models with hparams and preprocessing work with cross_validate_fn()",{
 
   # skip_test_if_old_R_version()
@@ -417,6 +425,10 @@ test_that("gaussian svm models with hparams and preprocessing work with cross_va
                scale = FALSE,
                type = "eps-regression")
   }
+
+  # broom::tidy(svm_model_fn(train_data = dat, formula = as.formula("score~diagnosis"),
+  #              hyperparameters = list(
+  #                "kernel" = "linear", "cost" = 10)))
 
   svm_predict_fn <- function(test_data, model, formula){
 
@@ -452,47 +464,91 @@ test_that("gaussian svm models with hparams and preprocessing work with cross_va
                   "cost" = c(1, 5, 10))
 
   # Cross-validate the data
-  CVed <- cross_validate_fn(dat,
-                            model_fn = svm_model_fn,
-                            predict_fn = svm_predict_fn,
-                            preprocess_fn = svm_preprocess_fn,
-                            preprocess_once = FALSE, # TODO Try with TRUE as well
-                            hyperparameters = hparams,
-                            formulas = "score~diagnosis",
-                            fold_cols = '.folds',
-                            type = 'gaussian')
+  suppressMessages(suppressWarnings(
+    CVed <- cross_validate_fn(dat,
+                              model_fn = svm_model_fn,
+                              predict_fn = svm_predict_fn,
+                              preprocess_fn = svm_preprocess_fn,
+                              preprocess_once = FALSE, # TODO Try with TRUE as well
+                              hyperparameters = hparams,
+                              formulas = "score~diagnosis",
+                              fold_cols = '.folds',
+                              type = 'gaussian')))
 
-  expect_equal(CVed$RMSE, 18.01026, tolerance=1e-3)
-  expect_equal(CVed$MAE, 15.27778, tolerance=1e-3)
-  expect_equal(CVed$r2m, NaN, tolerance=1e-3)
-  expect_equal(CVed$r2c, NaN, tolerance=1e-3)
-  expect_equal(CVed$AIC, NaN, tolerance=1e-3)
-  expect_equal(CVed$AICc, NaN, tolerance=1e-3)
-  expect_equal(CVed$BIC, NaN, tolerance=1e-3)
+  expect_equal(CVed$RMSE,
+               c(19.9498105361079, 18.028011231846,
+                 19.724604489995, 19.3906795721289,
+                 18.3020558729458), tolerance=1e-3)
+  expect_equal(CVed$MAE,
+               c(16.195563745625, 15.2813142143035,
+                 16.0889298392363, 15.8807791330459,
+                 15.3388888924368), tolerance=1e-3)
+  expect_equal(CVed$r2m, rep(NaN,5), tolerance=1e-3)
+  expect_equal(CVed$r2c, rep(NaN,5), tolerance=1e-3)
+  expect_equal(CVed$AIC, rep(NaN,5), tolerance=1e-3)
+  expect_equal(CVed$AICc, rep(NaN,5), tolerance=1e-3)
+  expect_equal(CVed$BIC, rep(NaN,5), tolerance=1e-3)
   expect_equal(CVed$Folds, 4)
   expect_equal(CVed$`Fold Columns`, 1)
-  expect_equal(CVed$`Convergence Warnings`, 0)
-  expect_equal(CVed$Family, 'gaussian')
-  expect_equal(CVed$Dependent, 'score')
-  expect_equal(CVed$Fixed, 'diagnosis')
+  expect_equal(CVed$`Convergence Warnings`, rep(0,5))
+  expect_equal(CVed$Family, rep('gaussian',5))
+  expect_equal(CVed$Dependent, rep('score',5))
+  expect_equal(CVed$Fixed, rep('diagnosis',5))
 
   expect_equal(colnames(CVed$Coefficients[[1]]),
-               c("term", "estimate", "Fold",
-                 "Fold Column", "p.value"))
-  expect_equal(CVed$Coefficients[[1]]$term,
-               rep(c("(Intercept)","diagnosis"), 4))
-  expect_equal(CVed$Coefficients[[1]]$estimate,
-               c(40.1, -10, 50.1, -20, 40.1, -10, 45, -10))
-  expect_equal(CVed$Coefficients[[1]]$Fold,
-               c(1L, 1L, 2L, 2L, 3L, 3L, 4L, 4L))
-  expect_equal(CVed$Coefficients[[1]]$`Fold Column`,
-               rep(".folds", 8))
-  expect_equal(CVed$Coefficients[[1]]$p.value,
-               rep(NA, 8))
-  expect_equal(CVed$`Warnings and Messages`[[1]],
-               structure(list(`Fold Column` = character(0), Fold = integer(0),
-                              Function = character(0), Type = character(0), Message = character(0)),
-                         row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
+               c("Fold Column", "Fold","term",
+                 "estimate", "std.error", "statistic", "p.value"))
+  dput(CVed$Coefficients[[1]])
+  expect_equal(CVed$Coefficients[[1]],
+               structure(list(`Fold Column` = c(NA, NA, NA, NA),
+                              Fold = c(NA, NA, NA, NA),
+                              term = c(NA, NA, NA, NA),
+                              estimate = c(NA, NA, NA, NA),
+                              std.error = c(NA, NA, NA, NA),
+                              statistic = c(NA, NA, NA, NA),
+                              p.value = c(NA, NA, NA, NA)),
+                         row.names = c(NA, -4L),
+                         class = c("tbl_df","tbl", "data.frame")))
+
+  # Note: When fixing the double warning in predict_fn, this will fail
+  expect_equal(CVed$`Warnings and Messages`[[1]]$`Fold Column`,
+               rep(".folds",28))
+
+  expect_equal(CVed$`Warnings and Messages`[[1]]$Fold,
+               c(1L, 1L, 1L, 1L, 1L, 1L, 1L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 3L,
+                 3L, 3L, 3L, 3L, 3L, 3L, 4L, 4L, 4L, 4L, 4L, 4L, 4L))
+  expect_equal(CVed$`Warnings and Messages`[[1]]$Function,
+               c("model_fn", "model_fn", "predict_fn", "predict_fn", "predict_fn",
+                 "preprocess_fn", "preprocess_fn", "model_fn", "model_fn", "predict_fn",
+                 "predict_fn", "predict_fn", "preprocess_fn", "preprocess_fn",
+                 "model_fn", "model_fn", "predict_fn", "predict_fn", "predict_fn",
+                 "preprocess_fn", "preprocess_fn", "model_fn", "model_fn", "predict_fn",
+                 "predict_fn", "predict_fn", "preprocess_fn", "preprocess_fn"))
+  expect_equal(CVed$`Warnings and Messages`[[1]]$Type,
+               c("warning", "message", "warning", "warning", "message", "warning",
+                 "message", "warning", "message", "warning", "warning", "message",
+                 "warning", "message", "warning", "message", "warning", "warning",
+                 "message", "warning", "message", "warning", "message", "warning",
+                 "warning", "message", "warning", "message"))
+  expect_equal(CVed$`Warnings and Messages`[[1]]$Message,
+               c("This is a model_fn warning", "This is a model_fn message\n",
+                 "Got the following warning while using specified 'predict_fn': simpleWarning in user_predict_fn(test_data = test_data, model = model, formula = stats::as.formula(formula)): This is a predict_fn warning\n",
+                 "This is a predict_fn warning", "This is a predict_fn message\n",
+                 "This is a preprocess_fn warning", "This is a preprocess_fn message\n",
+                 "This is a model_fn warning", "This is a model_fn message\n",
+                 "Got the following warning while using specified 'predict_fn': simpleWarning in user_predict_fn(test_data = test_data, model = model, formula = stats::as.formula(formula)): This is a predict_fn warning\n",
+                 "This is a predict_fn warning", "This is a predict_fn message\n",
+                 "This is a preprocess_fn warning", "This is a preprocess_fn message\n",
+                 "This is a model_fn warning", "This is a model_fn message\n",
+                 "Got the following warning while using specified 'predict_fn': simpleWarning in user_predict_fn(test_data = test_data, model = model, formula = stats::as.formula(formula)): This is a predict_fn warning\n",
+                 "This is a predict_fn warning", "This is a predict_fn message\n",
+                 "This is a preprocess_fn warning", "This is a preprocess_fn message\n",
+                 "This is a model_fn warning", "This is a model_fn message\n",
+                 "Got the following warning while using specified 'predict_fn': simpleWarning in user_predict_fn(test_data = test_data, model = model, formula = stats::as.formula(formula)): This is a predict_fn warning\n",
+                 "This is a predict_fn warning", "This is a predict_fn message\n",
+                 "This is a preprocess_fn warning", "This is a preprocess_fn message\n"
+               ))
+
 
 
 })
@@ -723,6 +779,7 @@ test_that("gaussian nnet models work with cross_validate_fn()",{
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 })
 
+# runs (except folds and fold columns count)
 test_that("multinomial nnet models work with cross_validate_fn()",{
 
   # Load data and fold it

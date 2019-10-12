@@ -32,7 +32,7 @@ fit_predict_model_fn <- function(train_data,
   user_predict_fn <- model_specifics[["predict_fn"]]
 
   # Check task/evaluation type
-  if (model_specifics[["family"]] %ni% c("gaussian","binomial","multinomial")){
+  if (model_specifics[["family"]] %ni% c("gaussian", "binomial", "multinomial")){
     stop(paste0("Does not recognize '", model_specifics[["family"]], "'."))
   }
 

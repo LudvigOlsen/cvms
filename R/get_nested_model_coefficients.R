@@ -11,12 +11,12 @@ get_nested_model_coefficients <- function(model,
   if (is.null(model)){
 
     NA_coeffs <- tibble::tibble(
+      "Fold Column" = NA,
+      'Fold' = NA,
       'term' = NA,
       'estimate' = NA,
       'std.error' = NA,
-      'statistic' = NA,
-      'Fold' = NA,
-      "Fold Column" = NA
+      'statistic' = NA
     )
 
     if (!isTRUE(include_fold_columns)){

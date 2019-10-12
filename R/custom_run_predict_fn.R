@@ -10,11 +10,11 @@ custom_process_predictions <- function(test_data,
   prediction_process <- tryCatch({
     purrr::map(.x = 1, .f = purrr::quietly(function(.x){
       run_predict_fn(test_data = test_data,
-                            model = model,
-                            model_formula = model_formula,
-                            y_col = y_col,
-                            user_predict_fn = user_predict_fn,
-                            model_specifics = model_specifics)
+                     model = model,
+                     model_formula = model_formula,
+                     y_col = y_col,
+                     user_predict_fn = user_predict_fn,
+                     model_specifics = model_specifics)
     }))
   }, error = function(e){
     stop(paste('',
@@ -110,6 +110,7 @@ run_predict_fn <- function(test_data,
         test_data = test_data,
         model = model,
         formula = model_specifics[["model_formula"]],
+        hyperparameters = extract_hparams(model_specifics),
         caller = model_specifics[["caller"]])
 
     } else {
@@ -216,16 +217,19 @@ force_numeric <- function(predictions_vector, caller = ""){
   predictions_vector
 }
 
-run_user_predict_fn <- function(user_predict_fn, test_data, model, formula, caller = ""){
-
-  # TODO Catch and rethrow the warnings instead,
-  # to avoid running the predict_fn twice
+run_user_predict_fn <- function(user_predict_fn,
+                                test_data,
+                                model,
+                                formula,
+                                hyperparameters,
+                                caller = ""){
 
   tryCatch({
     # Use user's predict function
     user_predict_fn(test_data = test_data,
                     model = model,
-                    formula = stats::as.formula(formula))
+                    formula = stats::as.formula(formula),
+                    hyperparameters = hyperparameters)
 
   }, error = function(e){
 
@@ -233,15 +237,7 @@ run_user_predict_fn <- function(user_predict_fn, test_data, model, formula, call
       "Got the following error while using specified 'predict_fn': ",
       e
     ))
-
-  }, warning = function(w){
-
-    warning(paste0(
-      "Got the following warning while using specified 'predict_fn': ",
-      w
-    ))
-
-    return(user_predict_fn(test_data = test_data,
-                           model = model))
   })
+  # When we don't catch warnings, the output is returned and the warning is thrown
+  # In this case, that's what we want, as they will be caught in parent function
 }

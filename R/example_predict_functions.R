@@ -28,40 +28,27 @@
 #'  }
 example_predict_functions <- function(name){
 
-  if (name == "lm"){
-    predict_fn <- function(test_data, model, formula){
+  if (name %in% c("lm", "lmer")){
+    predict_fn <- function(test_data, model, formula, hyperparameters){
       stats::predict(object = model,
                      newdata = test_data,
                      allow.new.levels = TRUE)
     }
-  } else if (name == "lmer"){
-    predict_fn <- function(test_data, model, formula){
-      stats::predict(object = model,
-                     newdata = test_data,
-                     allow.new.levels = TRUE)
-    }
-  } else if (name == "glm_binomial"){
-    predict_fn <- function(test_data, model, formula){
-      stats::predict(object = model,
-                     newdata = test_data,
-                     type = "response",
-                     allow.new.levels = TRUE)
-    }
-  } else if (name == "glmer_binomial"){
-    predict_fn <- function(test_data, model, formula){
+  } else if (name %in% c("glm_binomial", "glmer_binomial")){
+    predict_fn <- function(test_data, model, formula, hyperparameters){
       stats::predict(object = model,
                      newdata = test_data,
                      type = "response",
                      allow.new.levels = TRUE)
     }
   } else if (name == "svm_gaussian"){
-    predict_fn <- function(test_data, model, formula){
+    predict_fn <- function(test_data, model, formula, hyperparameters){
       stats::predict(object = model,
                      newdata = test_data,
                      allow.new.levels = TRUE)
     }
   } else if (name == "svm_binomial"){
-    predict_fn <- function(test_data, model, formula){
+    predict_fn <- function(test_data, model, formula, hyperparameters){
 
       # Returns the predicted classes, not probabilities
 
@@ -70,14 +57,14 @@ example_predict_functions <- function(name){
                      allow.new.levels = TRUE)
     }
   } else if (name == "naive_bayes"){
-    predict_fn <- function(test_data, model, formula){
+    predict_fn <- function(test_data, model, formula, hyperparameters){
       stats::predict(object = model,
                      newdata = test_data,
                      type = "raw",
                      allow.new.levels = TRUE)[,2]
     }
   } else if (name == "multinom"){
-    predict_fn <- function(test_data, model, formula){
+    predict_fn <- function(test_data, model, formula, hyperparameters){
       stats::predict(object = model,
                      newdata = test_data,
                      type = "probs",

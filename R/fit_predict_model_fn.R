@@ -71,7 +71,7 @@ fit_predict_model_fn <- function(train_data,
   warnings_and_messages <- fitted_model[["warnings_and_messages"]] %>%
     dplyr::bind_rows(prediction_process[["warnings_and_messages"]]) %>%
     dplyr::mutate(Fold = fold_info[["rel_fold"]],
-                  `Fold Column` = fold_info[["fold_column"]]) %>%
+                  `Fold Column` = as.character(fold_info[["fold_column"]])) %>%
     dplyr::select(dplyr::one_of(
       c("Fold Column", "Fold", "Function", "Type", "Message")))
 

@@ -76,13 +76,29 @@ test_that("binomial glm model works with cross_validate_fn()",{
                     fold_cols = '.folds', type = 'binomial'),
                "'model_fn' was NULL.", fixed = TRUE)
 
-  # Check error when no model_fn is provided
+  # Check error when no predict_fn is provided
+  expect_error(cross_validate_fn(dat,
+                                 model_fn = glm_model_fn,
+                                 predict_fn = NULL,
+                                 formulas = c("diagnosis~score","diagnosis~age"),
+                                 fold_cols = '.folds', type = 'binomial'),
+               "'predict_fn' was NULL.", fixed = TRUE)
+
+  # Check error when wrong model_fn type is provided
   expect_error(cross_validate_fn(dat,
                                  model_fn = 3,
                                  predict_fn = glm_predict_fn,
                                  formulas = c("diagnosis~score","diagnosis~age"),
                                  fold_cols = '.folds', type = 'binomial'),
-               "could not find function \"model_fn\"", fixed = TRUE)
+               "'model_fn' was not a function.", fixed = TRUE)
+
+  # Check error when wrong predict_fn type is provided
+  expect_error(cross_validate_fn(dat,
+                                 model_fn = glm_model_fn,
+                                 predict_fn = 3,
+                                 formulas = c("diagnosis~score","diagnosis~age"),
+                                 fold_cols = '.folds', type = 'binomial'),
+               "'predict_fn' was not a function.", fixed = TRUE)
 
   expect_error(cross_validate_fn(dat,
                                  model_fn = glm_model_fn,
@@ -102,7 +118,7 @@ test_that("binomial glm model works with cross_validate_fn()",{
                fixed = TRUE)
 
   # wrong predict fn
-  wrong_predict_fn <- function(test_data, model, formula = NULL){
+  wrong_predict_fn <- function(test_data, model, formula = NULL, hyperparameters = NULL){
     tibble::tibble("1" = stats::predict(object = model, newdata = test_data,
                                         type = "response", allow.new.levels = TRUE),
                    "2" = stats::predict(object = model, newdata = test_data,
@@ -125,7 +141,8 @@ test_that("binomial glm model works with cross_validate_fn()",{
                                  model_fn = glm_model_fn,
                                  formulas = c("diagnosis~score","diagnosis~age"),
                                  fold_cols = '.folds',
-                                 predict_fn = function(test_data, model, formula = NULL){NULL},
+                                 predict_fn = function(test_data, model, formula = NULL,
+                                                       hyperparameters = NULL){NULL},
                                  type = 'binomial'),
                paste0("cross_validate_fn(): predictions were NULL."),
                fixed = TRUE)
@@ -133,7 +150,8 @@ test_that("binomial glm model works with cross_validate_fn()",{
                                  model_fn = glm_model_fn,
                                  formulas = c("diagnosis~score","diagnosis~age"),
                                  fold_cols = '.folds',
-                                 predict_fn = function(test_data, model, formula = NULL){lm},
+                                 predict_fn = function(test_data, model, formula = NULL,
+                                                       hyperparameters = NULL){lm},
                                  type = 'binomial'),
                paste0("Could not use the obtained predictions. ",
                       "Did you specify 'predict_fn' correctly? ",
@@ -152,7 +170,8 @@ test_that("binomial glm model works with cross_validate_fn()",{
                                  model_fn = glm_model_fn,
                                  formulas = c("diagnosis~score","diagnosis~age"),
                                  fold_cols = '.folds',
-                                 predict_fn = function(test_data, model, formula = NULL){c("a","b","d")},
+                                 predict_fn = function(test_data, model, formula = NULL,
+                                                       hyperparameters = NULL){c("a","b","d")},
                                  type = 'binomial'),
                paste0("The number of predictions did not match the number of rows in the test set."),
                fixed = TRUE)
@@ -160,7 +179,8 @@ test_that("binomial glm model works with cross_validate_fn()",{
                                  model_fn = glm_model_fn,
                                  formulas = c("diagnosis~score","diagnosis~age"),
                                  fold_cols = '.folds',
-                                 predict_fn = function(test_data, model, formula = NULL){head(LETTERS, nrow(test_data))},
+                                 predict_fn = function(test_data, model, formula = NULL,
+                                                       hyperparameters = NULL){head(LETTERS, nrow(test_data))},
                                  type = 'binomial'),
                paste0("Could not convert predictions to type numeric."),
                fixed = TRUE)
@@ -168,22 +188,24 @@ test_that("binomial glm model works with cross_validate_fn()",{
                                  model_fn = glm_model_fn,
                                  formulas = c("diagnosis~score","diagnosis~age"),
                                  fold_cols = '.folds',
-                                 predict_fn = function(test_data, model, formula = NULL){stop("predict_fn error")},
+                                 predict_fn = function(test_data, model, formula = NULL,
+                                                       hyperparameters = NULL){stop("predict_fn error")},
                                  type = 'binomial'),
                paste0("Got the following error while using ",
                       "specified 'predict_fn': Error in ",
                       "user_predict_fn(test_data = test_data, model = model, ",
-                      "formula = stats::as.formula(formula)): predict_fn error"),
+                      "formula = stats::as.formula(formula), : predict_fn error"),
                fixed = TRUE)
   expect_error(cross_validate_fn(dat,
                                  model_fn = glm_model_fn,
                                  formulas = c("diagnosis~score","diagnosis~age"),
                                  fold_cols = '.folds',
-                                 predict_fn = function(t_data, model, formula = NULL){NULL},
+                                 predict_fn = function(t_data, model, formula = NULL,
+                                                       hyperparameters = NULL){NULL},
                                  type = 'binomial'),
                paste0("Got the following error while using ",
                       "specified 'predict_fn': Error in user_predict_fn(test_data = ",
-                      "test_data, model = model, formula = stats::as.formula(formula)): ",
+                      "test_data, model = model, formula = stats::as.formula(formula), : ",
                       "unused argument (test_data = test_data)"),
                fixed = TRUE)
 
@@ -203,8 +225,6 @@ test_that("binomial glm model works with cross_validate_fn()",{
 # almost runs (except folds and fold columns count and double warnings in predict_fn)
 test_that("gaussian lm model works with cross_validate_fn()",{
 
-  # skip_test_if_old_R_version()
-
   # Load data and fold it
   set_seed_for_R_compatibility(1)
   dat <- groupdata2::fold(participant.scores, k = 4,
@@ -217,7 +237,7 @@ test_that("gaussian lm model works with cross_validate_fn()",{
   # summary(lmm <- lm_model_fn(dat, "score ~ diagnosis"))
   # MuMIn::AICc(lmm, REML = F) # The one used in the package
 
-  lm_predict_fn <- function(test_data, model, formula){
+  lm_predict_fn <- function(test_data, model, formula, hyperparameters){
     stats::predict(model, test_data, allow.new.levels = TRUE)
   }
 
@@ -263,14 +283,144 @@ test_that("gaussian lm model works with cross_validate_fn()",{
       ))$`Warnings and Messages`)
 
   expect_equal(warnings_and_messages$`Fold Column`,
-               rep(".folds", 16))
+               rep(".folds", 8))
   expect_equal(warnings_and_messages$Fold,
-               c(1L, 1L, 2L, 2L, 3L, 3L, 4L, 4L,
-                 1L, 1L, 2L, 2L, 3L, 3L, 4L, 4L))
+               c(1L, 2L, 3L, 4L, 1L, 2L, 3L, 4L))
   expect_equal(warnings_and_messages$Function,
-               rep("predict_fn", 16))
-  expect_equal(warnings_and_messages$Message, # TODO It shouldn't catch it twice!
-               rep("prediction from a rank-deficient fit may be misleading", 16))
+               rep("predict_fn", 8))
+  expect_equal(warnings_and_messages$Message,
+               rep("prediction from a rank-deficient fit may be misleading", 8))
+
+})
+
+test_that("binomial glm model with preprocess_fn works with cross_validate_fn()",{
+
+  # Load data and fold it
+  set_seed_for_R_compatibility(1)
+
+  # Not used atm.
+  dat <- groupdata2::fold(participant.scores, k = 4,
+                           num_fold_cols = 3,
+                           cat_col = 'diagnosis',
+                           id_col = 'participant') %>%
+    dplyr::mutate(diagnosis = as.factor(diagnosis))
+
+  glm_model_fn <- example_model_functions("glm_binomial")
+
+  glm_predict_fn <- example_predict_functions("glm_binomial")
+
+  glm_preprocess_fn <- example_preprocess_functions("standardize")
+
+  CVbinomlist_prep_all <- cross_validate_fn(
+    data = dat,
+    model_fn = glm_model_fn,
+    predict_fn = glm_predict_fn,
+    preprocess_fn = glm_preprocess_fn,
+    preprocess_once = FALSE,
+    formulas = c("diagnosis~score", "diagnosis~age"),
+    fold_cols = paste0('.folds_', 1:3),
+    type = 'binomial',
+    metrics = list("AIC" = TRUE,
+                   "AICc" = TRUE,
+                   "BIC" = TRUE),
+    positive = 2)
+
+  CVbinomlist_prep_once <- cross_validate_fn(
+    data = dat,
+    model_fn = glm_model_fn,
+    predict_fn = glm_predict_fn,
+    preprocess_fn = glm_preprocess_fn,
+    preprocess_once = TRUE,
+    formulas = c("diagnosis~score", "diagnosis~age"),
+    fold_cols = paste0('.folds_', 1:3),
+    type = 'binomial',
+    metrics = list("AIC" = TRUE,
+                   "AICc" = TRUE,
+                   "BIC" = TRUE),
+    positive = 2)
+
+  expect_identical(CVbinomlist_prep_all,
+                   CVbinomlist_prep_once)
+
+  expect_identical(CVbinomlist_prep_once$Preprocess,
+                   CVbinomlist_prep_all$Preprocess)
+
+  all_preprocess_params <- dplyr::bind_rows(CVbinomlist_prep_once$Preprocess)
+  expect_equal(all_preprocess_params$`Fold Column`,
+               rep(rep(paste0(".folds_", 1:3), each=8),2))
+  expect_equal(all_preprocess_params$Fold,
+               rep(rep(1:4, each=2),6))
+  expect_equal(all_preprocess_params$Measure,
+               rep(c("Mean","SD"), 24))
+  expect_equal(all_preprocess_params$age,
+               rep(c(28.875, 7.39160805002656, 28.2857142857143, 5.12974518999587,
+                     27.25, 7.51953976389975, 29.2857142857143, 7.93185260290972,
+                     26.125, 5.36747450936617, 30.7142857142857, 7.13542470454883,
+                     27.375, 7.59182913171901, 29.8571428571429, 7.35721220494362,
+                     28.625, 7.62611360364191, 28.5714285714286, 4.73889679747754,
+                     28.625, 7.24006065312091, 27.7142857142857, 8.33752275644785), 2),
+               tolerance = 1e-6)
+  expect_equal(all_preprocess_params$score,
+               rep(c(37.75, 18.6925932785759, 41.2380952380952, 19.7177705684612,
+                     36.2916666666667, 19.4276342104357, 40.2857142857143, 19.4220051929322,
+                     37.9583333333333, 18.4708446328065, 39.1904761904762, 19.8459543676263,
+                     39.25, 19.7070942865099, 38.7142857142857, 19.6268766163719,
+                     37.1666666666667, 19.4794577789609, 39.7142857142857, 19.0030072808039,
+                     38.2916666666667, 20.0227678377406, 40.1904761904762, 18.8245027759541), 2),
+               tolerance = 1e-6)
+  expect_equal(all_preprocess_params$session,
+               rep(c(2, 0.834057656228299, 2, 0.836660026534076, 2, 0.834057656228299,
+                     2, 0.836660026534076, 2, 0.834057656228299, 2, 0.836660026534076,
+                     2, 0.834057656228299, 2, 0.836660026534076, 2, 0.834057656228299,
+                     2, 0.836660026534076, 2, 0.834057656228299, 2, 0.836660026534076
+               ), 2),
+               tolerance = 1e-6)
+
+
+  expect_equal(CVbinomlist_prep_once$AUC, c(0.744598765432099, 0.256944444444444), tolerance=1e-3)
+  expect_equal(CVbinomlist_prep_once$`Lower CI`, c(0.557694303281996, 0.088133274673661), tolerance=1e-3)
+  expect_equal(CVbinomlist_prep_once$`Upper CI`, c(0.931503227582202, 0.430603742698332), tolerance=1e-3)
+  expect_equal(CVbinomlist_prep_once$Kappa, c(0.47135955831608, -0.212121212121212), tolerance=1e-3)
+  expect_equal(CVbinomlist_prep_once$Sensitivity, c(0.87037037037037, 0.722222222222222), tolerance=1e-3)
+  expect_equal(CVbinomlist_prep_once$Specificity, c(0.583333333333333, 0.0833333333333333), tolerance=1e-3)
+  expect_equal(CVbinomlist_prep_once$`Pos Pred Value`, c(0.757936507936508, 0.541666666666667), tolerance=1e-3)
+  expect_equal(CVbinomlist_prep_once$`Neg Pred Value`, c(0.751851851851852, 0.166666666666667), tolerance=1e-3)
+  expect_equal(CVbinomlist_prep_once$F1, c(0.810166441745389, 0.619047619047619), tolerance=1e-3)
+  expect_equal(CVbinomlist_prep_once$Prevalence, c(0.6, 0.6), tolerance=1e-3)
+  expect_equal(CVbinomlist_prep_once$`Detection Rate`, c(0.522222222222222, 0.433333333333333), tolerance=1e-3)
+  expect_equal(CVbinomlist_prep_once$`Detection Prevalence`, c(0.688888888888889, 0.8), tolerance=1e-3)
+  expect_equal(CVbinomlist_prep_once$`Balanced Accuracy`, c(0.726851851851852, 0.402777777777778), tolerance=1e-3)
+  expect_equal(CVbinomlist_prep_once$MCC, c(0.480888760816756, -0.23814483610392), tolerance=1e-3)
+  expect_equal(CVbinomlist_prep_once$AIC, c(27.1161243598453, 33.3259599731777), tolerance=1e-3)
+  expect_equal(CVbinomlist_prep_once$AICc, c(27.7351719788929, 33.9450075922254), tolerance=1e-3)
+  expect_equal(CVbinomlist_prep_once$BIC, c(29.3387006279166, 35.5485362412491), tolerance=1e-3)
+  expect_equal(CVbinomlist_prep_once$Folds, c(12,12))
+  expect_equal(CVbinomlist_prep_once$`Fold Columns`, c(3,3))
+  expect_equal(CVbinomlist_prep_once$`Convergence Warnings`, c(0,0))
+  expect_equal(CVbinomlist_prep_once$Family, c('binomial','binomial'))
+  expect_equal(CVbinomlist_prep_once$Dependent, c('diagnosis','diagnosis'))
+  expect_equal(CVbinomlist_prep_once$Fixed, c('score','age'))
+
+  # Enter sub tibbles
+  expect_is(CVbinomlist_prep_once$Predictions[[1]], "tbl_df")
+  expect_is(CVbinomlist_prep_once$ROC[[1]], "tbl_df")
+  expect_equal(colnames(CVbinomlist_prep_once$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
+  expect_equal(colnames(CVbinomlist_prep_once$ROC[[1]]), c("Fold Column","Sensitivities","Specificities"))
+  expect_equal(nrow(CVbinomlist_prep_once$Predictions[[1]]),90)
+  expect_equal(nrow(CVbinomlist_prep_once$ROC[[1]]),86)
+  expect_equal(CVbinomlist_prep_once$`Warnings and Messages`[[1]],
+               structure(list(`Fold Column` = character(0), Fold = integer(0),
+                              Function = character(0), Type = character(0), Message = character(0)),
+                         row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
+
+  # Check error when no model_fn is provided
+  expect_error(cross_validate_fn(dat,
+                                 model_fn = glm_model_fn,
+                                 predict_fn = glm_predict_fn,
+                                 preprocess_fn = "notAFunction",
+                                 formulas = c("diagnosis~score","diagnosis~age"),
+                                 fold_cols = '.folds_1', type = 'binomial'),
+               "'preprocess_fn' was not a function.", fixed = TRUE)
 
 })
 

@@ -16,7 +16,7 @@ extract_model_effects <- function(model_list) {
     mixed_effects <- mixed_effects %>%
 
       # First remove all whitespaces
-      mutate(model = gsub("\\s", "", .$model)) %>%
+      dplyr::mutate(model = gsub("\\s", "", .$model)) %>%
 
       # Seperate model into dependent variable and predictors
       tidyr::separate(
@@ -39,7 +39,7 @@ extract_model_effects <- function(model_list) {
 
       # Then we clean up those strings a bit
       # From fixed we remove the last "+"
-      mutate(
+      dplyr::mutate(
         Fixed = gsub("[+]$", "", .data$Fixed),
         Random = ifelse(!is.na(.data$Random), paste0("(",.data$Random), .data$Random)
         #Random = gsub('\\(|\\)', '', .data$Random)

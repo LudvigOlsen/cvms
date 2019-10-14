@@ -36,8 +36,16 @@ example_preprocess_functions <- function(name){
       train_data <- predict(preprocess_params, train_data)
       test_data <- predict(preprocess_params, test_data)
 
+      # Extract parameters and add to tibble
+      tidy_parameters <- tibble::tibble("Measure" = c("Mean", "SD")) %>%
+        dplyr::bind_cols(
+          dplyr::bind_rows(preprocess_params$mean,
+                           preprocess_params$std)
+          )
+
       list("train" = train_data,
-           "test" = test_data)
+           "test" = test_data,
+           "parameters" = tidy_parameters)
     }
    } else if (name == "normalize"){
       preprocess_fn <- function(train_data, test_data, formula, hyperparameters){
@@ -52,8 +60,15 @@ example_preprocess_functions <- function(name){
         train_data <- predict(preprocess_params, train_data)
         test_data <- predict(preprocess_params, test_data)
 
+        # Extract parameters and add to tibble
+        tidy_parameters <- tibble::tibble("Measure" = c("Min", "Max")) %>%
+          dplyr::bind_cols(
+            dplyr::as_tibble(preprocess_params$ranges)
+          )
+
         list("train" = train_data,
-             "test" = test_data)
+             "test" = test_data,
+             "parameters" = tidy_parameters)
       }
   } else if (name == "warn"){
     preprocess_fn <- function(train_data, test_data, formula, hyperparameters){

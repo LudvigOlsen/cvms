@@ -28,6 +28,7 @@ custom_validate_fold <- function(data,
 
     train_data <- train_test[["train"]][[1]]
     test_data <- train_test[["test"]][[1]]
+    preprocess_params <- train_test[["preprocess_parameters"]][[1]]
     preprocess_warnings_and_messages <- train_test[["warnings_and_messages"]][[1]]
     preprocess_n_unknown_warnings <- train_test[["n_unknown_warnings"]][[1]]
 
@@ -42,6 +43,7 @@ custom_validate_fold <- function(data,
 
     train_data <- train_test[["train"]]
     test_data <- train_test[["test"]]
+    preprocess_params <- train_test[["preprocess_parameters"]]
     preprocess_warnings_and_messages <- train_test[["warnings_and_messages"]]
     preprocess_n_unknown_warnings <- train_test[["n_unknown_warnings"]]
 
@@ -82,19 +84,17 @@ custom_validate_fold <- function(data,
     fold_info = fold_info,
     model_specifics = model_specifics,
     metrics = metrics) %>%
-    mutate(`Convergence Warnings` = fitted_model_process[['n_convergence_warnings']],
-           `Singular Fit Messages` = fitted_model_process[['n_singular_fit_messages']],
-           `Other Warnings` = fitted_model_process[['n_unknown_warnings']] +
-             fitted_model_process[['n_prediction_warnings']] +
-             preprocess_n_unknown_warnings,
-           `Warnings and Messages` = nested_warnings_and_messages)
-
-  # TODO: These should be added in parent
-  # Folds = n_folds,
-  # `Fold Columns` = length(fold_cols),
+    dplyr::mutate(
+      `Convergence Warnings` = fitted_model_process[['n_convergence_warnings']],
+      `Singular Fit Messages` = fitted_model_process[['n_singular_fit_messages']],
+      `Other Warnings` = fitted_model_process[['n_unknown_warnings']] +
+        fitted_model_process[['n_prediction_warnings']] +
+        preprocess_n_unknown_warnings,
+      `Warnings and Messages` = nested_warnings_and_messages)
 
   list("predictions_and_targets" = predictions_and_targets,
-       "model_metrics" = model_metrics)
+       "model_metrics" = model_metrics,
+       "preprocess_parameters" = preprocess_params)
 
 }
 

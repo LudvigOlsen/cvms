@@ -113,6 +113,12 @@ stop_if_argument_is_null <- function(var_name, model_specifics){
   }
 }
 
+stop_if_argument_is_not_function <- function(var_name, model_specifics){
+  if (!is.function(model_specifics[[var_name]])){
+    stop(paste0("'", var_name, "' was not a function."))
+  }
+}
+
 ### Results
 
 nest_results <- function(results){

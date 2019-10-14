@@ -10,7 +10,6 @@ custom_update_model_specifics <- function(model_specifics){
   check_argument_in_model_specifics("preprocess_once", model_specifics)
   check_argument_in_model_specifics("hparams", model_specifics)
 
-
   # These args should not be NULL in custom
   stop_if_argument_is_null("model_fn", model_specifics)
   stop_if_argument_is_null("predict_fn", model_specifics)
@@ -23,6 +22,12 @@ custom_update_model_specifics <- function(model_specifics){
     stop_if_argument_not_null("link", model_specifics)
     stop_if_argument_not_null("control", model_specifics)
   }
+
+  # These args should be functions
+  stop_if_argument_is_not_function("predict_fn", model_specifics)
+  stop_if_argument_is_not_function("model_fn", model_specifics)
+  if (!is.null(model_specifics[["preprocess_fn"]]))
+    stop_if_argument_is_not_function("preprocess_fn", model_specifics)
 
   family_ <- model_specifics[["family"]]
 

@@ -4,17 +4,19 @@
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
 #'
 #'  Cross-validate your model function with one or multiple model formulas at once.
-#'  Perform repeated cross-validation.
+#'  Perform repeated cross-validation. Preprocess the train/test split
+#'  within the cross-validation. Perform hyperparameter tuning with grid search.
 #'  Returns results in a tibble for easy comparison,
 #'  reporting and further analysis.
 #'
 #'  Compared to \code{\link[cvms:cross_validate]{cross_validate()}},
-#'  this function allows you supply a custom model function
-#'  and (if needed) a custom predict function.
+#'  this function allows you supply a custom model function, a predict function,
+#'  a preprocess function and a list of hyperparameter values to cross-validate.
 #'
-#'  Supports regression and classification (binary and multiclass). See \code{type}.
+#'  Supports regression and classification (binary and multiclass).
+#'  See \code{type}.
 #'
-#'  Note that some metrics may not be computable for all types
+#'  Note that some metrics may not be computable for some types
 #'  of model objects.
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
@@ -37,13 +39,17 @@
 #'
 #'  Must have the following function arguments:
 #'
-#'  \code{function(train_data, formula, hyperparameters)}
+#'  \code{function(train_data, formula,}
+#'
+#'  \verb{         }\code{hyperparameters)}
 #' @param predict_fn Function for predicting the targets in the test folds using the fitted model object.
 #'  Will usually wrap \code{\link[stats:predict]{stats::predict()}}, but doesn't have to.
 #'
 #'  Must have the following function arguments:
 #'
-#'  \code{function(test_data, model, formula, hyperparameters)}
+#'  \code{function(test_data, model,}
+#'
+#'  \verb{         }\code{formula, hyperparameters)}
 #'
 #'  Must return predictions in the following formats, depending on \code{type}:
 #'
@@ -86,11 +92,25 @@
 #'
 #'  \verb{         }\code{formula, hyperparameters)}
 #'
-#'  Must return a list with the preprocessed \code{train_data} and the \code{test_data}:
+#'  Must return a list with the preprocessed \code{train_data} and \code{test_data}. It may also contain
+#'  a tibble with the \code{parameters} used in preprocessing:
 #'
 #'  \code{list("train" = train_data,}
 #'
-#'  \verb{     }\code{"test" = test_data)}
+#'  \verb{     }\code{"test" = test_data,}
+#'
+#'  \verb{     }\code{"parameters" = preprocess_parameters)}
+#'
+#'  Additional elements in the returned list will be ignored.
+#'
+#'  The optional parameters tibble will be included in the output.
+#'  It could have the following format:
+#'
+#'  \tabular{rrr}{
+#'   \strong{Measure} \tab \strong{var_1} \tab \strong{var_2} \cr
+#'   Mean \tab 37.921 \tab 88.231\cr
+#'   SD \tab 12.4 \tab 5.986\cr
+#'   ... \tab ... \tab ...}
 #'
 #'  N.B. When \code{preprocess_once} is FALSE, the current formula and
 #'  hyperparameters will be provided. Otherwise,
@@ -101,7 +121,7 @@
 #'
 #'  When preprocessing does not depend on the current formula or hyperparameters,
 #'  we can do the preprocessing of each train/test split once, to save time.
-#'  This \strong{may require holding a lot more data in memory} though, why
+#'  This \strong{may require holding a lot more data in memory} though,
 #'  why it is not the default setting.
 #' @param hyperparameters List of hyperparameter values to cross-validate.
 #' Every combination will be created.
@@ -149,11 +169,16 @@
 #' @return
 #'  Tbl (tibble) with results for each model.
 #'
+#'  N.B. The \strong{Fold} column in the nested tibbles contains the test fold in that train/test split.
+#'
 #'  \subsection{Shared across families}{
 #'  A nested tibble with \strong{coefficients} of the models from all iterations. The coefficients
 #'  are extracted from the model object with \code{\link[broom:tidy]{broom::tidy()}} or
 #'  \code{\link[stats:coef]{coef()}} (with some restrictions on the output).
 #'  If these attempts fail, a default coefficients tibble filled with \code{NA}s is returned.
+#'
+#'  Nested tibble with the used \strong{preprocessing parameters},
+#'  if a passed \code{preprocess_fn} returns the parameters in a tibble.
 #'
 #'  Number of \emph{total} \strong{folds}.
 #'
@@ -173,6 +198,7 @@
 #'  Names of \strong{fixed} effects.
 #'
 #'  Names of \strong{random} effects, if any.
+#'
 #'  }
 #'
 #'  ----------------------------------------------------------------

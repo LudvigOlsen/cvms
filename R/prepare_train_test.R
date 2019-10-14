@@ -68,17 +68,48 @@ prepare_train_test <- function(data, fold_info, fold_cols, model_specifics){
                                         "Did you name the output list correctly?",
                                         sep = "\n"))
                            })
+
+    if ("parameters" %in% names(train_test)) {
+      preprocess_parameters <- tryCatch({
+        params <- train_test[["parameters"]]
+        if (!is.data.frame(params)){
+          stop("the returned preprocessing parameters object was not a data frame.")
+        }
+        params %>%
+          dplyr::as_tibble() %>%
+          tibble::add_column(
+            `Fold Column` = as.character(fold_info[["fold_column"]]),
+            Fold = as.integer(as.character(fold_info[["rel_fold"]])),
+            .before = names(params)[[1]]
+          )
+      }, error = function(e) {
+        stop(paste(
+          '',
+          '-------------------------------------',
+          paste0(model_specifics[["caller"]], ': Error:'),
+          "Could not extract the preprocessing parameters properly from the output of 'preprocess_fn'.",
+          e,
+          sep = "\n"
+          ))
+      })
+    } else {
+      # Empty tibble
+      preprocess_parameters <- tibble::tibble()
+    }
+
   } else {
     warnings <- character()
     messages <- character()
+    # Empty tibble
+    preprocess_parameters <- tibble::tibble()
   }
 
   # Create tibble with warnings and messages
   warnings_and_messages <- create_warnings_and_messages_tibble(warnings = warnings,
                                                                messages = messages,
                                                                fn = "preprocess_fn") %>%
-    dplyr::mutate(Fold = fold_info[["rel_fold"]],
-                  `Fold Column` = fold_info[["fold_column"]]) %>%
+    dplyr::mutate(`Fold Column` = as.character(fold_info[["fold_column"]]),
+                  Fold = fold_info[["rel_fold"]]) %>%
     dplyr::select(dplyr::one_of(
       c("Fold Column", "Fold", "Function", "Type", "Message")))
 
@@ -120,9 +151,9 @@ prepare_train_test <- function(data, fold_info, fold_cols, model_specifics){
 
   }
 
-
   list("train" = train_data,
        "test" = test_data,
+       "preprocess_parameters" = preprocess_parameters,
        "warnings_and_messages" = warnings_and_messages,
        "n_unknown_warnings" = length(warnings))
 }
@@ -136,7 +167,7 @@ run_preprocess_once <- function(data,
   # Extract fold grid for model 1
   fold_grid_model_1 <- computation_grid %>%
     dplyr::filter(model == 1) %>%
-    dplyr::select(dplyr::one_of(c("fold_col_name","rel_fold","abs_fold")))
+    dplyr::select(dplyr::one_of(c("fold_col_name", "rel_fold", "abs_fold")))
 
   # Subset and preprocess each train/test split
   # Nest each split
@@ -150,7 +181,7 @@ run_preprocess_once <- function(data,
     train_test <- prepare_train_test(
       data = data,
       fold_info = list("rel_fold" = current_fold_info[["rel_fold"]],
-                       "fold_column" = current_fold_info[["fold_col_name"]]),
+                       "fold_column" = as.character(current_fold_info[["fold_col_name"]])),
       fold_cols = fold_cols,
       model_specifics = model_specifics)
 
@@ -164,14 +195,15 @@ run_preprocess_once <- function(data,
     # Nest both and add to tibble
     tibble::tibble("train" = extract_and_nest(train_test, "train"),
                    "test" = extract_and_nest(train_test, "test"),
+                   "preprocess_parameters" = extract_and_nest(train_test, "preprocess_parameters"),
                    "warnings_and_messages" = extract_and_nest(train_test, "warnings_and_messages"),
                    "n_unknown_warnings" = train_test[["n_unknown_warnings"]],
                    "abs_fold" = a_f,
                    "rel_fold" = current_fold_info[["rel_fold"]],
-                   "fold_column" = current_fold_info[["fold_col_name"]])
+                   "fold_column" = as.character(current_fold_info[["fold_col_name"]]))
 
-  }) %>% dplyr::as_tibble()
-
+  }) %>%
+    dplyr::as_tibble()
 
   data
 

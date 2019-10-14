@@ -7,13 +7,15 @@ Pass a list of hyperparameters and every combination of these will be cross-vali
 
 * Adds optional `preprocess_fn` argument to `cross_validate_fn()`. This can, for instance, be used to standardize the training and test sets within the function. E.g., by extracting the scaling and centering parameters from the training set and apply them to both the training set and the test fold.
 
+* Adds `Preprocess` column to output when `preprocess_fn` is passed. Contains returned parameters (e.g. mean, sd) used in preprocessing.
+
 * Adds `preprocess_once` argument to `cross_validate_fn()`. When preprocessing does not depend on the current formula or hyperparameters, we might as well perform it on each train/test split once, instead of for every model.
 
 * Changes the required arguments in the `predict_fn` function passed to `cross_validate_fn()`.
 
 * Changes the required arguments in the `model_fn` function passed to `cross_validate_fn()`.
 
-* Warnings and messages from preprocess_fn are caught and added to `Warnings and Messages`. 
+* Warnings and messages from `preprocess_fn` are caught and added to `Warnings and Messages`. 
 Warnings are counted in `Other Warnings`.
 
 * `example_model_functions()` is added. Contains simple `model_fn` examples that can be used in `cross_validate_fn()` or as starting points.

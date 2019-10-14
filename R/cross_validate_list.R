@@ -14,7 +14,6 @@ cross_validate_list <- function(data,
                                 model_verbose = FALSE,
                                 parallel_ = FALSE) {
 
-
   # Set errors if input variables aren't what we expect / can handle
   # WORK ON THIS SECTION!
   stopifnot(is.data.frame(data),
@@ -62,9 +61,11 @@ cross_validate_list <- function(data,
                                                        param = "control")
 
   } else {
+
     REML <- NULL
     link <- NULL
     control <- NULL
+
   }
 
   # Create model_specifics object
@@ -98,6 +99,7 @@ cross_validate_list <- function(data,
 
   n_models <- length(unique(computation_grid[["model"]]))
   n_model_instances <- nrow(computation_grid)
+  n_folds <- length(unique(computation_grid[["abs_fold"]]))
 
   # TODO Make better message here. It seems like a good idea
   # to inform the user about the number of models to fit etc.
@@ -147,6 +149,9 @@ cross_validate_list <- function(data,
   # Extract model object metrics
   model_metrics <- validated_folds %c% "model_metrics"
 
+  # Extract preprocessing parameters
+  preprocess_params <- validated_folds %c% "preprocess_parameters"
+
   # Extract whether the models were NULL or not
   model_was_null <- unlist(validated_folds %c% "model_was_null")
 
@@ -154,7 +159,8 @@ cross_validate_list <- function(data,
   computation_grid <- computation_grid %>%
     dplyr::mutate(model_eval = model_metrics,
                   Predictions = predictions_and_targets,
-                  model_was_null = model_was_null) %>%
+                  model_was_null = model_was_null,
+                  Preprocess = preprocess_params) %>%
     dplyr::arrange(.data$model, .data$abs_fold) # TODO: delete once we know it is working?
 
   fold_info_cols <- list(rel_fold = "rel_fold",
@@ -175,6 +181,12 @@ cross_validate_list <- function(data,
 
     # Extract current model object evaluations
     current_model_evals <- dplyr::bind_rows(current_grid[["model_eval"]])
+
+    # Extract current preprocessing parameters
+    current_preprocess_params <- dplyr::bind_rows(current_grid[["Preprocess"]])
+    nested_current_preprocess_params <- current_preprocess_params %>%
+      legacy_nest(seq_len(ncol(current_preprocess_params))) %>%
+      dplyr::pull(.data$data)
 
     # Extract current model metrics + some fold cols
     current_model_metrics <- current_model_evals %>%
@@ -296,11 +308,20 @@ cross_validate_list <- function(data,
     # Combine the various columns
     evaluation <- prediction_evaluation %>%
       dplyr::bind_cols(average_model_metrics) %>%
-      tibble::add_column(Results = nested_fold_results,
-                         Coefficients = nested_current_coefficients) %>%
+      tibble::add_column("Results" = nested_fold_results,
+                         "Coefficients" = nested_current_coefficients,
+                         "Preprocess" = nested_current_preprocess_params) %>%
       reposition_column("Predictions", .before = "Results") %>%
+      tibble::add_column(Folds = n_folds,
+                         `Fold Columns` = length(fold_cols)) %>%
       dplyr::bind_cols(current_warnings_and_messages_counts) %>%
       dplyr::mutate(`Warnings and Messages` = nested_current_warnings_and_messages)
+
+    if (is.null(preprocess_fn) || ncol(current_preprocess_params) == 0){
+      evaluation[["Preprocess"]] <- NULL
+    }
+
+    evaluation
 
   }) %>%
     dplyr::bind_rows() %>%

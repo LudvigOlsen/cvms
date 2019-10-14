@@ -51,7 +51,7 @@ evaluate_model_object <- function(model,
     # Calculate model metrics
     model_metrics <- calculate_model_metrics(
       model = model, REML = REML, metrics = metrics) %>%
-      mutate(
+      dplyr::mutate(
         abs_fold = fold_info[["abs_fold"]],
         rel_fold = fold_info[["rel_fold"]],
         fold_column = fold_info[["fold_column"]]

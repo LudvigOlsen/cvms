@@ -212,12 +212,12 @@ binomial_eval_roc_curves <- function(data, targets_col, predictions_col,
   roc_nested <- plyr::ldply(seq_len(length(roc_curves)), function(i){
     if (is.null(roc_curves[[i]])){
       return(
-        tibble::tibble(`Fold Column` = NA,
+        tibble::tibble(`Fold Column` = character(),
                        Sensitivities = NA,
                        Specificities = NA)
       )
     }
-    tibble::tibble(`Fold Column` = names(roc_curves)[[i]],
+    tibble::tibble(`Fold Column` = as.character(names(roc_curves)[[i]]),
                    Sensitivities = roc_curves[[i]]$sensitivities,
                    Specificities = roc_curves[[i]]$specificities)
   }) %>%
@@ -287,7 +287,7 @@ binomial_eval_collect <- function(unique_fold_cols,
                                            extra_metrics = extra_metrics[[fcol]],
                                            metrics = metrics,
                                            include_predictions = TRUE) %>%
-      dplyr::mutate(`Fold Column` = fcol)
+      dplyr::mutate(`Fold Column` = as.character(fcol))
   }) %>%
     dplyr::select(.data$`Fold Column`, dplyr::everything())
 
@@ -475,7 +475,7 @@ nest_confusion_matrices <- function(confusion_matrices,
       dplyr::as_tibble() %>%
       dplyr::mutate(Pos0 = c("TP", "FN", "FP", "TN"),
                     Pos1 = c("TN", "FP", "FN", "TP"),
-                    `Fold Column` = fold_cols[[i]])
+                    `Fold Column` = as.character(fold_cols[[i]]))
   }) %>%
     dplyr::rename(N = .data$n,
                   Target = .data$Reference) %>%
@@ -508,7 +508,7 @@ nest_multiclass_confusion_matrices <- function(confusion_matrices,
   tidy_confusion_matrices <- plyr::ldply(seq_len(length(confusion_matrices)), function(i){
     confusion_matrices[[i]]$table %>%
       dplyr::as_tibble() %>%
-      dplyr::mutate(`Fold Column` = fold_cols[[i]])
+      dplyr::mutate(`Fold Column` = as.character(fold_cols[[i]]))
   }) %>%
     dplyr::rename(N=.data$n,
                   Target = .data$Reference) %>%

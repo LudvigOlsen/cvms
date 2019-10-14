@@ -80,7 +80,7 @@ get_nested_model_coefficients <- function(model,
   # Add fold info
   if (isTRUE(include_fold_columns)) {
     coefs_tidy <- coefs_tidy %>%
-      tibble::add_column(`Fold Column` = fold_info[["fold_column"]],
+      tibble::add_column(`Fold Column` = as.character(fold_info[["fold_column"]]),
                          Fold = fold_info[["rel_fold"]],
                          .before = "term")
   }

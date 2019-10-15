@@ -67,7 +67,7 @@ test_that("binomial models work with cross_validate()",{
   expect_equal(nrow(CVbinomlist$ROC[[1]]),29)
   expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0), Function = character(0),
-                              Type = character(0), Message = character(0)),
+                              Type = character(0), Function = character(0), Message = character(0)),
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
 })
@@ -115,12 +115,12 @@ test_that("binomial models checks that dependent variable is numeric with cross_
   expect_is(CVbinomlist$Predictions[[1]], "tbl_df")
   expect_is(CVbinomlist$ROC[[1]], "tbl_df")
   expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
-  expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Sensitivities","Specificities"))
+  expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Fold Column", "Sensitivities", "Specificities"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
   expect_equal(nrow(CVbinomlist$ROC[[1]]),30)
   expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
-                              Type = character(0), Message = character(0)),
+                              Type = character(0), Function = character(0), Message = character(0)),
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
 
@@ -173,20 +173,20 @@ test_that("binomial models work with cross_validate()",{
   expect_is(CVbinomlistrand$Predictions[[1]], "tbl_df")
   expect_is(CVbinomlistrand$ROC[[1]], "tbl_df")
   expect_equal(colnames(CVbinomlistrand$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
-  expect_equal(colnames(CVbinomlistrand$ROC[[1]]), c("Sensitivities","Specificities"))
+  expect_equal(colnames(CVbinomlistrand$ROC[[1]]), c("Fold Column", "Sensitivities", "Specificities"))
   expect_equal(nrow(CVbinomlistrand$Predictions[[1]]),30)
   expect_equal(nrow(CVbinomlistrand$ROC[[1]]),27) # Why?
 
   expect_is(CVbinomlistrand$Predictions[[2]], "tbl_df")
   expect_is(CVbinomlistrand$ROC[[2]], "tbl_df")
   expect_equal(colnames(CVbinomlistrand$Predictions[[2]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
-  expect_equal(colnames(CVbinomlistrand$ROC[[2]]), c("Sensitivities","Specificities"))
+  expect_equal(colnames(CVbinomlistrand$ROC[[2]]), c("Fold Column", "Sensitivities", "Specificities"))
   expect_equal(nrow(CVbinomlistrand$Predictions[[2]]),30)
   expect_equal(nrow(CVbinomlistrand$ROC[[2]]),11) # Why?
 
   expect_equal(CVbinomlistrand$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
-                              Type = character(0), Message = character(0)),
+                              Type = character(0), Function = character(0), Message = character(0)),
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
 })
@@ -223,7 +223,7 @@ test_that("gaussian model with cross_validate()",{
   expect_equal(CVed$Fixed, 'diagnosis')
   expect_equal(CVed$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
-                              Type = character(0), Message = character(0)),
+                              Type = character(0), Function = character(0), Message = character(0)),
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
 })
@@ -261,7 +261,7 @@ test_that("gaussian mixed models with cross_validate()",{
   expect_equal(CVed$Random, c('(1|session)', '(1|session)'))
   expect_equal(CVed$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
-                              Type = character(0), Message = character(0)),
+                              Type = character(0), Function = character(0), Message = character(0)),
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
 
@@ -424,21 +424,22 @@ test_that("gaussian models work with control specified in cross_validate()",{
   expect_equal(CVgausslistrand$RMSE, c(10.44299), tolerance=1e-3)
   expect_equal(CVgausslistrand$`Convergence Warnings`, c(0))
 
-  expect_equal(evaluate_promise(cross_validate(dat,
-                                    models = c("score~diagnosis + (1|session)"),
-                                    fold_cols = '.folds',
-                                    family='gaussian',
-                                    REML = FALSE,
-                                    link = NULL,
-                                    control = lme4::lmerControl(optimizer="bobyqa",
-                                                                optCtrl=list(maxfun=10)),
-                                    model_verbose=FALSE))$warnings,
-               c("\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\nscore~diagnosis + (1|session)\nFor fold column:\n.folds\nIn fold:\n1\nconvergence code 1 from bobyqa: bobyqa -- maximum number of function evaluations exceeded",
-                 "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\nscore~diagnosis + (1|session)\nFor fold column:\n.folds\nIn fold:\n1\nModel failed to converge with max|grad| = 0.429297 (tol = 0.002, component 1)",
-                 "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\nscore~diagnosis + (1|session)\nFor fold column:\n.folds\nIn fold:\n2\nconvergence code 1 from bobyqa: bobyqa -- maximum number of function evaluations exceeded",
-                 "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\nscore~diagnosis + (1|session)\nFor fold column:\n.folds\nIn fold:\n3\nconvergence code 1 from bobyqa: bobyqa -- maximum number of function evaluations exceeded"
-               ),
-               fixed = TRUE)
+  expect_equal(evaluate_promise(cross_validate(
+    dat,
+    models = c("score~diagnosis + (1|session)"),
+    fold_cols = '.folds',
+    family = 'gaussian',
+    REML = FALSE,
+    link = NULL,
+    control = lme4::lmerControl(optimizer = "bobyqa",
+                                optCtrl = list(maxfun = 10)),
+    model_verbose = FALSE))$warnings,
+    c("\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\nscore~diagnosis + (1|session)\nFor fold column:\n.folds\nIn fold:\n1\nHyperparameters:\nREML : FALSE, link : identity, control : list(list(optimizer = \"bobyqa\", restart_edge = TRUE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, relTol = NULL), check.conv.singular = list(action = \"message\", \n    tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list(maxfun = 10))), model_verbose : FALSE, family : gaussian, is_cross_validate : TRUE\nconvergence code 1 from bobyqa: bobyqa -- maximum number of function evaluations exceeded",
+      "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\nscore~diagnosis + (1|session)\nFor fold column:\n.folds\nIn fold:\n1\nHyperparameters:\nREML : FALSE, link : identity, control : list(list(optimizer = \"bobyqa\", restart_edge = TRUE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, relTol = NULL), check.conv.singular = list(action = \"message\", \n    tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list(maxfun = 10))), model_verbose : FALSE, family : gaussian, is_cross_validate : TRUE\nModel failed to converge with max|grad| = 0.429297 (tol = 0.002, component 1)",
+      "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\nscore~diagnosis + (1|session)\nFor fold column:\n.folds\nIn fold:\n2\nHyperparameters:\nREML : FALSE, link : identity, control : list(list(optimizer = \"bobyqa\", restart_edge = TRUE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, relTol = NULL), check.conv.singular = list(action = \"message\", \n    tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list(maxfun = 10))), model_verbose : FALSE, family : gaussian, is_cross_validate : TRUE\nconvergence code 1 from bobyqa: bobyqa -- maximum number of function evaluations exceeded",
+      "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\nscore~diagnosis + (1|session)\nFor fold column:\n.folds\nIn fold:\n3\nHyperparameters:\nREML : FALSE, link : identity, control : list(list(optimizer = \"bobyqa\", restart_edge = TRUE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, relTol = NULL), check.conv.singular = list(action = \"message\", \n    tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list(maxfun = 10))), model_verbose : FALSE, family : gaussian, is_cross_validate : TRUE\nconvergence code 1 from bobyqa: bobyqa -- maximum number of function evaluations exceeded"
+    ),
+    fixed = TRUE)
 
 
   # TODO When counting singular (boundary fit) messages, uncomment and change expected warning/message
@@ -540,9 +541,9 @@ test_that("binomial models work with repeated cross_validate()",{
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),60)
   expect_equal(nrow(CVbinomlist$ROC[[1]]),60)
   expect_equal(colnames(CVbinomlist$Coefficients[[1]]),
-               c("term","estimate","std.error","statistic","p.value","Fold","Fold Column"))
+               c("Fold Column", "Fold", "term","estimate","std.error","statistic","p.value"))
   expect_equal(colnames(CVbinomlist$Coefficients[[2]]),
-               c("term","estimate","std.error","statistic","p.value","Fold","Fold Column"))
+               c("Fold Column", "Fold", "term","estimate","std.error","statistic","p.value"))
   expect_equal(CVbinomlist$Coefficients[[1]]$p.value,
                c(0.01294663,0.01931905,0.04833047,0.05703608,0.01900735,
                  0.03169528,0.04338194,0.05071058,0.01639887,0.02528367,
@@ -606,7 +607,7 @@ test_that("binomial models work with repeated cross_validate()",{
 
   expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
-                              Type = character(0), Message = character(0)),
+                              Type = character(0), Function = character(0), Message = character(0)),
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 })
 
@@ -721,7 +722,7 @@ test_that("binomial models work with positive as.character in cross_validate()",
 
   expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
-                              Type = character(0), Message = character(0)),
+                              Type = character(0), Function = character(0), Message = character(0)),
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
   })
@@ -766,7 +767,7 @@ test_that("gaussian models work with repeated cross_validate()",{
   expect_equal(colnames(CVgausslist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction"))
   expect_equal(unique(CVgausslist$Predictions[[1]]$`Fold Column`), c(".folds_1",".folds_2"))
   expect_equal(colnames(CVgausslist$Coefficients[[1]]),
-               c("term","estimate","std.error","statistic","p.value","Fold","Fold Column"))
+               c("Fold Column", "Fold", "term","estimate","std.error","statistic","p.value"))
   expect_equal(CVgausslist$Coefficients[[1]]$p.value,
                c(8.230130e-09,1.290208e-02,1.346678e-08,1.073278e-02,2.434650e-09,
                  1.980414e-03,9.363412e-08,4.950473e-02,6.908574e-09,1.352584e-02,
@@ -806,7 +807,7 @@ test_that("gaussian models work with repeated cross_validate()",{
 
   expect_equal(CVgausslist$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
-                              Type = character(0), Message = character(0)),
+                              Type = character(0), Function = character(0), Message = character(0)),
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
 })
@@ -840,17 +841,26 @@ test_that("that singular fit messages are caught, counted and messaged about in 
 
   # skip_test_if_old_R_version()
 
-  library(groupdata2)
-
   set_seed_for_R_compatibility(1)
   dat <- groupdata2::fold(participant.scores, k = 4,
                           cat_col = 'diagnosis',
                           id_col = 'participant')
 
-  expect_warning(expect_message(CVbinom <- cross_validate(dat, models = c("diagnosis~score+(1|participant)+(1|session)"),
-                            family='binomial', REML = FALSE, model_verbose=FALSE,
-                            positive=2), "Boundary \\(Singular\\) Fit Message"),
-                 "cross_validate(): Convergence Warning:", fixed=TRUE)
+  expect_warning(
+    expect_message(
+      CVbinom <- cross_validate(
+        dat,
+        models = c("diagnosis~score+(1|participant)+(1|session)"),
+        family = 'binomial',
+        REML = FALSE,
+        model_verbose = FALSE,
+        positive = 2
+      ),
+      "Boundary \\(Singular\\) Fit Message"
+    ),
+    "cross_validate(): Convergence Warning:",
+    fixed = TRUE
+  )
 
   expect_equal(CVbinom$`Singular Fit Messages`, 3)
 
@@ -882,7 +892,7 @@ test_that("the expected errors are thrown by cross_validate()",{
                               fold_cols = paste0(".folds_",1), family='fdsfs',
                               REML = FALSE, model_verbose=FALSE,
                               positive=1),
-               "Only 'gaussian' and 'binomial' families are currently allowed.", fixed=TRUE)
+               "Only 'gaussian', 'binomial', and 'multinomial' evaluation types are currently allowed.", fixed=TRUE)
 
   # With rm_nc, the non-converged model is removed
   # and we only have an empty data frame left
@@ -900,8 +910,8 @@ test_that("the expected errors are thrown by cross_validate()",{
                                   optCtrl = list(maxfun = 10)),
       rm_nc = TRUE
     ))),
-    structure(list(RMSE = logical(0), MAE = logical(0), r2m = logical(0),
-                   r2c = logical(0), AIC = logical(0), AICc = logical(0), BIC = logical(0),
+    structure(list(RMSE = logical(0), MAE = logical(0), r2m = numeric(0),
+                   r2c = numeric(0), AIC = numeric(0), AICc = numeric(0), BIC = numeric(0),
                    Predictions = logical(0), Results = list(), Coefficients = list(),
                    Folds = integer(0), `Fold Columns` = integer(0), `Convergence Warnings` = integer(0),
                    `Singular Fit Messages` = integer(0), `Other Warnings` = integer(0),
@@ -928,51 +938,51 @@ test_that("model_verbose reports the correct model functions in cross_validate()
                                                fold_cols = paste0(".folds_",1), family='binomial',
                                                REML = FALSE, model_verbose=TRUE,
                                                positive=1))$messages,
-                 as.character(c(
-                   "Updated model_specifics to { model_formula = , family = binomial, link = logit, control = (c(\"bobyqa\", \"Nelder_Mead\"), TRUE, FALSE, FALSE, 1e-05, 1e-07, TRUE, TRUE, list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), list(check.conv.grad = list(action = \"warning\", tol = 0.001, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), list()), REML = FALSE, positive = 1, cutoff = 0.5, model_verbose = TRUE }. Note: If incorrect, remember to name arguments in model_specific.\n",
-                   "Model function: Used glm()\n",
-                   "Model function: Used glm()\n",
-                   "Model function: Used glm()\n",
-                   "Model function: Used glm()\n"
-                 )))
+                 as.character(c("Will cross-validate 1 models. This requires fitting 4 model instances.\n",
+                                "\n--------------------------\ncross_validate(): Message:\nIn model:\ndiagnosis~score\nFor fold column:\n.folds_1\nIn fold:\n1\nHyperparameters:\nREML : FALSE, link : logit, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), calc.derivs = TRUE, use.last.params = FALSE, restart_edge = FALSE, boundary.tol = 1e-05, tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(\n    check.conv.grad = list(action = \"warning\", tol = 0.001, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : binomial, is_cross_validate : TRUE\ncross_validate(): Used glm() to fit the model.'\n",
+                                "\n--------------------------\ncross_validate(): Message:\nIn model:\ndiagnosis~score\nFor fold column:\n.folds_1\nIn fold:\n2\nHyperparameters:\nREML : FALSE, link : logit, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), calc.derivs = TRUE, use.last.params = FALSE, restart_edge = FALSE, boundary.tol = 1e-05, tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(\n    check.conv.grad = list(action = \"warning\", tol = 0.001, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : binomial, is_cross_validate : TRUE\ncross_validate(): Used glm() to fit the model.'\n",
+                                "\n--------------------------\ncross_validate(): Message:\nIn model:\ndiagnosis~score\nFor fold column:\n.folds_1\nIn fold:\n3\nHyperparameters:\nREML : FALSE, link : logit, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), calc.derivs = TRUE, use.last.params = FALSE, restart_edge = FALSE, boundary.tol = 1e-05, tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(\n    check.conv.grad = list(action = \"warning\", tol = 0.001, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : binomial, is_cross_validate : TRUE\ncross_validate(): Used glm() to fit the model.'\n",
+                                "\n--------------------------\ncross_validate(): Message:\nIn model:\ndiagnosis~score\nFor fold column:\n.folds_1\nIn fold:\n4\nHyperparameters:\nREML : FALSE, link : logit, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), calc.derivs = TRUE, use.last.params = FALSE, restart_edge = FALSE, boundary.tol = 1e-05, tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(\n    check.conv.grad = list(action = \"warning\", tol = 0.001, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : binomial, is_cross_validate : TRUE\ncross_validate(): Used glm() to fit the model.'\n"
+                 )),
+               fixed = TRUE)
 
   # glmer
   expect_equal(evaluate_promise(cross_validate(dat, models = c("diagnosis~score+(1|session)"),
                                                fold_cols = paste0(".folds_",1), family='binomial',
                                                REML = FALSE, model_verbose=TRUE,
                                                positive=1))$messages,
-               as.character(c(
-                 "Updated model_specifics to { model_formula = , family = binomial, link = logit, control = (c(\"bobyqa\", \"Nelder_Mead\"), TRUE, FALSE, FALSE, 1e-05, 1e-07, TRUE, TRUE, list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), list(check.conv.grad = list(action = \"warning\", tol = 0.001, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), list()), REML = FALSE, positive = 1, cutoff = 0.5, model_verbose = TRUE }. Note: If incorrect, remember to name arguments in model_specific.\n",
-                 "Model function: Used lme4::glmer()\n",
-                 "Model function: Used lme4::glmer()\n",
-                 "Model function: Used lme4::glmer()\n",
-                 "Model function: Used lme4::glmer()\n"
-               )))
+               as.character(c("Will cross-validate 1 models. This requires fitting 4 model instances.\n",
+                              "\n--------------------------\ncross_validate(): Message:\nIn model:\ndiagnosis~score+(1|session)\nFor fold column:\n.folds_1\nIn fold:\n1\nHyperparameters:\nREML : FALSE, link : logit, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), calc.derivs = TRUE, use.last.params = FALSE, restart_edge = FALSE, boundary.tol = 1e-05, tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(\n    check.conv.grad = list(action = \"warning\", tol = 0.001, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : binomial, is_cross_validate : TRUE\ncross_validate(): Used lme4::glmer() to fit the model.'\n",
+                              "\n--------------------------\ncross_validate(): Message:\nIn model:\ndiagnosis~score+(1|session)\nFor fold column:\n.folds_1\nIn fold:\n2\nHyperparameters:\nREML : FALSE, link : logit, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), calc.derivs = TRUE, use.last.params = FALSE, restart_edge = FALSE, boundary.tol = 1e-05, tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(\n    check.conv.grad = list(action = \"warning\", tol = 0.001, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : binomial, is_cross_validate : TRUE\ncross_validate(): Used lme4::glmer() to fit the model.'\n",
+                              "\n--------------------------\ncross_validate(): Message:\nIn model:\ndiagnosis~score+(1|session)\nFor fold column:\n.folds_1\nIn fold:\n3\nHyperparameters:\nREML : FALSE, link : logit, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), calc.derivs = TRUE, use.last.params = FALSE, restart_edge = FALSE, boundary.tol = 1e-05, tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(\n    check.conv.grad = list(action = \"warning\", tol = 0.001, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : binomial, is_cross_validate : TRUE\ncross_validate(): Used lme4::glmer() to fit the model.'\n",
+                              "\n--------------------------\ncross_validate(): Message:\nIn model:\ndiagnosis~score+(1|session)\nFor fold column:\n.folds_1\nIn fold:\n4\nHyperparameters:\nREML : FALSE, link : logit, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), calc.derivs = TRUE, use.last.params = FALSE, restart_edge = FALSE, boundary.tol = 1e-05, tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(\n    check.conv.grad = list(action = \"warning\", tol = 0.001, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : binomial, is_cross_validate : TRUE\ncross_validate(): Used lme4::glmer() to fit the model.'\n"
+               )),
+               fixed = TRUE)
 
   # lm
   expect_equal(evaluate_promise(cross_validate(dat, models = c("score~diagnosis"),
                                                fold_cols = paste0(".folds_",1), family='gaussian',
                                                REML = FALSE, model_verbose=TRUE,
                                                positive=1))$messages,
-               as.character(c(
-                 "Updated model_specifics to { model_formula = , family = gaussian, link = identity, control = (nloptwrap, TRUE, 1e-05, TRUE, FALSE, list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\"), list(check.conv.grad = list(action = \"warning\", tol = 0.002, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), list()), REML = FALSE, positive = 1, cutoff = 0.5, model_verbose = TRUE }. Note: If incorrect, remember to name arguments in model_specific.\n",
-                 "Model function: Used lm()\n",
-                 "Model function: Used lm()\n",
-                 "Model function: Used lm()\n",
-                 "Model function: Used lm()\n"
-               )))
+               as.character(c("Will cross-validate 1 models. This requires fitting 4 model instances.\n",
+                              "\n--------------------------\ncross_validate(): Message:\nIn model:\nscore~diagnosis\nFor fold column:\n.folds_1\nIn fold:\n1\nHyperparameters:\nREML : FALSE, link : identity, control : list(list(optimizer = \"nloptwrap\", restart_edge = TRUE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, relTol = NULL), check.conv.singular = list(action = \"message\", \n    tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : gaussian, is_cross_validate : TRUE\ncross_validate(): Used lm() to fit the model.'\n",
+                              "\n--------------------------\ncross_validate(): Message:\nIn model:\nscore~diagnosis\nFor fold column:\n.folds_1\nIn fold:\n2\nHyperparameters:\nREML : FALSE, link : identity, control : list(list(optimizer = \"nloptwrap\", restart_edge = TRUE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, relTol = NULL), check.conv.singular = list(action = \"message\", \n    tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : gaussian, is_cross_validate : TRUE\ncross_validate(): Used lm() to fit the model.'\n",
+                              "\n--------------------------\ncross_validate(): Message:\nIn model:\nscore~diagnosis\nFor fold column:\n.folds_1\nIn fold:\n3\nHyperparameters:\nREML : FALSE, link : identity, control : list(list(optimizer = \"nloptwrap\", restart_edge = TRUE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, relTol = NULL), check.conv.singular = list(action = \"message\", \n    tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : gaussian, is_cross_validate : TRUE\ncross_validate(): Used lm() to fit the model.'\n",
+                              "\n--------------------------\ncross_validate(): Message:\nIn model:\nscore~diagnosis\nFor fold column:\n.folds_1\nIn fold:\n4\nHyperparameters:\nREML : FALSE, link : identity, control : list(list(optimizer = \"nloptwrap\", restart_edge = TRUE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, relTol = NULL), check.conv.singular = list(action = \"message\", \n    tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : gaussian, is_cross_validate : TRUE\ncross_validate(): Used lm() to fit the model.'\n"
+               )),
+               fixed = TRUE)
+
   # glm due to different link function
   expect_equal(evaluate_promise(cross_validate(dat, models = c("score~diagnosis"),
                                                fold_cols = paste0(".folds_",1), family='gaussian',
                                                link = "log",
                                                REML = FALSE, model_verbose=TRUE,
                                                positive=1))$messages,
-               as.character(c(
-                 "Updated model_specifics to { model_formula = , family = gaussian, link = log, control = (c(\"bobyqa\", \"Nelder_Mead\"), TRUE, FALSE, FALSE, 1e-05, 1e-07, TRUE, TRUE, list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), list(check.conv.grad = list(action = \"warning\", tol = 0.001, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), list()), REML = FALSE, positive = 1, cutoff = 0.5, model_verbose = TRUE }. Note: If incorrect, remember to name arguments in model_specific.\n",
-                 "Model function: Used glm()\n",
-                 "Model function: Used glm()\n",
-                 "Model function: Used glm()\n",
-                 "Model function: Used glm()\n"
+               as.character(c("Will cross-validate 1 models. This requires fitting 4 model instances.\n",
+                              "\n--------------------------\ncross_validate(): Message:\nIn model:\nscore~diagnosis\nFor fold column:\n.folds_1\nIn fold:\n1\nHyperparameters:\nREML : FALSE, link : log, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), calc.derivs = TRUE, use.last.params = FALSE, restart_edge = FALSE, boundary.tol = 1e-05, tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(\n    check.conv.grad = list(action = \"warning\", tol = 0.001, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : gaussian, is_cross_validate : TRUE\ncross_validate(): Used glm() to fit the model.'\n",
+                              "\n--------------------------\ncross_validate(): Message:\nIn model:\nscore~diagnosis\nFor fold column:\n.folds_1\nIn fold:\n2\nHyperparameters:\nREML : FALSE, link : log, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), calc.derivs = TRUE, use.last.params = FALSE, restart_edge = FALSE, boundary.tol = 1e-05, tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(\n    check.conv.grad = list(action = \"warning\", tol = 0.001, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : gaussian, is_cross_validate : TRUE\ncross_validate(): Used glm() to fit the model.'\n",
+                              "\n--------------------------\ncross_validate(): Message:\nIn model:\nscore~diagnosis\nFor fold column:\n.folds_1\nIn fold:\n3\nHyperparameters:\nREML : FALSE, link : log, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), calc.derivs = TRUE, use.last.params = FALSE, restart_edge = FALSE, boundary.tol = 1e-05, tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(\n    check.conv.grad = list(action = \"warning\", tol = 0.001, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : gaussian, is_cross_validate : TRUE\ncross_validate(): Used glm() to fit the model.'\n",
+                              "\n--------------------------\ncross_validate(): Message:\nIn model:\nscore~diagnosis\nFor fold column:\n.folds_1\nIn fold:\n4\nHyperparameters:\nREML : FALSE, link : log, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), calc.derivs = TRUE, use.last.params = FALSE, restart_edge = FALSE, boundary.tol = 1e-05, tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(\n    check.conv.grad = list(action = \"warning\", tol = 0.001, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : gaussian, is_cross_validate : TRUE\ncross_validate(): Used glm() to fit the model.'\n"
                )))
 
   # lmer
@@ -980,12 +990,11 @@ test_that("model_verbose reports the correct model functions in cross_validate()
                                                fold_cols = paste0(".folds_",1), family = 'gaussian',
                                                REML = FALSE, model_verbose = TRUE,
                                                positive = 1))$messages,
-               as.character(c(
-                 "Updated model_specifics to { model_formula = , family = gaussian, link = identity, control = (nloptwrap, TRUE, 1e-05, TRUE, FALSE, list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\"), list(check.conv.grad = list(action = \"warning\", tol = 0.002, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), list()), REML = FALSE, positive = 1, cutoff = 0.5, model_verbose = TRUE }. Note: If incorrect, remember to name arguments in model_specific.\n",
-                 "Model function: Used lme4::lmer()\n",
-                 "Model function: Used lme4::lmer()\n",
-                 "Model function: Used lme4::lmer()\n",
-                 "Model function: Used lme4::lmer()\n"
+               as.character(c("Will cross-validate 1 models. This requires fitting 4 model instances.\n",
+                              "\n--------------------------\ncross_validate(): Message:\nIn model:\nscore~diagnosis+(1|session)\nFor fold column:\n.folds_1\nIn fold:\n1\nHyperparameters:\nREML : FALSE, link : identity, control : list(list(optimizer = \"nloptwrap\", restart_edge = TRUE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, relTol = NULL), check.conv.singular = list(action = \"message\", \n    tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : gaussian, is_cross_validate : TRUE\ncross_validate(): Used lme4::lmer() to fit the model.'\n",
+                              "\n--------------------------\ncross_validate(): Message:\nIn model:\nscore~diagnosis+(1|session)\nFor fold column:\n.folds_1\nIn fold:\n2\nHyperparameters:\nREML : FALSE, link : identity, control : list(list(optimizer = \"nloptwrap\", restart_edge = TRUE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, relTol = NULL), check.conv.singular = list(action = \"message\", \n    tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : gaussian, is_cross_validate : TRUE\ncross_validate(): Used lme4::lmer() to fit the model.'\n",
+                              "\n--------------------------\ncross_validate(): Message:\nIn model:\nscore~diagnosis+(1|session)\nFor fold column:\n.folds_1\nIn fold:\n3\nHyperparameters:\nREML : FALSE, link : identity, control : list(list(optimizer = \"nloptwrap\", restart_edge = TRUE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, relTol = NULL), check.conv.singular = list(action = \"message\", \n    tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : gaussian, is_cross_validate : TRUE\ncross_validate(): Used lme4::lmer() to fit the model.'\n",
+                              "\n--------------------------\ncross_validate(): Message:\nIn model:\nscore~diagnosis+(1|session)\nFor fold column:\n.folds_1\nIn fold:\n4\nHyperparameters:\nREML : FALSE, link : identity, control : list(list(optimizer = \"nloptwrap\", restart_edge = TRUE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, relTol = NULL), check.conv.singular = list(action = \"message\", \n    tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : gaussian, is_cross_validate : TRUE\ncross_validate(): Used lme4::lmer() to fit the model.'\n"
                )))
 
   # glmer due to different link function
@@ -994,12 +1003,11 @@ test_that("model_verbose reports the correct model functions in cross_validate()
                                                REML = FALSE, model_verbose = TRUE,
                                                link = "log",
                                                positive = 1))$messages,
-               as.character(c(
-                 "Updated model_specifics to { model_formula = , family = gaussian, link = log, control = (c(\"bobyqa\", \"Nelder_Mead\"), TRUE, FALSE, FALSE, 1e-05, 1e-07, TRUE, TRUE, list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), list(check.conv.grad = list(action = \"warning\", tol = 0.001, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), list()), REML = FALSE, positive = 1, cutoff = 0.5, model_verbose = TRUE }. Note: If incorrect, remember to name arguments in model_specific.\n",
-                 "Model function: Used lme4::glmer()\n",
-                 "Model function: Used lme4::glmer()\n",
-                 "Model function: Used lme4::glmer()\n",
-                 "Model function: Used lme4::glmer()\n"
+               as.character(c("Will cross-validate 1 models. This requires fitting 4 model instances.\n",
+                              "\n--------------------------\ncross_validate(): Message:\nIn model:\nscore~diagnosis+(1|session)\nFor fold column:\n.folds_1\nIn fold:\n1\nHyperparameters:\nREML : FALSE, link : log, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), calc.derivs = TRUE, use.last.params = FALSE, restart_edge = FALSE, boundary.tol = 1e-05, tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(\n    check.conv.grad = list(action = \"warning\", tol = 0.001, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : gaussian, is_cross_validate : TRUE\ncross_validate(): Used lme4::glmer() to fit the model.'\n",
+                              "\n--------------------------\ncross_validate(): Message:\nIn model:\nscore~diagnosis+(1|session)\nFor fold column:\n.folds_1\nIn fold:\n2\nHyperparameters:\nREML : FALSE, link : log, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), calc.derivs = TRUE, use.last.params = FALSE, restart_edge = FALSE, boundary.tol = 1e-05, tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(\n    check.conv.grad = list(action = \"warning\", tol = 0.001, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : gaussian, is_cross_validate : TRUE\ncross_validate(): Used lme4::glmer() to fit the model.'\n",
+                              "\n--------------------------\ncross_validate(): Message:\nIn model:\nscore~diagnosis+(1|session)\nFor fold column:\n.folds_1\nIn fold:\n3\nHyperparameters:\nREML : FALSE, link : log, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), calc.derivs = TRUE, use.last.params = FALSE, restart_edge = FALSE, boundary.tol = 1e-05, tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(\n    check.conv.grad = list(action = \"warning\", tol = 0.001, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : gaussian, is_cross_validate : TRUE\ncross_validate(): Used lme4::glmer() to fit the model.'\n",
+                              "\n--------------------------\ncross_validate(): Message:\nIn model:\nscore~diagnosis+(1|session)\nFor fold column:\n.folds_1\nIn fold:\n4\nHyperparameters:\nREML : FALSE, link : log, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), calc.derivs = TRUE, use.last.params = FALSE, restart_edge = FALSE, boundary.tol = 1e-05, tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(\n    check.conv.grad = list(action = \"warning\", tol = 0.001, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : gaussian, is_cross_validate : TRUE\ncross_validate(): Used lme4::glmer() to fit the model.'\n"
                )))
 
 
@@ -1019,15 +1027,17 @@ test_that("binomial models with metrics list work with cross_validate()",{
                                 REML = FALSE,
                                 metrics = list("AUC" = FALSE,
                                                "Accuracy" = TRUE,
-                                               "Prevalence" = FALSE),
+                                               "Prevalence" = FALSE,
+                                               "AICc" = TRUE),
                                 model_verbose = FALSE,
                                 positive = 1 )
 
   expect_equal(colnames(CVbinomlist),
                c("Balanced Accuracy", "Accuracy", "F1", "Sensitivity", "Specificity",
                  "Pos Pred Value", "Neg Pred Value", "Lower CI", "Upper CI", "Kappa",
-                 "MCC", "Detection Rate", "Detection Prevalence", "Predictions",
-                 "ROC", "Confusion Matrix", "Coefficients", "Folds", "Fold Columns",
+                 "MCC", "Detection Rate", "Detection Prevalence", "AICc",
+                 "ROC", "Confusion Matrix", "Predictions", "Results", "Coefficients",
+                 "Folds", "Fold Columns",
                  "Convergence Warnings", "Singular Fit Messages", "Other Warnings",
                  "Warnings and Messages", "Family", "Link", "Dependent", "Fixed"
                ))

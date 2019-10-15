@@ -10,19 +10,25 @@ example_predict_functions(name)
 \item{name}{Name of model to get predict function for,
  as it appears in the following table.
 
- The \strong{Model Params} column lists parameters used
+ The \strong{Model HParams} column lists hyperparameters used
  in the respective model function.
 
  \tabular{rrr}{
-  \strong{Name} \tab \strong{Function} \tab \strong{Model Params} \cr
+  \strong{Name} \tab \strong{Function} \tab \strong{Model HParams} \cr
   "lm" \tab \code{\link[stats:lm]{stats::lm()}} \tab \cr
   "lmer" \tab \code{\link[lme4:lmer]{lme4::lmer()}} \tab \cr
   "glm_binomial" \tab \code{\link[stats:lm]{stats::glm()}} \tab \code{family = "binomial"}\cr
   "glmer_binomial" \tab \code{\link[lme4:glmer]{lme4::glmer()}} \tab \code{family = "binomial"}\cr
   "svm_gaussian" \tab \code{\link[e1071:svm]{e1071::svm()}} \tab \code{type = "eps-regression"}\cr
-  "svm_binomial" \tab \code{\link[e1071:svm]{e1071::svm()}} \tab \code{type = "C-classification"}\cr
+  "svm_binomial" \tab \code{\link[e1071:svm]{e1071::svm()}} \tab \code{type = "C-classification"}, \code{probability = TRUE}\cr
+  "svm_multinomial" \tab \code{\link[e1071:svm]{e1071::svm()}} \tab \code{type = "C-classification"}, \code{probability = TRUE}\cr
   "naive_bayes" \tab \code{\link[e1071:naiveBayes]{e1071::naiveBayes()}} \tab \cr
-  "multinom" \tab \code{\link[nnet:multinom]{nnet::multinom()}} \tab \cr
+  "nnet_multinom" \tab \code{\link[nnet:multinom]{nnet::multinom()}} \tab \cr
+  "nnet_gaussian" \tab \code{\link[nnet:multinom]{nnet::nnet()}} \tab \code{linout = TRUE} \cr
+  "nnet_binomial" \tab \code{\link[nnet:multinom]{nnet::nnet()}} \tab \cr
+  "randomForest_gaussian" \tab \code{\link[randomForest:randomForest]{randomForest::randomForest()}} \tab \cr
+  "randomForest_binomial" \tab \code{\link[randomForest:randomForest]{randomForest::randomForest()}} \tab \cr
+  "randomForest_multinomial" \tab \code{\link[randomForest:randomForest]{randomForest::randomForest()}} \tab \cr
  }}
 }
 \description{

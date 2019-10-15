@@ -12,29 +12,32 @@
 #' @param name Name of model to get predict function for,
 #'  as it appears in the following table.
 #'
-#'  The \strong{Model Params} column lists parameters used
+#'  The \strong{Model HParams} column lists hyperparameters used
 #'  in the respective model function.
 #'
 #'  \tabular{rrr}{
-#'   \strong{Name} \tab \strong{Function} \tab \strong{Model Params} \cr
+#'   \strong{Name} \tab \strong{Function} \tab \strong{Model HParams} \cr
 #'   "lm" \tab \code{\link[stats:lm]{stats::lm()}} \tab \cr
 #'   "lmer" \tab \code{\link[lme4:lmer]{lme4::lmer()}} \tab \cr
 #'   "glm_binomial" \tab \code{\link[stats:lm]{stats::glm()}} \tab \code{family = "binomial"}\cr
 #'   "glmer_binomial" \tab \code{\link[lme4:glmer]{lme4::glmer()}} \tab \code{family = "binomial"}\cr
 #'   "svm_gaussian" \tab \code{\link[e1071:svm]{e1071::svm()}} \tab \code{type = "eps-regression"}\cr
-#'   "svm_binomial" \tab \code{\link[e1071:svm]{e1071::svm()}} \tab \code{type = "C-classification"}\cr
+#'   "svm_binomial" \tab \code{\link[e1071:svm]{e1071::svm()}} \tab \code{type = "C-classification"}, \code{probability = TRUE}\cr
+#'   "svm_multinomial" \tab \code{\link[e1071:svm]{e1071::svm()}} \tab \code{type = "C-classification"}, \code{probability = TRUE}\cr
 #'   "naive_bayes" \tab \code{\link[e1071:naiveBayes]{e1071::naiveBayes()}} \tab \cr
-#'   "multinom" \tab \code{\link[nnet:multinom]{nnet::multinom()}} \tab \cr
+#'   "nnet_multinom" \tab \code{\link[nnet:multinom]{nnet::multinom()}} \tab \cr
+#'   "nnet_gaussian" \tab \code{\link[nnet:multinom]{nnet::nnet()}} \tab \code{linout = TRUE} \cr
+#'   "nnet_binomial" \tab \code{\link[nnet:multinom]{nnet::nnet()}} \tab \cr
+#'   "randomForest_gaussian" \tab \code{\link[randomForest:randomForest]{randomForest::randomForest()}} \tab \cr
+#'   "randomForest_binomial" \tab \code{\link[randomForest:randomForest]{randomForest::randomForest()}} \tab \cr
+#'   "randomForest_multinomial" \tab \code{\link[randomForest:randomForest]{randomForest::randomForest()}} \tab \cr
 #'  }
 example_predict_functions <- function(name){
 
-  if (name %in% c("lm", "lmer")){
-    predict_fn <- function(test_data, model, formula, hyperparameters){
-      stats::predict(object = model,
-                     newdata = test_data,
-                     allow.new.levels = TRUE)
-    }
-  } else if (name %in% c("glm_binomial", "glmer_binomial")){
+  if (name %in% c("lm", "lmer",
+                  "glm_binomial",
+                  "glmer_binomial",
+                  "randomForest_gaussian")){
     predict_fn <- function(test_data, model, formula, hyperparameters){
       stats::predict(object = model,
                      newdata = test_data,
@@ -49,12 +52,33 @@ example_predict_functions <- function(name){
     }
   } else if (name == "svm_binomial"){
     predict_fn <- function(test_data, model, formula, hyperparameters){
-
-      # Returns the predicted classes, not probabilities
-
-      stats::predict(object = model,
+      predictions <- stats::predict(object = model,
                      newdata = test_data,
-                     allow.new.levels = TRUE)
+                     allow.new.levels = TRUE,
+                     probability = TRUE)
+
+      # Extract probabilities
+      probabilities <- dplyr::as_tibble(
+        attr(predictions, "probabilities")
+        )
+
+      # Return second column
+      probabilities[[2]]
+    }
+  } else if (name == "svm_multinomial"){
+    predict_fn <- function(test_data, model, formula, hyperparameters){
+      predictions <- stats::predict(object = model,
+                                    newdata = test_data,
+                                    allow.new.levels = TRUE,
+                                    probability = TRUE)
+
+      # Extract probabilities
+      probabilities <- dplyr::as_tibble(
+        attr(predictions, "probabilities")
+      )
+
+      # Return probabilities
+      probabilities
     }
   } else if (name == "naive_bayes"){
     predict_fn <- function(test_data, model, formula, hyperparameters){
@@ -63,12 +87,31 @@ example_predict_functions <- function(name){
                      type = "raw",
                      allow.new.levels = TRUE)[,2]
     }
-  } else if (name == "multinom"){
+  } else if (name == "nnet_multinom"){
     predict_fn <- function(test_data, model, formula, hyperparameters){
       stats::predict(object = model,
                      newdata = test_data,
                      type = "probs",
                      allow.new.levels = TRUE)
+    }
+  } else if (name %in% c("nnet_gaussian", "nnet_binomial")){
+    predict_fn <- function(test_data, model, formula, hyperparameters){
+      stats::predict(object = model,
+                     newdata = test_data,
+                     type = "raw",
+                     allow.new.levels = TRUE)
+    }
+  } else if (name %in% c("randomForest_binomial")){
+    predict_fn <- function(test_data, model, formula, hyperparameters){
+      stats::predict(object = model,
+                     newdata = test_data,
+                     type = "prob")[,2]
+    }
+  } else if (name %in% c("randomForest_multinomial")){
+    predict_fn <- function(test_data, model, formula, hyperparameters){
+      stats::predict(object = model,
+                     newdata = test_data,
+                     type = "prob")
     }
   } else {
     stop(paste0("Could not find '", name, "'."))

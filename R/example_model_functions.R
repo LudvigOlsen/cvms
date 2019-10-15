@@ -19,6 +19,7 @@
 #'   "glmer_binomial" \tab \code{\link[lme4:glmer]{lme4::glmer()}} \tab \cr
 #'   "svm_gaussian" \tab \code{\link[e1071:svm]{e1071::svm()}} \tab \code{kernel}, \code{cost}\cr
 #'   "svm_binomial" \tab \code{\link[e1071:svm]{e1071::svm()}} \tab \code{kernel}, \code{cost}\cr
+#'   "svm_multinomial" \tab \code{\link[e1071:svm]{e1071::svm()}} \tab \code{kernel}, \code{cost}\cr
 #'   "naive_bayes" \tab \code{\link[e1071:naiveBayes]{e1071::naiveBayes()}} \tab \code{laplace} \cr
 #'   }
 example_model_functions <- function(name){
@@ -62,7 +63,7 @@ example_model_functions <- function(name){
                  scale = FALSE,
                  type = "eps-regression")
     }
-  } else if (name == "svm_binomial"){
+  } else if (name %in% c("svm_binomial", "svm_multinomial")){
     model_fn <- function(train_data, formula, hyperparameters){
 
       # Expected hyperparameters:
@@ -74,7 +75,8 @@ example_model_functions <- function(name){
                  kernel = hyperparameters[["kernel"]],
                  cost = hyperparameters[["cost"]],
                  scale = FALSE,
-                 type = "C-classification")
+                 type = "C-classification",
+                 probability = TRUE)
     }
   } else if (name == "naive_bayes"){
     model_fn <- function(train_data, formula, hyperparameters){

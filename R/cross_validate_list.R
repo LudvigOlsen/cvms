@@ -11,7 +11,7 @@ cross_validate_list <- function(data,
                                 positive = 2,
                                 metrics = list(),
                                 rm_nc = FALSE,
-                                model_verbose = FALSE,
+                                verbose = FALSE,
                                 parallel_ = FALSE) {
 
   # Set errors if input variables aren't what we expect / can handle
@@ -46,8 +46,12 @@ cross_validate_list <- function(data,
   is_cross_validate <- extract_from_hparams_for_cross_validate(
     hyperparameters = hyperparameters,
     param = "is_cross_validate")
+  if (is.null(is_cross_validate)){
+    is_cross_validate <- FALSE
+  }
 
   if (isTRUE(is_cross_validate)){
+
     # Note that we do not fill in defaults here, as that would mean,
     # they could be different from their settings in the hyperparameters
     # which could lead to mistakes. They are instead filled in
@@ -78,7 +82,7 @@ cross_validate_list <- function(data,
     control = control,
     cutoff = cutoff,
     positive = positive,
-    model_verbose = model_verbose,
+    model_verbose = FALSE, # TODO Should this be removed or renamed to verbose?
     model_fn = model_fn,
     predict_fn = predict_fn,
     preprocess_fn = preprocess_fn,
@@ -101,13 +105,16 @@ cross_validate_list <- function(data,
   n_model_instances <- nrow(computation_grid)
   n_folds <- length(unique(computation_grid[["abs_fold"]]))
 
-  # TODO Make better message here. It seems like a good idea
-  # to inform the user about the number of models to fit etc.
-  # so they know how long it may take
-  # Perhaps add a progress bar?
-  message(paste0("Will cross-validate ", n_models,
-                 " models. This requires fitting ",
-                 n_model_instances, " model instances."))
+  if (isTRUE(verbose)){
+    # TODO Make better message here. It seems like a good idea
+    # to inform the user about the number of models to fit etc.
+    # so they know how long it may take
+    # Perhaps add a progress bar?
+    message(paste0("Will cross-validate ", n_models,
+                   " models. This requires fitting ",
+                   n_model_instances, " model instances."))
+  }
+
 
   if(isTRUE(preprocess_once)){
 
@@ -116,6 +123,12 @@ cross_validate_list <- function(data,
                                 model_specifics = model_specifics,
                                 fold_cols = fold_cols)
   }
+
+  # Set names of fold info columns
+  # Should match those in fold_info below
+  fold_info_cols <- list("rel_fold" = "rel_fold",
+                         "abs_fold" = "abs_fold",
+                         "fold_column" = "fold_column")
 
   # cross_validate all the models using ldply()
   validated_folds <- plyr::llply(seq_len(nrow(computation_grid)),
@@ -136,6 +149,7 @@ cross_validate_list <- function(data,
 
     custom_validate_fold(data = data,
                          fold_info = fold_info,
+                         fold_info_cols = fold_info_cols,
                          evaluation_type = evaluation_type,
                          model_specifics = model_specifics,
                          model_specifics_update_fn = NULL,
@@ -162,10 +176,6 @@ cross_validate_list <- function(data,
                   model_was_null = model_was_null,
                   Preprocess = preprocess_params) %>%
     dplyr::arrange(.data$model, .data$abs_fold) # TODO: delete once we know it is working?
-
-  fold_info_cols <- list(rel_fold = "rel_fold",
-                        abs_fold = "abs_fold",
-                        fold_column = "fold_column")
 
   # Evaluate predictions
   cross_validations <- plyr::llply(seq_len(n_models),
@@ -300,10 +310,15 @@ cross_validate_list <- function(data,
 
     }
 
-    # Nest fold results
-    nested_fold_results <- fold_results %>%
-      legacy_nest(seq_len(ncol(fold_results))) %>%
-      dplyr::pull(.data$data)
+    if (!is.data.frame(fold_results) && is.na(fold_results)){
+      nested_fold_results <- list(fold_results)
+    } else {
+      # Nest fold results
+      nested_fold_results <- fold_results %>%
+        legacy_nest(seq_len(ncol(fold_results))) %>%
+        dplyr::pull(.data$data)
+    }
+
 
     # Combine the various columns
     evaluation <- prediction_evaluation %>%
@@ -326,8 +341,7 @@ cross_validate_list <- function(data,
   }) %>%
     dplyr::bind_rows() %>%
     tibble::as_tibble() %>%
-    dplyr::mutate(Family = model_specifics[["family"]]) %>%
-    dplyr::select(-.data$`Singular Fit Messages`)
+    dplyr::mutate(Family = model_specifics[["family"]])
 
   # Extract the first row for each model in the computation grid
   grid_first_rows <- computation_grid %>%
@@ -381,6 +395,11 @@ cross_validate_list <- function(data,
     # Reorder rows by original formula order
     dplyr::right_join(original_formula_order,
                       by = names(original_formula_order))
+
+  # Remove singular_fit_messages if not cross_validate
+  if (!isTRUE(is_cross_validate)){
+    output[["Singular Fit Messages"]] <- NULL
+  }
 
   # If asked to remove non-converged models from output
   if (isTRUE(rm_nc)){

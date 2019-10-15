@@ -19,8 +19,7 @@ test_that("the correct grid is created with create_computation_grid()",{
       "c" = c(5, 2, 4, 5)
     ),
     formulas = c("y ~ x", "y ~ z"),
-    fold_cols = paste0(".folds_", 1:3),
-    n_hparam_combinations = NULL
+    fold_cols = paste0(".folds_", 1:3)
   )
 
   grid_1.2 <- grid_1 %>%
@@ -70,13 +69,13 @@ test_that("the correct sampled grid is created with create_computation_grid()",{
   grid_1 <- create_computation_grid(
     data = dat,
     hparams = list(
+      ".n" = 5,
       "a" = c(-1, 0, 1),
       "b" = 7,
       "c" = c(5, 2, 4, 5)
     ),
     formulas = c("y ~ x", "y ~ z"),
-    fold_cols = paste0(".folds_", 1:3),
-    n_hparam_combinations = 5
+    fold_cols = paste0(".folds_", 1:3)
   )
 
 
@@ -103,13 +102,13 @@ test_that("the correct sampled grid is created with create_computation_grid()",{
   expect_error(create_computation_grid(
     data = dat,
     hparams = list(
+      ".n" = 77,
       "a" = c(-1, 0, 1),
       "b" = 7,
       "c" = c(5, 2, 4, 5)
     ),
     formulas = c("y ~ x", "y ~ z"),
-    fold_cols = paste0(".folds_", 1:3),
-    n_hparam_combinations = 77
+    fold_cols = paste0(".folds_", 1:3)
   ), "'n' was greater than the rows in the hparams grid.",
   fixed = TRUE)
 
@@ -119,13 +118,13 @@ test_that("the correct sampled grid is created with create_computation_grid()",{
   grid_2 <- create_computation_grid(
     data = dat,
     hparams = list(
+      ".n" = 0.4,
       "a" = c(-1, 0, 1),
       "b" = 7,
       "c" = c(5, 2, 4, 5)
     ),
     formulas = c("y ~ x", "y ~ z"),
-    fold_cols = paste0(".folds_", 1:3),
-    n_hparam_combinations = 0.4
+    fold_cols = paste0(".folds_", 1:3)
   )
 
   grid_2.2 <- grid_2 %>%

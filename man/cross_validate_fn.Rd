@@ -8,7 +8,7 @@ cross_validate_fn(data, formulas, model_fn, predict_fn,
   preprocess_fn = NULL, preprocess_once = FALSE,
   hyperparameters = NULL, fold_cols = ".folds", type = "gaussian",
   cutoff = 0.5, positive = 2, metrics = list(), rm_nc = FALSE,
-  parallel = FALSE)
+  parallel = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{data}{Data frame.
@@ -182,6 +182,9 @@ Every combination will be created.
 
  Remember to register a parallel backend first.
  E.g. with \code{doParallel::registerDoParallel}.}
+
+\item{verbose}{Whether to message process information
+like the number of model instances to fit. (Logical)}
 }
 \value{
 Tbl (tibble) with results for each model.

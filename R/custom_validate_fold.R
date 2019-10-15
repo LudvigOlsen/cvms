@@ -1,6 +1,7 @@
 
 custom_validate_fold <- function(data,
                                  fold_info,
+                                 fold_info_cols = fold_info_cols,
                                  evaluation_type = "gaussian",
                                  model_specifics = list(),
                                  model_specifics_update_fn = NULL,
@@ -82,6 +83,7 @@ custom_validate_fold <- function(data,
     test_data = test_data,
     type = evaluation_type,
     fold_info = fold_info,
+    fold_info_cols = fold_info_cols,
     model_specifics = model_specifics,
     metrics = metrics) %>%
     dplyr::mutate(

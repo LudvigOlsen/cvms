@@ -138,6 +138,8 @@
 #'  \verb{     }\code{"h_layers" = c(10, 100, 1000),}
 #'
 #'  \verb{     }\code{"drop_out" = runif(5, 0.3, 0.7))}
+#' @param verbose Whether to message process information
+#'  like the number of model instances to fit. (Logical)
 #' @details
 #'
 #'  Packages used:
@@ -165,7 +167,6 @@
 #'  MCC: \code{\link[mltools:mcc]{mltools::mcc}}
 #'  }
 #'  }
-#'
 #' @return
 #'  Tbl (tibble) with results for each model.
 #'
@@ -461,9 +462,10 @@ cross_validate_fn <- function(data,
                               positive = 2,
                               metrics = list(),
                               rm_nc = FALSE,
-                              parallel = FALSE){
+                              parallel = FALSE,
+                              verbose = TRUE){
 
-  return(cross_validate_list(
+  cross_validate_list(
     data = data,
     formulas = formulas,
     model_fn = model_fn,
@@ -477,7 +479,7 @@ cross_validate_fn <- function(data,
     positive = positive,
     metrics = metrics,
     rm_nc = rm_nc,
-    model_verbose = FALSE,
-    parallel_ = parallel
-  ))
+    parallel_ = parallel,
+    verbose = verbose
+  )
 }

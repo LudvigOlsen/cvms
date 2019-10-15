@@ -125,14 +125,6 @@ evaluate_predictions_binomial <- function(data,
 
     results <- binomial_classification_NA_results_tibble(
       metrics = metrics, include_predictions = include_predictions)
-
-    if (!is.null(models))
-      results[["Coefficients"]] <- get_nested_model_coefficients(
-        models = NULL, include_fold_columns = include_fold_columns)
-
-    if (length(unique_fold_cols) > 1){
-      results[["Results"]] <- NA
-    }
   }
 
   return(results)
@@ -354,14 +346,15 @@ binomial_classification_NA_results_tibble <- function(metrics, include_predictio
     "Detection Prevalence" = NA,
     "Prevalence" = NA,
     "Predictions" = NA,
+    "Results" = list(NA),
     "ROC" = NA)
 
   if (!isTRUE(include_predictions)){
     eval_tibble[["Predictions"]] <- NULL
   }
 
-  eval_tibble %>%
-    dplyr::select(dplyr::one_of(intersect(metrics, colnames(eval_tibble))))
+  eval_tibble # %>%
+    # dplyr::select(dplyr::one_of(intersect(metrics, colnames(eval_tibble))))
 }
 
 binomial_classification_results_tibble <- function(roc_curve,

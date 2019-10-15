@@ -163,6 +163,7 @@ call_cross_validate <- function(data,
     positive = positive,
     metrics = metrics,
     rm_nc = FALSE, # Done below instead
+    verbose = model_verbose,
     parallel = parallel
     ) %>%
     tibble::add_column("Link" = link,
@@ -172,10 +173,10 @@ call_cross_validate <- function(data,
   # As they contain internal information (noise)
   results[["HParams"]] <- NULL
 
-  # If asked to remove non-converged models from output
+  # If asked to remove non-converged models from results
   if (isTRUE(rm_nc)){
 
-    output <- output %>%
+    results <- results %>%
       dplyr::filter(.data$`Convergence Warnings` == 0)
 
   }

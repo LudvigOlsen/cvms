@@ -1,8 +1,6 @@
 library(cvms)
 context("cross_validate_fn()")
 
-
-# runs (except folds and fold columns count)
 test_that("binomial glm model works with cross_validate_fn()",{
 
   # Load data and fold it
@@ -222,7 +220,6 @@ test_that("binomial glm model works with cross_validate_fn()",{
 
 })
 
-# almost runs (except folds and fold columns count and double warnings in predict_fn)
 test_that("gaussian lm model works with cross_validate_fn()",{
 
   # Load data and fold it
@@ -237,9 +234,7 @@ test_that("gaussian lm model works with cross_validate_fn()",{
   # summary(lmm <- lm_model_fn(dat, "score ~ diagnosis"))
   # MuMIn::AICc(lmm, REML = F) # The one used in the package
 
-  lm_predict_fn <- function(test_data, model, formula, hyperparameters){
-    stats::predict(model, test_data, allow.new.levels = TRUE)
-  }
+  lm_predict_fn <- example_predict_functions("lm")
 
   # Cross-validate the data
   CVed <- cross_validate_fn(dat,
@@ -424,7 +419,6 @@ test_that("binomial glm model with preprocess_fn works with cross_validate_fn()"
 
 })
 
-# runs (except folds and fold columns count)
 test_that("binomial svm models from e1071 work with cross_validate_fn()",{
 
   # Load data and fold it
@@ -434,40 +428,37 @@ test_that("binomial svm models from e1071 work with cross_validate_fn()",{
                           id_col = 'participant')
   dat[["diagnosis"]] <- factor(dat[["diagnosis"]])
 
-  svm_model_fn <- function(train_data, formula, hyperparameters){
-
-    # NOTE: formula must be first when calling svm()
-    e1071::svm(formula = formula, # converted to formula object within custom_fit_model()
-               data = train_data,
-               kernel = "linear",
-               cost = 10,
-               scale = FALSE,
-               type = "C-classification")
-  }
-
+  svm_model_fn <- example_model_functions("svm_binomial")
   svm_predict_fn <- example_predict_functions("svm_binomial")
+
+  # m <- svm_model_fn(dat, as.formula("diagnosis~score"), hyperparameters = hparams)
+  # svm_predict_fn(dat, m, NULL, NULL)
+
+  hparams <- list("kernel" = "linear",
+                  "cost" = 10)
 
   CVbinomlist <- cross_validate_fn(dat,
                                    model_fn = svm_model_fn,
                                    predict_fn = svm_predict_fn,
                                    formulas = c("diagnosis~score","diagnosis~age"),
                                    fold_cols = '.folds', type = 'binomial',
+                                   hyperparameters = hparams,
                                    positive = 1)
 
-  expect_equal(CVbinomlist$AUC, c(0.736111111111111, 0.5), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Lower CI`, c(0.572405153339587, 0.5), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Upper CI`, c(0.899817068882636, 0.5), tolerance=1e-3)
-  expect_equal(CVbinomlist$Kappa, c(0.492753623188406, 0), tolerance=1e-3)
-  expect_equal(CVbinomlist$Sensitivity, c(0.5833333,0.0000000), tolerance=1e-3)
-  expect_equal(CVbinomlist$Specificity, c(0.8888889,1.0), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Pos Pred Value`, c(0.7777778, NaN), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Neg Pred Value`, c(0.7619048, 0.6), tolerance=1e-3)
-  expect_equal(CVbinomlist$F1, c(0.6666667, NA), tolerance=1e-3)
+  expect_equal(CVbinomlist$AUC, c(0.733796296296296, 0.479166666666667), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Lower CI`, c(0.528997365284296, 0.241598686439125), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Upper CI`, c(0.938595227308296, 0.716734646894208), tolerance=1e-3)
+  expect_equal(CVbinomlist$Kappa, c(0.393939393939394, -0.0869565217391305), tolerance=1e-3)
+  expect_equal(CVbinomlist$Sensitivity, c(0.416666666666667, 0.25), tolerance=1e-3)
+  expect_equal(CVbinomlist$Specificity, c(0.944444444444444, 0.666666666666667), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Pos Pred Value`, c(0.833333333333333, 0.333333333333333), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Neg Pred Value`, c(0.708333333333333, 0.571428571428571), tolerance=1e-3)
+  expect_equal(CVbinomlist$F1, c(0.555555555555556, 0.285714285714286), tolerance=1e-3)
   expect_equal(CVbinomlist$Prevalence, c(0.4,0.4), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Detection Rate`, c(0.2333333,0.0000000), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Detection Prevalence`, c(0.3,0.0), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Balanced Accuracy`, c(0.7361111,0.5), tolerance=1e-3)
-  expect_equal(CVbinomlist$MCC, c(0.5048268, 0), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Detection Rate`, c(0.166666666666667, 0.1), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Detection Prevalence`, c(0.2, 0.3), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Balanced Accuracy`, c(0.680555555555556, 0.458333333333333), tolerance=1e-3)
+  expect_equal(CVbinomlist$MCC, c(0.442268981335852, -0.0890870806374748), tolerance=1e-3)
   expect_equal(CVbinomlist$Folds, c(4,4))
   expect_equal(CVbinomlist$`Fold Columns`, c(1,1))
   expect_equal(CVbinomlist$`Convergence Warnings`, c(0,0))
@@ -481,7 +472,7 @@ test_that("binomial svm models from e1071 work with cross_validate_fn()",{
   expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
   expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Fold Column","Sensitivities","Specificities"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
-  expect_equal(nrow(CVbinomlist$ROC[[1]]),3)
+  expect_equal(nrow(CVbinomlist$ROC[[1]]),29)
   expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
                               Function = character(0), Type = character(0), Message = character(0)),
@@ -489,7 +480,6 @@ test_that("binomial svm models from e1071 work with cross_validate_fn()",{
 
 })
 
-# runs (except folds and fold columns count)
 test_that("gaussian svm models from e1071 work with cross_validate_fn()",{
 
   # skip_test_if_old_R_version()
@@ -552,8 +542,6 @@ test_that("gaussian svm models from e1071 work with cross_validate_fn()",{
 
 })
 
-# almost runs (except folds and fold columns count and
-# (wont fail currently) double warnings in predict_fn)
 test_that("gaussian svm models with hparams and preprocessing work with cross_validate_fn()",{
 
   # skip_test_if_old_R_version()
@@ -580,7 +568,7 @@ test_that("gaussian svm models with hparams and preprocessing work with cross_va
   #              hyperparameters = list(
   #                "kernel" = "linear", "cost" = 10)))
 
-  svm_predict_fn <- function(test_data, model, formula){
+  svm_predict_fn <- function(test_data, model, formula, hyperparameters){
 
     warning("This is a predict_fn warning")
     message("This is a predict_fn message")
@@ -638,8 +626,8 @@ test_that("gaussian svm models with hparams and preprocessing work with cross_va
   expect_equal(CVed$AIC, rep(NaN,5), tolerance=1e-3)
   expect_equal(CVed$AICc, rep(NaN,5), tolerance=1e-3)
   expect_equal(CVed$BIC, rep(NaN,5), tolerance=1e-3)
-  expect_equal(CVed$Folds, 4)
-  expect_equal(CVed$`Fold Columns`, 1)
+  expect_equal(CVed$Folds, rep(4, 5))
+  expect_equal(CVed$`Fold Columns`, rep(1, 5))
   expect_equal(CVed$`Convergence Warnings`, rep(0,5))
   expect_equal(CVed$Family, rep('gaussian',5))
   expect_equal(CVed$Dependent, rep('score',5))
@@ -648,7 +636,7 @@ test_that("gaussian svm models with hparams and preprocessing work with cross_va
   expect_equal(colnames(CVed$Coefficients[[1]]),
                c("Fold Column", "Fold","term",
                  "estimate", "std.error", "statistic", "p.value"))
-  dput(CVed$Coefficients[[1]])
+
   expect_equal(CVed$Coefficients[[1]],
                structure(list(`Fold Column` = c(NA, NA, NA, NA),
                               Fold = c(NA, NA, NA, NA),
@@ -662,45 +650,37 @@ test_that("gaussian svm models with hparams and preprocessing work with cross_va
 
   # Note: When fixing the double warning in predict_fn, this will fail
   expect_equal(CVed$`Warnings and Messages`[[1]]$`Fold Column`,
-               rep(".folds",28))
+               rep(".folds",24))
 
   expect_equal(CVed$`Warnings and Messages`[[1]]$Fold,
-               c(1L, 1L, 1L, 1L, 1L, 1L, 1L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 3L,
-                 3L, 3L, 3L, 3L, 3L, 3L, 4L, 4L, 4L, 4L, 4L, 4L, 4L))
+               c(1L, 1L, 1L, 1L, 1L, 1L, 2L, 2L, 2L, 2L, 2L, 2L, 3L, 3L, 3L,
+                 3L, 3L, 3L, 4L, 4L, 4L, 4L, 4L, 4L))
   expect_equal(CVed$`Warnings and Messages`[[1]]$Function,
-               c("model_fn", "model_fn", "predict_fn", "predict_fn", "predict_fn",
+               c("model_fn", "model_fn", "predict_fn", "predict_fn", "preprocess_fn",
+                 "preprocess_fn", "model_fn", "model_fn", "predict_fn", "predict_fn",
                  "preprocess_fn", "preprocess_fn", "model_fn", "model_fn", "predict_fn",
-                 "predict_fn", "predict_fn", "preprocess_fn", "preprocess_fn",
-                 "model_fn", "model_fn", "predict_fn", "predict_fn", "predict_fn",
-                 "preprocess_fn", "preprocess_fn", "model_fn", "model_fn", "predict_fn",
+                 "predict_fn", "preprocess_fn", "preprocess_fn", "model_fn", "model_fn",
                  "predict_fn", "predict_fn", "preprocess_fn", "preprocess_fn"))
   expect_equal(CVed$`Warnings and Messages`[[1]]$Type,
-               c("warning", "message", "warning", "warning", "message", "warning",
-                 "message", "warning", "message", "warning", "warning", "message",
-                 "warning", "message", "warning", "message", "warning", "warning",
-                 "message", "warning", "message", "warning", "message", "warning",
-                 "warning", "message", "warning", "message"))
+               c("warning", "message", "warning", "message", "warning", "message",
+                 "warning", "message", "warning", "message", "warning", "message",
+                 "warning", "message", "warning", "message", "warning", "message",
+                 "warning", "message", "warning", "message", "warning", "message"
+               ))
   expect_equal(CVed$`Warnings and Messages`[[1]]$Message,
                c("This is a model_fn warning", "This is a model_fn message\n",
-                 "Got the following warning while using specified 'predict_fn': simpleWarning in user_predict_fn(test_data = test_data, model = model, formula = stats::as.formula(formula)): This is a predict_fn warning\n",
                  "This is a predict_fn warning", "This is a predict_fn message\n",
                  "This is a preprocess_fn warning", "This is a preprocess_fn message\n",
                  "This is a model_fn warning", "This is a model_fn message\n",
-                 "Got the following warning while using specified 'predict_fn': simpleWarning in user_predict_fn(test_data = test_data, model = model, formula = stats::as.formula(formula)): This is a predict_fn warning\n",
                  "This is a predict_fn warning", "This is a predict_fn message\n",
                  "This is a preprocess_fn warning", "This is a preprocess_fn message\n",
                  "This is a model_fn warning", "This is a model_fn message\n",
-                 "Got the following warning while using specified 'predict_fn': simpleWarning in user_predict_fn(test_data = test_data, model = model, formula = stats::as.formula(formula)): This is a predict_fn warning\n",
                  "This is a predict_fn warning", "This is a predict_fn message\n",
                  "This is a preprocess_fn warning", "This is a preprocess_fn message\n",
                  "This is a model_fn warning", "This is a model_fn message\n",
-                 "Got the following warning while using specified 'predict_fn': simpleWarning in user_predict_fn(test_data = test_data, model = model, formula = stats::as.formula(formula)): This is a predict_fn warning\n",
                  "This is a predict_fn warning", "This is a predict_fn message\n",
                  "This is a preprocess_fn warning", "This is a preprocess_fn message\n"
                ))
-
-
-
 })
 
 test_that("binomial naiveBayes models from e1071 work with cross_validate_fn()",{
@@ -712,7 +692,7 @@ test_that("binomial naiveBayes models from e1071 work with cross_validate_fn()",
                           id_col = 'participant')
   dat[["diagnosis"]] <- factor(dat[["diagnosis"]])
 
-  nb_model_fn <- function(train_data, formula){
+  nb_model_fn <- function(train_data, formula, hyperparameters){
 
     e1071::naiveBayes(formula = formula, # converted to formula object within custom_fit_model()
                       data = train_data)
@@ -720,42 +700,38 @@ test_that("binomial naiveBayes models from e1071 work with cross_validate_fn()",
 
   # nb_ <- nb_model_fn(data = dat, formula = as.formula("diagnosis~score"))
 
-  nb_predict_fn <- function(test_data, model, formula = NULL){
-    stats::predict(object = model, newdata = test_data, type = "raw", allow.new.levels = TRUE)[,2]
+  nb_predict_fn <- function(test_data, model, formula = NULL, hyperparameters){
+    stats::predict(object = model, newdata = test_data, type = "raw",
+                   allow.new.levels = TRUE)[,2]
+  }
+
+  nb_wrong_predict_fn <- function(test_data, model, formula = NULL, hyperparameters){
+    stats::predict(object = model, newdata = test_data, type = "raw",
+                   allow.new.levels = TRUE)
   }
 
   # nb_predict_fn(data = dat, model = nb_)
   # preds <- predict(nb_, dat, type = "raw", allow.new.levels = TRUE)
 
   expect_error(cross_validate_fn(dat,
-                                 nb_model_fn,
+                                 model_fn = nb_model_fn,
+                                 predict_fn = nb_wrong_predict_fn,
                                  formulas = c("diagnosis~score", "diagnosis~age"),
                                  fold_cols = '.folds',
                                  type = 'binomial',
-                                 predict_type = "raw",
                                  positive = 1),
                paste0("When type/family is binomial, ",
                       "the predictions must be a vector or matrix / data frame ",
                       "with one column but was a matrix with 2 columns. ",
-                      "Did you specify 'predict_type' or 'predict_fn' correctly?"), fixed = TRUE)
+                      "Did you specify 'predict_fn' correctly?"), fixed = TRUE)
 
-  expect_error(cross_validate_fn(dat,
-                                   nb_model_fn,
-                                   formulas = c("diagnosis~score","diagnosis~age"),
-                                   fold_cols = '.folds',
-                                   type = 'binomial',
-                                   predict_type = "raw",
-                                   predict_fn = nb_predict_fn,
-                                   positive = 1),
-               "cross_validate_fn(): Both 'predict_type' and 'predict_fn' were specified. Please specify only one of them.",
-               fixed = TRUE)
 
   CVbinomlist <- cross_validate_fn(dat,
-                                   nb_model_fn,
+                                   model_fn = nb_model_fn,
+                                   predict_fn = nb_predict_fn,
                                    formulas = c("diagnosis~score","diagnosis~age"),
                                    fold_cols = '.folds',
                                    type = 'binomial',
-                                   predict_fn = nb_predict_fn,
                                    positive = 1)
 
   expect_equal(CVbinomlist$AUC, c(0.743055555555555, 0.125), tolerance=1e-3)
@@ -783,7 +759,7 @@ test_that("binomial naiveBayes models from e1071 work with cross_validate_fn()",
   expect_is(CVbinomlist$Predictions[[1]], "tbl_df")
   expect_is(CVbinomlist$ROC[[1]], "tbl_df")
   expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
-  expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Sensitivities","Specificities"))
+  expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Fold Column","Sensitivities","Specificities"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
   expect_equal(nrow(CVbinomlist$ROC[[1]]),29)
   expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
@@ -795,7 +771,10 @@ test_that("binomial naiveBayes models from e1071 work with cross_validate_fn()",
 
 test_that("binomial nnet models work with cross_validate_fn()",{
 
-  testthat::skip("mac and ubuntu give different warnings")
+  # testthat::skip("mac and ubuntu give different warnings")
+  testthat::skip_on_os("windows")
+  testthat::skip_on_os("linux")
+  testthat::skip_on_os("solaris")
   # Tested on both platforms on travis as well
   # Local test is a mix of ubuntu and mac derived results/predictions
   # so wouldn't run perfectly on either
@@ -807,7 +786,7 @@ test_that("binomial nnet models work with cross_validate_fn()",{
                           id_col = 'participant')
   dat[["diagnosis"]] <- factor(dat[["diagnosis"]])
 
-  nnet_model_fn <- function(train_data, formula){
+  nnet_model_fn <- function(train_data, formula, hyperparameters){
 
     nnet::nnet(formula = formula, # converted to formula object within custom_fit_model()
                data = train_data,
@@ -816,27 +795,29 @@ test_that("binomial nnet models work with cross_validate_fn()",{
   # nn <- nnet_model_fn(data = dat, formula = as.formula("diagnosis~score"))
   # predict(nn, dat, type = "raw", allow.new.levels = TRUE)
 
+  nnet_predict_fn <- example_predict_functions("nnet_binomial")
+
   CVbinomlist <- cross_validate_fn(dat,
-                                   nnet_model_fn,
-                                   formulas = c("diagnosis~score","diagnosis~age"),
+                                   model_fn = nnet_model_fn,
+                                   predict_fn = nnet_predict_fn,
+                                   formulas = c("diagnosis~score", "diagnosis~age"),
                                    fold_cols = '.folds', type = 'binomial',
-                                   predict_type = "raw",
                                    positive = 1)
 
-  expect_equal(CVbinomlist$AUC, c(0.668981481481482, 0.5625), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Lower CI`, c(0.466988044012812, 0.334899025834253), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Upper CI`,c(0.870974918950151, 0.790100974165747), tolerance=1e-3)
-  expect_equal(CVbinomlist$Kappa, c(0.202898550724638, -0.153846153846154), tolerance=1e-3)
-  expect_equal(CVbinomlist$Sensitivity, c(0.416666666666667, 0.5), tolerance=1e-3)
-  expect_equal(CVbinomlist$Specificity, c(0.777777777777778, 0.333333333333333), tolerance=1e-3)
+  expect_equal(CVbinomlist$AUC, c(0.611111111111111, 0.25), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Lower CI`, c(0.390732639152796, 0.0356744348642742), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Upper CI`, c(0.831489583069426, 0.464325565135726), tolerance=1e-3)
+  expect_equal(CVbinomlist$Kappa, c(0.202898550724638, -0.206896551724138), tolerance=1e-3)
+  expect_equal(CVbinomlist$Sensitivity, c(0.416666666666667, 0.75), tolerance=1e-3)
+  expect_equal(CVbinomlist$Specificity, c(0.777777777777778, 0), tolerance=1e-3)
   expect_equal(CVbinomlist$`Pos Pred Value`,c(0.555555555555556, 0.333333333333333), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Neg Pred Value`, c(0.666666666666667, 0.5), tolerance=1e-3)
-  expect_equal(CVbinomlist$F1, c(0.476190476190476, 0.4), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Neg Pred Value`, c(0.666666666666667, 0.0), tolerance=1e-3)
+  expect_equal(CVbinomlist$F1, c(0.476190476190476, 0.461538461538462), tolerance=1e-3)
   expect_equal(CVbinomlist$Prevalence, c(0.4,0.4), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Detection Rate`, c(0.1666667, 0.2000000), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Detection Prevalence`, c(0.3,0.6), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Balanced Accuracy`, c(0.597222222222222, 0.416666666666667), tolerance=1e-3)
-  expect_equal(CVbinomlist$MCC, c(0.207869854820775, -0.166666666666667), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Detection Rate`, c(0.1666667, 0.3000000), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Detection Prevalence`, c(0.3,0.9), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Balanced Accuracy`, c(0.597222222222222, 0.375), tolerance=1e-3)
+  expect_equal(CVbinomlist$MCC, c(0.207869854820775, -0.408248290463863), tolerance=1e-3)
   expect_equal(CVbinomlist$Folds, c(4,4))
   expect_equal(CVbinomlist$`Fold Columns`, c(1,1))
   expect_equal(CVbinomlist$`Convergence Warnings`, c(0,0))
@@ -848,21 +829,23 @@ test_that("binomial nnet models work with cross_validate_fn()",{
   expect_is(CVbinomlist$Predictions[[1]], "tbl_df")
   expect_is(CVbinomlist$ROC[[1]], "tbl_df")
   expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
-  expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Sensitivities","Specificities"))
+  expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Fold Column","Sensitivities","Specificities"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
-  expect_equal(nrow(CVbinomlist$ROC[[1]]),18)
+  expect_equal(nrow(CVbinomlist$ROC[[1]]),28)
   expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
                               Function = character(0), Type = character(0), Message = character(0)),
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
   expect_equal(CVbinomlist$Predictions[[1]]$Prediction,
-               c(0.65065179574317, 0.651590466950271, 0, 1, 0.630141605640758,
-                 0.651547221432569, 0.637622766392249, 0.697372951073726, 0, 1,
-                 0.627914003186229, 0.485877637042375, 1, 0.606554847890491, 0.446686243554834,
-                 1, 0.571420802528193, 0, 1, 0.571422843868964, 0.571420670478912,
-                 0.666666600173345, 0, 0, 0.666666696548977, 0, 0, 1, 0.666666600173345,
-                 0.666666600173345))
+               c(0.680095458717956, 0.635540210902409, 1.27010565974986e-06,
+                 1, 0.631830326291172, 0.655178608954501, 0.666121368078478, 0.669521882094281,
+                 4.26699221007237e-07, 1, 0.637686595370551, 0.427503656454022,
+                 0.999971149392087, 0.580648781236971, 0.422867732161415, 0.999933664457318,
+                 0.5950878405189, 0.175269354302002, 1, 0.587431090816128, 0.593772159659012,
+                 0.548644074810162, 0.000182046254534159, 0.000182708148532306,
+                 0.531005549108794, 0.000182135857575305, 0.000182591392395112,
+                 1, 0.534006886218318, 0.544640431751124))
 
 })
 
@@ -876,7 +859,7 @@ test_that("gaussian nnet models work with cross_validate_fn()",{
                           cat_col = 'diagnosis',
                           id_col = 'participant')
 
-  nnet_model_fn <- function(train_data, formula){
+  nnet_model_fn <- function(train_data, formula, hyperparameters){
 
     nnet::nnet(formula = formula, # converted to formula object within custom_fit_model()
                data = train_data,
@@ -886,9 +869,12 @@ test_that("gaussian nnet models work with cross_validate_fn()",{
   # nn <- nnet_model_fn(data = dat, formula = as.formula("score~diagnosis+age"))
   # predict(nn, dat, type="raw", allow.new.levels = TRUE)
 
+  nnet_predict_fn <- example_predict_functions("nnet_gaussian")
+
   # Cross-validate the data
   CVed <- cross_validate_fn(dat,
                             model_fn = nnet_model_fn,
+                            predict_fn = nnet_predict_fn,
                             formulas = "score~diagnosis",
                             fold_cols = '.folds',
                             type = 'gaussian')
@@ -908,8 +894,8 @@ test_that("gaussian nnet models work with cross_validate_fn()",{
   expect_equal(CVed$Fixed, 'diagnosis')
 
   expect_equal(colnames(CVed$Coefficients[[1]]),
-               c("term", "estimate", "Fold",
-                 "Fold Column", "p.value"))
+               c("Fold Column", "Fold", "term",
+                 "estimate",  "p.value"))
   expect_equal(head(CVed$Coefficients[[1]]$term,10),
                c("b->h1", "i1->h1", "b->h2", "i1->h2", "b->h3", "i1->h3", "b->h4",
                  "i1->h4", "b->h5", "i1->h5"), 4)
@@ -929,7 +915,6 @@ test_that("gaussian nnet models work with cross_validate_fn()",{
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 })
 
-# runs (except folds and fold columns count)
 test_that("multinomial nnet models work with cross_validate_fn()",{
 
   # Load data and fold it
@@ -951,7 +936,7 @@ test_that("multinomial nnet models work with cross_validate_fn()",{
                    data = train_data)
   }
 
-  multinom_predict_fn <- example_predict_functions("multinom")
+  multinom_predict_fn <- example_predict_functions("nnet_multinom")
 
 
   CVmultinomlist <- cross_validate_fn(dat,
@@ -1076,7 +1061,8 @@ test_that("multinomial nnet models work with cross_validate_fn()",{
 
   # ROC
   expect_is(class_level_results[[1]]$ROC[[1]], "tbl_df")
-  expect_equal(colnames(class_level_results[[1]]$ROC[[1]]), c("Sensitivities","Specificities"))
+  expect_equal(colnames(class_level_results[[1]]$ROC[[1]]),
+               c("Fold Column","Sensitivities","Specificities"))
   expect_equal(nrow(class_level_results[[1]]$ROC[[1]]),51)
 
   # Predictions
@@ -1097,20 +1083,21 @@ test_that("binomial randomForest models work with cross_validate_fn()",{
                           id_col = 'participant')
   dat[["diagnosis"]] <- factor(dat[["diagnosis"]])
 
-  rf_model_fn <- function(train_data, formula){
+  rf_model_fn <- function(train_data, formula, hyperparameters){
 
     randomForest::randomForest(
       formula = formula,
       data = train_data)
   }
-  # nn <- nnet_model_fn(data = dat, formula = as.formula("diagnosis~score"))
-  # predict(nn, dat, type = "raw", allow.new.levels = TRUE)
+
+  # m <- rf_model_fn(dat, as.formula("diagnosis ~ age"), NULL)
+  rf_predict_fn <- example_predict_functions("randomForest_binomial")
 
   CVbinomlist <- cross_validate_fn(dat,
-                                   rf_model_fn,
+                                   model_fn = rf_model_fn,
+                                   predict_fn = rf_predict_fn,
                                    formulas = c("diagnosis~score","diagnosis~age"),
                                    fold_cols = '.folds', type = 'binomial',
-                                   # predict_type = "raw",
                                    positive = 1)
 
 
@@ -1149,9 +1136,9 @@ test_that("binomial randomForest models work with cross_validate_fn()",{
   expect_is(CVbinomlist$Predictions[[1]], "tbl_df")
   expect_is(CVbinomlist$ROC[[1]], "tbl_df")
   expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
-  expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Sensitivities","Specificities"))
+  expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Fold Column","Sensitivities","Specificities"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
-  expect_equal(nrow(CVbinomlist$ROC[[1]]),3)
+  expect_equal(nrow(CVbinomlist$ROC[[1]]),25)
   expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
                               Function = character(0), Type = character(0), Message = character(0)),
@@ -1161,23 +1148,153 @@ test_that("binomial randomForest models work with cross_validate_fn()",{
   # Skip on windows. Appveyour works but winbuilder gives different results
   skip_on_os(os = "windows")
 
-  expect_equal(CVbinomlist$AUC, c(0.555555555555556, 0.333333333333333), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Lower CI`, c(0.367800267130833, 0.161076004187493), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Upper CI`, c(0.743310843980278, 0.505590662479174), tolerance=1e-3)
-  expect_equal(CVbinomlist$Kappa, c(0.10958904109589, -0.296296296296296), tolerance=1e-3)
-  expect_equal(CVbinomlist$Sensitivity, c(0.5,0.5), tolerance=1e-3)
-  expect_equal(CVbinomlist$Specificity, c(0.611111111111111, 0.166666666666667), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Pos Pred Value`, c(0.461538461538462, 0.285714285714286), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Neg Pred Value`, c(0.647058823529412, 0.333333333333333), tolerance=1e-3)
-  expect_equal(CVbinomlist$F1, c(0.48, 0.363636363636364), tolerance=1e-3)
+  expect_equal(CVbinomlist$AUC, c(0.648148148148148, 0.166666666666667), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Lower CI`, c(0.446244646035729, 0.00877666333061852), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Upper CI`, c(0.850051650260568, 0.324556670002715), tolerance=1e-3)
+  expect_equal(CVbinomlist$Kappa, c(0.054054054054054, -0.538461538461538), tolerance=1e-3)
+  expect_equal(CVbinomlist$Sensitivity, c(0.5, 0.25), tolerance=1e-3)
+  expect_equal(CVbinomlist$Specificity, c(0.555555555555556, 0.166666666666667), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Pos Pred Value`, c(0.428571428571429, 0.166666666666667), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Neg Pred Value`, c(0.625, 0.25), tolerance=1e-3)
+  expect_equal(CVbinomlist$F1, c(0.461538461538462, 0.2), tolerance=1e-3)
   expect_equal(CVbinomlist$Prevalence, c(0.4,0.4), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Detection Rate`, c(0.2, 0.2), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Detection Prevalence`, c(0.433333333333333, 0.7), tolerance=1e-3)
-  expect_equal(CVbinomlist$`Balanced Accuracy`, c(0.555555555555556, 0.333333333333333), tolerance=1e-3)
-  expect_equal(CVbinomlist$MCC, c(0.109847007276218, -0.356348322549899), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Detection Rate`, c(0.2, 0.1), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Detection Prevalence`, c(0.466666666666667, 0.6), tolerance=1e-3)
+  expect_equal(CVbinomlist$`Balanced Accuracy`, c(0.527777777777778, 0.208333333333333), tolerance=1e-3)
+  expect_equal(CVbinomlist$MCC, c(0.0545544725589981, -0.583333333333333), tolerance=1e-3)
 
+})
 
+test_that("multinomial randomForest models work with cross_validate_fn()",{
 
+  # Load data and fold it
+  set_seed_for_R_compatibility(1)
+  # Create and fold dataset
+  data_mc <- multiclass_probability_tibble(
+    num_classes = 3, num_observations = 50,
+    apply_softmax = TRUE, FUN = runif,
+    class_name = "predictor_")
+  class_names <- paste0("class_", c(1,2,3))
+  data_mc[["target"]] <- factor(sample(x = class_names,
+                                       size = 50, replace = TRUE))
+  dat <- groupdata2::fold(data_mc, k = 4)
+
+  rf_model_fn <- function(train_data, formula, hyperparameters){
+
+    randomForest::randomForest(
+      formula = formula,
+      data = train_data)
+  }
+
+  rf_predict_fn <- example_predict_functions("randomForest_multinomial")
+
+  # m <- rf_model_fn(dat, as.formula("target ~ predictor_1"), NULL)
+  # rf_predict_fn(dat, m, NULL, NULL)
+
+  CVmultinomlist <- cross_validate_fn(dat,
+                                      model_fn = rf_model_fn,
+                                      predict_fn = rf_predict_fn,
+                                      formulas = c("target ~ predictor_1 + predictor_2 + predictor_3",
+                                                   "target ~ predictor_1"),
+                                      fold_cols = '.folds',
+                                      type = 'multinomial',
+                                      metrics = list(
+                                        "Accuracy" = TRUE,
+                                        "F1" = FALSE,
+                                        "Weighted Accuracy" = TRUE,
+                                        "Weighted AUC" = TRUE
+                                      ))
+
+  numeric_between_na <- function(x, min_ = -0.000000001, max_ = 1.000000001){
+    all(unlist(lapply(x, function(i){is.na(i) || (is.numeric(i) && is_between_(i,min_,max_))})))
+  }
+
+  # Because the actual values fail on winbuilder (not appveyor)
+  # perhaps to do with compilation of randomForest?
+  # We simply check that the values are useful
+  # As it's not actually that relevant that this specific model function
+  # gives the same results
+  expect_true(numeric_between_na(CVmultinomlist$AUC))
+  expect_true(numeric_between_na(CVmultinomlist$`Lower CI`))
+  expect_true(numeric_between_na(CVmultinomlist$`Upper CI`))
+  expect_true(numeric_between_na(CVmultinomlist$Kappa, min_ = -1))
+  expect_true(numeric_between_na(CVmultinomlist$Sensitivity))
+  expect_true(numeric_between_na(CVmultinomlist$Specificity))
+  expect_true(numeric_between_na(CVmultinomlist$`Pos Pred Value`))
+  expect_true(numeric_between_na(CVmultinomlist$`Neg Pred Value`))
+  expect_true(numeric_between_na(CVmultinomlist$Prevalence))
+  expect_true(numeric_between_na(CVmultinomlist$`Detection Rate`))
+  expect_true(numeric_between_na(CVmultinomlist$`Detection Prevalence`))
+  expect_true(numeric_between_na(CVmultinomlist$`Balanced Accuracy`))
+  expect_true(numeric_between_na(CVmultinomlist$MCC, min_ = -1))
+
+  expect_equal(CVmultinomlist$Folds, c(4,4))
+  expect_equal(CVmultinomlist$`Fold Columns`, c(1,1))
+  expect_equal(CVmultinomlist$`Convergence Warnings`, c(0,0))
+  expect_equal(CVmultinomlist$Family, c('multinomial','multinomial'))
+  expect_equal(CVmultinomlist$Dependent, c('target','target'))
+  expect_equal(CVmultinomlist$Fixed, c("predictor_1+predictor_2+predictor_3", "predictor_1"))
+
+  # Enter sub tibbles
+  expect_is(CVmultinomlist$Predictions[[1]], "tbl_df")
+  expect_equal(colnames(CVmultinomlist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
+  expect_equal(nrow(CVmultinomlist$Predictions[[1]]),50)
+  expect_equal(CVmultinomlist$`Warnings and Messages`[[1]],
+               structure(list(`Fold Column` = character(0), Fold = integer(0),
+                              Function = character(0), Type = character(0), Message = character(0)),
+                         row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
+
+  # The actual values
+  # Skip on windows. Appveyour works but winbuilder gives different results
+  skip_on_os(os = "windows")
+
+  expect_equal(CVmultinomlist$AUC, c(0.381200396825397, 0.353174603174603), tolerance=1e-3)
+  expect_equal(CVmultinomlist$`Lower CI`, c(0.209410722413614, 0.192183832991387), tolerance=1e-3)
+  expect_equal(CVmultinomlist$`Upper CI`, c(0.552990071237179, 0.514165373357819), tolerance=1e-3)
+  expect_equal(CVmultinomlist$Kappa, c(-0.0868137955528609, -0.188689820770385), tolerance=1e-3)
+  expect_equal(CVmultinomlist$Sensitivity, c(0.275132275132275, 0.208994708994709), tolerance=1e-3)
+  expect_equal(CVmultinomlist$Specificity, c(0.636574074074074, 0.605324074074074), tolerance=1e-3)
+  expect_equal(CVmultinomlist$`Pos Pred Value`, c(0.276709401709402, 0.200478468899522), tolerance=1e-3)
+  expect_equal(CVmultinomlist$`Neg Pred Value`, c(0.633749133749134, 0.605017921146953), tolerance=1e-3)
+  expect_equal(CVmultinomlist$Prevalence, c(0.333333,0.333333), tolerance=1e-3)
+  expect_equal(CVmultinomlist$`Detection Rate`, c(0.0933333333333333, 0.0733333333333333), tolerance=1e-3)
+  expect_equal(CVmultinomlist$`Detection Prevalence`, c(0.333333,0.333333), tolerance=1e-3)
+  expect_equal(CVmultinomlist$`Balanced Accuracy`, c(0.455853174603175, 0.407159391534392), tolerance=1e-3)
+  expect_equal(CVmultinomlist$`Overall Accuracy`, c(0.28, 0.22), tolerance=1e-3)
+  expect_equal(CVmultinomlist$Accuracy, c(0.52, 0.48), tolerance=1e-3)
+  expect_equal(CVmultinomlist$`Weighted Accuracy`, c(0.5152, 0.4752), tolerance=1e-3)
+  expect_equal(CVmultinomlist$`Weighted AUC`, c(0.385902777777778, 0.36), tolerance=1e-3)
+  expect_equal(CVmultinomlist$MCC, c(-0.0887876370194492, -0.189838214745842), tolerance=1e-3)
+
+  expect_equal(colnames(CVmultinomlist),
+               c("Overall Accuracy", "Balanced Accuracy", "Accuracy", "Weighted Accuracy",
+                 "Sensitivity", "Specificity", "Pos Pred Value", "Neg Pred Value",
+                 "AUC", "Weighted AUC", "Lower CI", "Upper CI", "Kappa", "MCC",
+                 "Detection Rate", "Detection Prevalence", "Prevalence", "Class Level Results",
+                 "Confusion Matrix", "Predictions", "Results", "Coefficients", "Folds", "Fold Columns",
+                 "Convergence Warnings", "Other Warnings", "Warnings and Messages",
+                 "Family", "Dependent", "Fixed"))
+
+  # Enter sub tibbles
+  class_level_results <- CVmultinomlist$`Class Level Results`
+
+  expect_equal(class_level_results[[1]]$Class,
+               c("class_1", "class_2", "class_3"))
+  expect_equal(class_level_results[[2]]$Class,
+               c("class_1", "class_2", "class_3"))
+  expect_equal(class_level_results[[1]]$Accuracy,
+               c(0.58, 0.54, 0.44))
+  expect_equal(class_level_results[[2]]$Accuracy,
+               c(0.54, 0.48, 0.42))
+  expect_equal(class_level_results[[1]]$`Balanced Accuracy`,
+               c(0.468253968253968, 0.470486111111111, 0.428819444444444))
+  expect_equal(class_level_results[[2]]$`Balanced Accuracy`,
+               c(0.396825396825397, 0.447916666666667, 0.376736111111111))
+  expect_equal(colnames(class_level_results[[1]]),
+               c("Class", "Balanced Accuracy", "Accuracy", "Sensitivity", "Specificity",
+                 "Pos Pred Value", "Neg Pred Value", "AUC", "Lower CI", "Upper CI",
+                 "Kappa", "MCC", "Detection Rate", "Detection Prevalence", "Prevalence",
+                 "Support", "ROC", "Results", "Confusion Matrix"))
 
 })
 
@@ -1191,7 +1308,7 @@ test_that("gaussian randomForest models work with cross_validate_fn()",{
                           cat_col = 'diagnosis',
                           id_col = 'participant')
 
-  rf_model_fn <- function(train_data, formula){
+  rf_model_fn <- function(train_data, formula, hyperparameters){
 
     randomForest::randomForest(
       formula = formula,
@@ -1200,9 +1317,12 @@ test_that("gaussian randomForest models work with cross_validate_fn()",{
   # rf <- rf_model_fn(data = dat, formula = as.formula("score~diagnosis+age"))
   # predict(rf, dat, allow.new.levels = TRUE)
 
+  rf_predict_fn <- example_predict_functions("randomForest_gaussian")
+
   # Cross-validate the data
   CVed <- cross_validate_fn(dat,
                             model_fn = rf_model_fn,
+                            predict_fn = rf_predict_fn,
                             formulas = "score~diagnosis",
                             fold_cols = '.folds',
                             type = 'gaussian')
@@ -1222,18 +1342,18 @@ test_that("gaussian randomForest models work with cross_validate_fn()",{
   expect_equal(CVed$Fixed, 'diagnosis')
 
   expect_equal(colnames(CVed$Coefficients[[1]]),
-               c("term", "estimate", "std.error", "statistic",
-                 "Fold", "Fold Column", "p.value"))
+               c("Fold Column", "Fold",  "term", "estimate",
+                 "std.error", "statistic", "p.value"))
   expect_equal(CVed$Coefficients[[1]]$term,
-               NA, 4)
+               rep(NA, 4))
   expect_equal(CVed$Coefficients[[1]]$estimate,
-               NA)
+               rep(NA, 4))
   expect_equal(CVed$Coefficients[[1]]$Fold,
-               NA)
+               rep(NA, 4))
   expect_equal(CVed$Coefficients[[1]]$`Fold Column`,
-               NA)
+               rep(NA, 4))
   expect_equal(CVed$Coefficients[[1]]$p.value,
-               NA)
+               rep(NA, 4))
   expect_equal(CVed$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
                               Function = character(0), Type = character(0), Message = character(0)),
@@ -1445,24 +1565,32 @@ test_that("binomial glm model with metrics list works with cross_validate_fn()",
                           cat_col = 'diagnosis',
                           id_col = 'participant')
 
-  glm_model_fn <- function(train_data, formula){
-    glm(formula = formula, data = train_data, family = "binomial")
-  }
+  glm_model_fn <- example_model_functions("glm_binomial")
+
+  glm_predict_fn <- example_predict_functions("glm_binomial")
 
   CVbinomlist <- cross_validate_fn(dat,
-                                   glm_model_fn,
+                                   model_fn = glm_model_fn,
+                                   predict_fn = glm_predict_fn,
                                    formulas = c("diagnosis~score","diagnosis~age"),
                                    fold_cols = '.folds', type = 'binomial',
                                    metrics = list("Balanced Accuracy" = FALSE,
                                                   "Accuracy" = TRUE,
-                                                  "Specificity" = FALSE),
+                                                  "Specificity" = FALSE,
+                                                  "AIC" = TRUE,
+                                                  "AICc" = TRUE,
+                                                  "BIC" = TRUE),
                                    positive = 1)
 
   expect_equal(CVbinomlist$Accuracy, c(0.766666666666667, 0.4), tolerance=1e-3)
+  expect_equal(CVbinomlist$AIC, c(27.303279438339, 33.2582292059047), tolerance=1e-3)
+  expect_equal(CVbinomlist$AICc, c(27.9223270573866, 33.8772768249523), tolerance=1e-3)
+  expect_equal(CVbinomlist$BIC, c(29.5258557064103, 35.4808054739761), tolerance=1e-3)
   expect_equal(colnames(CVbinomlist),
                c("Accuracy", "F1", "Sensitivity", "Pos Pred Value", "Neg Pred Value",
                  "AUC", "Lower CI", "Upper CI", "Kappa", "MCC", "Detection Rate",
-                 "Detection Prevalence", "Prevalence", "Predictions", "ROC", "Confusion Matrix",
+                 "Detection Prevalence", "Prevalence", "AIC", "AICc","BIC",
+                 "ROC", "Confusion Matrix", "Predictions", "Results",
                  "Coefficients", "Folds", "Fold Columns", "Convergence Warnings",
                  "Other Warnings", "Warnings and Messages", "Family", "Dependent",
                  "Fixed"))
@@ -1478,13 +1606,13 @@ test_that("gaussian lm model with metrics list works with cross_validate_fn()",{
                           cat_col = 'diagnosis',
                           id_col = 'participant')
 
-  lm_model_fn <- function(train_data, formula){
-    lm(formula = formula, data = train_data)
-  }
+  lm_model_fn <- example_model_functions("lm")
+  lm_predict_fn <- example_predict_functions("lm")
 
   # Cross-validate the data
   CVed <- cross_validate_fn(dat,
                             model_fn = lm_model_fn,
+                            predict_fn = lm_predict_fn,
                             formulas = "score~diagnosis",
                             fold_cols = '.folds',
                             metrics = list("RMSE" = FALSE,
@@ -1514,25 +1642,26 @@ test_that("multinomial nnet model with metrics list works with cross_validate_fn
                                        size = 50, replace = TRUE))
   dat <- groupdata2::fold(data_mc, k = 4)
 
-  multinom_model_fn <- function(train_data, formula){
+  multinom_model_fn <- function(train_data, formula, hyperparameters){
 
     nnet::multinom(formula = formula, # converted to formula object within custom_fit_model()
                    data = train_data)
   }
 
+  multinom_predict_fn <- example_predict_functions("nnet_multinom")
+
   CVmultinomlist <- cross_validate_fn(dat,
-                                      multinom_model_fn,
+                                      model_fn = multinom_model_fn,
+                                      predict_fn = multinom_predict_fn,
                                       formulas = c("target ~ predictor_1 + predictor_2 + predictor_3",
                                                    "target ~ predictor_1"),
                                       fold_cols = '.folds', type = 'multinomial',
-                                      predict_type = "probs",
                                       metrics = list(
                                         "Accuracy" = TRUE,
                                         "F1" = FALSE,
                                         "Weighted Accuracy" = TRUE,
                                         "Weighted AUC" = TRUE
-                                      ),
-                                      positive = 1)
+                                      ))
 
   expect_equal(CVmultinomlist$`Overall Accuracy`, c(0.18, 0.3), tolerance=1e-3)
   expect_equal(CVmultinomlist$Accuracy, c(0.453333333333333, 0.533333333333333), tolerance=1e-3)
@@ -1544,7 +1673,7 @@ test_that("multinomial nnet model with metrics list works with cross_validate_fn
                  "Sensitivity", "Specificity", "Pos Pred Value", "Neg Pred Value",
                  "AUC", "Weighted AUC", "Lower CI", "Upper CI", "Kappa", "MCC",
                  "Detection Rate", "Detection Prevalence", "Prevalence", "Class Level Results",
-                 "Predictions", "Confusion Matrix", "Coefficients", "Folds", "Fold Columns",
+                 "Confusion Matrix", "Predictions", "Results", "Coefficients", "Folds", "Fold Columns",
                  "Convergence Warnings", "Other Warnings", "Warnings and Messages",
                  "Family", "Dependent", "Fixed"))
 
@@ -1567,7 +1696,7 @@ test_that("multinomial nnet model with metrics list works with cross_validate_fn
                c("Class", "Balanced Accuracy", "Accuracy", "Sensitivity", "Specificity",
                  "Pos Pred Value", "Neg Pred Value", "AUC", "Lower CI", "Upper CI",
                  "Kappa", "MCC", "Detection Rate", "Detection Prevalence", "Prevalence",
-                 "Support", "ROC", "Confusion Matrix"))
+                 "Support", "ROC", "Results" ,"Confusion Matrix"))
 
 })
 
@@ -1589,35 +1718,35 @@ test_that("binomial random predictions work with cross_validate_fn()",{
                           id_col = 'participant')
   dat[["diagnosis"]] <- factor(dat[["diagnosis"]])
 
-  glm_model_fn <- function(train_data, formula){
+  glm_model_fn <- function(train_data, formula, hyperparameters){
     glm(formula = formula, data = train_data, family = "binomial")
   }
 
-  random_predict_fn <- function(test_data, model, formula){
+  random_predict_fn <- function(test_data, model, formula, hyperparameters){
     runif(nrow(test_data), min = 0, max = 1)
   }
 
   CVrandom <- cross_validate_fn(dat,
-                                glm_model_fn,
+                                model_fn = glm_model_fn,
+                                predict_fn = random_predict_fn,
                                 formulas = c("diagnosis~score","diagnosis~age"),
                                 fold_cols = '.folds', type = 'binomial',
-                                predict_fn = random_predict_fn,
                                 positive = 1)
 
-  expect_equal(CVrandom$AUC, c(0.699074074074074, 0.638888888888889), tolerance=1e-3)
-  expect_equal(CVrandom$`Lower CI`, c(0.477736689228572, 0.434338960822277), tolerance=1e-3)
-  expect_equal(CVrandom$`Upper CI`, c(0.920411458919576, 0.843438816955501), tolerance=1e-3)
-  expect_equal(CVrandom$Kappa, c(0.246575342465753, 0.268292682926829), tolerance=1e-3)
-  expect_equal(CVrandom$Sensitivity, c(0.583333333333333, 0.916666666666667), tolerance=1e-3)
-  expect_equal(CVrandom$Specificity, c(0.666666666666667, 0.388888888888889), tolerance=1e-3)
-  expect_equal(CVrandom$`Pos Pred Value`, c(0.538461538461539, 0.5), tolerance=1e-3)
-  expect_equal(CVrandom$`Neg Pred Value`, c(0.705882352941176, 0.875), tolerance=1e-3)
-  expect_equal(CVrandom$F1, c(0.56, 0.647058823529412), tolerance=1e-3)
+  expect_equal(CVrandom$AUC, c(0.638888888888889, 0.699074074074074), tolerance=1e-3)
+  expect_equal(CVrandom$`Lower CI`, c(0.434338960822277, 0.477736689228572), tolerance=1e-3)
+  expect_equal(CVrandom$`Upper CI`, c(0.843438816955501, 0.920411458919576), tolerance=1e-3)
+  expect_equal(CVrandom$Kappa,c(0.268292682926829, 0.246575342465753), tolerance=1e-3)
+  expect_equal(CVrandom$Sensitivity, c(0.916666666666667, 0.583333333333333), tolerance=1e-3)
+  expect_equal(CVrandom$Specificity, c(0.388888888888889, 0.666666666666667), tolerance=1e-3)
+  expect_equal(CVrandom$`Pos Pred Value`, c(0.5, 0.538461538461539), tolerance=1e-3)
+  expect_equal(CVrandom$`Neg Pred Value`, c(0.875, 0.705882352941176), tolerance=1e-3)
+  expect_equal(CVrandom$F1, c(0.647058823529412, 0.56), tolerance=1e-3)
   expect_equal(CVrandom$Prevalence, c(0.4,0.4), tolerance=1e-3)
-  expect_equal(CVrandom$`Detection Rate`, c(0.233333333333333, 0.366666666666667), tolerance=1e-3)
-  expect_equal(CVrandom$`Detection Prevalence`, c(0.433333333333333, 0.733333333333333), tolerance=1e-3)
-  expect_equal(CVrandom$`Balanced Accuracy`, c(0.625, 0.652777777777778), tolerance=1e-3)
-  expect_equal(CVrandom$MCC, c(0.24715576637149, 0.338501600193165), tolerance=1e-3)
+  expect_equal(CVrandom$`Detection Rate`, c(0.366666666666667,0.233333333333333), tolerance=1e-3)
+  expect_equal(CVrandom$`Detection Prevalence`, c(0.733333333333333, 0.433333333333333), tolerance=1e-3)
+  expect_equal(CVrandom$`Balanced Accuracy`, c(0.652777777777778, 0.625), tolerance=1e-3)
+  expect_equal(CVrandom$MCC, c(0.338501600193165, 0.24715576637149), tolerance=1e-3)
   expect_equal(CVrandom$Folds, c(4,4))
   expect_equal(CVrandom$`Fold Columns`, c(1,1))
   expect_equal(CVrandom$`Convergence Warnings`, c(0,0))
@@ -1629,7 +1758,7 @@ test_that("binomial random predictions work with cross_validate_fn()",{
   expect_is(CVrandom$Predictions[[1]], "tbl_df")
   expect_is(CVrandom$ROC[[1]], "tbl_df")
   expect_equal(colnames(CVrandom$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
-  expect_equal(colnames(CVrandom$ROC[[1]]), c("Sensitivities","Specificities"))
+  expect_equal(colnames(CVrandom$ROC[[1]]), c("Fold Column","Sensitivities","Specificities"))
   expect_equal(nrow(CVrandom$Predictions[[1]]),30)
   expect_equal(nrow(CVrandom$ROC[[1]]),31)
   expect_equal(CVrandom$`Warnings and Messages`[[1]],
@@ -1638,6 +1767,15 @@ test_that("binomial random predictions work with cross_validate_fn()",{
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
   expect_equal(CVrandom$Predictions[[1]]$Prediction,
+               c(0.275483862496912, 0.228903944836929, 0.0144339059479535, 0.728964562527835,
+                 0.249880471732467, 0.161183276679367, 0.0170426501426846, 0.486100345151499,
+                 0.102900171885267, 0.801547004608437, 0.354328064946458, 0.936432539252564,
+                 0.245866392273456, 0.473141461377963, 0.191560871200636, 0.583221969893202,
+                 0.459473189897835, 0.467434047954157, 0.399832555558532, 0.505285596242175,
+                 0.0318881559651345, 0.114467588020489, 0.468935475917533, 0.396986737614498,
+                 0.833619194105268, 0.761121743358672, 0.573356448905542, 0.447508045937866,
+                 0.0838020080700517, 0.219138547312468), tolerance = 1e-4)
+  expect_equal(CVrandom$Predictions[[2]]$Prediction,
                c(0.651655666995794, 0.567737752571702, 0.113508982118219, 0.595925305271521,
                  0.358049975009635, 0.428809418343008, 0.0519033221062273, 0.264177667442709,
                  0.398790730861947, 0.836134143406525, 0.864721225807443, 0.615352416876704,
@@ -1646,6 +1784,14 @@ test_that("binomial random predictions work with cross_validate_fn()",{
                  0.535597037756816, 0.0930881295353174, 0.169803041499108, 0.899832450784743,
                  0.422637606970966, 0.747746467823163, 0.822652579983696, 0.95465364633128,
                  0.685444509377703, 0.500503229675815), tolerance = 1e-4)
+
+  # Check manually
+  man_confmat <- caret::confusionMatrix(
+    as.factor(as.integer(CVrandom$Predictions[[1]]$`Predicted Class`)),
+    CVrandom$Predictions[[1]]$Target)
+  expect_equal(man_confmat$byClass[["Sensitivity"]], CVrandom$Sensitivity[[1]])
+  expect_equal(man_confmat$byClass[["Specificity"]], CVrandom$Specificity[[1]])
+  expect_equal(man_confmat$byClass[["Balanced Accuracy"]], CVrandom$`Balanced Accuracy`[[1]])
 
 })
 
@@ -1659,20 +1805,20 @@ test_that("gaussian random predictions work with cross_validate_fn()",{
                           cat_col = 'diagnosis',
                           id_col = 'participant')
 
-  lm_model_fn <- function(train_data, formula){
+  lm_model_fn <- function(train_data, formula, hyperparameters){
     lm(formula = formula, data = train_data)
   }
 
-  random_predict_fn <- function(test_data, model, formula){
+  random_predict_fn <- function(test_data, model, formula, hyperparameters){
     runif(nrow(test_data), min = 10, max = 70)
   }
 
   # Cross-validate the data
   CVed <- cross_validate_fn(dat,
                             model_fn = lm_model_fn,
+                            predict_fn = random_predict_fn,
                             formulas = "score~diagnosis",
                             fold_cols = '.folds',
-                            predict_fn = random_predict_fn,
                             type = 'gaussian')
 
   expect_equal(CVed$RMSE, 28.12423, tolerance=1e-3)
@@ -1710,42 +1856,40 @@ test_that("multinomial random predictions work with cross_validate_fn()",{
                                        size = 50, replace = TRUE))
   dat <- groupdata2::fold(data_mc, k = 4)
 
-  multinom_model_fn <- function(train_data, formula){
+  multinom_model_fn <- function(train_data, formula, hyperparameters){
 
     nnet::multinom(formula = formula, # converted to formula object within custom_fit_model()
                    data = train_data)
   }
 
-  random_predict_fn <- function(test_data, model, formula){
+  random_predict_fn <- function(test_data, model, formula, hyperparameters){
     multiclass_probability_tibble(
       num_classes = 3, num_observations = nrow(test_data),
       apply_softmax = TRUE, FUN = runif,
       class_name = "class_")
   }
 
-
   CVmultinomlist <- cross_validate_fn(dat,
-                                      multinom_model_fn,
+                                      model_fn = multinom_model_fn,
+                                      predict_fn = random_predict_fn,
                                       formulas = c("target ~ predictor_1 + predictor_2 + predictor_3",
                                                    "target ~ predictor_1"),
-                                      fold_cols = '.folds', type = 'multinomial',
-                                      predict_fn = random_predict_fn,
-                                      positive = 1)
+                                      fold_cols = '.folds', type = 'multinomial')
 
-  expect_equal(CVmultinomlist$AUC, c(0.43832671957672, 0.561838624338624), tolerance=1e-3)
-  expect_equal(CVmultinomlist$`Lower CI`, c(0.262107143470369, 0.386894353084452), tolerance=1e-3)
-  expect_equal(CVmultinomlist$`Upper CI`, c(0.61454629568307, 0.736782895592797), tolerance=1e-3)
-  expect_equal(CVmultinomlist$Kappa, c(-0.13019211491683, 0.0944809694238845), tolerance=1e-3)
-  expect_equal(CVmultinomlist$Sensitivity, c(0.238095238095238, 0.391534391534392), tolerance=1e-3)
-  expect_equal(CVmultinomlist$Specificity, c(0.623842592592593, 0.701388888888889), tolerance=1e-3)
-  expect_equal(CVmultinomlist$`Pos Pred Value`, c(0.249404761904762, 0.395833333333333), tolerance=1e-3)
-  expect_equal(CVmultinomlist$`Neg Pred Value`, c(0.620697167755991, 0.700367647058823), tolerance=1e-3)
-  expect_equal(CVmultinomlist$F1, c(0.240196078431373, 0.39281045751634), tolerance=1e-3)
+  expect_equal(CVmultinomlist$AUC, c(0.561838624338624,0.43832671957672), tolerance=1e-3)
+  expect_equal(CVmultinomlist$`Lower CI`, c(0.386894353084452, 0.262107143470369), tolerance=1e-3)
+  expect_equal(CVmultinomlist$`Upper CI`, c(0.736782895592797,0.61454629568307), tolerance=1e-3)
+  expect_equal(CVmultinomlist$Kappa, c(0.0944809694238845, -0.13019211491683), tolerance=1e-3)
+  expect_equal(CVmultinomlist$Sensitivity, c(0.391534391534392, 0.238095238095238), tolerance=1e-3)
+  expect_equal(CVmultinomlist$Specificity, c(0.701388888888889, 0.623842592592593), tolerance=1e-3)
+  expect_equal(CVmultinomlist$`Pos Pred Value`, c(0.395833333333333, 0.249404761904762), tolerance=1e-3)
+  expect_equal(CVmultinomlist$`Neg Pred Value`, c(0.700367647058823, 0.620697167755991), tolerance=1e-3)
+  expect_equal(CVmultinomlist$F1, c(0.39281045751634, 0.240196078431373), tolerance=1e-3)
   expect_equal(CVmultinomlist$Prevalence, c(0.333333333333333, 0.333333333333333), tolerance=1e-3)
-  expect_equal(CVmultinomlist$`Detection Rate`, c(0.08, 0.133333333333333), tolerance=1e-3)
+  expect_equal(CVmultinomlist$`Detection Rate`, c(0.133333333333333, 0.08), tolerance=1e-3)
   expect_equal(CVmultinomlist$`Detection Prevalence`, c(0.33333, 0.3333), tolerance=1e-3)
-  expect_equal(CVmultinomlist$`Balanced Accuracy`, c(0.430968915343915, 0.54646164021164), tolerance=1e-3)
-  expect_equal(CVmultinomlist$MCC, c(-0.133599525021722, 0.0945581926843755), tolerance=1e-3)
+  expect_equal(CVmultinomlist$`Balanced Accuracy`, c(0.54646164021164, 0.430968915343915), tolerance=1e-3)
+  expect_equal(CVmultinomlist$MCC, c(0.0945581926843755, -0.133599525021722), tolerance=1e-3)
   expect_equal(CVmultinomlist$Folds, c(4,4))
   expect_equal(CVmultinomlist$`Fold Columns`, c(1,1))
   expect_equal(CVmultinomlist$`Convergence Warnings`, c(0,0))
@@ -1765,70 +1909,70 @@ test_that("multinomial random predictions work with cross_validate_fn()",{
                c("class_1", "class_2", "class_3"))
   expect_equal(class_level_results[[2]]$Class,
                c("class_1", "class_2", "class_3"))
-  expect_equal(class_level_results[[1]]$`Balanced Accuracy`,
-               c(0.371031746031746, 0.454861111111111, 0.467013888888889))
   expect_equal(class_level_results[[2]]$`Balanced Accuracy`,
+               c(0.371031746031746, 0.454861111111111, 0.467013888888889))
+  expect_equal(class_level_results[[1]]$`Balanced Accuracy`,
                c(0.476190476190476, 0.553819444444444, 0.609375))
-  expect_equal(class_level_results[[1]]$F1,
-               c(0.176470588235294, 0.25, 0.294117647058824))
   expect_equal(class_level_results[[2]]$F1,
+               c(0.176470588235294, 0.25, 0.294117647058824))
+  expect_equal(class_level_results[[1]]$F1,
                c(0.266666666666667, 0.411764705882353, 0.5))
-  expect_equal(class_level_results[[1]]$Sensitivity,
-               c(0.214285714285714, 0.222222222222222, 0.277777777777778))
   expect_equal(class_level_results[[2]]$Sensitivity,
+               c(0.214285714285714, 0.222222222222222, 0.277777777777778))
+  expect_equal(class_level_results[[1]]$Sensitivity,
                c(0.285714285714286, 0.388888888888889, 0.5))
-  expect_equal(class_level_results[[1]]$Specificity,
-               c(0.527777777777778, 0.6875, 0.65625))
   expect_equal(class_level_results[[2]]$Specificity,
+               c(0.527777777777778, 0.6875, 0.65625))
+  expect_equal(class_level_results[[1]]$Specificity,
                c(0.666666666666667, 0.71875, 0.71875))
-  expect_equal(class_level_results[[1]]$`Pos Pred Value`,
-               c(0.15, 0.285714285714286, 0.3125))
   expect_equal(class_level_results[[2]]$`Pos Pred Value`,
+               c(0.15, 0.285714285714286, 0.3125))
+  expect_equal(class_level_results[[1]]$`Pos Pred Value`,
                c(0.25, 0.4375, 0.5))
-  expect_equal(class_level_results[[1]]$`Neg Pred Value`,
-               c(0.633333333333333, 0.611111111111111, 0.617647058823529))
   expect_equal(class_level_results[[2]]$`Neg Pred Value`,
+               c(0.633333333333333, 0.611111111111111, 0.617647058823529))
+  expect_equal(class_level_results[[1]]$`Neg Pred Value`,
                c(0.705882352941177, 0.676470588235294, 0.71875))
-  expect_equal(class_level_results[[1]]$AUC,
-               c(0.339285714285714, 0.463541666666667, 0.512152777777778))
   expect_equal(class_level_results[[2]]$AUC,
+               c(0.339285714285714, 0.463541666666667, 0.512152777777778))
+  expect_equal(class_level_results[[1]]$AUC,
                c(0.456349206349206, 0.583333333333333, 0.645833333333333))
-  expect_equal(class_level_results[[1]]$`Lower CI`,
-               c(0.145959298235808, 0.296517462643335, 0.343844669531964))
   expect_equal(class_level_results[[2]]$`Lower CI`,
+               c(0.145959298235808, 0.296517462643335, 0.343844669531964))
+  expect_equal(class_level_results[[1]]$`Lower CI`,
                c(0.254367191610825, 0.420356083727724, 0.485959783914806))
-  expect_equal(class_level_results[[1]]$`Upper CI`,
-               c(0.532612130335621, 0.630565870689998, 0.680460886023592))
   expect_equal(class_level_results[[2]]$`Upper CI`,
+               c(0.532612130335621, 0.630565870689998, 0.680460886023592))
+  expect_equal(class_level_results[[1]]$`Upper CI`,
                c(0.658331221087588, 0.746310582938943, 0.80570688275186))
-  expect_equal(class_level_results[[1]]$Kappa,
-               c(-0.228070175438597, -0.094890510948905, -0.0676156583629893))
   expect_equal(class_level_results[[2]]$Kappa,
+               c(-0.228070175438597, -0.094890510948905, -0.0676156583629893))
+  expect_equal(class_level_results[[1]]$Kappa,
                c(-0.0456273764258555, 0.110320284697509, 0.21875))
-  expect_equal(class_level_results[[1]]$MCC,
-               c(-0.236402714422325, -0.096511004023931, -0.0678848566189098))
   expect_equal(class_level_results[[2]]$MCC,
+               c(-0.236402714422325, -0.096511004023931, -0.0678848566189098))
+  expect_equal(class_level_results[[1]]$MCC,
                c(-0.0458349248514106, 0.110759502904537, 0.21875))
-  expect_equal(class_level_results[[1]]$`Detection Rate`,
-               c(0.06, 0.08, 0.10))
   expect_equal(class_level_results[[2]]$`Detection Rate`,
+               c(0.06, 0.08, 0.10))
+  expect_equal(class_level_results[[1]]$`Detection Rate`,
                c(0.08, 0.14, 0.18))
-  expect_equal(class_level_results[[1]]$`Detection Prevalence`,
-               c(0.4, 0.28, 0.32))
   expect_equal(class_level_results[[2]]$`Detection Prevalence`,
+               c(0.4, 0.28, 0.32))
+  expect_equal(class_level_results[[1]]$`Detection Prevalence`,
                c(0.32, 0.32, 0.36))
-  expect_equal(class_level_results[[1]]$Prevalence,
-               c(0.28, 0.36, 0.36))
   expect_equal(class_level_results[[2]]$Prevalence,
                c(0.28, 0.36, 0.36))
-  expect_equal(class_level_results[[1]]$Support,
-               c(14, 18, 18))
+  expect_equal(class_level_results[[1]]$Prevalence,
+               c(0.28, 0.36, 0.36))
   expect_equal(class_level_results[[2]]$Support,
+               c(14, 18, 18))
+  expect_equal(class_level_results[[1]]$Support,
                c(14, 18, 18))
 
   clr_confmat_1 <- dplyr::bind_rows(class_level_results[[1]]$`Confusion Matrix`)
   clr_confmat_2 <- dplyr::bind_rows(class_level_results[[2]]$`Confusion Matrix`)
-  clr_confmat <- dplyr::bind_rows(clr_confmat_1, clr_confmat_2)
+  clr_confmat <- dplyr::bind_rows(clr_confmat_2, clr_confmat_1)
   expect_equal(clr_confmat$`Fold Column`,
                rep(".folds",24))
   expect_equal(clr_confmat$Prediction,
@@ -1844,9 +1988,10 @@ test_that("multinomial random predictions work with cross_validate_fn()",{
                  12L, 10L, 4L, 23L, 9L, 11L, 7L, 23L, 9L, 9L, 9L))
 
   # ROC
-  expect_is(class_level_results[[1]]$ROC[[1]], "tbl_df")
-  expect_equal(colnames(class_level_results[[1]]$ROC[[1]]), c("Sensitivities","Specificities"))
-  expect_equal(nrow(class_level_results[[1]]$ROC[[1]]),51)
+  expect_is(class_level_results[[2]]$ROC[[1]], "tbl_df")
+  expect_equal(colnames(class_level_results[[2]]$ROC[[1]]),
+               c("Fold Column","Sensitivities","Specificities"))
+  expect_equal(nrow(class_level_results[[2]]$ROC[[1]]),51)
 
   # Predictions
   expect_is(CVmultinomlist$Predictions[[1]], "tbl_df")

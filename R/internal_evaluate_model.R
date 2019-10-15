@@ -10,6 +10,9 @@ internal_evaluate_model <- function(model,
                                     test_data,
                                     type,
                                     fold_info,
+                                    fold_info_cols = list("rel_fold" = "rel_fold",
+                                                          "abs_fold" = "abs_fold",
+                                                          "fold_column" = "fold_column"),
                                     model_specifics = list(),
                                     metrics,
                                     include_fold_columns = TRUE){
@@ -20,6 +23,7 @@ internal_evaluate_model <- function(model,
     test_data = test_data,
     type = type,
     fold_info = fold_info,
+    fold_info_cols = fold_info_cols,
     model_specifics = model_specifics,
     metrics = metrics,
     include_fold_columns = include_fold_columns)
@@ -32,6 +36,7 @@ evaluate_model_object <- function(model,
                                   test_data,
                                   type,
                                   fold_info,
+                                  fold_info_cols,
                                   model_specifics,
                                   metrics,
                                   include_fold_columns) {
@@ -75,15 +80,12 @@ evaluate_model_object <- function(model,
 
   } else {
 
-    model_metrics <- calculate_model_metrics(NULL, NULL, metrics = metrics)
-
-    # TODO Create test of this
-    model_metrics[[fold_info_cols[["fold_column"]]]] <-
-      fold_and_fold_col[[fold_info_cols[["fold_column"]]]]
-    model_metrics[[fold_info_cols[["abs_fold"]]]] <-
-      fold_and_fold_col[[fold_info_cols[["abs_fold"]]]]
-    model_metrics[[fold_info_cols[["rel_fold"]]]] <-
-      fold_and_fold_col[[fold_info_cols[["rel_fold"]]]]
+    model_metrics <- calculate_model_metrics(NULL, NULL, metrics = metrics) %>%
+      dplyr::mutate(
+        abs_fold = fold_info[["abs_fold"]],
+        rel_fold = fold_info[["rel_fold"]],
+        fold_column = fold_info[["fold_column"]]
+      )
 
     nested_coefficients <- get_nested_model_coefficients(
       model = NULL, include_fold_columns = include_fold_columns)

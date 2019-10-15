@@ -77,9 +77,10 @@ evaluate_predictions_gaussian <- function(data,
   # Join the metrics
   if (!is.null(rmse_per_fold) && !is.null(mae_per_fold)){
 
-    results_per_fold <- dplyr::full_join(rmse_per_fold, mae_per_fold, by = c(fold_info_cols[["abs_fold"]],
-                                                                            fold_info_cols[["fold_column"]],
-                                                                            fold_info_cols[["rel_fold"]]))
+    results_per_fold <- dplyr::full_join(rmse_per_fold, mae_per_fold,
+                                         by = c(fold_info_cols[["abs_fold"]],
+                                                fold_info_cols[["fold_column"]],
+                                                fold_info_cols[["rel_fold"]]))
   } else if (!is.null(rmse_per_fold)){
     results_per_fold <- rmse_per_fold
   } else if (!is.null(mae_per_fold)){
@@ -110,17 +111,30 @@ evaluate_predictions_gaussian <- function(data,
       # nest fold results and add to result tibble
       avg_results[["Results"]] <- nest_results(results_per_fold)[["results"]]
     } else {
-      avg_results <- tibble::tibble("Results" = nest_results(results_per_fold)[["results"]])
+      avg_results <- tibble::tibble(
+        "Results" = nest_results(results_per_fold)[["results"]])
     }
 
   }
 
   if (!is.null(predictions_nested)){
     if (!is.null(avg_results)){
-      avg_results[["Predictions"]] <- predictions_nested[["predictions"]]
-    } else {
-      avg_results <- tibble::tibble("Predictions" = predictions_nested[["predictions"]])
+      if (is.na(predictions_nested)){
+        avg_results[["Predictions"]] <- NA
+      } else {
+        avg_results[["Predictions"]] <- predictions_nested[["predictions"]]
       }
+
+    } else {
+
+      if (is.na(predictions_nested)){
+        avg_results <- tibble::tibble(
+          "Predictions" = NA)
+      } else {
+        avg_results <- tibble::tibble(
+          "Predictions" = predictions_nested[["predictions"]])
+      }
+    }
   }
 
   avg_results

@@ -2001,3 +2001,126 @@ test_that("multinomial random predictions work with cross_validate_fn()",{
 
 
 })
+
+test_that("gaussian results are returned in correct order from cross_validate_fn()",{
+
+  # skip_test_if_old_R_version()
+
+  # Load data and fold it
+  set_seed_for_R_compatibility(1)
+  dat <- groupdata2::fold(participant.scores, k = 4,
+                          cat_col = 'diagnosis',
+                          id_col = 'participant')
+
+  lm_model_fn <- function(train_data, formula, hyperparameters){
+    lm(formula = formula, data = train_data)
+  }
+
+  random_predict_fn <- function(test_data, model, formula, hyperparameters){
+
+    if ("age" %in% as.character(formula)){
+      return(runif(nrow(test_data), min = 10, max = 70) + 100)
+    }
+    else {
+      return(runif(nrow(test_data), min = 10, max = 70))
+    }
+
+  }
+  set_seed_for_R_compatibility(1)
+  # Cross-validate the data
+  CVed <- cross_validate_fn(dat,
+                            model_fn = lm_model_fn,
+                            predict_fn = random_predict_fn,
+                            formulas = c("score~diagnosis","score~age"),
+                            fold_cols = '.folds',
+                            type = 'gaussian')
+
+  expect_equal(CVed$RMSE, c(24.7354111109333, 104.248387787132), tolerance=1e-3)
+  expect_equal(CVed$MAE, c(20.4910080229165, 101.812209742364), tolerance=1e-3)
+  expect_equal(CVed$r2m, c(0.264079271789992, 0.012016907605709), tolerance=1e-3)
+  expect_equal(CVed$r2c, c(0.264079271789992, 0.012016907605709), tolerance=1e-3)
+  expect_equal(CVed$AIC, c(194.690399609051, 201.738710942015), tolerance=1e-3)
+  expect_equal(CVed$AICc, c(195.996281961992, 203.044593294956), tolerance=1e-3)
+  expect_equal(CVed$BIC, c(198.024264011158, 205.072575344122), tolerance=1e-3)
+  expect_equal(CVed$Fixed, c("diagnosis", "age"))
+
+  set_seed_for_R_compatibility(1)
+  # Cross-validate the data
+  CVed <- cross_validate_fn(dat,
+                            model_fn = lm_model_fn,
+                            predict_fn = random_predict_fn,
+                            formulas = c("score~age", "score~diagnosis"),
+                            fold_cols = '.folds',
+                            type = 'gaussian')
+
+  expect_equal(CVed$RMSE, c(104.248387787132, 24.7354111109333), tolerance=1e-3)
+  expect_equal(CVed$MAE, c(101.812209742364, 20.4910080229165), tolerance=1e-3)
+  expect_equal(CVed$r2m, c(0.012016907605709, 0.264079271789992), tolerance=1e-3)
+  expect_equal(CVed$r2c, c(0.012016907605709, 0.264079271789992), tolerance=1e-3)
+  expect_equal(CVed$AIC, c(201.738710942015, 194.690399609051), tolerance=1e-3)
+  expect_equal(CVed$AICc, c(203.044593294956, 195.996281961992), tolerance=1e-3)
+  expect_equal(CVed$BIC, c(205.072575344122, 198.024264011158), tolerance=1e-3)
+  expect_equal(CVed$Fixed, c("age", "diagnosis"))
+})
+
+test_that("binomial results are returned in correct order from cross_validate_fn()",{
+
+  # skip_test_if_old_R_version()
+
+  # Load data and fold it
+  set_seed_for_R_compatibility(1)
+  dat <- groupdata2::fold(participant.scores, k = 4,
+                          cat_col = 'diagnosis',
+                          id_col = 'participant')
+
+  glm_model_fn <- example_model_functions("glm_binomial")
+
+  random_predict_fn <- function(test_data, model, formula, hyperparameters){
+
+    if ("age" %in% as.character(formula)){
+      return(runif(nrow(test_data), min = 0, max = 0.5))
+    }
+    else {
+      return(runif(nrow(test_data), min = 0.5, max = 1))
+    }
+
+  }
+  set_seed_for_R_compatibility(1)
+  # Cross-validate the data
+  CVbinom <- cross_validate_fn(dat,
+                            model_fn = glm_model_fn,
+                            predict_fn = random_predict_fn,
+                            formulas = c("diagnosis~score","diagnosis~age"),
+                            fold_cols = '.folds',
+                            metrics = list("AIC" = TRUE),
+                            type = 'binomial')
+
+  expect_equal(CVbinom$`Balanced Accuracy`, c(0.5, 0.5), tolerance=1e-3)
+  expect_equal(CVbinom$`Pos Pred Value`, c(0.6, NaN), tolerance=1e-3)
+  expect_equal(CVbinom$`Neg Pred Value`, c(NaN, 0.4), tolerance=1e-3)
+  expect_equal(CVbinom$AIC, c(27.30328, 33.25823), tolerance=1e-3)
+  expect_equal(CVbinom$Fixed, c("score", "age"))
+  expect_equal(dplyr::bind_rows(CVbinom$Predictions)$`Predicted Class`,
+               as.character(rep(c(1,0), each = 30)))
+
+  set_seed_for_R_compatibility(1)
+  # Cross-validate the data
+  CVbinom <- cross_validate_fn(dat,
+                               model_fn = glm_model_fn,
+                               predict_fn = random_predict_fn,
+                               formulas = c("diagnosis~age","diagnosis~score"),
+                               fold_cols = '.folds',
+                               metrics = list("AIC" = TRUE),
+                               type = 'binomial')
+
+  expect_equal(CVbinom$`Balanced Accuracy`, c(0.5, 0.5), tolerance=1e-3)
+  expect_equal(CVbinom$`Pos Pred Value`, c(NaN, 0.6), tolerance=1e-3)
+  expect_equal(CVbinom$`Neg Pred Value`, c(0.4, NaN), tolerance=1e-3)
+  expect_equal(CVbinom$AIC, c(33.25823,27.30328), tolerance=1e-3)
+  expect_equal(CVbinom$Fixed, c("age","score"))
+  expect_equal(dplyr::bind_rows(CVbinom$Predictions)$`Predicted Class`,
+               as.character(rep(c(0,1), each = 30)))
+})
+
+# TODO Add order tests for multinomial
+# TODO Make sure every column is in the right order (add order tests)

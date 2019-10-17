@@ -1,4 +1,7 @@
-create_computation_grid <- function(data, hparams, formulas, fold_cols){
+
+# test_fold: If we only want to test on a specific fold (e.g. in validate_fn())
+create_computation_grid <- function(data, hparams, formulas,
+                                    fold_cols, test_fold = NULL){
 
   # Hyperparameters
 
@@ -16,12 +19,31 @@ create_computation_grid <- function(data, hparams, formulas, fold_cols){
     n_hparam_combinations <- NULL
   }
 
-  hparams_grid <- create_hparams_grid(hparams, n = n_hparam_combinations)
-  hparam_combination <- hparams_grid[["hparam_combination"]]
+  if (!is.data.frame(hparams)){
+    if (!is.list(hparams))
+      stop("'hyperparameters' must be either a named list or a data frame.")
 
+    hparams_grid <- create_hparams_grid(hparams, n = n_hparam_combinations)
+    hparam_combination <- hparams_grid[["hparam_combination"]]
+
+  } else {
+
+    # TODO add tests of provided df grids
+    hparams_grid <- tibble::tibble("hparams" = nest_rowwise(hparams))
+    hparams_grid[["hparam_combination"]] <- seq_len(nrow(hparams_grid))
+    hparam_combination <- hparams_grid[["hparam_combination"]]
+  }
 
   # Create folds map
   folds_grid <- create_folds_grid(data = data, fold_cols = fold_cols)
+
+  if (!is.null(test_fold)){
+    if (!is_wholenumber_(test_fold))
+      stop("test_fold should be a whole number")
+
+    folds_grid <- folds_grid %>%
+      dplyr::filter(.data$rel_fold == test_fold)
+  }
 
   # Just the enframed formulas vector
   formulas_grid <- tibble::enframe(formulas, name = NULL, value = "Formula")

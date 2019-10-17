@@ -81,39 +81,44 @@ set_metrics <- function(family, metrics_list = NULL, include_model_object_metric
 
   metrics <- default_metrics
 
-  if (!is.list(metrics_list) && metrics_list == "all"){
+  if (!is.null(metrics_list)){
 
-    # Set all metrics to TRUE
-    for (met in seq_along(metrics)){
-      metrics[[met]] <- TRUE
-    }
+    if (!is.list(metrics_list) && metrics_list == "all"){
 
-  } else if (!is.null(metrics_list) && length(metrics_list) > 0){
-
-    # Check for unknown metric names
-    unknown_metric_names <- setdiff(names(metrics_list), names(metrics))
-    if (length(unknown_metric_names) > 0) {
-      stop(paste0(
-        "'metrics_list' contained unknown metric names: ",
-        paste0(unknown_metric_names, collapse = ", "),
-        "."
-      ))
-    }
-
-    # Check for unknown values (Those not TRUE/FALSE)
-    if (any(unlist(lapply(metrics_list, function(x){!(is.logical(x) && !is.na(x))})))){
-      stop("The values in the 'metrics' list must be either TRUE or FALSE.")
-    }
-
-    # Update metrics as specified by user
-    for (met in seq_along(metrics_list)){
-      if (is.null(metrics_list[[met]])){
-        stop("metrics in 'metrics_list' should be logical (TRUE/FALSE) not NULL.")
+      # Set all metrics to TRUE
+      for (met in seq_along(metrics)){
+        metrics[[met]] <- TRUE
       }
-      metrics[[names(metrics_list)[[met]]]] <- metrics_list[[met]]
+
+    } else if (!is.null(metrics_list) && length(metrics_list) > 0){
+
+      # Check for unknown metric names
+      unknown_metric_names <- setdiff(names(metrics_list), names(metrics))
+      if (length(unknown_metric_names) > 0) {
+        stop(paste0(
+          "'metrics_list' contained unknown metric names: ",
+          paste0(unknown_metric_names, collapse = ", "),
+          "."
+        ))
+      }
+
+      # Check for unknown values (Those not TRUE/FALSE)
+      if (any(unlist(lapply(metrics_list, function(x){!(is.logical(x) && !is.na(x))})))){
+        stop("The values in the 'metrics' list must be either TRUE or FALSE.")
+      }
+
+      # Update metrics as specified by user
+      for (met in seq_along(metrics_list)){
+        if (is.null(metrics_list[[met]])){
+          stop("metrics in 'metrics_list' should be logical (TRUE/FALSE) not NULL.")
+        }
+        metrics[[names(metrics_list)[[met]]]] <- metrics_list[[met]]
+      }
+
     }
 
   }
+
 
   if (!isTRUE(include_model_object_metrics)){
 

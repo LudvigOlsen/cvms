@@ -99,7 +99,8 @@ evaluate_predictions_binomial <- function(data,
       unique_fold_cols = unique_fold_cols,
       cat_levels = cat_levels,
       positive = model_specifics[["positive"]],
-      fold_info_cols = fold_info_cols
+      fold_info_cols = fold_info_cols,
+      include_fold_columns = include_fold_columns
     )
 
     # TODO: Should probably rename "extra_metrics" to something more meaningful
@@ -172,7 +173,8 @@ binomial_eval_confusion_matrices <- function(
 
 binomial_eval_roc_curves <- function(data, targets_col, predictions_col,
                                      unique_fold_cols, cat_levels,
-                                     positive, fold_info_cols){
+                                     positive, fold_info_cols,
+                                     include_fold_columns){
 
   # ROC curves
 
@@ -202,18 +204,31 @@ binomial_eval_roc_curves <- function(data, targets_col, predictions_col,
 
   # ROC sensitivities and specificities
   roc_nested <- plyr::ldply(seq_len(length(roc_curves)), function(i){
+
     if (is.null(roc_curves[[i]])){
-      return(
-        tibble::tibble(`Fold Column` = character(),
-                       Sensitivities = NA,
-                       Specificities = NA)
-      )
+
+      roc_tibble <- tibble::tibble(
+        `Fold Column` = character(),
+        Sensitivities = NA,
+        Specificities = NA)
+
+    } else {
+
+      roc_tibble <- tibble::tibble(
+        `Fold Column` = as.character(names(roc_curves)[[i]]),
+        Sensitivities = roc_curves[[i]]$sensitivities,
+        Specificities = roc_curves[[i]]$specificities)
     }
-    tibble::tibble(`Fold Column` = as.character(names(roc_curves)[[i]]),
-                   Sensitivities = roc_curves[[i]]$sensitivities,
-                   Specificities = roc_curves[[i]]$specificities)
-  }) %>%
-    legacy_nest(1:3) %>%
+
+    if (!isTRUE(include_fold_columns)){
+      roc_tibble[["Fold Column"]] <- NULL
+    }
+
+    roc_tibble
+
+  })
+  roc_nested <- roc_nested %>%
+    legacy_nest(seq_len(ncol(roc_nested))) %>%
     dplyr::rename(roc = data)
 
   list("roc_curves" = roc_curves,

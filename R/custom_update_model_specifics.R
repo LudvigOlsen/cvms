@@ -17,7 +17,7 @@ custom_update_model_specifics <- function(model_specifics){
   stop_if_argument_is_null("caller", model_specifics)
 
   # These args should be NULL unless caller is cross_validate()
-  if (model_specifics[["caller"]] != "cross_validate()"){
+  if (model_specifics[["caller"]] %ni% c("cross_validate()","validate()")){
     stop_if_argument_not_null("REML", model_specifics)
     stop_if_argument_not_null("link", model_specifics)
     stop_if_argument_not_null("control", model_specifics)

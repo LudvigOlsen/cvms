@@ -6,7 +6,6 @@ custom_process_predictions <- function(test_data,
                                        model_specifics,
                                        fold_info) {
 
-
   prediction_process <- tryCatch({
     purrr::map(.x = 1, .f = purrr::quietly(function(.x){
       run_predict_fn(test_data = test_data,

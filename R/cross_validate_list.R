@@ -10,9 +10,11 @@ cross_validate_list <- function(data,
                                 cutoff = 0.5,
                                 positive = 2,
                                 metrics = list(),
+                                info_cols = list(), # TODO use in cross_validate to turn on info cols
                                 rm_nc = FALSE,
                                 verbose = FALSE,
-                                parallel_ = FALSE) {
+                                parallel_ = FALSE,
+                                caller = "cross_validate_fn()") {
 
   # Set errors if input variables aren't what we expect / can handle
   # WORK ON THIS SECTION!
@@ -32,45 +34,26 @@ cross_validate_list <- function(data,
 
   # Check metrics
   check_metrics_list(metrics)
+  check_metrics_list(info_cols)
 
   # Fill metrics with default values for non-specified metrics
   # and get the names of the metrics to use
   metrics <- set_metrics(family = family, metrics_list = metrics,
                          include_model_object_metrics = TRUE)
+  info_cols <- set_info_cols(family = family,
+                             info_cols_list = info_cols)
 
   # Check that the fold column(s) is/are factor(s)
   check_fold_col_factor(data = data, fold_cols = fold_cols)
 
   # When using cross_validate() we need to extract a few hparams
   # Hyperparameters for REML, link, control, is_cross_validate
-  is_cross_validate <- extract_from_hparams_for_cross_validate(
-    hyperparameters = hyperparameters,
-    param = "is_cross_validate")
-  if (is.null(is_cross_validate)){
-    is_cross_validate <- FALSE
-  }
-
-  if (isTRUE(is_cross_validate)){
-
-    # Note that we do not fill in defaults here, as that would mean,
-    # they could be different from their settings in the hyperparameters
-    # which could lead to mistakes. They are instead filled in
-    # within call_cross_validate().
-
-    REML <- extract_from_hparams_for_cross_validate(hyperparameters = hyperparameters,
-                                                    param = "REML")
-    link <- extract_from_hparams_for_cross_validate(hyperparameters = hyperparameters,
-                                                    param = "link")
-    control <- extract_from_hparams_for_cross_validate(hyperparameters = hyperparameters,
-                                                       param = "control")
-
-  } else {
-
-    REML <- NULL
-    link <- NULL
-    control <- NULL
-
-  }
+  special_hparams <- extract_special_fn_specific_hparams(
+    hyperparameters = hyperparameters)
+  is_cross_validate <- special_hparams[["is_special_fn"]]
+  REML <- special_hparams[["REML"]]
+  link <- special_hparams[["link"]]
+  control <- special_hparams[["control"]]
 
   # Create model_specifics object
   # Update to get default values when an argument was not specified
@@ -88,9 +71,7 @@ cross_validate_list <- function(data,
     preprocess_fn = preprocess_fn,
     preprocess_once = preprocess_once,
     hparams = NULL,
-    caller = ifelse(isTRUE(is_cross_validate),
-                    "cross_validate()",
-                    "cross_validate_fn()")
+    caller = caller
   ) %>%
     custom_update_model_specifics()
 
@@ -147,21 +128,25 @@ cross_validate_list <- function(data,
       "fold_column" = as.character(to_compute[["fold_col_name"]])
     )
 
-    custom_validate_fold(data = data,
-                         fold_info = fold_info,
-                         fold_info_cols = fold_info_cols,
-                         evaluation_type = evaluation_type,
-                         model_specifics = model_specifics,
-                         model_specifics_update_fn = NULL,
-                         metrics = metrics,
-                         fold_cols = fold_cols)
+    validate_fold(
+      data = data,
+      fold_info = fold_info,
+      fold_info_cols = fold_info_cols,
+      evaluation_type = evaluation_type,
+      model_specifics = model_specifics,
+      model_specifics_update_fn = NULL,
+      metrics = metrics,
+      fold_cols = fold_cols,
+      err_nc = FALSE,
+      return_model = FALSE
+    )
   })
 
   # Extract predictions and targets
   predictions_and_targets <- validated_folds %c% "predictions_and_targets"
 
   # Extract model object metrics
-  model_metrics <- validated_folds %c% "model_metrics"
+  model_evaluations <- validated_folds %c% "model_evaluation"
 
   # Extract preprocessing parameters
   preprocess_params <- validated_folds %c% "preprocess_parameters"
@@ -171,7 +156,7 @@ cross_validate_list <- function(data,
 
   # Add to computation grid
   computation_grid <- computation_grid %>%
-    dplyr::mutate(model_eval = model_metrics,
+    dplyr::mutate(model_eval = model_evaluations,
                   Predictions = predictions_and_targets,
                   model_was_null = model_was_null,
                   Preprocess = preprocess_params) %>%
@@ -251,7 +236,7 @@ cross_validate_list <- function(data,
       fold_info_cols = fold_info_cols,
       model_specifics = model_specifics,
       metrics = metrics,
-      include_fold_columns = TRUE,  # TODO Perhaps should be arg in main fn?
+      include_fold_columns = TRUE,
       include_predictions = TRUE    # TODO Perhaps should be arg in main fn?
     )
 
@@ -389,17 +374,13 @@ cross_validate_list <- function(data,
   }
 
   # Reorder data frame
-  new_col_order <- c(metrics, setdiff(colnames(output), metrics))
+  # This also removes unwanted columns
+  new_col_order <- c(metrics, intersect(info_cols, colnames(output)))
   output <- output %>%
     dplyr::select(dplyr::one_of(new_col_order)) %>%
     # Reorder rows by original formula order
     dplyr::right_join(original_formula_order,
                       by = names(original_formula_order))
-
-  # Remove singular_fit_messages if not cross_validate
-  if (!isTRUE(is_cross_validate)){
-    output[["Singular Fit Messages"]] <- NULL
-  }
 
   # If asked to remove non-converged models from output
   if (isTRUE(rm_nc)){
@@ -414,6 +395,7 @@ cross_validate_list <- function(data,
 
 }
 
+
 extract_from_hparams_for_cross_validate <- function(hyperparameters, param){
   if (!is.null(hyperparameters) &&
       param %in% names(hyperparameters)){
@@ -421,3 +403,4 @@ extract_from_hparams_for_cross_validate <- function(hyperparameters, param){
   }
   NULL
 }
+extract_from_hparams_for_validate <- extract_from_hparams_for_cross_validate

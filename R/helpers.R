@@ -477,6 +477,21 @@ check_fold_col_factor <- function(data, fold_cols){
   }
 }
 
+check_partitions_col_factor <- function(data, partitions_col){
+  # Check that the fold column(s) is/are factor(s)
+  if (length(partitions_col) == 1){
+    if (partitions_col %ni% names(data)){
+      stop(paste0("'",partitions_col,"' not found in 'data'."))
+    }
+    stopifnot(is.factor(data[[partitions_col]]))
+  } else {
+    stop("only one 'partitions_col' can currently be used.")
+    # fcols <- data %>% dplyr::select(dplyr::one_of(fold_cols)) %>%
+    #   sapply(is.factor)
+    # if (FALSE %in% fcols) {stop("At least one of the fold columns is not a factor.")}
+  }
+}
+
 # Check metrics argument
 check_metrics_list <- function(metrics){
 

@@ -66,6 +66,16 @@ test_that("binomial glm model works with cross_validate_fn()",{
                               Function = character(0), Type = character(0), Message = character(0)),
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
+  expect_equal(colnames(CVbinomlist),
+               c("Balanced Accuracy", "F1", "Sensitivity", "Specificity", "Pos Pred Value",
+                 "Neg Pred Value", "AUC", "Lower CI", "Upper CI", "Kappa", "MCC",
+                 "Detection Rate", "Detection Prevalence", "Prevalence", "AIC",
+                 "AICc", "BIC", "Predictions", "ROC", "Confusion Matrix", "Results",
+                 "Coefficients", "Folds", "Fold Columns", "Convergence Warnings",
+                 "Other Warnings", "Warnings and Messages", "Family", "Dependent",
+                 "Fixed"))
+
+
   # Check error when no model_fn is provided
   expect_error(cross_validate_fn(dat,
                     model_fn = NULL,
@@ -262,6 +272,12 @@ test_that("gaussian lm model works with cross_validate_fn()",{
                               Function = character(0), Type = character(0), Message = character(0)),
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
+  expect_equal(colnames(CVed),
+               c("RMSE", "MAE", "r2m", "r2c", "AIC", "AICc", "BIC", "Predictions",
+                 "Results", "Coefficients", "Folds", "Fold Columns", "Convergence Warnings",
+                 "Other Warnings", "Warnings and Messages", "Family", "Dependent",
+                 "Fixed"))
+
   # Error when formulas have random effects but lm model
 
   # Cross-validate the model function
@@ -285,6 +301,8 @@ test_that("gaussian lm model works with cross_validate_fn()",{
                rep("predict_fn", 8))
   expect_equal(warnings_and_messages$Message,
                rep("prediction from a rank-deficient fit may be misleading", 8))
+
+
 
 })
 
@@ -974,6 +992,20 @@ test_that("multinomial nnet models work with cross_validate_fn()",{
                               Function = character(0), Type = character(0), Message = character(0)),
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
+  expect_equal(colnames(CVmultinomlist),
+               c("Overall Accuracy", "Balanced Accuracy", "Weighted Balanced Accuracy",
+                 "Accuracy", "Weighted Accuracy", "F1", "Weighted F1", "Sensitivity",
+                 "Weighted Sensitivity", "Specificity", "Weighted Specificity",
+                 "Pos Pred Value", "Weighted Pos Pred Value", "Neg Pred Value",
+                 "Weighted Neg Pred Value", "AUC", "Weighted AUC", "Lower CI",
+                 "Weighted Lower CI", "Upper CI", "Weighted Upper CI", "Kappa",
+                 "Weighted Kappa", "MCC", "Weighted MCC", "Detection Rate", "Weighted Detection Rate",
+                 "Detection Prevalence", "Weighted Detection Prevalence", "Prevalence",
+                 "Weighted Prevalence", "AIC", "AICc", "BIC", "Predictions", "Confusion Matrix",
+                 "Results", "Class Level Results", "Coefficients", "Folds", "Fold Columns",
+                 "Convergence Warnings", "Other Warnings", "Warnings and Messages",
+                 "Family", "Dependent", "Fixed"))
+
   # Enter sub tibbles
   class_level_results <- CVmultinomlist$`Class Level Results`
 
@@ -1270,10 +1302,10 @@ test_that("multinomial randomForest models work with cross_validate_fn()",{
                c("Overall Accuracy", "Balanced Accuracy", "Accuracy", "Weighted Accuracy",
                  "Sensitivity", "Specificity", "Pos Pred Value", "Neg Pred Value",
                  "AUC", "Weighted AUC", "Lower CI", "Upper CI", "Kappa", "MCC",
-                 "Detection Rate", "Detection Prevalence", "Prevalence", "Class Level Results",
-                 "Confusion Matrix", "Predictions", "Results", "Coefficients", "Folds", "Fold Columns",
-                 "Convergence Warnings", "Other Warnings", "Warnings and Messages",
-                 "Family", "Dependent", "Fixed"))
+                 "Detection Rate", "Detection Prevalence", "Prevalence", "Predictions",
+                 "Confusion Matrix", "Results", "Class Level Results", "Coefficients",
+                 "Folds", "Fold Columns", "Convergence Warnings", "Other Warnings",
+                 "Warnings and Messages", "Family", "Dependent", "Fixed"))
 
   # Enter sub tibbles
   class_level_results <- CVmultinomlist$`Class Level Results`
@@ -1589,11 +1621,10 @@ test_that("binomial glm model with metrics list works with cross_validate_fn()",
   expect_equal(colnames(CVbinomlist),
                c("Accuracy", "F1", "Sensitivity", "Pos Pred Value", "Neg Pred Value",
                  "AUC", "Lower CI", "Upper CI", "Kappa", "MCC", "Detection Rate",
-                 "Detection Prevalence", "Prevalence", "AIC", "AICc","BIC",
-                 "ROC", "Confusion Matrix", "Predictions", "Results",
-                 "Coefficients", "Folds", "Fold Columns", "Convergence Warnings",
-                 "Other Warnings", "Warnings and Messages", "Family", "Dependent",
-                 "Fixed"))
+                 "Detection Prevalence", "Prevalence", "AIC", "AICc", "BIC", "Predictions",
+                 "ROC", "Confusion Matrix", "Results", "Coefficients", "Folds",
+                 "Fold Columns", "Convergence Warnings", "Other Warnings", "Warnings and Messages",
+                 "Family", "Dependent", "Fixed"))
 })
 
 test_that("gaussian lm model with metrics list works with cross_validate_fn()",{
@@ -1672,10 +1703,10 @@ test_that("multinomial nnet model with metrics list works with cross_validate_fn
                c("Overall Accuracy", "Balanced Accuracy", "Accuracy", "Weighted Accuracy",
                  "Sensitivity", "Specificity", "Pos Pred Value", "Neg Pred Value",
                  "AUC", "Weighted AUC", "Lower CI", "Upper CI", "Kappa", "MCC",
-                 "Detection Rate", "Detection Prevalence", "Prevalence", "Class Level Results",
-                 "Confusion Matrix", "Predictions", "Results", "Coefficients", "Folds", "Fold Columns",
-                 "Convergence Warnings", "Other Warnings", "Warnings and Messages",
-                 "Family", "Dependent", "Fixed"))
+                 "Detection Rate", "Detection Prevalence", "Prevalence", "Predictions",
+                 "Confusion Matrix", "Results", "Class Level Results", "Coefficients",
+                 "Folds", "Fold Columns", "Convergence Warnings", "Other Warnings",
+                 "Warnings and Messages", "Family", "Dependent", "Fixed"))
 
   # Enter sub tibbles
   class_level_results <- CVmultinomlist$`Class Level Results`
@@ -2124,3 +2155,48 @@ test_that("binomial results are returned in correct order from cross_validate_fn
 
 # TODO Add order tests for multinomial
 # TODO Make sure every column is in the right order (add order tests)
+
+test_that("lmer model with provided hparams grid works with cross_validate_fn()",{
+
+  # Load data and fold it
+  set_seed_for_R_compatibility(1)
+  dat <- groupdata2::fold(participant.scores, k = 4,
+                          cat_col = 'diagnosis',
+                          id_col = 'participant')
+
+  lmer_model_fn <- function(train_data, formula, hyperparameters){
+    warning(paste0("something: ",hyperparameters[["something"]],
+                   " else: ", hyperparameters[["else"]],
+                   " REML: ", hyperparameters[["REML"]]))
+    lme4::lmer(formula = formula, data = train_data, hyperparameters[["REML"]])
+  }
+
+  lmer_predict_fn <- example_predict_functions("lmer")
+
+  hparams <- tibble::tibble("REML" = c(TRUE, FALSE),
+                            "something" = c(1,2),
+                            "else" = c(3,4))
+
+  # Cross-validate the data
+  suppressWarnings(CVed <- cross_validate_fn(dat,
+                            model_fn = lmer_model_fn,
+                            predict_fn = lmer_predict_fn,
+                            hyperparameters = hparams,
+                            formulas = "score~diagnosis+(1|session)",
+                            fold_cols = '.folds',
+                            type = 'gaussian'))
+
+  expect_equal(dplyr::bind_rows(CVed$`Warnings and Messages`)$Message,
+               c("something: 1 else: 3 REML: TRUE", "something: 1 else: 3 REML: TRUE",
+                 "something: 1 else: 3 REML: TRUE", "something: 1 else: 3 REML: TRUE",
+                 "something: 2 else: 4 REML: FALSE", "something: 2 else: 4 REML: FALSE",
+                 "something: 2 else: 4 REML: FALSE", "something: 2 else: 4 REML: FALSE"
+               ))
+
+  expect_equal(CVed$RMSE, c(9.63400886475202, 9.65949029320233))
+
+  expect_identical(dplyr::bind_rows(CVed$HParams),
+                   hparams)
+
+})
+

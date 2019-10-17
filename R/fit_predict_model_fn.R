@@ -5,6 +5,7 @@ fit_predict_model_fn <- function(train_data,
                                  fold_info = list(rel_fold = NULL,
                                                   abs_fold = NULL,
                                                   fold_column = NULL),
+                                 include_fold_columns = TRUE,
                                  model_specifics = list(
                                    model_formula = NULL,
                                    family = NULL,
@@ -61,10 +62,14 @@ fit_predict_model_fn <- function(train_data,
 
   # Create tibble with predictions, targets and fold info
   predictions_and_targets <- tibble::tibble("target" = test_data[[y_col]]) %>%
-    dplyr::bind_cols(prediction_process[["predictions"]]) %>%
-    dplyr::mutate(rel_fold = fold_info[["rel_fold"]],
-                  abs_fold = fold_info[["abs_fold"]],
-                  fold_column = fold_info[["fold_column"]])
+    dplyr::bind_cols(prediction_process[["predictions"]])
+  if (isTRUE(include_fold_columns)){
+    predictions_and_targets <- predictions_and_targets %>%
+      dplyr::mutate(rel_fold = fold_info[["rel_fold"]],
+                    abs_fold = fold_info[["abs_fold"]],
+                    fold_column = fold_info[["fold_column"]])
+  }
+
 
   # Concatenate warnings and messages from
   # the model_fn and predict_fn processes
@@ -74,6 +79,11 @@ fit_predict_model_fn <- function(train_data,
                   `Fold Column` = as.character(fold_info[["fold_column"]])) %>%
     dplyr::select(dplyr::one_of(
       c("Fold Column", "Fold", "Function", "Type", "Message")))
+
+  if (!isTRUE(include_fold_columns)){
+    warnings_and_messages <- warnings_and_messages %>%
+      dplyr::select(-dplyr::one_of("Fold Column", "Fold"))
+  }
 
   list(
     predictions_and_targets = predictions_and_targets,

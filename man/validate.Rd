@@ -281,7 +281,7 @@ validate(train_data,
 }
 \seealso{
 Other validation functions: \code{\link{cross_validate_fn}},
-  \code{\link{cross_validate}}
+  \code{\link{cross_validate}}, \code{\link{validate_fn}}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

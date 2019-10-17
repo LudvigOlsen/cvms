@@ -308,7 +308,7 @@ system.time({cross_validate(data,
 }
 \seealso{
 Other validation functions: \code{\link{cross_validate_fn}},
-  \code{\link{validate}}
+  \code{\link{validate_fn}}, \code{\link{validate}}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

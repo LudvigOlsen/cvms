@@ -214,10 +214,10 @@ validate <- function(train_data,
                      rm_nc = FALSE,
                      parallel = FALSE,
                      model_verbose = FALSE) {
-  basics_validate_list(
+  call_validate(
     train_data = train_data,
-    model_list = models,
     test_data = test_data,
+    formulas = models,
     partitions_col = partitions_col,
     family = family,
     link = link,
@@ -228,7 +228,7 @@ validate <- function(train_data,
     metrics = metrics,
     err_nc = err_nc,
     rm_nc = rm_nc,
-    parallel_ = parallel,
+    parallel = parallel,
     model_verbose = model_verbose
   )
 

@@ -5,13 +5,13 @@
 #'
 #'  Cross-validate your model function with one or multiple model formulas at once.
 #'  Perform repeated cross-validation. Preprocess the train/test split
-#'  within the cross-validation. Perform hyperparameter tuning with grid search.
+#'  within the cross-validation. Perform hyperparameter tuning with (sampled) grid search.
 #'  Returns results in a tibble for easy comparison,
 #'  reporting and further analysis.
 #'
 #'  Compared to \code{\link[cvms:cross_validate]{cross_validate()}},
 #'  this function allows you supply a custom model function, a predict function,
-#'  a preprocess function and a list of hyperparameter values to cross-validate.
+#'  a preprocess function and the hyperparameter values to cross-validate.
 #'
 #'  Supports regression and classification (binary and multiclass).
 #'  See \code{type}.
@@ -123,9 +123,10 @@
 #'  we can do the preprocessing of each train/test split once, to save time.
 #'  This \strong{may require holding a lot more data in memory} though,
 #'  why it is not the default setting.
-#' @param hyperparameters List of hyperparameter values to cross-validate.
-#' Every combination will be created.
+#' @param hyperparameters Either a named list with hyperparameter values to combine in a grid,
+#'  or a data frame with one row per hyperparameter combination.
 #'
+#'  \subsection{Named list for grid search}{
 #'  Add \code{".n"} to sample the combinations. Can be the number of combinations to use,
 #'  or a percentage between \code{0} and \code{1}.
 #'
@@ -138,6 +139,20 @@
 #'  \verb{     }\code{"h_layers" = c(10, 100, 1000),}
 #'
 #'  \verb{     }\code{"drop_out" = runif(5, 0.3, 0.7))}
+#'  }
+#'
+#'  \subsection{Data frame with specific hyperparameter combinations}{
+#'  One row per combination to test.
+#'
+#'  E.g.
+#'
+#'  \tabular{rrr}{
+#'   \strong{lrn_rate} \tab \strong{h_layers} \tab \strong{drop_out} \cr
+#'   0.1 \tab 10 \tab 0.65\cr
+#'   0.1 \tab 1000 \tab 0.65\cr
+#'   0.01 \tab 1000 \tab 0.63\cr
+#'   ... \tab ... \tab ...}
+#'  }
 #' @param verbose Whether to message process information
 #'  like the number of model instances to fit. (Logical)
 #' @details

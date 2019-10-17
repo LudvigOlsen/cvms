@@ -42,7 +42,7 @@
 #'  \code{function(train_data, formula,}
 #'
 #'  \verb{         }\code{hyperparameters)}
-#' @param predict_fn Function for predicting the targets in the test folds using the fitted model object.
+#' @param predict_fn Function for predicting the targets in the test folds/sets using the fitted model object.
 #'  Will usually wrap \code{\link[stats:predict]{stats::predict()}}, but doesn't have to.
 #'
 #'  Must have the following function arguments:
@@ -83,8 +83,8 @@
 #'  }
 #' @param preprocess_fn Function for preprocessing the training and test sets.
 #'
-#'  Can, for instance, be used to standardize both the training and test sets with the scaling and centering parameters
-#'  from the training set.
+#'  Can, for instance, be used to standardize both the training and test sets
+#'  with the scaling and centering parameters from the training set.
 #'
 #'  Must have the following function arguments:
 #'
@@ -123,7 +123,7 @@
 #'  we can do the preprocessing of each train/test split once, to save time.
 #'  This \strong{may require holding a lot more data in memory} though,
 #'  why it is not the default setting.
-#' @param hyperparameters Either a named list with hyperparameter values to combine in a grid,
+#' @param hyperparameters Either a named list with hyperparameter values to combine in a grid
 #'  or a data frame with one row per hyperparameter combination.
 #'
 #'  \subsection{Named list for grid search}{
@@ -160,17 +160,20 @@
 #'  Packages used:
 #'
 #'  \subsection{Results}{
-#'  \subsection{Gaussian}{
-#'
-#'  r2m : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
-#'
-#'  r2c : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
+#'  \subsection{Shared}{
 #'
 #'  AIC : \code{\link[stats:AIC]{stats::AIC}}
 #'
 #'  AICc : \code{\link[MuMIn:AICc]{MuMIn::AICc}}
 #'
 #'  BIC : \code{\link[stats:BIC]{stats::BIC}}
+#'
+#'  }
+#'  \subsection{Gaussian}{
+#'
+#'  r2m : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
+#'
+#'  r2c : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
 #'
 #'  }
 #'  \subsection{Binomial}{
@@ -265,7 +268,7 @@
 #'  \strong{MCC} (Matthews correlation coefficient).
 #'
 #'  Other available metrics (disabled by default, see \code{metrics}):
-#'  \strong{Accuracy}.
+#'  \strong{Accuracy}, \strong{AIC}, \strong{AICc}, \strong{BIC}.
 #'
 #'  Also includes:
 #'
@@ -280,7 +283,7 @@
 #'  True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
 #'  depending on which level is the "positive" class. I.e. the level you wish to predict.
 #'
-#'  A nested tibble with the \strong{results} from all fold columns, when using \emph{repeated cross-validation}.
+#'  A nested tibble with the \strong{results} from all fold columns.
 #'
 #'  * In \emph{repeated cross-validation}, an evaluation is made per fold column (repetition) and averaged.
 #'
@@ -306,7 +309,8 @@
 #'  In addition to these, it also includes the \strong{Overall Accuracy} metric.
 #'
 #'  Other available metrics (disabled by default, see \code{metrics}):
-#'  \strong{Accuracy}, \strong{Weighted Balanced Accuracy}, \strong{Weighted Accuracy},
+#'  \strong{Accuracy}, \strong{AIC}, \strong{AICc}, \strong{BIC},
+#'  \strong{Weighted Balanced Accuracy}, \strong{Weighted Accuracy},
 #'  \strong{Weighted F1}, \strong{Weighted Sensitivity}, \strong{Weighted Sensitivity},
 #'  \strong{Weighted Specificity}, \strong{Weighted Pos Pred Value},
 #'  \strong{Weighted Neg Pred Value}, \strong{Weighted AUC}, \strong{Weighted Lower CI},
@@ -314,7 +318,7 @@
 #'  \strong{Weighted Detection Rate}, \strong{Weighted Detection Prevalence}, and
 #'  \strong{Weighted Prevalence}.
 #'
-#'  Note that the "Weighted" metrics are weighted averages, weighted by the \code{Support}.
+#'  Note that the "Weighted" average metrics are weighted by the \code{Support}.
 #'
 #'  Also includes:
 #'

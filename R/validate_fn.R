@@ -1,16 +1,16 @@
 
-#' @title Validate custom model functions for model selection
+#' @title Validate custom model functions on a test set
 #' @description
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
 #'
-#'  Validate your model function with one or multiple model formulas at once.
-#'  Preprocess the train/test split. Perform hyperparameter tuning with (sampled) grid search.
-#'  Returns results in a tibble for easy comparison,
-#'  reporting and further analysis.
+#'  Fit your model function on a training set and validate it by
+#'  predicting the test/validation set. Preprocess the train/test split.
+#'  Validate different hyperparameter combinations and formulas at once.
+#'  Returns results and fitted models in a tibble for easy reporting and further analysis.
 #'
 #'  Compared to \code{\link[cvms:validate]{validate()}},
 #'  this function allows you supply a custom model function, a predict function,
-#'  a preprocess function and the hyperparameter values to cross-validate.
+#'  a preprocess function and the hyperparameter values to validate.
 #'
 #'  Supports regression and classification (binary and multiclass).
 #'  See \code{type}.
@@ -21,24 +21,19 @@
 #' @export
 #' @family validation functions
 #' @inheritParams cross_validate_fn
+#' @inheritParams validate
 #' @inherit cross_validate_fn details
-#' @return
-#'  Tbl (tibble) with results for each model. (TODO ADD that it contains the model objects as well!)
-#'
-#'  N.B. The \strong{Fold} column in the nested tibbles contains the test fold in that train/test split.
+#' @return Tbl (tibble) with the results and model objects.
 #'
 #'  \subsection{Shared across families}{
-#'  A nested tibble with \strong{coefficients} of the models from all iterations. The coefficients
+#'
+#'  A nested tibble with \strong{coefficients} of the models. The coefficients
 #'  are extracted from the model object with \code{\link[broom:tidy]{broom::tidy()}} or
 #'  \code{\link[stats:coef]{coef()}} (with some restrictions on the output).
 #'  If these attempts fail, a default coefficients tibble filled with \code{NA}s is returned.
 #'
 #'  Nested tibble with the used \strong{preprocessing parameters},
 #'  if a passed \code{preprocess_fn} returns the parameters in a tibble.
-#'
-#'  Number of \emph{total} \strong{folds}.
-#'
-#'  Number of \strong{fold columns}.
 #'
 #'  Count of \strong{convergence warnings}, using a limited set of keywords (e.g. "convergence"). If a
 #'  convergence warning does not contain one of these keywords, it will be counted with \strong{other warnings}.
@@ -48,6 +43,8 @@
 #'  Nested tibble with the \strong{warnings and messages} caught for each model.
 #'
 #'  Specified \strong{family}.
+#'
+#'  Nested \strong{model} objects.
 #'
 #'  Name of \strong{dependent} variable.
 #'
@@ -63,20 +60,11 @@
 #'
 #'  ----------------------------------------------------------------
 #'
-#'  Average \strong{RMSE}, \strong{MAE}, \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
-#'  and \strong{BIC} of all the iterations*,
-#'  \emph{\strong{omitting potential NAs} from non-converged iterations}. Some metrics will
-#'  return \code{NA} if they can't be extracted from the fitted model objects.
-#'
-#'  N.B. The Information Criteria metrics (AIC, AICc, and BIC) are also averages.
+#'  \strong{RMSE}, \strong{MAE}, \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
+#'  and \strong{BIC}. Some metrics may return \code{NA} if they can't be
+#'  extracted from the fitted model objects.
 #'
 #'  A nested tibble with the \strong{predictions} and targets.
-#'
-#'  A nested tibble with the non-averaged \strong{results} from all iterations.
-#'
-#'  * In \emph{repeated cross-validation},
-#'  the metrics are first averaged for each fold column (repetition) and then averaged again.
-#'
 #'  }
 #'
 #'  ----------------------------------------------------------------
@@ -85,7 +73,7 @@
 #'
 #'  ----------------------------------------------------------------
 #'
-#'  Based on the \strong{collected} predictions from the test folds*,
+#'  Based on predictions of the test set,
 #'  a confusion matrix and a ROC curve are created to get the following:
 #'
 #'  ROC:
@@ -105,7 +93,7 @@
 #'  \strong{MCC} (Matthews correlation coefficient).
 #'
 #'  Other available metrics (disabled by default, see \code{metrics}):
-#'  \strong{Accuracy}.
+#'  \strong{Accuracy}, \strong{AIC}, \strong{AICc}, \strong{BIC}.
 #'
 #'  Also includes:
 #'
@@ -113,17 +101,12 @@
 #'  Note, that the \strong{predictions are not necessarily of the specified \code{positive} class}, but of
 #'  the model's positive class (second level of dependent variable, alphabetically).
 #'
-#'  A nested tibble with the sensativities and specificities from the \strong{ROC} curves.
+#'  A nested tibble with the sensativities and specificities from the \strong{ROC} curve.
 #'
-#'  A nested tibble with the \strong{confusion matrix}/matrices.
+#'  A nested tibble with the \strong{confusion matrix}.
 #'  The \code{Pos_} columns tells you whether a row is a
 #'  True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
 #'  depending on which level is the "positive" class. I.e. the level you wish to predict.
-#'
-#'  A nested tibble with the \strong{results} from all fold columns, when using \emph{repeated cross-validation}.
-#'
-#'  * In \emph{repeated cross-validation}, an evaluation is made per fold column (repetition) and averaged.
-#'
 #'  }
 #'
 #'  ----------------------------------------------------------------
@@ -146,7 +129,8 @@
 #'  In addition to these, it also includes the \strong{Overall Accuracy} metric.
 #'
 #'  Other available metrics (disabled by default, see \code{metrics}):
-#'  \strong{Accuracy}, \strong{Weighted Balanced Accuracy}, \strong{Weighted Accuracy},
+#'  \strong{Accuracy}, \strong{AIC}, \strong{AICc}, \strong{BIC},
+#'  \strong{Weighted Balanced Accuracy}, \strong{Weighted Accuracy},
 #'  \strong{Weighted F1}, \strong{Weighted Sensitivity}, \strong{Weighted Sensitivity},
 #'  \strong{Weighted Specificity}, \strong{Weighted Pos Pred Value},
 #'  \strong{Weighted Neg Pred Value}, \strong{Weighted AUC}, \strong{Weighted Lower CI},
@@ -154,7 +138,7 @@
 #'  \strong{Weighted Detection Rate}, \strong{Weighted Detection Prevalence}, and
 #'  \strong{Weighted Prevalence}.
 #'
-#'  Note that the "Weighted" metrics are weighted averages, weighted by the \code{Support}.
+#'  Note that the "Weighted" average metrics are weighted by the \code{Support}.
 #'
 #'  Also includes:
 #'

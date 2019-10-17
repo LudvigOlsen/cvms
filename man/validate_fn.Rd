@@ -2,7 +2,7 @@
 % Please edit documentation in R/validate_fn.R
 \name{validate_fn}
 \alias{validate_fn}
-\title{Validate custom model functions for model selection}
+\title{Validate custom model functions on a test set}
 \usage{
 validate_fn(train_data, test_data = NULL, formulas, model_fn, predict_fn,
   preprocess_fn = NULL, preprocess_once = FALSE,
@@ -11,6 +11,14 @@ validate_fn(train_data, test_data = NULL, formulas, model_fn, predict_fn,
   rm_nc = FALSE, parallel = FALSE, verbose = TRUE)
 }
 \arguments{
+\item{train_data}{Data Frame.
+
+ Can contain a grouping factor for identifying partitions - as made with
+ \code{\link[groupdata2:partition]{groupdata2::partition()}}.
+ See \code{partitions_col}.}
+
+\item{test_data}{Data Frame. If specifying \code{partitions_col}, this can be \code{NULL}.}
+
 \item{formulas}{Model formulas as strings. (Character)
 
  Will be converted to \code{\link[stats:formula]{formula}} objects
@@ -32,7 +40,7 @@ validate_fn(train_data, test_data = NULL, formulas, model_fn, predict_fn,
 
  \verb{         }\code{hyperparameters)}}
 
-\item{predict_fn}{Function for predicting the targets in the test folds using the fitted model object.
+\item{predict_fn}{Function for predicting the targets in the test folds/sets using the fitted model object.
  Will usually wrap \code{\link[stats:predict]{stats::predict()}}, but doesn't have to.
 
  Must have the following function arguments:
@@ -74,8 +82,8 @@ validate_fn(train_data, test_data = NULL, formulas, model_fn, predict_fn,
 
 \item{preprocess_fn}{Function for preprocessing the training and test sets.
 
- Can, for instance, be used to standardize both the training and test sets with the scaling and centering parameters
- from the training set.
+ Can, for instance, be used to standardize both the training and test sets
+ with the scaling and centering parameters from the training set.
 
  Must have the following function arguments:
 
@@ -116,7 +124,7 @@ validate_fn(train_data, test_data = NULL, formulas, model_fn, predict_fn,
  This \strong{may require holding a lot more data in memory} though,
  why it is not the default setting.}
 
-\item{hyperparameters}{Either a named list with hyperparameter values to combine in a grid,
+\item{hyperparameters}{Either a named list with hyperparameter values to combine in a grid
  or a data frame with one row per hyperparameter combination.
 
  \subsection{Named list for grid search}{
@@ -146,6 +154,13 @@ validate_fn(train_data, test_data = NULL, formulas, model_fn, predict_fn,
   0.01 \tab 1000 \tab 0.63\cr
   ... \tab ... \tab ...}
  }}
+
+\item{partitions_col}{Name of grouping factor for identifying partitions. (Character)
+
+ Rows with the value \code{1} in \code{partitions_col} are used as training set and
+ rows with the value \code{2} are used as test set.
+
+ N.B. \strong{Only used if \code{test_data} is \code{NULL}}.}
 
 \item{type}{Type of evaluation to perform:
 
@@ -193,22 +208,17 @@ validate_fn(train_data, test_data = NULL, formulas, model_fn, predict_fn,
 like the number of model instances to fit. (Logical)}
 }
 \value{
-Tbl (tibble) with results for each model.
-
- N.B. The \strong{Fold} column in the nested tibbles contains the test fold in that train/test split.
+Tbl (tibble) with the results and model objects.
 
  \subsection{Shared across families}{
- A nested tibble with \strong{coefficients} of the models from all iterations. The coefficients
+
+ A nested tibble with \strong{coefficients} of the models. The coefficients
  are extracted from the model object with \code{\link[broom:tidy]{broom::tidy()}} or
  \code{\link[stats:coef]{coef()}} (with some restrictions on the output).
  If these attempts fail, a default coefficients tibble filled with \code{NA}s is returned.
 
  Nested tibble with the used \strong{preprocessing parameters},
  if a passed \code{preprocess_fn} returns the parameters in a tibble.
-
- Number of \emph{total} \strong{folds}.
-
- Number of \strong{fold columns}.
 
  Count of \strong{convergence warnings}, using a limited set of keywords (e.g. "convergence"). If a
  convergence warning does not contain one of these keywords, it will be counted with \strong{other warnings}.
@@ -218,6 +228,8 @@ Tbl (tibble) with results for each model.
  Nested tibble with the \strong{warnings and messages} caught for each model.
 
  Specified \strong{family}.
+
+ Nested \strong{model} objects.
 
  Name of \strong{dependent} variable.
 
@@ -233,20 +245,11 @@ Tbl (tibble) with results for each model.
 
  ----------------------------------------------------------------
 
- Average \strong{RMSE}, \strong{MAE}, \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
- and \strong{BIC} of all the iterations*,
- \emph{\strong{omitting potential NAs} from non-converged iterations}. Some metrics will
- return \code{NA} if they can't be extracted from the fitted model objects.
-
- N.B. The Information Criteria metrics (AIC, AICc, and BIC) are also averages.
+ \strong{RMSE}, \strong{MAE}, \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
+ and \strong{BIC}. Some metrics may return \code{NA} if they can't be
+ extracted from the fitted model objects.
 
  A nested tibble with the \strong{predictions} and targets.
-
- A nested tibble with the non-averaged \strong{results} from all iterations.
-
- * In \emph{repeated cross-validation},
- the metrics are first averaged for each fold column (repetition) and then averaged again.
-
  }
 
  ----------------------------------------------------------------
@@ -255,7 +258,7 @@ Tbl (tibble) with results for each model.
 
  ----------------------------------------------------------------
 
- Based on the \strong{collected} predictions from the test folds*,
+ Based on predictions of the test set,
  a confusion matrix and a ROC curve are created to get the following:
 
  ROC:
@@ -275,7 +278,7 @@ Tbl (tibble) with results for each model.
  \strong{MCC} (Matthews correlation coefficient).
 
  Other available metrics (disabled by default, see \code{metrics}):
- \strong{Accuracy}.
+ \strong{Accuracy}, \strong{AIC}, \strong{AICc}, \strong{BIC}.
 
  Also includes:
 
@@ -283,17 +286,12 @@ Tbl (tibble) with results for each model.
  Note, that the \strong{predictions are not necessarily of the specified \code{positive} class}, but of
  the model's positive class (second level of dependent variable, alphabetically).
 
- A nested tibble with the sensativities and specificities from the \strong{ROC} curves.
+ A nested tibble with the sensativities and specificities from the \strong{ROC} curve.
 
- A nested tibble with the \strong{confusion matrix}/matrices.
+ A nested tibble with the \strong{confusion matrix}.
  The \code{Pos_} columns tells you whether a row is a
  True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
  depending on which level is the "positive" class. I.e. the level you wish to predict.
-
- A nested tibble with the \strong{results} from all fold columns, when using \emph{repeated cross-validation}.
-
- * In \emph{repeated cross-validation}, an evaluation is made per fold column (repetition) and averaged.
-
  }
 
  ----------------------------------------------------------------
@@ -316,7 +314,8 @@ Tbl (tibble) with results for each model.
  In addition to these, it also includes the \strong{Overall Accuracy} metric.
 
  Other available metrics (disabled by default, see \code{metrics}):
- \strong{Accuracy}, \strong{Weighted Balanced Accuracy}, \strong{Weighted Accuracy},
+ \strong{Accuracy}, \strong{AIC}, \strong{AICc}, \strong{BIC},
+ \strong{Weighted Balanced Accuracy}, \strong{Weighted Accuracy},
  \strong{Weighted F1}, \strong{Weighted Sensitivity}, \strong{Weighted Sensitivity},
  \strong{Weighted Specificity}, \strong{Weighted Pos Pred Value},
  \strong{Weighted Neg Pred Value}, \strong{Weighted AUC}, \strong{Weighted Lower CI},
@@ -324,7 +323,7 @@ Tbl (tibble) with results for each model.
  \strong{Weighted Detection Rate}, \strong{Weighted Detection Prevalence}, and
  \strong{Weighted Prevalence}.
 
- Note that the "Weighted" metrics are weighted averages, weighted by the \code{Support}.
+ Note that the "Weighted" average metrics are weighted by the \code{Support}.
 
  Also includes:
 
@@ -349,14 +348,14 @@ Tbl (tibble) with results for each model.
 \description{
 \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
 
- Validate your model function with one or multiple model formulas at once.
- Preprocess the train/test split. Perform hyperparameter tuning with (sampled) grid search.
- Returns results in a tibble for easy comparison,
- reporting and further analysis.
+ Fit your model function on a training set and validate it by
+ predicting the test/validation set. Preprocess the train/test split.
+ Validate different hyperparameter combinations and formulas at once.
+ Returns results and fitted models in a tibble for easy reporting and further analysis.
 
- Compared to \code{\link[cvms:cross_validate]{cross_validate()}},
+ Compared to \code{\link[cvms:validate]{validate()}},
  this function allows you supply a custom model function, a predict function,
- a preprocess function and the hyperparameter values to cross-validate.
+ a preprocess function and the hyperparameter values to validate.
 
  Supports regression and classification (binary and multiclass).
  See \code{type}.
@@ -368,17 +367,20 @@ Tbl (tibble) with results for each model.
 Packages used:
 
  \subsection{Results}{
- \subsection{Gaussian}{
-
- r2m : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
-
- r2c : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
+ \subsection{Shared}{
 
  AIC : \code{\link[stats:AIC]{stats::AIC}}
 
  AICc : \code{\link[MuMIn:AICc]{MuMIn::AICc}}
 
  BIC : \code{\link[stats:BIC]{stats::BIC}}
+
+ }
+ \subsection{Gaussian}{
+
+ r2m : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
+
+ r2c : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
 
  }
  \subsection{Binomial}{

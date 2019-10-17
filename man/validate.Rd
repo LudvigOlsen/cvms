@@ -11,7 +11,11 @@ validate(train_data, models, test_data = NULL,
   parallel = FALSE, model_verbose = FALSE)
 }
 \arguments{
-\item{train_data}{Data Frame.}
+\item{train_data}{Data Frame.
+
+ Can contain a grouping factor for identifying partitions - as made with
+ \code{\link[groupdata2:partition]{groupdata2::partition()}}.
+ See \code{partitions_col}.}
 
 \item{models}{Model formulas as strings. (Character)
 
@@ -28,7 +32,7 @@ validate(train_data, models, test_data = NULL,
  Rows with the value \code{1} in \code{partitions_col} are used as training set and
  rows with the value \code{2} are used as test set.
 
- N.B. Only used if \code{test_data} is \code{NULL}.}
+ N.B. \strong{Only used if \code{test_data} is \code{NULL}}.}
 
 \item{family}{Name of family. (Character)
 
@@ -95,8 +99,7 @@ validate(train_data, models, test_data = NULL,
 \item{model_verbose}{Message name of used model function on each iteration. (Logical)}
 }
 \value{
-List containing tbl (tibble) with results and the trained model object.
- The tibble contains:
+Tbl (tibble) with the results and model objects.
 
  \subsection{Shared across families}{
 
@@ -108,11 +111,13 @@ List containing tbl (tibble) with results and the trained model object.
  Count of \strong{other warnings}. These are warnings without keywords such as "convergence".
 
  Count of \strong{Singular Fit messages}. See
- \code{?\link[lme4:isSingular]{lme4::isSingular}} for more information.
+ \code{\link[lme4:isSingular]{lme4::isSingular}} for more information.
 
  Nested tibble with the \strong{warnings and messages} caught for each model.
 
  Specified \strong{family}.
+
+ Nested \strong{model} objects.
 
  Specified \strong{link} function.
 
@@ -161,7 +166,7 @@ List containing tbl (tibble) with results and the trained model object.
  \strong{MCC} (Matthews correlation coefficient).
 
  Other available metrics (disabled by default, see \code{metrics}):
- \strong{Accuracy}.
+ \strong{Accuracy}, \strong{AIC}, \strong{AICc}, \strong{BIC}.
 
  Also includes:
 
@@ -175,7 +180,7 @@ List containing tbl (tibble) with results and the trained model object.
 \description{
 \Sexpr[results=rd, stage=render]{lifecycle::badge("stable")}
 
- Train gaussian or binomial models on a full training set and validate it by
+ Train linear or logistic regression models on a full training set and validate it by
  predicting the test/validation set.
  Returns results in a tibble for easy reporting, along with the trained models.
 }
@@ -188,13 +193,8 @@ Packages used:
 
  Binomial: \code{\link[stats:glm]{stats::glm}}, \code{\link[lme4:glmer]{lme4::glmer}}
  }
-
  \subsection{Results}{
- \strong{Gaussian}:
-
- r2m : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
-
- r2c : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
+ \subsection{Shared}{
 
  AIC : \code{\link[stats:AIC]{stats::AIC}}
 
@@ -202,13 +202,22 @@ Packages used:
 
  BIC : \code{\link[stats:BIC]{stats::BIC}}
 
- \strong{Binomial}:
+ }
+ \subsection{Gaussian}{
+
+ r2m : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
+
+ r2c : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
+
+ }
+ \subsection{Binomial}{
 
  Confusion matrix: \code{\link[caret:confusionMatrix]{caret::confusionMatrix}}
 
  ROC: \code{\link[pROC:roc]{pROC::roc}}
 
  MCC: \code{\link[mltools:mcc]{mltools::mcc}}
+ }
  }
 }
 \examples{

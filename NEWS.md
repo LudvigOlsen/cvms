@@ -2,6 +2,8 @@
 
 * Breaking change: In `cross_validate_fn()`, the `predict_type` argument is removed. You now have to pass a predict function as that is safer and more transparent.
 
+* Breaking change: `validate()` now returns a tibble with the model objects nested in the `Model` column. Previously, it returned a list with the results and models. This allows for easier use in `magrittr` pipelines (`%>%`).
+
 * Adds optional `hyperparameter` argument to `cross_validate_fn()`. 
 Pass a list of hyperparameters and every combination of these will be cross-validated. 
 

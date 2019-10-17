@@ -3,57 +3,29 @@
 #' @description
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("stable")}
 #'
-#'  Train gaussian or binomial models on a full training set and validate it by
+#'  Train linear or logistic regression models on a full training set and validate it by
 #'  predicting the test/validation set.
 #'  Returns results in a tibble for easy reporting, along with the trained models.
 #' @inheritParams cross_validate
 #' @param train_data Data Frame.
+#'
+#'  Can contain a grouping factor for identifying partitions - as made with
+#'  \code{\link[groupdata2:partition]{groupdata2::partition()}}.
+#'  See \code{partitions_col}.
 #' @param test_data Data Frame. If specifying \code{partitions_col}, this can be \code{NULL}.
 #' @param partitions_col Name of grouping factor for identifying partitions. (Character)
 #'
 #'  Rows with the value \code{1} in \code{partitions_col} are used as training set and
 #'  rows with the value \code{2} are used as test set.
 #'
-#'  N.B. Only used if \code{test_data} is \code{NULL}.
+#'  N.B. \strong{Only used if \code{test_data} is \code{NULL}}.
 #' @param err_nc Raise error if model does not converge. (Logical)
 #' @param parallel Whether to validate the list of models in parallel. (Logical)
 #'
 #'  Remember to register a parallel backend first.
 #'  E.g. with \code{doParallel::registerDoParallel}.
-#' @details
-#'
-#'  Packages used:
-#'
-#'  \subsection{Models}{
-#'
-#'  Gaussian: \link[stats:lm]{stats::lm}, \code{\link[lme4:lmer]{lme4::lmer}}
-#'
-#'  Binomial: \code{\link[stats:glm]{stats::glm}}, \code{\link[lme4:glmer]{lme4::glmer}}
-#'  }
-#'
-#'  \subsection{Results}{
-#'  \strong{Gaussian}:
-#'
-#'  r2m : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
-#'
-#'  r2c : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
-#'
-#'  AIC : \code{\link[stats:AIC]{stats::AIC}}
-#'
-#'  AICc : \code{\link[MuMIn:AICc]{MuMIn::AICc}}
-#'
-#'  BIC : \code{\link[stats:BIC]{stats::BIC}}
-#'
-#'  \strong{Binomial}:
-#'
-#'  Confusion matrix: \code{\link[caret:confusionMatrix]{caret::confusionMatrix}}
-#'
-#'  ROC: \code{\link[pROC:roc]{pROC::roc}}
-#'
-#'  MCC: \code{\link[mltools:mcc]{mltools::mcc}}
-#'  }
-#' @return List containing tbl (tibble) with results and the trained model object.
-#'  The tibble contains:
+#' @inherit cross_validate details
+#' @return Tbl (tibble) with the results and model objects.
 #'
 #'  \subsection{Shared across families}{
 #'
@@ -65,11 +37,13 @@
 #'  Count of \strong{other warnings}. These are warnings without keywords such as "convergence".
 #'
 #'  Count of \strong{Singular Fit messages}. See
-#'  \code{?\link[lme4:isSingular]{lme4::isSingular}} for more information.
+#'  \code{\link[lme4:isSingular]{lme4::isSingular}} for more information.
 #'
 #'  Nested tibble with the \strong{warnings and messages} caught for each model.
 #'
 #'  Specified \strong{family}.
+#'
+#'  Nested \strong{model} objects.
 #'
 #'  Specified \strong{link} function.
 #'
@@ -118,7 +92,7 @@
 #'  \strong{MCC} (Matthews correlation coefficient).
 #'
 #'  Other available metrics (disabled by default, see \code{metrics}):
-#'  \strong{Accuracy}.
+#'  \strong{Accuracy}, \strong{AIC}, \strong{AICc}, \strong{BIC}.
 #'
 #'  Also includes:
 #'

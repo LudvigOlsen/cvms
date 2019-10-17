@@ -194,7 +194,7 @@ when \code{data} is grouped with \code{\link[dplyr]{group_by}}.}
  \strong{MCC} (Matthews correlation coefficient).
 
  Other available metrics (disabled by default, see \code{metrics}):
- \strong{Accuracy}.
+ \strong{Accuracy}, \strong{AIC}, \strong{AICc}, \strong{BIC}.
 
  Also includes:
 
@@ -228,7 +228,8 @@ when \code{data} is grouped with \code{\link[dplyr]{group_by}}.}
  In addition to these, it also includes the \strong{Overall Accuracy} metric.
 
  Other available metrics (disabled by default, see \code{metrics}):
- \strong{Accuracy}, \strong{Weighted Balanced Accuracy}, \strong{Weighted Accuracy},
+ \strong{Accuracy}, \strong{AIC}, \strong{AICc}, \strong{BIC},
+ \strong{Weighted Balanced Accuracy}, \strong{Weighted Accuracy},
  \strong{Weighted F1}, \strong{Weighted Sensitivity}, \strong{Weighted Sensitivity},
  \strong{Weighted Specificity}, \strong{Weighted Pos Pred Value},
  \strong{Weighted Neg Pred Value}, \strong{Weighted AUC}, \strong{Weighted Lower CI},
@@ -236,7 +237,7 @@ when \code{data} is grouped with \code{\link[dplyr]{group_by}}.}
  \strong{Weighted Detection Rate}, \strong{Weighted Detection Prevalence}, and
  \strong{Weighted Prevalence}.
 
- Note that the "Weighted" metrics are weighted averages, weighted by the \code{Support}.
+ Note that the "Weighted" average metrics are weighted by the \code{Support}.
 
  Also includes:
 

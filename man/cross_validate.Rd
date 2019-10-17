@@ -104,7 +104,7 @@ Tbl (tibble) with results for each model.
 
  Count of \strong{other warnings}. These are warnings without keywords such as "convergence".
 
- Count of \strong{Singular Fit messages}. See \code{?\link[lme4:isSingular]{lme4::isSingular}} for more information.
+ Count of \strong{Singular Fit messages}. See \code{\link[lme4:isSingular]{lme4::isSingular}} for more information.
 
  Nested tibble with the \strong{warnings and messages} caught for each model.
 
@@ -165,7 +165,7 @@ Tbl (tibble) with results for each model.
  \strong{MCC} (Matthews correlation coefficient).
 
  Other available metrics (disabled by default, see \code{metrics}):
- \strong{Accuracy}.
+ \strong{Accuracy}, \strong{AIC}, \strong{AICc}, \strong{BIC}.
 
  Also includes:
 
@@ -180,7 +180,7 @@ Tbl (tibble) with results for each model.
  True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
  depending on which level is the "positive" class. I.e. the level you wish to predict.
 
- A nested tibble with the \strong{results} from all fold columns, when using \emph{repeated cross-validation}.
+ A nested tibble with the \strong{results} from all fold columns.
 
  * In \emph{repeated cross-validation}, an evaluation is made per fold column (repetition) and averaged.
 
@@ -189,7 +189,7 @@ Tbl (tibble) with results for each model.
 \description{
 \Sexpr[results=rd, stage=render]{lifecycle::badge("stable")}
 
- Cross-validate one or multiple gaussian or binomial
+ Cross-validate one or multiple linear or logistic regression
  models at once. Perform repeated cross-validation.
  Returns results in a tibble for easy comparison,
  reporting and further analysis.
@@ -207,17 +207,20 @@ Packages used:
  Binomial: \code{\link[stats:glm]{stats::glm}}, \code{\link[lme4:glmer]{lme4::glmer}}
  }
  \subsection{Results}{
- \subsection{Gaussian}{
-
- r2m : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
-
- r2c : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
+ \subsection{Shared}{
 
  AIC : \code{\link[stats:AIC]{stats::AIC}}
 
  AICc : \code{\link[MuMIn:AICc]{MuMIn::AICc}}
 
  BIC : \code{\link[stats:BIC]{stats::BIC}}
+
+ }
+ \subsection{Gaussian}{
+
+ r2m : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
+
+ r2c : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
 
  }
  \subsection{Binomial}{

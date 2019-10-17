@@ -42,13 +42,15 @@ rvers <- substring(dep, 7, nchar(dep)-1)
 
 ## Overview {#overview}
 
-R package: Cross-validate one or multiple regression or classification models and get relevant evaluation metrics in a tidy format. Validate the best model on a test set and compare it to a baseline evaluation. Alternatively, evaluate predictions from an external model. Currently supports regression (`'gaussian'`), binary classification (`'binomial'`), and (some functions only) multiclass classification (`'multinomial'`).
+R package: Cross-validate one or multiple regression or classification models and get relevant evaluation metrics in a tidy format. Validate the best model on a test set and compare it to a baseline evaluation. 
+Perform hyperparameter tuning with (sampled) grid search. Evaluate predictions from an external model. Currently supports regression (`'gaussian'`), binary classification (`'binomial'`), and (some functions only) multiclass classification (`'multinomial'`).
 
 Main functions:  
 
 * `cross_validate()`  
 * `cross_validate_fn()`  
 * `validate()`  
+* `validate_fn()`  
 * `evaluate()`
 * `baseline()`  
 * `combine_predictors()`  
@@ -71,11 +73,14 @@ The `cross_validate()` function has thus been designed specifically to work with
 
 To allow cross-validation of custom model functions like support-vector machines, neural networks, etc., 
 the `cross_validate_fn()` function has been added. You provide a model function 
-and (if defaults fail) a predict function, and it does the rest (see examples below).
+and a predict function, and it does the rest (see examples below). Additionally, you can provide
+a preprocess function and a list or data frame with hyperparameter values to test.
 
 ## Important News {#news}
 
-* `cross_validate_fn()` is added. Cross-validate custom model functions.
+* `cross_validate_fn()` and `validate_fn()` now take the `preprocess_fn`, `preprocess_once`, and `hyperparameters` arguments. The `predict_type` argument has been removed.
+
+* `cross_validate_fn()` and `validate_fn()` are added. (Cross-)validate custom model functions.
 
 * In `evaluate()`, when `type` is `multinomial`, the output is now a single tibble. The `Class Level Results` are included as a nested tibble.
 

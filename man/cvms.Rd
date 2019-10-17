@@ -13,8 +13,9 @@ Evaluate predictions from an external model.
 \details{
 Returns results in a tibble for easy comparison, reporting and further analysis.
 
-The cvms package provides 5 main functions:
-\code{cross_validate}, \code{cross_validate_fn}, \code{validate}, \code{baseline}, and \code{evaluate}.
+The cvms package provides 6 main functions:
+\code{cross_validate}, \code{cross_validate_fn}, \code{validate}, \code{validate_fn},
+\code{baseline}, and \code{evaluate}.
 
 And a couple of helper functions:
 \code{combine_predictors}, \code{select_metrics}, \code{reconstruct_formulas}, \code{cv_plot}.

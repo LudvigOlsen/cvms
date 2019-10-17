@@ -1,4 +1,4 @@
-custom_process_predictions <- function(test_data,
+run_prediction_process <- function(test_data,
                                        model,
                                        model_formula,
                                        y_col,

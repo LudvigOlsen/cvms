@@ -1,4 +1,3 @@
-# Model function for cross-validating custom model functions like svm, randomForest, etc.
 
 fit_predict_model_fn <- function(train_data,
                                  test_data,
@@ -39,7 +38,7 @@ fit_predict_model_fn <- function(train_data,
 
   # Fit model
   fitted_model <- run_model_fitting(
-    custom_fit_model,
+    model_fitting_fn = fit_model,
     model_specifics = model_specifics,
     train_data = train_data,
     warn_info = list(
@@ -52,13 +51,15 @@ fit_predict_model_fn <- function(train_data,
   model <- fitted_model[["model"]]
 
   # Predict test set and catch warnings and messages
-  prediction_process <- custom_process_predictions(test_data = test_data,
-                                                   model = model,
-                                                   model_formula = model_specifics[["model_formula"]],
-                                                   y_col = y_col,
-                                                   user_predict_fn = user_predict_fn,
-                                                   model_specifics = model_specifics,
-                                                   fold_info = fold_info)
+  prediction_process <- run_prediction_process(
+    test_data = test_data,
+    model = model,
+    model_formula = model_specifics[["model_formula"]],
+    y_col = y_col,
+    user_predict_fn = user_predict_fn,
+    model_specifics = model_specifics,
+    fold_info = fold_info
+  )
 
   # Create tibble with predictions, targets and fold info
   predictions_and_targets <- tibble::tibble("target" = test_data[[y_col]]) %>%

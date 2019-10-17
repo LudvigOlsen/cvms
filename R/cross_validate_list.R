@@ -73,7 +73,7 @@ cross_validate_list <- function(data,
     hparams = NULL,
     caller = caller
   ) %>%
-    custom_update_model_specifics()
+    update_model_specifics()
 
   ## Create computational grid
 

@@ -96,7 +96,7 @@ validate_list <- function(train_data,
     hparams = NULL,
     caller = caller
   ) %>%
-    custom_update_model_specifics()
+    update_model_specifics()
 
   ## Create computational grid
   computation_grid <- create_computation_grid(data = data,

@@ -566,7 +566,7 @@ test_that("binomial glm model works with validate_fn()",{
 #
 #   svm_model_fn <- function(train_data, formula, hyperparameters){
 #
-#     e1071::svm(formula = formula, # converted to formula object within custom_fit_model()
+#     e1071::svm(formula = formula, # converted to formula object within fit_model()
 #                data = train_data,
 #                kernel = "linear",
 #                cost = 10,
@@ -630,7 +630,7 @@ test_that("binomial glm model works with validate_fn()",{
 #
 #     warning("This is a model_fn warning")
 #     message("This is a model_fn message")
-#     e1071::svm(formula = formula, # converted to formula object within custom_fit_model()
+#     e1071::svm(formula = formula, # converted to formula object within fit_model()
 #                data = train_data,
 #                kernel = hyperparameters[["kernel"]],
 #                cost = hyperparameters[["cost"]],
@@ -768,7 +768,7 @@ test_that("binomial glm model works with validate_fn()",{
 #
 #   nb_model_fn <- function(train_data, formula, hyperparameters){
 #
-#     e1071::naiveBayes(formula = formula, # converted to formula object within custom_fit_model()
+#     e1071::naiveBayes(formula = formula, # converted to formula object within fit_model()
 #                       data = train_data)
 #   }
 #
@@ -862,7 +862,7 @@ test_that("binomial glm model works with validate_fn()",{
 #
 #   nnet_model_fn <- function(train_data, formula, hyperparameters){
 #
-#     nnet::nnet(formula = formula, # converted to formula object within custom_fit_model()
+#     nnet::nnet(formula = formula, # converted to formula object within fit_model()
 #                data = train_data,
 #                size = 50)
 #   }
@@ -935,7 +935,7 @@ test_that("binomial glm model works with validate_fn()",{
 #
 #   nnet_model_fn <- function(train_data, formula, hyperparameters){
 #
-#     nnet::nnet(formula = formula, # converted to formula object within custom_fit_model()
+#     nnet::nnet(formula = formula, # converted to formula object within fit_model()
 #                data = train_data,
 #                size = 10,
 #                linout = TRUE)
@@ -1006,7 +1006,7 @@ test_that("binomial glm model works with validate_fn()",{
 #
 #   multinom_model_fn <- function(train_data, formula, hyperparameters){
 #
-#     nnet::multinom(formula = formula, # converted to formula object within custom_fit_model()
+#     nnet::multinom(formula = formula, # converted to formula object within fit_model()
 #                    data = train_data)
 #   }
 #
@@ -1718,7 +1718,7 @@ test_that("binomial glm model works with validate_fn()",{
 #
 #   multinom_model_fn <- function(train_data, formula, hyperparameters){
 #
-#     nnet::multinom(formula = formula, # converted to formula object within custom_fit_model()
+#     nnet::multinom(formula = formula, # converted to formula object within fit_model()
 #                    data = train_data)
 #   }
 #
@@ -1932,7 +1932,7 @@ test_that("binomial glm model works with validate_fn()",{
 #
 #   multinom_model_fn <- function(train_data, formula, hyperparameters){
 #
-#     nnet::multinom(formula = formula, # converted to formula object within custom_fit_model()
+#     nnet::multinom(formula = formula, # converted to formula object within fit_model()
 #                    data = train_data)
 #   }
 #

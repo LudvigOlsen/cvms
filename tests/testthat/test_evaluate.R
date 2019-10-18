@@ -403,18 +403,22 @@ test_that("multinomial evaluations are correct in evaluate()",{
     apply_softmax = TRUE
   )
 
+  # TODO Haven't added the grouping keys to the class level results
+  # Should this be done?
   expect_equal(mn_id_eval_2$fold_, c(1,2))
   expect_equal(dplyr::bind_rows(mn_id_eval_2$`Class Level Results`)$fold_,rep(1:2, each=5))
   expect_equal(colnames(mn_id_eval_2),
-               c("fold_","Overall Accuracy","Balanced Accuracy","F1","Sensitivity",
-                 "Specificity","Pos Pred Value","Neg Pred Value","AUC","Lower CI",
-                 "Upper CI","Kappa","MCC","Detection Rate","Detection Prevalence",
-                 "Prevalence","Class Level Results","Predictions","Confusion Matrix"))
+               c("fold_", "Overall Accuracy", "Balanced Accuracy", "F1", "Sensitivity",
+                 "Specificity", "Pos Pred Value", "Neg Pred Value", "AUC", "Lower CI",
+                 "Upper CI", "Kappa", "MCC", "Detection Rate", "Detection Prevalence",
+                 "Prevalence", "Predictions", "Confusion Matrix", "Class Level Results"
+               ))
   expect_equal(colnames(mn_id_eval_2$`Class Level Results`[[1]]),
-               c("fold_","Class","Balanced Accuracy","F1","Sensitivity",
-                 "Specificity","Pos Pred Value","Neg Pred Value","AUC","Lower CI",
-                 "Upper CI","Kappa","MCC","Detection Rate","Detection Prevalence",
-                 "Prevalence","Support","ROC","Confusion Matrix"))
+               c("fold_", "Class", "Balanced Accuracy", "F1", "Sensitivity",
+                 "Specificity", "Pos Pred Value", "Neg Pred Value", "AUC", "Lower CI",
+                 "Upper CI", "Kappa", "MCC", "Detection Rate", "Detection Prevalence",
+                 "Prevalence", "Support", "ROC", "Confusion Matrix"
+               ))
   expect_equal(mn_id_eval_2$`Class Level Results`[[1]]$`Confusion Matrix`[[1]],
                mn_id_eval_2$`Class Level Results`[[2]]$`Confusion Matrix`[[1]])
 
@@ -505,10 +509,11 @@ test_that("multinomial evaluations are correct in evaluate()",{
                  0.4, 0.4, 0.466666666666667, 0.533333333333333, 0.6, 0.666666666666667,
                  0.733333333333333, 0.8, 0.866666666666667, 0.866666666666667,
                  0.933333333333333, 1), tolerance = 1e-4)
-  expect_equal(mb_eval$`Class Level Results`[[1]]$ROC[[5]]$Sensitivities,
-               NA, tolerance = 1e-4)
-  expect_equal(mb_eval$`Class Level Results`[[1]]$ROC[[5]]$Specificities,
-               NA, tolerance = 1e-4)
+  # TODO Should this be NA or empty tibble?
+  expect_equal(colnames(mb_eval$`Class Level Results`[[1]]$ROC[[5]]),
+               c("Sensitivities", "Specificities"))
+  expect_equal(nrow(mb_eval$`Class Level Results`[[1]]$ROC[[5]]),
+               0)
   expect_equal(mb_eval$`Class Level Results`[[1]]$`Confusion Matrix`[[1]]$N,
                c(11,4,4,1), tolerance = 1e-4)
   expect_equal(mb_eval$`Class Level Results`[[1]]$`Confusion Matrix`[[5]]$N,

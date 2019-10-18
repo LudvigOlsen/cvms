@@ -293,15 +293,15 @@ binomial_eval_collect <- function(unique_fold_cols,
                                            predictions_nested = NULL,
                                            extra_metrics = extra_metrics[[fcol]],
                                            metrics = metrics,
-                                           include_predictions = TRUE) %>%
+                                           include_predictions = FALSE) %>%
       dplyr::mutate(`Fold Column` = as.character(fcol))
   }) %>%
     dplyr::select(.data$`Fold Column`, dplyr::everything())
 
   # Nest fold column results
   fold_col_results_nested <- fold_col_results %>%
-    dplyr::select(-c(.data$Predictions, .data$ROC)) %>%
-    legacy_nest(1 : (ncol(fold_col_results) - 2) ) %>% # -2 as we just removed two cols
+    dplyr::select(-c(.data$ROC)) %>%
+    legacy_nest(1 : (ncol(fold_col_results) - 1) ) %>% # -1 as we just removed one cols
     dplyr::rename(fold_col_results = data)
 
   if (isTRUE(both_keep_and_remove_NAs)){
@@ -325,20 +325,29 @@ binomial_eval_collect <- function(unique_fold_cols,
 
   # Gather the various results
   results <- average_metrics
-  if (!is.null(predictions_nested)){
+
+  # Add predictions
+  if (!is.null(predictions_nested) && isTRUE(include_predictions)){
     results[["Predictions"]] <- ifelse(isTRUE(both_keep_and_remove_NAs),
-                                       unlist(rep(predictions_nested$predictions, 2), recursive = FALSE),
+                                       unlist(rep(predictions_nested$predictions, 2),
+                                              recursive = FALSE),
                                        predictions_nested$predictions)
   }
+  # Add results
   results[["Results"]] <- ifelse(isTRUE(both_keep_and_remove_NAs),
-                                 unlist(rep(fold_col_results_nested$fold_col_results, 2), recursive = FALSE),
+                                 unlist(rep(fold_col_results_nested$fold_col_results, 2),
+                                        recursive = FALSE),
                                  fold_col_results_nested$fold_col_results)
+
+  # Add ROC curve info
   results[["ROC"]] <- ifelse(isTRUE(both_keep_and_remove_NAs),
                              rep(roc_nested$roc, 2),
                              roc_nested$roc)
 
+  # Add confusion matrix
   if (isTRUE(both_keep_and_remove_NAs) && length(unique_fold_cols) > 1){
-    results[["Confusion Matrix"]] <- unlist(rep(nested_confusion_matrices$confusion_matrices, 2), recursive = FALSE)
+    results[["Confusion Matrix"]] <- unlist(rep(nested_confusion_matrices$confusion_matrices, 2),
+                                            recursive = FALSE)
   } else {
     results[["Confusion Matrix"]] <- nested_confusion_matrices$confusion_matrices
   }

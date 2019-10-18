@@ -1,65 +1,3 @@
-#' @importFrom plyr ldply
-#' @importFrom dplyr %>%
-#' @importFrom tidyr separate
-call_cross_validate <- function(data,
-                                formulas,
-                                fold_cols,
-                                family,
-                                link,
-                                control,
-                                REML,
-                                cutoff,
-                                positive,
-                                metrics,
-                                rm_nc,
-                                parallel,
-                                model_verbose){
-
-  # Set default arguments
-  link <- default_link(link, family = family)
-  control <- default_control(control, family = family, link = link)
-  if(!is_logical_scalar_not_na(REML))
-    stop("cross_validate(): 'REML' must be either TRUE or FALSE.")
-  if(!is_logical_scalar_not_na(model_verbose))
-    stop("cross_validate(): 'model_verbose' must be either TRUE or FALSE.")
-  if (!is.character(family))
-    stop("cross_validate(): 'family' must have type character.")
-
-  results <- cross_validate_list(
-    data = data,
-    formulas = formulas,
-    model_fn = basics_model_fn,
-    predict_fn = basics_predict_fn,
-    hyperparameters = basics_hparams(
-      REML = REML, link = link, control = control,
-      model_verbose = model_verbose, family = family),
-    family = family,
-    fold_cols = fold_cols,
-    cutoff = cutoff,
-    positive = positive,
-    metrics = metrics,
-    info_cols = list("Singular Fit Messages" = TRUE,
-                     "HParams" = FALSE),
-    rm_nc = FALSE, # Done below instead
-    verbose = model_verbose,
-    parallel_ = parallel,
-    caller = "cross_validate()"
-    ) %>%
-    tibble::add_column("Link" = link,
-                       .after = "Family")
-
-  # If asked to remove non-converged models from results
-  if (isTRUE(rm_nc)){
-
-    results <- results %>%
-      dplyr::filter(.data$`Convergence Warnings` == 0)
-
-  }
-
-  results
-
-}
-
 call_validate <- function(train_data,
                           test_data,
                           formulas,
@@ -125,6 +63,70 @@ call_validate <- function(train_data,
   results
 
 }
+
+
+#' @importFrom plyr ldply
+#' @importFrom dplyr %>%
+#' @importFrom tidyr separate
+call_cross_validate <- function(data,
+                                formulas,
+                                fold_cols,
+                                family,
+                                link,
+                                control,
+                                REML,
+                                cutoff,
+                                positive,
+                                metrics,
+                                rm_nc,
+                                parallel,
+                                model_verbose){
+
+  # Set default arguments
+  link <- default_link(link, family = family)
+  control <- default_control(control, family = family, link = link)
+  if(!is_logical_scalar_not_na(REML))
+    stop("cross_validate(): 'REML' must be either TRUE or FALSE.")
+  if(!is_logical_scalar_not_na(model_verbose))
+    stop("cross_validate(): 'model_verbose' must be either TRUE or FALSE.")
+  if (!is.character(family))
+    stop("cross_validate(): 'family' must have type character.")
+
+  results <- cross_validate_list(
+    data = data,
+    formulas = formulas,
+    model_fn = basics_model_fn,
+    predict_fn = basics_predict_fn,
+    hyperparameters = basics_hparams(
+      REML = REML, link = link, control = control,
+      model_verbose = model_verbose, family = family),
+    family = family,
+    fold_cols = fold_cols,
+    cutoff = cutoff,
+    positive = positive,
+    metrics = metrics,
+    info_cols = list("Singular Fit Messages" = TRUE,
+                     "HParams" = FALSE),
+    rm_nc = FALSE, # Done below instead
+    verbose = model_verbose,
+    parallel_ = parallel,
+    caller = "cross_validate()"
+    ) %>%
+    tibble::add_column("Link" = link,
+                       .after = "Family")
+
+  # If asked to remove non-converged models from results
+  if (isTRUE(rm_nc)){
+
+    results <- results %>%
+      dplyr::filter(.data$`Convergence Warnings` == 0)
+
+  }
+
+  results
+
+}
+
 
 ### Basics, shared between validate and cross_validate
 

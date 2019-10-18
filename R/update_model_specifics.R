@@ -1,4 +1,4 @@
-custom_update_model_specifics <- function(model_specifics){
+update_model_specifics <- function(model_specifics){
 
   # Check required arguments
   check_argument_in_model_specifics("model_formula", model_specifics)
@@ -10,10 +10,12 @@ custom_update_model_specifics <- function(model_specifics){
   check_argument_in_model_specifics("preprocess_once", model_specifics)
   check_argument_in_model_specifics("hparams", model_specifics)
 
-  # These args should not be NULL in custom
+  # These args should not be NULL
+  if (model_specifics[["caller"]] %in% c("cross_validate_fn()", "validate_fn()",
+                                         "cross_validate()", "validate()")){
   stop_if_argument_is_null("model_fn", model_specifics)
   stop_if_argument_is_null("predict_fn", model_specifics)
-  stop_if_argument_is_null("preprocess_once", model_specifics)
+  }
   stop_if_argument_is_null("caller", model_specifics)
 
   # These args should be NULL unless caller is cross_validate()
@@ -24,8 +26,10 @@ custom_update_model_specifics <- function(model_specifics){
   }
 
   # These args should be functions
-  stop_if_argument_is_not_function("predict_fn", model_specifics)
-  stop_if_argument_is_not_function("model_fn", model_specifics)
+  if (!is.null(model_specifics[["predict_fn"]]))
+    stop_if_argument_is_not_function("predict_fn", model_specifics)
+  if (!is.null(model_specifics[["model_fn"]]))
+    stop_if_argument_is_not_function("model_fn", model_specifics)
   if (!is.null(model_specifics[["preprocess_fn"]]))
     stop_if_argument_is_not_function("preprocess_fn", model_specifics)
 
@@ -33,7 +37,7 @@ custom_update_model_specifics <- function(model_specifics){
 
   # err=TRUE means that it throws an error and warns to pass as named arguments.
   # We don't use this right now, as arguments that wasn't passed (and should take default value) are NULL.
-  model_specifics <- replace_argument_in_model_specifics_if_null("positive", model_specifics, 1, err=FALSE)
+  model_specifics <- replace_argument_in_model_specifics_if_null("positive", model_specifics, 2, err=FALSE)
   model_specifics <- replace_argument_in_model_specifics_if_null("cutoff", model_specifics, 0.5, err=FALSE)
   model_specifics <- replace_argument_in_model_specifics_if_null("model_verbose", model_specifics, FALSE, err=FALSE)
 

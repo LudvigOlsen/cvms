@@ -431,14 +431,22 @@ evaluate <- function(data,
   model_specifics <- list(
     model_formula = "",
     family = family,
-    REML = FALSE,
+    REML = NULL,
     link = NULL,
+    control = NULL,
     cutoff = cutoff,
     positive = positive,
     model_verbose = FALSE,
+    model_fn = NULL,
+    predict_fn = NULL,
+    preprocess_fn = NULL,
+    preprocess_once = NULL,
+    hparams = NULL,
     caller = "evaluate()"
   ) %>%
-    basics_update_model_specifics()
+    update_model_specifics()
+
+  info_cols <- list("Results" = FALSE)
 
   # Find number of classes if classification
   if (type == "binomial"){
@@ -500,6 +508,7 @@ evaluate <- function(data,
 
     if (family == "multinomial")
       prediction_cols <- local_tmp_predictions_col_var
+    # TODO Test that prediction_cols is correct for the other families?
 
     # Run ID level evaluation
     evaluations <- run_evaluate_wrapper(
@@ -514,6 +523,7 @@ evaluate <- function(data,
       models = models,
       model_specifics = model_specifics,
       metrics = metrics,
+      info_cols = info_cols,
       num_classes = num_classes,
       parallel = parallel,
       include_predictions = include_predictions
@@ -537,7 +547,7 @@ evaluate <- function(data,
 
     } else {
       if (length(prediction_cols) > 1) {
-        stop(paste0("'prediction_cols' must have length 1 when family is '", family, "'."))
+        stop(paste0("'prediction_cols' must have length 1 when type is '", type, "'."))
       }
     }
 
@@ -552,6 +562,7 @@ evaluate <- function(data,
       grouping_keys = grouping_keys,
       model_specifics = model_specifics,
       metrics = metrics,
+      info_cols = info_cols,
       num_classes = num_classes,
       parallel = parallel,
       include_predictions = include_predictions
@@ -575,6 +586,7 @@ run_evaluate_wrapper <- function(data,
                                  fold_info_cols = NULL,
                                  model_specifics,
                                  metrics = list(),
+                                 info_cols = list(),
                                  include_predictions = TRUE,
                                  num_classes = NULL,
                                  parallel = FALSE) {
@@ -592,13 +604,13 @@ run_evaluate_wrapper <- function(data,
     local_tmp_rel_fold_col_var <- create_tmp_var(data, "rel_fold")
     local_tmp_abs_fold_col_var <- create_tmp_var(data, "abs_fold")
 
-    data[[local_tmp_fold_col_var]] <- 1
-    data[[local_tmp_rel_fold_col_var]] <- 1
-    data[[local_tmp_abs_fold_col_var]] <- 1
+    data[[local_tmp_fold_col_var]] <- as.character(1)
+    data[[local_tmp_rel_fold_col_var]] <- as.character(1)
+    data[[local_tmp_abs_fold_col_var]] <- as.character(1)
 
     fold_info_cols <- list(rel_fold = local_tmp_rel_fold_col_var,
-                          abs_fold = local_tmp_abs_fold_col_var,
-                          fold_column = local_tmp_fold_col_var)
+                           abs_fold = local_tmp_abs_fold_col_var,
+                           fold_column = local_tmp_fold_col_var)
     include_fold_columns <- FALSE
   } else{
     include_fold_columns <- TRUE
@@ -631,59 +643,42 @@ run_evaluate_wrapper <- function(data,
                       fold_info_cols = fold_info_cols,
                       model_specifics = model_specifics,
                       metrics = metrics,
+                      info_cols = info_cols,
                       include_fold_columns = include_fold_columns,
                       include_predictions = include_predictions)
-  })
+  }) %>%
+    dplyr::bind_rows() %>%
+    tibble::as_tibble()
 
+
+
+  # Add group key to class level results
   if (type == "multinomial"){
 
-    # Extract all the Results tibbles
-    # And add the grouping keys
-    results <- evaluations %c% "Results" %>%
-      dplyr::bind_rows() %>%
-      tibble::as_tibble()
-    results <- grouping_keys %>%
-      dplyr::bind_cols(results)
-
     # Extract all the class level results tibbles
+    # Remove the Results column
     # And add the grouping keys
-    class_level_results <- evaluations %c% "Class Level Results" %>%
+    class_level_results <- evaluations[["Class Level Results"]] %>%
       dplyr::bind_rows() %>%
-      tibble::as_tibble()
+      tibble::as_tibble() %>%
+      dplyr::select(-dplyr::one_of("Results"))
     class_level_results <- grouping_keys %>%
       dplyr::slice(rep(1:dplyr::n(), each = num_classes)) %>%
       dplyr::bind_cols(class_level_results)
 
     # Nest class level results
-    class_level_results <- class_level_results %>%
+    evaluations[["Class Level Results"]] <- class_level_results %>%
       dplyr::group_by_at(colnames(grouping_keys)) %>%
       dplyr::group_nest(keep = TRUE) %>%
       dplyr::pull(.data$data)
 
-    # Add class level results before predictions
-    results <- results %>%
-      tibble::add_column(`Class Level Results` = class_level_results,
-                         .before = "Predictions")
-
-    return(results)
-
-  } else {
-
-    # Bind evaluations
-    evaluations <- evaluations %>%
-      dplyr::bind_rows() %>%
-      tibble::as_tibble()
-
-    # Add grouping keys
-    results <- grouping_keys %>%
-      dplyr::bind_cols(evaluations)
-
-    if (type == "gaussian"){
-      results[["Results"]] <- NULL
-    }
-
-    return(results)
   }
+
+  # Add grouping keys
+  results <- grouping_keys %>%
+    dplyr::bind_cols(evaluations)
+
+  return(results)
 
 }
 
@@ -691,6 +686,7 @@ internal_evaluate <- function(data,
                               type = "gaussian",
                               predictions_col = "prediction",
                               targets_col = "target",
+                              model_was_null_col = NULL,
                               fold_info_cols = list(rel_fold = "rel_fold",
                                                     abs_fold = "abs_fold",
                                                     fold_column = "fold_column"),
@@ -699,6 +695,7 @@ internal_evaluate <- function(data,
                               id_method = NULL,
                               model_specifics = list(),
                               metrics = list(),
+                              info_cols = list(),
                               include_fold_columns = TRUE,
                               include_predictions = TRUE,
                               na.rm = dplyr::case_when(
@@ -713,60 +710,60 @@ internal_evaluate <- function(data,
   # and get the names of the metrics
   metrics <- set_metrics(family = type, metrics_list = metrics,
                          include_model_object_metrics = !is.null(models))
+  info_cols <- set_info_cols(family = type, info_cols_list = info_cols)
 
   # data is a table with predictions, targets and folds
   # predictions can be values, logits, or classes, depending on evaluation type
 
-  if (type == "gaussian") {
-    results <- linear_regression_eval(
-      data,
-      models = models,
-      predictions_col = predictions_col,
-      targets_col = targets_col,
-      id_col = id_col,
-      id_method = id_method,
-      fold_info_cols = fold_info_cols,
-      model_specifics = model_specifics,
-      metrics = metrics,
-      include_fold_columns = include_fold_columns,
-      include_predictions = include_predictions,
-      na.rm = na.rm)
-
-  } else if (type == "binomial"){
-
-    results <- binomial_classification_eval(
-      data,
-      predictions_col = predictions_col,
-      targets_col = targets_col,
-      id_col = id_col,
-      id_method = id_method,
-      fold_info_cols = fold_info_cols,
-      models = models,
-      cutoff = model_specifics[["cutoff"]],
-      positive = model_specifics[["positive"]],
-      metrics = metrics,
-      include_fold_columns = include_fold_columns,
-      include_predictions = include_predictions,
-      na.rm = na.rm)
-
-  } else if (type == "multinomial"){
-
-    results <- multinomial_classification_eval(
-      data,
-      predictions_col = predictions_col,
-      targets_col = targets_col,
-      id_col = id_col,
-      id_method = id_method,
-      fold_info_cols = fold_info_cols,
-      models = models,
-      metrics = metrics,
-      include_fold_columns = include_fold_columns,
-      include_predictions = include_predictions,
-      na.rm = na.rm)
-
+  # Unless specified otherwise, we don't care about non-converged models etc. here
+  # so we tell the eval that the models were not NULL. (TODO Would we even have predictions otherwise?)
+  if (is.null(model_was_null_col)){
+    model_was_null_col <- "model_was_null"
+    data[[model_was_null_col]] <- FALSE
   }
 
-  results
+  # Evaluate the predictions
+  prediction_evaluation <- internal_evaluate_predictions(
+    data = data,
+    predictions_col = predictions_col,
+    targets_col = targets_col,
+    model_was_null_col = model_was_null_col,
+    id_col = id_col,
+    id_method = id_method,
+    type = type,
+    fold_info_cols = fold_info_cols,
+    model_specifics = model_specifics,
+    metrics = metrics,
+    include_fold_columns = include_fold_columns,
+    include_predictions = include_predictions
+  )
+
+  # TODO Remove "Results" from class level results when in evaluate()
+
+  if (!is.null(models)){
+    model_evaluations <- plyr::ldply(seq_len(length(models)), function(i){
+      internal_evaluate_model(model = models[[i]],
+                              train_data = NULL,
+                              test_data = NULL,
+                              type = type,
+                              fold_info = NULL,
+                              fold_info_cols = fold_info_cols,
+                              model_specifics = model_specifics,
+                              metrics = metrics,
+                              include_fold_columns = include_fold_columns
+      )
+    })
+
+    output <- dplyr::bind_cols(model_evaluations, prediction_evaluation)
+  } else {
+    output <- prediction_evaluation
+  }
+
+  new_col_order <- c(metrics, intersect(info_cols, colnames(output)))
+  output <- output %>%
+    dplyr::select(dplyr::one_of(new_col_order))
+
+  output
 }
 
 check_args_evaluate <- function(data,

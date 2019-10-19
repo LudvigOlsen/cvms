@@ -820,11 +820,11 @@ test_that("multinomial evaluations are correct in baseline()",{
                    "Prevalence", "Predictions", "Confusion Matrix", "Class Level Results",
                    "Family", "Dependent" ))
     expect_equal(colnames(multinom_baseline_random_eval_summ$`Confusion Matrix`[[1]]),
-                 c("Prediction", "Target", "N"))
+                 c("Repetition", "Prediction", "Target", "N"))
     expect_equal(colnames(multinom_baseline_random_eval_summ$`Confusion Matrix`[[2]]),
-                 c("Prediction", "Target", "N"))
+                 c("Repetition", "Prediction", "Target", "N"))
     expect_equal(colnames(multinom_baseline_random_eval_summ$Predictions[[1]]),
-                 c("Target", "Prediction", "Predicted Class"))
+                 c("Repetition", "Target", "Prediction", "Predicted Class"))
 
     expect_equal(multinom_baseline_random_eval_summ$Repetition,
                  1:10)

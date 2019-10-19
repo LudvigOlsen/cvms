@@ -703,7 +703,8 @@ run_internal_evaluate_wrapper <- function(
     # Remove the Results column
     # And add the grouping keys
     class_level_results <- evaluations[["Class Level Results"]] %>%
-      dplyr::bind_rows() %>%
+      # ".__grouping__" is used when na.rm = "both"!
+      dplyr::bind_rows(.id = ".__grouping__") %>%
       tibble::as_tibble() %>%
       dplyr::select(-dplyr::one_of("Results"))
     evaluations[["Class Level Results"]] <- NULL
@@ -711,33 +712,26 @@ run_internal_evaluate_wrapper <- function(
       dplyr::slice(rep(1:dplyr::n(), each = num_classes)) %>%
       dplyr::bind_cols(class_level_results)
 
-    if (!is.null(na.rm) && na.rm == "both"){
-
-      by_vars <- c("NAs_removed", colnames(grouping_keys))
-
-      # Nest class level results
-      evaluations <- evaluations %>%
-          dplyr::left_join(class_level_results %>%
-          dplyr::group_by_at(by_vars) %>%
-          dplyr::group_nest(keep = TRUE, .key = "Class Level Results"),
-          by = by_vars
-        )
-
-    } else {
-
-      # Nest class level results
-      evaluations[["Class Level Results"]] <- class_level_results %>%
-        dplyr::group_by_at(colnames(grouping_keys)) %>%
-        dplyr::group_nest(keep = TRUE) %>%
-        dplyr::pull(.data$data)
-
-    }
+    # Nest class level results
+    evaluations[["Class Level Results"]] <- class_level_results %>%
+      dplyr::group_by_at(c(".__grouping__", colnames(grouping_keys))) %>%
+      dplyr::group_nest(keep = TRUE) %>%
+      # Remove ".__grouping__" again
+      dplyr::mutate(data = purrr::map(.data$data,
+                                      .f = ~ .x %>%
+                                        dplyr::select(-dplyr::one_of(".__grouping__")))) %>%
+      dplyr::pull(.data$data)
 
   }
 
   # Add grouping keys
   results <- grouping_keys %>%
     dplyr::bind_cols(evaluations)
+
+  # If na.rm != "both" and it contains the NAs_removed column
+  if ((!is.character(na.rm) || na.rm != "both") &&
+      "NAs_removed" %in% names(results))
+    results[["NAs_removed"]] <- NULL
 
   return(results)
 

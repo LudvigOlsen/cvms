@@ -79,7 +79,7 @@ create_multinomial_baseline_evaluations <- function(test_data,
     dplyr::mutate(
       Family = "multinomial",
       Dependent = dependent_col
-    ) %>% print()
+    )
 
   # Evaluate all or nothing predictions
   evaluations_all_or_nothing <- plyr::ldply(1:num_classes, .parallel = parallel_, function(cl_ind){
@@ -111,10 +111,13 @@ create_multinomial_baseline_evaluations <- function(test_data,
 
   evaluations_random_results <- evaluations_random %>%
     dplyr::select(-dplyr::one_of("Class Level Results"))
-  evaluations_random_class_level_results <- evaluations_random[["Class Level Results"]] # TODO Should this be with na.rm FALSE or TRUE??
+  evaluations_random_class_level_results <- evaluations_random %>%
+    dplyr::filter(!.data$NAs_removed) %>% # The class level results do not differ between NAs_removed
+    dplyr::pull(`Class Level Results`)
   evaluations_all_or_nothing_results <- evaluations_all_or_nothing %>%
     dplyr::select(-dplyr::one_of("Class Level Results"))
-  evaluations_all_or_nothing_class_level_results <- evaluations_all_or_nothing[["Class Level Results"]]
+  evaluations_all_or_nothing_class_level_results <-
+    evaluations_all_or_nothing[["Class Level Results"]]
 
   # Subset the version with and without na.rm = TRUE
   evaluations_random_results_NAs_removed <- evaluations_random_results %>%
@@ -125,15 +128,15 @@ create_multinomial_baseline_evaluations <- function(test_data,
     dplyr::select(-.data$NAs_removed)
 
   evaluations_random_class_level_results <- evaluations_random_class_level_results %>%
-    dplyr::bind_rows(.id = "Repetition") %>%   # TODO Should this be with na.rm FALSE or TRUE??
+    dplyr::bind_rows(.id = "Repetition") %>%
     dplyr::mutate(
       Family = "binomial", # Note, the one-vs-all evals are binomial
       Dependent = dependent_col,
       Repetition = as.numeric(.data$Repetition)
     )
 
-  evaluations_all_or_nothing_results <- setNames(evaluations_all_or_nothing_results, classes) %>%
-    dplyr::bind_rows(.id = "All_class") %>%
+  evaluations_all_or_nothing_results <- evaluations_all_or_nothing_results %>%
+    dplyr::rename(All_class = .data$Class) %>%
     dplyr::mutate(
       Family = "multinomial",
       Dependent = dependent_col
@@ -158,9 +161,10 @@ create_multinomial_baseline_evaluations <- function(test_data,
       dplyr::filter(.data$Class == cl) %>%
       dplyr::select(-.data$Class)
 
-    summarized_class_level_result <- summarize_metric_cols(
+    summarized_class_level_result <- summarize_metrics(
       metric_cols_current_class,
-      na.rm = na.rm) %>%
+      na.rm = TRUE,
+      inf.rm = TRUE) %>%
       dplyr::bind_rows(all_or_nothing_evaluations(
         test_data = test_data,
         targets_col = dependent_col,
@@ -185,7 +189,7 @@ create_multinomial_baseline_evaluations <- function(test_data,
 
   # Summarize the metrics
   summarized_repetitions <- metric_cols_results_NAs_removed %>%
-    summarize_metric_cols(na.rm = FALSE)
+    summarize_metrics(na.rm = FALSE, inf.rm = TRUE)
 
   # Extract the ones where we want min and max to come from
   # the repetition results
@@ -247,6 +251,14 @@ create_multinomial_baseline_evaluations <- function(test_data,
       .before = "Family"
     )
 
+  # Add Repetition column to confusion matrix column
+  evaluations_random_results_NAs_kept[["Confusion Matrix"]] <-
+    add_repetition_col_to_nested_tibbles(evaluations_random_results_NAs_kept[["Confusion Matrix"]])
+
+  # Add Repetition column to predictions column
+  evaluations_random_results_NAs_kept[["Predictions"]] <-
+    add_repetition_col_to_nested_tibbles(evaluations_random_results_NAs_kept[["Predictions"]])
+
   # Group the summarized class level results for nesting
   summarized_metrics_class_level <- summarized_metrics_class_level %>%
     dplyr::ungroup() %>% # Just to make sure
@@ -281,68 +293,31 @@ all_or_nothing_evaluations <- function(test_data, targets_col, current_class, re
   test_data[[local_tmp_target_var]] <- factor(ifelse(test_data[[targets_col]] == current_class, 1, 0))
   test_data[[local_tmp_predicted_probability_all_1_var]] <- rep(0.999999, num_targets)
   test_data[[local_tmp_predicted_probability_all_0_var]] <- rep(0.000001, num_targets)
+  pred_cols <- c(local_tmp_predicted_probability_all_0_var,
+                 local_tmp_predicted_probability_all_1_var)
 
-  # Create model_specifics object
-  # Update to get default values when an argument was not specified
-  model_specifics <- list(
-    model_formula = "",
-    family = "multinomial",
-    REML = NULL,
-    link = NULL,
-    positive = 2,
-    cutoff = 0.5,
-    model_verbose = FALSE,
-    caller = "baseline()"
-  ) %>%
-    update_model_specifics()
+  evaluations <- plyr::ldply(seq_len(2), function(i){
 
-  # This will be changed to evaluation repetition later on
-  test_data[["fold_column"]] <- reps + 1 # TODO is this necessary?
+    run_evaluate(
+      data = test_data,
+      target_col = local_tmp_target_var,
+      prediction_cols = pred_cols[[i]],
+      type = "binomial",
+      id_col = NULL,
+      id_method = "mean",
+      metrics = list(),
+      include_predictions = FALSE,
+      include_fold_columns = FALSE # We're not providing any fold info so won't make sense
+    ) %>%
+      dplyr::mutate(Measure = paste0("All_", i - 1))
 
-  evaluations_all_0 <- internal_evaluate(
-    test_data,
-    type = "binomial",
-    predictions_col = local_tmp_predicted_probability_all_0_var,
-    targets_col = local_tmp_target_var,
-    fold_info_cols = list(
-      rel_fold = "rel_fold",
-      abs_fold = "abs_fold",
-      fold_column = "fold_column"
-    ),
-    # models = NULL,
-    model_specifics = model_specifics,
-    include_fold_columns = FALSE) %>%
-    dplyr::mutate(Family = "multinomial",
-                  Dependent = targets_col) %>%
-    select_metrics(include_definitions = FALSE) %>%
-    dplyr::mutate(Measure = "All_0")
+  }) %>%
+    dplyr::as_tibble() %>%
+    dplyr::mutate(Family = "multinomial") %>%
+    select_metrics(include_definitions = FALSE,
+                   additional_includes = "Measure")
 
-  # Evaluate all 1s
-
-  # This will be changed to evaluation repetition later on
-  test_data[["fold_column"]] <- reps + 2
-
-  evaluations_all_1 <- internal_evaluate(
-    data = test_data,
-    type = "binomial",
-    predictions_col = local_tmp_predicted_probability_all_1_var,
-    targets_col = local_tmp_target_var,
-    fold_info_cols = list(
-      rel_fold = "rel_fold",
-      abs_fold = "abs_fold",
-      fold_column = "fold_column"
-    ),
-    # models=NULL,
-    model_specifics = model_specifics,
-    include_fold_columns = FALSE) %>%
-    dplyr::mutate(Family = "multinomial",
-                  Dependent = targets_col) %>%
-    select_metrics(include_definitions = FALSE) %>%
-    dplyr::mutate(Measure = "All_1")
-
-  # Collect and return the all or nothing results
-  dplyr::bind_rows(evaluations_all_0,
-                     evaluations_all_1)
+  evaluations
 
 }
 

@@ -21,6 +21,11 @@ evaluate_predictions_binomial <- function(data,
     fold_and_fold_col <- create_fold_and_fold_column_map(data, fold_info_cols)
   }
 
+  # multinomial allows for na.rm = "both", but that is not useful here!
+  if (is.null(na.rm) || is.character(na.rm) || !is.logical(na.rm)){
+    stop("'na.rm' must be logical")
+  }
+
   # Unique fold columns
   unique_fold_cols <- unique(fold_and_fold_col[["fold_column"]])
 
@@ -280,10 +285,6 @@ binomial_eval_collect <- function(unique_fold_cols,
   confusion_matrices <- confusion_matrices_list[["confusion_matrices"]]
   nested_confusion_matrices <- confusion_matrices_list[["nested_confusion_matrices"]]
 
-  # Whether we want to save the averages both with and without removing
-  # the NAs
-  both_keep_and_remove_NAs <- is.character(na.rm) && na.rm == "both"
-
   # Fold column level results
   fold_col_results <- plyr::ldply(unique_fold_cols, function(fcol){
 
@@ -304,46 +305,27 @@ binomial_eval_collect <- function(unique_fold_cols,
     legacy_nest(1 : (ncol(fold_col_results) - 1) ) %>% # -1 as we just removed one cols
     dplyr::rename(fold_col_results = data)
 
-  if (isTRUE(both_keep_and_remove_NAs)){
-    # Average fold column results for reporting
-    average_metrics_NAs_removed <- fold_col_results %>%
-      dplyr::select(-.data$`Fold Column`) %>%
-      dplyr::summarise_all(list( ~ mean(., na.rm = FALSE))) %>%
-      dplyr::mutate(NAs_removed = FALSE)
-    average_metrics_NAs_kept <- fold_col_results %>%
-      dplyr::select(-.data$`Fold Column`) %>%
-      dplyr::summarise_all(list( ~ mean(., na.rm = TRUE))) %>%
-      dplyr::mutate(NAs_removed = TRUE)
-    average_metrics <- average_metrics_NAs_removed %>%
-      dplyr::bind_rows(average_metrics_NAs_kept)
-  } else {
-    # Average fold column results for reporting
-    average_metrics <- fold_col_results %>%
-      dplyr::select(-.data$`Fold Column`) %>%
-      dplyr::summarise_all(list( ~ mean(., na.rm = na.rm)))
-  }
+  # Average fold column results for reporting
+  average_metrics <- fold_col_results %>%
+    dplyr::select(-.data$`Fold Column`) %>%
+    dplyr::summarise_all(list( ~ mean(., na.rm = na.rm)))
 
   # Gather the various results
   results <- average_metrics
 
   # Add predictions
   if (!is.null(predictions_nested) && isTRUE(include_predictions)){
-    results[["Predictions"]] <- repeat_list_if(predictions_nested$predictions, 2,
-                                               condition = both_keep_and_remove_NAs)
+    results[["Predictions"]] <- predictions_nested$predictions
   }
 
   # Add results
-  results[["Results"]] <- repeat_list_if(fold_col_results_nested$fold_col_results, 2,
-                                         condition = both_keep_and_remove_NAs)
+  results[["Results"]] <- fold_col_results_nested$fold_col_results
 
   # Add ROC curve info
-  results[["ROC"]] <- repeat_list_if(roc_nested$roc, 2,
-                                     condition = both_keep_and_remove_NAs)
+  results[["ROC"]] <- roc_nested$roc
 
   # Add confusion matrix
-  results[["Confusion Matrix"]] <- repeat_list_if(
-    nested_confusion_matrices$confusion_matrices, 2,
-    condition = isTRUE(both_keep_and_remove_NAs) && length(unique_fold_cols) > 1)
+  results[["Confusion Matrix"]] <- nested_confusion_matrices$confusion_matrices
 
   results
 }

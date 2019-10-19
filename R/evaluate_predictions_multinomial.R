@@ -146,7 +146,7 @@ evaluate_predictions_multinomial <- function(data,
         metrics = metrics,
         include_fold_columns = include_fold_columns,
         include_predictions = FALSE,
-        na.rm = na.rm
+        na.rm = ifelse(isTRUE(both_keep_and_remove_NAs), FALSE, na.rm)
       ) %>%
         dplyr::as_tibble() %>%
         dplyr::mutate(Class = classes[[cl]])
@@ -176,16 +176,9 @@ evaluate_predictions_multinomial <- function(data,
     # TODO (IMPORTANT THAT THIS IS ADDED TO NEWS.md)
 
     # Extract the metrics for calculating (weighted) averages
-    if (isTRUE(both_keep_and_remove_NAs)){
-      metrics_only <- one_vs_all_evaluations %>%
-        dplyr::filter(!.data$NAs_removed) %>%  # Same values, just only need one of the versions
-        dplyr::pull(.data$Results) %>%
-        dplyr::bind_rows()
-    } else {
-      metrics_only <- one_vs_all_evaluations %>%
-        dplyr::pull(.data$Results) %>%
-        dplyr::bind_rows()
-    }
+    metrics_only <- one_vs_all_evaluations %>%
+      dplyr::pull(.data$Results) %>%
+      dplyr::bind_rows()
 
     # Values to use in na.rm
     if (isTRUE(both_keep_and_remove_NAs))
@@ -201,13 +194,8 @@ evaluate_predictions_multinomial <- function(data,
         dplyr::mutate(NAs_removed = nr)
     })
 
-    if (isTRUE(both_keep_and_remove_NAs)){
-      support <- one_vs_all_evaluations %>%
-        dplyr::filter(!NAs_removed) %>%
-        dplyr::pull(.data$Support)
-    } else {
-      support <- one_vs_all_evaluations[["Support"]]
-    }
+    # Extract Support counts
+    support <- one_vs_all_evaluations[["Support"]]
 
     # Calculate the weighted average metrics
     weighted_average_metrics <- plyr::ldply(na.rm_values, function(nr){
@@ -228,37 +216,25 @@ evaluate_predictions_multinomial <- function(data,
       dplyr::select(dplyr::one_of(weighted_average_metrics_to_keep))
 
     # Gather summarized metrics
-
-    # Note: ifelse does not work correctly with differently sized outputs
-    if (isTRUE(both_keep_and_remove_NAs)){
-      to_join_by <- c("Fold Column", "NAs_removed")
-    } else {
-      to_join_by <- "Fold Column"
-    }
-
     fold_column_results <- dplyr::left_join(
       overall_accuracy,
         dplyr::left_join(
           average_metrics,
           weighted_average_metrics,
-          by = to_join_by
+          by = c("Fold Column", "NAs_removed")
         ),
       by = "Fold Column")
 
     overall_results <- fold_column_results %>%
       dplyr::select(-dplyr::one_of("Fold Column"))
 
-    if (isTRUE(both_keep_and_remove_NAs)){
-      overall_results <- plyr::ldply(c(TRUE, FALSE), function(nr){ # TODO Document this behavior
-        overall_results %>%
-          dplyr::filter(!! as.name("NAs_removed") == nr) %>%
-          dplyr::group_by(!! as.name("NAs_removed")) %>% # Ensures NAs_removed is kept and not summarized
-          dplyr::summarise_all(~mean(., na.rm = nr))
-      }) %>% dplyr::as_tibble()
-    } else {
-      overall_results <- overall_results %>%
-        dplyr::summarise_all(~mean(., na.rm = na.rm))
-    }
+    # Average results
+    overall_results <- plyr::ldply(na.rm_values, function(nr){ # TODO Document this behavior
+      overall_results %>%
+        dplyr::filter(!! as.name("NAs_removed") == nr) %>%
+        dplyr::group_by(!! as.name("NAs_removed")) %>% # Ensures NAs_removed is kept and not summarized
+        dplyr::summarise_all(~mean(., na.rm = nr))
+    }) %>% dplyr::as_tibble()
 
     # Add nested predictions
     if (isTRUE(include_predictions) && !is.null(predictions_nested)){
@@ -283,48 +259,30 @@ evaluate_predictions_multinomial <- function(data,
       stop(paste0('Confusion matrix error: ',e))
     })
 
-    nested_multiclass_confusion_matrices <- nest_multiclass_confusion_matrices(
+    # Nest the confusion matrix
+    nested_multiclass_confusion_matrix <- nest_multiclass_confusion_matrices(
       list(overall_confusion_matrix),
       include_fold_columns = include_fold_columns)[["confusion_matrices"]]
 
+    # Add confusion matrix to overall results
     overall_results[["Confusion Matrix"]] <- repeat_list_if(
-      nested_multiclass_confusion_matrices, 2,
+      nested_multiclass_confusion_matrix, 2,
       condition = both_keep_and_remove_NAs)
 
-    if (isTRUE(both_keep_and_remove_NAs)){
-      # Add the nested fold column results
-      overall_results <- overall_results %>%
-        dplyr::left_join(
-          fold_column_results %>%
-          dplyr::group_nest(!!as.name("NAs_removed"), .key = "Results") %>%
-          tibble::as_tibble(),
-          by = "NAs_removed")
+    # Add the nested fold column results
+    overall_results <- overall_results %>%
+      dplyr::left_join(
+        fold_column_results %>%
+        dplyr::group_nest(!!as.name("NAs_removed"), .key = "Results") %>%
+        tibble::as_tibble(),
+        by = "NAs_removed")
 
-    } else {
-      # Add the nested fold column results
-      overall_results[["Results"]] <- fold_column_results %>%
-        legacy_nest(seq_len(ncol(fold_column_results))) %>%
-        tibble::as_tibble() %>%
-        dplyr::pull(.data$data)
-    }
-
-    if (both_keep_and_remove_NAs){
-      # Add the nested class level results
-      overall_results <- overall_results %>%
-        dplyr::left_join(
-          one_vs_all_evaluations %>%
-          dplyr::group_nest(NAs_removed,
-                            .key = "Class Level Results",
-                            keep = TRUE),
-          by = "NAs_removed"
-      )
-    } else {
-      # Add the nested class level results
-      overall_results[["Class Level Results"]] <- one_vs_all_evaluations %>%
-        legacy_nest(seq_len(ncol(one_vs_all_evaluations))) %>%
-        tibble::as_tibble() %>%
-        dplyr::pull(.data$data)
-    }
+    # Add the nested class level results
+    overall_results[["Class Level Results"]] <- one_vs_all_evaluations %>%
+      legacy_nest(seq_len(ncol(one_vs_all_evaluations))) %>%
+      tibble::as_tibble() %>%
+      dplyr::pull(.data$data) %>%
+      repeat_list_if(2, condition = both_keep_and_remove_NAs)
 
     # Rearrange columns in results
     all_cols <- colnames(overall_results)

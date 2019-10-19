@@ -104,8 +104,8 @@ evaluate_predictions_gaussian <- function(data,
       dplyr::ungroup() %>%
       dplyr::rename(`Fold Column` = fold_info_cols[["fold_column"]],
                     Fold = fold_info_cols[["rel_fold"]]) %>%
-      dplyr::arrange(.data$abs_fold) %>%
-      dplyr::select(-.data$abs_fold)
+      dplyr::arrange(!!as.name(fold_info_cols[["abs_fold"]])) %>%
+      dplyr::select(-dplyr::one_of(fold_info_cols[["abs_fold"]]))
 
     if (!is.null(avg_results)){
       # nest fold results and add to result tibble

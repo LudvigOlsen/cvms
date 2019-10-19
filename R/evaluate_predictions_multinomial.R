@@ -122,7 +122,7 @@ evaluate_predictions_multinomial <- function(data,
     support <- create_support_object(data[[targets_col]])
 
     # Perform one vs all evaluations
-    one_vs_all_evaluations <- plyr::llply(1:num_classes, function(cl){
+    one_vs_all_evaluations <- plyr::ldply(1:num_classes, function(cl){
 
       # Create temporary columns with
       # one-vs-all targets and predictions
@@ -151,8 +151,9 @@ evaluate_predictions_multinomial <- function(data,
         dplyr::as_tibble() %>%
         dplyr::mutate(Class = classes[[cl]])
 
-    }) %>% dplyr::bind_rows() %>%
-      dplyr::left_join(support, by = "Class")
+    }) %>%
+      dplyr::left_join(support, by = "Class") %>%
+      dplyr::as_tibble()
 
     # Remove Predictions column if it exists
     if ("Predictions" %in% colnames(one_vs_all_evaluations)){
@@ -175,47 +176,49 @@ evaluate_predictions_multinomial <- function(data,
     # TODO (IMPORTANT THAT THIS IS ADDED TO NEWS.md)
 
     # Extract the metrics for calculating (weighted) averages
-    metrics_only <- one_vs_all_evaluations %>%
-      dplyr::pull(.data$Results) %>%
-      dplyr::bind_rows()
+    if (isTRUE(both_keep_and_remove_NAs)){
+      metrics_only <- one_vs_all_evaluations %>%
+        dplyr::filter(!.data$NAs_removed) %>%  # Same values, just only need one of the versions
+        dplyr::pull(.data$Results) %>%
+        dplyr::bind_rows()
+    } else {
+      metrics_only <- one_vs_all_evaluations %>%
+        dplyr::pull(.data$Results) %>%
+        dplyr::bind_rows()
+    }
+
+    # Values to use in na.rm
+    if (isTRUE(both_keep_and_remove_NAs))
+      na.rm_values <- c(TRUE, FALSE)
+    else
+      na.rm_values <- na.rm
+
+    # Calculate the average metrics
+    average_metrics <- plyr::ldply(na.rm_values, function(nr){
+      metrics_only %>%
+        dplyr::group_by(!!as.name("Fold Column")) %>%
+        dplyr::summarise_all(list(mean), na.rm = nr) %>%
+        dplyr::mutate(NAs_removed = nr)
+    })
 
     if (isTRUE(both_keep_and_remove_NAs)){
-
-      # Calculate the average metrics
-      average_metrics <- plyr::ldply(c(TRUE, FALSE), function(nr){
-        metrics_only %>%
-          dplyr::group_by(!!as.name("Fold Column")) %>%
-          dplyr::summarise_all(list(mean), na.rm = nr) %>%
-          dplyr::mutate(NAs_removed = nr)
-      })
-
-      # Calculate the weighted average metrics
-      weighted_average_metrics <- plyr::ldply(c(TRUE, FALSE), function(nr){
-        metrics_only %>%
-          dplyr::group_by(!!as.name("Fold Column")) %>%
-          dplyr::summarise_all(list(
-            ~ weighted.mean(., w = one_vs_all_evaluations[["Support"]])), na.rm = nr) %>%
-          dplyr::rename_at(.vars = dplyr::vars(-dplyr::one_of("Fold Column")),
-                            function(x) paste0("Weighted ", x)) %>%
-          dplyr::mutate(NAs_removed = nr)
-      })
-
+      support <- one_vs_all_evaluations %>%
+        dplyr::filter(!NAs_removed) %>%
+        dplyr::pull(.data$Support)
     } else {
+      support <- one_vs_all_evaluations[["Support"]]
+    }
 
-      # Calculate the average metrics
-      average_metrics <- metrics_only %>%
-        dplyr::group_by(!!as.name("Fold Column")) %>%
-        dplyr::summarise_all(list(mean), na.rm = na.rm)
-
-      # Calculate the weighted average metrics
-      weighted_average_metrics <- metrics_only %>%
+    # Calculate the weighted average metrics
+    weighted_average_metrics <- plyr::ldply(na.rm_values, function(nr){
+      metrics_only %>%
         dplyr::group_by(!!as.name("Fold Column")) %>%
         dplyr::summarise_all(list(
-          ~ weighted.mean(., w = one_vs_all_evaluations[["Support"]])),
-          na.rm = na.rm) %>%
+          ~ weighted.mean(., w = support, na.rm = nr))) %>%
         dplyr::rename_at(.vars = dplyr::vars(-dplyr::one_of("Fold Column")),
-                         function(x) paste0("Weighted ", x))
-    }
+                          function(x) paste0("Weighted ", x)) %>%
+        dplyr::mutate(NAs_removed = nr)
+    })
 
     # Keep only the requested metrics
     weighted_average_metrics_to_keep <- intersect(
@@ -223,7 +226,6 @@ evaluate_predictions_multinomial <- function(data,
       c(colnames(weighted_average_metrics)))
     weighted_average_metrics <- weighted_average_metrics %>%
       dplyr::select(dplyr::one_of(weighted_average_metrics_to_keep))
-
 
     # Gather summarized metrics
 
@@ -260,11 +262,8 @@ evaluate_predictions_multinomial <- function(data,
 
     # Add nested predictions
     if (isTRUE(include_predictions) && !is.null(predictions_nested)){
-      if (isTRUE(both_keep_and_remove_NAs)){
-        overall_results[["Predictions"]] <- rep(predictions_nested$predictions, 2)
-      } else {
-        overall_results[["Predictions"]] <- predictions_nested$predictions
-      }
+      overall_results[["Predictions"]] <- repeat_list_if(predictions_nested$predictions, 2,
+                                                         both_keep_and_remove_NAs)
     }
 
     # If we don't want the Overall Accuracy metric, remove it
@@ -288,11 +287,9 @@ evaluate_predictions_multinomial <- function(data,
       list(overall_confusion_matrix),
       include_fold_columns = include_fold_columns)[["confusion_matrices"]]
 
-    if (isTRUE(both_keep_and_remove_NAs)){
-      overall_results[["Confusion Matrix"]] <- rep(nested_multiclass_confusion_matrices, 2)
-    } else {
-      overall_results[["Confusion Matrix"]] <- nested_multiclass_confusion_matrices
-    }
+    overall_results[["Confusion Matrix"]] <- repeat_list_if(
+      nested_multiclass_confusion_matrices, 2,
+      condition = both_keep_and_remove_NAs)
 
     if (isTRUE(both_keep_and_remove_NAs)){
       # Add the nested fold column results
@@ -311,11 +308,23 @@ evaluate_predictions_multinomial <- function(data,
         dplyr::pull(.data$data)
     }
 
-    # Add the nested class level results
-    overall_results[["Class Level Results"]] <- one_vs_all_evaluations %>%
-      legacy_nest(seq_len(ncol(one_vs_all_evaluations))) %>%
-      tibble::as_tibble() %>%
-      dplyr::pull(.data$data)
+    if (both_keep_and_remove_NAs){
+      # Add the nested class level results
+      overall_results <- overall_results %>%
+        dplyr::left_join(
+          one_vs_all_evaluations %>%
+          dplyr::group_nest(NAs_removed,
+                            .key = "Class Level Results",
+                            keep = TRUE),
+          by = "NAs_removed"
+      )
+    } else {
+      # Add the nested class level results
+      overall_results[["Class Level Results"]] <- one_vs_all_evaluations %>%
+        legacy_nest(seq_len(ncol(one_vs_all_evaluations))) %>%
+        tibble::as_tibble() %>%
+        dplyr::pull(.data$data)
+    }
 
     # Rearrange columns in results
     all_cols <- colnames(overall_results)

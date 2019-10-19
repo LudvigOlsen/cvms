@@ -375,8 +375,8 @@
 baseline <- function(test_data,
                      dependent_col,
                      train_data = NULL,
-                     n = 100,
                      # how many times to randomly sample probabilities (bootstrapping?)
+                     n = 100,
                      family = 'binomial',
                      # Binomial
                      positive = 2,

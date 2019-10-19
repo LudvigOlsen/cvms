@@ -405,6 +405,41 @@ evaluate <- function(data,
                      parallel = FALSE
 ){
 
+  run_evaluate(
+    data = data,
+    target_col=target_col,
+    prediction_cols=prediction_cols,
+    type = type,
+    id_col = id_col,
+    id_method = id_method,
+    models = models,
+    apply_softmax = apply_softmax,
+    cutoff = cutoff,
+    positive = positive,
+    metrics = metrics,
+    include_predictions = include_predictions,
+    parallel = parallel
+  )
+
+}
+
+run_evaluate <- function(data,
+                         target_col,
+                         prediction_cols,
+                         type = "gaussian",
+                         id_col = NULL,
+                         id_method = "mean",
+                         models = NULL,
+                         apply_softmax = TRUE,
+                         cutoff = 0.5,
+                         positive = 2,
+                         metrics = list(),
+                         include_predictions = TRUE,
+                         include_fold_columns = TRUE,
+                         parallel = FALSE,
+                         na.rm = NULL
+){
+
   # Test if type is allowed
   stopifnot(type %in% c("gaussian",
                         "binomial",
@@ -491,7 +526,6 @@ evaluate <- function(data,
       stop("When aggregating by ID, 'models' should be NULL.")
     }
 
-
     # Prepare data for ID level evaluation
     data_for_id_evaluation <- prepare_id_level_evaluation(
       data = data,
@@ -511,7 +545,7 @@ evaluate <- function(data,
     # TODO Test that prediction_cols is correct for the other families?
 
     # Run ID level evaluation
-    evaluations <- run_evaluate_wrapper(
+    evaluations <- run_internal_evaluate_wrapper(
       data = data_for_id_evaluation,
       type = family,
       predictions_col = prediction_cols,
@@ -526,7 +560,9 @@ evaluate <- function(data,
       info_cols = info_cols,
       num_classes = num_classes,
       parallel = parallel,
-      include_predictions = include_predictions
+      include_predictions = include_predictions,
+      include_fold_columns = include_fold_columns,
+      na.rm = na.rm
     )
 
   } else {
@@ -552,7 +588,7 @@ evaluate <- function(data,
     }
 
     # Run evaluation
-    evaluations <- run_evaluate_wrapper(
+    evaluations <- run_internal_evaluate_wrapper(
       data = data,
       type = family,
       predictions_col = prediction_cols,
@@ -565,7 +601,9 @@ evaluate <- function(data,
       info_cols = info_cols,
       num_classes = num_classes,
       parallel = parallel,
-      include_predictions = include_predictions
+      include_predictions = include_predictions,
+      include_fold_columns = include_fold_columns,
+      na.rm = na.rm
     )
   }
 
@@ -574,22 +612,26 @@ evaluate <- function(data,
 }
 
 
-run_evaluate_wrapper <- function(data,
-                                 type,
-                                 predictions_col,
-                                 targets_col,
-                                 models,
-                                 groups_col,
-                                 grouping_keys,
-                                 id_col = NULL,
-                                 id_method = NULL,
-                                 fold_info_cols = NULL,
-                                 model_specifics,
-                                 metrics = list(),
-                                 info_cols = list(),
-                                 include_predictions = TRUE,
-                                 num_classes = NULL,
-                                 parallel = FALSE) {
+run_internal_evaluate_wrapper <- function(
+  data,
+  type,
+  predictions_col,
+  targets_col,
+  models,
+  groups_col,
+  grouping_keys,
+  id_col = NULL,
+  id_method = NULL,
+  fold_info_cols = NULL,
+  model_specifics,
+  metrics = list(),
+  info_cols = list(),
+  include_predictions = TRUE,
+  include_fold_columns = TRUE,
+  num_classes = NULL,
+  na.rm = NULL,
+  parallel = FALSE
+) {
 
   if (type != "gaussian"){
     if (is.null(num_classes)){
@@ -613,7 +655,7 @@ run_evaluate_wrapper <- function(data,
                            fold_column = local_tmp_fold_col_var)
     include_fold_columns <- FALSE
   } else{
-    include_fold_columns <- TRUE
+    include_fold_columns <- include_fold_columns
   }
 
   # Extract unique group identifiers
@@ -645,15 +687,17 @@ run_evaluate_wrapper <- function(data,
                       metrics = metrics,
                       info_cols = info_cols,
                       include_fold_columns = include_fold_columns,
-                      include_predictions = include_predictions)
+                      include_predictions = include_predictions,
+                      na.rm = na.rm)
   }) %>%
     dplyr::bind_rows() %>%
     tibble::as_tibble()
 
-
-
   # Add group key to class level results
   if (type == "multinomial"){
+
+    grouping_keys <- repeat_data_frame_if(grouping_keys, 2,
+                                          condition = na.rm == "both")
 
     # Extract all the class level results tibbles
     # Remove the Results column
@@ -662,15 +706,32 @@ run_evaluate_wrapper <- function(data,
       dplyr::bind_rows() %>%
       tibble::as_tibble() %>%
       dplyr::select(-dplyr::one_of("Results"))
+    evaluations[["Class Level Results"]] <- NULL
     class_level_results <- grouping_keys %>%
       dplyr::slice(rep(1:dplyr::n(), each = num_classes)) %>%
       dplyr::bind_cols(class_level_results)
 
-    # Nest class level results
-    evaluations[["Class Level Results"]] <- class_level_results %>%
-      dplyr::group_by_at(colnames(grouping_keys)) %>%
-      dplyr::group_nest(keep = TRUE) %>%
-      dplyr::pull(.data$data)
+    if (!is.null(na.rm) && na.rm == "both"){
+
+      by_vars <- c("NAs_removed", colnames(grouping_keys))
+
+      # Nest class level results
+      evaluations <- evaluations %>%
+          dplyr::left_join(class_level_results %>%
+          dplyr::group_by_at(by_vars) %>%
+          dplyr::group_nest(keep = TRUE, .key = "Class Level Results"),
+          by = by_vars
+        )
+
+    } else {
+
+      # Nest class level results
+      evaluations[["Class Level Results"]] <- class_level_results %>%
+        dplyr::group_by_at(colnames(grouping_keys)) %>%
+        dplyr::group_nest(keep = TRUE) %>%
+        dplyr::pull(.data$data)
+
+    }
 
   }
 
@@ -698,11 +759,7 @@ internal_evaluate <- function(data,
                               info_cols = list(),
                               include_fold_columns = TRUE,
                               include_predictions = TRUE,
-                              na.rm = dplyr::case_when(
-                                type == "gaussian" ~ TRUE,
-                                type == "binomial" ~ FALSE,
-                                type == "multinomial" ~ FALSE
-                              )) {
+                              na.rm = NULL) {
 
   stopifnot(type %in% c("gaussian", "binomial", "multinomial")) #, "multiclass", "multilabel"))
 
@@ -711,6 +768,17 @@ internal_evaluate <- function(data,
   metrics <- set_metrics(family = type, metrics_list = metrics,
                          include_model_object_metrics = !is.null(models))
   info_cols <- set_info_cols(family = type, info_cols_list = info_cols)
+  if (!is.null(na.rm) && na.rm == "both")
+    info_cols <- c(info_cols, "NAs_removed")
+
+  # Set default na.rm if NULL
+  if (is.null(na.rm)){
+    na.rm <- dplyr::case_when(
+      type == "gaussian" ~ TRUE,
+      type == "binomial" ~ FALSE,
+      type == "multinomial" ~ FALSE
+    )
+  }
 
   # data is a table with predictions, targets and folds
   # predictions can be values, logits, or classes, depending on evaluation type
@@ -735,7 +803,8 @@ internal_evaluate <- function(data,
     model_specifics = model_specifics,
     metrics = metrics,
     include_fold_columns = include_fold_columns,
-    include_predictions = include_predictions
+    include_predictions = include_predictions,
+    na.rm = na.rm
   )
 
   # TODO Remove "Results" from class level results when in evaluate()

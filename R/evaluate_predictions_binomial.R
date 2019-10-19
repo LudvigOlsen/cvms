@@ -328,33 +328,48 @@ binomial_eval_collect <- function(unique_fold_cols,
 
   # Add predictions
   if (!is.null(predictions_nested) && isTRUE(include_predictions)){
-    results[["Predictions"]] <- ifelse(isTRUE(both_keep_and_remove_NAs),
-                                       unlist(rep(predictions_nested$predictions, 2),
-                                              recursive = FALSE),
-                                       predictions_nested$predictions)
+    results[["Predictions"]] <- repeat_list_if(predictions_nested$predictions, 2,
+                                               condition = both_keep_and_remove_NAs)
   }
+
   # Add results
-  results[["Results"]] <- ifelse(isTRUE(both_keep_and_remove_NAs),
-                                 unlist(rep(fold_col_results_nested$fold_col_results, 2),
-                                        recursive = FALSE),
-                                 fold_col_results_nested$fold_col_results)
+  results[["Results"]] <- repeat_list_if(fold_col_results_nested$fold_col_results, 2,
+                                         condition = both_keep_and_remove_NAs)
 
   # Add ROC curve info
-  results[["ROC"]] <- ifelse(isTRUE(both_keep_and_remove_NAs),
-                             rep(roc_nested$roc, 2),
-                             roc_nested$roc)
+  results[["ROC"]] <- repeat_list_if(roc_nested$roc, 2,
+                                     condition = both_keep_and_remove_NAs)
 
   # Add confusion matrix
-  if (isTRUE(both_keep_and_remove_NAs) && length(unique_fold_cols) > 1){
-    results[["Confusion Matrix"]] <- unlist(rep(nested_confusion_matrices$confusion_matrices, 2),
-                                            recursive = FALSE)
-  } else {
-    results[["Confusion Matrix"]] <- nested_confusion_matrices$confusion_matrices
-  }
+  results[["Confusion Matrix"]] <- repeat_list_if(
+    nested_confusion_matrices$confusion_matrices, 2,
+    condition = isTRUE(both_keep_and_remove_NAs) && length(unique_fold_cols) > 1)
 
   results
 }
 
+repeat_list_if <- function(l, n, condition){
+
+  if (isTRUE(condition)){
+    l <- l %>%
+      rep(n)
+  }
+
+  l
+
+}
+
+repeat_data_frame_if <- function(data, n, condition){
+
+  if (isTRUE(condition)){
+    data <- data %>%
+      dplyr::slice(
+        rep(1:dplyr::n(), n)
+      )
+  }
+
+  data
+}
 
 binomial_classification_NA_results_tibble <- function(metrics, include_predictions = TRUE){
 

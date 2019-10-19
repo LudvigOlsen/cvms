@@ -65,7 +65,10 @@ test_that("binomial evaluations are correct in baseline()",{
   expect_equal(length(binom_baseline_reval$Predictions), 10)
 
   all_predictions <- dplyr::bind_rows(binom_baseline_reval$Predictions)
-  expect_equal(sum(as.numeric(all_predictions$Fold)), 300)
+  expect_equal(colnames(all_predictions),
+               c("Repetition", "Target", "Prediction", "Predicted Class"))
+  expect_equal(sum(as.numeric(all_predictions$Repetition)),
+               sum(rep(1:10, each = 30)))
   expect_equal(sum(all_predictions$Target), 180)
   expect_equal(sum(as.numeric(all_predictions$`Predicted Class`)), 140)
   expect_equal(sum(all_predictions$Prediction), 147.0334, tolerance=1e-3)
@@ -74,8 +77,7 @@ test_that("binomial evaluations are correct in baseline()",{
   expect_equal(sum(as.numeric(all_confmats$Prediction)), 20, tolerance=1e-3)
   expect_equal(sum(as.numeric(all_confmats$Target)), 20, tolerance=1e-3)
   expect_equal(sum(all_confmats$N), 300, tolerance=1e-3)
-  expect_equal(sum(all_confmats$`Fold Column`), 220, tolerance=1e-3) # Should be changed to Evaluation
-
+  expect_equal(sum(all_confmats$Repetition), 220, tolerance=1e-3)
 
 })
 
@@ -153,11 +155,18 @@ test_that("gaussian evaluations are correct in baseline()",{
                rep("1", 10), tolerance=1e-3)
 
   all_predictions <- dplyr::bind_rows(gaussian_baseline_reval$Predictions)
-  expect_equal(sum(as.numeric(all_predictions$Fold)), 120)
+  expect_equal(colnames(all_predictions),
+               c("Repetition", "Target", "Prediction"))
+  expect_equal(sum(as.numeric(all_predictions$Repetition)),
+               sum(rep(1:10, each = 12)))
   expect_equal(sum(all_predictions$Target), 5440)
   expect_equal(sum(all_predictions$Prediction), 4085.043, tolerance=1e-3)
 
   all_coeffs <- dplyr::bind_rows(gaussian_baseline_reval$Coefficients)
+  expect_equal(colnames(all_coeffs),
+               c("Repetition", "term", "estimate", "std.error", "statistic",
+                 "p.value"))
+  expect_equal(all_coeffs$Repetition, 1:10)
   expect_equal(all_coeffs$estimate,
                c(28.40000,36.00000,41.71429,31.33333,34.42857,
                  35.57143,35.30000,35.71429,35.58333,26.37500), tolerance=1e-3)
@@ -253,11 +262,18 @@ test_that("gaussian evaluations of random effects models are correct in baseline
                rep("(1|session)", 10), tolerance=1e-3)
 
   all_predictions <- dplyr::bind_rows(gaussian_baseline_reval$Predictions)
-  expect_equal(sum(as.numeric(all_predictions$Fold)), 120)
+  expect_equal(colnames(all_predictions),
+               c("Repetition", "Target", "Prediction"))
+  expect_equal(sum(as.numeric(all_predictions$Repetition)),
+               sum(rep(1:10, each = 12)))
   expect_equal(sum(all_predictions$Target), 5440)
   expect_equal(sum(all_predictions$Prediction), 4030.024, tolerance=1e-3)
 
   all_coeffs <- dplyr::bind_rows(gaussian_baseline_reval$Coefficients)
+  expect_equal(colnames(all_coeffs),
+               c("Repetition", "term", "estimate", "std.error", "statistic",
+                 "p.value"))
+  expect_equal(all_coeffs$Repetition, 1:10)
   expect_equal(all_coeffs$estimate,
                c(29.4482246187172, 34.039741354335, 40.9321844272457, 29.7091048995076,
                  31.6380887585632, 37.7282592375317, 34.1782347165533, 35.9506799949463,
@@ -355,11 +371,18 @@ test_that("gaussian evaluations of random effects models are correct with REML F
                rep("(1|session)", 10), tolerance=1e-3)
 
   all_predictions <- dplyr::bind_rows(gaussian_baseline_reval$Predictions)
-  expect_equal(sum(as.numeric(all_predictions$Fold)), 120)
+  expect_equal(colnames(all_predictions),
+               c("Repetition", "Target", "Prediction"))
+  expect_equal(sum(as.numeric(all_predictions$Repetition)),
+               sum(rep(1:10, each = 12)))
   expect_equal(sum(all_predictions$Target), 5440)
   expect_equal(sum(all_predictions$Prediction), 4042.804, tolerance=1e-3)
 
   all_coeffs <- dplyr::bind_rows(gaussian_baseline_reval$Coefficients)
+  expect_equal(colnames(all_coeffs),
+               c("Repetition", "term", "estimate", "std.error", "statistic",
+                 "p.value"))
+  expect_equal(all_coeffs$Repetition, 1:10)
   expect_equal(all_coeffs$estimate,
                c(29.0475640591351, 34.3203425052484, 41.2416418477926, 29.944216654405,
                  31.7864586462034, 37.6658072225419, 34.3377960494584, 35.9622550910097,

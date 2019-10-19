@@ -33,6 +33,8 @@ has not altered the results, but it is a more correct approach.
 * Adds Information Criteria metrics (AIC, AICc, BIC) to the `binomial` and `multinomial` output (disabled by default). 
 These are based on the fitted model objects and may not work for some model functions.
 
+* `summarize_metrics()` is added. Use it summarize the numeric columns in your dataset with a set of common descriptors. Counts the `NA`s and `Inf`s. Used by `baseline()`.
+
 # cvms 0.3.1
 
 * Fixes documentation in `cross_validate_fn()`. The examples section contained an unreasonable number of mistakes :-)

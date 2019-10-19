@@ -22,117 +22,99 @@ create_multinomial_baseline_evaluations <- function(test_data,
   # Count number of classes
   num_classes <- length(classes)
 
-  # Add fold info columns
-  test_data[["rel_fold"]] <- 1
-  test_data[["abs_fold"]] <- 1
-
-  # Create model_specifics object
-  # Update to get default values when an argument was not specified
-  model_specifics <- list(
-    model_formula = "",
-    family = "multinomial",
-    REML = FALSE,
-    link = NULL,
-    model_verbose = FALSE,
-    caller = "baseline()"
-  ) %>%
-    basics_update_model_specifics()
-
   # TODO Test num_classes etc.
 
   # Create predicted probability tibbles
-
   random_probabilities <- multiclass_probability_tibble(
     num_classes = num_classes,
     num_observations = num_targets * reps,
     FUN = random_generator_fn,
     apply_softmax = TRUE) %>%
     dplyr::rename_all(~classes) %>%
-    nest_rowwise() %>%
     split(f = factor(rep(1:reps, each = num_targets)))
+
+  # We want a probability within 0 and 1, so this is how close we get to those limits
+  almost_zero <- 0.000000001
 
   # Create data frame with either 1 or 0 probability for a class for all targets
   # This is done for all classes
-  all_or_nothing_probabilities <- plyr::ldply(1:num_classes, function(cl){
-    zero_probs <- rep(0.000000001 / num_classes, num_classes)
-    zero_probs_df <- do.call(data.frame, as.list(zero_probs))
-    colnames(zero_probs_df) <- classes
-    zero_probs_df %>%
-      dplyr::slice(rep(1:dplyr::n(), each = num_targets)) %>%
-      dplyr::mutate_at(dplyr::vars(classes[[cl]]), ~(1-0.000000001))
-  }) %>%
-    nest_rowwise() %>%
+  all_or_nothing_probabilities <-
+    plyr::ldply(1:num_classes, function(cl) {
+      zero_probs <- rep(almost_zero / num_classes, num_classes)
+      zero_probs_df <- do.call(data.frame, as.list(zero_probs))
+      colnames(zero_probs_df) <- classes
+      zero_probs_df %>%
+        dplyr::slice(rep(1:dplyr::n(), each = num_targets)) %>%
+        dplyr::mutate_at(dplyr::vars(classes[[cl]]), ~ (1 - almost_zero))
+    }) %>%
     split(f = factor(rep(1:num_classes, each = num_targets)))
 
   # Evaluate the probability tibbles
 
   # Evaluate random predictions
-  evaluations_random <- plyr::llply(1:reps, .parallel = parallel_, function(evaluation){
+  evaluations_random <- plyr::ldply(1:reps, .parallel = parallel_, function(evaluation){
+    probabilities <- random_probabilities[[evaluation]]
+    test_data <- dplyr::bind_cols(test_data,
+                                  probabilities)
 
-    test_data[["prediction"]] <- random_probabilities[[evaluation]]
-
-    # This will be changed to evaluation repetition later on
-    test_data[["fold_column"]] <- evaluation
-
-    results <- internal_evaluate(
-      test_data,
+    evals <- run_evaluate(
+      data = test_data,
+      target_col = dependent_col,
+      prediction_cols = colnames(probabilities),
       type = "multinomial",
-      predictions_col = "prediction",
-      targets_col = dependent_col,
-      fold_info_cols = list(
-        rel_fold = "rel_fold",
-        abs_fold = "abs_fold",
-        fold_column = "fold_column"
-      ),
-      # models=NULL,
-      model_specifics = model_specifics,
-      include_fold_columns = FALSE,
-      na.rm = "both")
+      id_col = NULL,
+      id_method = "mean",
+      metrics = list(),
+      include_predictions = TRUE,
+      include_fold_columns = FALSE, # We're not providing any fold info so won't make sense
+      na.rm = "both"
+    )
 
-    results
+    evals %>%
+      tibble::add_column("Repetition" = evaluation,
+                         .before = names(evals)[[1]])
 
-
-  })
-
-  # Evaluate all or nothing predictions
-  evaluations_all_or_nothing <- plyr::llply(1:num_classes, .parallel = parallel_, function(cl_ind){
-
-    test_data[["prediction"]] <- all_or_nothing_probabilities[[cl_ind]]
-
-    # This will be changed to class later on
-    test_data[["fold_column"]] <- cl_ind
-
-    results <- internal_evaluate(
-      test_data,
-      type = "multinomial",
-      predictions_col = "prediction",
-      targets_col = dependent_col,
-      fold_info_cols = list(
-        rel_fold = "rel_fold",
-        abs_fold = "abs_fold",
-        fold_column = "fold_column"
-      ),
-      # models=NULL,
-      model_specifics = model_specifics,
-      include_fold_columns = FALSE)
-
-    results
-
-  })
-
-  # Extract evaluations
-
-  evaluations_random_results <- evaluations_random %c% "Results"
-  evaluations_random_class_level_results <- evaluations_random %c% "Class Level Results"
-  evaluations_all_or_nothing_results <- evaluations_all_or_nothing %c% "Results"
-  evaluations_all_or_nothing_class_level_results <- evaluations_all_or_nothing %c% "Class Level Results"
-
-  evaluations_random_results <- evaluations_random_results %>%
-    dplyr::bind_rows(.id = "Repetition") %>%
+  }) %>%
+    dplyr::as_tibble() %>%
     dplyr::mutate(
       Family = "multinomial",
       Dependent = dependent_col
+    ) %>% print()
+
+  # Evaluate all or nothing predictions
+  evaluations_all_or_nothing <- plyr::ldply(1:num_classes, .parallel = parallel_, function(cl_ind){
+
+    probabilities <- all_or_nothing_probabilities[[cl_ind]]
+    test_data <- dplyr::bind_cols(test_data,
+                                  probabilities)
+
+    evals <- run_evaluate(
+      data = test_data,
+      target_col = dependent_col,
+      prediction_cols = colnames(probabilities),
+      type = "multinomial",
+      id_col = NULL,
+      id_method = "mean",
+      metrics = list(),
+      include_predictions = TRUE,
+      include_fold_columns = FALSE # We're not providing any fold info so won't make sense
     )
+
+    evals %>%
+      tibble::add_column("Class" = classes[[cl_ind]],
+                         .before = names(evals)[[1]])
+
+  }) %>%
+    dplyr::as_tibble()
+
+  # Extract evaluations
+
+  evaluations_random_results <- evaluations_random %>%
+    dplyr::select(-dplyr::one_of("Class Level Results"))
+  evaluations_random_class_level_results <- evaluations_random[["Class Level Results"]] # TODO Should this be with na.rm FALSE or TRUE??
+  evaluations_all_or_nothing_results <- evaluations_all_or_nothing %>%
+    dplyr::select(-dplyr::one_of("Class Level Results"))
+  evaluations_all_or_nothing_class_level_results <- evaluations_all_or_nothing[["Class Level Results"]]
 
   # Subset the version with and without na.rm = TRUE
   evaluations_random_results_NAs_removed <- evaluations_random_results %>%
@@ -140,11 +122,10 @@ create_multinomial_baseline_evaluations <- function(test_data,
     dplyr::select(-.data$NAs_removed)
   evaluations_random_results_NAs_kept <- evaluations_random_results %>%
     dplyr::filter(!.data$NAs_removed) %>%
-    dplyr::select(-.data$NAs_removed) %>%
-    dplyr::mutate(Repetition = as.numeric(.data$Repetition))
+    dplyr::select(-.data$NAs_removed)
 
   evaluations_random_class_level_results <- evaluations_random_class_level_results %>%
-    dplyr::bind_rows(.id = "Repetition") %>%
+    dplyr::bind_rows(.id = "Repetition") %>%   # TODO Should this be with na.rm FALSE or TRUE??
     dplyr::mutate(
       Family = "binomial", # Note, the one-vs-all evals are binomial
       Dependent = dependent_col,
@@ -306,14 +287,14 @@ all_or_nothing_evaluations <- function(test_data, targets_col, current_class, re
   model_specifics <- list(
     model_formula = "",
     family = "multinomial",
-    REML = FALSE,
+    REML = NULL,
     link = NULL,
     positive = 2,
     cutoff = 0.5,
     model_verbose = FALSE,
     caller = "baseline()"
   ) %>%
-    basics_update_model_specifics()
+    update_model_specifics()
 
   # This will be changed to evaluation repetition later on
   test_data[["fold_column"]] <- reps + 1 # TODO is this necessary?
@@ -342,7 +323,7 @@ all_or_nothing_evaluations <- function(test_data, targets_col, current_class, re
   test_data[["fold_column"]] <- reps + 2
 
   evaluations_all_1 <- internal_evaluate(
-    test_data,
+    data = test_data,
     type = "binomial",
     predictions_col = local_tmp_predicted_probability_all_1_var,
     targets_col = local_tmp_target_var,

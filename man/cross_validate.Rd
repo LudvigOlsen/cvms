@@ -77,6 +77,8 @@ cross_validate(data, formulas, fold_cols = ".folds",
 
 \item{verbose}{Whether to message process information
 like the number of model instances to fit and which model function was applied. (Logical)}
+
+\item{link, models, model_verbose}{Deprecated.}
 }
 \value{
 Tbl (tibble) with results for each model.

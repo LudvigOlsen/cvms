@@ -8,8 +8,8 @@ validate(train_data, formulas, test_data = NULL,
   partitions_col = ".partitions", family = "gaussian",
   control = NULL, REML = FALSE, cutoff = 0.5, positive = 2,
   metrics = list(), err_nc = FALSE, rm_nc = FALSE,
-  parallel = FALSE, verbose = FALSE, link = NULL, models = NULL,
-  model_verbose = NULL)
+  parallel = FALSE, verbose = FALSE, link = deprecated(),
+  models = deprecated(), model_verbose = deprecated())
 }
 \arguments{
 \item{train_data}{Data Frame.
@@ -86,6 +86,8 @@ validate(train_data, formulas, test_data = NULL,
 
 \item{verbose}{Whether to message process information
 like the number of model instances to fit and which model function was applied. (Logical)}
+
+\item{link, models, model_verbose}{Deprecated.}
 }
 \value{
 Tbl (tibble) with the results and model objects.

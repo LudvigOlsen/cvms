@@ -24,6 +24,7 @@
 #'
 #'  Remember to register a parallel backend first.
 #'  E.g. with \code{doParallel::registerDoParallel}.
+#' @param link,models,model_verbose Deprecated.
 #' @inherit cross_validate details
 #' @return Tbl (tibble) with the results and model objects.
 #'

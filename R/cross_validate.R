@@ -69,6 +69,7 @@
 #'
 #'  Remember to register a parallel backend first.
 #'  E.g. with \code{doParallel::registerDoParallel}.
+#' @param link,models,model_verbose Deprecated.
 #' @details
 #'
 #'  Packages used:

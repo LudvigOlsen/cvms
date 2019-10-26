@@ -4,11 +4,12 @@
 \alias{validate}
 \title{Validate regression models on a test set}
 \usage{
-validate(train_data, models, test_data = NULL,
-  partitions_col = ".partitions", family = "gaussian", link = NULL,
+validate(train_data, formulas, test_data = NULL,
+  partitions_col = ".partitions", family = "gaussian",
   control = NULL, REML = FALSE, cutoff = 0.5, positive = 2,
   metrics = list(), err_nc = FALSE, rm_nc = FALSE,
-  parallel = FALSE, model_verbose = FALSE)
+  parallel = FALSE, verbose = FALSE, link = NULL, models = NULL,
+  model_verbose = NULL)
 }
 \arguments{
 \item{train_data}{Data Frame.
@@ -17,7 +18,7 @@ validate(train_data, models, test_data = NULL,
  \code{\link[groupdata2:partition]{groupdata2::partition()}}.
  See \code{partitions_col}.}
 
-\item{models}{Model formulas as strings. (Character)
+\item{formulas}{Model formulas as strings. (Character)
 
  E.g. \code{c("y~x", "y~z")}.
 
@@ -37,19 +38,6 @@ validate(train_data, models, test_data = NULL,
 \item{family}{Name of family. (Character)
 
  Currently supports \code{"gaussian"} and \code{"binomial"}.}
-
-\item{link}{Link function. (Character)
-
- E.g. \code{link = "log"} with \code{family = "gaussian"} will
- use \code{family = gaussian(link = "log")}.
-
- See \code{\link[stats:family]{stats::family}} for available link functions.
-
- \subsection{Default link functions}{
-
- Gaussian: \code{'identity'}.
-
- Binomial: \code{'logit'}.}}
 
 \item{control}{Construct control structures for mixed model fitting
  (i.e. \code{\link[lme4]{lmer}} and \code{\link[lme4]{glmer}}).
@@ -96,7 +84,8 @@ validate(train_data, models, test_data = NULL,
  Remember to register a parallel backend first.
  E.g. with \code{doParallel::registerDoParallel}.}
 
-\item{model_verbose}{Message name of used model function on each iteration. (Logical)}
+\item{verbose}{Whether to message process information
+like the number of model instances to fit and which model function was applied. (Logical)}
 }
 \value{
 Tbl (tibble) with the results and model objects.
@@ -118,8 +107,6 @@ Tbl (tibble) with the results and model objects.
  Specified \strong{family}.
 
  Nested \strong{model} objects.
-
- Specified \strong{link} function.
 
  Name of \strong{dependent} variable.
 
@@ -239,32 +226,23 @@ data_partitioned <- partition(data,
                               p = 0.7,
                               cat_col = 'diagnosis',
                               id_col = 'participant',
-                              list_out=FALSE) \%>\%
+                              list_out = FALSE) \%>\%
     arrange(.partitions)
 
 # Validate a model
 
 # Gaussian
 validate(data_partitioned,
-         models = "score~diagnosis",
+         formulas = "score~diagnosis",
          partitions_col = '.partitions',
-         family='gaussian',
+         family = 'gaussian',
          REML = FALSE)
 
 # Binomial
 validate(data_partitioned,
-         models = "diagnosis~score",
+         formulas = "diagnosis~score",
          partitions_col = '.partitions',
-         family='binomial')
-
-# Use non-default link functions
-
-validate(data_partitioned,
-         models = "score~diagnosis",
-         partitions_col = '.partitions',
-         family = 'gaussian',
-         link = 'log',
-         REML = FALSE)
+         family = 'binomial')
 
 ## Feed separate train and test sets
 
@@ -274,7 +252,7 @@ validate(data_partitioned,
 data_partitioned <- partition(data, p = 0.7,
                               cat_col = 'diagnosis',
                               id_col = 'participant',
-                              list_out=TRUE)
+                              list_out = TRUE)
 train_data <- data_partitioned[[1]]
 test_data <- data_partitioned[[2]]
 
@@ -283,8 +261,8 @@ test_data <- data_partitioned[[2]]
 # Gaussian
 validate(train_data,
          test_data = test_data,
-         models = "score~diagnosis",
-         family='gaussian',
+         formulas = "score~diagnosis",
+         family = 'gaussian',
          REML = FALSE)
 
 }

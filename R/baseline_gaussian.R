@@ -141,7 +141,8 @@ create_gaussian_baseline_evaluations <- function(train_data,
       id_method = "mean",
       metrics = list(),
       include_predictions = TRUE,
-      include_fold_columns = FALSE # We're not providing any fold info so won't make sense
+      include_fold_columns = FALSE, # We're not providing any fold info so won't make sense
+      caller = "baseline()"
     ) %>%
       dplyr::mutate(`Training Rows` = nrow(sampled_train_set))
   }) %>%  dplyr::bind_rows() %>%

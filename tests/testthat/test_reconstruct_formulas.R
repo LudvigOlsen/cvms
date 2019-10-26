@@ -15,7 +15,7 @@ test_that("formulas without random effects are properly reconstructed from cross
   library(groupdata2)
 
   data <- fold(data, k=3, cat_col="diagnosis", id_col="participant")
-  cv_results <- cross_validate(data, models = model_formulas, family = "gaussian")
+  cv_results <- cross_validate(data, formulas = model_formulas, family = "gaussian")
   cv_results <- cv_results[order(cv_results$RMSE), ]
 
   expect_equal(reconstruct_formulas(cv_results), c("score ~ age + diagnosis", "score ~ age * diagnosis"))
@@ -39,7 +39,7 @@ test_that("formulas with random effects are properly reconstructed from cross_va
   library(groupdata2)
 
   data <- fold(data, k=2, cat_col="diagnosis", id_col="participant")
-  suppressWarnings(suppressMessages({cv_results <- cross_validate(data, models = model_formulas, family = "gaussian")}))
+  suppressWarnings(suppressMessages({cv_results <- cross_validate(data, formulas = model_formulas, family = "gaussian")}))
   cv_results <- cv_results[order(cv_results$RMSE), ]
   cv_results$Random
 

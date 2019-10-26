@@ -86,7 +86,8 @@ create_binomial_baseline_evaluations <- function(test_data,
       positive = positive,
       metrics = list(),
       include_predictions = TRUE,
-      include_fold_columns = FALSE # We're not providing any fold info so won't make sense
+      include_fold_columns = FALSE, # We're not providing any fold info so won't make sense
+      caller = "baseline()"
     )
   }) %>% dplyr::bind_rows() %>% # Works with nested tibbles (ldply doesn't seem to)
     dplyr::mutate(

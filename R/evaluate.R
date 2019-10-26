@@ -410,8 +410,8 @@ evaluate <- function(data,
 
   run_evaluate(
     data = data,
-    target_col=target_col,
-    prediction_cols=prediction_cols,
+    target_col = target_col,
+    prediction_cols = prediction_cols,
     type = type,
     id_col = id_col,
     id_method = id_method,
@@ -421,7 +421,8 @@ evaluate <- function(data,
     positive = positive,
     metrics = metrics,
     include_predictions = include_predictions,
-    parallel = parallel
+    parallel = parallel,
+    caller = "evaluate()"
   )
 
 }
@@ -440,7 +441,8 @@ run_evaluate <- function(data,
                          include_predictions = TRUE,
                          include_fold_columns = TRUE,
                          parallel = FALSE,
-                         na.rm = NULL
+                         na.rm = NULL,
+                         caller = "evaluate()"
 ){
 
   # Test if type is allowed
@@ -480,7 +482,7 @@ run_evaluate <- function(data,
     preprocess_fn = NULL,
     preprocess_once = NULL,
     hparams = NULL,
-    caller = "evaluate()"
+    caller = caller
   ) %>%
     update_model_specifics()
 

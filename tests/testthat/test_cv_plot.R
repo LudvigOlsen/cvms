@@ -14,12 +14,12 @@ test_that("cv_plot() works",{
   CVbinom <- cross_validate(dat, "diagnosis~score",
                             fold_cols = '.folds',
                             family='binomial', REML = FALSE,
-                            model_verbose=FALSE)
+                            verbose=FALSE)
 
   CVgauss <- cross_validate(dat, "score~diagnosis",
                             fold_cols = '.folds',
                             family='gaussian', REML = FALSE,
-                            model_verbose=FALSE)
+                            verbose=FALSE)
 
   # If anyone can suggest a good way to test ggplot objects, feel free!
   expect_is(cv_plot(CVbinom, type = 'ROC'), 'ggplot')

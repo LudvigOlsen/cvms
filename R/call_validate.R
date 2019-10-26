@@ -3,7 +3,6 @@ call_validate <- function(train_data,
                           formulas,
                           partitions_col,
                           family,
-                          link,
                           control,
                           REML,
                           cutoff,
@@ -12,16 +11,15 @@ call_validate <- function(train_data,
                           err_nc,
                           rm_nc,
                           parallel,
-                          model_verbose){
-
+                          verbose){
 
   # Set default arguments
-  link <- default_link(link, family = family)
+  link <- default_link(NULL, family = family)
   control <- default_control(control, family = family, link = link)
   if(!is_logical_scalar_not_na(REML))
     stop("cross_validate(): 'REML' must be either TRUE or FALSE.")
-  if(!is_logical_scalar_not_na(model_verbose))
-    stop("cross_validate(): 'model_verbose' must be either TRUE or FALSE.")
+  if(!is_logical_scalar_not_na(verbose))
+    stop("cross_validate(): 'verbose' must be either TRUE or FALSE.")
   if (!is.character(family))
     stop("cross_validate(): 'family' must have type character.")
 
@@ -33,8 +31,9 @@ call_validate <- function(train_data,
     model_fn = basics_model_fn,
     predict_fn = basics_predict_fn,
     hyperparameters = basics_hparams(
-      REML = REML, link = link, control = control,
-      model_verbose = model_verbose, family = family),
+      REML = REML, control = control,
+      model_verbose = verbose,
+      family = family),
     family = family,
     cutoff = cutoff,
     positive = positive,
@@ -45,12 +44,10 @@ call_validate <- function(train_data,
     err_nc = err_nc,
     rm_nc = FALSE, # Done below instead
     return_models = TRUE,
-    verbose = model_verbose,
+    verbose = verbose,
     parallel_ = parallel,
     caller = "validate()"
-  ) %>%
-    tibble::add_column("Link" = link,
-                       .after = "Family")
+  )
 
   # If asked to remove non-converged models from results
   if (isTRUE(rm_nc)){
@@ -72,7 +69,6 @@ call_cross_validate <- function(data,
                                 formulas,
                                 fold_cols,
                                 family,
-                                link,
                                 control,
                                 REML,
                                 cutoff,
@@ -80,15 +76,15 @@ call_cross_validate <- function(data,
                                 metrics,
                                 rm_nc,
                                 parallel,
-                                model_verbose){
+                                verbose){
 
   # Set default arguments
-  link <- default_link(link, family = family)
+  link <- default_link(NULL, family = family)
   control <- default_control(control, family = family, link = link)
   if(!is_logical_scalar_not_na(REML))
     stop("cross_validate(): 'REML' must be either TRUE or FALSE.")
-  if(!is_logical_scalar_not_na(model_verbose))
-    stop("cross_validate(): 'model_verbose' must be either TRUE or FALSE.")
+  if(!is_logical_scalar_not_na(verbose))
+    stop("cross_validate(): 'verbose' must be either TRUE or FALSE.")
   if (!is.character(family))
     stop("cross_validate(): 'family' must have type character.")
 
@@ -98,8 +94,9 @@ call_cross_validate <- function(data,
     model_fn = basics_model_fn,
     predict_fn = basics_predict_fn,
     hyperparameters = basics_hparams(
-      REML = REML, link = link, control = control,
-      model_verbose = model_verbose, family = family),
+      REML = REML, control = control,
+      model_verbose = verbose,
+      family = family),
     family = family,
     fold_cols = fold_cols,
     cutoff = cutoff,
@@ -108,12 +105,10 @@ call_cross_validate <- function(data,
     info_cols = list("Singular Fit Messages" = TRUE,
                      "HParams" = FALSE),
     rm_nc = FALSE, # Done below instead
-    verbose = model_verbose,
+    verbose = verbose,
     parallel_ = parallel,
     caller = "cross_validate()"
-    ) %>%
-    tibble::add_column("Link" = link,
-                       .after = "Family")
+    )
 
   # If asked to remove non-converged models from results
   if (isTRUE(rm_nc)){
@@ -130,10 +125,9 @@ call_cross_validate <- function(data,
 
 ### Basics, shared between validate and cross_validate
 
-basics_hparams <- function(REML, link, control, model_verbose, family){
+basics_hparams <- function(REML, control, model_verbose, family){
   list(
   "REML" = REML,
-  "link" = link,
   "control" = list(control),
   "model_verbose" = model_verbose,
   "family" = family,
@@ -144,7 +138,6 @@ basics_model_fn <- function(train_data, formula, hyperparameters){
 
   # Extract hyperparameters
   REML <- hyperparameters[["REML"]]
-  link <- hyperparameters[["link"]]
   control <- hyperparameters[["control"]][[1]]
   model_verbose <- hyperparameters[["model_verbose"]]
   family_ <- hyperparameters[["family"]]
@@ -164,66 +157,26 @@ basics_model_fn <- function(train_data, formula, hyperparameters){
   # Checks the model_type and fits the model on the train_data
   if (model_type == 'lm'){
 
-    # Fit the model using lm() or glm() depending on link function
-    # Return this model to model_temp
-    if (is.null(link) || link == 'identity'){
+    message_if_model_verbose(model_verbose,
+                             msg = "Used lm() to fit the model.'")
 
-      message_if_model_verbose(model_verbose,
-                               msg = "Used lm() to fit the model.'")
-
-      return(lm(formula = formula, data = train_data))
-
-    } else {
-
-      message_if_model_verbose(model_verbose,
-                               msg = "Used glm() to fit the model.'")
-
-      return(glm(formula = formula, data = train_data,
-                 family = gaussian(link = link)))
-    }
+    return(lm(formula = formula, data = train_data))
 
   } else if (model_type == 'lmer'){
 
-    # Fit the model using lmer() or glmer() depending on link function
-    if (is.null(link) || link == 'identity'){
+    message_if_model_verbose(model_verbose,
+                             msg = "Used lme4::lmer() to fit the model.'")
 
-      message_if_model_verbose(model_verbose,
-                               msg = "Used lme4::lmer() to fit the model.'")
-
-      return(lme4::lmer(formula = formula, data = train_data,
-                        REML = REML, control = control))
-
-    } else {
-
-      message_if_model_verbose(model_verbose,
-                               msg = "Used lme4::glmer() to fit the model.'")
-
-      return(lme4::glmer(formula = formula, data = train_data,
-                         family = gaussian(link = link),
-                         control = control))
-    }
+    return(lme4::lmer(formula = formula, data = train_data,
+                      REML = REML, control = control))
 
   } else if (model_type == 'glm'){
 
-    # Fit the model using glm()
+    message_if_model_verbose(model_verbose,
+                             msg = "Used glm() to fit the model.'")
 
-    if (!is.null(link)){
-
-      message_if_model_verbose(model_verbose,
-                               msg = "Used glm() to fit the model.'")
-
-      return(glm(formula = formula, data = train_data,
-                 family = binomial(link = link)))
-
-    } else {
-
-      message_if_model_verbose(model_verbose,
-                               msg = "Used glm() to fit the model.'")
-
-      return(glm(formula = formula, data = train_data,
-                 family = family_))
-
-    }
+    return(glm(formula = formula, data = train_data,
+               family = family_))
 
   } else if (model_type == 'glmer'){
 
@@ -237,7 +190,7 @@ basics_model_fn <- function(train_data, formula, hyperparameters){
     return(lme4::glmer(
       formula = formula,
       data = train_data,
-      family = binomial(link = link),
+      family = family_,
       control = control
     ))
 
@@ -248,12 +201,23 @@ basics_predict_fn <- function(test_data, model, formula, hyperparameters){
 
   # Extract family from hyperparameters
   family_ <- hyperparameters[["family"]]
+  contains_random_effects <- rand_effects(formula)
+  link <- hyperparameters[["link"]]
 
   # Note: The same predict_fn can be used for (g)lm and (g)lmer
+  # so this conditional selection is technically unnecessary
   if (family_ == "gaussian"){
-    p_fn <- example_predict_functions("lm")
+    if (!isTRUE(contains_random_effects)){
+      p_fn <- example_predict_functions("lm")
+    } else {
+      p_fn <- example_predict_functions("lmer")
+    }
   } else if (family_ == "binomial"){
-    p_fn <- example_predict_functions("glm_binomial")
+    if (!isTRUE(contains_random_effects)){
+      p_fn <- example_predict_functions("glm_binomial")
+    } else {
+      p_fn <- example_predict_functions("glmer_binomial")
+    }
   }
 
   p_fn(test_data = test_data, model = model,

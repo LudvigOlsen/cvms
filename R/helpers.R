@@ -33,16 +33,16 @@ default_control <- function(control, family, link){
 ## For validate_single and cross_validate_single
 
 # Extract y_column from model
-extract_y <- function(model){
-  splits <- unlist(strsplit(model, '\\s*~'))
+extract_y <- function(formula){
+  splits <- unlist(strsplit(formula, '\\s*~'))
   if (length(splits)<2) return(NULL)
   return(splits[1])
 }
 
 # Check if there are random effects
 # returns TRUE or FALSE
-rand_effects <- function(model){
-  any(grepl('\\(\\d', model, perl=TRUE))
+rand_effects <- function(formula){
+  any(grepl('\\(\\d', formula, perl=TRUE))
 }
 
 count_convergence_warnings <- function(convergences){ # "Yes" or "No"

@@ -18,7 +18,7 @@
 #'
 #'  Must include grouping factor for identifying folds
 #'   - as made with \code{\link[groupdata2:fold]{groupdata2::fold()}}.
-#' @param models Model formulas as strings. (Character)
+#' @param formulas Model formulas as strings. (Character)
 #'
 #'  E.g. \code{c("y~x", "y~z")}.
 #'
@@ -31,18 +31,6 @@
 #' @param family Name of family. (Character)
 #'
 #'  Currently supports \code{"gaussian"} and \code{"binomial"}.
-#' @param link Link function. (Character)
-#'
-#'  E.g. \code{link = "log"} with \code{family = "gaussian"} will
-#'  use \code{family = gaussian(link = "log")}.
-#'
-#'  See \code{\link[stats:family]{stats::family}} for available link functions.
-#'
-#'  \subsection{Default link functions}{
-#'
-#'  Gaussian: \code{'identity'}.
-#'
-#'  Binomial: \code{'logit'}.}
 #' @param control Construct control structures for mixed model fitting
 #'  (i.e. \code{\link[lme4]{lmer}} and \code{\link[lme4]{glmer}}).
 #'  See \code{\link[lme4:lmerControl]{lme4::lmerControl}} and
@@ -75,7 +63,8 @@
 #'
 #'   N.B. Currently, disabled metrics are still computed.
 #' @param rm_nc Remove non-converged models from output. (Logical)
-#' @param model_verbose Message name of used model function on each iteration. (Logical)
+#' @param verbose Whether to message process information
+#'  like the number of model instances to fit and which model function was applied. (Logical)
 #' @param parallel Whether to cross-validate the list of models in parallel. (Logical)
 #'
 #'  Remember to register a parallel backend first.
@@ -136,8 +125,6 @@
 #'  Nested tibble with the \strong{warnings and messages} caught for each model.
 #'
 #'  Specified \strong{family}.
-#'
-#'  Specified \strong{link} function.
 #'
 #'  Name of \strong{dependent} variable.
 #'
@@ -235,31 +222,23 @@
 #' \donttest{
 #' # Gaussian
 #' cross_validate(data,
-#'                models = "score~diagnosis",
+#'                formulas = "score~diagnosis",
 #'                family = 'gaussian',
 #'                REML = FALSE)
 #'
 #' # Binomial
 #' cross_validate(data,
-#'                models = "diagnosis~score",
+#'                formulas = "diagnosis~score",
 #'                family='binomial')
 #'
 #' # Cross-validate multiple models
 #'
-#' models <- c("score~diagnosis+(1|session)",
-#'             "score~age+(1|session)")
+#' formulas <- c("score~diagnosis+(1|session)",
+#'               "score~age+(1|session)")
 #'
 #' cross_validate(data,
-#'                models = models,
+#'                formulas = formulas,
 #'                family = 'gaussian',
-#'                REML = FALSE)
-#'
-#' # Use non-default link functions
-#'
-#' cross_validate(data,
-#'                models = "score~diagnosis",
-#'                family = 'gaussian',
-#'                link = 'log',
 #'                REML = FALSE)
 #' }
 #' # Use parallelization
@@ -271,44 +250,63 @@
 #' # registerDoParallel(4)
 #'
 #' # Create list of 20 model formulas
-#' models <- rep(c("score~diagnosis+(1|session)",
-#'                 "score~age+(1|session)"), 10)
+#' formulas <- rep(c("score~diagnosis+(1|session)",
+#'                   "score~age+(1|session)"), 10)
 #'
 #' # Cross-validate a list of 20 model formulas in parallel
 #' system.time({cross_validate(data,
-#'                             models = models,
+#'                             formulas = formulas,
 #'                             family = 'gaussian',
 #'                             parallel = TRUE)})
 #'
 #' # Cross-validate a list of 20 model formulas sequentially
 #' system.time({cross_validate(data,
-#'                             models = models,
+#'                             formulas = formulas,
 #'                             family = 'gaussian',
 #'                             parallel = FALSE)})
 #' }
 #'
 #' @importFrom stats binomial gaussian glm lm
 #' @importFrom rlang .data
-cross_validate <- function(data, models, fold_cols = '.folds', family = 'gaussian',
-                           link = NULL, control = NULL, REML = FALSE,
+#' @importFrom lifecycle deprecated deprecate_warn deprecate_stop
+cross_validate <- function(data, formulas, fold_cols = '.folds', family = 'gaussian',
+                           control = NULL, REML = FALSE,
                            cutoff = 0.5, positive = 2,
                            metrics = list(), rm_nc = FALSE,
-                           parallel = FALSE, model_verbose = FALSE){
+                           parallel = FALSE, verbose = FALSE,
+                           link = deprecated(),
+                           models = deprecated(),
+                           model_verbose = deprecated()){
 
-    call_cross_validate(
-      data = data,
-      formulas = models,
-      fold_cols = fold_cols,
-      family = family,
-      link = link,
-      control = control,
-      REML = REML,
-      cutoff = cutoff,
-      positive = positive,
-      metrics = metrics,
-      rm_nc = rm_nc,
-      parallel = parallel,
-      model_verbose = model_verbose)
+  if (!rlang::is_missing(link))
+    deprecate_stop("1.0.0", "cvms::cross_validate(link = )")
+
+  if (!rlang::is_missing(models)){
+    deprecate_warn("1.0.0", "cvms::cross_validate(models = )",
+                   "cvms::cross_validate(formulas = )")
+    formulas <- models
+  }
+
+  if (!rlang::is_missing(model_verbose)){
+    deprecate_warn("1.0.0", "cvms::cross_validate(model_verbose = )",
+                   "cvms::cross_validate(verbose = )")
+    verbose <- model_verbose
+  }
+
+  call_cross_validate(
+    data = data,
+    formulas = formulas,
+    fold_cols = fold_cols,
+    family = family,
+    control = control,
+    REML = REML,
+    cutoff = cutoff,
+    positive = positive,
+    metrics = metrics,
+    rm_nc = rm_nc,
+    parallel = parallel,
+    verbose = verbose
+  )
 
 }
 

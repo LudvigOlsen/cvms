@@ -4,10 +4,11 @@
 \alias{cross_validate}
 \title{Cross-validate regression models for model selection}
 \usage{
-cross_validate(data, models, fold_cols = ".folds", family = "gaussian",
-  link = NULL, control = NULL, REML = FALSE, cutoff = 0.5,
+cross_validate(data, formulas, fold_cols = ".folds",
+  family = "gaussian", control = NULL, REML = FALSE, cutoff = 0.5,
   positive = 2, metrics = list(), rm_nc = FALSE, parallel = FALSE,
-  model_verbose = FALSE)
+  verbose = FALSE, link = deprecated(), models = deprecated(),
+  model_verbose = deprecated())
 }
 \arguments{
 \item{data}{Data frame.
@@ -15,7 +16,7 @@ cross_validate(data, models, fold_cols = ".folds", family = "gaussian",
  Must include grouping factor for identifying folds
   - as made with \code{\link[groupdata2:fold]{groupdata2::fold()}}.}
 
-\item{models}{Model formulas as strings. (Character)
+\item{formulas}{Model formulas as strings. (Character)
 
  E.g. \code{c("y~x", "y~z")}.
 
@@ -30,19 +31,6 @@ cross_validate(data, models, fold_cols = ".folds", family = "gaussian",
 \item{family}{Name of family. (Character)
 
  Currently supports \code{"gaussian"} and \code{"binomial"}.}
-
-\item{link}{Link function. (Character)
-
- E.g. \code{link = "log"} with \code{family = "gaussian"} will
- use \code{family = gaussian(link = "log")}.
-
- See \code{\link[stats:family]{stats::family}} for available link functions.
-
- \subsection{Default link functions}{
-
- Gaussian: \code{'identity'}.
-
- Binomial: \code{'logit'}.}}
 
 \item{control}{Construct control structures for mixed model fitting
  (i.e. \code{\link[lme4]{lmer}} and \code{\link[lme4]{glmer}}).
@@ -87,7 +75,8 @@ cross_validate(data, models, fold_cols = ".folds", family = "gaussian",
  Remember to register a parallel backend first.
  E.g. with \code{doParallel::registerDoParallel}.}
 
-\item{model_verbose}{Message name of used model function on each iteration. (Logical)}
+\item{verbose}{Whether to message process information
+like the number of model instances to fit and which model function was applied. (Logical)}
 }
 \value{
 Tbl (tibble) with results for each model.
@@ -109,8 +98,6 @@ Tbl (tibble) with results for each model.
  Nested tibble with the \strong{warnings and messages} caught for each model.
 
  Specified \strong{family}.
-
- Specified \strong{link} function.
 
  Name of \strong{dependent} variable.
 
@@ -256,31 +243,23 @@ data <- fold(data, k = 4,
 \donttest{
 # Gaussian
 cross_validate(data,
-               models = "score~diagnosis",
+               formulas = "score~diagnosis",
                family = 'gaussian',
                REML = FALSE)
 
 # Binomial
 cross_validate(data,
-               models = "diagnosis~score",
+               formulas = "diagnosis~score",
                family='binomial')
 
 # Cross-validate multiple models
 
-models <- c("score~diagnosis+(1|session)",
-            "score~age+(1|session)")
+formulas <- c("score~diagnosis+(1|session)",
+              "score~age+(1|session)")
 
 cross_validate(data,
-               models = models,
+               formulas = formulas,
                family = 'gaussian',
-               REML = FALSE)
-
-# Use non-default link functions
-
-cross_validate(data,
-               models = "score~diagnosis",
-               family = 'gaussian',
-               link = 'log',
                REML = FALSE)
 }
 # Use parallelization
@@ -292,18 +271,18 @@ cross_validate(data,
 # registerDoParallel(4)
 
 # Create list of 20 model formulas
-models <- rep(c("score~diagnosis+(1|session)",
-                "score~age+(1|session)"), 10)
+formulas <- rep(c("score~diagnosis+(1|session)",
+                  "score~age+(1|session)"), 10)
 
 # Cross-validate a list of 20 model formulas in parallel
 system.time({cross_validate(data,
-                            models = models,
+                            formulas = formulas,
                             family = 'gaussian',
                             parallel = TRUE)})
 
 # Cross-validate a list of 20 model formulas sequentially
 system.time({cross_validate(data,
-                            models = models,
+                            formulas = formulas,
                             family = 'gaussian',
                             parallel = FALSE)})
 }

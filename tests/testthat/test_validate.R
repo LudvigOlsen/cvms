@@ -22,12 +22,12 @@ test_that("binomial model work with validate()", {
 
   Vbinom <- validate(
     train_data = dat,
-    models = "diagnosis~score",
+    formulas = "diagnosis~score",
     test_data = NULL,
     partitions_col = ".partitions",
     family = 'binomial',
     REML = FALSE,
-    model_verbose = FALSE,
+    verbose = FALSE,
     positive = 1
   )
   expect_equal(Vbinom$AUC, 0.833, tolerance = 1e-3)
@@ -53,15 +53,33 @@ test_that("binomial model work with validate()", {
 
   # Enter sub tibbles
   expect_is(Vbinom$Predictions[[1]], "tbl_df")
-  expect_is(Vbinom$ROC[[1]], "tbl_df")
+  expect_is(Vbinom$ROC[[1]], "roc")
   expect_equal(
     colnames(Vbinom$Predictions[[1]]),
     c("Target","Prediction","Predicted Class")
   )
-  expect_equal(colnames(Vbinom$ROC[[1]]),
-               c("Sensitivities", "Specificities"))
   expect_equal(nrow(Vbinom$Predictions[[1]]), 9)
-  expect_equal(nrow(Vbinom$ROC[[1]]), 10)
+
+  expect_equal(names(Vbinom$ROC[[1]]),
+               c("percent", "sensitivities", "specificities", "thresholds",
+                 "direction", "cases", "controls", "fun.sesp", "auc", "call",
+                 "original.predictor", "original.response", "predictor", "response",
+                 "levels"))
+
+  expect_equal(Vbinom$ROC[[1]]$direction,
+               "<")
+  expect_equal(Vbinom$ROC[[1]]$thresholds,
+               c(-Inf, 0.224265219974917, 0.426633976157444, 0.540457154631025,
+                 0.648987905756078, 0.725216199854617, 0.75965587124329, 0.827264825824089,
+                 0.882622758109746, Inf))
+  expect_equal(Vbinom$ROC[[1]]$sensitivities,
+               c(1, 1, 1, 0.833333333333333, 0.666666666666667, 0.5, 0.5, 0.333333333333333,
+                 0.166666666666667, 0))
+  expect_equal(Vbinom$ROC[[1]]$specificities,
+               c(0, 0.333333333333333, 0.666666666666667, 0.666666666666667,
+                 0.666666666666667, 0.666666666666667, 1, 1, 1, 1))
+  expect_equal(as.numeric(Vbinom$ROC[[1]]$auc),
+               0.833333333333333)
 
 })
 
@@ -81,14 +99,14 @@ test_that("binomial model with metrics list work with validate()", {
 
   Vbinom <- validate(
     train_data = dat,
-    models = "diagnosis~score",
+    formulas = "diagnosis~score",
     test_data = NULL,
     partitions_col = ".partitions",
     family = 'binomial',
     REML = FALSE,
     metrics = list("Accuracy" = TRUE,
                    "Lower CI" = FALSE),
-    model_verbose = FALSE,
+    verbose = FALSE,
     positive = 1
   )
 
@@ -102,7 +120,7 @@ test_that("binomial model with metrics list work with validate()", {
                  "MCC", "Detection Rate", "Detection Prevalence", "Prevalence",
                  "Predictions", "ROC", "Confusion Matrix", "Coefficients", "Convergence Warnings",
                  "Singular Fit Messages", "Other Warnings", "Warnings and Messages",
-                 "Family", "Link", "Model", "Dependent", "Fixed")
+                 "Family", "Model", "Dependent", "Fixed")
                )
 })
 
@@ -127,12 +145,12 @@ test_that("binomial mixed model work with validate()", {
   Vbinom <-
     validate(
       train_data = dat,
-      models = "diagnosis~score + (1|session)",
+      formulas = "diagnosis~score + (1|session)",
       test_data = NULL,
       partitions_col = ".partitions",
       family = 'binomial',
       REML = FALSE,
-      model_verbose = FALSE,
+      verbose = FALSE,
       positive=1
     )
 
@@ -161,15 +179,35 @@ test_that("binomial mixed model work with validate()", {
 
   # Enter sub tibbles
   expect_is(Vbinom$Predictions[[1]], "tbl_df")
-  expect_is(Vbinom$ROC[[1]], "tbl_df")
+  expect_is(Vbinom$ROC[[1]], "roc")
   expect_equal(
     colnames(Vbinom$Predictions[[1]]),
     c("Target","Prediction","Predicted Class")
   )
-  expect_equal(colnames(Vbinom$ROC[[1]]),
-               c("Sensitivities", "Specificities"))
   expect_equal(nrow(Vbinom$Predictions[[1]]), 12)
-  expect_equal(nrow(Vbinom$ROC[[1]]), 12)
+
+  expect_equal(names(Vbinom$ROC[[1]]),
+               c("percent", "sensitivities", "specificities", "thresholds",
+                 "direction", "cases", "controls", "fun.sesp", "auc", "call",
+                 "original.predictor", "original.response", "predictor", "response",
+                 "levels"))
+
+  expect_equal(Vbinom$ROC[[1]]$direction,
+               "<")
+  expect_equal(Vbinom$ROC[[1]]$thresholds,
+               c(-Inf, 5.26142227038134e-11, 2.9859423313853e-08, 1.13438806464474e-07,
+                 3.80808821466656e-07, 0.349577298215006, 0.833659423893193, 0.983056382137284,
+                 0.998594470992238, 0.999619864886364, 0.99999933823515, Inf))
+  expect_equal(Vbinom$ROC[[1]]$sensitivities,
+               c(1, 1, 1, 0.833333333333333, 0.833333333333333, 0.666666666666667,
+                 0.666666666666667, 0.666666666666667, 0.5, 0.333333333333333,
+                 0.166666666666667, 0))
+  expect_equal(Vbinom$ROC[[1]]$specificities,
+               c(0, 0.166666666666667, 0.333333333333333, 0.333333333333333,
+                 0.5, 0.5, 0.666666666666667, 0.833333333333333, 0.833333333333333,
+                 1, 1, 1))
+  expect_equal(as.numeric(Vbinom$ROC[[1]]$auc),
+               0.763888888888889)
 
 })
 
@@ -191,11 +229,11 @@ test_that("binomial model work with test_data in validate()", {
   Vbinom <-
     validate(
       train_data = dat[[1]],
-      models = "diagnosis~score",
+      formulas = "diagnosis~score",
       test_data = dat[[2]],
       family = 'binomial',
       REML = FALSE,
-      model_verbose = FALSE,
+      verbose = FALSE,
       positive=1
     )
 
@@ -222,15 +260,25 @@ test_that("binomial model work with test_data in validate()", {
 
   # Enter sub tibbles
   expect_is(Vbinom$Predictions[[1]], "tbl_df")
-  expect_is(Vbinom$ROC[[1]], "tbl_df")
+  expect_is(Vbinom$ROC[[1]], "roc")
   expect_equal(
     colnames(Vbinom$Predictions[[1]]),
     c("Target","Prediction","Predicted Class")
   )
-  expect_equal(colnames(Vbinom$ROC[[1]]),
-               c("Sensitivities", "Specificities"))
   expect_equal(nrow(Vbinom$Predictions[[1]]), 9)
-  expect_equal(nrow(Vbinom$ROC[[1]]), 9)
+
+  expect_equal(length(Vbinom$ROC), 1)
+  expect_equal(length(Vbinom$ROC[[1]]$sensitivities), 9)
+  expect_equal(Vbinom$ROC[[1]]$sensitivities,
+               c(1, 1, 1, 0.833333333333333, 0.833333333333333, 0.5, 0.333333333333333,
+                 0.166666666666667, 0))
+  expect_equal(Vbinom$ROC[[1]]$specificities,
+               c(0, 0.333333333333333, 0.666666666666667, 0.666666666666667,
+                 1, 1, 1, 1, 1))
+  expect_equal(Vbinom$ROC[[1]]$thresholds,
+               c(-Inf, 0.305300064306695, 0.520681562211535,
+                 0.618752367349243, 0.679450474597164, 0.734648936984941,
+                 0.802650625978057, 0.848041386220925, Inf))
 
 })
 
@@ -254,13 +302,12 @@ test_that("gaussian model with validate()", {
   Vgauss <-
     validate(
       train_data = dat,
-      models = "score~diagnosis+(1|session)",
+      formulas = "score~diagnosis+(1|session)",
       test_data = NULL,
       partitions_col = ".partitions",
-      link = NULL,
       family = 'gaussian',
       REML = FALSE,
-      model_verbose = FALSE
+      verbose = FALSE
     )
 
   expect_equal(Vgauss$RMSE, 7.75, tolerance = 1e-3)
@@ -294,22 +341,21 @@ test_that("gaussian model with metrics list works with validate()", {
   Vgauss <-
     validate(
       train_data = dat,
-      models = "score~diagnosis+(1|session)",
+      formulas = "score~diagnosis+(1|session)",
       test_data = NULL,
       partitions_col = ".partitions",
-      link = NULL,
       family = 'gaussian',
       REML = FALSE,
       metrics = list("RMSE" = FALSE,
                      "r2m" = TRUE),
-      model_verbose = FALSE
+      verbose = FALSE
     )
 
   expect_equal(Vgauss$r2m, 0.305, tolerance = 1e-3)
   expect_equal(colnames(Vgauss),
                c("MAE", "r2m", "r2c", "AIC", "AICc", "BIC", "Predictions", "Coefficients",
                  "Convergence Warnings", "Singular Fit Messages", "Other Warnings",
-                 "Warnings and Messages", "Family", "Link", "Model", "Dependent",
+                 "Warnings and Messages", "Family", "Model", "Dependent",
                  "Fixed", "Random"))
 })
 
@@ -332,7 +378,7 @@ test_that("Right glm model used in validate()", {
   validated <-
     validate(
       train_data = dat,
-      models = "diagnosis~score",
+      formulas = "diagnosis~score",
       partitions_col = '.partitions',
       family = 'binomial',
       positive=1
@@ -369,7 +415,7 @@ test_that("Right glmer model used in validate()", {
   validated <-
     validate(
       train_data = dat,
-      models = "diagnosis~score+(1|session)",
+      formulas = "diagnosis~score+(1|session)",
       partitions_col = '.partitions',
       family = 'binomial',
       positive=1
@@ -412,18 +458,18 @@ test_that("model using dot in formula ( y ~ . ) works with validate()",{
 
   # Expect no warnings
   # https://stackoverflow.com/questions/22003306/is-there-something-in-testthat-like-expect-no-warnings
-  expect_warning(validate(dat, models = c("diagnosis~."),
-                          family='binomial',
+  expect_warning(validate(dat, formulas = c("diagnosis~."),
+                          family = 'binomial',
                           partitions_col = '.partitions',
-                          REML = FALSE, model_verbose=FALSE),
+                          REML = FALSE, verbose = FALSE),
                  regexp = NA)
 
   # Expect no warnings
   # https://stackoverflow.com/questions/22003306/is-there-something-in-testthat-like-expect-no-warnings
-  expect_warning(validate(dat, models = c("score~."),
-                                partitions_col = '.partitions',
-                                family='gaussian',
-                                REML = FALSE, model_verbose=FALSE),
+  expect_warning(validate(dat, formulas = c("score~."),
+                          partitions_col = '.partitions',
+                          family = 'gaussian',
+                          REML = FALSE, verbose = FALSE),
                  regexp = NA)
 
 
@@ -447,7 +493,7 @@ test_that("Singular fit messages counted in validate()", {
   expect_message(validated <-
     validate(
       train_data = dat,
-      models = "diagnosis~score+(1|session)+(1|participant)",
+      formulas = "diagnosis~score+(1|session)+(1|participant)",
       partitions_col = '.partitions',
       family = 'binomial'
     ), "Boundary \\(Singular\\) Fit Message")
@@ -463,20 +509,20 @@ test_that("the expected errors are thrown by validate()",{
   set_seed_for_R_compatibility(1)
   dat <- participant.scores
 
-  expect_error(validate(dat, dat, models = c("diagnosis~score","diagnosis~age"),
-                       family = 'fdsfs',
-                       REML = FALSE, model_verbose=FALSE,
-                       positive=1),
+  expect_error(validate(dat, dat, formulas = c("diagnosis~score", "diagnosis~age"),
+                        family = 'fdsfs',
+                        REML = FALSE, verbose = FALSE,
+                        positive = 1),
                "Only 'gaussian', 'binomial', and 'multinomial' evaluation types are currently allowed.", fixed=TRUE)
 
   expect_error(suppressWarnings(
     validate(
       train_data = dat,
       test_data = dplyr::sample_frac(dat, 0.2),
-      models = c("diagnosis~score*age+(1|session)"),
+      formulas = c("diagnosis~score*age+(1|session)"),
       family = 'gaussian',
       REML = FALSE,
-      model_verbose = FALSE,
+      verbose = FALSE,
       control = lme4::lmerControl(optimizer = "bobyqa",
                                   optCtrl = list(maxfun = 10)),
       err_nc = TRUE
@@ -486,57 +532,58 @@ test_that("the expected errors are thrown by validate()",{
 
 })
 
-test_that("model_verbose reports the correct model functions in validate()",{
+test_that("verbose reports the correct model functions in validate()",{
 
 
   # Load data and fold it
   set_seed_for_R_compatibility(1)
-  dat <- groupdata2::partition(participant.scores, p = .75,
-                          cat_col = 'diagnosis',
-                          id_col = 'participant')
+  dat <- groupdata2::partition(participant.scores,
+                               p = .75,
+                               cat_col = 'diagnosis',
+                               id_col = 'participant')
 
   # Test the list of verbose messages
   # glm()
   expect_equal(evaluate_promise(validate(dat[[1]], dat[[2]],
-                                         models = c("diagnosis~score"),
+                                         formulas = c("diagnosis~score"),
                                          family = 'binomial',
-                                         REML = FALSE, model_verbose=TRUE,
-                                         positive=1))$messages,
+                                         REML = FALSE, verbose = TRUE,
+                                         positive = 1))$messages,
                c(
                  "Will validate 1 models.\n",
-                 "\n--------------------------\nvalidate(): Message:\nIn model:\ndiagnosis~score\nFor fold column:\n.partitions\nIn fold:\n2\nHyperparameters:\nREML : FALSE, link : logit, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), calc.derivs = TRUE, use.last.params = FALSE, restart_edge = FALSE, boundary.tol = 1e-05, tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(\n    check.conv.grad = list(action = \"warning\", tol = 0.001, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : binomial, is_special_fn : TRUE\ncross_validate(): Used glm() to fit the model.'\n"
+                 "\n--------------------------\nvalidate(): Message:\nIn model:\ndiagnosis~score\nFor fold column:\n.partitions\nIn fold:\n2\nHyperparameters:\nREML : FALSE, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), calc.derivs = TRUE, use.last.params = FALSE, restart_edge = FALSE, boundary.tol = 1e-05, tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(\n    check.conv.grad = list(action = \"warning\", tol = 0.001, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : binomial, is_special_fn : TRUE\ncross_validate(): Used glm() to fit the model.'\n"
                ))
 
   # glmer
   expect_equal(evaluate_promise(validate(dat[[1]], dat[[2]],
-                                         models = c("diagnosis~score+(1|session)"),
+                                         formulas = c("diagnosis~score+(1|session)"),
                                          family = 'binomial',
-                                         REML = FALSE, model_verbose = TRUE,
+                                         REML = FALSE, verbose = TRUE,
                                          positive = 1))$messages,
                c(
                  "Will validate 1 models.\n",
-                 "\n--------------------------\nvalidate(): Message:\nIn model:\ndiagnosis~score+(1|session)\nFor fold column:\n.partitions\nIn fold:\n2\nHyperparameters:\nREML : FALSE, link : logit, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), calc.derivs = TRUE, use.last.params = FALSE, restart_edge = FALSE, boundary.tol = 1e-05, tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(\n    check.conv.grad = list(action = \"warning\", tol = 0.001, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : binomial, is_special_fn : TRUE\ncross_validate(): Used lme4::glmer() to fit the model.'\n"
+                 "\n--------------------------\nvalidate(): Message:\nIn model:\ndiagnosis~score+(1|session)\nFor fold column:\n.partitions\nIn fold:\n2\nHyperparameters:\nREML : FALSE, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), calc.derivs = TRUE, use.last.params = FALSE, restart_edge = FALSE, boundary.tol = 1e-05, tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(\n    check.conv.grad = list(action = \"warning\", tol = 0.001, relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : binomial, is_special_fn : TRUE\ncross_validate(): Used lme4::glmer() to fit the model.'\n"
                ))
 
   # lm
   expect_equal(evaluate_promise(validate(dat[[1]], dat[[2]],
-                                         models = c("score~diagnosis"),
-                                         family='gaussian',
-                                         REML = FALSE, model_verbose=TRUE,
-                                         positive=1))$messages,
+                                         formulas = c("score~diagnosis"),
+                                         family = 'gaussian',
+                                         REML = FALSE, verbose = TRUE,
+                                         positive = 1))$messages,
                c(
                  "Will validate 1 models.\n",
-                 "\n--------------------------\nvalidate(): Message:\nIn model:\nscore~diagnosis\nFor fold column:\n.partitions\nIn fold:\n2\nHyperparameters:\nREML : FALSE, link : identity, control : list(list(optimizer = \"nloptwrap\", restart_edge = TRUE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, relTol = NULL), check.conv.singular = list(action = \"message\", \n    tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : gaussian, is_special_fn : TRUE\ncross_validate(): Used lm() to fit the model.'\n"
+                 "\n--------------------------\nvalidate(): Message:\nIn model:\nscore~diagnosis\nFor fold column:\n.partitions\nIn fold:\n2\nHyperparameters:\nREML : FALSE, control : list(list(optimizer = \"nloptwrap\", restart_edge = TRUE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, relTol = NULL), check.conv.singular = list(action = \"message\", \n    tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : gaussian, is_special_fn : TRUE\ncross_validate(): Used lm() to fit the model.'\n"
                ))
 
   # lmer
   expect_equal(evaluate_promise(validate(dat[[1]], dat[[2]],
-                                         models = c("score~diagnosis+(1|session)"),
+                                         formulas = c("score~diagnosis+(1|session)"),
                                          family = 'gaussian',
-                                         REML = FALSE, model_verbose = TRUE,
+                                         REML = FALSE, verbose = TRUE,
                                          positive = 1))$messages,
                c("Will validate 1 models.\n",
-                 "\n--------------------------\nvalidate(): Message:\nIn model:\nscore~diagnosis+(1|session)\nFor fold column:\n.partitions\nIn fold:\n2\nHyperparameters:\nREML : FALSE, link : identity, control : list(list(optimizer = \"nloptwrap\", restart_edge = TRUE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, relTol = NULL), check.conv.singular = list(action = \"message\", \n    tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : gaussian, is_special_fn : TRUE\ncross_validate(): Used lme4::lmer() to fit the model.'\n"
+                 "\n--------------------------\nvalidate(): Message:\nIn model:\nscore~diagnosis+(1|session)\nFor fold column:\n.partitions\nIn fold:\n2\nHyperparameters:\nREML : FALSE, control : list(list(optimizer = \"nloptwrap\", restart_edge = TRUE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, relTol = NULL), check.conv.singular = list(action = \"message\", \n    tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : gaussian, is_special_fn : TRUE\ncross_validate(): Used lme4::lmer() to fit the model.'\n"
                ))
 
 

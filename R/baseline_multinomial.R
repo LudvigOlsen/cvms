@@ -68,7 +68,8 @@ create_multinomial_baseline_evaluations <- function(test_data,
       metrics = list(),
       include_predictions = TRUE,
       include_fold_columns = FALSE, # We're not providing any fold info so won't make sense
-      na.rm = "both"
+      na.rm = "both",
+      caller = "baseline()"
     )
 
     evals %>%
@@ -99,7 +100,8 @@ create_multinomial_baseline_evaluations <- function(test_data,
       apply_softmax = FALSE,
       metrics = list(),
       include_predictions = TRUE,
-      include_fold_columns = FALSE # We're not providing any fold info so won't make sense
+      include_fold_columns = FALSE, # We're not providing any fold info so won't make sense
+      caller = "baseline()"
     )
 
     evals %>%
@@ -311,7 +313,8 @@ all_or_nothing_evaluations <- function(test_data, targets_col, current_class, re
       apply_softmax = FALSE,
       metrics = metrics,
       include_predictions = FALSE,
-      include_fold_columns = FALSE # We're not providing any fold info so won't make sense
+      include_fold_columns = FALSE, # We're not providing any fold info so won't make sense
+      caller = "baseline()"
     ) %>%
       dplyr::mutate(Measure = paste0("All_", i - 1))
 

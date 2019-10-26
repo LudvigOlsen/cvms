@@ -34,7 +34,8 @@
 #'  }
 example_predict_functions <- function(name){
 
-  if (name %in% c("lm", "lmer",
+  if (name %in% c("lm",
+                  "lmer",
                   "glm_binomial",
                   "glmer_binomial",
                   "randomForest_gaussian")){
@@ -44,7 +45,7 @@ example_predict_functions <- function(name){
                      type = "response",
                      allow.new.levels = TRUE)
     }
-  } else if (name == "svm_gaussian"){
+  } else if (name %in% c("svm_gaussian")){
     predict_fn <- function(test_data, model, formula, hyperparameters){
       stats::predict(object = model,
                      newdata = test_data,

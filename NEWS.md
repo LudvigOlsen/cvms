@@ -1,15 +1,33 @@
 # cvms 0.3.1.9000
 
-* Breaking change: `multinomial` `AUC` is calculated with `pROC::multiclass.roc()` instead of in the one-vs-all evaluations. This removes `AUC`, `Lower CI`, and `Upper CI` from the `Class Level Results` and removes `Lower CI` and `Upper CI` from the main output tibble. Also removes option to enable "Weighted AUC", "Weighted Lower CI", and "Weighted Upper CI".
+## Breaking changes
 
-* Breaking change: `ROC` columns now return the `ROC` objects instead of the extracted `sensitivities` and `specificities`.
+* In `cross_validate()` and `validate()`, the `models` argument is renamed to `formulas`. This is a more meaningful name that was recently introduced in `cross_validate_fn()`. For now, the `models` argument is deprecated, will be used instead of `formulas` if specified, and will throw a warning.
 
-* Breaking change: In `cross_validate_fn()`, the `predict_type` argument is removed. You now have to pass a predict function as that is safer and more transparent.
+* In `cross_validate()` and `validate()`, the `model_verbose` argument is renamed to `verbose`. This is a more meaningful name that was recently introduced in `cross_validate_fn()`. For now, the `model_verbose` argument is deprecated, will be used instead of `verbose` if specified, and will throw a warning.
 
-* Breaking change: `validate()` now returns a tibble with the model objects nested in the `Model` column. Previously, it returned a list with the results and models. This allows for easier use in `magrittr` pipelines (`%>%`).
+* In `cross_validate()` and `validate()`, the `link` argument is removed. Consider using `cross_validate_fn()` or `validate_fn()` instead, where you have full control over the prediction type fed to the evaluation.
+
+* `multinomial` `AUC` is calculated with `pROC::multiclass.roc()` instead of in the one-vs-all evaluations. This removes `AUC`, `Lower CI`, and `Upper CI` from the `Class Level Results` and removes `Lower CI` and `Upper CI` from the main output tibble. Also removes option to enable "Weighted AUC", "Weighted Lower CI", and "Weighted Upper CI".
+
+* `ROC` columns now return the `ROC` objects instead of the extracted `sensitivities` and `specificities`, both of which can be extracted from the objects.
+
+* In `cross_validate_fn()`, the `predict_type` argument is removed. You now have to pass a predict function as that is safer and more transparent.
+
+* `validate()` now returns a tibble with the model objects nested in the `Model` column. Previously, it returned a list with the results and models. This allows for easier use in `magrittr` pipelines (`%>%`).
 
 * In `evaluate()`, `apply_softmax` now defaults to `FALSE`. 
 Throws error if probabilities do not add up 1 row-wise (tolerance of 5 decimals) when `type` is `multinomial`.
+
+## Additions
+
+* `summarize_metrics()` is added. Use it summarize the numeric columns in your dataset with a set of common descriptors. Counts the `NA`s and `Inf`s. Used by `baseline()`.
+
+* `example_model_functions()` is added. Contains simple `model_fn` examples that can be used in `cross_validate_fn()` or as starting points.
+
+* `example_predict_functions()` is added. Contains simple `predict_fn` examples that can be used in `cross_validate_fn()` or as starting points.
+
+* `example_preprocess_functions()` is added. Contains simple `preprocess_fn` examples that can be used in `cross_validate_fn()` or as starting points.
 
 * Adds optional `hyperparameter` argument to `cross_validate_fn()`. 
 Pass a list of hyperparameters and every combination of these will be cross-validated. 
@@ -20,25 +38,19 @@ Pass a list of hyperparameters and every combination of these will be cross-vali
 
 * Adds `preprocess_once` argument to `cross_validate_fn()`. When preprocessing does not depend on the current formula or hyperparameters, we might as well perform it on each train/test split once, instead of for every model.
 
+* Adds Information Criteria metrics (AIC, AICc, BIC) to the `binomial` and `multinomial` output (disabled by default). 
+These are based on the fitted model objects and will only work for some types of models.
+
+## Other changes
+
+* `multinomial` evaluation results now contain the `Results` tibble with the results for each fold column. The main metrics are now averages of these fold column results. Previously, they were not aggregated by fold column first. In the unit tests, this has not altered the results, but it is a more correct approach.
+
 * Changes the required arguments in the `predict_fn` function passed to `cross_validate_fn()`.
 
 * Changes the required arguments in the `model_fn` function passed to `cross_validate_fn()`.
 
 * Warnings and messages from `preprocess_fn` are caught and added to `Warnings and Messages`. 
 Warnings are counted in `Other Warnings`.
-
-* `example_model_functions()` is added. Contains simple `model_fn` examples that can be used in `cross_validate_fn()` or as starting points.
-
-* `example_predict_functions()` is added. Contains simple `predict_fn` examples that can be used in `cross_validate_fn()` or as starting points.
-
-* `example_preprocess_functions()` is added. Contains simple `preprocess_fn` examples that can be used in `cross_validate_fn()` or as starting points.
-
-* `multinomial` evaluation results now contain the `Results` tibble with the results for each fold column. The main metrics are now averages of these fold column results. Previously, they were not aggregated by fold column first. In my tests, this has not altered the results, but it is a more correct approach.
-
-* Adds Information Criteria metrics (AIC, AICc, BIC) to the `binomial` and `multinomial` output (disabled by default). 
-These are based on the fitted model objects and may not work for some model functions.
-
-* `summarize_metrics()` is added. Use it summarize the numeric columns in your dataset with a set of common descriptors. Counts the `NA`s and `Inf`s. Used by `baseline()`.
 
 # cvms 0.3.1
 

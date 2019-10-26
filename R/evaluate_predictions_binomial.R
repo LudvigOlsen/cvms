@@ -131,7 +131,8 @@ evaluate_predictions_binomial <- function(data,
                                      metrics = metrics,
                                      include_fold_columns = include_fold_columns,
                                      include_predictions = include_predictions,
-                                     na.rm = na.rm)
+                                     na.rm = na.rm,
+                                     caller = model_specifics[["caller"]])
 
     if (!isTRUE(calculate_roc)){
       results[["ROC"]] <- NULL
@@ -257,7 +258,8 @@ binomial_eval_collect <- function(unique_fold_cols,
                                   metrics,
                                   include_fold_columns = TRUE,
                                   include_predictions = TRUE,
-                                  na.rm = FALSE){
+                                  na.rm = FALSE,
+                                  caller){
 
   if (!is.null(roc_curves_list)){
     # Unpack args
@@ -310,7 +312,11 @@ binomial_eval_collect <- function(unique_fold_cols,
 
   if (!is.null(roc_curves_list)){
     # Add ROC curve info
-    results[["ROC"]] <- list(roc_curves)
+    if (caller %in% c("evaluate()", "validate()")){
+      results[["ROC"]] <- roc_curves
+    } else {
+      results[["ROC"]] <- list(roc_curves)
+    }
   } else {
     results[["ROC"]] <- NA
   }

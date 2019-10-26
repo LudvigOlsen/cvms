@@ -78,6 +78,10 @@ a preprocess function and a list or data frame with hyperparameter values to tes
 
 ## Important News {#news}
 
+Note: Check NEWS.md for the full list of changes.
+
+* In `cross_validate()` and `validate()`, the `models` argument is renamed to `formulas` and the `model_verbose` argument is renamed to `verbose`. Further, the `link` argument is hard-deprecated and will throw an error if used.
+
 * `Multinomial` AUC is now calculated with `pROC::multiclass.roc`.
 
 * `cross_validate_fn()` and `validate_fn()` now take the `preprocess_fn`, `preprocess_once`, and `hyperparameters` arguments. The `predict_type` argument has been removed.

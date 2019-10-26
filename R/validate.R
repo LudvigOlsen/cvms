@@ -45,8 +45,6 @@
 #'
 #'  Nested \strong{model} objects.
 #'
-#'  Specified \strong{link} function.
-#'
 #'  Name of \strong{dependent} variable.
 #'
 #'  Names of \strong{fixed} effects.
@@ -125,32 +123,23 @@
 #'                               p = 0.7,
 #'                               cat_col = 'diagnosis',
 #'                               id_col = 'participant',
-#'                               list_out=FALSE) %>%
+#'                               list_out = FALSE) %>%
 #'     arrange(.partitions)
 #'
 #' # Validate a model
 #'
 #' # Gaussian
 #' validate(data_partitioned,
-#'          models = "score~diagnosis",
+#'          formulas = "score~diagnosis",
 #'          partitions_col = '.partitions',
-#'          family='gaussian',
+#'          family = 'gaussian',
 #'          REML = FALSE)
 #'
 #' # Binomial
 #' validate(data_partitioned,
-#'          models = "diagnosis~score",
+#'          formulas = "diagnosis~score",
 #'          partitions_col = '.partitions',
-#'          family='binomial')
-#'
-#' # Use non-default link functions
-#'
-#' validate(data_partitioned,
-#'          models = "score~diagnosis",
-#'          partitions_col = '.partitions',
-#'          family = 'gaussian',
-#'          link = 'log',
-#'          REML = FALSE)
+#'          family = 'binomial')
 #'
 #' ## Feed separate train and test sets
 #'
@@ -160,7 +149,7 @@
 #' data_partitioned <- partition(data, p = 0.7,
 #'                               cat_col = 'diagnosis',
 #'                               id_col = 'participant',
-#'                               list_out=TRUE)
+#'                               list_out = TRUE)
 #' train_data <- data_partitioned[[1]]
 #' test_data <- data_partitioned[[2]]
 #'
@@ -169,16 +158,15 @@
 #' # Gaussian
 #' validate(train_data,
 #'          test_data = test_data,
-#'          models = "score~diagnosis",
-#'          family='gaussian',
+#'          formulas = "score~diagnosis",
+#'          family = 'gaussian',
 #'          REML = FALSE)
 #'
 validate <- function(train_data,
-                     models,
+                     formulas,
                      test_data = NULL,
                      partitions_col = '.partitions',
                      family = 'gaussian',
-                     link = NULL,
                      control = NULL,
                      REML = FALSE,
                      cutoff = 0.5,
@@ -187,14 +175,32 @@ validate <- function(train_data,
                      err_nc = FALSE,
                      rm_nc = FALSE,
                      parallel = FALSE,
-                     model_verbose = FALSE) {
+                     verbose = FALSE,
+                     link = deprecated(),
+                     models = deprecated(),
+                     model_verbose = deprecated()){
+
+  if (!rlang::is_missing(link))
+    deprecate_stop("1.0.0", "cvms::validate(link = )")
+
+  if (!rlang::is_missing(models)){
+    deprecate_warn("1.0.0", "cvms::validate(models = )",
+                   "cvms::validate(formulas = )")
+    formulas <- models
+  }
+
+  if (!rlang::is_missing(model_verbose)){
+    deprecate_warn("1.0.0", "cvms::validate(model_verbose = )",
+                   "cvms::validate(verbose = )")
+    verbose <- model_verbose
+  }
+
   call_validate(
     train_data = train_data,
     test_data = test_data,
-    formulas = models,
+    formulas = formulas,
     partitions_col = partitions_col,
     family = family,
-    link = link,
     control = control,
     REML = REML,
     cutoff = cutoff,
@@ -203,7 +209,7 @@ validate <- function(train_data,
     err_nc = err_nc,
     rm_nc = rm_nc,
     parallel = parallel,
-    model_verbose = model_verbose
+    verbose = verbose
   )
 
 }

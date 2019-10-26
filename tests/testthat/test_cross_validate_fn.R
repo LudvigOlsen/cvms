@@ -56,11 +56,11 @@ test_that("binomial glm model works with cross_validate_fn()",{
 
   # Enter sub tibbles
   expect_is(CVbinomlist$Predictions[[1]], "tbl_df")
-  expect_is(CVbinomlist$ROC[[1]], "tbl_df")
-  expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
-  expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Fold Column","Sensitivities","Specificities"))
+  expect_is(CVbinomlist$ROC[[1]]$.folds, "roc")
+  expect_equal(colnames(CVbinomlist$Predictions[[1]]),
+               c("Fold Column","Fold","Target","Prediction","Predicted Class"))
+  expect_equal(sum(CVbinomlist$ROC[[1]]$.folds$sensitivities), 17.7222222222222)
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
-  expect_equal(nrow(CVbinomlist$ROC[[1]]),29)
   expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
                               Function = character(0), Type = character(0), Message = character(0)),
@@ -416,11 +416,26 @@ test_that("binomial glm model with preprocess_fn works with cross_validate_fn()"
 
   # Enter sub tibbles
   expect_is(CVbinomlist_prep_once$Predictions[[1]], "tbl_df")
-  expect_is(CVbinomlist_prep_once$ROC[[1]], "tbl_df")
-  expect_equal(colnames(CVbinomlist_prep_once$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
-  expect_equal(colnames(CVbinomlist_prep_once$ROC[[1]]), c("Fold Column","Sensitivities","Specificities"))
-  expect_equal(nrow(CVbinomlist_prep_once$Predictions[[1]]),90)
-  expect_equal(nrow(CVbinomlist_prep_once$ROC[[1]]),86)
+  expect_is(CVbinomlist_prep_once$ROC[[1]]$.folds_1, "roc")
+  expect_equal(length(CVbinomlist_prep_once$ROC), 2)
+  expect_equal(length(CVbinomlist_prep_once$ROC[[1]]), 3)
+  expect_equal(length(CVbinomlist_prep_once$ROC[[2]]), 3)
+  expect_equal(names(CVbinomlist_prep_once$ROC[[1]]),
+               c(".folds_1", ".folds_2", ".folds_3"))
+  expect_equal(as.numeric(CVbinomlist_prep_once$ROC[[2]]$.folds_3$auc),
+               0.125)
+  expect_equal(CVbinomlist_prep_once$ROC[[2]]$.folds_3$direction,
+               "<")
+  expect_equal(CVbinomlist_prep_once$ROC[[2]]$.folds_3$sensitivities,
+               c(1, 0.833333333333333, 0.666666666666667, 0.5, 0.333333333333333,
+                 0.166666666666667, 0.166666666666667, 0.166666666666667, 0.166666666666667,
+                 0, 0))
+  expect_equal(CVbinomlist_prep_once$ROC[[2]]$.folds_3$specificities,
+               c(0, 0, 0, 0, 0, 0, 0.25, 0.5, 0.75, 0.75, 1))
+
+  expect_equal(colnames(CVbinomlist_prep_once$Predictions[[1]]),
+               c("Fold Column", "Fold", "Target", "Prediction", "Predicted Class"))
+  expect_equal(nrow(CVbinomlist_prep_once$Predictions[[1]]), 90)
   expect_equal(CVbinomlist_prep_once$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
                               Function = character(0), Type = character(0), Message = character(0)),
@@ -486,11 +501,30 @@ test_that("binomial svm models from e1071 work with cross_validate_fn()",{
 
   # Enter sub tibbles
   expect_is(CVbinomlist$Predictions[[1]], "tbl_df")
-  expect_is(CVbinomlist$ROC[[1]], "tbl_df")
-  expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
-  expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Fold Column","Sensitivities","Specificities"))
-  expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
-  expect_equal(nrow(CVbinomlist$ROC[[1]]),29)
+  expect_is(CVbinomlist$ROC[[1]]$.folds, "roc")
+  expect_equal(colnames(CVbinomlist$Predictions[[1]]),
+               c("Fold Column", "Fold", "Target", "Prediction", "Predicted Class"))
+  expect_equal(names(CVbinomlist$ROC[[1]]$.folds),
+               c("percent", "sensitivities", "specificities", "thresholds",
+                 "direction", "cases", "controls", "fun.sesp", "auc", "call",
+                 "original.predictor", "original.response", "predictor", "response",
+                 "levels"))
+  expect_equal(CVbinomlist$ROC[[1]]$.folds$sensitivities,
+               c(1, 1, 1, 1, 1, 1, 0.944444444444444, 0.888888888888889, 0.888888888888889,
+                 0.888888888888889, 0.833333333333333, 0.833333333333333, 0.777777777777778,
+                 0.666666666666667, 0.611111111111111, 0.555555555555556, 0.5,
+                 0.444444444444444, 0.388888888888889, 0.388888888888889, 0.388888888888889,
+                 0.333333333333333, 0.277777777777778, 0.222222222222222, 0.222222222222222,
+                 0.166666666666667, 0.111111111111111, 0.0555555555555556, 0))
+  expect_equal(CVbinomlist$ROC[[1]]$.folds$specificities,
+               c(0, 0.0833333333333333, 0.166666666666667, 0.25, 0.333333333333333,
+                 0.416666666666667, 0.416666666666667, 0.416666666666667, 0.5,
+                 0.583333333333333, 0.583333333333333, 0.666666666666667, 0.666666666666667,
+                 0.666666666666667, 0.666666666666667, 0.666666666666667, 0.666666666666667,
+                 0.666666666666667, 0.666666666666667, 0.75, 0.833333333333333,
+                 0.833333333333333, 0.833333333333333, 0.833333333333333, 0.916666666666667,
+                 1, 1, 1, 1))
+  expect_equal(nrow(CVbinomlist$Predictions[[1]]), 30)
   expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
                               Function = character(0), Type = character(0), Message = character(0)),
@@ -775,11 +809,10 @@ test_that("binomial naiveBayes models from e1071 work with cross_validate_fn()",
 
   # Enter sub tibbles
   expect_is(CVbinomlist$Predictions[[1]], "tbl_df")
-  expect_is(CVbinomlist$ROC[[1]], "tbl_df")
+  expect_is(CVbinomlist$ROC[[1]]$.folds, "roc")
+  expect_equal(length(CVbinomlist$ROC), 2)
   expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
-  expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Fold Column","Sensitivities","Specificities"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
-  expect_equal(nrow(CVbinomlist$ROC[[1]]),29)
   expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
                               Function = character(0), Type = character(0), Message = character(0)),
@@ -845,11 +878,37 @@ test_that("binomial nnet models work with cross_validate_fn()",{
 
   # Enter sub tibbles
   expect_is(CVbinomlist$Predictions[[1]], "tbl_df")
-  expect_is(CVbinomlist$ROC[[1]], "tbl_df")
+  expect_is(CVbinomlist$ROC[[1]]$.folds, "roc")
+  expect_equal(length(CVbinomlist$ROC), 2)
   expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
-  expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Fold Column","Sensitivities","Specificities"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
-  expect_equal(nrow(CVbinomlist$ROC[[1]]),28)
+  expect_equal(CVbinomlist$ROC[[1]]$.folds$direction, "<")
+  expect_equal(as.numeric(CVbinomlist$ROC[[1]]$.folds$auc), 0.6111, tolerance = 1e-3)
+  expect_equal(CVbinomlist$ROC[[1]]$.folds$thresholds,
+               c(-Inf, 8.48402440378548e-07, 9.16581800969544e-05, 0.000182091056054732,
+                 0.000182363624985208, 0.000182649770463709, 0.0877260312252673,
+                 0.299068543231709, 0.425185694307719, 0.479254602781408, 0.532506217663556,
+                 0.539323658984721, 0.546642253280643, 0.564646428023567, 0.58403993602655,
+                 0.59060162523757, 0.594430000088956, 0.613459083405036, 0.63368526859679,
+                 0.63661340313648, 0.646432602162526, 0.66064998851649, 0.66782162508638,
+                 0.674808670406118, 0.840014561587637, 0.999952406924702, 0.999985574696044,
+                 Inf))
+  expect_equal(CVbinomlist$ROC[[1]]$.folds$sensitivities,
+               c(1, 1, 1, 1, 0.944444444444444, 0.888888888888889, 0.888888888888889,
+                 0.888888888888889, 0.833333333333333, 0.777777777777778, 0.722222222222222,
+                 0.666666666666667, 0.611111111111111, 0.611111111111111, 0.555555555555556,
+                 0.5, 0.444444444444444, 0.444444444444444, 0.388888888888889,
+                 0.388888888888889, 0.333333333333333, 0.277777777777778, 0.277777777777778,
+                 0.277777777777778, 0.277777777777778, 0.277777777777778, 0.222222222222222,
+                 0))
+  expect_equal(CVbinomlist$ROC[[1]]$.folds$specificities,
+               c(0, 0.0833333333333333, 0.166666666666667, 0.25, 0.25, 0.25,
+                 0.333333333333333, 0.416666666666667, 0.416666666666667, 0.416666666666667,
+                 0.416666666666667, 0.416666666666667, 0.416666666666667, 0.5,
+                 0.5, 0.5, 0.5, 0.583333333333333, 0.583333333333333, 0.666666666666667,
+                 0.666666666666667, 0.666666666666667, 0.75, 0.833333333333333,
+                 0.916666666666667, 1, 1, 1))
+
   expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
                               Function = character(0), Type = character(0), Message = character(0)),
@@ -966,9 +1025,7 @@ test_that("multinomial nnet models work with cross_validate_fn()",{
                                       type = 'multinomial',
                                       metrics = "all")
 
-  expect_equal(CVmultinomlist$AUC, c(0.338293650793651, 0.38640873015873), tolerance=1e-3)
-  expect_equal(CVmultinomlist$`Lower CI`, c(0.174368857734496, 0.229532941913765), tolerance=1e-3)
-  expect_equal(CVmultinomlist$`Upper CI`, c(0.502218443852806, 0.543284518403696), tolerance=1e-3)
+  expect_equal(CVmultinomlist$AUC, c(0.338771310993533, 0.382495590828924), tolerance=1e-3)
   expect_equal(CVmultinomlist$Kappa, c(-0.234940592679204, -0.0826903354960317), tolerance=1e-3)
   expect_equal(CVmultinomlist$Sensitivity, c(0.177248677248677, 0.283068783068783), tolerance=1e-3)
   expect_equal(CVmultinomlist$Specificity, c(0.585648148148148, 0.642361111111111), tolerance=1e-3)
@@ -997,8 +1054,7 @@ test_that("multinomial nnet models work with cross_validate_fn()",{
                  "Accuracy", "Weighted Accuracy", "F1", "Weighted F1", "Sensitivity",
                  "Weighted Sensitivity", "Specificity", "Weighted Specificity",
                  "Pos Pred Value", "Weighted Pos Pred Value", "Neg Pred Value",
-                 "Weighted Neg Pred Value", "AUC", "Weighted AUC", "Lower CI",
-                 "Weighted Lower CI", "Upper CI", "Weighted Upper CI", "Kappa",
+                 "Weighted Neg Pred Value", "AUC", "Kappa",
                  "Weighted Kappa", "MCC", "Weighted MCC", "Detection Rate", "Weighted Detection Rate",
                  "Detection Prevalence", "Weighted Detection Prevalence", "Prevalence",
                  "Weighted Prevalence", "AIC", "AICc", "BIC", "Predictions", "Confusion Matrix",
@@ -1037,18 +1093,6 @@ test_that("multinomial nnet models work with cross_validate_fn()",{
                c(0.675675675675676, 0.482758620689655, 0.588235294117647))
   expect_equal(class_level_results[[2]]$`Neg Pred Value`,
                c(0.697674418604651, 0.575757575757576, 0.666666666666667))
-  expect_equal(class_level_results[[1]]$AUC,
-               c(0.341269841269841, 0.274305555555556, 0.399305555555556))
-  expect_equal(class_level_results[[2]]$AUC,
-               c(0.259920634920635, 0.364583333333333, 0.534722222222222))
-  expect_equal(class_level_results[[1]]$`Lower CI`,
-               c(0.162964881346796, 0.128288746158909, 0.231852945697782))
-  expect_equal(class_level_results[[2]]$`Lower CI`,
-               c(0.114038680733862, 0.204985144784346, 0.369575000223086))
-  expect_equal(class_level_results[[1]]$`Upper CI`,
-               c(0.519574801192887, 0.420322364952202, 0.566758165413329))
-  expect_equal(class_level_results[[2]]$`Upper CI`,
-               c(0.405802589107408, 0.524181521882321, 0.699869444221358))
   expect_equal(class_level_results[[1]]$Kappa,
                c(-0.166328600405679, -0.381909547738693, -0.156583629893238))
   expect_equal(class_level_results[[2]]$Kappa,
@@ -1091,19 +1135,63 @@ test_that("multinomial nnet models work with cross_validate_fn()",{
                c(25L, 11L, 12L, 2L, 14L, 18L, 15L, 3L, 20L, 12L, 14L, 4L, 30L,
                  6L, 13L, 1L, 19L, 13L, 14L, 4L, 16L, 16L, 8L, 10L))
 
-  # ROC
-  expect_is(class_level_results[[1]]$ROC[[1]], "tbl_df")
-  expect_equal(colnames(class_level_results[[1]]$ROC[[1]]),
-               c("Fold Column","Sensitivities","Specificities"))
-  expect_equal(nrow(class_level_results[[1]]$ROC[[1]]),51)
-
   # Predictions
   expect_is(CVmultinomlist$Predictions[[1]], "tbl_df")
   expect_equal(colnames(CVmultinomlist$Predictions[[1]]),
                c("Fold Column","Fold","Target","Prediction","Predicted Class"))
   expect_equal(nrow(CVmultinomlist$Predictions[[1]]),50)
 
-
+  # ROC in Results
+  expect_equal(colnames(CVmultinomlist$Results[[1]]),
+               c("Fold Column", "Overall Accuracy", "Balanced Accuracy", "Weighted Balanced Accuracy",
+                 "Accuracy", "Weighted Accuracy", "F1", "Weighted F1", "Sensitivity",
+                 "Weighted Sensitivity", "Specificity", "Weighted Specificity",
+                 "Pos Pred Value", "Weighted Pos Pred Value", "Neg Pred Value",
+                 "Weighted Neg Pred Value", "AUC", "Kappa", "Weighted Kappa",
+                 "MCC", "Weighted MCC", "Detection Rate", "Weighted Detection Rate",
+                 "Detection Prevalence", "Weighted Detection Prevalence", "Prevalence",
+                 "Weighted Prevalence", "AIC", "AICc", "BIC", "ROC"))
+  expect_equal(as.numeric(CVmultinomlist$Results[[1]]$ROC[[1]][[1]]$auc),
+               0.338771310993533)
+  expect_equal(CVmultinomlist$Results[[1]]$ROC[[1]][[1]]$rocs$`class_1/class_2`[[1]]$sensitivities,
+               c(1, 0.944444444444444, 0.888888888888889, 0.833333333333333,
+                 0.833333333333333, 0.777777777777778, 0.722222222222222, 0.666666666666667,
+                 0.666666666666667, 0.611111111111111, 0.555555555555556, 0.555555555555556,
+                 0.5, 0.5, 0.5, 0.444444444444444, 0.388888888888889, 0.388888888888889,
+                 0.388888888888889, 0.333333333333333, 0.277777777777778, 0.222222222222222,
+                 0.166666666666667, 0.166666666666667, 0.111111111111111, 0.111111111111111,
+                 0.111111111111111, 0.111111111111111, 0.0555555555555556, 0.0555555555555556,
+                 0, 0, 0))
+  expect_equal(CVmultinomlist$Results[[1]]$ROC[[1]][[1]]$rocs$`class_1/class_2`[[2]]$sensitivities,
+               c(1, 0.928571428571429, 0.857142857142857, 0.785714285714286,
+                 0.785714285714286, 0.714285714285714, 0.714285714285714, 0.642857142857143,
+                 0.642857142857143, 0.571428571428571, 0.5, 0.428571428571429,
+                 0.357142857142857, 0.357142857142857, 0.357142857142857, 0.285714285714286,
+                 0.285714285714286, 0.214285714285714, 0.214285714285714, 0.214285714285714,
+                 0.214285714285714, 0.214285714285714, 0.142857142857143, 0.142857142857143,
+                 0.142857142857143, 0.0714285714285714, 0.0714285714285714, 0.0714285714285714,
+                 0.0714285714285714, 0, 0, 0, 0))
+  expect_equal(CVmultinomlist$Results[[1]]$ROC[[1]][[1]]$rocs$`class_2/class_3`[[1]]$sensitivities,
+               c(1, 0.944444444444444, 0.888888888888889, 0.888888888888889,
+                 0.833333333333333, 0.777777777777778, 0.722222222222222, 0.666666666666667,
+                 0.666666666666667, 0.611111111111111, 0.555555555555556, 0.555555555555556,
+                 0.5, 0.444444444444444, 0.444444444444444, 0.444444444444444,
+                 0.388888888888889, 0.388888888888889, 0.388888888888889, 0.388888888888889,
+                 0.333333333333333, 0.333333333333333, 0.277777777777778, 0.277777777777778,
+                 0.222222222222222, 0.166666666666667, 0.111111111111111, 0.111111111111111,
+                 0.111111111111111, 0.111111111111111, 0.111111111111111, 0.0555555555555556,
+                 0.0555555555555556, 0, 0, 0, 0))
+  expect_equal(CVmultinomlist$Results[[1]]$ROC[[1]][[1]]$rocs$`class_2/class_3`[[2]]$sensitivities,
+               c(1, 0.944444444444444, 0.944444444444444, 0.888888888888889,
+                 0.888888888888889, 0.888888888888889, 0.833333333333333, 0.777777777777778,
+                 0.722222222222222, 0.666666666666667, 0.611111111111111, 0.555555555555556,
+                 0.555555555555556, 0.5, 0.444444444444444, 0.444444444444444,
+                 0.388888888888889, 0.388888888888889, 0.333333333333333, 0.333333333333333,
+                 0.333333333333333, 0.333333333333333, 0.277777777777778, 0.277777777777778,
+                 0.222222222222222, 0.222222222222222, 0.222222222222222, 0.222222222222222,
+                 0.222222222222222, 0.166666666666667, 0.111111111111111, 0.111111111111111,
+                 0.111111111111111, 0.111111111111111, 0.0555555555555556, 0.0555555555555556,
+                 0))
 })
 
 test_that("binomial randomForest models work with cross_validate_fn()",{
@@ -1166,11 +1254,11 @@ test_that("binomial randomForest models work with cross_validate_fn()",{
 
   # Enter sub tibbles
   expect_is(CVbinomlist$Predictions[[1]], "tbl_df")
-  expect_is(CVbinomlist$ROC[[1]], "tbl_df")
+  expect_is(CVbinomlist$ROC[[1]]$.folds, "roc")
+  expect_equal(CVbinomlist$ROC[[1]]$.folds$direction, "<")
+  expect_equal(as.numeric(CVbinomlist$ROC[[1]]$.folds$auc), 0.648148148148148)
   expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
-  expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Fold Column","Sensitivities","Specificities"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
-  expect_equal(nrow(CVbinomlist$ROC[[1]]),25)
   expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
                               Function = character(0), Type = character(0), Message = character(0)),
@@ -1223,7 +1311,7 @@ test_that("multinomial randomForest models work with cross_validate_fn()",{
   # m <- rf_model_fn(dat, as.formula("target ~ predictor_1"), NULL)
   # rf_predict_fn(dat, m, NULL, NULL)
 
-  CVmultinomlist <- cross_validate_fn(dat,
+  expect_error(cross_validate_fn(dat,
                                       model_fn = rf_model_fn,
                                       predict_fn = rf_predict_fn,
                                       formulas = c("target ~ predictor_1 + predictor_2 + predictor_3",
@@ -1235,6 +1323,21 @@ test_that("multinomial randomForest models work with cross_validate_fn()",{
                                         "F1" = FALSE,
                                         "Weighted Accuracy" = TRUE,
                                         "Weighted AUC" = TRUE
+                                      )),
+                 "'metrics_list' contained unknown metric names: Weighted AUC.",
+                 fixed = TRUE)
+
+  CVmultinomlist <- cross_validate_fn(dat,
+                                      model_fn = rf_model_fn,
+                                      predict_fn = rf_predict_fn,
+                                      formulas = c("target ~ predictor_1 + predictor_2 + predictor_3",
+                                                   "target ~ predictor_1"),
+                                      fold_cols = '.folds',
+                                      type = 'multinomial',
+                                      metrics = list(
+                                        "Accuracy" = TRUE,
+                                        "F1" = FALSE,
+                                        "Weighted Accuracy" = TRUE
                                       ))
 
   numeric_between_na <- function(x, min_ = -0.000000001, max_ = 1.000000001){
@@ -1247,8 +1350,6 @@ test_that("multinomial randomForest models work with cross_validate_fn()",{
   # As it's not actually that relevant that this specific model function
   # gives the same results
   expect_true(numeric_between_na(CVmultinomlist$AUC))
-  expect_true(numeric_between_na(CVmultinomlist$`Lower CI`))
-  expect_true(numeric_between_na(CVmultinomlist$`Upper CI`))
   expect_true(numeric_between_na(CVmultinomlist$Kappa, min_ = -1))
   expect_true(numeric_between_na(CVmultinomlist$Sensitivity))
   expect_true(numeric_between_na(CVmultinomlist$Specificity))
@@ -1269,7 +1370,8 @@ test_that("multinomial randomForest models work with cross_validate_fn()",{
 
   # Enter sub tibbles
   expect_is(CVmultinomlist$Predictions[[1]], "tbl_df")
-  expect_equal(colnames(CVmultinomlist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
+  expect_equal(colnames(CVmultinomlist$Predictions[[1]]),
+               c("Fold Column","Fold","Target","Prediction","Predicted Class"))
   expect_equal(nrow(CVmultinomlist$Predictions[[1]]),50)
   expect_equal(CVmultinomlist$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
@@ -1280,32 +1382,28 @@ test_that("multinomial randomForest models work with cross_validate_fn()",{
   # Skip on windows. Appveyour works but winbuilder gives different results
   skip_on_os(os = "windows")
 
-  expect_equal(CVmultinomlist$AUC, c(0.381200396825397, 0.353174603174603), tolerance=1e-3)
-  expect_equal(CVmultinomlist$`Lower CI`, c(0.209410722413614, 0.192183832991387), tolerance=1e-3)
-  expect_equal(CVmultinomlist$`Upper CI`, c(0.552990071237179, 0.514165373357819), tolerance=1e-3)
-  expect_equal(CVmultinomlist$Kappa, c(-0.0868137955528609, -0.188689820770385), tolerance=1e-3)
-  expect_equal(CVmultinomlist$Sensitivity, c(0.275132275132275, 0.208994708994709), tolerance=1e-3)
-  expect_equal(CVmultinomlist$Specificity, c(0.636574074074074, 0.605324074074074), tolerance=1e-3)
-  expect_equal(CVmultinomlist$`Pos Pred Value`, c(0.276709401709402, 0.200478468899522), tolerance=1e-3)
-  expect_equal(CVmultinomlist$`Neg Pred Value`, c(0.633749133749134, 0.605017921146953), tolerance=1e-3)
-  expect_equal(CVmultinomlist$Prevalence, c(0.333333,0.333333), tolerance=1e-3)
-  expect_equal(CVmultinomlist$`Detection Rate`, c(0.0933333333333333, 0.0733333333333333), tolerance=1e-3)
-  expect_equal(CVmultinomlist$`Detection Prevalence`, c(0.333333,0.333333), tolerance=1e-3)
-  expect_equal(CVmultinomlist$`Balanced Accuracy`, c(0.455853174603175, 0.407159391534392), tolerance=1e-3)
+  expect_equal(CVmultinomlist$AUC, c(0.378637566137566, 0.35082304526749), tolerance=1e-5)
+  expect_equal(CVmultinomlist$Kappa, c(-0.0868137955528609, -0.188689820770385), tolerance=1e-5)
+  expect_equal(CVmultinomlist$Sensitivity, c(0.275132275132275, 0.208994708994709), tolerance=1e-5)
+  expect_equal(CVmultinomlist$Specificity, c(0.636574074074074, 0.605324074074074), tolerance=1e-5)
+  expect_equal(CVmultinomlist$`Pos Pred Value`, c(0.276709401709402, 0.200478468899522), tolerance=1e-5)
+  expect_equal(CVmultinomlist$`Neg Pred Value`, c(0.633749133749134, 0.605017921146953), tolerance=1e-5)
+  expect_equal(CVmultinomlist$Prevalence, c(0.333333,0.333333), tolerance=1e-5)
+  expect_equal(CVmultinomlist$`Detection Rate`, c(0.0933333333333333, 0.0733333333333333), tolerance=1e-5)
+  expect_equal(CVmultinomlist$`Detection Prevalence`, c(0.333333,0.333333), tolerance=1e-5)
+  expect_equal(CVmultinomlist$`Balanced Accuracy`, c(0.455853174603175, 0.407159391534392), tolerance=1e-5)
   expect_equal(CVmultinomlist$`Overall Accuracy`, c(0.28, 0.22), tolerance=1e-3)
   expect_equal(CVmultinomlist$Accuracy, c(0.52, 0.48), tolerance=1e-3)
   expect_equal(CVmultinomlist$`Weighted Accuracy`, c(0.5152, 0.4752), tolerance=1e-3)
-  expect_equal(CVmultinomlist$`Weighted AUC`, c(0.385902777777778, 0.36), tolerance=1e-3)
   expect_equal(CVmultinomlist$MCC, c(-0.0887876370194492, -0.189838214745842), tolerance=1e-3)
 
   expect_equal(colnames(CVmultinomlist),
                c("Overall Accuracy", "Balanced Accuracy", "Accuracy", "Weighted Accuracy",
-                 "Sensitivity", "Specificity", "Pos Pred Value", "Neg Pred Value",
-                 "AUC", "Weighted AUC", "Lower CI", "Upper CI", "Kappa", "MCC",
-                 "Detection Rate", "Detection Prevalence", "Prevalence", "Predictions",
-                 "Confusion Matrix", "Results", "Class Level Results", "Coefficients",
-                 "Folds", "Fold Columns", "Convergence Warnings", "Other Warnings",
-                 "Warnings and Messages", "Family", "Dependent", "Fixed"))
+                 "Sensitivity", "Specificity", "Pos Pred Value", "Neg Pred Value", "AUC",
+                 "Kappa", "MCC", "Detection Rate", "Detection Prevalence", "Prevalence",
+                 "Predictions", "Confusion Matrix", "Results", "Class Level Results",
+                 "Coefficients", "Folds", "Fold Columns", "Convergence Warnings",
+                 "Other Warnings", "Warnings and Messages", "Family", "Dependent", "Fixed"))
 
   # Enter sub tibbles
   class_level_results <- CVmultinomlist$`Class Level Results`
@@ -1324,9 +1422,9 @@ test_that("multinomial randomForest models work with cross_validate_fn()",{
                c(0.396825396825397, 0.447916666666667, 0.376736111111111))
   expect_equal(colnames(class_level_results[[1]]),
                c("Class", "Balanced Accuracy", "Accuracy", "Sensitivity", "Specificity",
-                 "Pos Pred Value", "Neg Pred Value", "AUC", "Lower CI", "Upper CI",
-                 "Kappa", "MCC", "Detection Rate", "Detection Prevalence", "Prevalence",
-                 "Support", "ROC", "Results", "Confusion Matrix"))
+                 "Pos Pred Value", "Neg Pred Value", "Kappa", "MCC", "Detection Rate",
+                 "Detection Prevalence", "Prevalence",
+                 "Support", "Results", "Confusion Matrix"))
 
 })
 
@@ -1690,21 +1788,18 @@ test_that("multinomial nnet model with metrics list works with cross_validate_fn
                                       metrics = list(
                                         "Accuracy" = TRUE,
                                         "F1" = FALSE,
-                                        "Weighted Accuracy" = TRUE,
-                                        "Weighted AUC" = TRUE
+                                        "Weighted Accuracy" = TRUE
                                       ))
 
   expect_equal(CVmultinomlist$`Overall Accuracy`, c(0.18, 0.3), tolerance=1e-3)
   expect_equal(CVmultinomlist$Accuracy, c(0.453333333333333, 0.533333333333333), tolerance=1e-3)
   expect_equal(CVmultinomlist$`Balanced Accuracy`, c(0.381448412698413, 0.462714947089947), tolerance=1e-3)
   expect_equal(CVmultinomlist$`Weighted Accuracy`, c(0.4464, 0.5264), tolerance=1e-3)
-  expect_equal(CVmultinomlist$`Weighted AUC`, c(0.338055555555556, 0.396527777777778), tolerance=1e-3)
   expect_equal(colnames(CVmultinomlist),
                c("Overall Accuracy", "Balanced Accuracy", "Accuracy", "Weighted Accuracy",
-                 "Sensitivity", "Specificity", "Pos Pred Value", "Neg Pred Value",
-                 "AUC", "Weighted AUC", "Lower CI", "Upper CI", "Kappa", "MCC",
-                 "Detection Rate", "Detection Prevalence", "Prevalence", "Predictions",
-                 "Confusion Matrix", "Results", "Class Level Results", "Coefficients",
+                 "Sensitivity", "Specificity", "Pos Pred Value", "Neg Pred Value", "AUC",
+                 "Kappa", "MCC", "Detection Rate", "Detection Prevalence", "Prevalence",
+                 "Predictions", "Confusion Matrix", "Results", "Class Level Results", "Coefficients",
                  "Folds", "Fold Columns", "Convergence Warnings", "Other Warnings",
                  "Warnings and Messages", "Family", "Dependent", "Fixed"))
 
@@ -1725,9 +1820,8 @@ test_that("multinomial nnet model with metrics list works with cross_validate_fn
                c(0.452380952380952, 0.407986111111111, 0.527777777777778))
   expect_equal(colnames(class_level_results[[1]]),
                c("Class", "Balanced Accuracy", "Accuracy", "Sensitivity", "Specificity",
-                 "Pos Pred Value", "Neg Pred Value", "AUC", "Lower CI", "Upper CI",
-                 "Kappa", "MCC", "Detection Rate", "Detection Prevalence", "Prevalence",
-                 "Support", "ROC", "Results" ,"Confusion Matrix"))
+                 "Pos Pred Value", "Neg Pred Value",  "Kappa", "MCC", "Detection Rate",
+                 "Detection Prevalence", "Prevalence", "Support", "Results", "Confusion Matrix"))
 
 })
 
@@ -1787,15 +1881,47 @@ test_that("binomial random predictions work with cross_validate_fn()",{
 
   # Enter sub tibbles
   expect_is(CVrandom$Predictions[[1]], "tbl_df")
-  expect_is(CVrandom$ROC[[1]], "tbl_df")
+  expect_is(CVrandom$ROC[[1]]$.folds, "roc")
   expect_equal(colnames(CVrandom$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
-  expect_equal(colnames(CVrandom$ROC[[1]]), c("Fold Column","Sensitivities","Specificities"))
   expect_equal(nrow(CVrandom$Predictions[[1]]),30)
-  expect_equal(nrow(CVrandom$ROC[[1]]),31)
   expect_equal(CVrandom$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
                               Function = character(0), Type = character(0), Message = character(0)),
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
+
+  expect_equal(names(CVrandom$ROC[[1]]), ".folds")
+  expect_equal(names(CVrandom$ROC[[1]]$.folds),
+               c("percent", "sensitivities", "specificities", "thresholds",
+                 "direction", "cases", "controls", "fun.sesp", "auc", "call",
+                 "original.predictor", "original.response", "predictor", "response",
+                 "levels"))
+  expect_equal(CVrandom$ROC[[1]]$.folds$direction, "<")
+  expect_equal(CVrandom$ROC[[1]]$.folds$thresholds,
+               c(-Inf, 0.015738278045319, 0.0244654030539095, 0.0578450820175931,
+                 0.0933510899776593, 0.108683879952878, 0.137825432349928, 0.176372073940001,
+                 0.205349709256552, 0.224021246074699, 0.237385168555193, 0.247873432002962,
+                 0.26268216711469, 0.314905963721685, 0.375657401280478, 0.398409646586515,
+                 0.423670300748199, 0.453490617917851, 0.463453618925996, 0.468184761935845,
+                 0.471038468647748, 0.479620903264731, 0.495692970696837, 0.539321022573858,
+                 0.578289209399372, 0.656093266210519, 0.745043152943254, 0.781334373983555,
+                 0.817583099356852, 0.885025866678916, Inf))
+  expect_equal(CVrandom$ROC[[1]]$.folds$sensitivities,
+               c(1, 1, 1, 0.944444444444444, 0.888888888888889, 0.888888888888889,
+                 0.888888888888889, 0.833333333333333, 0.777777777777778, 0.722222222222222,
+                 0.722222222222222, 0.666666666666667, 0.611111111111111, 0.611111111111111,
+                 0.555555555555556, 0.555555555555556, 0.5, 0.444444444444444,
+                 0.444444444444444, 0.444444444444444, 0.444444444444444, 0.388888888888889,
+                 0.388888888888889, 0.333333333333333, 0.277777777777778, 0.277777777777778,
+                 0.222222222222222, 0.166666666666667, 0.111111111111111, 0.0555555555555556,
+                 0))
+  expect_equal(CVrandom$ROC[[1]]$.folds$specificities,
+               c(0, 0.0833333333333333, 0.166666666666667, 0.166666666666667,
+                 0.166666666666667, 0.25, 0.333333333333333, 0.333333333333333,
+                 0.333333333333333, 0.333333333333333, 0.416666666666667, 0.416666666666667,
+                 0.416666666666667, 0.5, 0.5, 0.583333333333333, 0.583333333333333,
+                 0.583333333333333, 0.666666666666667, 0.75, 0.833333333333333,
+                 0.833333333333333, 0.916666666666667, 0.916666666666667, 0.916666666666667,
+                 1, 1, 1, 1, 1, 1))
 
   expect_equal(CVrandom$Predictions[[1]]$Prediction,
                c(0.275483862496912, 0.228903944836929, 0.0144339059479535, 0.728964562527835,
@@ -1907,9 +2033,7 @@ test_that("multinomial random predictions work with cross_validate_fn()",{
                                                    "target ~ predictor_1"),
                                       fold_cols = '.folds', type = 'multinomial')
 
-  expect_equal(CVmultinomlist$AUC, c(0.561838624338624,0.43832671957672), tolerance=1e-3)
-  expect_equal(CVmultinomlist$`Lower CI`, c(0.386894353084452, 0.262107143470369), tolerance=1e-3)
-  expect_equal(CVmultinomlist$`Upper CI`, c(0.736782895592797,0.61454629568307), tolerance=1e-3)
+  expect_equal(CVmultinomlist$AUC, c(0.558201058201058, 0.434817754262199), tolerance=1e-3)
   expect_equal(CVmultinomlist$Kappa, c(0.0944809694238845, -0.13019211491683), tolerance=1e-3)
   expect_equal(CVmultinomlist$Sensitivity, c(0.391534391534392, 0.238095238095238), tolerance=1e-3)
   expect_equal(CVmultinomlist$Specificity, c(0.701388888888889, 0.623842592592593), tolerance=1e-3)
@@ -1964,18 +2088,6 @@ test_that("multinomial random predictions work with cross_validate_fn()",{
                c(0.633333333333333, 0.611111111111111, 0.617647058823529))
   expect_equal(class_level_results[[1]]$`Neg Pred Value`,
                c(0.705882352941177, 0.676470588235294, 0.71875))
-  expect_equal(class_level_results[[2]]$AUC,
-               c(0.339285714285714, 0.463541666666667, 0.512152777777778))
-  expect_equal(class_level_results[[1]]$AUC,
-               c(0.456349206349206, 0.583333333333333, 0.645833333333333))
-  expect_equal(class_level_results[[2]]$`Lower CI`,
-               c(0.145959298235808, 0.296517462643335, 0.343844669531964))
-  expect_equal(class_level_results[[1]]$`Lower CI`,
-               c(0.254367191610825, 0.420356083727724, 0.485959783914806))
-  expect_equal(class_level_results[[2]]$`Upper CI`,
-               c(0.532612130335621, 0.630565870689998, 0.680460886023592))
-  expect_equal(class_level_results[[1]]$`Upper CI`,
-               c(0.658331221087588, 0.746310582938943, 0.80570688275186))
   expect_equal(class_level_results[[2]]$Kappa,
                c(-0.228070175438597, -0.094890510948905, -0.0676156583629893))
   expect_equal(class_level_results[[1]]$Kappa,
@@ -2019,10 +2131,83 @@ test_that("multinomial random predictions work with cross_validate_fn()",{
                  12L, 10L, 4L, 23L, 9L, 11L, 7L, 23L, 9L, 9L, 9L))
 
   # ROC
-  expect_is(class_level_results[[2]]$ROC[[1]], "tbl_df")
-  expect_equal(colnames(class_level_results[[2]]$ROC[[1]]),
-               c("Fold Column","Sensitivities","Specificities"))
-  expect_equal(nrow(class_level_results[[2]]$ROC[[1]]),51)
+  expect_is(CVmultinomlist$Results[[1]]$ROC[[1]][[1]], "mv.multiclass.roc")
+  expect_equal(CVmultinomlist$Results[[1]]$ROC[[1]][[1]]$rocs$`class_1/class_2`[[1]]$sensitivities,
+               c(1, 0.944444444444444, 0.944444444444444, 0.888888888888889,
+                 0.888888888888889, 0.888888888888889, 0.833333333333333, 0.777777777777778,
+                 0.722222222222222, 0.666666666666667, 0.666666666666667, 0.611111111111111,
+                 0.611111111111111, 0.611111111111111, 0.555555555555556, 0.5,
+                 0.444444444444444, 0.388888888888889, 0.333333333333333, 0.333333333333333,
+                 0.277777777777778, 0.277777777777778, 0.222222222222222, 0.222222222222222,
+                 0.166666666666667, 0.111111111111111, 0.0555555555555556, 0.0555555555555556,
+                 0.0555555555555556, 0, 0, 0, 0))
+  expect_equal(CVmultinomlist$Results[[1]]$ROC[[1]][[1]]$rocs$`class_1/class_2`[[2]]$sensitivities,
+               c(1, 0.928571428571429, 0.857142857142857, 0.785714285714286,
+                 0.785714285714286, 0.785714285714286, 0.785714285714286, 0.785714285714286,
+                 0.785714285714286, 0.785714285714286, 0.785714285714286, 0.714285714285714,
+                 0.642857142857143, 0.642857142857143, 0.642857142857143, 0.642857142857143,
+                 0.642857142857143, 0.571428571428571, 0.5, 0.5, 0.428571428571429,
+                 0.357142857142857, 0.285714285714286, 0.285714285714286, 0.285714285714286,
+                 0.285714285714286, 0.285714285714286, 0.285714285714286, 0.285714285714286,
+                 0.214285714285714, 0.142857142857143, 0.0714285714285714, 0))
+  expect_equal(CVmultinomlist$Results[[1]]$ROC[[1]][[1]]$rocs$`class_1/class_2`[[1]]$specificities,
+               c(0, 0, 0.0714285714285714, 0.0714285714285714, 0.142857142857143,
+                 0.214285714285714, 0.214285714285714, 0.214285714285714, 0.214285714285714,
+                 0.214285714285714, 0.285714285714286, 0.285714285714286, 0.357142857142857,
+                 0.428571428571429, 0.428571428571429, 0.428571428571429, 0.428571428571429,
+                 0.428571428571429, 0.428571428571429, 0.5, 0.5, 0.571428571428571,
+                 0.571428571428571, 0.642857142857143, 0.642857142857143, 0.642857142857143,
+                 0.642857142857143, 0.714285714285714, 0.785714285714286, 0.785714285714286,
+                 0.857142857142857, 0.928571428571429, 1))
+  expect_equal(CVmultinomlist$Results[[1]]$ROC[[1]][[1]]$rocs$`class_1/class_2`[[2]]$specificities,
+               c(0, 0, 0, 0, 0.0555555555555556, 0.111111111111111, 0.166666666666667,
+                 0.222222222222222, 0.277777777777778, 0.333333333333333, 0.388888888888889,
+                 0.388888888888889, 0.388888888888889, 0.444444444444444, 0.5,
+                 0.555555555555556, 0.611111111111111, 0.611111111111111, 0.611111111111111,
+                 0.666666666666667, 0.666666666666667, 0.666666666666667, 0.666666666666667,
+                 0.722222222222222, 0.777777777777778, 0.833333333333333, 0.888888888888889,
+                 0.944444444444444, 1, 1, 1, 1, 1))
+  expect_equal(CVmultinomlist$Results[[1]]$ROC[[1]][[1]]$rocs$`class_2/class_3`[[1]]$sensitivities,
+               c(1, 1, 0.944444444444444, 0.944444444444444, 0.944444444444444,
+                 0.888888888888889, 0.888888888888889, 0.833333333333333, 0.833333333333333,
+                 0.777777777777778, 0.777777777777778, 0.722222222222222, 0.722222222222222,
+                 0.666666666666667, 0.666666666666667, 0.666666666666667, 0.611111111111111,
+                 0.611111111111111, 0.611111111111111, 0.555555555555556, 0.5,
+                 0.444444444444444, 0.388888888888889, 0.388888888888889, 0.333333333333333,
+                 0.333333333333333, 0.333333333333333, 0.333333333333333, 0.277777777777778,
+                 0.277777777777778, 0.222222222222222, 0.222222222222222, 0.166666666666667,
+                 0.111111111111111, 0.111111111111111, 0.0555555555555556, 0))
+  expect_equal(CVmultinomlist$Results[[1]]$ROC[[1]][[1]]$rocs$`class_2/class_3`[[2]]$sensitivities,
+               c(1, 0.944444444444444, 0.944444444444444, 0.944444444444444,
+                 0.888888888888889, 0.888888888888889, 0.888888888888889, 0.888888888888889,
+                 0.888888888888889, 0.888888888888889, 0.888888888888889, 0.888888888888889,
+                 0.888888888888889, 0.833333333333333, 0.833333333333333, 0.777777777777778,
+                 0.722222222222222, 0.666666666666667, 0.666666666666667, 0.666666666666667,
+                 0.611111111111111, 0.555555555555556, 0.555555555555556, 0.5,
+                 0.444444444444444, 0.388888888888889, 0.388888888888889, 0.333333333333333,
+                 0.277777777777778, 0.277777777777778, 0.277777777777778, 0.222222222222222,
+                 0.166666666666667, 0.166666666666667, 0.111111111111111, 0.0555555555555556,
+                 0))
+  expect_equal(CVmultinomlist$Results[[1]]$ROC[[1]][[1]]$rocs$`class_2/class_3`[[1]]$specificities,
+               c(0, 0.0555555555555556, 0.0555555555555556, 0.111111111111111,
+                 0.166666666666667, 0.166666666666667, 0.222222222222222, 0.222222222222222,
+                 0.277777777777778, 0.277777777777778, 0.333333333333333, 0.333333333333333,
+                 0.388888888888889, 0.388888888888889, 0.444444444444444, 0.5,
+                 0.5, 0.555555555555556, 0.611111111111111, 0.611111111111111,
+                 0.611111111111111, 0.611111111111111, 0.611111111111111, 0.666666666666667,
+                 0.666666666666667, 0.722222222222222, 0.777777777777778, 0.833333333333333,
+                 0.833333333333333, 0.888888888888889, 0.888888888888889, 0.944444444444444,
+                 0.944444444444444, 0.944444444444444, 1, 1, 1))
+  expect_equal(CVmultinomlist$Results[[1]]$ROC[[1]][[1]]$rocs$`class_2/class_3`[[2]]$specificities,
+               c(0, 0, 0.0555555555555556, 0.111111111111111, 0.111111111111111,
+                 0.166666666666667, 0.222222222222222, 0.277777777777778, 0.333333333333333,
+                 0.388888888888889, 0.444444444444444, 0.5, 0.555555555555556,
+                 0.555555555555556, 0.611111111111111, 0.611111111111111, 0.611111111111111,
+                 0.611111111111111, 0.666666666666667, 0.722222222222222, 0.722222222222222,
+                 0.722222222222222, 0.777777777777778, 0.777777777777778, 0.777777777777778,
+                 0.777777777777778, 0.833333333333333, 0.833333333333333, 0.833333333333333,
+                 0.888888888888889, 0.944444444444444, 0.944444444444444, 0.944444444444444,
+                 1, 1, 1, 1))
 
   # Predictions
   expect_is(CVmultinomlist$Predictions[[1]], "tbl_df")

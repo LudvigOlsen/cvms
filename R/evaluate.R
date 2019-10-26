@@ -830,7 +830,7 @@ internal_evaluate <- function(data,
   if (type == "multinomial"){
     ROCs <- output[["Results"]] %c% "ROC" %>%
       unlist(recursive = FALSE) %>%
-      unlist(recursive = FALSE)
+      unlist(recursive = FALSE) # TODO Remove for repeated cv?
     output[["ROC"]] <- ROCs
   }
 

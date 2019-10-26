@@ -171,14 +171,14 @@ basics_model_fn <- function(train_data, formula, hyperparameters){
       message_if_model_verbose(model_verbose,
                                msg = "Used lm() to fit the model.'")
 
-      return(lm(formula, train_data))
+      return(lm(formula = formula, data = train_data))
 
     } else {
 
       message_if_model_verbose(model_verbose,
                                msg = "Used glm() to fit the model.'")
 
-      return(glm(formula, train_data,
+      return(glm(formula = formula, data = train_data,
                  family = gaussian(link = link)))
     }
 
@@ -190,14 +190,15 @@ basics_model_fn <- function(train_data, formula, hyperparameters){
       message_if_model_verbose(model_verbose,
                                msg = "Used lme4::lmer() to fit the model.'")
 
-      return(lme4::lmer(formula, train_data, REML = REML, control = control))
+      return(lme4::lmer(formula = formula, data = train_data,
+                        REML = REML, control = control))
 
     } else {
 
       message_if_model_verbose(model_verbose,
                                msg = "Used lme4::glmer() to fit the model.'")
 
-      return(lme4::glmer(formula, train_data,
+      return(lme4::glmer(formula = formula, data = train_data,
                          family = gaussian(link = link),
                          control = control))
     }
@@ -211,14 +212,16 @@ basics_model_fn <- function(train_data, formula, hyperparameters){
       message_if_model_verbose(model_verbose,
                                msg = "Used glm() to fit the model.'")
 
-      return(glm(formula, train_data, family = binomial(link = link)))
+      return(glm(formula = formula, data = train_data,
+                 family = binomial(link = link)))
 
     } else {
 
       message_if_model_verbose(model_verbose,
                                msg = "Used glm() to fit the model.'")
 
-      return(glm(formula, train_data, family = family_))
+      return(glm(formula = formula, data = train_data,
+                 family = family_))
 
     }
 
@@ -232,8 +235,8 @@ basics_model_fn <- function(train_data, formula, hyperparameters){
     # Return this model to model_temp
 
     return(lme4::glmer(
-      formula,
-      train_data,
+      formula = formula,
+      data = train_data,
       family = binomial(link = link),
       control = control
     ))

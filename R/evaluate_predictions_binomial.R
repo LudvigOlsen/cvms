@@ -310,7 +310,7 @@ binomial_eval_collect <- function(unique_fold_cols,
 
   if (!is.null(roc_curves_list)){
     # Add ROC curve info
-    results[["ROC"]] <- roc_curves
+    results[["ROC"]] <- list(roc_curves)
   } else {
     results[["ROC"]] <- NA
   }

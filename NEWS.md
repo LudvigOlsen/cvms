@@ -8,6 +8,9 @@
 
 * Breaking change: `validate()` now returns a tibble with the model objects nested in the `Model` column. Previously, it returned a list with the results and models. This allows for easier use in `magrittr` pipelines (`%>%`).
 
+* In `evaluate()`, `apply_softmax` now defaults to `FALSE`. 
+Throws error if probabilities do not add up 1 row-wise (tolerance of 5 decimals) when `type` is `multinomial`.
+
 * Adds optional `hyperparameter` argument to `cross_validate_fn()`. 
 Pass a list of hyperparameters and every combination of these will be cross-validated. 
 

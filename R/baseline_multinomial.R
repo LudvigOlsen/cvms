@@ -64,6 +64,7 @@ create_multinomial_baseline_evaluations <- function(test_data,
       type = "multinomial",
       id_col = NULL,
       id_method = "mean",
+      apply_softmax = FALSE,
       metrics = list(),
       include_predictions = TRUE,
       include_fold_columns = FALSE, # We're not providing any fold info so won't make sense
@@ -95,6 +96,7 @@ create_multinomial_baseline_evaluations <- function(test_data,
       type = "multinomial",
       id_col = NULL,
       id_method = "mean",
+      apply_softmax = FALSE,
       metrics = list(),
       include_predictions = TRUE,
       include_fold_columns = FALSE # We're not providing any fold info so won't make sense
@@ -169,7 +171,8 @@ create_multinomial_baseline_evaluations <- function(test_data,
         test_data = test_data,
         targets_col = dependent_col,
         current_class = cl,
-        reps = reps)
+        reps = reps,
+        metrics = list("AUC" = FALSE)) # AUC will be done along with Overall Acc.
       ) %>%
       dplyr::mutate(Class = cl)
 
@@ -282,13 +285,13 @@ create_multinomial_baseline_evaluations <- function(test_data,
 }
 
 
-all_or_nothing_evaluations <- function(test_data, targets_col, current_class, reps){
+all_or_nothing_evaluations <- function(test_data, targets_col, current_class, reps, metrics = list()){
 
   num_targets <- nrow(test_data)
 
-  local_tmp_target_var <- create_tmp_var(test_data,"all_or_nothing_targets")
-  local_tmp_predicted_probability_all_1_var <- create_tmp_var(test_data,"all_1_predicted_probability")
-  local_tmp_predicted_probability_all_0_var <- create_tmp_var(test_data,"all_0_predicted_probability")
+  local_tmp_target_var <- create_tmp_var(test_data, "all_or_nothing_targets")
+  local_tmp_predicted_probability_all_1_var <- create_tmp_var(test_data, "all_1_predicted_probability")
+  local_tmp_predicted_probability_all_0_var <- create_tmp_var(test_data, "all_0_predicted_probability")
 
   test_data[[local_tmp_target_var]] <- factor(ifelse(test_data[[targets_col]] == current_class, 1, 0))
   test_data[[local_tmp_predicted_probability_all_1_var]] <- rep(0.999999, num_targets)
@@ -305,7 +308,8 @@ all_or_nothing_evaluations <- function(test_data, targets_col, current_class, re
       type = "binomial",
       id_col = NULL,
       id_method = "mean",
-      metrics = list(),
+      apply_softmax = FALSE,
+      metrics = metrics,
       include_predictions = FALSE,
       include_fold_columns = FALSE # We're not providing any fold info so won't make sense
     ) %>%

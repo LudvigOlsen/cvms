@@ -30,6 +30,14 @@ evaluate_predictions_multinomial <- function(data,
     stop("Could not bind the specified predictions_col: ", predictions_col, ".")
   })
 
+  # Make sure probabilities sum to 1 row-wise
+  probability_row_sums <- predicted_probabilities %>%
+    dplyr::mutate(row_sum = round(rowSums(.) * 1e+5) / 1e+5,
+                  sums_to_one = .data$row_sum == 1)
+  if (any(!probability_row_sums[["sums_to_one"]])){
+    stop("'multinomial' evaluate(): Not all probabilities added up to 1 row-wise (tolerance of 5 decimals).")
+  }
+
   # Check if there are NAs in predictions or targets
   na_in_predictions <- contains_na(predicted_probabilities)
   na_in_targets <- contains_na(data[[targets_col]])

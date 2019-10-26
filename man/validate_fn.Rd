@@ -286,7 +286,7 @@ Tbl (tibble) with the results and model objects.
  Note, that the \strong{predictions are not necessarily of the specified \code{positive} class}, but of
  the model's positive class (second level of dependent variable, alphabetically).
 
- A nested tibble with the sensativities and specificities from the \strong{ROC} curve.
+  A list of \strong{ROC} curve objects.
 
  A nested tibble with the \strong{confusion matrix}.
  The \code{Pos_} columns tells you whether a row is a
@@ -302,7 +302,7 @@ Tbl (tibble) with the results and model objects.
 
  For each class, a \emph{one-vs-all} binomial evaluation is performed. This creates
  a \strong{class level results} tibble containing the same metrics as the binomial results
- described above, along with the \strong{Support} metric, which is simply a
+ described above (excluding AUC, Lower CI and Upper CI), along with the \strong{Support} metric, which is simply a
  count of the class in the target column. These metrics are used to calculate the macro metrics
  in the output tibble. The nested class level results tibble is also included in the output tibble,
  and would usually be reported along with the macro and overall metrics.
@@ -311,15 +311,15 @@ Tbl (tibble) with the results and model objects.
  The metrics that share their name with the metrics in the nested
  class level results tibble are averages of those metrics
  (note: does not remove \code{NA}s before averaging).
- In addition to these, it also includes the \strong{Overall Accuracy} metric.
+ In addition to these, it also includes the \strong{Overall Accuracy}
+ and multiclass \strong{AUC} metrics.
 
  Other available metrics (disabled by default, see \code{metrics}):
  \strong{Accuracy}, \strong{AIC}, \strong{AICc}, \strong{BIC},
  \strong{Weighted Balanced Accuracy}, \strong{Weighted Accuracy},
  \strong{Weighted F1}, \strong{Weighted Sensitivity}, \strong{Weighted Sensitivity},
  \strong{Weighted Specificity}, \strong{Weighted Pos Pred Value},
- \strong{Weighted Neg Pred Value}, \strong{Weighted AUC}, \strong{Weighted Lower CI},
- \strong{Weighted Upper CI}, \strong{Weighted Kappa}, \strong{Weighted MCC},
+ \strong{Weighted Neg Pred Value}, \strong{Weighted Kappa}, \strong{Weighted MCC},
  \strong{Weighted Detection Rate}, \strong{Weighted Detection Prevalence}, and
  \strong{Weighted Prevalence}.
 
@@ -329,13 +329,14 @@ Tbl (tibble) with the results and model objects.
 
  A nested tibble with the \strong{predictions}, predicted classes, and targets.
 
+  A list of \strong{ROC} curve objects.
+
  A nested tibble with the multiclass \strong{Confusion Matrix}.
 
  \strong{Class Level Results}
 
- The nested class level results tibble also includes:
-
- A nested tibble with the sensativities and specificities from the \strong{ROC} curve.
+ Besides the binomial evaluation metrics and the \code{Support} metric,
+ the nested class level results tibble also includes:
 
  A nested tibble with the \strong{confusion matrix} from the one-vs-all evaluation.
  The \code{Pos_} columns tells you whether a row is a
@@ -383,13 +384,18 @@ Packages used:
  r2c : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
 
  }
- \subsection{Binomial}{
-
- Confusion matrix: \code{\link[caret:confusionMatrix]{caret::confusionMatrix}}
-
- ROC: \code{\link[pROC:roc]{pROC::roc}}
+ \subsection{Binomial and Multinomial}{
 
  MCC: \code{\link[mltools:mcc]{mltools::mcc}}
+
+ Confusion matrix and related metrics:
+ \code{\link[caret:confusionMatrix]{caret::confusionMatrix}}
+
+ ROC and related metrics:
+
+ Binomial: \code{\link[pROC:roc]{pROC::roc}}
+
+ Multinomial: \code{\link[pROC:multiclass.roc]{pROC::multiclass.roc}}
  }
  }
 }

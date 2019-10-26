@@ -14,6 +14,7 @@ evaluate_predictions_binomial <- function(data,
                                           metrics,
                                           include_fold_columns,
                                           include_predictions,
+                                          calculate_roc = TRUE,
                                           na.rm = TRUE) {
 
   if (is.null(fold_and_fold_col)){
@@ -96,17 +97,22 @@ evaluate_predictions_binomial <- function(data,
       include_fold_columns = include_fold_columns
     )
 
-    # Create ROC curves
-    roc_curves_list <- binomial_eval_roc_curves(
-      data = data,
-      targets_col = targets_col,
-      predictions_col = predictions_col,
-      unique_fold_cols = unique_fold_cols,
-      cat_levels = cat_levels,
-      positive = model_specifics[["positive"]],
-      fold_info_cols = fold_info_cols,
-      include_fold_columns = include_fold_columns
-    )
+    if (isTRUE(calculate_roc)){
+      # Create ROC curves
+      roc_curves_list <- binomial_eval_roc_curves(
+        data = data,
+        targets_col = targets_col,
+        predictions_col = predictions_col,
+        unique_fold_cols = unique_fold_cols,
+        cat_levels = cat_levels,
+        positive = model_specifics[["positive"]],
+        fold_info_cols = fold_info_cols,
+        include_fold_columns = include_fold_columns
+      )
+    } else {
+      roc_curves_list <- NULL
+    }
+
 
     # TODO: Should probably rename "extra_metrics" to something more meaningful
     # Currently calculates the regular accuracy
@@ -126,6 +132,10 @@ evaluate_predictions_binomial <- function(data,
                                      include_fold_columns = include_fold_columns,
                                      include_predictions = include_predictions,
                                      na.rm = na.rm)
+
+    if (!isTRUE(calculate_roc)){
+      results[["ROC"]] <- NULL
+    }
 
   } else {
 
@@ -205,39 +215,9 @@ binomial_eval_roc_curves <- function(data, targets_col, predictions_col,
 
     fcol_roc_curve
 
-  }) %>% unlist(recursive=FALSE)
+  }) %>% unlist(recursive = FALSE)
 
-  # ROC sensitivities and specificities
-  roc_nested <- plyr::ldply(seq_len(length(roc_curves)), function(i){
-
-    if (is.null(roc_curves[[i]])){
-
-      roc_tibble <- tibble::tibble(
-        `Fold Column` = character(),
-        Sensitivities = NA,
-        Specificities = NA)
-
-    } else {
-
-      roc_tibble <- tibble::tibble(
-        `Fold Column` = as.character(names(roc_curves)[[i]]),
-        Sensitivities = roc_curves[[i]]$sensitivities,
-        Specificities = roc_curves[[i]]$specificities)
-    }
-
-    if (!isTRUE(include_fold_columns)){
-      roc_tibble[["Fold Column"]] <- NULL
-    }
-
-    roc_tibble
-
-  })
-  roc_nested <- roc_nested %>%
-    legacy_nest(seq_len(ncol(roc_nested))) %>%
-    dplyr::rename(roc = data)
-
-  list("roc_curves" = roc_curves,
-       "roc_nested" = roc_nested)
+  list("roc_curves" = roc_curves)
 
 }
 
@@ -279,16 +259,23 @@ binomial_eval_collect <- function(unique_fold_cols,
                                   include_predictions = TRUE,
                                   na.rm = FALSE){
 
-  # Unpack args
-  roc_curves <- roc_curves_list[["roc_curves"]]
-  roc_nested <- roc_curves_list[["roc_nested"]]
+  if (!is.null(roc_curves_list)){
+    # Unpack args
+    roc_curves <- roc_curves_list[["roc_curves"]]
+  }
   confusion_matrices <- confusion_matrices_list[["confusion_matrices"]]
   nested_confusion_matrices <- confusion_matrices_list[["nested_confusion_matrices"]]
 
   # Fold column level results
   fold_col_results <- plyr::ldply(unique_fold_cols, function(fcol){
 
-    binomial_classification_results_tibble(roc_curve = roc_curves[[fcol]],
+    if (!is.null(roc_curves_list)){
+      current_roc_curve <- roc_curves[[fcol]]
+    } else {
+      current_roc_curve <- NULL
+    }
+
+    binomial_classification_results_tibble(roc_curve = current_roc_curve,
                                            roc_nested = NULL,
                                            confusion_matrix = confusion_matrices[[fcol]],
                                            predictions_nested = NULL,
@@ -302,7 +289,7 @@ binomial_eval_collect <- function(unique_fold_cols,
   # Nest fold column results
   fold_col_results_nested <- fold_col_results %>%
     dplyr::select(-c(.data$ROC)) %>%
-    legacy_nest(1 : (ncol(fold_col_results) - 1) ) %>% # -1 as we just removed one cols
+    legacy_nest(1 : (ncol(fold_col_results) - 1) ) %>% # -1 as we just removed one col
     dplyr::rename(fold_col_results = data)
 
   # Average fold column results for reporting
@@ -321,8 +308,12 @@ binomial_eval_collect <- function(unique_fold_cols,
   # Add results
   results[["Results"]] <- fold_col_results_nested$fold_col_results
 
-  # Add ROC curve info
-  results[["ROC"]] <- roc_nested$roc
+  if (!is.null(roc_curves_list)){
+    # Add ROC curve info
+    results[["ROC"]] <- roc_curves
+  } else {
+    results[["ROC"]] <- NA
+  }
 
   # Add confusion matrix
   results[["Confusion Matrix"]] <- nested_confusion_matrices$confusion_matrices

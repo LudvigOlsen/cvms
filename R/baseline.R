@@ -100,11 +100,15 @@
 #'
 #'  \strong{Binomial} and \strong{Multinomial}:
 #'
+#'  MCC: \code{\link[mltools:mcc]{mltools::mcc}}
+#'
 #'  Confusion matrix and related metrics: \code{\link[caret:confusionMatrix]{caret::confusionMatrix}}
 #'
-#'  ROC and related metrics: \code{\link[pROC:roc]{pROC::roc}}
+#'  ROC and related metrics:
 #'
-#'  MCC: \code{\link[mltools:mcc]{mltools::mcc}}
+#'  Binomial: \code{\link[pROC:roc]{pROC::roc}}
+#'
+#'  Multinomial: \code{\link[pROC:multiclass.roc]{pROC::multiclass.roc}}
 #'
 #'  }
 #' @return List containing:
@@ -199,7 +203,7 @@
 #'
 #'  A nested tibble with the \strong{predictions} and targets.
 #'
-#'  A nested tibble with the sensativities and specificities from the \strong{ROC} curve.
+#'  A list of \strong{ROC} curve objects.
 #'
 #'  A nested tibble with the \strong{confusion matrix}.
 #'  The \code{Pos_} columns tells you whether a row is a
@@ -219,8 +223,8 @@
 #'
 #'  Based on the generated test set predictions,
 #'  one-vs-all (binomial) evaluations are performed and aggregated
-#'  to get the same metrics as in the \code{binomial} results, with the
-#'  addition of \strong{Overall Accuracy} in the summarized results.
+#'  to get the same metrics as in the \code{binomial} results (excluding AUC, Lower CI and Upper CI),
+#'  with the addition of \strong{Overall Accuracy} and multiclass \strong{AUC} in the summarized results.
 #'
 #'  ....................................................................
 #'
@@ -231,7 +235,7 @@
 #'  \strong{How}: First, the one-vs-all binomial evaluations are aggregated by repetition
 #'  (ignoring \code{NA}s), and then, these aggregations are summarized. Besides the
 #'  metrics from the binomial evaluations (see \emph{Binomial Results} above), it
-#'  also includes the \strong{Overall Accuracy} metric.
+#'  also includes the \strong{Overall Accuracy} and multiclass \strong{AUC} metrics.
 #'
 #'  The \strong{Measure} column indicates the statistical descriptor used on the evaluations.
 #'  The \strong{Mean}, \strong{Median}, \strong{SD}, and \strong{IQR} describe the
@@ -270,11 +274,13 @@
 #'  Also includes:
 #'
 #'  A nested tibble with the one-vs-all binomial evaluations (\strong{Class Level Results}),
-#'  including nested \strong{ROC} curves and \strong{Confusion Matrices}, and the
+#'  including nested \strong{Confusion Matrices} and the
 #'  \strong{Support} column, which is a count of how many observations from the
 #'  class is in the test set.
 #'
 #'  A nested tibble with the \strong{predictions} and targets.
+#'
+#'  A list of \strong{ROC} curve objects.
 #'
 #'  A nested tibble with the multiclass \strong{confusion matrix}.
 #'

@@ -57,11 +57,6 @@ set_metrics <- function(family, metrics_list = NULL, include_model_object_metric
       "Neg Pred Value" = TRUE,
       "Weighted Neg Pred Value" = FALSE,
       "AUC" = TRUE,
-      "Weighted AUC" = FALSE,
-      "Lower CI" = TRUE,
-      "Weighted Lower CI" = FALSE,
-      "Upper CI" = TRUE,
-      "Weighted Upper CI" = FALSE,
       "Kappa" = TRUE,
       "Weighted Kappa" = FALSE,
       "MCC" = TRUE,
@@ -118,7 +113,6 @@ set_metrics <- function(family, metrics_list = NULL, include_model_object_metric
     }
 
   }
-
 
   if (!isTRUE(include_model_object_metrics)){
 

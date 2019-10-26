@@ -78,6 +78,8 @@ a preprocess function and a list or data frame with hyperparameter values to tes
 
 ## Important News {#news}
 
+* `Multinomial` AUC is now calculated with `pROC::multiclass.roc`.
+
 * `cross_validate_fn()` and `validate_fn()` now take the `preprocess_fn`, `preprocess_once`, and `hyperparameters` arguments. The `predict_type` argument has been removed.
 
 * `cross_validate_fn()` and `validate_fn()` are added. (Cross-)validate custom model functions.
@@ -88,7 +90,7 @@ a preprocess function and a list or data frame with hyperparameter values to tes
 
 * `evaluate()` is added. Evaluate your model's predictions with the same metrics as used in `cross_validate()`.
 
-* AUC calculation has changed. Now explicitly sets the direction in `pROC::roc`. (27th of May 2019)
+* `Binomial` AUC calculation has changed. Now explicitly sets the direction in `pROC::roc`. (27th of May 2019)
 
 * Argument `positive` now defaults to `2`. If a dependent variable has the values 0 and 1, 1 is now the default positive class, as that's the second smallest value. If the dependent variable is of type `character`, it's in alphabetical order.
 

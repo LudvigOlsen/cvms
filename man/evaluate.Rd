@@ -125,7 +125,7 @@ N.B. \strong{Binomial models only}.}
 
 \item{metrics}{List for enabling/disabling metrics.
 
-  E.g. \code{list("RMSE" = FALSE)} would remove RMSE from the results,
+  E.g. \code{list("RMSE" = FALSE)} would remove RMSE from the regression results,
   and \code{list("Accuracy" = TRUE)} would add the regular accuracy metric
   to the classification results.
   Default values (TRUE/FALSE) will be used for the remaining metrics available.
@@ -200,7 +200,7 @@ when \code{data} is grouped with \code{\link[dplyr]{group_by}}.}
 
  A nested tibble with the \strong{predictions} and targets.
 
- A nested tibble with the sensativities and specificities from the \strong{ROC} curve.
+ A list of \strong{ROC} curve objects.
 
  A nested tibble with the \strong{confusion matrix}.
  The \code{Pos_} columns tells you whether a row is a
@@ -216,7 +216,7 @@ when \code{data} is grouped with \code{\link[dplyr]{group_by}}.}
 
  For each class, a \emph{one-vs-all} binomial evaluation is performed. This creates
  a \strong{Class Level Results} tibble containing the same metrics as the binomial results
- described above, along with the \strong{Support} metric, which is simply a
+ described above (excluding AUC, Lower CI and Upper CI), along with the \strong{Support} metric, which is simply a
  count of the class in the target column. These metrics are used to calculate the macro metrics
  in the output tibble. The nested class level results tibble is also included in the output tibble,
  and would usually be reported along with the macro and overall metrics.
@@ -225,15 +225,15 @@ when \code{data} is grouped with \code{\link[dplyr]{group_by}}.}
  The metrics that share their name with the metrics in the nested
  class level results tibble are averages of those metrics
  (note: does not remove \code{NA}s before averaging).
- In addition to these, it also includes the \strong{Overall Accuracy} metric.
+ In addition to these, it also includes the \strong{Overall Accuracy}
+ and multiclass \strong{AUC} metrics.
 
  Other available metrics (disabled by default, see \code{metrics}):
  \strong{Accuracy}, \strong{AIC}, \strong{AICc}, \strong{BIC},
  \strong{Weighted Balanced Accuracy}, \strong{Weighted Accuracy},
  \strong{Weighted F1}, \strong{Weighted Sensitivity}, \strong{Weighted Sensitivity},
  \strong{Weighted Specificity}, \strong{Weighted Pos Pred Value},
- \strong{Weighted Neg Pred Value}, \strong{Weighted AUC}, \strong{Weighted Lower CI},
- \strong{Weighted Upper CI}, \strong{Weighted Kappa}, \strong{Weighted MCC},
+ \strong{Weighted Neg Pred Value}, \strong{Weighted Kappa}, \strong{Weighted MCC},
  \strong{Weighted Detection Rate}, \strong{Weighted Detection Prevalence}, and
  \strong{Weighted Prevalence}.
 
@@ -243,21 +243,21 @@ when \code{data} is grouped with \code{\link[dplyr]{group_by}}.}
 
  A nested tibble with the \strong{Predictions} and targets.
 
+ A list of \strong{ROC} curve objects.
+
  A nested tibble with the multiclass \strong{Confusion Matrix}.
- }
 
  \strong{Class Level Results}
 
  Besides the binomial evaluation metrics and the \code{Support} metric,
  the nested class level results tibble also contains:
 
- A nested tibble with the sensativities and specificities from the \strong{ROC} curve.
-
  A nested tibble with the \strong{Confusion Matrix} from the one-vs-all evaluation.
  The \code{Pos_} columns tells you whether a row is a
  True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
  depending on which level is the "positive" class. In our case, \code{1} is the current class
  and \code{0} represents all the other classes together.
+ }
 }
 \description{
 \Sexpr[results=rd, stage=render]{lifecycle::badge("maturing")}
@@ -287,12 +287,16 @@ Packages used:
 
  \strong{Binomial} and \strong{Multinomial}:
 
+ MCC: \code{\link[mltools:mcc]{mltools::mcc}}
+
  Confusion matrix and related metrics:
  \code{\link[caret:confusionMatrix]{caret::confusionMatrix}}
 
- ROC and related metrics: \code{\link[pROC:roc]{pROC::roc}}
+ ROC and related metrics:
 
- MCC: \code{\link[mltools:mcc]{mltools::mcc}}
+ Binomial: \code{\link[pROC:roc]{pROC::roc}}
+
+ Multinomial: \code{\link[pROC:multiclass.roc]{pROC::multiclass.roc}}
 }
 \examples{
 \donttest{

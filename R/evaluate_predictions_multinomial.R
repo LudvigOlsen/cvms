@@ -89,11 +89,41 @@ evaluate_predictions_multinomial <- function(data,
       data[["predicted_class_index"]],
       .f = function(x){classes[[x]]})
 
+    # Compute multiclass ROC curves and AUC scores
+    multiclass_ROC_AUC <- plyr::llply(unique_fold_cols, function(fcol){
+
+      # Extract current fold column
+      fcol_data <- data %>%
+        dplyr::filter(!!as.name(fold_info_cols[["fold_column"]]) == fcol)
+
+      # Extract and prepare probabilities
+      fcol_probabilities <- as.data.frame(
+        dplyr::bind_rows(fcol_data[[predictions_col]]))
+
+      # Extract targets
+      fcol_targets <- fcol_data[[targets_col]]
+
+      # Calculate multiclass ROC
+      roc <- pROC::multiclass.roc(response = fcol_targets,
+                                  predictor = fcol_probabilities,
+                                  levels = cat_levels_in_targets_col,
+                                  direction = ">") # TODO CHECK THIS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      list("ROC" = list(roc),
+           "AUC" = as.numeric(pROC::auc(roc)))
+
+    })
+
+    roc_curves <- multiclass_ROC_AUC %c% "ROC"
+    auc_scores <- unlist(multiclass_ROC_AUC %c% "AUC")
+
     # Calculate overall accuracy per fold column
-    overall_accuracy <- data %>%
+    # Add the AUC scores
+    overall_metrics <- data %>%
       dplyr::group_by(!!as.name(fold_info_cols[["fold_column"]])) %>%
       dplyr::summarise(`Overall Accuracy` = mean(.data$predicted_class == !!as.name(targets_col))) %>%
-      dplyr::rename(`Fold Column` = !!as.name(fold_info_cols[["fold_column"]]))
+      dplyr::rename(`Fold Column` = !!as.name(fold_info_cols[["fold_column"]])) %>%
+      dplyr::mutate(AUC = auc_scores,
+                    ROC = roc_curves)
 
     # Nest predictions and targets
     # Will be NA if any model_was_null is TRUE and
@@ -143,9 +173,10 @@ evaluate_predictions_multinomial <- function(data,
         fold_info_cols = fold_info_cols,
         fold_and_fold_col = fold_and_fold_col,
         model_specifics = model_specifics,
-        metrics = metrics,
+        metrics = setdiff(metrics, c("AUC","Lower CI","Upper CI")),
         include_fold_columns = include_fold_columns,
         include_predictions = FALSE,
+        calculate_roc = FALSE,
         na.rm = ifelse(isTRUE(both_keep_and_remove_NAs), FALSE, na.rm)
       ) %>%
         dplyr::as_tibble() %>%
@@ -163,7 +194,10 @@ evaluate_predictions_multinomial <- function(data,
     # Move Support column
     one_vs_all_evaluations <- reposition_column(one_vs_all_evaluations,
                                                 "Support",
-                                                .before = "ROC")
+                                                .after = tail(
+                                                  intersect(metrics, colnames(one_vs_all_evaluations)),
+                                                  1)
+                                                )
 
     # Place Class column first
     one_vs_all_evaluations <- one_vs_all_evaluations %>%
@@ -217,7 +251,7 @@ evaluate_predictions_multinomial <- function(data,
 
     # Gather summarized metrics
     fold_column_results <- dplyr::left_join(
-      overall_accuracy,
+      overall_metrics,
         dplyr::left_join(
           average_metrics,
           weighted_average_metrics,
@@ -226,7 +260,7 @@ evaluate_predictions_multinomial <- function(data,
       by = "Fold Column")
 
     overall_results <- fold_column_results %>%
-      dplyr::select(-dplyr::one_of("Fold Column"))
+      dplyr::select(-dplyr::one_of("Fold Column", "ROC"))
 
     # Average results
     overall_results <- plyr::ldply(na.rm_values, function(nr){ # TODO Document this behavior
@@ -269,12 +303,18 @@ evaluate_predictions_multinomial <- function(data,
       nested_multiclass_confusion_matrix, 2,
       condition = both_keep_and_remove_NAs)
 
+    fcr_all_cols <- colnames(fold_column_results)
+    fcr_prediction_metrics <- intersect(metrics, fcr_all_cols)
+    fcr_non_metric_cols <- setdiff(fcr_all_cols, c(fcr_prediction_metrics, "Fold Column"))
+    fcr_new_order <- c("Fold Column", fcr_prediction_metrics, fcr_non_metric_cols)
+
     # Add the nested fold column results
     overall_results <- overall_results %>%
       dplyr::left_join(
         fold_column_results %>%
-        dplyr::group_nest(!!as.name("NAs_removed"), .key = "Results") %>%
-        tibble::as_tibble(),
+          dplyr::select(dplyr::one_of(fcr_new_order)) %>%
+          dplyr::group_nest(!!as.name("NAs_removed"), .key = "Results") %>%
+          tibble::as_tibble(),
         by = "NAs_removed")
 
     # Add the nested class level results

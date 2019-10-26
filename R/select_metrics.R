@@ -77,9 +77,7 @@ select_metrics <- function(results, include_definitions = TRUE,
                      "Specificity", "Weighted Specificity",
                      "Pos Pred Value", "Weighted Pos Pred Value",
                      "Neg Pred Value", "Weighted Neg Pred Value",
-                     "AUC", "Weighted AUC",
-                     "Lower CI", "Weighted Lower CI",
-                     "Upper CI", "Weighted Upper CI",
+                     "AUC",
                      "Kappa", "Weighted Kappa",
                      "MCC", "Weighted MCC",
                      "Detection Rate", "Weighted Detection Rate",
@@ -98,7 +96,7 @@ select_metrics <- function(results, include_definitions = TRUE,
     }
 
   } else {
-    stop(paste0("Family, ",results[["Family"]],", not currently supported."))
+    stop(paste0("Family, ", results[["Family"]], ", not currently supported."))
   }
 
 }

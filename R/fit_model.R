@@ -1,4 +1,4 @@
-custom_fit_model <- function(model_specifics, train_set){
+fit_model <- function(model_specifics, train_set){
 
   # Extract arguments from model_specifics
   model_formula <- model_specifics[["model_formula"]]

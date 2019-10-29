@@ -671,8 +671,7 @@ run_internal_evaluate_wrapper <- function(
 
     gr <- unique_group_levels[[gr_ind]]
 
-    data_for_current_group <- data %>%
-      dplyr::filter(!!as.name(groups_col) == gr)
+    data_for_current_group <- data[data[[groups_col]] == gr ,]
 
     # Assign current model
     if (is.null(models)){

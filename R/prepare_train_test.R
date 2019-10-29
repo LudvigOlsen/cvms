@@ -164,8 +164,9 @@ run_preprocess_once <- function(data,
                                 fold_cols){
 
   # Extract fold grid for model 1
-  fold_grid_model_1 <- computation_grid %>%
-    dplyr::filter(model == 1) %>%
+  fold_grid_model_1 <- computation_grid[
+    computation_grid[["model"]] == 1
+  ,] %>%
     base_select(cols = c("fold_col_name", "rel_fold", "abs_fold"))
 
   # Subset and preprocess each train/test split

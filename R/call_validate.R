@@ -52,8 +52,7 @@ call_validate <- function(train_data,
   # If asked to remove non-converged models from results
   if (isTRUE(rm_nc)){
 
-    results <- results %>%
-      dplyr::filter(.data$`Convergence Warnings` == 0)
+    results <- results[results[["Convergence Warnings"]] == 0 ,]
 
   }
 
@@ -113,8 +112,7 @@ call_cross_validate <- function(data,
   # If asked to remove non-converged models from results
   if (isTRUE(rm_nc)){
 
-    results <- results %>%
-      dplyr::filter(.data$`Convergence Warnings` == 0)
+    results <- results[results[["Convergence Warnings"]] == 0 ,]
 
   }
 

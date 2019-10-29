@@ -168,8 +168,7 @@ cross_validate_list <- function(data,
                                    .fun = function(m){
 
     # Extract grid for current model
-    current_grid <- computation_grid %>%
-      dplyr::filter(.data$model == m)
+    current_grid <- computation_grid[computation_grid[["model"]] == m ,]
 
     # Extract current predictions
     current_predictions <- dplyr::bind_rows(current_grid[["Predictions"]])

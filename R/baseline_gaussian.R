@@ -95,8 +95,11 @@ create_gaussian_baseline_evaluations <- function(train_data,
   # for the n_samplings evaluations
   train_sets_indices <- train_set_inclusion_vals %>%
     dplyr::ungroup() %>%
-    dplyr::inner_join(sampling_boundaries, by = "split_factor") %>%
-    dplyr::filter(.data$inclusion_probability > .data$inclusion_probability_threshold) %>%
+    dplyr::inner_join(sampling_boundaries, by = "split_factor")
+  train_sets_indices <- train_sets_indices[
+    train_sets_indices[["inclusion_probability"]] >
+      train_sets_indices[["inclusion_probability_threshold"]]
+    ,] %>%
     base_select(cols = c("split_factor", "indices"))
 
   # Get the lists of indices

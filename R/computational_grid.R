@@ -41,8 +41,9 @@ create_computation_grid <- function(data, hparams, formulas,
     if (!is_wholenumber_(test_fold))
       stop("test_fold should be a whole number")
 
-    folds_grid <- folds_grid %>%
-      dplyr::filter(.data$rel_fold == test_fold)
+    folds_grid <- folds_grid[
+      folds_grid[["rel_fold"]] == test_fold
+    ,]
   }
 
   # Just the enframed formulas vector

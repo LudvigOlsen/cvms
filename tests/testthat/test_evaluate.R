@@ -1563,7 +1563,7 @@ test_that("evaluate() treats dfs and tbls the same",{
     apply_softmax = TRUE
   )
 
-  mn_eval_1_dt <- evaluate(
+  mn_eval_1_dt <- evaluate(   # TODO Need to test this for gaussian and binomial as well!!!
     data = as.data.table(data_),
     target_col = "cl_char",
     prediction_cols = paste0("cl_", 1:5),

@@ -21,7 +21,7 @@ summarize_metrics <- function(data, cols = NULL, na.rm = TRUE, inf.rm = TRUE){
   # Subset the chosen columns
   if (!is.null(cols)){
     data <- data %>%
-      dplyr::select(dplyr::one_of(cols))
+      base_select(cols = cols)
   }
 
   # Select only numeric columns
@@ -64,7 +64,7 @@ summarize_metrics <- function(data, cols = NULL, na.rm = TRUE, inf.rm = TRUE){
       dplyr::summarize_all(.funs = list(~sum(is.infinite(.)))) %>%
       dplyr::mutate(Measure = "INFs")
   ) %>%
-    dplyr::select(.data$Measure, dplyr::everything())
+    position_first(col = "Measure")
 
   # Remove the INFs from the NAs count
   if(nrow(rows_with_infs) > 0){

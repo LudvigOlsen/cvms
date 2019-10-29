@@ -78,20 +78,17 @@ validate_fold <- function(data,
     # If required, remove fold columns from tibbles that go in the output
 
     warnings_and_messages <- warnings_and_messages %>%
-      dplyr::select(-dplyr::one_of(
-        intersect(colnames(warnings_and_messages),
-                  c("Fold Column", "Fold"))))
+      base_deselect(cols = intersect(colnames(warnings_and_messages),
+                                     c("Fold Column", "Fold")))
 
     preprocess_params <- preprocess_params %>%
-      dplyr::select(-dplyr::one_of(
-        intersect(colnames(preprocess_params),
-                  c("Fold Column", "Fold"))))
+      base_deselect(cols = intersect(colnames(preprocess_params),
+                                     c("Fold Column", "Fold")))
   }
 
   # Nest warnings and messages tibble
   nested_warnings_and_messages <- warnings_and_messages %>%
     dplyr::group_nest() %>%
-    # legacy_nest(seq_len(ncol(warnings_and_messages))) %>%
     dplyr::pull(.data$data)
 
   # Model metrics

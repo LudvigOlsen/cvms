@@ -186,39 +186,37 @@ cross_validate_list <- function(data,
 
     # Extract current model metrics + some fold cols
     current_model_metrics <- current_model_evals %>%
-      dplyr::select(dplyr::one_of(c(
+      base_select(cols = c(
         fold_info_cols[["fold_column"]],
         fold_info_cols[["rel_fold"]],
         intersect(metrics, colnames(current_model_evals))
-      )))
+        ))
 
     # Average the model metrics
     # First by fold column
     # Then again
     average_model_metrics <- current_model_metrics %>%
-      dplyr::select(-dplyr::one_of(fold_info_cols[["rel_fold"]])) %>%
+      base_deselect(cols = fold_info_cols[["rel_fold"]]) %>%
       dplyr::group_by(!!as.name(fold_info_cols[["fold_column"]])) %>%
       dplyr::summarise_all(.funs = ~mean(.)) %>%
-      dplyr::select(-dplyr::one_of(fold_info_cols[["fold_column"]])) %>%
+      base_deselect(cols = fold_info_cols[["fold_column"]]) %>%
       dplyr::summarise_all(.funs = ~mean(.))
 
     # Prepare and nest the warnings and messages
     current_warnings_and_messages <- current_model_evals %>%
-      dplyr::select(dplyr::one_of("Warnings and Messages")) %>%
+      base_select(cols = "Warnings and Messages") %>%
       legacy_unnest()
     nested_current_warnings_and_messages <- current_warnings_and_messages %>%
-      # legacy_nest(seq_len(ncol(current_warnings_and_messages))) %>%
       dplyr::group_nest() %>%
       dplyr::pull(.data$data)
 
     # Sum the warning and message counts
     current_warnings_and_messages_counts <- current_model_evals %>%
-      dplyr::select(
-        dplyr::one_of(
-          c("Convergence Warnings",
-            "Singular Fit Messages",
-            "Other Warnings")
-          )) %>%
+      base_select(
+        cols = c("Convergence Warnings",
+                 "Singular Fit Messages",
+                 "Other Warnings")
+      ) %>%
       dplyr::summarise_all(.funs = ~sum(.))
 
     # Prepare and nest the coefficients
@@ -280,10 +278,7 @@ cross_validate_list <- function(data,
         # TODO Can we use chop() here? Speed?
         fold_col_model_metrics_nested <- plyr::ldply(model_metric_names, function(mn){
           current_model_metrics %>%
-            dplyr::select(dplyr::one_of(c(
-              fold_info_cols[["fold_column"]],
-              mn
-            ))) %>%
+            base_select(cols = c(fold_info_cols[["fold_column"]], mn)) %>%
             dplyr::group_by(!! as.name(fold_info_cols[["fold_column"]])) %>%
             legacy_nest(2, .key = "value") %>%
             dplyr::mutate(metric = mn)
@@ -305,7 +300,6 @@ cross_validate_list <- function(data,
       # Nest fold results
       nested_fold_results <- fold_results %>%
         dplyr::group_nest() %>%
-        # legacy_nest(seq_len(ncol(fold_results))) %>%
         dplyr::pull(.data$data)
     }
 
@@ -340,12 +334,10 @@ cross_validate_list <- function(data,
     dplyr::arrange(.data$model)
 
   # Extract hparams from grid
-  hparams <- grid_first_rows %>%
-    dplyr::pull(.data$hparams)
+  hparams <- grid_first_rows[["hparams"]]
 
   # Extract formulas from grid
-  model_formulas <- grid_first_rows %>%
-    dplyr::pull(.data$Formula)
+  model_formulas <- grid_first_rows[["Formula"]]
 
   # Now we want to take the formula from the formulas and split it up into
   # fixed effects and random effects
@@ -363,7 +355,7 @@ cross_validate_list <- function(data,
   # Get model effects for the current output rows
   mixed_effects <- original_formula_order %>%
     dplyr::right_join(tibble::tibble("Formula" = model_formulas), by = "Formula") %>%
-    dplyr::select(-.data$Formula)
+    base_deselect(cols = "Formula")
 
   # Remove Formula column
   original_formula_order[["Formula"]] <- NULL
@@ -382,7 +374,7 @@ cross_validate_list <- function(data,
   # This also removes unwanted columns
   new_col_order <- c(metrics, intersect(info_cols, colnames(output)))
   output <- output %>%
-    dplyr::select(dplyr::one_of(new_col_order)) %>%
+    base_select(cols = new_col_order) %>%
     # Reorder rows by original formula order
     dplyr::right_join(original_formula_order,
                       by = names(original_formula_order))
@@ -390,8 +382,7 @@ cross_validate_list <- function(data,
   # If asked to remove non-converged models from output
   if (isTRUE(rm_nc)){
 
-    output <- output %>%
-      dplyr::filter(.data$`Convergence Warnings` == 0)
+    output <- output[output[["Convergence Warnings"]] == 0,]
 
   }
 

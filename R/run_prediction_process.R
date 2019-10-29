@@ -178,7 +178,7 @@ run_predict_fn <- function(test_data,
 
       # Select prediction column
       predictions <- predictions %>%
-        dplyr::select(.data$prediction)
+        base_select(cols = "prediction")
 
     } else if (model_specifics[["family"]] == "multinomial"){
 

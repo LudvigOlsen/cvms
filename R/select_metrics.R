@@ -43,13 +43,6 @@ select_metrics <- function(results, include_definitions = TRUE,
     metric_cols <- add_additional_colnames(metric_cols, additional_includes)
     metric_cols <- dplyr::intersect(metric_cols, colnames(results))
 
-    if (isTRUE(include_definitions)){
-      return( dplyr::select(results, dplyr::one_of(metric_cols), dplyr::one_of(model_formula_cols)))
-    } else {
-      return( dplyr::select(results, dplyr::one_of(metric_cols)))
-    }
-
-
   } else if (results[["Family"]][[1]] == "binomial"){
 
     metric_cols <- c("Balanced Accuracy", "Accuracy",
@@ -60,12 +53,6 @@ select_metrics <- function(results, include_definitions = TRUE,
 
     metric_cols <- add_additional_colnames(metric_cols, additional_includes)
     metric_cols <- dplyr::intersect(metric_cols, colnames(results))
-
-    if (isTRUE(include_definitions)){
-      return( dplyr::select(results, dplyr::one_of(metric_cols), dplyr::one_of(model_formula_cols)))
-    } else {
-      return( dplyr::select(results, dplyr::one_of(metric_cols)))
-    }
 
   } else if (results[["Family"]][[1]] == "multinomial"){
 
@@ -89,14 +76,15 @@ select_metrics <- function(results, include_definitions = TRUE,
     metric_cols <- add_additional_colnames(metric_cols, additional_includes)
     metric_cols <- dplyr::intersect(metric_cols, colnames(results))
 
-    if (isTRUE(include_definitions)){
-      return( dplyr::select(results, dplyr::one_of(metric_cols), dplyr::one_of(model_formula_cols)))
-    } else {
-      return( dplyr::select(results, dplyr::one_of(metric_cols)))
-    }
-
   } else {
     stop(paste0("Family, ", results[["Family"]], ", not currently supported."))
+  }
+
+  # Return the specified columns
+  if (isTRUE(include_definitions)){
+    return(base_select(results, cols = c(metric_cols, model_formula_cols)))
+  } else {
+    return(base_select(results, cols = c(metric_cols)))
   }
 
 }

@@ -108,14 +108,13 @@ combine_predictors <- function(dependent,
     # Without interactions
     effect_combinations <- plyr::ldply(1:max_fixed_effects, function(i){
       as.data.frame(t(combn(fixed_effects, i)), stringsAsFactors=FALSE)
-    })
-
-    # effect_combinations[is.na(effect_combinations)] <- "__NA__"
+    }) %>%
+      dplyr::as_tibble()
 
     # Create formulas without interactions
     formulas <- effect_combinations %>%
       dplyr::mutate(formula_ = purrr::pmap_chr(., paste_columns, collapse=" + ")) %>%
-      dplyr::select(.data$formula_)
+      base_select(cols = "formula_")
 
   } else {
 
@@ -151,7 +150,7 @@ combine_predictors <- function(dependent,
     }
 
     formulas <- formulas %>%
-      dplyr::select(.data$formula_) %>%
+      base_select(cols = "formula_") %>%
       dplyr::distinct()
   }
 
@@ -286,8 +285,9 @@ get_terms_matrix <- function(fixed_effects){
   terms_matrix <- dplyr::as_tibble(terms_matrix)
   terms_matrix[["1"]] <- NULL
   terms_matrix$terms <- stringr::str_replace_all(terms, ":", " \\* ")
+  # Place terms as first column and calculate number of terms
   terms_matrix %>%
-    dplyr::select(.data$terms, dplyr::everything()) %>%
+    position_first(col = "terms") %>%
     dplyr::mutate(num_terms = rowSums(.[2:(length(fixed_effects)+1)]))
 }
 

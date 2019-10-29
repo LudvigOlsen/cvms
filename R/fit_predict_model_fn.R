@@ -78,12 +78,11 @@ fit_predict_model_fn <- function(train_data,
     dplyr::bind_rows(prediction_process[["warnings_and_messages"]]) %>%
     dplyr::mutate(Fold = fold_info[["rel_fold"]],
                   `Fold Column` = as.character(fold_info[["fold_column"]])) %>%
-    dplyr::select(dplyr::one_of(
-      c("Fold Column", "Fold", "Function", "Type", "Message")))
+    base_select(cols = c("Fold Column", "Fold", "Function", "Type", "Message"))
 
   if (!isTRUE(include_fold_columns)){
     warnings_and_messages <- warnings_and_messages %>%
-      dplyr::select(-dplyr::one_of("Fold Column", "Fold"))
+      base_deselect(cols = c("Fold Column", "Fold"))
   }
 
   list(

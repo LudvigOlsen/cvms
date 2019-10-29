@@ -52,7 +52,8 @@ create_multinomial_baseline_evaluations <- function(test_data,
   # Evaluate the probability tibbles
 
   # Evaluate random predictions
-  evaluations_random <- plyr::ldply(1:reps, .parallel = parallel_, function(evaluation){
+  evaluations_random <- plyr::ldply(seq_len(reps), .parallel = parallel_,
+                                    function(evaluation){
     probabilities <- random_probabilities[[evaluation]]
     test_data <- dplyr::bind_cols(test_data,
                                   probabilities)
@@ -84,7 +85,7 @@ create_multinomial_baseline_evaluations <- function(test_data,
     )
 
   # Evaluate all or nothing predictions
-  evaluations_all_or_nothing <- plyr::ldply(1:num_classes, .parallel = parallel_, function(cl_ind){
+  evaluations_all_or_nothing <- plyr::ldply(seq_len(num_classes), .parallel = parallel_, function(cl_ind){
 
     probabilities <- all_or_nothing_probabilities[[cl_ind]]
     test_data <- dplyr::bind_cols(test_data,
@@ -113,23 +114,35 @@ create_multinomial_baseline_evaluations <- function(test_data,
 
   # Extract evaluations
 
-  evaluations_random_results <- evaluations_random %>%
-    dplyr::select(-dplyr::one_of("Class Level Results"))
-  evaluations_random_class_level_results <- evaluations_random %>%
-    dplyr::filter(!.data$NAs_removed) %>% # The class level results do not differ between NAs_removed
-    dplyr::pull(`Class Level Results`)
-  evaluations_all_or_nothing_results <- evaluations_all_or_nothing %>%
-    dplyr::select(-dplyr::one_of("Class Level Results"))
+  evaluations_random_results <- base_deselect(
+    evaluations_random, cols = "Class Level Results")
+
+  # Keep NAs_removed == FALSE and pull Class Level Results
+  evaluations_random_class_level_results <- evaluations_random[
+    !evaluations_random[["NAs_removed"]],
+    ][["Class Level Results"]]
+
+  evaluations_all_or_nothing_results <- base_deselect(evaluations_all_or_nothing,
+                                                      cols = "Class Level Results")
+
   evaluations_all_or_nothing_class_level_results <-
     evaluations_all_or_nothing[["Class Level Results"]]
 
   # Subset the version with and without na.rm = TRUE
-  evaluations_random_results_NAs_removed <- evaluations_random_results %>%
-    dplyr::filter(.data$NAs_removed) %>%
-    dplyr::select(-.data$NAs_removed)
-  evaluations_random_results_NAs_kept <- evaluations_random_results %>%
-    dplyr::filter(!.data$NAs_removed) %>%
-    dplyr::select(-.data$NAs_removed)
+
+  evaluations_random_results_NAs_removed <- evaluations_random_results[
+    # Keep NAs_removed == TRUE
+    evaluations_random_results[["NAs_removed"]] ,
+    # Remove the NAs_removed column
+    setdiff(colnames(evaluations_random_results), "NAs_removed")
+  ]
+
+  evaluations_random_results_NAs_kept <- evaluations_random_results[
+    # Keep NAs_removed == FALSE
+    !evaluations_random_results[["NAs_removed"]] ,
+    # Remove the NAs_removed column
+    setdiff(colnames(evaluations_random_results), "NAs_removed")
+  ]
 
   evaluations_random_class_level_results <- evaluations_random_class_level_results %>%
     dplyr::bind_rows(.id = "Repetition") %>%
@@ -140,7 +153,7 @@ create_multinomial_baseline_evaluations <- function(test_data,
     )
 
   evaluations_all_or_nothing_results <- evaluations_all_or_nothing_results %>%
-    dplyr::rename(All_class = .data$Class) %>%
+    base_rename(before = "Class", after = "All_class") %>%
     dplyr::mutate(
       Family = "multinomial",
       Dependent = dependent_col
@@ -161,9 +174,9 @@ create_multinomial_baseline_evaluations <- function(test_data,
   # Find the class level summaries
   summarized_metrics_class_level <- plyr::ldply(classes, function(cl){
     # Extract the class level (non averaged) results and select the metric columns
-    metric_cols_current_class <- metric_cols_class_level_results %>%
-      dplyr::filter(.data$Class == cl) %>%
-      dplyr::select(-.data$Class)
+    metric_cols_current_class <- metric_cols_class_level_results[
+      metric_cols_class_level_results[["Class"]] == cl,]
+    metric_cols_current_class[["Class"]] <- NULL
 
     summarized_class_level_result <- summarize_metrics(
       metric_cols_current_class,
@@ -179,9 +192,12 @@ create_multinomial_baseline_evaluations <- function(test_data,
       dplyr::mutate(Class = cl)
 
   }) %>%
-    dplyr::as_tibble() %>%
-    dplyr::select(.data$Class, dplyr::everything())  %>%
-    dplyr::arrange(.data$Class)
+    dplyr::as_tibble()
+
+  # Move Class to be first column
+  summarized_metrics_class_level <- summarized_metrics_class_level[
+    , c("Class", setdiff(names(summarized_metrics_class_level), "Class"))
+  ]
 
   # Extract the metrics that we need to get entirely from the repetition results
   # such as Overall Accuracy
@@ -198,8 +214,9 @@ create_multinomial_baseline_evaluations <- function(test_data,
 
   # Extract the ones where we want min and max to come from
   # the repetition results
-  summarized_repetition_result_metrics <- summarized_repetitions %>%
-    dplyr::select(dplyr::one_of("Measure", repetition_result_metrics)) %>%
+  summarized_repetition_result_metrics <- base_select(
+    summarized_repetitions,
+    cols = c("Measure", repetition_result_metrics)) %>%
 
     # As these would have NA and INF counts from the
     # random evaluation results (computed with na.rm = TRUE)
@@ -212,8 +229,10 @@ create_multinomial_baseline_evaluations <- function(test_data,
 
   # Remove
   summarized_repetitions <- summarized_repetitions %>%
-    dplyr::select(-dplyr::one_of(repetition_result_metrics)) %>%
-    dplyr::filter(.data$Measure %ni% c("Min","Max","NAs","INFs"))
+    base_deselect(repetition_result_metrics)
+  summarized_repetitions <- summarized_repetitions[
+    summarized_repetitions[["Measure"]] %ni% c("Min","Max","NAs","INFs"),
+  ]
 
   # Extract the overall max,min,NAs count, and INFs count
   # from the summarized class level results
@@ -238,8 +257,7 @@ create_multinomial_baseline_evaluations <- function(test_data,
                        dplyr::mutate(Measure = paste0("All_", .data$All_class)) %>%
                        select_metrics(include_definitions = FALSE,
                                       additional_includes = "Measure")) %>%
-    dplyr::select(dplyr::one_of(c("Measure", metrics)))
-
+    base_select(c("Measure", metrics))
 
   # Nest the repetition class level results
   # And add to the random evaluations tibble
@@ -274,7 +292,6 @@ create_multinomial_baseline_evaluations <- function(test_data,
   nested_class_level[["Results"]] <- summarized_metrics_class_level %>%
     dplyr::group_nest(.key = "Results", keep = FALSE) %>%
     dplyr::pull(.data$Results)
-
 
   # TODO Rename to something meaningful.
   # Note, overall accuracy is not an average, so average metrics are not that meaningful!
@@ -338,13 +355,11 @@ nest_rowwise <- function(data){
   data %>%
     dplyr::group_by(!!as.name(tmp_index)) %>%
     dplyr::group_nest() %>%
-    # legacy_nest(1:n_cols) %>%
     dplyr::pull(.data$data)
 }
 
 summarize_measure <- function(data, measure_name, FUN, na.rm = FALSE){
-  data %>%
-    dplyr::filter(.data$Measure == measure_name) %>%
+  data[data[["Measure"]] == measure_name,] %>%
     dplyr::mutate(Family = "binomial") %>%
     select_metrics(include_definitions = FALSE) %>%
     dplyr::summarise_all(.funs = list(~FUN(., na.rm = na.rm))) %>%

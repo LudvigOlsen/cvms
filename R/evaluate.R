@@ -712,7 +712,7 @@ run_internal_evaluate_wrapper <- function(
       # ".__grouping__" is used when na.rm = "both"!
       dplyr::bind_rows(.id = ".__grouping__") %>%
       tibble::as_tibble() %>%
-      dplyr::select(-dplyr::one_of("Results"))
+      base_deselect(cols = "Results")
     evaluations[["Class Level Results"]] <- NULL
     class_level_results <- grouping_keys %>%
       dplyr::slice(rep(1:dplyr::n(), each = num_classes)) %>%
@@ -725,7 +725,7 @@ run_internal_evaluate_wrapper <- function(
       # Remove ".__grouping__" again
       dplyr::mutate(data = purrr::map(.data$data,
                                       .f = ~ .x %>%
-                                        dplyr::select(-dplyr::one_of(".__grouping__")))) %>%
+                                        base_deselect(cols = ".__grouping__"))) %>%
       dplyr::pull(.data$data)
 
   }

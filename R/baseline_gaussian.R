@@ -55,10 +55,10 @@ create_gaussian_baseline_evaluations <- function(train_data,
   # Subset data frames to only contain the relevant columns
 
   train_data <- train_data %>%
-    dplyr::select(dplyr::one_of(model_variables))
+    base_select(cols = model_variables)
 
   test_data <- test_data %>%
-    dplyr::select(dplyr::one_of(model_variables))
+    base_select(cols = model_variables)
 
   # Get targets
   test_targets <- test_data[[dependent_col]]
@@ -85,11 +85,11 @@ create_gaussian_baseline_evaluations <- function(train_data,
     dplyr::mutate(to_add = c(-0.001, 0.001),
                   limits = .data$inclusion_probability + .data$to_add,
                   min_max = c("max_","min_")) %>%
-    dplyr::select(.data$split_factor, .data$min_max, .data$limits) %>%
+    base_select(cols = c("split_factor", "min_max", "limits")) %>%
     tidyr::spread(key = "min_max", value="limits") %>%
     dplyr::mutate(inclusion_probability_threshold = runif(1, min = .data$min_, max = .data$max_)) %>%
     dplyr::ungroup() %>%
-    dplyr::select(-c(.data$max_, .data$min_))
+    base_deselect(cols = c("max_", "min_"))
 
   # Filter rows to get training set indices
   # for the n_samplings evaluations
@@ -97,7 +97,7 @@ create_gaussian_baseline_evaluations <- function(train_data,
     dplyr::ungroup() %>%
     dplyr::inner_join(sampling_boundaries, by = "split_factor") %>%
     dplyr::filter(.data$inclusion_probability > .data$inclusion_probability_threshold) %>%
-    dplyr::select(c(.data$split_factor, .data$indices))
+    base_select(cols = c("split_factor", "indices"))
 
   # Get the lists of indices
   train_sets_indices <- split(train_sets_indices[["indices"]],

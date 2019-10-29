@@ -211,7 +211,7 @@ validate_list <- function(train_data,
        include_fold_columns = FALSE,
        include_predictions = TRUE    # TODO Perhaps should be arg in main fn?
      ) %>%
-       dplyr::select(-dplyr::one_of("Results"))
+       base_deselect(cols = "Results")
 
      # Combine the various columns
      evaluation <- prediction_evaluation %>%
@@ -239,7 +239,7 @@ validate_list <- function(train_data,
   # Order by original formulas
   output <- validations %>%
     dplyr::right_join(tibble::tibble("Formula" = formulas), by = "Formula") %>%
-    dplyr::select(-.data$Formula)
+    base_deselect(cols = "Formula")
 
   if (is.null(hyperparameters)){
     output[["HParams"]] <- NULL
@@ -248,7 +248,7 @@ validate_list <- function(train_data,
   # Reorder data frame
   new_col_order <- c(metrics, intersect(info_cols, colnames(output)))
   output <- output %>%
-    dplyr::select(dplyr::one_of(new_col_order))
+    base_select(cols = new_col_order)
 
   # Remove singular_fit_messages if not cross_validate
   if (!isTRUE(is_validate)){
@@ -258,8 +258,7 @@ validate_list <- function(train_data,
   # If asked to remove non-converged models from output
   if (isTRUE(rm_nc)){
 
-    output <- output %>%
-      dplyr::filter(.data$`Convergence Warnings` == 0)
+    output <- output[output[["Convergence Warnings"]] == 0 ,]
 
   }
 

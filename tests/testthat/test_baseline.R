@@ -404,11 +404,11 @@ test_that("gaussian evaluations of random effects models are correct with REML F
 test_that("multinomial evaluations are correct in baseline()",{
 
   set_seed_for_R_compatibility(1)
-  targets_1 <- dplyr::sample_n(tibble::enframe(rep(1:3, each=10), value = "targets_3"), 25) %>%
+  targets_1 <- dplyr::sample_n(tibble::enframe(rep(1:3, each = 10), value = "targets_3"), 25) %>%
     dplyr::select(-name)
-  targets_2 <- dplyr::sample_n(tibble::enframe(rep(1:4, each=10), value = "targets_4"), 25) %>%
+  targets_2 <- dplyr::sample_n(tibble::enframe(rep(1:4, each = 10), value = "targets_4"), 25) %>%
     dplyr::select(-name)
-  targets_3 <- dplyr::sample_n(tibble::enframe(rep(1:5, each=10), value = "targets_5"), 25) %>%
+  targets_3 <- dplyr::sample_n(tibble::enframe(rep(1:5, each = 10), value = "targets_5"), 25) %>%
     dplyr::select(-name)
 
   different_targets <- targets_1 %>%

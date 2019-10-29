@@ -142,11 +142,7 @@ calculate_model_metrics <- function(model, REML, metrics){
 
   # Return the metrics we want
   model_metrics %>%
-    dplyr::select(
-      dplyr::one_of(
-        intersect(metrics, colnames(model_metrics))
-      )
-    )
+    base_select(cols = intersect(metrics, colnames(model_metrics)))
 }
 
 run_if_in <- function(calc_fn, metric_name, metrics){

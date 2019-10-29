@@ -67,7 +67,7 @@ prepare_id_level_evaluation <- function(data,
     if (family == "multinomial"){
 
       data[["predicted_class_index"]] <- data %>%
-        dplyr::select(dplyr::one_of(prediction_cols)) %>%
+        base_select(cols = prediction_cols) %>%
         argmax()
       data[["predicted_class"]] <- purrr::map_chr(
         data[["predicted_class_index"]],
@@ -99,8 +99,7 @@ prepare_id_level_evaluation <- function(data,
       if (length(classes_to_add) > 0){
         majority_vote_probabilities <- majority_vote_probabilities %>%
           dplyr::bind_cols(na_cols) %>%
-          dplyr::select(dplyr::one_of(
-            groups_col, id_col, target_col, prediction_cols))
+          base_select(cols = c(groups_col, id_col, target_col, prediction_cols))
       }
 
       # Set NAs to 0
@@ -190,9 +189,9 @@ prepare_multinomial_evaluation <- function(data,
 extract_and_remove_probability_cols <- function(data, prediction_cols) {
   # Split data into probabilities and the rest
   predicted_probabilities <- data %>%
-    dplyr::select(dplyr::one_of(prediction_cols))
+    base_select(cols = prediction_cols)
   data <- data %>%
-    dplyr::select(-dplyr::one_of(prediction_cols))
+    base_deselect(cols = prediction_cols)
 
   # Test that the probability columns are numeric
   if (any(!sapply(predicted_probabilities, is.numeric))) {
@@ -206,7 +205,7 @@ extract_and_remove_probability_cols <- function(data, prediction_cols) {
 extract_id_classes <- function(data, groups_col, id_col, target_col){
 
   id_classes <- data %>%
-    dplyr::select(!!as.name(groups_col), !!as.name(id_col), !!as.name(target_col)) %>%
+    base_select(cols = c(groups_col, id_col, target_col)) %>%
     dplyr::distinct()
 
   # Make sure the targets are constant within IDs

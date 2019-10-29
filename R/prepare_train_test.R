@@ -110,8 +110,7 @@ prepare_train_test <- function(data, fold_info, fold_cols, model_specifics){
                                                                fn = "preprocess_fn") %>%
     dplyr::mutate(`Fold Column` = as.character(fold_info[["fold_column"]]),
                   Fold = fold_info[["rel_fold"]]) %>%
-    dplyr::select(dplyr::one_of(
-      c("Fold Column", "Fold", "Function", "Type", "Message")))
+    base_select(cols = c("Fold Column", "Fold", "Function", "Type", "Message"))
 
   # Message the caught messages to the user
   for (m in messages){
@@ -167,15 +166,16 @@ run_preprocess_once <- function(data,
   # Extract fold grid for model 1
   fold_grid_model_1 <- computation_grid %>%
     dplyr::filter(model == 1) %>%
-    dplyr::select(dplyr::one_of(c("fold_col_name", "rel_fold", "abs_fold")))
+    base_select(cols = c("fold_col_name", "rel_fold", "abs_fold"))
 
   # Subset and preprocess each train/test split
   # Nest each split
   data <- plyr::ldply(fold_grid_model_1[["abs_fold"]], function(a_f){
 
     # Extract current fold info
-    current_fold_info <- fold_grid_model_1 %>%
-      dplyr::filter(.data$abs_fold == a_f)
+    current_fold_info <- fold_grid_model_1[
+      fold_grid_model_1[["abs_fold"]] == a_f ,
+    ]
 
     # Subset and preprocess train/test splits
     train_test <- prepare_train_test(
@@ -225,11 +225,11 @@ subset_data <- function(data, fold_info, fold_cols){
   # when defining the model formula.
   train_data <- train_data %>%
     dplyr::ungroup() %>%
-    dplyr::select(-dplyr::one_of(fold_cols))
+    base_deselect(cols = fold_cols)
 
   test_data <- test_data %>%
     dplyr::ungroup() %>%
-    dplyr::select(-dplyr::one_of(fold_cols))
+    base_deselect(cols = fold_cols)
 
   list("train" = train_data,
        "test" = test_data)

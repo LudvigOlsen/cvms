@@ -356,13 +356,13 @@ softmax <- function(data, cols=NULL){
   if (!is.null(cols)){
 
     if (is.numeric(cols)){
-      data_to_process <- data %>% dplyr::select(cols)
-      data_to_leave <- data %>% dplyr::select(-cols)
+      data_to_process <- data[,cols]
+      data_to_leave <- data[,setdiff(seq_len(ncol(data)), cols)]
       cols <- colnames(data_to_process)
 
       } else if (is.character(cols)){
-      data_to_process <- data %>% dplyr::select(dplyr::one_of(cols))
-      data_to_leave <- data %>% dplyr::select(-dplyr::one_of(cols))
+        data_to_process <- data[,cols]
+        data_to_leave <- data[,setdiff(colnames(data), cols)]
       }
 
   } else {
@@ -377,7 +377,7 @@ softmax <- function(data, cols=NULL){
   }
 
   processed_data <- purrr::pmap_dfr(data_to_process,
-           softmax_row)
+                                    softmax_row)
   colnames(processed_data) <- cols
   dplyr::bind_cols(processed_data, data_to_leave)
 
@@ -464,7 +464,8 @@ check_fold_col_factor <- function(data, fold_cols){
     }
     stopifnot(is.factor(data[[fold_cols]]))
   } else {
-    fcols <- data %>% dplyr::select(dplyr::one_of(fold_cols)) %>%
+    fcols <- data %>%
+      base_select(cols = fold_cols) %>%
       sapply(is.factor)
     if (FALSE %in% fcols) {stop("At least one of the fold columns is not a factor.")}
   }
@@ -533,6 +534,24 @@ base_rename <- function(data, before, after){
   data
 }
 
+base_select <- function(data, cols){
+  if(is.data.table(data)){
+    return(data[, cols, with = FALSE])
+  }
+  data[,cols]
+}
 
+base_deselect <- function(data, cols){
+  if(is.data.table(data)){
+    return(data[, setdiff(names(data), cols), with = FALSE])
+  }
+  data[, setdiff(names(data), cols)]
+}
 
+position_first <- function(data, col){
+  if(is.data.table(data)){
+    return(data[, c(col, setdiff(names(data), col)), with = FALSE])
+  }
+  data[,c(col, setdiff(names(data), col))]
+}
 

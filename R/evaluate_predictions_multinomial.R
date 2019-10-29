@@ -88,8 +88,8 @@ evaluate_predictions_multinomial <- function(data,
     }
 
     # Order columns by the class names
-    predicted_probabilities <- predicted_probabilities %>%
-      dplyr::select(dplyr::one_of(classes))
+    predicted_probabilities <- base_select(predicted_probabilities,
+                                           cols = classes)
 
     # Create a column with the predicted class
     data[["predicted_class_index"]] <- argmax(predicted_probabilities)
@@ -101,8 +101,7 @@ evaluate_predictions_multinomial <- function(data,
     multiclass_ROC_AUC <- plyr::llply(unique_fold_cols, function(fcol){
 
       # Extract current fold column
-      fcol_data <- data %>%
-        dplyr::filter(!!as.name(fold_info_cols[["fold_column"]]) == fcol)
+      fcol_data <- data[data[[fold_info_cols[["fold_column"]]]] == fcol,]
 
       # Extract and prepare probabilities
       fcol_probabilities <- as.data.frame(
@@ -114,8 +113,7 @@ evaluate_predictions_multinomial <- function(data,
       # Calculate multiclass ROC
       roc <- pROC::multiclass.roc(response = fcol_targets,
                                   predictor = fcol_probabilities,
-                                  levels = cat_levels_in_targets_col,
-                                  direction = ">") # TODO CHECK THIS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                                  levels = cat_levels_in_targets_col)
       list("ROC" = list(roc),
            "AUC" = as.numeric(pROC::auc(roc)))
 
@@ -209,8 +207,9 @@ evaluate_predictions_multinomial <- function(data,
                                                 )
 
     # Place Class column first
-    one_vs_all_evaluations <- one_vs_all_evaluations %>%
-      dplyr::select(.data$Class, dplyr::everything())
+    one_vs_all_evaluations <- one_vs_all_evaluations[
+      , c("Class", setdiff(colnames(one_vs_all_evaluations), "Class"))
+    ]
 
     # Calculate overall metrics per fold column and average them:
     # 1. Extract the fold column results from each one-vs-all
@@ -219,8 +218,7 @@ evaluate_predictions_multinomial <- function(data,
     # TODO (IMPORTANT THAT THIS IS ADDED TO NEWS.md)
 
     # Extract the metrics for calculating (weighted) averages
-    metrics_only <- one_vs_all_evaluations %>%
-      dplyr::pull(.data$Results) %>%
+    metrics_only <- one_vs_all_evaluations[["Results"]] %>%
       dplyr::bind_rows()
 
     # Values to use in na.rm
@@ -255,8 +253,8 @@ evaluate_predictions_multinomial <- function(data,
     weighted_average_metrics_to_keep <- intersect(
       c("Fold Column", metrics, "NAs_removed"),
       c(colnames(weighted_average_metrics)))
-    weighted_average_metrics <- weighted_average_metrics %>%
-      dplyr::select(dplyr::one_of(weighted_average_metrics_to_keep))
+    weighted_average_metrics <- base_select(
+      weighted_average_metrics, cols = weighted_average_metrics_to_keep)
 
     # Gather summarized metrics
     fold_column_results <- dplyr::left_join(
@@ -268,13 +266,12 @@ evaluate_predictions_multinomial <- function(data,
         ),
       by = "Fold Column")
 
-    overall_results <- fold_column_results %>%
-      dplyr::select(-dplyr::one_of("Fold Column", "ROC"))
+    overall_results <- base_deselect(fold_column_results,
+                                     cols = c("Fold Column", "ROC"))
 
     # Average results
     overall_results <- plyr::ldply(na.rm_values, function(nr){ # TODO Document this behavior
-      overall_results %>%
-        dplyr::filter(!! as.name("NAs_removed") == nr) %>%
+      overall_results[overall_results[["NAs_removed"]] == nr ,] %>%
         dplyr::group_by(!! as.name("NAs_removed")) %>% # Ensures NAs_removed is kept and not summarized
         dplyr::summarise_all(~mean(., na.rm = nr))
     }) %>% dplyr::as_tibble()
@@ -287,10 +284,10 @@ evaluate_predictions_multinomial <- function(data,
 
     # If we don't want the Overall Accuracy metric, remove it
     if ("Overall Accuracy" %ni% metrics){
-      overall_results <- overall_results %>%
-        dplyr::select(-dplyr::one_of("Overall Accuracy"))
-      fold_column_results <- fold_column_results %>%
-        dplyr::select(-dplyr::one_of("Overall Accuracy"))
+      overall_results <- base_deselect(overall_results,
+                                       cols = "Overall Accuracy")
+      fold_column_results <- base_deselect(fold_column_results,
+                                           cols = "Overall Accuracy")
     }
 
     # Add total counts confusion matrix
@@ -321,7 +318,7 @@ evaluate_predictions_multinomial <- function(data,
     overall_results <- overall_results %>%
       dplyr::left_join(
         fold_column_results %>%
-          dplyr::select(dplyr::one_of(fcr_new_order)) %>%
+          base_select(cols = fcr_new_order) %>%
           dplyr::group_nest(!!as.name("NAs_removed"), .key = "Results") %>%
           tibble::as_tibble(),
         by = "NAs_removed")
@@ -329,7 +326,6 @@ evaluate_predictions_multinomial <- function(data,
     # Add the nested class level results
     overall_results[["Class Level Results"]] <- one_vs_all_evaluations %>%
       dplyr::group_nest() %>%
-      # legacy_nest(seq_len(ncol(one_vs_all_evaluations))) %>%
       tibble::as_tibble() %>%
       dplyr::pull(.data$data) %>%
       repeat_list_if(2, condition = both_keep_and_remove_NAs)
@@ -340,7 +336,7 @@ evaluate_predictions_multinomial <- function(data,
     non_metric_cols <- setdiff(all_cols, c(prediction_metrics, "Class Level Results", "Results"))
     new_order <- c(prediction_metrics, "Results", "Class Level Results", non_metric_cols)
     results <- overall_results %>%
-      dplyr::select(dplyr::one_of(new_order))
+      base_select(cols = new_order)
 
   } else {
 

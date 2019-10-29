@@ -21,7 +21,7 @@ get_nested_model_coefficients <- function(model,
 
     if (!isTRUE(include_fold_columns)){
       NA_coeffs <- NA_coeffs %>%
-        dplyr::select(-dplyr::one_of("Fold", "Fold Column"))
+        base_deselect(cols = c("Fold Column", "Fold"))
     }
 
     nested_NA_coeffs <- NA_coeffs %>%

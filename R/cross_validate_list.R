@@ -179,7 +179,6 @@ cross_validate_list <- function(data,
     # Extract current preprocessing parameters
     current_preprocess_params <- dplyr::bind_rows(current_grid[["Preprocess"]])
     nested_current_preprocess_params <- current_preprocess_params %>%
-      # legacy_nest(seq_len(ncol(current_preprocess_params))) %>%
       dplyr::group_nest() %>%
       dplyr::pull(.data$data)
 
@@ -222,7 +221,6 @@ cross_validate_list <- function(data,
     current_coefficients <- current_model_evals[["Coefficients"]] %>%
       dplyr::bind_rows()
     nested_current_coefficients <- current_coefficients %>%
-      # legacy_nest(seq_len(ncol(current_coefficients))) %>%
       dplyr::group_nest() %>%
       dplyr::pull(.data$data)
 
@@ -289,6 +287,10 @@ cross_validate_list <- function(data,
         fold_results <- fold_results %>%
           dplyr::full_join(fold_col_model_metrics_nested,
                            by = c(`Fold Column` = fold_info_cols[["fold_column"]]))
+        fold_results <- fold_results %>%
+          base_select(cols = c("Fold Column", metrics,
+                               setdiff(colnames(fold_results),
+                                       c("Fold Column", metrics))))
       }
 
     }
@@ -353,7 +355,8 @@ cross_validate_list <- function(data,
 
   # Get model effects for the current output rows
   mixed_effects <- original_formula_order %>%
-    dplyr::right_join(tibble::tibble("Formula" = model_formulas), by = "Formula") %>%
+    dplyr::right_join(tibble::tibble("Formula" = model_formulas),
+                      by = "Formula") %>%
     base_deselect(cols = "Formula")
 
   # Remove Formula column

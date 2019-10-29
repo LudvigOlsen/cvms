@@ -33,8 +33,8 @@ example_preprocess_functions <- function(name){
 
       # Apply standardization to all numeric variables in
       # train_data and test_data
-      train_data <- predict(preprocess_params, train_data)
-      test_data <- predict(preprocess_params, test_data)
+      train_data <- stats::predict(preprocess_params, train_data)
+      test_data <- stats::predict(preprocess_params, test_data)
 
       # Extract parameters and add to tibble
       tidy_parameters <- tibble::tibble("Measure" = c("Mean", "SD")) %>%
@@ -57,8 +57,8 @@ example_preprocess_functions <- function(name){
 
         # Apply normalization to all numeric variables in
         # train_data and test_data
-        train_data <- predict(preprocess_params, train_data)
-        test_data <- predict(preprocess_params, test_data)
+        train_data <- stats::predict(preprocess_params, train_data)
+        test_data <- stats::predict(preprocess_params, test_data)
 
         # Extract parameters and add to tibble
         tidy_parameters <- tibble::tibble("Measure" = c("Min", "Max")) %>%

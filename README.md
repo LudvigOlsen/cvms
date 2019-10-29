@@ -27,16 +27,17 @@ status](https://ci.appveyor.com/api/projects/status/github/LudvigOlsen/cvms?bran
 R package: Cross-validate one or multiple regression or classification
 models and get relevant evaluation metrics in a tidy format. Validate
 the best model on a test set and compare it to a baseline evaluation.
-Alternatively, evaluate predictions from an external model. Currently
-supports regression (`'gaussian'`), binary classification
-(`'binomial'`), and (some functions only) multiclass classification
-(`'multinomial'`).
+Perform hyperparameter tuning with (sampled) grid search. Evaluate
+predictions from an external model. Currently supports regression
+(`'gaussian'`), binary classification (`'binomial'`), and (some
+functions only) multiclass classification (`'multinomial'`).
 
 Main functions:
 
   - `cross_validate()`  
   - `cross_validate_fn()`  
   - `validate()`  
+  - `validate_fn()`  
   - `evaluate()`
   - `baseline()`  
   - `combine_predictors()`  
@@ -75,7 +76,6 @@ Main functions:
           - [Multinomial](#baseline-multinomial)
       - [Plot results](#plot)
           - [Gaussian](#plot-gaussian)
-          - [Binomial](#plot-binomial)
       - [Generate model formulas](#generate-formulas)
 
 ### The difference between `cross_validate()` and `cross_validate_fn()`
@@ -88,13 +88,28 @@ with those functions.
 
 To allow cross-validation of custom model functions like support-vector
 machines, neural networks, etc., the `cross_validate_fn()` function has
-been added. You provide a model function and (if defaults fail) a
-predict function, and it does the rest (see examples below).
+been added. You provide a model function and a predict function, and it
+does the rest (see examples below). Additionally, you can provide a
+preprocess function and a list or data frame with hyperparameter values
+to test.
 
 ## Important News
 
-  - `cross_validate_fn()` is added. Cross-validate custom model
-    functions.
+Note: Check NEWS.md for the full list of changes.
+
+  - In `cross_validate()` and `validate()`, the `models` argument is
+    renamed to `formulas` and the `model_verbose` argument is renamed to
+    `verbose`. Further, the `link` argument is hard-deprecated and will
+    throw an error if used.
+
+  - `Multinomial` AUC is now calculated with `pROC::multiclass.roc`.
+
+  - `cross_validate_fn()` and `validate_fn()` now take the
+    `preprocess_fn`, `preprocess_once`, and `hyperparameters` arguments.
+    The `predict_type` argument has been removed.
+
+  - `cross_validate_fn()` and `validate_fn()` are added.
+    (Cross-)validate custom model functions.
 
   - In `evaluate()`, when `type` is `multinomial`, the output is now a
     single tibble. The `Class Level Results` are included as a nested
@@ -105,8 +120,8 @@ predict function, and it does the rest (see examples below).
   - `evaluate()` is added. Evaluate your model’s predictions with the
     same metrics as used in `cross_validate()`.
 
-  - AUC calculation has changed. Now explicitly sets the direction in
-    `pROC::roc`. (27th of May 2019)
+  - `Binomial` AUC calculation has changed. Now explicitly sets the
+    direction in `pROC::roc`. (27th of May 2019)
 
   - Argument `positive` now defaults to `2`. If a dependent variable has
     the values 0 and 1, 1 is now the default positive class, as that’s
@@ -189,22 +204,22 @@ data %>% head(15) %>% kable()
 ### Gaussian
 
 ``` r
-CV1 <- cross_validate(data, "score~diagnosis",
+CV1 <- cross_validate(data, 
+                      formulas = "score~diagnosis",
                       fold_cols = '.folds',
                       family = 'gaussian',
                       REML = FALSE)
 
 # Show results
 CV1
-#> # A tibble: 1 x 20
+#> # A tibble: 1 x 19
 #>    RMSE   MAE   r2m   r2c   AIC  AICc   BIC Predictions Results
 #>   <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <list>      <list> 
 #> 1  16.4  13.8 0.271 0.271  195.  196.  198. <tibble [3… <tibbl…
-#> # … with 11 more variables: Coefficients <list>, Folds <int>, `Fold
+#> # … with 10 more variables: Coefficients <list>, Folds <int>, `Fold
 #> #   Columns` <int>, `Convergence Warnings` <int>, `Singular Fit
 #> #   Messages` <int>, `Other Warnings` <int>, `Warnings and
-#> #   Messages` <list>, Family <chr>, Link <chr>, Dependent <chr>,
-#> #   Fixed <chr>
+#> #   Messages` <list>, Family <chr>, Dependent <chr>, Fixed <chr>
 
 # Let's take a closer look at the different parts of the output 
 
@@ -253,32 +268,33 @@ CV1$Results[[1]] %>% kable()
 CV1$Coefficients[[1]] %>% kable()
 ```
 
-| term        |   estimate | std.error |  statistic |   p.value | Fold | Fold Column |
-| :---------- | ---------: | --------: | ---------: | --------: | ---: | :---------- |
-| (Intercept) |   51.00000 |  5.901264 |   8.642216 | 0.0000000 |    1 | .folds      |
-| diagnosis   | \-20.33333 |  7.464574 | \-2.723978 | 0.0123925 |    1 | .folds      |
-| (Intercept) |   53.33333 |  5.718886 |   9.325826 | 0.0000000 |    2 | .folds      |
-| diagnosis   | \-19.66667 |  7.565375 | \-2.599563 | 0.0176016 |    2 | .folds      |
-| (Intercept) |   49.77778 |  5.653977 |   8.804030 | 0.0000000 |    3 | .folds      |
-| diagnosis   | \-18.77778 |  7.151778 | \-2.625610 | 0.0154426 |    3 | .folds      |
-| (Intercept) |   49.55556 |  5.061304 |   9.791065 | 0.0000000 |    4 | .folds      |
-| diagnosis   | \-22.30556 |  6.695476 | \-3.331437 | 0.0035077 |    4 | .folds      |
+| Fold Column | Fold | term        |   estimate | std.error |  statistic |   p.value |
+| :---------- | ---: | :---------- | ---------: | --------: | ---------: | --------: |
+| .folds      |    1 | (Intercept) |   51.00000 |  5.901264 |   8.642216 | 0.0000000 |
+| .folds      |    1 | diagnosis   | \-20.33333 |  7.464574 | \-2.723978 | 0.0123925 |
+| .folds      |    2 | (Intercept) |   53.33333 |  5.718886 |   9.325826 | 0.0000000 |
+| .folds      |    2 | diagnosis   | \-19.66667 |  7.565375 | \-2.599563 | 0.0176016 |
+| .folds      |    3 | (Intercept) |   49.77778 |  5.653977 |   8.804030 | 0.0000000 |
+| .folds      |    3 | diagnosis   | \-18.77778 |  7.151778 | \-2.625610 | 0.0154426 |
+| .folds      |    4 | (Intercept) |   49.55556 |  5.061304 |   9.791065 | 0.0000000 |
+| .folds      |    4 | diagnosis   | \-22.30556 |  6.695476 | \-3.331437 | 0.0035077 |
 
 ``` r
 
 # Additional information about the model
 # and the training process
-CV1 %>% select(11:17) %>% kable()
+CV1 %>% select(11:19) %>% kable()
 ```
 
-| Folds | Fold Columns | Convergence Warnings | Singular Fit Messages | Other Warnings | Warnings and Messages                                                                              | Family   |
-| ----: | -----------: | -------------------: | --------------------: | -------------: | :------------------------------------------------------------------------------------------------- | :------- |
-|     4 |            1 |                    0 |                     0 |              0 | list(`Fold Column` = character(0), Fold = integer(0), Type = character(0), Message = character(0)) | gaussian |
+| Folds | Fold Columns | Convergence Warnings | Singular Fit Messages | Other Warnings | Warnings and Messages                                                                                                       | Family   | Dependent | Fixed     |
+| ----: | -----------: | -------------------: | --------------------: | -------------: | :-------------------------------------------------------------------------------------------------------------------------- | :------- | :-------- | :-------- |
+|     4 |            1 |                    0 |                     0 |              0 | list(`Fold Column` = character(0), Fold = integer(0), Function = character(0), Type = character(0), Message = character(0)) | gaussian | score     | diagnosis |
 
 ### Binomial
 
 ``` r
-CV2 <- cross_validate(data, "diagnosis~score",
+CV2 <- cross_validate(data, 
+                      formulas = "diagnosis~score",
                       fold_cols = '.folds',
                       family = 'binomial')
 
@@ -292,10 +308,10 @@ CV2
 #> #   CI` <dbl>, `Upper CI` <dbl>, Kappa <dbl>, MCC <dbl>, `Detection
 #> #   Rate` <dbl>, `Detection Prevalence` <dbl>, Prevalence <dbl>,
 #> #   Predictions <list>, ROC <list>, `Confusion Matrix` <list>,
-#> #   Coefficients <list>, Folds <int>, `Fold Columns` <int>, `Convergence
-#> #   Warnings` <int>, `Singular Fit Messages` <int>, `Other
-#> #   Warnings` <int>, `Warnings and Messages` <list>, Family <chr>,
-#> #   Link <chr>, Dependent <chr>, Fixed <chr>
+#> #   Results <list>, Coefficients <list>, Folds <int>, `Fold
+#> #   Columns` <int>, `Convergence Warnings` <int>, `Singular Fit
+#> #   Messages` <int>, `Other Warnings` <int>, `Warnings and
+#> #   Messages` <list>, Family <chr>, Dependent <chr>, Fixed <chr>
 
 # Let's take a closer look at the different parts of the output 
 # We won't repeat the parts too similar to those in Gaussian
@@ -318,21 +334,6 @@ CV2 %>% select(10:14) %>% kable()
 
 ``` r
 
-# ROC curve info
-CV2$ROC[[1]] %>% head() %>% kable()
-```
-
-| Sensitivities | Specificities |
-| ------------: | ------------: |
-|     1.0000000 |     0.0000000 |
-|     1.0000000 |     0.0833333 |
-|     0.9444444 |     0.0833333 |
-|     0.9444444 |     0.1666667 |
-|     0.9444444 |     0.2500000 |
-|     0.8888889 |     0.2500000 |
-
-``` r
-
 # Confusion matrix
 CV2$`Confusion Matrix`[[1]] %>% kable()
 ```
@@ -349,52 +350,53 @@ CV2$`Confusion Matrix`[[1]] %>% kable()
 ### Create model formulas
 
 ``` r
-models <- c("score~diagnosis", "score~age")
-mixed_models <- c("score~diagnosis+(1|session)", "score~age+(1|session)")
+model_formulas <- c("score~diagnosis", "score~age")
+mixed_model_formulas <- c("score~diagnosis+(1|session)", "score~age+(1|session)")
 ```
 
 ### Cross-validate fixed effects models
 
 ``` r
-CV3 <- cross_validate(data, models,
+CV3 <- cross_validate(data, 
+                      formulas = model_formulas,
                       fold_cols = '.folds',
                       family = 'gaussian',
                       REML = FALSE)
 
 # Show results
 CV3
-#> # A tibble: 2 x 20
+#> # A tibble: 2 x 19
 #>    RMSE   MAE    r2m    r2c   AIC  AICc   BIC Predictions Results
 #>   <dbl> <dbl>  <dbl>  <dbl> <dbl> <dbl> <dbl> <list>      <list> 
 #> 1  16.4  13.8 0.271  0.271   195.  196.  198. <tibble [3… <tibbl…
 #> 2  22.4  18.9 0.0338 0.0338  201.  202.  204. <tibble [3… <tibbl…
-#> # … with 11 more variables: Coefficients <list>, Folds <int>, `Fold
+#> # … with 10 more variables: Coefficients <list>, Folds <int>, `Fold
 #> #   Columns` <int>, `Convergence Warnings` <int>, `Singular Fit
 #> #   Messages` <int>, `Other Warnings` <int>, `Warnings and
-#> #   Messages` <list>, Family <chr>, Link <chr>, Dependent <chr>,
-#> #   Fixed <chr>
+#> #   Messages` <list>, Family <chr>, Dependent <chr>, Fixed <chr>
 ```
 
 ### Cross-validate mixed effects models
 
 ``` r
-CV4 <- cross_validate(data, mixed_models,
+CV4 <- cross_validate(data, 
+                      formulas = mixed_model_formulas,
                       fold_cols = '.folds',
                       family = 'gaussian',
                       REML = FALSE)
 
 # Show results
 CV4
-#> # A tibble: 2 x 21
+#> # A tibble: 2 x 20
 #>    RMSE   MAE    r2m   r2c   AIC  AICc   BIC Predictions Results
 #>   <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <list>      <list> 
 #> 1  7.95  6.41 0.290  0.811  176.  178.  180. <tibble [3… <tibbl…
 #> 2 17.5  16.2  0.0366 0.526  194.  196.  198. <tibble [3… <tibbl…
-#> # … with 12 more variables: Coefficients <list>, Folds <int>, `Fold
+#> # … with 11 more variables: Coefficients <list>, Folds <int>, `Fold
 #> #   Columns` <int>, `Convergence Warnings` <int>, `Singular Fit
 #> #   Messages` <int>, `Other Warnings` <int>, `Warnings and
-#> #   Messages` <list>, Family <chr>, Link <chr>, Dependent <chr>,
-#> #   Fixed <chr>, Random <chr>
+#> #   Messages` <list>, Family <chr>, Dependent <chr>, Fixed <chr>,
+#> #   Random <chr>
 ```
 
 ## Repeated cross-validation
@@ -435,26 +437,26 @@ data %>% head(10) %>% kable()
 | 9           |  34 |         0 |    33 |       1 | 1         | 1         | 2         | 3         |
 
 ``` r
-CV5 <- cross_validate(data, "diagnosis ~ score",
+CV5 <- cross_validate(data, 
+                      formulas = "diagnosis ~ score",
                       fold_cols = paste0(".folds_", 1:4),
                       family = 'binomial',
                       REML = FALSE)
 
 # Show results
 CV5
-#> # A tibble: 1 x 29
+#> # A tibble: 1 x 28
 #>   `Balanced Accur…    F1 Sensitivity Specificity `Pos Pred Value`
 #>              <dbl> <dbl>       <dbl>       <dbl>            <dbl>
 #> 1            0.729 0.813       0.875       0.583            0.759
-#> # … with 24 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
+#> # … with 23 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
 #> #   CI` <dbl>, `Upper CI` <dbl>, Kappa <dbl>, MCC <dbl>, `Detection
 #> #   Rate` <dbl>, `Detection Prevalence` <dbl>, Prevalence <dbl>,
-#> #   Predictions <list>, ROC <list>, Results <list>, `Confusion
-#> #   Matrix` <list>, Coefficients <list>, Folds <int>, `Fold
+#> #   Predictions <list>, ROC <list>, `Confusion Matrix` <list>,
+#> #   Results <list>, Coefficients <list>, Folds <int>, `Fold
 #> #   Columns` <int>, `Convergence Warnings` <int>, `Singular Fit
 #> #   Messages` <int>, `Other Warnings` <int>, `Warnings and
-#> #   Messages` <list>, Family <chr>, Link <chr>, Dependent <chr>,
-#> #   Fixed <chr>
+#> #   Messages` <list>, Family <chr>, Dependent <chr>, Fixed <chr>
 
 # The binomial output now has a nested 'Results' tibble
 # Let's see a subset of the columns
@@ -486,47 +488,70 @@ can do anything you want in it, as long as it takes the arguments
 #
 # train_data : tibble with the training data
 # formula : a formula object
+# hyperparameters : a named list of hyparameters
 
-svm_model_fn <- function(train_data, formula){
+svm_model_fn <- function(train_data, formula, hyperparameters){
   
   # Note that `formula` must be specified first
   # when calling svm(), otherwise it fails
   e1071::svm(formula = formula,
              data = train_data, 
              kernel = "linear",
-             type = "C-classification")
+             type = "C-classification",
+             probability = TRUE)
 }
 ```
 
-For the `svm()` function, the default predict function and settings
-within `cross_validate_fn()` works, so we don’t have to specify a
-predict function. In many cases, it’s probably safer to supply a predict
-function anyway, so you’re sure everything is correct. We will see how
-in the naive Bayes example below, but first, let’s cross-validate the
-model function. Note, that some of the arguments have changed names
-(`models -> formulas`, `family -> type`).
+``` r
+# Create predict function
+#
+# test_data : tibble with the test data
+# model : fitted model object
+# formula : a formula object
+# hyperparameters : a named list of hyparameters
+
+svm_predict_fn <- function(test_data, model, formula, hyperparameters){
+      predictions <- stats::predict(object = model,
+                     newdata = test_data,
+                     allow.new.levels = TRUE,
+                     probability = TRUE)
+
+      # Extract probabilities
+      probabilities <- dplyr::as_tibble(
+        attr(predictions, "probabilities")
+        )
+
+      # Return second column
+      probabilities[[2]]
+    }
+```
+
+<!-- For the `svm()` function, the default predict function and settings within `cross_validate_fn()` works, so we don't have to specify a predict function. In many cases, it's probably safer to supply a predict function anyway, so you're sure everything is correct. We will see how in the naive Bayes example below, but first, let's cross-validate the model function. Note, that some of the arguments have changed names (`models -> formulas`, `family -> type`). -->
 
 ``` r
 # Cross-validate svm_model_fn
 CV6 <- cross_validate_fn(data = data,
                          model_fn = svm_model_fn,
+                         predict_fn = svm_predict_fn,
                          formulas = c("diagnosis~score", "diagnosis~age"),
                          fold_cols = '.folds_1', 
                          type = 'binomial')
+#> Will cross-validate 2 models. This requires fitting 8 model instances.
 
 CV6
-#> # A tibble: 2 x 26
+#> # A tibble: 2 x 27
 #>   `Balanced Accur…    F1 Sensitivity Specificity `Pos Pred Value`
 #>              <dbl> <dbl>       <dbl>       <dbl>            <dbl>
-#> 1            0.694 0.80        0.889         0.5            0.727
-#> 2            0.417 0.667       0.833         0              0.556
-#> # … with 21 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
+#> 1            0.653 0.780       0.889       0.417            0.696
+#> 2            0.458 0.615       0.667       0.25             0.571
+#> # … with 22 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
 #> #   CI` <dbl>, `Upper CI` <dbl>, Kappa <dbl>, MCC <dbl>, `Detection
 #> #   Rate` <dbl>, `Detection Prevalence` <dbl>, Prevalence <dbl>,
 #> #   Predictions <list>, ROC <list>, `Confusion Matrix` <list>,
-#> #   Coefficients <list>, Folds <int>, `Fold Columns` <int>, `Convergence
-#> #   Warnings` <int>, `Other Warnings` <int>, `Warnings and
-#> #   Messages` <list>, Family <chr>, Dependent <chr>, Fixed <chr>
+#> #   Results <list>, Coefficients <list>, Folds <int>, `Fold
+#> #   Columns` <int>, `Convergence Warnings` <int>, `Other Warnings` <int>,
+#> #   `Warnings and Messages` <list>, Family <chr>, Dependent <chr>,
+#> #   Fixed <chr>
 ```
 
 ### Naive Bayes
@@ -540,7 +565,7 @@ we will go through that next. First, let’s create the model function.
 # train_data : tibble with the training data
 # formula : a formula object
 
-nb_model_fn <- function(train_data, formula){
+nb_model_fn <- function(train_data, formula, hyperparameters){
   e1071::naiveBayes(formula = formula, 
                     data = train_data)
 }
@@ -564,7 +589,7 @@ The predict function should take the arguments `test_data`, `model`, and
 # test_data : tibble with the test data
 # model : fitted model object
 # formula : a formula object
-nb_predict_fn <- function(test_data, model, formula){
+nb_predict_fn <- function(test_data, model, formula, hyperparameters){
     stats::predict(object = model, newdata = test_data, 
                    type = "raw", allow.new.levels = TRUE)[,2]
   }
@@ -576,24 +601,26 @@ Bayes classifier.
 ``` r
 CV7 <- cross_validate_fn(data,
                          model_fn = nb_model_fn,
+                         predict_fn = nb_predict_fn,
                          formulas = c("diagnosis~score", "diagnosis~age"),
                          type = 'binomial',
-                         predict_fn = nb_predict_fn,
                          fold_cols = '.folds_1')
+#> Will cross-validate 2 models. This requires fitting 8 model instances.
 
 CV7
-#> # A tibble: 2 x 26
+#> # A tibble: 2 x 27
 #>   `Balanced Accur…    F1 Sensitivity Specificity `Pos Pred Value`
 #>              <dbl> <dbl>       <dbl>       <dbl>            <dbl>
 #> 1            0.736 0.821       0.889       0.583            0.762
 #> 2            0.25  0.462       0.5         0                0.429
-#> # … with 21 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
+#> # … with 22 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
 #> #   CI` <dbl>, `Upper CI` <dbl>, Kappa <dbl>, MCC <dbl>, `Detection
 #> #   Rate` <dbl>, `Detection Prevalence` <dbl>, Prevalence <dbl>,
 #> #   Predictions <list>, ROC <list>, `Confusion Matrix` <list>,
-#> #   Coefficients <list>, Folds <int>, `Fold Columns` <int>, `Convergence
-#> #   Warnings` <int>, `Other Warnings` <int>, `Warnings and
-#> #   Messages` <list>, Family <chr>, Dependent <chr>, Fixed <chr>
+#> #   Results <list>, Coefficients <list>, Folds <int>, `Fold
+#> #   Columns` <int>, `Convergence Warnings` <int>, `Other Warnings` <int>,
+#> #   `Warnings and Messages` <list>, Family <chr>, Dependent <chr>,
+#> #   Fixed <chr>
 ```
 
 ## Evaluating predictions
@@ -698,20 +725,20 @@ and summarize the results.
 ``` r
 # Evaluate predictions
 ev <- evaluate(data = predictions,
-                 target_col = "target",
-                 prediction_cols = class_names,
-                 type = "multinomial")
+               target_col = "target",
+               prediction_cols = class_names,
+               type = "multinomial")
 
 ev
-#> # A tibble: 1 x 18
+#> # A tibble: 1 x 17
 #>   `Overall Accura… `Balanced Accur…    F1 Sensitivity Specificity
 #>              <dbl>            <dbl> <dbl>       <dbl>       <dbl>
 #> 1            0.154            0.427   NaN       0.143       0.712
-#> # … with 13 more variables: `Pos Pred Value` <dbl>, `Neg Pred
-#> #   Value` <dbl>, AUC <dbl>, `Lower CI` <dbl>, `Upper CI` <dbl>,
-#> #   Kappa <dbl>, MCC <dbl>, `Detection Rate` <dbl>, `Detection
-#> #   Prevalence` <dbl>, Prevalence <dbl>, `Class Level Results` <list>,
-#> #   Predictions <list>, `Confusion Matrix` <list>
+#> # … with 12 more variables: `Pos Pred Value` <dbl>, `Neg Pred
+#> #   Value` <dbl>, AUC <dbl>, Kappa <dbl>, MCC <dbl>, `Detection
+#> #   Rate` <dbl>, `Detection Prevalence` <dbl>, Prevalence <dbl>,
+#> #   Predictions <list>, ROC <list>, `Confusion Matrix` <list>, `Class
+#> #   Level Results` <list>
 ```
 
 The class level results (i.e., the one-vs-all evaluations) are also
@@ -720,17 +747,16 @@ included, and would usually be reported alongside the above results.
 ``` r
 ev$`Class Level Results`
 #> [[1]]
-#> # A tibble: 4 x 18
+#> # A tibble: 4 x 14
 #>   Class `Balanced Accur…      F1 Sensitivity Specificity `Pos Pred Value`
 #>   <chr>            <dbl>   <dbl>       <dbl>       <dbl>            <dbl>
 #> 1 clas…            0.476 NaN           0           0.952            0    
 #> 2 clas…            0.380   0.211       0.286       0.474            0.167
 #> 3 clas…            0.474 NaN           0           0.947            0    
 #> 4 clas…            0.380   0.211       0.286       0.474            0.167
-#> # … with 12 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
-#> #   CI` <dbl>, `Upper CI` <dbl>, Kappa <dbl>, MCC <dbl>, `Detection
-#> #   Rate` <dbl>, `Detection Prevalence` <dbl>, Prevalence <dbl>,
-#> #   Support <int>, ROC <list>, `Confusion Matrix` <list>
+#> # … with 8 more variables: `Neg Pred Value` <dbl>, Kappa <dbl>, MCC <dbl>,
+#> #   `Detection Rate` <dbl>, `Detection Prevalence` <dbl>,
+#> #   Prevalence <dbl>, Support <int>, `Confusion Matrix` <list>
 ```
 
 ## Baseline evaluations
@@ -766,18 +792,26 @@ Create the baseline evaluations:
 baseline(test_data = test_set, train_data = train_set,
          n = 100, dependent_col = "score", family = "gaussian")
 #> $summarized_metrics
-#> # A tibble: 9 x 9
-#>   Measure   RMSE    MAE   r2m   r2c   AIC  AICc   BIC `Training Rows`
-#>   <chr>    <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>           <dbl>
-#> 1 Mean     19.7  15.8       0     0  87.0  89.5  87.4            9.63
-#> 2 Median   19.2  15.5       0     0  83.3  85.3  83.7            9   
-#> 3 SD        1.05  0.759     0     0  28.9  27.6  29.6            3.22
-#> 4 IQR       1.16  0.264     0     0  45.9  44.3  47.0            5   
-#> 5 Max      24.1  19.4       0     0 137.  138.  138.            15   
-#> 6 Min      18.9  15.5       0     0  42.0  48.0  41.2            5   
-#> 7 NAs       0     0         0     0   0     0     0              0   
-#> 8 INFs      0     0         0     0   0     0     0              0   
-#> 9 All_rows 19.1  15.5       0     0 161.  162.  163.            18   
+#>    Measure      RMSE        MAE r2m r2c       AIC      AICc       BIC
+#> 1     Mean 19.694703 15.8383731   0   0  86.98349  89.47709  87.39436
+#> 2   Median 19.192945 15.5000000   0   0  83.28857  85.28857  83.68302
+#> 3       SD  1.045639  0.7592939   0   0  28.94671  27.55333  29.64196
+#> 4      IQR  1.161372  0.2638889   0   0  45.91832  44.25165  46.99631
+#> 5      Max 24.147119 19.4166667   0   0 136.81149 137.81149 138.22759
+#> 6      Min 18.923354 15.5000000   0   0  41.97455  47.97455  41.19342
+#> 7      NAs  0.000000  0.0000000   0   0   0.00000   0.00000   0.00000
+#> 8     INFs  0.000000  0.0000000   0   0   0.00000   0.00000   0.00000
+#> 9 All_rows 19.142336 15.5000000   0   0 160.91539 161.71539 162.69613
+#>   Training Rows
+#> 1      9.630000
+#> 2      9.000000
+#> 3      3.215037
+#> 4      5.000000
+#> 5     15.000000
+#> 6      5.000000
+#> 7      0.000000
+#> 8      0.000000
+#> 9     18.000000
 #> 
 #> $random_evaluations
 #> # A tibble: 100 x 13
@@ -809,22 +843,50 @@ Create the baseline evaluations:
 baseline(test_data = test_set, n = 100, 
          dependent_col = "diagnosis", family = "binomial")
 #> $summarized_metrics
-#> # A tibble: 10 x 15
-#>    Measure `Balanced Accur…     F1 Sensitivity Specificity `Pos Pred Value`
-#>    <chr>              <dbl>  <dbl>       <dbl>       <dbl>            <dbl>
-#>  1 Mean               0.502  0.495       0.478       0.525            0.498
-#>  2 Median             0.5    0.5         0.5         0.5              0.500
-#>  3 SD                 0.147  0.159       0.215       0.210            0.194
-#>  4 IQR                0.167  0.252       0.333       0.333            0.200
-#>  5 Max                0.833  0.833       0.833       1                1    
-#>  6 Min                0.167  0.182       0           0                0    
-#>  7 NAs                0      4           0           0                0    
-#>  8 INFs               0      0           0           0                0    
-#>  9 All_0              0.5   NA           0           1              NaN    
-#> 10 All_1              0.5    0.667       1           0                0.5  
-#> # … with 9 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
-#> #   CI` <dbl>, `Upper CI` <dbl>, Kappa <dbl>, MCC <dbl>, `Detection
-#> #   Rate` <dbl>, `Detection Prevalence` <dbl>, Prevalence <dbl>
+#>    Measure Balanced Accuracy        F1 Sensitivity Specificity
+#> 1     Mean         0.5016667 0.4953379   0.4783333   0.5250000
+#> 2   Median         0.5000000 0.5000000   0.5000000   0.5000000
+#> 3       SD         0.1469766 0.1590983   0.2153678   0.2097176
+#> 4      IQR         0.1666667 0.2517483   0.3333333   0.3333333
+#> 5      Max         0.8333333 0.8333333   0.8333333   1.0000000
+#> 6      Min         0.1666667 0.1818182   0.0000000   0.0000000
+#> 7      NAs         0.0000000 4.0000000   0.0000000   0.0000000
+#> 8     INFs         0.0000000 0.0000000   0.0000000   0.0000000
+#> 9    All_0         0.5000000        NA   0.0000000   1.0000000
+#> 10   All_1         0.5000000 0.6666667   1.0000000   0.0000000
+#>    Pos Pred Value Neg Pred Value       AUC   Lower CI  Upper CI
+#> 1       0.4975635      0.5004026 0.4955556 0.14787921 0.8428463
+#> 2       0.5000000      0.5000000 0.4722222 0.09192543 0.8571955
+#> 3       0.1935538      0.1597369 0.1590928 0.16052808 0.1379743
+#> 4       0.2000000      0.2000000 0.2013889 0.21398031 0.2222222
+#> 5       1.0000000      0.8333333 0.8888889 0.69410610 1.0000000
+#> 6       0.0000000      0.0000000 0.1666667 0.00000000 0.4933273
+#> 7       0.0000000      0.0000000 0.0000000 0.00000000 0.0000000
+#> 8       0.0000000      0.0000000 0.0000000 0.00000000 0.0000000
+#> 9             NaN      0.5000000 0.5000000 0.50000000 0.5000000
+#> 10      0.5000000            NaN 0.5000000 0.50000000 0.5000000
+#>           Kappa          MCC Detection Rate Detection Prevalence
+#> 1   0.003333333  0.001150867      0.2391667           0.47666667
+#> 2   0.000000000  0.000000000      0.2500000           0.50000000
+#> 3   0.293953278  0.310390217      0.1076839           0.15355861
+#> 4   0.333333333  0.384900179      0.1666667           0.25000000
+#> 5   0.666666667  0.666666667      0.4166667           0.83333333
+#> 6  -0.666666667 -0.707106781      0.0000000           0.08333333
+#> 7   0.000000000  0.000000000      0.0000000           0.00000000
+#> 8   0.000000000  0.000000000      0.0000000           0.00000000
+#> 9   0.000000000  0.000000000      0.0000000           0.00000000
+#> 10  0.000000000  0.000000000      0.5000000           1.00000000
+#>    Prevalence
+#> 1         0.5
+#> 2         0.5
+#> 3         0.0
+#> 4         0.0
+#> 5         0.5
+#> 6         0.5
+#> 7         0.0
+#> 8         0.0
+#> 9         0.5
+#> 10        0.5
 #> 
 #> $random_evaluations
 #> # A tibble: 100 x 19
@@ -862,31 +924,51 @@ multiclass_baseline <- baseline(
 
 # Summarized metrics
 multiclass_baseline$summarized_metrics
-#> # A tibble: 12 x 16
-#>    Measure `Overall Accura… `Balanced Accur…      F1 Sensitivity
-#>    <chr>              <dbl>            <dbl>   <dbl>       <dbl>
-#>  1 Mean              0.250            0.501   0.283       0.252 
-#>  2 Median            0.231            0.494   0.280       0.243 
-#>  3 SD                0.0841           0.0567  0.0737      0.0853
-#>  4 IQR               0.115            0.0795  0.0920      0.121 
-#>  5 Max               0.538            0.786   0.667       1     
-#>  6 Min               0.0769           0.262   0.111       0     
-#>  7 NAs              NA                0      61           0     
-#>  8 INFs             NA                0       0           0     
-#>  9 All_cl…           0.192            0.5    NA           0.25  
-#> 10 All_cl…           0.269            0.5    NA           0.25  
-#> 11 All_cl…           0.269            0.5    NA           0.25  
-#> 12 All_cl…           0.269            0.5    NA           0.25  
-#> # … with 11 more variables: Specificity <dbl>, `Pos Pred Value` <dbl>,
-#> #   `Neg Pred Value` <dbl>, AUC <dbl>, `Lower CI` <dbl>, `Upper CI` <dbl>,
-#> #   Kappa <dbl>, MCC <dbl>, `Detection Rate` <dbl>, `Detection
-#> #   Prevalence` <dbl>, Prevalence <dbl>
+#>        Measure Overall Accuracy Balanced Accuracy          F1 Sensitivity
+#> 1         Mean       0.25038462        0.50134085  0.28310485  0.25250000
+#> 2       Median       0.23076923        0.49360902  0.28013925  0.24285714
+#> 3           SD       0.08406884        0.05671680  0.07374332  0.08529464
+#> 4          IQR       0.11538462        0.07951128  0.09196935  0.12142857
+#> 5          Max       0.53846154        0.78571429  0.66666667  1.00000000
+#> 6          Min       0.07692308        0.26190476  0.11111111  0.00000000
+#> 7          NAs               NA        0.00000000 61.00000000  0.00000000
+#> 8         INFs               NA        0.00000000  0.00000000  0.00000000
+#> 9  All_class_1       0.19230769        0.50000000          NA  0.25000000
+#> 10 All_class_2       0.26923077        0.50000000          NA  0.25000000
+#> 11 All_class_3       0.26923077        0.50000000          NA  0.25000000
+#> 12 All_class_4       0.26923077        0.50000000          NA  0.25000000
+#>    Specificity Pos Pred Value Neg Pred Value        AUC        Kappa
+#> 1   0.75018170     0.24928523     0.75030214 0.49851701  0.001983840
+#> 2   0.74624060     0.23819444     0.74604533 0.49863946 -0.009196691
+#> 3   0.02837058     0.09327301     0.02956503 0.08005267  0.111210834
+#> 4   0.03853383     0.13272682     0.04058776 0.09991497  0.158289366
+#> 5   1.00000000     0.80000000     1.00000000 0.72346939  0.570247934
+#> 6   0.47368421     0.00000000     0.58823529 0.31938776 -0.434482759
+#> 7   0.00000000     1.00000000     0.00000000         NA  0.000000000
+#> 8   0.00000000     0.00000000     0.00000000         NA  0.000000000
+#> 9   0.75000000            NaN            NaN 0.50000000  0.000000000
+#> 10  0.75000000            NaN            NaN 0.50000000  0.000000000
+#> 11  0.75000000            NaN            NaN 0.50000000  0.000000000
+#> 12  0.75000000            NaN            NaN 0.50000000  0.000000000
+#>             MCC Detection Rate Detection Prevalence Prevalence
+#> 1   0.001487716     0.06259615            0.2500000  0.2500000
+#> 2  -0.011866913     0.05769231            0.2500000  0.2500000
+#> 3   0.115086597     0.02101721            0.0000000  0.0000000
+#> 4   0.163024146     0.02884615            0.0000000  0.0000000
+#> 5   0.583886751     0.19230769            0.5384615  0.2692308
+#> 6  -0.441640623     0.00000000            0.0000000  0.1923077
+#> 7   0.000000000     0.00000000            0.0000000  0.0000000
+#> 8   0.000000000     0.00000000            0.0000000  0.0000000
+#> 9   0.000000000     0.04807692            0.2500000  0.2500000
+#> 10  0.000000000     0.06730769            0.2500000  0.2500000
+#> 11  0.000000000     0.06730769            0.2500000  0.2500000
+#> 12  0.000000000     0.06730769            0.2500000  0.2500000
 
 # Summarized class level results for class 1
 multiclass_baseline$summarized_class_level_results %>% 
   dplyr::filter(Class == "class_1") %>%
   tidyr::unnest(Results)
-#> # A tibble: 10 x 16
+#> # A tibble: 10 x 13
 #>    Class Measure `Balanced Accur…     F1 Sensitivity Specificity
 #>    <chr> <chr>              <dbl>  <dbl>       <dbl>       <dbl>
 #>  1 clas… Mean               0.514  0.284       0.28       0.748 
@@ -899,8 +981,7 @@ multiclass_baseline$summarized_class_level_results %>%
 #>  8 clas… INFs               0      0           0          0     
 #>  9 clas… All_0              0.5   NA           0          1     
 #> 10 clas… All_1              0.5    0.323       1          0     
-#> # … with 10 more variables: `Pos Pred Value` <dbl>, `Neg Pred
-#> #   Value` <dbl>, AUC <dbl>, `Lower CI` <dbl>, `Upper CI` <dbl>,
+#> # … with 7 more variables: `Pos Pred Value` <dbl>, `Neg Pred Value` <dbl>,
 #> #   Kappa <dbl>, MCC <dbl>, `Detection Rate` <dbl>, `Detection
 #> #   Prevalence` <dbl>, Prevalence <dbl>
 
@@ -908,9 +989,9 @@ multiclass_baseline$summarized_class_level_results %>%
 # Note, that the class level results for each repetition
 # is available as well
 multiclass_baseline$random_evaluations
-#> # A tibble: 100 x 21
+#> # A tibble: 100 x 20
 #>    Repetition `Overall Accura… `Balanced Accur…      F1 Sensitivity
-#>         <dbl>            <dbl>            <dbl>   <dbl>       <dbl>
+#>         <int>            <dbl>            <dbl>   <dbl>       <dbl>
 #>  1          1            0.154            0.445 NaN           0.171
 #>  2          2            0.269            0.518 NaN           0.279
 #>  3          3            0.192            0.460   0.195       0.193
@@ -921,11 +1002,11 @@ multiclass_baseline$random_evaluations
 #>  8          8            0.346            0.574   0.341       0.364
 #>  9          9            0.308            0.541   0.315       0.314
 #> 10         10            0.308            0.536   0.322       0.3  
-#> # … with 90 more rows, and 16 more variables: Specificity <dbl>, `Pos Pred
-#> #   Value` <dbl>, `Neg Pred Value` <dbl>, AUC <dbl>, `Lower CI` <dbl>,
-#> #   `Upper CI` <dbl>, Kappa <dbl>, MCC <dbl>, `Detection Rate` <dbl>,
-#> #   `Detection Prevalence` <dbl>, Prevalence <dbl>, Predictions <list>,
-#> #   `Confusion Matrix` <list>, `Class Level Results` <list>, Family <chr>,
+#> # … with 90 more rows, and 15 more variables: Specificity <dbl>, `Pos Pred
+#> #   Value` <dbl>, `Neg Pred Value` <dbl>, AUC <dbl>, Kappa <dbl>,
+#> #   MCC <dbl>, `Detection Rate` <dbl>, `Detection Prevalence` <dbl>,
+#> #   Prevalence <dbl>, Predictions <list>, ROC <list>, `Confusion
+#> #   Matrix` <list>, `Class Level Results` <list>, Family <chr>,
 #> #   Dependent <chr>
 ```
 
@@ -943,37 +1024,28 @@ cv_plot(CV1, type = "RMSE") +
   theme_bw()
 ```
 
-<img src="man/figures/README-unnamed-chunk-25-1.png" width="644" />
+<img src="man/figures/README-unnamed-chunk-26-1.png" width="644" />
 
 ``` r
 cv_plot(CV1, type = "r2") +
   theme_bw()
 ```
 
-<img src="man/figures/README-unnamed-chunk-25-2.png" width="644" />
+<img src="man/figures/README-unnamed-chunk-26-2.png" width="644" />
 
 ``` r
 cv_plot(CV1, type = "IC") +
   theme_bw()
 ```
 
-<img src="man/figures/README-unnamed-chunk-25-3.png" width="644" />
+<img src="man/figures/README-unnamed-chunk-26-3.png" width="644" />
 
 ``` r
 cv_plot(CV1, type = "coefficients") +
   theme_bw()
 ```
 
-<img src="man/figures/README-unnamed-chunk-25-4.png" width="644" />
-
-### Binomial
-
-``` r
-cv_plot(CV2, type = "ROC") +
-  theme_bw()
-```
-
-<img src="man/figures/README-unnamed-chunk-26-1.png" width="644" />
+<img src="man/figures/README-unnamed-chunk-26-4.png" width="644" />
 
 ## Generate model formulas
 

@@ -126,7 +126,8 @@ create_binomial_baseline_evaluations <- function(test_data,
 
   # Collect the summarized metrics
   overall_evaluations <- summarized_metrics %>%
-    dplyr::bind_rows(evaluations_all_0_1)
+    dplyr::bind_rows(evaluations_all_0_1) %>%
+    dplyr::as_tibble()
 
   # Return summarized metrics and the random evaluations in a list
 

@@ -101,6 +101,7 @@ cv_plot <- function(x, type){
   } else if (x$Family == 'binomial') {
 
     if (type == 'ROC'){
+      stop("NOT YET IMPLEMENTED!")
 
       ROC_plot <- data.frame(y=x$ROC[[1]]$Sensitivities, x=x$ROC[[1]]$Specificities) %>%
         ggplot2::ggplot(ggplot2::aes(.data$x, .data$y)) +

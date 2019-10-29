@@ -529,29 +529,67 @@ to_tibble <- function(x, x_name, caller = ""){
   x
 }
 
-base_rename <- function(data, before, after){
-  names(data)[names(data) == before] <- after
-  data
+base_rename <- function(data, before, after,
+                        warn_at_overwrite = FALSE){
+
+  #
+  # Replaces name of column in data frame
+  #
+
+  # Check names
+  if (!is.character(before) || !is.character(after)){
+    stop("'before' and 'after' must both be of type character.")
+  }
+  if (length(before) != 1 || length(before) != 1){
+    stop("'before' and 'after' must both have length 1.")
+  }
+
+  if (before == after){
+    message("'before' and 'after' were identical.")
+    return(data)
+  }
+  # If after is already a column in data
+  # remove it, so we don't have duplicate column names
+  if (after %in% colnames(data)){
+    if (isTRUE(warn_at_overwrite)){
+      warning("'after' already existed in 'data' and will be replaced.")
+    }
+    data[[after]] <- NULL
+  }
+  colnames(data)[names(data) == before] <- after
+  return(data)
+
 }
 
+# Cols should be col names
 base_select <- function(data, cols){
+  if (is.numeric(cols)) stop("cols must be names")
+
+  if (length(cols) == 1 && !tibble::is_tibble(data)){
+    warning(paste0("Selecting a single column with base_select ",
+                   "on a data frame (not tibble) might not keep ",
+                   "the data frame structure."))
+  }
+
   if(is.data.table(data)){
     return(data[, cols, with = FALSE])
   }
-  data[,cols]
+
+  data[, cols]
 }
 
+# Cols should be col names
 base_deselect <- function(data, cols){
-  if(is.data.table(data)){
-    return(data[, setdiff(names(data), cols), with = FALSE])
-  }
-  data[, setdiff(names(data), cols)]
+  if (is.numeric(cols)) stop("cols must be names")
+
+  base_select(data = data, cols = setdiff(names(data), cols))
 }
 
+# Col should be col name
 position_first <- function(data, col){
-  if(is.data.table(data)){
-    return(data[, c(col, setdiff(names(data), col)), with = FALSE])
-  }
-  data[,c(col, setdiff(names(data), col))]
+  if (is.numeric(col)) stop("col must be name")
+
+  base_select(data = data, cols = c(col, setdiff(names(data), col)))
 }
+
 

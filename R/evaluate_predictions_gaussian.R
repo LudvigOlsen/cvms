@@ -176,7 +176,8 @@ calculate_gaussian_prediction_metric <- function(data,
   if (metric_name %in% metrics) {
     # Calculate the metric per fold
     metric_per_fold <- data %>%
-      dplyr::summarize(m = metric_fn(!!as.name(predictions_col), !!as.name(targets_col)))
+      dplyr::summarize(m = metric_fn(!!as.name(predictions_col),
+                                     !!as.name(targets_col)))
 
     # First average per fold column, then average those
     avg_metric <- metric_per_fold %>%

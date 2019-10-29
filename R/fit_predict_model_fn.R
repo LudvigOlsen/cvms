@@ -27,8 +27,6 @@ fit_predict_model_fn <- function(train_data,
   y_col <- extract_y(model_specifics[["model_formula"]]) # Name of target column
   if (is.null(y_col)) stop("The model formula does not contain a dependent variable.")
 
-  # Check if there are random effects (Logical)
-  contains_random_effects <- rand_effects(model_specifics[["model_formula"]]) # TODO Not used?
   user_predict_fn <- model_specifics[["predict_fn"]]
 
   # Check task/evaluation type

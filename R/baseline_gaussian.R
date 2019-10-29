@@ -182,7 +182,8 @@ create_gaussian_baseline_evaluations <- function(train_data,
 
   # Collect the summarized metrics
   overall_evaluations <- summarized_metrics %>%
-    dplyr::bind_rows(evaluation_all_rows)
+    dplyr::bind_rows(evaluation_all_rows) %>%
+    dplyr::as_tibble()
 
   return(list("summarized_metrics" = overall_evaluations,
               "random_evaluations" = evaluations_random))

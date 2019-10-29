@@ -344,9 +344,6 @@ evaluate_predictions_multinomial <- function(data,
     stop("NOT YET IMPLEMENTED!")
     results <- binomial_classification_NA_results_tibble()
 
-    if (!is.null(models))
-      results[["Coefficients"]] <- get_nested_model_coefficients(NULL)
-
     if (length(unique_fold_cols) > 1){
       results[["Results"]] <- NA
     }

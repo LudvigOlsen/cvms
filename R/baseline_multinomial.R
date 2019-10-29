@@ -257,7 +257,8 @@ create_multinomial_baseline_evaluations <- function(test_data,
                        dplyr::mutate(Measure = paste0("All_", .data$All_class)) %>%
                        select_metrics(include_definitions = FALSE,
                                       additional_includes = "Measure")) %>%
-    base_select(c("Measure", metrics))
+    base_select(c("Measure", metrics))  %>%
+    dplyr::as_tibble()
 
   # Nest the repetition class level results
   # And add to the random evaluations tibble

@@ -156,7 +156,8 @@ data %>% head(15) %>% kable()
 ### Gaussian {#cv-single-gaussian}
 
 ```{r warning=FALSE, message=FALSE}
-CV1 <- cross_validate(data, "score~diagnosis",
+CV1 <- cross_validate(data, 
+                      formulas = "score~diagnosis",
                       fold_cols = '.folds',
                       family = 'gaussian',
                       REML = FALSE)
@@ -183,14 +184,15 @@ CV1$Coefficients[[1]] %>% kable()
 
 # Additional information about the model
 # and the training process
-CV1 %>% select(11:20) %>% kable()
+CV1 %>% select(11:19) %>% kable()
 
 ```
 
 ### Binomial {#cv-single-binomial}
 
 ```{r}
-CV2 <- cross_validate(data, "diagnosis~score",
+CV2 <- cross_validate(data, 
+                      formulas = "diagnosis~score",
                       fold_cols = '.folds',
                       family = 'binomial')
 
@@ -204,9 +206,6 @@ CV2
 CV2 %>% select(1:9) %>% kable()
 CV2 %>% select(10:14) %>% kable()
 
-# ROC curve info
-CV2$ROC[[1]] %>% head() %>% kable()
-
 # Confusion matrix
 CV2$`Confusion Matrix`[[1]] %>% kable()
 ```
@@ -217,14 +216,15 @@ CV2$`Confusion Matrix`[[1]] %>% kable()
 ### Create model formulas {#cv-multi-formulas}
 
 ```{r}
-models <- c("score~diagnosis", "score~age")
-mixed_models <- c("score~diagnosis+(1|session)", "score~age+(1|session)")
+model_formulas <- c("score~diagnosis", "score~age")
+mixed_model_formulas <- c("score~diagnosis+(1|session)", "score~age+(1|session)")
 ```
 
 ### Cross-validate fixed effects models {#cv-multi-fixed}
 
 ```{r}
-CV3 <- cross_validate(data, models,
+CV3 <- cross_validate(data, 
+                      formulas = model_formulas,
                       fold_cols = '.folds',
                       family = 'gaussian',
                       REML = FALSE)
@@ -236,7 +236,8 @@ CV3
 ### Cross-validate mixed effects models {#cv-multi-mixed}
 
 ```{r}
-CV4 <- cross_validate(data, mixed_models,
+CV4 <- cross_validate(data, 
+                      formulas = mixed_model_formulas,
                       fold_cols = '.folds',
                       family = 'gaussian',
                       REML = FALSE)
@@ -267,7 +268,8 @@ data %>% head(10) %>% kable()
 
 
 ```{r}
-CV5 <- cross_validate(data, "diagnosis ~ score",
+CV5 <- cross_validate(data, 
+                      formulas = "diagnosis ~ score",
                       fold_cols = paste0(".folds_", 1:4),
                       family = 'binomial',
                       REML = FALSE)
@@ -294,24 +296,51 @@ First, we will create a model function. You can do anything you want in it, as l
 #
 # train_data : tibble with the training data
 # formula : a formula object
+# hyperparameters : a named list of hyparameters
 
-svm_model_fn <- function(train_data, formula){
+svm_model_fn <- function(train_data, formula, hyperparameters){
   
   # Note that `formula` must be specified first
   # when calling svm(), otherwise it fails
   e1071::svm(formula = formula,
              data = train_data, 
              kernel = "linear",
-             type = "C-classification")
+             type = "C-classification",
+             probability = TRUE)
 }
 ```
 
-For the `svm()` function, the default predict function and settings within `cross_validate_fn()` works, so we don't have to specify a predict function. In many cases, it's probably safer to supply a predict function anyway, so you're sure everything is correct. We will see how in the naive Bayes example below, but first, let's cross-validate the model function. Note, that some of the arguments have changed names (`models -> formulas`, `family -> type`).
+```{r}
+# Create predict function
+#
+# test_data : tibble with the test data
+# model : fitted model object
+# formula : a formula object
+# hyperparameters : a named list of hyparameters
+
+svm_predict_fn <- function(test_data, model, formula, hyperparameters){
+      predictions <- stats::predict(object = model,
+                     newdata = test_data,
+                     allow.new.levels = TRUE,
+                     probability = TRUE)
+
+      # Extract probabilities
+      probabilities <- dplyr::as_tibble(
+        attr(predictions, "probabilities")
+        )
+
+      # Return second column
+      probabilities[[2]]
+    }
+```
+
+<!-- For the `svm()` function, the default predict function and settings within `cross_validate_fn()` works, so we don't have to specify a predict function. In many cases, it's probably safer to supply a predict function anyway, so you're sure everything is correct. We will see how in the naive Bayes example below, but first, let's cross-validate the model function. Note, that some of the arguments have changed names (`models -> formulas`, `family -> type`). -->
 
 ```{r}
 # Cross-validate svm_model_fn
 CV6 <- cross_validate_fn(data = data,
                          model_fn = svm_model_fn,
+                         predict_fn = svm_predict_fn,
                          formulas = c("diagnosis~score", "diagnosis~age"),
                          fold_cols = '.folds_1', 
                          type = 'binomial')
@@ -329,7 +358,7 @@ The naive Bayes classifier requires us to supply a predict function, so we will 
 # train_data : tibble with the training data
 # formula : a formula object
 
-nb_model_fn <- function(train_data, formula){
+nb_model_fn <- function(train_data, formula, hyperparameters){
   e1071::naiveBayes(formula = formula, 
                     data = train_data)
 }
@@ -345,7 +374,7 @@ The predict function should take the arguments `test_data`, `model`, and `formul
 # test_data : tibble with the test data
 # model : fitted model object
 # formula : a formula object
-nb_predict_fn <- function(test_data, model, formula){
+nb_predict_fn <- function(test_data, model, formula, hyperparameters){
     stats::predict(object = model, newdata = test_data, 
                    type = "raw", allow.new.levels = TRUE)[,2]
   }
@@ -356,9 +385,9 @@ With both functions specified, we are ready to cross-validate our naive Bayes cl
 ```{r}
 CV7 <- cross_validate_fn(data,
                          model_fn = nb_model_fn,
+                         predict_fn = nb_predict_fn,
                          formulas = c("diagnosis~score", "diagnosis~age"),
                          type = 'binomial',
-                         predict_fn = nb_predict_fn,
                          fold_cols = '.folds_1')
 
 CV7
@@ -525,12 +554,6 @@ cv_plot(CV1, type = "coefficients") +
   theme_bw()
 ```
 
-### Binomial {#plot-binomial}
-
-```{r}
-cv_plot(CV2, type = "ROC") +
-  theme_bw()
-```
 
 ## Generate model formulas {#generate-formulas}
 

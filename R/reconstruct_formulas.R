@@ -26,7 +26,7 @@ reconstruct_formulas <- function(results, topn=NULL){
     if (!is.integer(topn) && !is.numeric(topn)) stop("topn must be numeric, integer or NULL.")
 
     # Subset by topn
-    results <- head(x=results, n=topn)
+    results <- head(x = results, n = topn)
   }
 
   if ("Random" %ni% cols_){

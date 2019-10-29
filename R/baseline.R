@@ -377,7 +377,7 @@
 #'          random_generator_fn = rcertain)
 #'
 #' }
-#' @importFrom stats runif rnorm terms
+#' @importFrom stats runif rnorm terms IQR median predict sd
 baseline <- function(test_data,
                      dependent_col,
                      train_data = NULL,

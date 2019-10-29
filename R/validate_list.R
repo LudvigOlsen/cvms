@@ -36,7 +36,7 @@ validate_list <- function(train_data,
 
     data <- train_data %>%
       dplyr::bind_rows(test_data, .id = partitions_col) %>%
-      dplyr::mutate(.partitions = as.factor(as.integer(.partitions)))
+      dplyr::mutate(.partitions = as.factor(as.integer(.data$.partitions)))
 
   } else {
 
@@ -48,7 +48,7 @@ validate_list <- function(train_data,
 
     data <- train_data %>%
       dplyr::mutate(.partitions = as.factor(
-        as.integer(as.character(.partitions))))
+        as.integer(as.character(.data$.partitions))))
   }
 
   # Get evaluation type

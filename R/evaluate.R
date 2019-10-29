@@ -836,7 +836,7 @@ internal_evaluate <- function(data,
   }
 
   new_col_order <- c(metrics, intersect(info_cols, colnames(output)))
-  output[, new_col_order]
+  base_select(output, cols = new_col_order)
 }
 
 check_args_evaluate <- function(data,

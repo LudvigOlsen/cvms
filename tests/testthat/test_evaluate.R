@@ -1272,6 +1272,9 @@ test_that("probability nesting works in multinomial evaluate",{
     nest_rowwise()
   })
 
+  # group_nest adds an attribute
+  attr(package_nested_probs, "ptype") <- NULL
+
   expect_true(identical(manually_nested_probs,package_nested_probs))
 
   unnested <- package_nested_probs %>%

@@ -129,9 +129,10 @@ evaluate_predictions_multinomial <- function(data,
     overall_metrics <- data %>%
       dplyr::group_by(!!as.name(fold_info_cols[["fold_column"]])) %>%
       dplyr::summarise(`Overall Accuracy` = mean(.data$predicted_class == !!as.name(targets_col))) %>%
-      dplyr::rename(`Fold Column` = !!as.name(fold_info_cols[["fold_column"]])) %>%
       dplyr::mutate(AUC = auc_scores,
-                    ROC = roc_curves)
+                    ROC = roc_curves) %>%
+      base_rename(before = fold_info_cols[["fold_column"]],
+                  after = "Fold Column")
 
     # Nest predictions and targets
     # Will be NA if any model_was_null is TRUE and
@@ -327,7 +328,8 @@ evaluate_predictions_multinomial <- function(data,
 
     # Add the nested class level results
     overall_results[["Class Level Results"]] <- one_vs_all_evaluations %>%
-      legacy_nest(seq_len(ncol(one_vs_all_evaluations))) %>%
+      dplyr::group_nest() %>%
+      # legacy_nest(seq_len(ncol(one_vs_all_evaluations))) %>%
       tibble::as_tibble() %>%
       dplyr::pull(.data$data) %>%
       repeat_list_if(2, condition = both_keep_and_remove_NAs)

@@ -103,14 +103,12 @@ set_info_cols <- function(family, info_cols_list = NULL){
   # Extract the info_cols names
   # We need to provide these,
   # as the whole conversion below adds dots instead of spaces
-  info_cols_names <- names(info_cols)
+  # info_cols_names <- names(info_cols)
 
   # Extract and return names of the metrics set to TRUE
-  dplyr::as_tibble(
-    t(data.frame(info_cols)),
-    rownames = "column", .name_repair = ~paste0("include")) %>%
-    dplyr::mutate(column = info_cols_names) %>%
-    dplyr::filter(.data$include) %>%
-    dplyr::pull(.data$column)
-
+  names(
+    which(
+      sapply(info_cols, function(y) isTRUE(y))
+      )
+    )
 }

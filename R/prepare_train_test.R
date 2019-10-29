@@ -187,7 +187,7 @@ run_preprocess_once <- function(data,
 
     extract_and_nest <- function(train_test, element){
       train_test[[element]] %>%
-        legacy_nest(seq_len(ncol(train_test[[element]]))) %>%
+        dplyr::group_nest() %>%
         dplyr::pull(.data$data)
     }
 

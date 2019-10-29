@@ -168,7 +168,8 @@ validate_list <- function(train_data,
      # Extract predictions and targets
      predictions_and_targets <- validated_folds[["predictions_and_targets"]]
      nested_predictions_and_targets <- predictions_and_targets %>%
-       legacy_nest(seq_len(ncol(predictions_and_targets))) %>%
+       dplyr::group_nest() %>%
+       # legacy_nest(seq_len(ncol(predictions_and_targets))) %>%
        dplyr::pull(.data$data)
 
      # Temporary fold info
@@ -190,7 +191,8 @@ validate_list <- function(train_data,
      # Extract preprocessing parameters
      preprocess_params <- validated_folds[["preprocess_parameters"]]
      nested_preprocess_params <- preprocess_params %>%
-       legacy_nest(seq_len(ncol(preprocess_params))) %>%
+       dplyr::group_nest() %>%
+       # legacy_nest(seq_len(ncol(preprocess_params))) %>%
        dplyr::pull(.data$data)
 
      # Extract whether the model was NULL or not

@@ -161,17 +161,18 @@ binomial_eval_confusion_matrices <- function(
 
   # Confusion matrices
 
-
   confusion_matrices <- plyr::llply(unique_fold_cols, function(fcol){
 
     # Subset data
-    fcol_data <- data %>% dplyr::filter(!! as.name(fold_info_cols[["fold_column"]]) == fcol)
+    fcol_data <- data[data[[fold_info_cols[["fold_column"]]]] == fcol,]
 
     # Create confusion matrix and add to list
-    fcol_conf_mat <- list("x" = fit_confusion_matrix(predicted_classes = fcol_data[[predicted_class_col]],
-                                                     targets = fcol_data[[targets_col]],
-                                                     cat_levels = cat_levels,
-                                                     positive = positive))
+    fcol_conf_mat <- list("x" = fit_confusion_matrix(
+      predicted_classes = fcol_data[[predicted_class_col]],
+      targets = fcol_data[[targets_col]],
+      cat_levels = cat_levels,
+      positive = positive))
+
     # Rename list element to the fold column name
     names(fcol_conf_mat) <- fcol
 
@@ -198,13 +199,14 @@ binomial_eval_roc_curves <- function(data, targets_col, predictions_col,
   # Note that if this order is reverse of cat_levels,
   # the positive class will be correct when the probability is
   # smaller than a threshold (closer to 0).
-  roc_cat_levels <- c(cat_levels[cat_levels != positive], cat_levels[cat_levels == positive])
+  roc_cat_levels <- c(cat_levels[cat_levels != positive],
+                      cat_levels[cat_levels == positive])
   roc_direction <- ifelse(all(roc_cat_levels == rev(cat_levels)), ">", "<")
 
   roc_curves <- plyr::llply(unique_fold_cols, function(fcol){
 
     # Subset data
-    fcol_data <- data %>% dplyr::filter(!! as.name(fold_info_cols[["fold_column"]]) == fcol)
+    fcol_data <- data[data[[fold_info_cols[["fold_column"]]]] == fcol,]
 
     # Create ROC curve and add to list
     fcol_roc_curve <- list("x" = fit_roc_curve(predicted_probabilities = fcol_data[[predictions_col]],
@@ -230,8 +232,7 @@ binomial_eval_extra_metrics <- function(data, targets_col,
   extra_metrics <- plyr::llply(unique_fold_cols, function(fcol) {
 
     # Subset data
-    fcol_data <-
-      data %>% dplyr::filter(!!as.name(fold_info_cols[["fold_column"]]) == fcol)
+    fcol_data <- data[data[[fold_info_cols[["fold_column"]]]] == fcol,]
 
     # Regular old accuracy
     fcol_accuracy <- list("x" = list("accuracy" = calculate_accuracy(
@@ -286,18 +287,27 @@ binomial_eval_collect <- function(unique_fold_cols,
                                            include_predictions = FALSE) %>%
       dplyr::mutate(`Fold Column` = as.character(fcol))
   }) %>%
-    dplyr::select(.data$`Fold Column`, dplyr::everything())
+    dplyr::as_tibble()
+
+  # Move Fold Column column to first in data frame
+  # NOTE: Faster than select()
+  fold_col_results <- fold_col_results[
+    , c("Fold Column",
+    colnames(fold_col_results)[
+      colnames(fold_col_results) != "Fold Column"])]
 
   # Nest fold column results
-  fold_col_results_nested <- fold_col_results %>%
-    dplyr::select(-c(.data$ROC)) %>%
-    legacy_nest(1 : (ncol(fold_col_results) - 1) ) %>% # -1 as we just removed one col
-    dplyr::rename(fold_col_results = data)
+  fold_col_results_nested <- fold_col_results
+  fold_col_results_nested[["ROC"]] <- NULL
+  fold_col_results_nested <- dplyr::group_nest(
+    fold_col_results_nested, .key = "fold_col_results"
+  )
 
   # Average fold column results for reporting
-  average_metrics <- fold_col_results %>%
-    dplyr::select(-.data$`Fold Column`) %>%
-    dplyr::summarise_all(list( ~ mean(., na.rm = na.rm)))
+  average_metrics <- fold_col_results
+  average_metrics[["Fold Column"]] <- NULL
+  average_metrics <- dplyr::summarise_all(
+    average_metrics, list( ~ mean(., na.rm = na.rm)))
 
   # Gather the various results
   results <- average_metrics
@@ -371,8 +381,14 @@ binomial_classification_NA_results_tibble <- function(metrics, include_predictio
     eval_tibble[["Predictions"]] <- NULL
   }
 
-  eval_tibble # %>%
-    # dplyr::select(dplyr::one_of(intersect(metrics, colnames(eval_tibble))))
+  # eval_tibble <- eval_tibble[, c(intersect(metrics, colnames(eval_tibble)),
+  #                                "Predictions", "ROC")]
+  #
+  # if (!isTRUE(include_predictions)){
+  #   eval_tibble[["Predictions"]] <- NULL
+  # }
+
+  eval_tibble
 }
 
 binomial_classification_results_tibble <- function(roc_curve,
@@ -409,11 +425,8 @@ binomial_classification_results_tibble <- function(roc_curve,
                            logical()),
     "ROC" = ifelse(!is.null(roc_nested), roc_nested$roc, logical()))
 
-  eval_tibble <- eval_tibble %>%
-    dplyr::select(dplyr::one_of(c(
-      intersect(metrics, colnames(eval_tibble)),
-      "Predictions", "ROC"
-    )))
+  eval_tibble <- eval_tibble[, c(intersect(metrics, colnames(eval_tibble)),
+                                 "Predictions", "ROC")]
 
   if (!isTRUE(include_predictions)){
     eval_tibble[["Predictions"]] <- NULL
@@ -477,32 +490,40 @@ nest_confusion_matrices <- function(confusion_matrices,
                                     fold_cols = ".folds",
                                     include_fold_columns = TRUE){
 
+  num_conf_matrices <- length(confusion_matrices)
+
   if (length(fold_cols) == 1) {
-    fold_cols <- rep(fold_cols, length(confusion_matrices))
+    fold_cols <- rep(fold_cols, num_conf_matrices)
   }
 
-  tidy_confusion_matrix <- plyr::ldply(seq_len(length(confusion_matrices)), function(i){
-    confusion_matrices[[i]]$table %>%
-      dplyr::as_tibble() %>%
-      dplyr::mutate(Pos0 = c("TP", "FN", "FP", "TN"),
-                    Pos1 = c("TN", "FP", "FN", "TP"),
-                    `Fold Column` = as.character(fold_cols[[i]]))
-  }) %>%
-    dplyr::rename(N = .data$n,
-                  Target = .data$Reference) %>%
-    dplyr::select(c(.data$`Fold Column`, .data$Prediction, .data$Target,
-                    .data$Pos0, .data$Pos1, .data$N)) %>%
-    dplyr::rename_at(dplyr::vars(c("Pos0", "Pos1")), ~ c(paste0("Pos_", cat_levels[[1]]),
-                                                         paste0("Pos_", cat_levels[[2]])))
+  # Turned out faster than the ldply version
+  tidy_confusion_matrix <- confusion_matrices %c% "table" %>%
+    purrr::map(.f = ~dplyr::as_tibble(.)) %>%
+    dplyr::bind_rows(.id = "Fold Column")
+
+  # Rename vars (base is faster than dplyr::rename)
+  tidy_confusion_matrix <- base_rename(tidy_confusion_matrix,
+                                       before = "n", after = "N")
+  tidy_confusion_matrix <- base_rename(tidy_confusion_matrix,
+                                       before = "Reference", after = "Target")
+
+  # Add Pos_0/1 columns
+  tidy_confusion_matrix[[paste0("Pos_", cat_levels[[1]])]] <-
+    rep(c("TP", "FN", "FP", "TN"), num_conf_matrices)
+  tidy_confusion_matrix[[paste0("Pos_", cat_levels[[2]])]] <-
+    rep(c("TN", "FP", "FN", "TP"), num_conf_matrices)
+
+  # Move N to be last column
+  tidy_confusion_matrix <- reposition_column(
+    tidy_confusion_matrix, "N", .after = paste0("Pos_", cat_levels[[2]]))
 
   if (!isTRUE(include_fold_columns)){
-    tidy_confusion_matrix <- tidy_confusion_matrix %>%
-      dplyr::select(-dplyr::one_of("Fold Column"))
+    tidy_confusion_matrix[["Fold Column"]] <- NULL
   }
 
-  tidy_confusion_matrix %>%
-    legacy_nest(seq_len(ncol(tidy_confusion_matrix))) %>%
-    dplyr::rename(confusion_matrices = data)
+  tidy_confusion_matrix <- dplyr::group_nest(tidy_confusion_matrix)
+  names(tidy_confusion_matrix) <- "confusion_matrices"
+  tidy_confusion_matrix
 
 }
 
@@ -516,25 +537,25 @@ nest_multiclass_confusion_matrices <- function(confusion_matrices,
     fold_cols <- rep(fold_cols, length(confusion_matrices))
   }
 
-  tidy_confusion_matrices <- plyr::ldply(seq_len(length(confusion_matrices)), function(i){
-    confusion_matrices[[i]]$table %>%
-      dplyr::as_tibble() %>%
-      dplyr::mutate(`Fold Column` = as.character(fold_cols[[i]]))
-  }) %>%
-    dplyr::rename(N=.data$n,
-                  Target = .data$Reference) %>%
-    dplyr::select(c(.data$`Fold Column`, .data$Prediction,
-                    .data$Target, .data$N))
+  # TODO Test this works here as well
+  # Turned out faster than the ldply version
+  tidy_confusion_matrices <- confusion_matrices %c% "table" %>%
+    purrr::map(.f = ~dplyr::as_tibble(.)) %>%
+    dplyr::bind_rows(.id = "Fold Column")
+
+  # Rename vars (base is faster than dplyr::rename)
+  tidy_confusion_matrices <- base_rename(tidy_confusion_matrices,
+                                         before = "n", after = "N")
+  tidy_confusion_matrices <- base_rename(tidy_confusion_matrices,
+                                         before = "Reference", after = "Target")
 
   if (!isTRUE(include_fold_columns)){
-    tidy_confusion_matrices <- tidy_confusion_matrices %>%
-      dplyr::select(-dplyr::one_of("Fold Column"))
+    tidy_confusion_matrices[["Fold Column"]] <- NULL
   }
 
-  tidy_confusion_matrices %>%
-    legacy_nest(seq_len(ncol(tidy_confusion_matrices))) %>%
-    dplyr::rename(confusion_matrices = data)
-
+  tidy_confusion_matrices <- dplyr::group_nest(tidy_confusion_matrices)
+  names(tidy_confusion_matrices) <- "confusion_matrices"
+  tidy_confusion_matrices
 }
 
 

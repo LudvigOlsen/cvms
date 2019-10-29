@@ -336,7 +336,9 @@ nest_rowwise <- function(data){
   tmp_index <- create_tmp_var(data)
   data[[tmp_index]] <- seq_len(nrow(data))
   data %>%
-    legacy_nest(1:n_cols) %>%
+    dplyr::group_by(!!as.name(tmp_index)) %>%
+    dplyr::group_nest() %>%
+    # legacy_nest(1:n_cols) %>%
     dplyr::pull(.data$data)
 }
 

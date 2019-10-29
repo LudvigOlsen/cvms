@@ -52,6 +52,8 @@ These are based on the fitted model objects and will only work for some types of
 * Warnings and messages from `preprocess_fn` are caught and added to `Warnings and Messages`. 
 Warnings are counted in `Other Warnings`.
 
+* Nesting is now done with `dplyr::group_nest` instead of `tidyr::nest_legacy` for speed improvements.
+
 # cvms 0.3.1
 
 * Fixes documentation in `cross_validate_fn()`. The examples section contained an unreasonable number of mistakes :-)

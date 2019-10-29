@@ -90,7 +90,8 @@ validate_fold <- function(data,
 
   # Nest warnings and messages tibble
   nested_warnings_and_messages <- warnings_and_messages %>%
-    legacy_nest(seq_len(ncol(warnings_and_messages))) %>%
+    dplyr::group_nest() %>%
+    # legacy_nest(seq_len(ncol(warnings_and_messages))) %>%
     dplyr::pull(.data$data)
 
   # Model metrics

@@ -127,8 +127,7 @@ nest_results <- function(results){
   iter_results <- tibble::as_tibble(results)
   rownames(iter_results) <- NULL
   iter_results <- iter_results %>%
-    legacy_nest() %>%
-    dplyr::rename(results = data)
+    dplyr::group_nest(.key = "results")
 
   iter_results
 }
@@ -140,8 +139,7 @@ nest_models <- function(model_coefs){
     iter_models[["p.value"]] <- NA
   }
   iter_models <- iter_models %>%
-    legacy_nest() %>%
-    dplyr::rename(Coefficients = data)
+    dplyr::group_nest(.key = "Coefficients")
 
   iter_models
 }
@@ -215,14 +213,9 @@ create_folds_map <- function(data, fold_cols){
 # Creates data frame with existing combinations of fold column, abs_fold and rel_fold
 # For adding the info to other data frames via joins
 create_fold_and_fold_column_map <- function(data, fold_info_cols){
-  data %>%
-    dplyr::select(dplyr::one_of(fold_info_cols[["fold_column"]],
-                                fold_info_cols[["abs_fold"]],
-                                fold_info_cols[["rel_fold"]]
-    )) %>%
-    dplyr::rename(fold_column = fold_info_cols[["fold_column"]],
-                  abs_fold = fold_info_cols[["abs_fold"]],
-                  rel_fold = fold_info_cols[["rel_fold"]]) %>%
+  tibble::tibble("fold_column" = data[[fold_info_cols[["fold_column"]]]],
+                 "abs_fold" = data[[fold_info_cols[["abs_fold"]]]],
+                 "rel_fold" = data[[fold_info_cols[["rel_fold"]]]]) %>%
     dplyr::distinct()
 }
 
@@ -534,3 +527,12 @@ to_tibble <- function(x, x_name, caller = ""){
   }
   x
 }
+
+base_rename <- function(data, before, after){
+  names(data)[names(data) == before] <- after
+  data
+}
+
+
+
+

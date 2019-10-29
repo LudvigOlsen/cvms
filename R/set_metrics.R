@@ -130,18 +130,12 @@ set_metrics <- function(family, metrics_list = NULL, include_model_object_metric
     }
   }
 
-  # Extract the metric names
-  # We need to provide these,
-  # as the whole conversion below adds dots instead of spaces
-  metric_names <- names(metrics)
-
   # Extract and return names of the metrics set to TRUE
-  dplyr::as_tibble(
-    t(data.frame(metrics)),
-    rownames = "metric", .name_repair = ~paste0("include")) %>%
-    dplyr::mutate(metric = metric_names) %>%
-    dplyr::filter(.data$include) %>%
-    dplyr::pull(.data$metric)
+  names(
+    which(
+      sapply(metrics, function(y) isTRUE(y))
+    )
+  )
 
 }
 

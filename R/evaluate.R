@@ -837,10 +837,7 @@ internal_evaluate <- function(data,
   }
 
   new_col_order <- c(metrics, intersect(info_cols, colnames(output)))
-  output <- output %>%
-    dplyr::select(dplyr::one_of(new_col_order))
-
-  output
+  output[, new_col_order]
 }
 
 check_args_evaluate <- function(data,

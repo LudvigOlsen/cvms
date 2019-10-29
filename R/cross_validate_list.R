@@ -180,7 +180,8 @@ cross_validate_list <- function(data,
     # Extract current preprocessing parameters
     current_preprocess_params <- dplyr::bind_rows(current_grid[["Preprocess"]])
     nested_current_preprocess_params <- current_preprocess_params %>%
-      legacy_nest(seq_len(ncol(current_preprocess_params))) %>%
+      # legacy_nest(seq_len(ncol(current_preprocess_params))) %>%
+      dplyr::group_nest() %>%
       dplyr::pull(.data$data)
 
     # Extract current model metrics + some fold cols
@@ -206,7 +207,8 @@ cross_validate_list <- function(data,
       dplyr::select(dplyr::one_of("Warnings and Messages")) %>%
       legacy_unnest()
     nested_current_warnings_and_messages <- current_warnings_and_messages %>%
-      legacy_nest(seq_len(ncol(current_warnings_and_messages))) %>%
+      # legacy_nest(seq_len(ncol(current_warnings_and_messages))) %>%
+      dplyr::group_nest() %>%
       dplyr::pull(.data$data)
 
     # Sum the warning and message counts
@@ -223,7 +225,8 @@ cross_validate_list <- function(data,
     current_coefficients <- current_model_evals[["Coefficients"]] %>%
       dplyr::bind_rows()
     nested_current_coefficients <- current_coefficients %>%
-      legacy_nest(seq_len(ncol(current_coefficients))) %>%
+      # legacy_nest(seq_len(ncol(current_coefficients))) %>%
+      dplyr::group_nest() %>%
       dplyr::pull(.data$data)
 
     # Evaluate the predictions
@@ -267,13 +270,14 @@ cross_validate_list <- function(data,
 
       if (length(model_metric_names) > 0){
 
-        # TODO The new tidyr::nest interface might be able to do this part
+        # TODO The new tidyr::nest or chop() interface might be able to do this part
         # without the loop and stuff (kind of messy). Requires v1.0.0 though
         # so for now we will do it this way, and change it if profiling
         # marks it as problematic. Note: It seems to be fairly taxing, so
         # perhaps it is worth checking the tidyr version and only using
         # this when necessary?
 
+        # TODO Can we use chop() here? Speed?
         fold_col_model_metrics_nested <- plyr::ldply(model_metric_names, function(mn){
           current_model_metrics %>%
             dplyr::select(dplyr::one_of(c(
@@ -300,7 +304,8 @@ cross_validate_list <- function(data,
     } else {
       # Nest fold results
       nested_fold_results <- fold_results %>%
-        legacy_nest(seq_len(ncol(fold_results))) %>%
+        dplyr::group_nest() %>%
+        # legacy_nest(seq_len(ncol(fold_results))) %>%
         dplyr::pull(.data$data)
     }
 

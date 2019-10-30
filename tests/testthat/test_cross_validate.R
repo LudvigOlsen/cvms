@@ -68,7 +68,7 @@ test_that("binomial models work with cross_validate()",{
                  "original.predictor", "original.response", "predictor", "response",
                  "levels"))
   expect_equal(CVbinomlist$ROC[[1]]$.folds$levels, c("0","1"))
-  expect_equal(as.numeric(CVbinomlist$ROC[[1]]$.folds$auc), 0.761574074074074)
+  expect_equal(as.numeric(CVbinomlist$ROC[[1]]$.folds$auc), 0.761574074074074, tolerance = 1e-5)
   expect_equal(CVbinomlist$ROC[[1]]$.folds$direction, "<")
   expect_equal(CVbinomlist$ROC[[1]]$.folds$sensitivities,
                c(1, 1, 1, 0.944444444444444, 0.944444444444444, 0.944444444444444,
@@ -77,14 +77,14 @@ test_that("binomial models work with cross_validate()",{
                  0.666666666666667, 0.666666666666667, 0.611111111111111, 0.5,
                  0.5, 0.444444444444444, 0.388888888888889, 0.388888888888889,
                  0.333333333333333, 0.277777777777778, 0.222222222222222, 0.166666666666667,
-                 0.111111111111111, 0.0555555555555556, 0))
+                 0.111111111111111, 0.0555555555555556, 0), tolerance = 1e-5)
   expect_equal(CVbinomlist$ROC[[1]]$.folds$specificities,
                c(0, 0.0833333333333333, 0.166666666666667, 0.166666666666667,
                  0.25, 0.333333333333333, 0.333333333333333, 0.416666666666667,
                  0.5, 0.583333333333333, 0.583333333333333, 0.583333333333333,
                  0.583333333333333, 0.583333333333333, 0.666666666666667, 0.75,
                  0.75, 0.75, 0.833333333333333, 0.833333333333333, 0.833333333333333,
-                 0.916666666666667, 1, 1, 1, 1, 1, 1, 1))
+                 0.916666666666667, 1, 1, 1, 1, 1, 1, 1), tolerance = 1e-5)
   expect_equal(CVbinomlist$ROC[[1]]$.folds$thresholds,
                c(-Inf, 0.0923605619969366, 0.112757724455647, 0.144237359545136,
                  0.165941018105731, 0.212151384771614, 0.258156534624716, 0.318495485800134,
@@ -93,7 +93,7 @@ test_that("binomial models work with cross_validate()",{
                  0.698028863110633, 0.713631833116223, 0.72744063532645, 0.748457739195168,
                  0.76725510377552, 0.802294462575759, 0.837689984778296, 0.848041386220925,
                  0.855631927354967, 0.87591323408248, 0.909484002715809, 0.929306616108083,
-                 Inf))
+                 Inf), tolerance = 1e-5)
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
   expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0), Function = character(0),
@@ -153,7 +153,7 @@ test_that("binomial models checks that dependent variable is numeric with cross_
                  "original.predictor", "original.response", "predictor", "response",
                  "levels"))
   expect_equal(CVbinomlist$ROC[[1]]$.folds$levels, c("0","1"))
-  expect_equal(as.numeric(CVbinomlist$ROC[[1]]$.folds$auc), 0.747685185185185)
+  expect_equal(as.numeric(CVbinomlist$ROC[[1]]$.folds$auc), 0.747685185185185, tolerance = 1e-5)
   expect_equal(CVbinomlist$ROC[[1]]$.folds$direction, "<")
   expect_equal(CVbinomlist$ROC[[1]]$.folds$sensitivities,
                c(1, 1, 0.944444444444444, 0.944444444444444, 0.944444444444444,
@@ -163,7 +163,7 @@ test_that("binomial models checks that dependent variable is numeric with cross_
                  0.555555555555556, 0.555555555555556, 0.5, 0.444444444444444,
                  0.388888888888889, 0.388888888888889, 0.333333333333333, 0.277777777777778,
                  0.222222222222222, 0.166666666666667, 0.111111111111111, 0.0555555555555556,
-                 0))
+                 0), tolerance = 1e-5)
   expect_equal(CVbinomlist$ROC[[1]]$.folds$specificities,
                c(0, 0.0833333333333333, 0.0833333333333333, 0.166666666666667,
                  0.25, 0.25, 0.333333333333333, 0.416666666666667, 0.416666666666667,
@@ -171,7 +171,7 @@ test_that("binomial models checks that dependent variable is numeric with cross_
                  0.666666666666667, 0.666666666666667, 0.75, 0.75, 0.75, 0.833333333333333,
                  0.833333333333333, 0.833333333333333, 0.833333333333333, 0.916666666666667,
                  0.916666666666667, 0.916666666666667, 0.916666666666667, 1, 1,
-                 1, 1))
+                 1, 1), tolerance = 1e-5)
   expect_equal(CVbinomlist$ROC[[1]]$.folds$thresholds,
                c(-Inf, 0.0474149270573646, 0.0804638631263696, 0.124520148716463,
                  0.150590529552897, 0.198808108757015, 0.313431488336455, 0.384099214345533,
@@ -180,7 +180,7 @@ test_that("binomial models checks that dependent variable is numeric with cross_
                  0.705257363311605, 0.718228755022429, 0.732032329405983, 0.751876043966269,
                  0.764568494056223, 0.770445420121476, 0.775314148242544, 0.817370482282321,
                  0.870500677113118, 0.885092557373248, 0.891679194000951, 0.904215196791356,
-                 0.934020744586008, Inf))
+                 0.934020744586008, Inf), tolerance = 1e-5)
 
   expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
@@ -244,7 +244,7 @@ test_that("binomial models work with cross_validate()",{
                  "original.predictor", "original.response", "predictor", "response",
                  "levels"))
   expect_equal(CVbinomlistrand$ROC[[1]]$.folds$levels, c("0","1"))
-  expect_equal(as.numeric(CVbinomlistrand$ROC[[1]]$.folds$auc), 0.847222222222222)
+  expect_equal(as.numeric(CVbinomlistrand$ROC[[1]]$.folds$auc), 0.847222222222222, tolerance = 1e-5)
   expect_equal(CVbinomlistrand$ROC[[1]]$.folds$direction, "<")
   expect_equal(CVbinomlistrand$ROC[[1]]$.folds$sensitivities,
                c(1, 0.888888888888889, 0.833333333333333, 0.833333333333333,
@@ -253,12 +253,12 @@ test_that("binomial models work with cross_validate()",{
                  0.722222222222222, 0.666666666666667, 0.666666666666667, 0.611111111111111,
                  0.555555555555556, 0.5, 0.444444444444444, 0.388888888888889,
                  0.333333333333333, 0.277777777777778, 0.222222222222222, 0.166666666666667,
-                 0.111111111111111, 0.0555555555555556, 0))
+                 0.111111111111111, 0.0555555555555556, 0), tolerance = 1e-5)
   expect_equal(CVbinomlistrand$ROC[[1]]$.folds$specificities,
                c(0, 0.25, 0.25, 0.333333333333333, 0.416666666666667, 0.5, 0.583333333333333,
                  0.666666666666667, 0.75, 0.833333333333333, 0.916666666666667,
                  0.916666666666667, 0.916666666666667, 0.916666666666667, 1, 1,
-                 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1))
+                 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1), tolerance = 1e-5)
   expect_equal(CVbinomlistrand$ROC[[1]]$.folds$thresholds,
                c(-Inf, 0.00100117667657215, 0.0179527181952166, 0.0339994582131968,
                  0.10447675558254, 0.181964804133168, 0.192102155750595, 0.252253108215509,
@@ -266,7 +266,7 @@ test_that("binomial models work with cross_validate()",{
                  0.807815775362585, 0.825448120881781, 0.844429058082737, 0.854512408532099,
                  0.880611797051915, 0.906411982969134, 0.926191328135861, 0.951022352464516,
                  0.967489298252778, 0.974834920088241, 0.978073203960057, 0.982593357075956,
-                 0.990122822131509, 0.993513013802942, Inf))
+                 0.990122822131509, 0.993513013802942, Inf), tolerance = 1e-5)
 
   expect_is(CVbinomlistrand$Predictions[[2]], "tbl_df")
   expect_equal(colnames(CVbinomlistrand$Predictions[[2]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
@@ -638,7 +638,7 @@ test_that("binomial models work with repeated cross_validate()",{
               0.691111330225435, 0.702694250196696, 0.715948808241982, 0.725216199854617,
               0.748708837071827, 0.776959885099219, 0.81565409306014, 0.850432570801589,
               0.862043303565538, 0.882622758109746, 0.904347165731837, 0.910863952937387,
-              Inf))
+              Inf), tolerance = 1e-5)
   expect_equal(CVbinomlist$ROC[[1]]$.folds_1$sensitivities,
             c(1, 1, 0.944444444444444, 0.944444444444444, 0.944444444444444,
               0.888888888888889, 0.888888888888889, 0.888888888888889, 0.888888888888889,
@@ -646,7 +646,7 @@ test_that("binomial models work with repeated cross_validate()",{
               0.722222222222222, 0.666666666666667, 0.666666666666667, 0.611111111111111,
               0.555555555555556, 0.5, 0.444444444444444, 0.444444444444444,
               0.388888888888889, 0.333333333333333, 0.277777777777778, 0.222222222222222,
-              0.166666666666667, 0.111111111111111, 0.0555555555555556, 0))
+              0.166666666666667, 0.111111111111111, 0.0555555555555556, 0), tolerance = 1e-5)
   expect_equal(CVbinomlist$ROC[[1]]$.folds_1$specificities,
                c(0, 0.0833333333333333, 0.0833333333333333, 0.166666666666667,
                  0.25, 0.25, 0.333333333333333, 0.416666666666667, 0.5, 0.583333333333333,
@@ -654,7 +654,7 @@ test_that("binomial models work with repeated cross_validate()",{
                  0.666666666666667, 0.75, 0.75, 0.833333333333333, 0.833333333333333,
                  0.833333333333333, 0.916666666666667, 0.916666666666667, 0.916666666666667,
                  0.916666666666667, 0.916666666666667, 0.916666666666667, 0.916666666666667,
-                 1, 1))
+                 1, 1), tolerance = 1e-5)
 
   expect_equal(colnames(CVbinomlist$Coefficients[[1]]),
                c("Fold Column", "Fold", "term","estimate","std.error","statistic","p.value"))

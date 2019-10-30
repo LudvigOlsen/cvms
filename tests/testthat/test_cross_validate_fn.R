@@ -59,7 +59,7 @@ test_that("binomial glm model works with cross_validate_fn()",{
   expect_is(CVbinomlist$ROC[[1]]$.folds, "roc")
   expect_equal(colnames(CVbinomlist$Predictions[[1]]),
                c("Fold Column","Fold","Target","Prediction","Predicted Class"))
-  expect_equal(sum(CVbinomlist$ROC[[1]]$.folds$sensitivities), 17.7222222222222)
+  expect_equal(sum(CVbinomlist$ROC[[1]]$.folds$sensitivities), 17.7222222222222, tolerance = 1e-5)
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
   expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
@@ -515,7 +515,7 @@ test_that("binomial svm models from e1071 work with cross_validate_fn()",{
                  0.666666666666667, 0.611111111111111, 0.555555555555556, 0.5,
                  0.444444444444444, 0.388888888888889, 0.388888888888889, 0.388888888888889,
                  0.333333333333333, 0.277777777777778, 0.222222222222222, 0.222222222222222,
-                 0.166666666666667, 0.111111111111111, 0.0555555555555556, 0))
+                 0.166666666666667, 0.111111111111111, 0.0555555555555556, 0), tolerance = 1e-5)
   expect_equal(CVbinomlist$ROC[[1]]$.folds$specificities,
                c(0, 0.0833333333333333, 0.166666666666667, 0.25, 0.333333333333333,
                  0.416666666666667, 0.416666666666667, 0.416666666666667, 0.5,
@@ -523,7 +523,7 @@ test_that("binomial svm models from e1071 work with cross_validate_fn()",{
                  0.666666666666667, 0.666666666666667, 0.666666666666667, 0.666666666666667,
                  0.666666666666667, 0.666666666666667, 0.75, 0.833333333333333,
                  0.833333333333333, 0.833333333333333, 0.833333333333333, 0.916666666666667,
-                 1, 1, 1, 1))
+                 1, 1, 1, 1), tolerance = 1e-5)
   expect_equal(nrow(CVbinomlist$Predictions[[1]]), 30)
   expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
@@ -892,7 +892,7 @@ test_that("binomial nnet models work with cross_validate_fn()",{
                  0.59060162523757, 0.594430000088956, 0.613459083405036, 0.63368526859679,
                  0.63661340313648, 0.646432602162526, 0.66064998851649, 0.66782162508638,
                  0.674808670406118, 0.840014561587637, 0.999952406924702, 0.999985574696044,
-                 Inf))
+                 Inf), tolerance = 1e-5)
   expect_equal(CVbinomlist$ROC[[1]]$.folds$sensitivities,
                c(1, 1, 1, 1, 0.944444444444444, 0.888888888888889, 0.888888888888889,
                  0.888888888888889, 0.833333333333333, 0.777777777777778, 0.722222222222222,
@@ -900,14 +900,14 @@ test_that("binomial nnet models work with cross_validate_fn()",{
                  0.5, 0.444444444444444, 0.444444444444444, 0.388888888888889,
                  0.388888888888889, 0.333333333333333, 0.277777777777778, 0.277777777777778,
                  0.277777777777778, 0.277777777777778, 0.277777777777778, 0.222222222222222,
-                 0))
+                 0), tolerance = 1e-5)
   expect_equal(CVbinomlist$ROC[[1]]$.folds$specificities,
                c(0, 0.0833333333333333, 0.166666666666667, 0.25, 0.25, 0.25,
                  0.333333333333333, 0.416666666666667, 0.416666666666667, 0.416666666666667,
                  0.416666666666667, 0.416666666666667, 0.416666666666667, 0.5,
                  0.5, 0.5, 0.5, 0.583333333333333, 0.583333333333333, 0.666666666666667,
                  0.666666666666667, 0.666666666666667, 0.75, 0.833333333333333,
-                 0.916666666666667, 1, 1, 1))
+                 0.916666666666667, 1, 1, 1), tolerance = 1e-5)
 
   expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
@@ -1256,7 +1256,7 @@ test_that("binomial randomForest models work with cross_validate_fn()",{
   expect_is(CVbinomlist$Predictions[[1]], "tbl_df")
   expect_is(CVbinomlist$ROC[[1]]$.folds, "roc")
   expect_equal(CVbinomlist$ROC[[1]]$.folds$direction, "<")
-  expect_equal(as.numeric(CVbinomlist$ROC[[1]]$.folds$auc), 0.648148148148148)
+  expect_equal(as.numeric(CVbinomlist$ROC[[1]]$.folds$auc), 0.648148148148148, tolerance = 1e-5)
   expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
   expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
@@ -1904,7 +1904,7 @@ test_that("binomial random predictions work with cross_validate_fn()",{
                  0.423670300748199, 0.453490617917851, 0.463453618925996, 0.468184761935845,
                  0.471038468647748, 0.479620903264731, 0.495692970696837, 0.539321022573858,
                  0.578289209399372, 0.656093266210519, 0.745043152943254, 0.781334373983555,
-                 0.817583099356852, 0.885025866678916, Inf))
+                 0.817583099356852, 0.885025866678916, Inf), tolerance = 1e-5)
   expect_equal(CVrandom$ROC[[1]]$.folds$sensitivities,
                c(1, 1, 1, 0.944444444444444, 0.888888888888889, 0.888888888888889,
                  0.888888888888889, 0.833333333333333, 0.777777777777778, 0.722222222222222,
@@ -1913,7 +1913,7 @@ test_that("binomial random predictions work with cross_validate_fn()",{
                  0.444444444444444, 0.444444444444444, 0.444444444444444, 0.388888888888889,
                  0.388888888888889, 0.333333333333333, 0.277777777777778, 0.277777777777778,
                  0.222222222222222, 0.166666666666667, 0.111111111111111, 0.0555555555555556,
-                 0))
+                 0), tolerance = 1e-5)
   expect_equal(CVrandom$ROC[[1]]$.folds$specificities,
                c(0, 0.0833333333333333, 0.166666666666667, 0.166666666666667,
                  0.166666666666667, 0.25, 0.333333333333333, 0.333333333333333,
@@ -1921,7 +1921,7 @@ test_that("binomial random predictions work with cross_validate_fn()",{
                  0.416666666666667, 0.5, 0.5, 0.583333333333333, 0.583333333333333,
                  0.583333333333333, 0.666666666666667, 0.75, 0.833333333333333,
                  0.833333333333333, 0.916666666666667, 0.916666666666667, 0.916666666666667,
-                 1, 1, 1, 1, 1, 1))
+                 1, 1, 1, 1, 1, 1), tolerance = 1e-5)
 
   expect_equal(CVrandom$Predictions[[1]]$Prediction,
                c(0.275483862496912, 0.228903944836929, 0.0144339059479535, 0.728964562527835,

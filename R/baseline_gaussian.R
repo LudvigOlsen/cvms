@@ -114,6 +114,13 @@ create_gaussian_baseline_evaluations <- function(train_data,
     lm_fn <- function(...){lme4::lmer(..., REML = REML)}
   }
 
+  # Create temporary fold columns
+  tmp_fold_cols_obj <- create_tmp_fold_cols(test_data)
+  test_data <- tmp_fold_cols_obj[["data"]]
+  fold_info_cols <- tmp_fold_cols_obj[["fold_info_cols"]]
+  fold_and_fold_col <- create_fold_and_fold_column_map(
+    data = test_data, fold_info_cols = fold_info_cols)
+
   # Evaluate randomly sampled train set with model "y~1" (potentially plus random effects)
 
   evaluations <- plyr::llply(1:(n_samplings + 1),
@@ -142,6 +149,8 @@ create_gaussian_baseline_evaluations <- function(train_data,
       type = "gaussian",
       id_col = NULL,
       id_method = "mean",
+      fold_info_cols = fold_info_cols,
+      fold_and_fold_col = fold_and_fold_col,
       metrics = list(),
       include_predictions = TRUE,
       include_fold_columns = FALSE, # We're not providing any fold info so won't make sense
@@ -155,15 +164,13 @@ create_gaussian_baseline_evaluations <- function(train_data,
     tibble::add_column(!!! model_effects) # bind_cols for recycling 1-row tibble
 
   # Extract the "all_rows" evaluation
-  evaluation_all_rows <- evaluations %>%
-    dplyr::filter(dplyr::row_number() == n_samplings+1) %>%
+  evaluation_all_rows <- evaluations[c(n_samplings+1) ,] %>%
     select_metrics(include_definitions = FALSE,
                    additional_includes = "Training Rows") %>%
     dplyr::mutate(Measure = "All_rows")
 
   # Extract the random evaluations
-  evaluations_random <- evaluations %>%
-    dplyr::filter(dplyr::row_number() != n_samplings+1)
+  evaluations_random <- evaluations[-c(n_samplings+1) ,]
 
   # Remove collected evaluations from memory
   evaluations <- NULL

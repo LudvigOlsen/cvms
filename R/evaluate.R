@@ -438,6 +438,8 @@ run_evaluate <- function(data,
                          cutoff = 0.5,
                          positive = 2,
                          metrics = list(),
+                         fold_info_cols = NULL,
+                         fold_and_fold_col = NULL,
                          include_predictions = TRUE,
                          include_fold_columns = TRUE,
                          parallel = FALSE,
@@ -557,6 +559,8 @@ run_evaluate <- function(data,
       targets_col = target_col,
       id_col = id_col,
       id_method = id_method,
+      fold_info_cols = fold_info_cols,
+      fold_and_fold_col = fold_and_fold_col,
       groups_col = local_tmp_grouping_factor_var,
       grouping_keys = grouping_keys,
       models = models,
@@ -599,6 +603,8 @@ run_evaluate <- function(data,
       predictions_col = prediction_cols,
       targets_col = target_col,
       models = models,
+      fold_info_cols = fold_info_cols,
+      fold_and_fold_col = fold_and_fold_col,
       groups_col = local_tmp_grouping_factor_var,
       grouping_keys = grouping_keys,
       model_specifics = model_specifics,
@@ -628,6 +634,7 @@ run_internal_evaluate_wrapper <- function(
   id_col = NULL,
   id_method = NULL,
   fold_info_cols = NULL,
+  fold_and_fold_col = NULL,
   model_specifics,
   metrics = list(),
   info_cols = list(),
@@ -646,18 +653,9 @@ run_internal_evaluate_wrapper <- function(
 
   if (is.null(fold_info_cols)){
 
-    # Create fold columns
-    local_tmp_fold_col_var <- create_tmp_var(data, "fold_column")
-    local_tmp_rel_fold_col_var <- create_tmp_var(data, "rel_fold")
-    local_tmp_abs_fold_col_var <- create_tmp_var(data, "abs_fold")
-
-    data[[local_tmp_fold_col_var]] <- as.character(1)
-    data[[local_tmp_rel_fold_col_var]] <- as.character(1)
-    data[[local_tmp_abs_fold_col_var]] <- as.character(1)
-
-    fold_info_cols <- list(rel_fold = local_tmp_rel_fold_col_var,
-                           abs_fold = local_tmp_abs_fold_col_var,
-                           fold_column = local_tmp_fold_col_var)
+    tmp_fold_cols_obj <- create_tmp_fold_cols(data)
+    data <- tmp_fold_cols_obj[["data"]]
+    fold_info_cols <- tmp_fold_cols_obj[["fold_info_cols"]]
     include_fold_columns <- FALSE
   } else{
     include_fold_columns <- include_fold_columns
@@ -688,6 +686,7 @@ run_internal_evaluate_wrapper <- function(
                       id_col = id_col,
                       id_method = id_method,
                       fold_info_cols = fold_info_cols,
+                      fold_and_fold_col = fold_and_fold_col,
                       model_specifics = model_specifics,
                       metrics = metrics,
                       info_cols = info_cols,
@@ -750,6 +749,7 @@ internal_evaluate <- function(data,
                               fold_info_cols = list(rel_fold = "rel_fold",
                                                     abs_fold = "abs_fold",
                                                     fold_column = "fold_column"),
+                              fold_and_fold_col = NULL,
                               models = NULL,
                               id_col = NULL,
                               id_method = NULL,
@@ -799,6 +799,7 @@ internal_evaluate <- function(data,
     id_method = id_method,
     type = type,
     fold_info_cols = fold_info_cols,
+    fold_and_fold_col = fold_and_fold_col,
     model_specifics = model_specifics,
     metrics = metrics,
     include_fold_columns = include_fold_columns,
@@ -941,3 +942,21 @@ check_args_evaluate <- function(data,
 
 }
 
+
+create_tmp_fold_cols <- function(data){
+  # Create fold columns
+  local_tmp_fold_col_var <- create_tmp_var(data, "fold_column")
+  local_tmp_rel_fold_col_var <- create_tmp_var(data, "rel_fold")
+  local_tmp_abs_fold_col_var <- create_tmp_var(data, "abs_fold")
+
+  data[[local_tmp_fold_col_var]] <- as.character(1)
+  data[[local_tmp_rel_fold_col_var]] <- as.character(1)
+  data[[local_tmp_abs_fold_col_var]] <- as.character(1)
+
+  fold_info_cols <- list(rel_fold = local_tmp_rel_fold_col_var,
+                         abs_fold = local_tmp_abs_fold_col_var,
+                         fold_column = local_tmp_fold_col_var)
+
+  list("data" = data,
+       "fold_info_cols" = fold_info_cols)
+}

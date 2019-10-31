@@ -117,7 +117,7 @@ cross_validate_list <- function(data,
                                  .fun = function(r){
 
     # Extract current row from computation grid
-    to_compute <- computation_grid %>% dplyr::filter(dplyr::row_number() == r)
+    to_compute <- computation_grid[r, ]
 
     model_specifics[["model_formula"]] <- to_compute[["Formula"]]
     model_specifics[["hparams"]] <- to_compute[["hparams"]]
@@ -272,17 +272,25 @@ cross_validate_list <- function(data,
         # perhaps it is worth checking the tidyr version and only using
         # this when necessary?
 
-        # TODO Can we use chop() here? Speed?
-        fold_col_model_metrics_nested <- plyr::ldply(model_metric_names, function(mn){
-          current_model_metrics %>%
-            base_select(cols = c(fold_info_cols[["fold_column"]], mn)) %>%
+        if (tidyr_new_interface()){ # Chop is new in tidyr 1.0.0
+          # TODO What's the effect of using chop on speed?
+          # It's at least a LOT prettier than the below version
+          fold_col_model_metrics_nested <- current_model_metrics %>%
+            base_deselect(cols = "rel_fold") %>%
             dplyr::group_by(!! as.name(fold_info_cols[["fold_column"]])) %>%
-            legacy_nest(2, .key = "value") %>%
-            dplyr::mutate(metric = mn)
-        }) %>%
-          dplyr::as_tibble() %>%
-          tidyr::spread(key = "metric",
-                        value = "value")
+            tidyr::chop(cols = model_metric_names)
+        } else {
+          fold_col_model_metrics_nested <- plyr::ldply(model_metric_names, function(mn){
+            current_model_metrics %>%
+              base_select(cols = c(fold_info_cols[["fold_column"]], mn)) %>%
+              dplyr::group_by(!! as.name(fold_info_cols[["fold_column"]])) %>%
+              legacy_nest(2, .key = "value") %>%
+              dplyr::mutate(metric = mn)
+          }) %>%
+            dplyr::as_tibble() %>%
+            tidyr::spread(key = "metric",
+                          value = "value")
+        }
 
         fold_results <- fold_results %>%
           dplyr::full_join(fold_col_model_metrics_nested,
@@ -303,7 +311,6 @@ cross_validate_list <- function(data,
         dplyr::group_nest() %>%
         dplyr::pull(.data$data)
     }
-
 
     # Combine the various columns
     evaluation <- prediction_evaluation %>%

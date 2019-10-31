@@ -7,6 +7,7 @@ evaluate_predictions_multinomial <- function(data,
                                              fold_info_cols = list(rel_fold = "rel_fold",
                                                                    abs_fold = "abs_fold",
                                                                    fold_column = "fold_column"),
+                                             fold_and_fold_col = NULL,
                                              model_specifics,
                                              metrics,
                                              include_fold_columns,
@@ -58,8 +59,10 @@ evaluate_predictions_multinomial <- function(data,
     ))
   }
 
-  # Map of fold column, abs_fold and rel_fold
-  fold_and_fold_col <- create_fold_and_fold_column_map(data, fold_info_cols)
+  if (is.null(fold_and_fold_col)){
+    # Map of fold column, abs_fold and rel_fold
+    fold_and_fold_col <- create_fold_and_fold_column_map(data, fold_info_cols)
+  }
 
   # Unique fold columns
   unique_fold_cols <- unique(fold_and_fold_col[["fold_column"]])

@@ -137,8 +137,7 @@ validate_list <- function(train_data,
                                  .fun = function(r){
 
      # Extract current row from computation grid
-     to_compute <- computation_grid %>%
-       dplyr::filter(dplyr::row_number() == r)
+     to_compute <- computation_grid[r ,]
 
      model_specifics[["model_formula"]] <-
        to_compute[["Formula"]]

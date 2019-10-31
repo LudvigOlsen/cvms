@@ -7,14 +7,17 @@ evaluate_predictions_gaussian <- function(data,
                                           fold_info_cols = list(rel_fold = "rel_fold",
                                                                 abs_fold = "abs_fold",
                                                                 fold_column = "fold_column"),
+                                          fold_and_fold_col = NULL,
                                           model_specifics,
                                           metrics,
                                           include_fold_columns,
                                           include_predictions,
                                           na.rm = TRUE) {
 
-  # Create fold and fold column map
-  fold_and_fold_col <- create_fold_and_fold_column_map(data, fold_info_cols)
+  if (is.null(fold_and_fold_col)){
+    # Map of fold column, abs_fold and rel_fold
+    fold_and_fold_col <- create_fold_and_fold_column_map(data, fold_info_cols)
+  }
 
   # Nest predictions, will be NA
   # if any model_was_null is TRUE and

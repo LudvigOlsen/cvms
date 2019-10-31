@@ -49,6 +49,13 @@ create_multinomial_baseline_evaluations <- function(test_data,
     }) %>%
     split(f = factor(rep(1:num_classes, each = num_targets)))
 
+  # Create temporary fold columns
+  tmp_fold_cols_obj <- create_tmp_fold_cols(test_data)
+  test_data <- tmp_fold_cols_obj[["data"]]
+  fold_info_cols <- tmp_fold_cols_obj[["fold_info_cols"]]
+  fold_and_fold_col <- create_fold_and_fold_column_map(
+    data = test_data, fold_info_cols = fold_info_cols)
+
   # Evaluate the probability tibbles
 
   # Evaluate random predictions
@@ -65,6 +72,8 @@ create_multinomial_baseline_evaluations <- function(test_data,
       type = "multinomial",
       id_col = NULL,
       id_method = "mean",
+      fold_info_cols = fold_info_cols,
+      fold_and_fold_col = fold_and_fold_col,
       apply_softmax = FALSE,
       metrics = list(),
       include_predictions = TRUE,
@@ -98,6 +107,8 @@ create_multinomial_baseline_evaluations <- function(test_data,
       type = "multinomial",
       id_col = NULL,
       id_method = "mean",
+      fold_info_cols = fold_info_cols,
+      fold_and_fold_col = fold_and_fold_col,
       apply_softmax = FALSE,
       metrics = list(),
       include_predictions = TRUE,

@@ -144,11 +144,6 @@
 #'
 #'  \strong{Binomial} and \strong{Multinomial}:
 #'
-#'  MCC: \code{\link[mltools:mcc]{mltools::mcc}}
-#'
-#'  Confusion matrix and related metrics:
-#'  \code{\link[caret:confusionMatrix]{caret::confusionMatrix}}
-#'
 #'  ROC and related metrics:
 #'
 #'  Binomial: \code{\link[pROC:roc]{pROC::roc}}
@@ -274,6 +269,7 @@
 #'  }
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
+#' @family evaluation functions
 #' @examples
 #' \donttest{
 #' # Attach packages

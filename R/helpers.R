@@ -592,4 +592,10 @@ position_first <- function(data, col){
   base_select(data = data, cols = c(col, setdiff(names(data), col)))
 }
 
+position_last <- function(data, col){
+  if (is.numeric(col)) stop("col must be name")
+
+  base_select(data = data, cols = c(setdiff(names(data), col), col))
+}
+
 

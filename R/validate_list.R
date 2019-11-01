@@ -144,6 +144,10 @@ validate_list <- function(train_data,
      model_specifics[["hparams"]] <-
        to_compute[["hparams"]]
 
+     # Check that formula contains dependent variable
+     y_col <- extract_y(model_specifics[["model_formula"]]) # Name of target column
+     if (is.null(y_col)) stop("The model formula does not contain a dependent variable.")
+
      fold_info <- list(
        "rel_fold" = to_compute[["rel_fold"]],
        "abs_fold" = to_compute[["abs_fold"]],

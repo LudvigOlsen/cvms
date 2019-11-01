@@ -49,6 +49,8 @@ select_metrics <- function(results, include_definitions = TRUE,
                      "F1", "Sensitivity", "Specificity", "Pos Pred Value",
                      "Neg Pred Value", "AUC", "Lower CI", "Upper CI", "Kappa",
                      "MCC", "Detection Rate", "Detection Prevalence", "Prevalence",
+                     "False Neg Rate", "False Pos Rate", "False Discovery Rate",
+                     "False Omission Rate", "Threat Score",
                      "AIC", "AICc", "BIC")
 
     metric_cols <- add_additional_colnames(metric_cols, additional_includes)
@@ -70,6 +72,11 @@ select_metrics <- function(results, include_definitions = TRUE,
                      "Detection Rate", "Weighted Detection Rate",
                      "Detection Prevalence", "Weighted Detection Prevalence",
                      "Prevalence", "Weighted Prevalence",
+                     "False Neg Rate", "Weighted False Neg Rate",
+                     "False Pos Rate", "Weighted False Pos Rate",
+                     "False Discovery Rate", "Weighted False Discovery Rate",
+                     "False Omission Rate", "Weighted False Omission Rate",
+                     "Threat Score", "Weighted Threat Score",
                      "AIC", "AICc", "BIC"
                      )
 

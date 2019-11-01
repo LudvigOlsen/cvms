@@ -13,7 +13,7 @@ example_preprocess_functions(name)
  \tabular{rrr}{
   \strong{Name} \tab \strong{Description} \cr
   "standardize" \tab Centers and scales the numeric variables\cr
-  "normalize" \tab Normalizes the numeric variables\cr
+  "range" \tab Normalizes the numeric variables to 0-1 range\cr
   "warn" \tab Identity function that throws a warning and a message\cr
   }}
 }
@@ -24,9 +24,8 @@ example_preprocess_functions(name)
  \code{\link[cvms:cross_validate_fn]{cross_validate_fn()}}.
  They can either be used directly or be starting points.
 
- The examples will mainly use
- \code{\link[caret:preProcess]{caret::preProcess()}},
- but you can also use \code{\link[recipes:recipe]{recipes}} or
+ The examples will mainly use \code{\link[recipes:recipe]{recipes}},
+ but you can also use caret::preProcess() or
  similar functions.
 }
 \seealso{

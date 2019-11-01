@@ -928,30 +928,6 @@ test_that("gaussian models work with repeated cross_validate()",{
 
 })
 
-test_that("that wrong model formulas are warned about in cross_validate()",{
-
-  # skip_test_if_old_R_version()
-
-  library(caret)
-  library(groupdata2)
-
-  set_seed_for_R_compatibility(1)
-
-  data(Sacramento)
-
-  full_data <- Sacramento
-  full_data$in_sacramento <- factor( ifelse(full_data$city == "SACRAMENTO", 1, 0) )
-  full_data <- fold(full_data, k=5, cat_col = "in_sacramento")
-
-  # Create model formula without dependent variable
-  # this should of course throw an error!
-  model_formulas <- c("in_sacramento + beds + baths")
-
-  expect_error(cross_validate(data = full_data, formulas = model_formulas,
-                              fold_cols = ".folds", family = "gaussian"),
-               "The model formula does not contain a dependent variable.")
-
-  })
 
 test_that("that singular fit messages are caught, counted and messaged about in cross_validate()",{
 

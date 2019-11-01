@@ -2,6 +2,7 @@
 
 export(baseline)
 export(combine_predictors)
+export(confusion_matrix)
 export(cross_validate)
 export(cross_validate_fn)
 export(cv_plot)

@@ -178,11 +178,6 @@
 #'  }
 #'  \subsection{Binomial and Multinomial}{
 #'
-#'  MCC: \code{\link[mltools:mcc]{mltools::mcc}}
-#'
-#'  Confusion matrix and related metrics:
-#'  \code{\link[caret:confusionMatrix]{caret::confusionMatrix}}
-#'
 #'  ROC and related metrics:
 #'
 #'  Binomial: \code{\link[pROC:roc]{pROC::roc}}

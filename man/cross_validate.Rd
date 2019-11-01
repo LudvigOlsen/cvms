@@ -214,11 +214,8 @@ Packages used:
  }
  \subsection{Binomial}{
 
- Confusion matrix: \code{\link[caret:confusionMatrix]{caret::confusionMatrix}}
-
  ROC: \code{\link[pROC:roc]{pROC::roc}}
 
- MCC: \code{\link[mltools:mcc]{mltools::mcc}}
  }
  }
 }

@@ -162,7 +162,7 @@ evaluate_predictions_multinomial <- function(data,
     support <- create_support_object(data[[targets_col]])
 
     # Perform one vs all evaluations
-    one_vs_all_evaluations <- plyr::ldply(1:num_classes, function(cl){
+    one_vs_all_evaluations <- plyr::ldply(seq_len(num_classes), function(cl){
 
       # Create temporary columns with
       # one-vs-all targets and predictions
@@ -296,8 +296,11 @@ evaluate_predictions_multinomial <- function(data,
     # Add total counts confusion matrix
     # Try to fit a confusion matrix with the predictions and targets
     overall_confusion_matrix <- tryCatch({
-      caret::confusionMatrix(factor(data[["predicted_class"]], levels = classes),
-                             factor(data[[targets_col]], levels = classes))
+      confusion_matrix(targets = data[[targets_col]],
+                       predictions = data[["predicted_class"]],
+                       c_levels = classes,
+                       metrics = metrics,
+                       do_one_vs_all = FALSE)
     }, error = function(e) {
       stop(paste0('Confusion matrix error: ',e))
     })

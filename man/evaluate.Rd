@@ -287,11 +287,6 @@ Packages used:
 
  \strong{Binomial} and \strong{Multinomial}:
 
- MCC: \code{\link[mltools:mcc]{mltools::mcc}}
-
- Confusion matrix and related metrics:
- \code{\link[caret:confusionMatrix]{caret::confusionMatrix}}
-
  ROC and related metrics:
 
  Binomial: \code{\link[pROC:roc]{pROC::roc}}
@@ -418,6 +413,10 @@ evaluate(data = predictions, target_col = "target",
          type = "multinomial")
 }
 }
+\seealso{
+Other evaluation functions: \code{\link{confusion_matrix}}
+}
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
 }
+\concept{evaluation functions}

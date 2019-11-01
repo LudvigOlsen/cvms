@@ -421,8 +421,8 @@ test_that("multinomial evaluations are correct in evaluate()",{
   expect_equal(mb_eval$F1, NaN)
   expect_equal(mb_eval$Sensitivity, NaN)
   expect_equal(mb_eval$Specificity, 0.8266667, tolerance = 1e-4)
-  expect_equal(mb_eval$`Pos Pred Value`, NaN, tolerance = 1e-4)
-  expect_equal(mb_eval$`Neg Pred Value`, NaN, tolerance = 1e-4)
+  expect_equal(mb_eval$`Pos Pred Value`, 0.31, tolerance = 1e-4)
+  expect_equal(mb_eval$`Neg Pred Value`, 0.825555555555556, tolerance = 1e-4)
   expect_equal(mb_eval$AUC, 0.49, tolerance = 1e-4)
   expect_equal(mb_eval$Kappa, 0.1133333, tolerance = 1e-4)
   expect_equal(mb_eval$MCC, 0.11849, tolerance = 1e-4)
@@ -452,10 +452,10 @@ test_that("multinomial evaluations are correct in evaluate()",{
                c(0.733333333333333, 0.8, 0.933333333333333,
                  0.866666666666667, 0.8), tolerance = 1e-4)
   expect_equal(mb_eval$`Class Level Results`[[1]]$`Pos Pred Value`,
-               c(0.2, 0.25, 0.5, 0.6, NaN), tolerance = 1e-4)
+               c(0.2, 0.25, 0.5, 0.6, 0), tolerance = 1e-4)
   expect_equal(mb_eval$`Class Level Results`[[1]]$`Neg Pred Value`,
                c(0.733333333333333, 0.75, 0.777777777777778,
-                 0.866666666666667, NaN), tolerance = 1e-4)
+                 0.866666666666667, 1), tolerance = 1e-4)
   expect_equal(mb_eval$`Class Level Results`[[1]]$Kappa,
                c(-0.0666666666666667, -3.17206578464331e-16, 0.166666666666666,
                  0.466666666666667, 0), tolerance = 1e-4)

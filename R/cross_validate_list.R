@@ -120,6 +120,12 @@ cross_validate_list <- function(data,
     to_compute <- computation_grid[r, ]
 
     model_specifics[["model_formula"]] <- to_compute[["Formula"]]
+
+    # TODO Could maybe be done elsewhere for avoiding redundant checks:
+    # Check that formula contains dependent variable
+    y_col <- extract_y(model_specifics[["model_formula"]]) # Name of target column
+    if (is.null(y_col)) stop("The model formula does not contain a dependent variable.")
+
     model_specifics[["hparams"]] <- to_compute[["hparams"]]
 
     fold_info <- list(

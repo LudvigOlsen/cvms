@@ -322,7 +322,44 @@ test_that("binomial glm model with preprocess_fn works with cross_validate_fn()"
 
   glm_predict_fn <- example_predict_functions("glm_binomial")
 
-  glm_preprocess_fn <- example_preprocess_functions("standardize")
+  # The example fn requires formula, but we need it hardcoded for test
+  glm_preprocess_fn <- function(train_data, test_data, formula, hyperparameters){
+
+    # Create recipes object
+    recipe_object <- recipes::recipe(
+
+      # Note: If we hardcoded the formula instead of using the formula argument
+      # we could preprocess the train/test splits once
+      # instead of for every formula
+      # Tip: Use `y ~ .` to include all predictors (where `y` is your dependent variable)
+      formula = diagnosis ~ .,
+      data = train_data) %>%
+
+      # Add preprocessing steps
+      # Note: We could add specific variable to each step
+      # instead of just selecting all numeric variables
+      recipes::step_center(recipes::all_numeric())  %>%
+      recipes::step_scale(recipes::all_numeric()) %>%
+
+      # Find parameters from the training set
+      recipes::prep(training = train_data)
+
+    # Apply preprocessing to the partitions
+    train_data <- recipes::bake(recipe_object, train_data)
+    test_data <- recipes::bake(recipe_object, test_data)
+
+    # Extract the preprocessing parameters
+    means <- recipe_object$steps[[1]]$means
+    sds <- recipe_object$steps[[2]]$sds
+
+    # Add preprocessing parameters to a tibble
+    tidy_parameters <- tibble::tibble("Measure" = c("Mean" , "SD")) %>%
+      dplyr::bind_cols(dplyr::bind_rows(means, sds))
+
+    list("train" = train_data,
+         "test" = test_data,
+         "parameters" = tidy_parameters)
+  }
 
   CVbinomlist_prep_all <- cross_validate_fn(
     data = dat,
@@ -634,24 +671,52 @@ test_that("gaussian svm models with hparams and preprocessing work with cross_va
     warning("This is a preprocess_fn warning")
     message("This is a preprocess_fn message")
 
-    # Get center parameters
-    # from the train_data
-    # Note that scaling seems to make the model converge to the same results
-    # for every hparams combination, which is great but we
-    # prefer differences in our tests
-    preprocess_params <- caret::preProcess(train_data,
-                                           method = c("center"))
+    # Create recipes object
+    recipe_object <- recipes::recipe(
 
-    train_data <- predict(preprocess_params, train_data)
-    test_data <- predict(preprocess_params, test_data)
+      # We hardcode the formula instead of using the formula argument
+      # so we can preprocess the train/test splits once
+      # instead of for every formula
+      # The dot means "all variables except for diagnosis"
+      formula = score ~ .,
+      data = train_data) %>%
+
+      # Add preprocessing steps
+      # Note that scaling seems to make the model converge to the same results
+      # for every hparams combination, which is great but we
+      # prefer differences in our tests
+      recipes::step_center(recipes::all_numeric())  %>%
+      # recipes::step_scale(age, score) %>%
+
+      # Find parameters from the training set
+      recipes::prep(training = train_data)
+
+    # Apply preprocessing to the partitions
+    train_data <- recipes::bake(recipe_object, train_data)
+    test_data <- recipes::bake(recipe_object, test_data)
+
+    # Extract the preprocessing parameters
+    means <- recipe_object$steps[[1]]$means
+    # sds <- recipe_object$steps[[2]]$sds
+
+    # Add preprocessing parameters to a tibble
+    tidy_parameters <- tibble::tibble("Measure" = c("Mean" # , "SD"
+    )) %>%
+      dplyr::bind_cols(dplyr::bind_rows(means # , sds
+      ))
 
     list("train" = train_data,
-         "test" = test_data)
+         "test" = test_data,
+         "parameters" = tidy_parameters)
   }
+
 
   hparams <- list(".n" = 5,
                   "kernel" = c("linear", "polynomial", "sigmoid"),
                   "cost" = c(1, 5, 10))
+
+  # Note for debugging: Remember that ".n" in hparams causes it to sample
+  # hparams combinations, so run with the seed every time
 
   # Cross-validate the data
   suppressMessages(suppressWarnings(
@@ -733,6 +798,28 @@ test_that("gaussian svm models with hparams and preprocessing work with cross_va
                  "This is a predict_fn warning", "This is a predict_fn message\n",
                  "This is a preprocess_fn warning", "This is a preprocess_fn message\n"
                ))
+
+  preprocess_params <- CVed$Preprocess[[1]]
+  expect_equal(colnames(preprocess_params),
+               c("Fold Column", "Fold", "Measure",
+                 "age", "diagnosis", "session",
+                 "score"))
+  expect_equal(preprocess_params$`Fold Column`,
+               rep(".folds", 4))
+  expect_equal(preprocess_params$Fold,
+               1:4)
+  expect_equal(preprocess_params$Measure,
+               rep("Mean", 4))
+  expect_equal(preprocess_params$age,
+               c(28.875, 28.2857142857143,
+                 27.25, 29.2857142857143))
+  expect_equal(preprocess_params$diagnosis,
+               c(0.625, 0.571428571428571, 0.625, 0.571428571428571))
+  expect_equal(preprocess_params$session,
+               c(2, 2, 2, 2))
+  expect_equal(preprocess_params$score,
+               c(37.75, 41.2380952380952, 36.2916666666667, 40.2857142857143))
+
 })
 
 test_that("binomial naiveBayes models from e1071 work with cross_validate_fn()",{
@@ -1054,13 +1141,17 @@ test_that("multinomial nnet models work with cross_validate_fn()",{
                  "Accuracy", "Weighted Accuracy", "F1", "Weighted F1", "Sensitivity",
                  "Weighted Sensitivity", "Specificity", "Weighted Specificity",
                  "Pos Pred Value", "Weighted Pos Pred Value", "Neg Pred Value",
-                 "Weighted Neg Pred Value", "AUC", "Kappa",
-                 "Weighted Kappa", "MCC", "Weighted MCC", "Detection Rate", "Weighted Detection Rate",
+                 "Weighted Neg Pred Value", "AUC", "Kappa", "Weighted Kappa",
+                 "MCC", "Weighted MCC", "Detection Rate", "Weighted Detection Rate",
                  "Detection Prevalence", "Weighted Detection Prevalence", "Prevalence",
-                 "Weighted Prevalence", "AIC", "AICc", "BIC", "Predictions", "Confusion Matrix",
-                 "Results", "Class Level Results", "Coefficients", "Folds", "Fold Columns",
-                 "Convergence Warnings", "Other Warnings", "Warnings and Messages",
-                 "Family", "Dependent", "Fixed"))
+                 "Weighted Prevalence", "False Neg Rate", "Weighted False Neg Rate",
+                 "False Pos Rate", "Weighted False Pos Rate", "False Discovery Rate",
+                 "Weighted False Discovery Rate", "False Omission Rate", "Weighted False Omission Rate",
+                 "Threat Score", "Weighted Threat Score", "AIC", "AICc", "BIC",
+                 "Predictions", "Confusion Matrix", "Results", "Class Level Results",
+                 "Coefficients", "Folds", "Fold Columns", "Convergence Warnings",
+                 "Other Warnings", "Warnings and Messages", "Family", "Dependent",
+                 "Fixed"))
 
   # Enter sub tibbles
   class_level_results <- CVmultinomlist$`Class Level Results`
@@ -1150,7 +1241,11 @@ test_that("multinomial nnet models work with cross_validate_fn()",{
                  "Weighted Neg Pred Value", "AUC", "Kappa", "Weighted Kappa",
                  "MCC", "Weighted MCC", "Detection Rate", "Weighted Detection Rate",
                  "Detection Prevalence", "Weighted Detection Prevalence", "Prevalence",
-                 "Weighted Prevalence", "AIC", "AICc", "BIC", "ROC"))
+                 "Weighted Prevalence", "False Neg Rate", "Weighted False Neg Rate",
+                 "False Pos Rate", "Weighted False Pos Rate", "False Discovery Rate",
+                 "Weighted False Discovery Rate", "False Omission Rate", "Weighted False Omission Rate",
+                 "Threat Score", "Weighted Threat Score", "AIC", "AICc", "BIC",
+                 "ROC"))
   expect_equal(as.numeric(CVmultinomlist$Results[[1]]$ROC[[1]][[1]]$auc),
                0.338771310993533)
   expect_equal(CVmultinomlist$Results[[1]]$ROC[[1]][[1]]$rocs$`class_1/class_2`[[1]]$sensitivities,
@@ -1943,12 +2038,13 @@ test_that("binomial random predictions work with cross_validate_fn()",{
                  0.685444509377703, 0.500503229675815), tolerance = 1e-4)
 
   # Check manually
-  man_confmat <- caret::confusionMatrix(
-    as.factor(as.integer(CVrandom$Predictions[[1]]$`Predicted Class`)),
-    CVrandom$Predictions[[1]]$Target)
-  expect_equal(man_confmat$byClass[["Sensitivity"]], CVrandom$Sensitivity[[1]])
-  expect_equal(man_confmat$byClass[["Specificity"]], CVrandom$Specificity[[1]])
-  expect_equal(man_confmat$byClass[["Balanced Accuracy"]], CVrandom$`Balanced Accuracy`[[1]])
+  man_confmat <- confusion_matrix(targets = CVrandom$Predictions[[1]]$Target,
+                                  predictions = as.integer(CVrandom$Predictions[[1]]$`Predicted Class`),
+                                  positive = 1)
+
+  expect_equal(man_confmat[["Sensitivity"]][[1]], CVrandom$Sensitivity[[1]])
+  expect_equal(man_confmat[["Specificity"]][[1]], CVrandom$Specificity[[1]])
+  expect_equal(man_confmat[["Balanced Accuracy"]][[1]], CVrandom$`Balanced Accuracy`[[1]])
 
 })
 

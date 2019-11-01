@@ -94,7 +94,8 @@ evaluate_predictions_binomial <- function(data,
       cat_levels = cat_levels,
       positive = model_specifics[["positive"]],
       fold_info_cols = fold_info_cols,
-      include_fold_columns = include_fold_columns
+      include_fold_columns = include_fold_columns,
+      metrics = metrics
     )
 
     if (isTRUE(calculate_roc)){
@@ -114,20 +115,20 @@ evaluate_predictions_binomial <- function(data,
     }
 
 
-    # TODO: Should probably rename "extra_metrics" to something more meaningful
-    # Currently calculates the regular accuracy
-    extra_metrics <- binomial_eval_extra_metrics(data = data,
-                                                 targets_col = targets_col,
-                                                 predicted_class_col = predicted_class_col,
-                                                 unique_fold_cols = unique_fold_cols,
-                                                 fold_info_cols = fold_info_cols)
+    # # TODO: Should probably rename "extra_metrics" to something more meaningful
+    # # Currently calculates the regular accuracy
+    # extra_metrics <- binomial_eval_extra_metrics(data = data,
+    #                                              targets_col = targets_col,
+    #                                              predicted_class_col = predicted_class_col,
+    #                                              unique_fold_cols = unique_fold_cols,
+    #                                              fold_info_cols = fold_info_cols)
 
     # Combine the different metrics and nested tibbles
     results <- binomial_eval_collect(unique_fold_cols = unique_fold_cols,
                                      roc_curves_list = roc_curves_list,
                                      confusion_matrices_list = confusion_matrices_list,
                                      predictions_nested = predictions_nested,
-                                     extra_metrics = extra_metrics,
+                                     # extra_metrics = extra_metrics,
                                      metrics = metrics,
                                      include_fold_columns = include_fold_columns,
                                      include_predictions = include_predictions,
@@ -157,7 +158,8 @@ binomial_eval_confusion_matrices <- function(
   cat_levels,
   positive,
   fold_info_cols,
-  include_fold_columns) {
+  include_fold_columns,
+  metrics) {
 
   # Confusion matrices
 
@@ -166,12 +168,20 @@ binomial_eval_confusion_matrices <- function(
     # Subset data
     fcol_data <- data[data[[fold_info_cols[["fold_column"]]]] == fcol,]
 
+    if (isTRUE(include_fold_columns)){
+      fold_col <- fcol
+    } else {
+      fold_col <- NULL
+    }
+
     # Create confusion matrix and add to list
     fcol_conf_mat <- list("x" = fit_confusion_matrix(
       predicted_classes = fcol_data[[predicted_class_col]],
       targets = fcol_data[[targets_col]],
       cat_levels = cat_levels,
-      positive = positive))
+      positive = positive,
+      fold_col = fold_col,
+      metrics = metrics))
 
     # Rename list element to the fold column name
     names(fcol_conf_mat) <- fcol
@@ -180,7 +190,8 @@ binomial_eval_confusion_matrices <- function(
 
   }) %>% unlist(recursive=FALSE)
 
-  nested_confusion_matrices <- nest_confusion_matrices(confusion_matrices, cat_levels, unique_fold_cols,
+  nested_confusion_matrices <- nest_confusion_matrices(confusion_matrices,
+                                                       fold_cols = unique_fold_cols,
                                                        include_fold_columns = include_fold_columns)
 
   list("nested_confusion_matrices" = nested_confusion_matrices,
@@ -224,38 +235,37 @@ binomial_eval_roc_curves <- function(data, targets_col, predictions_col,
 
 }
 
-binomial_eval_extra_metrics <- function(data, targets_col,
-                                        predicted_class_col,
-                                        unique_fold_cols,
-                                        fold_info_cols){
-
-  extra_metrics <- plyr::llply(unique_fold_cols, function(fcol) {
-
-    # Subset data
-    fcol_data <- data[data[[fold_info_cols[["fold_column"]]]] == fcol,]
-
-    # Regular old accuracy
-    fcol_accuracy <- list("x" = list("accuracy" = calculate_accuracy(
-      predictions = data[[predicted_class_col]],
-      targets = data[[targets_col]]
-    )))
-
-    # Rename list element to the fold column name
-    names(fcol_accuracy) <- fcol
-
-    fcol_accuracy
-
-  }) %>% unlist(recursive = FALSE)
-
-  extra_metrics
-
-}
+# binomial_eval_extra_metrics <- function(data, targets_col,
+#                                         predicted_class_col,
+#                                         unique_fold_cols,
+#                                         fold_info_cols){
+#
+#   extra_metrics <- plyr::llply(unique_fold_cols, function(fcol) {
+#
+#     # Subset data
+#     fcol_data <- data[data[[fold_info_cols[["fold_column"]]]] == fcol,]
+#
+#     # Regular old accuracy
+#     fcol_accuracy <- list("x" = list("accuracy" = calculate_accuracy(
+#       predictions = data[[predicted_class_col]],
+#       targets = data[[targets_col]]
+#     )))
+#
+#     # Rename list element to the fold column name
+#     names(fcol_accuracy) <- fcol
+#
+#     fcol_accuracy
+#
+#   }) %>% unlist(recursive = FALSE)
+#
+#   extra_metrics
+#
+# }
 
 binomial_eval_collect <- function(unique_fold_cols,
                                   roc_curves_list,
                                   confusion_matrices_list,
                                   predictions_nested,
-                                  extra_metrics,
                                   metrics,
                                   include_fold_columns = TRUE,
                                   include_predictions = TRUE,
@@ -282,7 +292,6 @@ binomial_eval_collect <- function(unique_fold_cols,
                                            roc_nested = NULL,
                                            confusion_matrix = confusion_matrices[[fcol]],
                                            predictions_nested = NULL,
-                                           extra_metrics = extra_metrics[[fcol]],
                                            metrics = metrics,
                                            include_predictions = FALSE) %>%
       dplyr::mutate(`Fold Column` = as.character(fcol))
@@ -395,35 +404,19 @@ binomial_classification_results_tibble <- function(roc_curve,
                                                    roc_nested,
                                                    confusion_matrix,
                                                    predictions_nested,
-                                                   extra_metrics, # TODO rename arg
                                                    metrics,
                                                    include_predictions){
 
   eval_tibble <- tibble::tibble(
-    'Balanced Accuracy' = unname(confusion_matrix$byClass['Balanced Accuracy']),
-    'Accuracy' = extra_metrics[["accuracy"]],
-    'F1' = unname(confusion_matrix$byClass['F1']),
-    "Sensitivity" = unname(confusion_matrix$byClass['Sensitivity']),
-    'Specificity' = unname(confusion_matrix$byClass['Specificity']),
-    'Pos Pred Value' = unname(confusion_matrix$byClass['Pos Pred Value']),
-    'Neg Pred Value' = unname(confusion_matrix$byClass['Neg Pred Value']),
     "AUC" = ifelse(!is.null(roc_curve), pROC::auc(roc_curve)[1], logical()),
     "Lower CI" = ifelse(!is.null(roc_curve), pROC::ci(roc_curve)[1], logical()),
     "Upper CI" = ifelse(!is.null(roc_curve), pROC::ci(roc_curve)[3], logical()),
-    "Kappa" = unname(confusion_matrix$overall['Kappa']),
-    'MCC' = mltools::mcc(
-      TP = confusion_matrix$table[1],
-      FP = confusion_matrix$table[3],
-      TN = confusion_matrix$table[4],
-      FN = confusion_matrix$table[2]
-    ),
-    'Detection Rate' = unname(confusion_matrix$byClass['Detection Rate']),
-    'Detection Prevalence' = unname(confusion_matrix$byClass['Detection Prevalence']),
-    'Prevalence' = unname(confusion_matrix$byClass['Prevalence']),
     "Predictions" = ifelse(!is.null(predictions_nested),
                            predictions_nested$predictions,
                            logical()),
-    "ROC" = ifelse(!is.null(roc_nested), roc_nested$roc, logical()))
+    "ROC" = ifelse(!is.null(roc_nested), roc_nested$roc, logical())) %>%
+    dplyr::bind_cols(confusion_matrix %>%
+                       base_deselect(cols = c("Confusion Matrix", "Table")))
 
   eval_tibble <- eval_tibble[, c(intersect(metrics, colnames(eval_tibble)),
                                  "Predictions", "ROC")]
@@ -435,7 +428,10 @@ binomial_classification_results_tibble <- function(roc_curve,
   eval_tibble
 }
 
-fit_confusion_matrix <- function(predicted_classes, targets, cat_levels, positive){
+fit_confusion_matrix <- function(predicted_classes, targets,
+                                 cat_levels, positive,
+                                 fold_col = NULL,
+                                 metrics = list()){
 
   if (is.numeric(positive)) positive <- cat_levels[positive]
   else if (is.character(positive) && positive %ni% cat_levels){
@@ -449,10 +445,14 @@ fit_confusion_matrix <- function(predicted_classes, targets, cat_levels, positiv
 
   # Try to use fit a confusion matrix with the predictions and targets
   conf_mat <- tryCatch({
-    caret::confusionMatrix(factor(predicted_classes, levels = cat_levels),
-                           factor(targets, levels = cat_levels),
-                           positive = positive)
-
+    call_confusion_matrix(targets = targets,
+                          predictions = predicted_classes,
+                          c_levels = cat_levels,
+                          metrics = metrics,
+                          positive = positive,
+                          do_one_vs_all = TRUE,
+                          parallel = FALSE,
+                          fold_col = fold_col)
   }, error = function(e) {
     stop(paste0('Confusion matrix error: ',e))
 
@@ -486,75 +486,35 @@ fit_roc_curve <- function(predicted_probabilities, targets, levels = c(0,1), dir
 }
 
 nest_confusion_matrices <- function(confusion_matrices,
-                                    cat_levels = c("0", "1"),
                                     fold_cols = ".folds",
                                     include_fold_columns = TRUE){
 
-  num_conf_matrices <- length(confusion_matrices)
+  tidy_confusion_matrices <- confusion_matrices %>%
+    dplyr::bind_rows() %>%
+    dplyr::pull(.data$`Confusion Matrix`) %>%
+    dplyr::bind_rows()
 
-  if (length(fold_cols) == 1) {
-    fold_cols <- rep(fold_cols, num_conf_matrices)
-  }
-
-  # Turned out faster than the ldply version
-  tidy_confusion_matrix <- confusion_matrices %c% "table" %>%
-    purrr::map(.f = ~dplyr::as_tibble(.)) %>%
-    dplyr::bind_rows(.id = "Fold Column")
-
-  # Rename vars (base is faster than dplyr::rename)
-  tidy_confusion_matrix <- base_rename(tidy_confusion_matrix,
-                                       before = "n", after = "N")
-  tidy_confusion_matrix <- base_rename(tidy_confusion_matrix,
-                                       before = "Reference", after = "Target")
-
-  # Add Pos_0/1 columns
-  tidy_confusion_matrix[[paste0("Pos_", cat_levels[[1]])]] <-
-    rep(c("TP", "FN", "FP", "TN"), num_conf_matrices)
-  tidy_confusion_matrix[[paste0("Pos_", cat_levels[[2]])]] <-
-    rep(c("TN", "FP", "FN", "TP"), num_conf_matrices)
-
-  # Move N to be last column
-  tidy_confusion_matrix <- reposition_column(
-    tidy_confusion_matrix, "N", .after = paste0("Pos_", cat_levels[[2]]))
-
-  if (!isTRUE(include_fold_columns)){
-    tidy_confusion_matrix[["Fold Column"]] <- NULL
-  }
-
-  tidy_confusion_matrix <- dplyr::group_nest(tidy_confusion_matrix)
-  names(tidy_confusion_matrix) <- "confusion_matrices"
-  tidy_confusion_matrix
+  tidy_confusion_matrices <- dplyr::group_nest(tidy_confusion_matrices,
+                                               .key = "confusion_matrices")
+  tidy_confusion_matrices
 
 }
 
-# Note, if only one confusion matrix object (from caret::confusionMatrix()),
+# Note, if only one confusion matrix object
 # pass it in a list
 nest_multiclass_confusion_matrices <- function(confusion_matrices,
                                                fold_cols = ".folds",
                                                include_fold_columns = TRUE) {
 
-  if (length(fold_cols) == 1) {
-    fold_cols <- rep(fold_cols, length(confusion_matrices))
-  }
 
   # TODO Test this works here as well
-  # Turned out faster than the ldply version
-  tidy_confusion_matrices <- confusion_matrices %c% "table" %>%
-    purrr::map(.f = ~dplyr::as_tibble(.)) %>%
-    dplyr::bind_rows(.id = "Fold Column")
+  tidy_confusion_matrices <- confusion_matrices %>%
+    dplyr::bind_rows() %>%
+    dplyr::pull(.data$`Confusion Matrix`) %>%
+    dplyr::bind_rows()
 
-  # Rename vars (base is faster than dplyr::rename)
-  tidy_confusion_matrices <- base_rename(tidy_confusion_matrices,
-                                         before = "n", after = "N")
-  tidy_confusion_matrices <- base_rename(tidy_confusion_matrices,
-                                         before = "Reference", after = "Target")
-
-  if (!isTRUE(include_fold_columns)){
-    tidy_confusion_matrices[["Fold Column"]] <- NULL
-  }
-
-  tidy_confusion_matrices <- dplyr::group_nest(tidy_confusion_matrices)
-  names(tidy_confusion_matrices) <- "confusion_matrices"
+  tidy_confusion_matrices <- dplyr::group_nest(tidy_confusion_matrices,
+                                               .key = "confusion_matrices")
   tidy_confusion_matrices
 }
 

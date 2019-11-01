@@ -29,17 +29,16 @@ Imports:
     ggplot2,
     purrr,
     tibble (>= 2.1.1),
-    caret (>= 6.0-84),
     pROC (>= 1.14.0),
     stats,
-    rlang,
+    rlang (>= 0.4.0),
     utils,
     lme4 (>= 1.1-21),
     MuMIn (>= 1.43.6),
     broom (>= 0.5.2),
     stringr,
-    mltools (>= 0.3.5),
-    lifecycle
+    lifecycle,
+    recipes
 Suggests: 
     knitr,
     groupdata2 (>= 1.1.2),
@@ -48,7 +47,6 @@ Suggests:
     testthat (>= 2.2.1),
     AUC,
     furrr,
-    ModelMetrics (>= 1.2.2),
     covr (>= 3.3.1),
     nnet (>= 7.3-12),
     randomForest (>= 4.6-14)

@@ -34,38 +34,24 @@ test_that("Metrics work for glm in validate()",{
   auc2 <- AUC::auc(AUC::roc(test_data$prob, factor(test_data$diagnosis)))
   expect_equal(validated$AUC,auc2)
 
+  # Confusion Matrix Metrics
+
+  conf_mat <- confusion_matrix(targets = test_data$diagnosis,
+                               predictions = test_data$pred,
+                               positive = levels(as.factor(test_data$diagnosis))[1],
+                               c_levels = levels(as.factor(train_data$diagnosis)))
+
   # Sensitivity
-  sens <- caret::sensitivity(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
-                             factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
-                     positive = levels(as.factor(test_data$diagnosis))[1])
-  expect_equal(validated$Sensitivity,sens)
+  expect_equal(validated$Sensitivity, conf_mat$Sensitivity)
 
   # Specificity
-  spec <- caret::specificity(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
-                             factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
-                             positive = levels(as.factor(test_data$diagnosis))[1])
-  expect_equal(validated$Specificity,spec)
+  expect_equal(validated$Specificity, conf_mat$Specificity)
 
   # posPredValue
-  posPredValue_ <- caret::posPredValue(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
-                                       factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
-                             positive = levels(as.factor(test_data$diagnosis))[1])
-  expect_equal(validated$`Pos Pred Value`,posPredValue_)
-  # should be identical to precision as well
-  precision_ <- caret::precision(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
-                                       factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
-                                       positive = levels(as.factor(test_data$diagnosis))[1])
-  expect_equal(posPredValue_, posPredValue_)
+  expect_equal(validated$`Pos Pred Value`, conf_mat$`Pos Pred Value`)
 
   # negPredValue
-  negPredValue_ <- caret::negPredValue(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
-                                       factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
-                                       positive = levels(as.factor(test_data$diagnosis))[1])
-  expect_equal(validated$`Neg Pred Value`,negPredValue_)
-
-  rm(test_data)
-
-
+  expect_equal(validated$`Neg Pred Value`, conf_mat$`Neg Pred Value`)
 
 })
 
@@ -102,29 +88,24 @@ test_that("Metrics work for glmer in validate()",{
   expect_equal(validated$AUC,auc2)
 
 
+  # Confusion Matrix metrics
+
+  conf_mat <- confusion_matrix(targets = test_data$diagnosis,
+                               predictions = test_data$pred,
+                               positive = levels(as.factor(test_data$diagnosis))[1],
+                               c_levels = levels(as.factor(train_data$diagnosis)))
+
   # Sensitivity
-  sens <- caret::sensitivity(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
-                             factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
-                             positive = levels(as.factor(test_data$diagnosis))[1])
-  expect_equal(validated$Sensitivity,sens)
+  expect_equal(validated$Sensitivity, conf_mat$Sensitivity)
 
   # Specificity
-  spec <- caret::specificity(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
-                             factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
-                             positive = levels(as.factor(test_data$diagnosis))[1])
-  expect_equal(validated$Specificity,spec)
+  expect_equal(validated$Specificity, conf_mat$Specificity)
 
   # posPredValue
-  posPredValue_ <- caret::posPredValue(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
-                                       factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
-                                       positive = levels(as.factor(test_data$diagnosis))[1])
-  expect_equal(validated$`Pos Pred Value`,posPredValue_)
+  expect_equal(validated$`Pos Pred Value`, conf_mat$`Pos Pred Value`)
 
   # negPredValue
-  negPredValue_ <- caret::negPredValue(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
-                                       factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
-                                       positive = levels(as.factor(test_data$diagnosis))[1])
-  expect_equal(validated$`Neg Pred Value`,negPredValue_)
+  expect_equal(validated$`Neg Pred Value`, conf_mat$`Neg Pred Value`)
 
 })
 
@@ -165,31 +146,25 @@ test_that("Metrics work for glm in validate()",{
   auc2 <- AUC::auc(AUC::roc(test_data$prob, factor(test_data$diagnosis)))
   expect_equal(validated$AUC, auc2)  # TODO What is the actual underlying error here?
 
+  # Confusion matrix metrics
+
+  conf_mat <- confusion_matrix(targets = test_data$diagnosis,
+                               predictions = test_data$pred,
+                               positive = levels(as.factor(test_data$diagnosis))[1],
+                               c_levels = levels(as.factor(train_data$diagnosis)))
+
   # Sensitivity
-  sens <- caret::sensitivity(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
-                             factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
-                             positive = levels(as.factor(test_data$diagnosis))[1])
-  expect_equal(validated$Sensitivity,sens)
+  expect_equal(validated$Sensitivity, conf_mat$Sensitivity)
 
   # Specificity
-  spec <- caret::specificity(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
-                             factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
-                             positive = levels(as.factor(test_data$diagnosis))[1])
-  expect_equal(validated$Specificity,spec)
+  expect_equal(validated$Specificity, conf_mat$Specificity)
 
   # posPredValue
-  posPredValue_ <- caret::posPredValue(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
-                                       factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
-                                       positive = levels(as.factor(test_data$diagnosis))[1])
-  expect_equal(validated$`Pos Pred Value`,posPredValue_)
+  expect_equal(validated$`Pos Pred Value`, conf_mat$`Pos Pred Value`)
 
   # negPredValue
-  negPredValue_ <- caret::negPredValue(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
-                                       factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
-                                       positive = levels(as.factor(test_data$diagnosis))[1])
-  expect_equal(validated$`Neg Pred Value`,negPredValue_)
+  expect_equal(validated$`Neg Pred Value`, conf_mat$`Neg Pred Value`)
 
-  rm(test_data)
 })
 
 
@@ -204,9 +179,9 @@ test_that("Metrics work for glmer in validate()",{
                                id_col = 'participant',
                                list_out = FALSE)
 
-  validated <- validate(train_data=dat, formulas="diagnosis~age+(1|session)",
+  validated <- validate(train_data = dat, formulas = "diagnosis~age+(1|session)",
                         partitions_col = '.partitions', family = 'binomial',
-                        positive=1)
+                        positive = 1)
   same_model <- lme4::glmer(diagnosis~age+(1|session),
                             data=dat[dat$.partitions==1,], family = 'binomial')
 
@@ -226,30 +201,25 @@ test_that("Metrics work for glmer in validate()",{
                             factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis)))))
   expect_equal(validated$AUC,auc2)
 
+  # Confusion matrix metrics
+
+  conf_mat <- confusion_matrix(targets = test_data$diagnosis,
+                               predictions = test_data$pred,
+                               positive = levels(as.factor(test_data$diagnosis))[1],
+                               c_levels = levels(as.factor(train_data$diagnosis)))
 
   # Sensitivity
-  sens <- caret::sensitivity(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
-                             factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
-                             positive = levels(as.factor(test_data$diagnosis))[1])
-  expect_equal(validated$Sensitivity,sens)
+  expect_equal(validated$Sensitivity, conf_mat$Sensitivity)
 
   # Specificity
-  spec <- caret::specificity(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
-                             factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
-                             positive = levels(as.factor(test_data$diagnosis))[1])
-  expect_equal(validated$Specificity,spec)
+  expect_equal(validated$Specificity, conf_mat$Specificity)
 
   # posPredValue
-  posPredValue_ <- caret::posPredValue(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
-                                       factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
-                                       positive = levels(as.factor(test_data$diagnosis))[1])
-  expect_equal(validated$`Pos Pred Value`,posPredValue_)
+  expect_equal(validated$`Pos Pred Value`, conf_mat$`Pos Pred Value`)
 
   # negPredValue
-  negPredValue_ <- caret::negPredValue(factor(test_data$pred, levels=levels(as.factor(train_data$diagnosis))),
-                                       factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis))),
-                                       positive = levels(as.factor(test_data$diagnosis))[1])
-  expect_equal(validated$`Neg Pred Value`,negPredValue_)
+  expect_equal(validated$`Neg Pred Value`, conf_mat$`Neg Pred Value`)
+
 
 })
 
@@ -484,45 +454,46 @@ test_that("Metrics work in cross_validate()",{
   expect_equal(auc2,0.7615741, tolerance = 1e-3)
 
 
-  # Sensitivity
-  sens <- caret::sensitivity(as.factor(pred_df$pred), as.factor(pred_df$obs),
-                             positive = levels(as.factor(pred_df$obs))[1])
-  expect_equal(sens,0.5833333, tolerance = 1e-3)
+  # Confusion matrix metrics
 
-  # # Specificity
-  spec <- caret::specificity(as.factor(pred_df$pred), as.factor(pred_df$obs),
-                             positive = levels(as.factor(pred_df$obs))[1])
-  expect_equal(spec,0.8888889, tolerance = 1e-3)
+  conf_mat <- confusion_matrix(targets = pred_df$obs,
+                               predictions = pred_df$pred,
+                               positive = levels(as.factor(pred_df$obs))[1],
+                               c_levels = levels(as.factor(pred_df$obs)))
+
+  # Sensitivity
+  expect_equal(conf_mat$Sensitivity, 0.5833333, tolerance = 1e-5)
+
+  # Specificity
+  expect_equal(conf_mat$Specificity,0.8888889, tolerance = 1e-5)
 
   # posPredValue
-  posPredValue_ <- caret::posPredValue(as.factor(pred_df$pred), as.factor(pred_df$obs),
-                                       positive = levels(as.factor(pred_df$obs))[1])
-  expect_equal(posPredValue_,0.7777778, tolerance = 1e-3)
+  expect_equal(conf_mat$`Pos Pred Value`,0.7777778, tolerance = 1e-5)
 
   # negPredValue
-  negPredValue_ <- caret::negPredValue(as.factor(pred_df$pred), as.factor(pred_df$obs),
-                                       positive = levels(as.factor(pred_df$obs))[1])
-  expect_equal(negPredValue_,0.7619048, tolerance = 1e-3)
+  expect_equal(conf_mat$`Neg Pred Value`, 0.7619048, tolerance = 1e-5)
 
   # F1
-  F1 <- (2 * posPredValue_ * sens) / (posPredValue_ + sens)
-  expect_equal(F1,0.6666667, tolerance = 1e-3)
+  F1 <- (2 * conf_mat$`Pos Pred Value` * conf_mat$Sensitivity) / (conf_mat$`Pos Pred Value` + conf_mat$Sensitivity)
+  expect_equal(F1,0.6666667, tolerance = 1e-5)
+  expect_equal(conf_mat$F1, F1, tolerance = 1e-5)
 
+  confMatTable <- conf_mat[["Table"]][[1]]
   # Confusion matrix
-  confMat <- caret::confusionMatrix(factor(pred_df$pred, levels=c(0,1)),
-                                    reference=factor(pred_df$obs, levels=c(0,1)))
-  TP <- confMat$table[1] # Dependent on positive = 0 ?
-  FP <- confMat$table[3]
-  FN <- confMat$table[2]
-  TN <- confMat$table[4]
+  TP <- confMatTable[1] # Dependent on positive = 0 ?
+  FP <- confMatTable[3]
+  FN <- confMatTable[2]
+  TN <- confMatTable[4]
   precision <- TP / (TP + FP)
   recall <- TP / (TP + FN)
   F1_2 <- 2 * precision * recall / (precision + recall)
-  expect_equal(F1_2,0.6666667, tolerance = 1e-3)
+  expect_equal(F1_2, 0.6666667, tolerance = 1e-3)
 
   # Test that MCC does not care about what class if positive
-  expect_equal(mltools::mcc(TP=TP, FP=FP, FN=FN, TN=TN),
-               mltools::mcc(TP=TN, FP=FN, FN=FP, TN=TP))
+  expect_equal(mcc(list("TP"=TP, "FP"=FP, "FN"=FN, "TN"=TN)),
+               mcc(list("TP"=TN, "FP"=FN, "FN"=FP, "TN"=TP)))
+
+  # TODO Add many more tests of confusion_matrix!!!
 
   # Add tests for the following metrics
   # expect_equal(#LowerCI, 0.5851154)

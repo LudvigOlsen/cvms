@@ -14,7 +14,7 @@ prepare_train_test <- function(data, fold_info, fold_cols, model_specifics){
     current_formula <- NULL
     current_hparams <- NULL
   } else {
-    current_formula <- model_specifics[["formula"]]
+    current_formula <- as.formula(model_specifics[["model_formula"]])
     current_hparams <- extract_hparams(model_specifics)
   }
 

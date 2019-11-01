@@ -21,6 +21,8 @@ Throws error if probabilities do not add up 1 row-wise (tolerance of 5 decimals)
 
 ## Additions
 
+* `confusion_matrix()` is added. Create a confusion matrix and calculate associated metrics from your targets and predictions. 
+
 * `summarize_metrics()` is added. Use it summarize the numeric columns in your dataset with a set of common descriptors. Counts the `NA`s and `Inf`s. Used by `baseline()`.
 
 * `example_model_functions()` is added. Contains simple `model_fn` examples that can be used in `cross_validate_fn()` or as starting points.
@@ -53,6 +55,8 @@ These are based on the fitted model objects and will only work for some types of
 Warnings are counted in `Other Warnings`.
 
 * Nesting is now done with `dplyr::group_nest` instead of `tidyr::nest_legacy` for speed improvements.
+
+* `caret`, `mltools`, and `ModelMetrics` are no longer dependencies. The confusion matrix metrics have instead been implemented in `cvms` (see `confusion_matrix()`).
 
 # cvms 0.3.1
 

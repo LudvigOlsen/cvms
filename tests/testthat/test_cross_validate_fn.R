@@ -252,6 +252,7 @@ test_that("gaussian lm model works with cross_validate_fn()",{
                             predict_fn = lm_predict_fn,
                             formulas = "score~diagnosis",
                             fold_cols = '.folds',
+                            metrics = "all",
                             type = 'gaussian')
 
   expect_equal(CVed$RMSE, 17.16817, tolerance=1e-3)
@@ -597,13 +598,12 @@ test_that("gaussian svm models from e1071 work with cross_validate_fn()",{
                             fold_cols = '.folds',
                             type = 'gaussian')
 
+  expect_equal(colnames(CVed),
+               c("RMSE", "MAE", "Predictions", "Results", "Coefficients", "Folds",
+                 "Fold Columns", "Convergence Warnings", "Other Warnings", "Warnings and Messages",
+                 "Family", "Dependent", "Fixed"))
   expect_equal(CVed$RMSE, 18.01026, tolerance=1e-3)
   expect_equal(CVed$MAE, 15.27778, tolerance=1e-3)
-  expect_equal(CVed$r2m, NaN, tolerance=1e-3)
-  expect_equal(CVed$r2c, NaN, tolerance=1e-3)
-  expect_equal(CVed$AIC, NaN, tolerance=1e-3)
-  expect_equal(CVed$AICc, NaN, tolerance=1e-3)
-  expect_equal(CVed$BIC, NaN, tolerance=1e-3)
   expect_equal(CVed$Folds, 4)
   expect_equal(CVed$`Fold Columns`, 1)
   expect_equal(CVed$`Convergence Warnings`, 0)
@@ -738,11 +738,6 @@ test_that("gaussian svm models with hparams and preprocessing work with cross_va
                c(16.195563745625, 15.2813142143035,
                  16.0889298392363, 15.8807791330459,
                  15.3388888924368), tolerance=1e-3)
-  expect_equal(CVed$r2m, rep(NaN,5), tolerance=1e-3)
-  expect_equal(CVed$r2c, rep(NaN,5), tolerance=1e-3)
-  expect_equal(CVed$AIC, rep(NaN,5), tolerance=1e-3)
-  expect_equal(CVed$AICc, rep(NaN,5), tolerance=1e-3)
-  expect_equal(CVed$BIC, rep(NaN,5), tolerance=1e-3)
   expect_equal(CVed$Folds, rep(4, 5))
   expect_equal(CVed$`Fold Columns`, rep(1, 5))
   expect_equal(CVed$`Convergence Warnings`, rep(0,5))
@@ -1045,11 +1040,6 @@ test_that("gaussian nnet models work with cross_validate_fn()",{
 
   expect_equal(CVed$RMSE, 16.5414, tolerance=1e-3)
   expect_equal(CVed$MAE, 13.76884, tolerance=1e-3)
-  expect_equal(CVed$r2m, NaN, tolerance=1e-3)
-  expect_equal(CVed$r2c, NaN, tolerance=1e-3)
-  expect_equal(CVed$AIC, NaN, tolerance=1e-3)
-  expect_equal(CVed$AICc, NaN, tolerance=1e-3)
-  expect_equal(CVed$BIC, NaN, tolerance=1e-3)
   expect_equal(CVed$Folds, 4)
   expect_equal(CVed$`Fold Columns`, 1)
   expect_equal(CVed$`Convergence Warnings`, 0)
@@ -1550,6 +1540,7 @@ test_that("gaussian randomForest models work with cross_validate_fn()",{
                             predict_fn = rf_predict_fn,
                             formulas = "score~diagnosis",
                             fold_cols = '.folds',
+                            metrics = "all",
                             type = 'gaussian')
 
   expect_equal(CVed$RMSE, 16.56476, tolerance=1e-3)
@@ -1840,7 +1831,11 @@ test_that("gaussian lm model with metrics list works with cross_validate_fn()",{
                             formulas = "score~diagnosis",
                             fold_cols = '.folds',
                             metrics = list("RMSE" = FALSE,
-                                           "r2m" = FALSE),
+                                           "r2m" = FALSE,
+                                           "r2c" = TRUE,
+                                           "AIC" = TRUE,
+                                           "AICc" = TRUE,
+                                           "BIC" = TRUE),
                             type = 'gaussian')
 
   expect_equal(colnames(CVed),
@@ -2072,6 +2067,7 @@ test_that("gaussian random predictions work with cross_validate_fn()",{
                             predict_fn = random_predict_fn,
                             formulas = "score~diagnosis",
                             fold_cols = '.folds',
+                            metrics = "all",
                             type = 'gaussian')
 
   expect_equal(CVed$RMSE, 28.12423, tolerance=1e-3)
@@ -2345,6 +2341,7 @@ test_that("gaussian results are returned in correct order from cross_validate_fn
                             predict_fn = random_predict_fn,
                             formulas = c("score~diagnosis","score~age"),
                             fold_cols = '.folds',
+                            metrics = "all",
                             type = 'gaussian')
 
   expect_equal(CVed$RMSE, c(24.7354111109333, 104.248387787132), tolerance=1e-3)
@@ -2363,6 +2360,7 @@ test_that("gaussian results are returned in correct order from cross_validate_fn
                             predict_fn = random_predict_fn,
                             formulas = c("score~age", "score~diagnosis"),
                             fold_cols = '.folds',
+                            metrics = "all",
                             type = 'gaussian')
 
   expect_equal(CVed$RMSE, c(104.248387787132, 24.7354111109333), tolerance=1e-3)

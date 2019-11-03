@@ -12,8 +12,10 @@ example_preprocess_functions(name)
 
  \tabular{rrr}{
   \strong{Name} \tab \strong{Description} \cr
-  "standardize" \tab Centers and scales the numeric variables\cr
-  "range" \tab Normalizes the numeric variables to 0-1 range\cr
+  "standardize" \tab Centers and scales the numeric predictors\cr
+  "range" \tab Normalizes the numeric predictors to the 0-1 range\cr
+  "scale" \tab Scales the numeric predictors to have a standard deviation of one\cr
+  "center" \tab Centers the numeric predictors to have a mean of zero\cr
   "warn" \tab Identity function that throws a warning and a message\cr
   }}
 }
@@ -21,12 +23,20 @@ example_preprocess_functions(name)
 \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
 
  Examples of preprocess functions that can be used in
- \code{\link[cvms:cross_validate_fn]{cross_validate_fn()}}.
+ \code{\link[cvms:cross_validate_fn]{cross_validate_fn()}} and
+ \code{\link[cvms:validate_fn]{validate_fn()}}.
  They can either be used directly or be starting points.
 
- The examples will mainly use \code{\link[recipes:recipe]{recipes}},
+ The examples use \code{\link[recipes:recipe]{recipes}},
  but you can also use caret::preProcess() or
  similar functions.
+
+ In these examples, the preprocessing will only affect the numeric predictors.
+
+ You may prefer to hardcode a formula like \code{"y ~ ."} (where
+ \code{y} is your dependent variable) as that will allow you to set
+ \strong{preprocess_one} to \code{TRUE} in \code{\link[cvms:cross_validate_fn]{cross_validate_fn()}}
+ and \code{\link[cvms:validate_fn]{validate_fn()}} and save time.
 }
 \seealso{
 Other example functions: \code{\link{example_model_functions}},

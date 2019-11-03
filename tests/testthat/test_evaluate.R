@@ -1305,6 +1305,10 @@ test_that("gaussian evaluations are correct in evaluate()",{
                  type = "gaussian",
                  metrics = "all")
 
+  expect_equal(colnames(e1),
+               c("RMSE", "MAE", "r2m", "r2c", "AIC",
+                 "AICc", "BIC", "Predictions",
+                 "Coefficients"))
   expect_equal(e1$RMSE, 16.16881, tolerance = 1e-4)
   expect_equal(e1$MAE, 13.47778, tolerance = 1e-4)
   expect_equal(e1$r2m, 0.2665756, tolerance = 1e-4)
@@ -1328,6 +1332,8 @@ test_that("gaussian evaluations are correct in evaluate()",{
                  type = "gaussian",
                  metrics = "all")
 
+  expect_equal(colnames(e2),
+               c("RMSE", "MAE", "Predictions"))
   expect_equal(colnames(e2), c("RMSE","MAE","Predictions"))
   expect_equal(e2$RMSE, 16.16881, tolerance = 1e-4)
   expect_equal(e2$MAE, 13.47778, tolerance = 1e-4)
@@ -1349,6 +1355,10 @@ test_that("gaussian evaluations are correct in evaluate()",{
                  type = "gaussian",
                  metrics = "all")
 
+  expect_equal(colnames(e3),
+               c("RMSE", "MAE", "r2m", "r2c", "AIC",
+                 "AICc", "BIC", "Predictions",
+                 "Coefficients"))
 
   eval_data_3 <- dplyr::bind_rows(eval_data %>% dplyr::mutate(fold_ = 1),
                                   eval_data_2 %>% dplyr::mutate(fold_ = 2)) %>%
@@ -1364,6 +1374,11 @@ test_that("gaussian evaluations are correct in evaluate()",{
                  type = "gaussian",
                  metrics = "all") %>%
     dplyr::mutate(fold_ = as.factor(.data$fold_))
+
+  expect_equal(colnames(e4),
+               c("fold_","RMSE", "MAE", "r2m", "r2c", "AIC",
+                 "AICc", "BIC", "Predictions",
+                 "Coefficients"))
 
   e1_e3 <- dplyr::bind_rows(e1, e3) %>%
     dplyr::mutate(fold_ = factor(1:2)) %>%

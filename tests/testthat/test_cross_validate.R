@@ -928,6 +928,604 @@ test_that("gaussian models work with repeated cross_validate()",{
 
 })
 
+# TODO Check preprocessing with random effects as well!
+test_that("preprocessing works with binomial models in cross_validate()",{
+
+  # Load data and fold it
+  set_seed_for_R_compatibility(1)
+  dat <- groupdata2::fold(participant.scores, k = 4,
+                          cat_col = 'diagnosis',
+                          id_col = 'participant')
+
+  CVbinomlist_no_preprocessing <- cross_validate(
+    dat,
+    formulas = c("diagnosis~score", "diagnosis~age"),
+    fold_cols = '.folds', family = 'binomial',
+    REML = FALSE, verbose = FALSE,
+    positive = 1 )
+
+  CVbinomlist_standardize <- cross_validate(
+    dat,
+    formulas = c("diagnosis~score", "diagnosis~age"),
+    fold_cols = '.folds', family = 'binomial',
+    preprocessing = "standardize",
+    REML = FALSE, verbose = FALSE,
+    positive = 1 )
+
+  CVbinomlist_center <- cross_validate(
+    dat,
+    formulas = c("diagnosis~score", "diagnosis~age"),
+    fold_cols = '.folds', family = 'binomial',
+    preprocessing = "center",
+    REML = FALSE, verbose = FALSE,
+    positive = 1 )
+
+  CVbinomlist_scale <- cross_validate(
+    dat,
+    formulas = c("diagnosis~score", "diagnosis~age"),
+    fold_cols = '.folds', family = 'binomial',
+    preprocessing = "scale",
+    REML = FALSE, verbose = FALSE,
+    positive = 1 )
+
+  CVbinomlist_range <- cross_validate(
+    dat,
+    formulas = c("diagnosis~score", "diagnosis~age"),
+    fold_cols = '.folds', family = 'binomial',
+    preprocessing = "range",
+    REML = FALSE, verbose = FALSE,
+    positive = 1 )
+
+  # NOTE for range version:
+  # recipe::step_range : "When a new data point is outside of the ranges seen in the training set,
+  # the new values are truncated at min or max."
+  # Hence, we might get different predictions for that specific cv
+
+  expect_error(cross_validate(dat,
+                                formulas = c("diagnosis~score", "diagnosis~age"),
+                                fold_cols = '.folds', family = 'binomial',
+                                preprocessing = "standardization",
+                                REML = FALSE, verbose = FALSE,
+                                positive = 1 ),
+               "'preprocessing' was not found.", fixed = TRUE)
+
+  expect_equal(colnames(CVbinomlist_standardize),
+               colnames(CVbinomlist_center))
+  expect_equal(colnames(CVbinomlist_standardize),
+               colnames(CVbinomlist_scale))
+  expect_equal(colnames(CVbinomlist_standardize),
+               colnames(CVbinomlist_range))
+  expect_equal(colnames(CVbinomlist_standardize),
+               c("Balanced Accuracy", "F1", "Sensitivity", "Specificity", "Pos Pred Value",
+                 "Neg Pred Value", "AUC", "Lower CI", "Upper CI", "Kappa", "MCC",
+                 "Detection Rate", "Detection Prevalence", "Prevalence", "Predictions",
+                 "ROC", "Confusion Matrix", "Results", "Coefficients", "Preprocess",
+                 "Folds", "Fold Columns", "Convergence Warnings", "Singular Fit Messages",
+                 "Other Warnings", "Warnings and Messages", "Family", "Dependent",
+                 "Fixed"))
+  expect_equal(colnames(CVbinomlist_no_preprocessing),
+               c("Balanced Accuracy", "F1", "Sensitivity", "Specificity", "Pos Pred Value",
+                 "Neg Pred Value", "AUC", "Lower CI", "Upper CI", "Kappa", "MCC",
+                 "Detection Rate", "Detection Prevalence", "Prevalence", "Predictions",
+                 "ROC", "Confusion Matrix", "Results", "Coefficients",
+                 "Folds", "Fold Columns", "Convergence Warnings", "Singular Fit Messages",
+                 "Other Warnings", "Warnings and Messages", "Family", "Dependent",
+                 "Fixed"))
+
+  # No preprocessing
+  expect_equal(CVbinomlist_no_preprocessing$`Balanced Accuracy`, c(0.7361111,0.3333333), tolerance=1e-3)
+  expect_equal(CVbinomlist_no_preprocessing$Coefficients[[1]]$estimate,
+               c(3.19756037998759, -0.0678513281319974, 3.34308245247553, -0.0729927574874602,
+                 4.14788399490261, -0.0972715556624782, 2.49701032610746, -0.0536164806074169
+               ), tolerance = 1e-6)
+  expect_equal(CVbinomlist_no_preprocessing$Coefficients[[2]]$estimate,
+               c(-2.31297492899443, 0.100335811507117, 1.7302557200586, -0.050812829705776,
+                 -1.16399460049258, 0.0626171124232321, 0.613751298912592, -0.0111166003849735
+               ), tolerance = 1e-6)
+  expect_equal(CVbinomlist_no_preprocessing$Predictions[[1]]$Prediction,
+               c(0.773796146713643, 0.369523238509566, 0.0912557913458876, 0.892058194778159,
+                 0.736201417552938, 0.552827586629779, 0.830792778437875, 0.604289894202438,
+                 0.175457433384499, 0.931703421562706, 0.830792778437875, 0.514597941502579,
+                 0.92690981065346, 0.687473913088783, 0.586709578310841, 0.718679853099963,
+                 0.267467733090702, 0.0934653326479855, 0.8597682733868, 0.248845336158729,
+                 0.132050116263308, 0.650317136061844, 0.454175525786427, 0.156424602826963,
+                 0.844587191118717, 0.708583813132483, 0.587187598636642, 0.851495581323134,
+                 0.760714060837398, 0.708583813132483), tolerance = 1e-6)
+  expect_equal(CVbinomlist_no_preprocessing$Predictions[[2]]$Prediction,
+               c(0.710491235215637, 0.710491235215637, 0.710491235215637, 0.44870042677685,
+                 0.44870042677685, 0.44870042677685, 0.636813564574957, 0.636813564574957,
+                 0.636813564574957, 0.671284217511584, 0.671284217511584, 0.671284217511584,
+                 0.388244841966772, 0.388244841966772, 0.388244841966772, 0.724119218089194,
+                 0.724119218089194, 0.724119218089194, 0.698413191776537, 0.698413191776537,
+                 0.698413191776537, 0.593946106206426, 0.593946106206426, 0.593946106206426,
+                 0.577764489649215, 0.577764489649215, 0.577764489649215, 0.566880950613583,
+                 0.566880950613583, 0.566880950613583), tolerance = 1e-6)
+
+
+  # Standardize
+  expect_equal(colnames(CVbinomlist_standardize$Preprocess[[1]]),
+               c("Fold Column", "Fold", "Measure", "score"))
+  expect_equal(colnames(CVbinomlist_standardize$Preprocess[[2]]),
+               c("Fold Column", "Fold", "Measure", "age"))
+  expect_equal(CVbinomlist_standardize$Preprocess[[1]]$score,
+               c(37.75, 18.6925932785759, 41.2380952380952, 19.7177705684612,
+                 36.2916666666667, 19.4276342104357, 40.2857142857143, 19.4220051929322
+               ), tolerance=1e-3)
+  expect_equal(CVbinomlist_standardize$Preprocess[[1]]$Measure,
+               rep(c("Mean", "SD"), 4), tolerance=1e-3)
+  expect_equal(CVbinomlist_standardize$Preprocess[[2]]$age,
+               c(28.875, 7.39160805002656, 28.2857142857143, 5.12974518999587,
+                 27.25, 7.51953976389975, 29.2857142857143, 7.93185260290972), tolerance=1e-3)
+  expect_equal(CVbinomlist_standardize$`Balanced Accuracy`, c(0.7361111,0.3333333), tolerance=1e-3)
+  expect_equal(CVbinomlist_standardize$Coefficients[[1]]$estimate,
+               c(0.636172743004689, -1.26831728018262, 0.333000167516465, -1.43925444529707,
+                 0.617737120651834, -1.88975620249066, 0.337032107351522, -1.041339564784
+               ), tolerance = 1e-6)
+  expect_equal(CVbinomlist_standardize$Coefficients[[2]]$estimate,
+               c(0.584221628273588, 0.741642992041957, 0.292978536952361, -0.260656868773284,
+                 0.542321713040495, 0.470851866767076, 0.288193716209797, -0.0881752356990601
+               ), tolerance = 1e-6)
+  expect_equal(CVbinomlist_standardize$Predictions[[1]]$Prediction,
+               c(0.773796146713643, 0.369523238509566, 0.0912557913458876, 0.892058194778159,
+                 0.736201417552938, 0.552827586629779, 0.830792778437875, 0.604289894202438,
+                 0.175457433384499, 0.931703421562706, 0.830792778437875, 0.514597941502579,
+                 0.92690981065346, 0.687473913088783, 0.586709578310841, 0.718679853099963,
+                 0.267467733090702, 0.0934653326479855, 0.8597682733868, 0.248845336158729,
+                 0.132050116263308, 0.650317136061844, 0.454175525786427, 0.156424602826963,
+                 0.844587191118717, 0.708583813132483, 0.587187598636642, 0.851495581323134,
+                 0.760714060837398, 0.708583813132483), tolerance = 1e-6)
+  expect_equal(CVbinomlist_standardize$Predictions[[2]]$Prediction,
+               c(0.710491235215637, 0.710491235215637, 0.710491235215637, 0.44870042677685,
+                 0.44870042677685, 0.44870042677685, 0.636813564574957, 0.636813564574957,
+                 0.636813564574957, 0.671284217511584, 0.671284217511584, 0.671284217511584,
+                 0.388244841966772, 0.388244841966772, 0.388244841966772, 0.724119218089194,
+                 0.724119218089194, 0.724119218089194, 0.698413191776537, 0.698413191776537,
+                 0.698413191776537, 0.593946106206426, 0.593946106206426, 0.593946106206426,
+                 0.577764489649215, 0.577764489649215, 0.577764489649215, 0.566880950613583,
+                 0.566880950613583, 0.566880950613583), tolerance = 1e-6)
+
+  # Scale
+  expect_equal(colnames(CVbinomlist_scale$Preprocess[[1]]),
+               c("Fold Column", "Fold", "Measure", "score"))
+  expect_equal(colnames(CVbinomlist_scale$Preprocess[[2]]),
+               c("Fold Column", "Fold", "Measure", "age"))
+  expect_equal(CVbinomlist_scale$Preprocess[[1]]$score,
+               c(18.6925932785759,19.7177705684612,
+                 19.4276342104357,19.4220051929322
+               ), tolerance=1e-3)
+  expect_equal(CVbinomlist_scale$Preprocess[[1]]$Measure,
+               rep(c("SD"), 4), tolerance=1e-3)
+  expect_equal(CVbinomlist_scale$Preprocess[[2]]$age,
+               c(7.39160805002656, 5.12974518999587,
+                 7.51953976389975, 7.93185260290972), tolerance=1e-3)
+  expect_equal(CVbinomlist_scale$`Balanced Accuracy`, c(0.7361111,0.3333333), tolerance=1e-3)
+  expect_equal(CVbinomlist_scale$Coefficients[[1]]$estimate,
+               c(3.19756037998759, -1.26831728018262, 3.34308245247554, -1.43925444529707,
+                 4.14788399490261, -1.88975620249067, 2.49701032610746, -1.041339564784
+               ), tolerance = 1e-6)
+  expect_equal(CVbinomlist_scale$Coefficients[[2]]$estimate,
+               c(-2.31297492899443, 0.741642992041957, 1.7302557200586, -0.260656868773284,
+                 -1.16399460049259, 0.470851866767077, 0.61375129891259, -0.0881752356990586
+               ), tolerance = 1e-6)
+  expect_equal(CVbinomlist_scale$Predictions[[1]]$Prediction,
+               c(0.773796146713643, 0.369523238509566, 0.0912557913458876, 0.892058194778159,
+                 0.736201417552938, 0.552827586629779, 0.830792778437875, 0.604289894202438,
+                 0.175457433384499, 0.931703421562706, 0.830792778437875, 0.514597941502579,
+                 0.92690981065346, 0.687473913088783, 0.586709578310841, 0.718679853099963,
+                 0.267467733090702, 0.0934653326479855, 0.8597682733868, 0.248845336158729,
+                 0.132050116263308, 0.650317136061844, 0.454175525786427, 0.156424602826963,
+                 0.844587191118717, 0.708583813132483, 0.587187598636642, 0.851495581323134,
+                 0.760714060837398, 0.708583813132483), tolerance = 1e-6)
+  expect_equal(CVbinomlist_scale$Predictions[[2]]$Prediction,
+               c(0.710491235215637, 0.710491235215637, 0.710491235215637, 0.44870042677685,
+                 0.44870042677685, 0.44870042677685, 0.636813564574957, 0.636813564574957,
+                 0.636813564574957, 0.671284217511584, 0.671284217511584, 0.671284217511584,
+                 0.388244841966772, 0.388244841966772, 0.388244841966772, 0.724119218089194,
+                 0.724119218089194, 0.724119218089194, 0.698413191776537, 0.698413191776537,
+                 0.698413191776537, 0.593946106206426, 0.593946106206426, 0.593946106206426,
+                 0.577764489649215, 0.577764489649215, 0.577764489649215, 0.566880950613583,
+                 0.566880950613583, 0.566880950613583), tolerance = 1e-6)
+
+  # Center
+  expect_equal(colnames(CVbinomlist_center$Preprocess[[1]]),
+               c("Fold Column", "Fold", "Measure", "score"))
+  expect_equal(colnames(CVbinomlist_center$Preprocess[[2]]),
+               c("Fold Column", "Fold", "Measure", "age"))
+  expect_equal(CVbinomlist_center$Preprocess[[1]]$score,
+               c(37.75,41.2380952380952,
+                 36.2916666666667, 40.2857142857143
+               ), tolerance=1e-3)
+  expect_equal(CVbinomlist_center$Preprocess[[1]]$Measure,
+               rep(c("Mean"), 4), tolerance=1e-3)
+  expect_equal(CVbinomlist_center$Preprocess[[2]]$age,
+               c(28.875, 28.2857142857143,
+                 27.25, 29.2857142857143), tolerance=1e-3)
+  expect_equal(CVbinomlist_center$`Balanced Accuracy`, c(0.7361111,0.3333333), tolerance=1e-3)
+  expect_equal(CVbinomlist_center$Coefficients[[1]]$estimate,
+               c(0.636172743004689, -0.0678513281319975, 0.333000167516464,
+                 -0.0729927574874603, 0.617737120651835, -0.0972715556624782,
+                 0.337032107351522, -0.0536164806074169), tolerance = 1e-6)
+  expect_equal(CVbinomlist_center$Coefficients[[2]]$estimate,
+               c(0.584221628273588, 0.100335811507118, 0.292978536952361, -0.0508128297057761,
+                 0.542321713040494, 0.0626171124232322, 0.288193716209797, -0.0111166003849736
+               ), tolerance = 1e-6)
+  expect_equal(CVbinomlist_center$Predictions[[1]]$Prediction,
+               c(0.773796146713643, 0.369523238509566, 0.0912557913458876, 0.892058194778159,
+                 0.736201417552938, 0.552827586629779, 0.830792778437875, 0.604289894202438,
+                 0.175457433384499, 0.931703421562706, 0.830792778437875, 0.514597941502579,
+                 0.92690981065346, 0.687473913088783, 0.586709578310841, 0.718679853099963,
+                 0.267467733090702, 0.0934653326479855, 0.8597682733868, 0.248845336158729,
+                 0.132050116263308, 0.650317136061844, 0.454175525786427, 0.156424602826963,
+                 0.844587191118717, 0.708583813132483, 0.587187598636642, 0.851495581323134,
+                 0.760714060837398, 0.708583813132483), tolerance = 1e-6)
+  expect_equal(CVbinomlist_center$Predictions[[2]]$Prediction,
+               c(0.710491235215637, 0.710491235215637, 0.710491235215637, 0.44870042677685,
+                 0.44870042677685, 0.44870042677685, 0.636813564574957, 0.636813564574957,
+                 0.636813564574957, 0.671284217511584, 0.671284217511584, 0.671284217511584,
+                 0.388244841966772, 0.388244841966772, 0.388244841966772, 0.724119218089194,
+                 0.724119218089194, 0.724119218089194, 0.698413191776537, 0.698413191776537,
+                 0.698413191776537, 0.593946106206426, 0.593946106206426, 0.593946106206426,
+                 0.577764489649215, 0.577764489649215, 0.577764489649215, 0.566880950613583,
+                 0.566880950613583, 0.566880950613583), tolerance = 1e-6)
+
+  # Range
+  expect_equal(colnames(CVbinomlist_range$Preprocess[[1]]),
+               c("Fold Column", "Fold", "Measure", "score"))
+  expect_equal(colnames(CVbinomlist_range$Preprocess[[2]]),
+               c("Fold Column", "Fold", "Measure", "age"))
+  expect_equal(CVbinomlist_range$Preprocess[[1]]$score,
+               c(10, 78, 14, 81, 10, 81, 10, 81), tolerance=1e-3)
+  expect_equal(CVbinomlist_range$Preprocess[[1]]$Measure,
+               rep(c("Min", "Max"), 4), tolerance=1e-3)
+  expect_equal(CVbinomlist_range$Preprocess[[2]]$age,
+               c(20, 43, 21, 34, 20, 43, 20, 43), tolerance=1e-3)
+  expect_equal(CVbinomlist_range$`Balanced Accuracy`, c(0.736111111111111, 0.416666666666667), tolerance=1e-3)
+  expect_equal(CVbinomlist_range$Coefficients[[1]]$estimate,
+               c(2.51904709866762, -4.61389031297583, 2.3211838476511, -4.89051475165984,
+                 3.17516843827782, -6.90628045203595, 1.96084552003329, -3.8067701231266
+               ), tolerance = 1e-6)
+  expect_equal(CVbinomlist_range$Coefficients[[2]]$estimate,
+               c(-0.306258698852079, 2.3077236646637, 0.663186296237301, -0.660566786175088,
+                 0.0883476479720599, 1.44019358573434, 0.391419291213123, -0.255681808854391
+               ), tolerance = 1e-6)
+  expect_equal(CVbinomlist_range$Predictions[[1]]$Prediction,
+               c(0.773796146713643, 0.369523238509566, 0.10959904472987, 0.892058194778159,
+                 0.736201417552938, 0.552827586629779, 0.830792778437875, 0.604289894202438,
+                 0.175457433384499, 0.910616345870464, 0.830792778437875, 0.514597941502578,
+                 0.910616345870464, 0.687473913088783, 0.586709578310841, 0.718679853099963,
+                 0.267467733090702, 0.0934653326479854, 0.8597682733868, 0.248845336158729,
+                 0.132050116263308, 0.650317136061844, 0.454175525786427, 0.156424602826963,
+                 0.844587191118717, 0.708583813132483, 0.587187598636643, 0.851495581323134,
+                 0.760714060837398, 0.708583813132483), tolerance = 1e-6)
+  expect_equal(CVbinomlist_range$Predictions[[2]]$Prediction,
+               c(0.710491235215637, 0.710491235215637, 0.710491235215637, 0.44870042677685,
+                 0.44870042677685, 0.44870042677685, 0.636813564574957, 0.636813564574957,
+                 0.636813564574957, 0.65997578207063, 0.65997578207063, 0.65997578207063,
+                 0.500654877141082, 0.500654877141082, 0.500654877141082, 0.724119218089194,
+                 0.724119218089194, 0.724119218089194, 0.698413191776537, 0.698413191776537,
+                 0.698413191776537, 0.593946106206426, 0.593946106206426, 0.593946106206426,
+                 0.577764489649215, 0.577764489649215, 0.577764489649215, 0.566880950613583,
+                 0.566880950613583, 0.566880950613583), tolerance = 1e-6)
+
+
+  expect_equal(CVbinomlist_no_preprocessing$Predictions[[1]]$Prediction,
+               CVbinomlist_standardize$Predictions[[1]]$Prediction)
+  expect_equal(CVbinomlist_no_preprocessing$Predictions[[1]]$Prediction,
+               CVbinomlist_scale$Predictions[[1]]$Prediction)
+  expect_equal(CVbinomlist_no_preprocessing$Predictions[[1]]$Prediction,
+               CVbinomlist_center$Predictions[[1]]$Prediction)
+  # Note: Ranged version is not identical to the non-preprocessed version
+  # as recipes::step_range truncates values in the test set that lie below or above
+  # the min/max in the training set.
+
+
+  # get_split <- function(fold = 2){
+  #   train_data <- dat %>%
+  #     dplyr::filter(.data$.folds != fold)
+  #   test_data <- dat %>%
+  #     dplyr::filter(.data$.folds == fold)
+  #   preprocessed_split <- example_preprocess_functions("range")(
+  #     train_data = train_data,
+  #     test_data = test_data,
+  #     formula = as.formula("diagnosis ~ age"),
+  #     NULL)
+  #   list("no_preprocessing" = list("train" = train_data, "test" = test_data),
+  #        "ranged" = preprocessed_split)
+  # }
+  #
+  # train_test <- get_split(2)
+  #
+  # glm_no_preprocessing <- glm(diagnosis ~ age, data = train_test$no_preprocessing$train)
+  # glm_ranged <- glm(diagnosis ~ age, data = train_test$ranged$train)
+  # predictions_no_preprocessing <- predict(glm_no_preprocessing, newdata = train_test$no_preprocessing$test)
+  # predictions_ranged <- predict(glm_ranged, newdata = train_test$ranged$test)
+
+
+  expect_equal(CVbinomlist_no_preprocessing$AUC, c(0.7615741, 0.1666667), tolerance=1e-3)
+  expect_equal(CVbinomlist_standardize$AUC, c(0.7615741, 0.1666667), tolerance=1e-3)
+  expect_equal(CVbinomlist_scale$AUC, c(0.7615741, 0.1666667), tolerance=1e-3)
+  expect_equal(CVbinomlist_center$AUC, c(0.7615741, 0.1666667), tolerance=1e-3)
+  expect_equal(CVbinomlist_range$AUC, c(0.7615741, 0.1666667), tolerance=1e-3)
+
+  expect_equal(CVbinomlist_no_preprocessing$MCC, c(0.5048268, -0.4082483), tolerance=1e-3)
+  expect_equal(CVbinomlist_standardize$MCC, c(0.5048268, -0.4082483), tolerance=1e-3)
+  expect_equal(CVbinomlist_scale$MCC, c(0.5048268, -0.4082483), tolerance=1e-3)
+  expect_equal(CVbinomlist_center$MCC, c(0.5048268, -0.4082483), tolerance=1e-3)
+  expect_equal(CVbinomlist_range$MCC, c(0.504826790279024, -0.272165526975909), tolerance=1e-3) # Why is this different?
+
+})
+
+test_that("preprocessing works with binomial mixed models in cross_validate()",{
+
+  # Load data and fold it
+  set_seed_for_R_compatibility(1)
+  dat <- groupdata2::fold(participant.scores, k = 3,
+                          cat_col = 'diagnosis',
+                          id_col = 'participant') %>%
+    dplyr::mutate(session = as.factor(session)) %>%
+    dplyr::slice(rep(1:30, each = 3))
+
+  CVbinomlist_no_preprocessing <- cross_validate(
+    dat,
+    formulas = c("diagnosis~score+(1|session)"),
+    fold_cols = '.folds', family = 'binomial',
+    REML = FALSE, verbose = FALSE,
+    positive = 1 )
+
+  CVbinomlist_standardize <- cross_validate(
+    dat,
+    formulas = c("diagnosis~score+(1|session)"),
+    fold_cols = '.folds', family = 'binomial',
+    preprocessing = "standardize",
+    REML = FALSE, verbose = FALSE,
+    positive = 1 )
+
+  CVbinomlist_center <- cross_validate(
+    dat,
+    formulas = c("diagnosis~score+(1|session)"),
+    fold_cols = '.folds', family = 'binomial',
+    preprocessing = "center",
+    REML = FALSE, verbose = FALSE,
+    positive = 1 )
+
+  CVbinomlist_scale <- cross_validate(
+    dat,
+    formulas = c("diagnosis~score+(1|session)"),
+    fold_cols = '.folds', family = 'binomial',
+    preprocessing = "scale",
+    REML = FALSE, verbose = FALSE,
+    positive = 1 )
+
+  CVbinomlist_range <- cross_validate(
+    dat,
+    formulas = c("diagnosis~score+(1|session)"),
+    fold_cols = '.folds', family = 'binomial',
+    preprocessing = "range",
+    REML = FALSE, verbose = FALSE,
+    positive = 1 )
+
+  # NOTE for range version:
+  # recipe::step_range : "When a new data point is outside of the ranges seen in the training set,
+  # the new values are truncated at min or max."
+  # Hence, we might get different predictions for that specific cv
+
+  expect_equal(colnames(CVbinomlist_standardize),
+               colnames(CVbinomlist_center))
+  expect_equal(colnames(CVbinomlist_standardize),
+               colnames(CVbinomlist_scale))
+  expect_equal(colnames(CVbinomlist_standardize),
+               colnames(CVbinomlist_range))
+  expect_equal(colnames(CVbinomlist_standardize),
+               c("Balanced Accuracy", "F1", "Sensitivity", "Specificity", "Pos Pred Value",
+                 "Neg Pred Value", "AUC", "Lower CI", "Upper CI", "Kappa", "MCC",
+                 "Detection Rate", "Detection Prevalence", "Prevalence", "Predictions",
+                 "ROC", "Confusion Matrix", "Results", "Coefficients", "Preprocess",
+                 "Folds", "Fold Columns", "Convergence Warnings", "Singular Fit Messages",
+                 "Other Warnings", "Warnings and Messages", "Family", "Dependent",
+                 "Fixed", "Random"))
+  expect_equal(colnames(CVbinomlist_no_preprocessing),
+               c("Balanced Accuracy", "F1", "Sensitivity", "Specificity", "Pos Pred Value",
+                 "Neg Pred Value", "AUC", "Lower CI", "Upper CI", "Kappa", "MCC",
+                 "Detection Rate", "Detection Prevalence", "Prevalence", "Predictions",
+                 "ROC", "Confusion Matrix", "Results", "Coefficients",
+                 "Folds", "Fold Columns", "Convergence Warnings", "Singular Fit Messages",
+                 "Other Warnings", "Warnings and Messages", "Family", "Dependent",
+                 "Fixed", "Random"))
+
+  expect_equal(CVbinomlist_standardize$Preprocess[[1]]$score,
+               c(39.3809523809524, 18.3632070530147, 38.3333333333333, 19.6682157217532,
+                 38.5555555555556, 19.3494836035298), tolerance = 1e-5)
+  expect_equal(CVbinomlist_scale$Preprocess[[1]]$score,
+               c(18.3632070530147, 19.6682157217532, 19.3494836035298), tolerance = 1e-5)
+  expect_equal(CVbinomlist_center$Preprocess[[1]]$score,
+               c(39.3809523809524, 38.3333333333333, 38.5555555555556), tolerance = 1e-5)
+  expect_equal(CVbinomlist_range$Preprocess[[1]]$score,
+               c(11, 78, 10, 81, 10, 81), tolerance = 1e-5)
+
+  # No preprocessing
+  expect_equal(CVbinomlist_no_preprocessing$`Balanced Accuracy`, c(0.8611111), tolerance=1e-3)
+  expect_equal(CVbinomlist_no_preprocessing$Coefficients[[1]]$estimate,
+               c(8.3579464874966, -0.193892587463713, 55.2463242203065, -1.33929033061194,
+                 7.64561163963771, -0.168532399577982), tolerance = 1e-6)
+  expect_equal(CVbinomlist_no_preprocessing$Predictions[[1]]$Prediction,
+               c(0.324456114093013, 0.324456114093013, 0.324456114093013, 0.109287077948817,
+                 0.109287077948817, 0.109287077948817, 0.0175510977497869, 0.0175510977497869,
+                 0.0175510977497869, 0.950291428617545, 0.950291428617545, 0.950291428617545,
+                 0.980403748861395, 0.980403748861395, 0.980403748861395, 0.950508742035668,
+                 0.950508742035668, 0.950508742035668, 0.856588042939281, 0.856588042939281,
+                 0.856588042939281, 0.913842836648199, 0.913842836648199, 0.913842836648199,
+                 0.958873004064922, 0.958873004064922, 0.958873004064922, 0.681645372889445,
+                 0.681645372889445, 0.681645372889445, 0.838249513761936, 0.838249513761936,
+                 0.838249513761936, 1.44502905719389e-10, 1.44502905719389e-10,
+                 1.44502905719389e-10, 0.681645372889445, 0.681645372889445, 0.681645372889445,
+                 3.72801881555979e-08, 3.72801881555979e-08, 3.72801881555979e-08,
+                 1.1697916866856e-07, 1.1697916866856e-07, 1.1697916866856e-07,
+                 0.999999987178186, 0.999999987178186, 0.999999987178186, 0.999761693013033,
+                 0.999761693013033, 0.999761693013033, 0.999994784274243, 0.999994784274243,
+                 0.999994784274243, 0.166242005117161, 0.166242005117161, 0.166242005117161,
+                 0.373839375611282, 0.373839375611282, 0.373839375611282, 0.0788323931366848,
+                 0.0788323931366848, 0.0788323931366848, 0.218328494540638, 0.218328494540638,
+                 0.218328494540638, 0.264759089772758, 0.264759089772758, 0.264759089772758,
+                 0.392711382027383, 0.392711382027383, 0.392711382027383, 0.85297773335794,
+                 0.85297773335794, 0.85297773335794, 0.945569734698759, 0.945569734698759,
+                 0.945569734698759, 0.981033143319363, 0.981033143319363, 0.981033143319363,
+                 0.872881689544893, 0.872881689544893, 0.872881689544893, 0.975814737517958,
+                 0.975814737517958, 0.975814737517958, 0.996428661773137, 0.996428661773137,
+                 0.996428661773137), tolerance = 1e-6)
+
+
+  # Standardize
+  expect_equal(CVbinomlist_standardize$`Balanced Accuracy`, c(0.8611111), tolerance=1e-3)
+  expect_equal(CVbinomlist_standardize$Coefficients[[1]]$estimate,
+               c(0.722270851420555, -3.56049245923584, 3.90685791812926, -26.3414459230668,
+                 1.14775661484688, -3.2610246203655), tolerance = 1e-6)
+  expect_equal(CVbinomlist_standardize$Predictions[[1]]$Prediction,
+               c(0.324456114093013, 0.324456114093013, 0.324456114093013, 0.109287077948817,
+                 0.109287077948817, 0.109287077948817, 0.0175510977497869, 0.0175510977497869,
+                 0.0175510977497869, 0.950291428617545, 0.950291428617545, 0.950291428617545,
+                 0.980403748861395, 0.980403748861395, 0.980403748861395, 0.950508742035668,
+                 0.950508742035668, 0.950508742035668, 0.856588042939281, 0.856588042939281,
+                 0.856588042939281, 0.913842836648199, 0.913842836648199, 0.913842836648199,
+                 0.958873004064922, 0.958873004064922, 0.958873004064922, 0.681645372889445,
+                 0.681645372889445, 0.681645372889445, 0.838249513761936, 0.838249513761936,
+                 0.838249513761936, 1.44502905719389e-10, 1.44502905719389e-10,
+                 1.44502905719389e-10, 0.681645372889445, 0.681645372889445, 0.681645372889445,
+                 3.72801881555979e-08, 3.72801881555979e-08, 3.72801881555979e-08,
+                 1.1697916866856e-07, 1.1697916866856e-07, 1.1697916866856e-07,
+                 0.999999987178186, 0.999999987178186, 0.999999987178186, 0.999761693013033,
+                 0.999761693013033, 0.999761693013033, 0.999994784274243, 0.999994784274243,
+                 0.999994784274243, 0.166242005117161, 0.166242005117161, 0.166242005117161,
+                 0.373839375611282, 0.373839375611282, 0.373839375611282, 0.0788323931366848,
+                 0.0788323931366848, 0.0788323931366848, 0.218328494540638, 0.218328494540638,
+                 0.218328494540638, 0.264759089772758, 0.264759089772758, 0.264759089772758,
+                 0.392711382027383, 0.392711382027383, 0.392711382027383, 0.85297773335794,
+                 0.85297773335794, 0.85297773335794, 0.945569734698759, 0.945569734698759,
+                 0.945569734698759, 0.981033143319363, 0.981033143319363, 0.981033143319363,
+                 0.872881689544893, 0.872881689544893, 0.872881689544893, 0.975814737517958,
+                 0.975814737517958, 0.975814737517958, 0.996428661773137, 0.996428661773137,
+                 0.996428661773137), tolerance = 1e-6)
+
+  # Scale
+  expect_equal(CVbinomlist_scale$`Balanced Accuracy`, c(0.8611111), tolerance=1e-3)
+  expect_equal(CVbinomlist_scale$Coefficients[[1]]$estimate,
+               c(8.35794641518746, -3.56048970107377, 55.2462927019219, -26.3414369433445,
+                 7.64561182809043, -3.26101498104044), tolerance = 1e-6)
+  expect_equal(CVbinomlist_scale$Predictions[[1]]$Prediction,
+               c(0.324456114093013, 0.324456114093013, 0.324456114093013, 0.109287077948817,
+                 0.109287077948817, 0.109287077948817, 0.0175510977497869, 0.0175510977497869,
+                 0.0175510977497869, 0.950291428617545, 0.950291428617545, 0.950291428617545,
+                 0.980403748861395, 0.980403748861395, 0.980403748861395, 0.950508742035668,
+                 0.950508742035668, 0.950508742035668, 0.856588042939281, 0.856588042939281,
+                 0.856588042939281, 0.913842836648199, 0.913842836648199, 0.913842836648199,
+                 0.958873004064922, 0.958873004064922, 0.958873004064922, 0.681645372889445,
+                 0.681645372889445, 0.681645372889445, 0.838249513761936, 0.838249513761936,
+                 0.838249513761936, 1.44502905719389e-10, 1.44502905719389e-10,
+                 1.44502905719389e-10, 0.681645372889445, 0.681645372889445, 0.681645372889445,
+                 3.72801881555979e-08, 3.72801881555979e-08, 3.72801881555979e-08,
+                 1.1697916866856e-07, 1.1697916866856e-07, 1.1697916866856e-07,
+                 0.999999987178186, 0.999999987178186, 0.999999987178186, 0.999761693013033,
+                 0.999761693013033, 0.999761693013033, 0.999994784274243, 0.999994784274243,
+                 0.999994784274243, 0.166242005117161, 0.166242005117161, 0.166242005117161,
+                 0.373839375611282, 0.373839375611282, 0.373839375611282, 0.0788323931366848,
+                 0.0788323931366848, 0.0788323931366848, 0.218328494540638, 0.218328494540638,
+                 0.218328494540638, 0.264759089772758, 0.264759089772758, 0.264759089772758,
+                 0.392711382027383, 0.392711382027383, 0.392711382027383, 0.85297773335794,
+                 0.85297773335794, 0.85297773335794, 0.945569734698759, 0.945569734698759,
+                 0.945569734698759, 0.981033143319363, 0.981033143319363, 0.981033143319363,
+                 0.872881689544893, 0.872881689544893, 0.872881689544893, 0.975814737517958,
+                 0.975814737517958, 0.975814737517958, 0.996428661773137, 0.996428661773137,
+                 0.996428661773137), tolerance = 1e-6)
+
+  # Center
+  expect_equal(CVbinomlist_center$`Balanced Accuracy`, c(0.8611111), tolerance=1e-3)
+  expect_equal(CVbinomlist_center$Coefficients[[1]]$estimate,
+               c(0.722270851499559, -0.193892736123874, 3.90685679177423, -1.33929005889398,
+                 1.14775662092732, -0.168532902834402), tolerance = 1e-6)
+  expect_equal(CVbinomlist_center$Predictions[[1]]$Prediction,
+               c(0.324456114093013, 0.324456114093013, 0.324456114093013, 0.109287077948817,
+                 0.109287077948817, 0.109287077948817, 0.0175510977497869, 0.0175510977497869,
+                 0.0175510977497869, 0.950291428617545, 0.950291428617545, 0.950291428617545,
+                 0.980403748861395, 0.980403748861395, 0.980403748861395, 0.950508742035668,
+                 0.950508742035668, 0.950508742035668, 0.856588042939281, 0.856588042939281,
+                 0.856588042939281, 0.913842836648199, 0.913842836648199, 0.913842836648199,
+                 0.958873004064922, 0.958873004064922, 0.958873004064922, 0.681645372889445,
+                 0.681645372889445, 0.681645372889445, 0.838249513761936, 0.838249513761936,
+                 0.838249513761936, 1.44502905719389e-10, 1.44502905719389e-10,
+                 1.44502905719389e-10, 0.681645372889445, 0.681645372889445, 0.681645372889445,
+                 3.72801881555979e-08, 3.72801881555979e-08, 3.72801881555979e-08,
+                 1.1697916866856e-07, 1.1697916866856e-07, 1.1697916866856e-07,
+                 0.999999987178186, 0.999999987178186, 0.999999987178186, 0.999761693013033,
+                 0.999761693013033, 0.999761693013033, 0.999994784274243, 0.999994784274243,
+                 0.999994784274243, 0.166242005117161, 0.166242005117161, 0.166242005117161,
+                 0.373839375611282, 0.373839375611282, 0.373839375611282, 0.0788323931366848,
+                 0.0788323931366848, 0.0788323931366848, 0.218328494540638, 0.218328494540638,
+                 0.218328494540638, 0.264759089772758, 0.264759089772758, 0.264759089772758,
+                 0.392711382027383, 0.392711382027383, 0.392711382027383, 0.85297773335794,
+                 0.85297773335794, 0.85297773335794, 0.945569734698759, 0.945569734698759,
+                 0.945569734698759, 0.981033143319363, 0.981033143319363, 0.981033143319363,
+                 0.872881689544893, 0.872881689544893, 0.872881689544893, 0.975814737517958,
+                 0.975814737517958, 0.975814737517958, 0.996428661773137, 0.996428661773137,
+                 0.996428661773137), tolerance = 1e-6)
+
+  # Range
+  expect_equal(CVbinomlist_range$`Balanced Accuracy`, c(0.8611111), tolerance=1e-3)
+  expect_equal(CVbinomlist_range$Coefficients[[1]]$estimate,
+               c(6.22513139971877, -12.9908044682518, 41.8533992397597, -95.0895775189958,
+                 5.9602950441032, -11.9658077360469), tolerance = 1e-6)
+  expect_equal(CVbinomlist_range$Predictions[[1]]$Prediction,
+               c(0.324456042975257, 0.324456042975257, 0.324456042975257, 0.109287076272275,
+                 0.109287076272275, 0.109287076272275, 0.030970688236543, 0.030970688236543,
+                 0.030970688236543, 0.94029055481341, 0.94029055481341, 0.94029055481341,
+                 0.980403758381411, 0.980403758381411, 0.980403758381411, 0.950508787930829,
+                 0.950508787930829, 0.950508787930829, 0.856588029494522, 0.856588029494522,
+                 0.856588029494522, 0.913842865244269, 0.913842865244269, 0.913842865244269,
+                 0.958873043191456, 0.958873043191456, 0.958873043191456, 0.681645466159717,
+                 0.681645466159717, 0.681645466159717, 0.838248709938151, 0.838248709938151,
+                 0.838248709938151, 1.44504001024224e-10, 1.44504001024224e-10,
+                 1.44504001024224e-10, 0.681645466159717, 0.681645466159717, 0.681645466159717,
+                 3.72802314439356e-08, 3.72802314439356e-08, 3.72802314439356e-08,
+                 1.16979759155026e-07, 1.16979759155026e-07, 1.16979759155026e-07,
+                 0.999999987178107, 0.999999987178107, 0.999999987178107, 0.99976169099732,
+                 0.99976169099732, 0.99976169099732, 0.999994784245105, 0.999994784245105,
+                 0.999994784245105, 0.166241799664311, 0.166241799664311, 0.166241799664311,
+                 0.373839317386791, 0.373839317386791, 0.373839317386791, 0.078832328751711,
+                 0.078832328751711, 0.078832328751711, 0.218328276983336, 0.218328276983336,
+                 0.218328276983336, 0.264758980767326, 0.264758980767326, 0.264758980767326,
+                 0.392711467485616, 0.392711467485616, 0.392711467485616, 0.852977807679943,
+                 0.852977807679943, 0.852977807679943, 0.945569828688762, 0.945569828688762,
+                 0.945569828688762, 0.981033200177857, 0.981033200177857, 0.981033200177857,
+                 0.872881766816275, 0.872881766816275, 0.872881766816275, 0.975814792859071,
+                 0.975814792859071, 0.975814792859071, 0.996428676339139, 0.996428676339139,
+                 0.996428676339139), tolerance = 1e-6)
+
+
+  expect_equal(CVbinomlist_no_preprocessing$Predictions[[1]]$Prediction,
+               CVbinomlist_standardize$Predictions[[1]]$Prediction,
+               tolerance = 1e-6)
+  expect_equal(CVbinomlist_no_preprocessing$Predictions[[1]]$Prediction,
+               CVbinomlist_scale$Predictions[[1]]$Prediction,
+               tolerance = 1e-6)
+  expect_equal(CVbinomlist_no_preprocessing$Predictions[[1]]$Prediction,
+               CVbinomlist_center$Predictions[[1]]$Prediction,
+               tolerance = 1e-6)
+  # Note: Ranged version is not identical to the non-preprocessed version
+  # as recipes::step_range truncates values in the test set that lie below or above
+  # the min/max in the training set.
+
+  expect_equal(CVbinomlist_no_preprocessing$AUC, 0.8912037, tolerance=1e-3)
+  expect_equal(CVbinomlist_standardize$AUC, 0.8912037, tolerance=1e-3)
+  expect_equal(CVbinomlist_scale$AUC, 0.8912037, tolerance=1e-3)
+  expect_equal(CVbinomlist_center$AUC, 0.8912037, tolerance=1e-3)
+  expect_equal(CVbinomlist_range$AUC, 0.8912037, tolerance=1e-3)
+
+  expect_equal(CVbinomlist_no_preprocessing$MCC, 0.7222222, tolerance=1e-3)
+  expect_equal(CVbinomlist_standardize$MCC, 0.7222222, tolerance=1e-3)
+  expect_equal(CVbinomlist_scale$MCC, 0.7222222, tolerance=1e-3)
+  expect_equal(CVbinomlist_center$MCC, 0.7222222, tolerance=1e-3)
+  expect_equal(CVbinomlist_range$MCC,0.7222222, tolerance=1e-3) # Why is this different?
+
+})
+
 
 test_that("that singular fit messages are caught, counted and messaged about in cross_validate()",{
 

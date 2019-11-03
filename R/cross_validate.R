@@ -62,6 +62,25 @@
 #'   Also accepts the string \code{"all"}.
 #'
 #'   N.B. Currently, disabled metrics are still computed.
+#' @param preprocessing Name of preprocessing to apply.
+#'
+#'  Available preprocessings are:
+#'
+#'  \tabular{rrr}{
+#'   \strong{Name} \tab \strong{Description} \cr
+#'   "standardize" \tab Centers and scales the numeric predictors.\cr
+#'   "range" \tab Normalizes the numeric predictors to the 0-1 range.
+#'   Values outside the min/max range in the test fold are truncated to 0/1.\cr
+#'   "scale" \tab Scales the numeric predictors to have a standard deviation of one.\cr
+#'   "center" \tab Centers the numeric predictors to have a mean of zero.\cr
+#'  }
+#'
+#'  The preprocessing parameters (\code{mean}, \code{SD}, etc.) are extracted from the training folds and
+#'  applied to both the training folds and the test fold.
+#'  They are returned in the \strong{Preprocess} column for inspection.
+#'
+#'  N.B. The preprocessings should not affect the results
+#'  to a noticeable degree, although \code{"range"} might due to the truncation.
 #' @param rm_nc Remove non-converged models from output. (Logical)
 #' @param verbose Whether to message process information
 #'  like the number of model instances to fit and which model function was applied. (Logical)
@@ -270,7 +289,9 @@
 cross_validate <- function(data, formulas, fold_cols = '.folds', family = 'gaussian',
                            control = NULL, REML = FALSE,
                            cutoff = 0.5, positive = 2,
-                           metrics = list(), rm_nc = FALSE,
+                           metrics = list(),
+                           preprocessing = NULL,
+                           rm_nc = FALSE,
                            parallel = FALSE, verbose = FALSE,
                            link = deprecated(),
                            models = deprecated(),
@@ -296,6 +317,7 @@ cross_validate <- function(data, formulas, fold_cols = '.folds', family = 'gauss
     formulas = formulas,
     fold_cols = fold_cols,
     family = family,
+    preprocessing = preprocessing,
     control = control,
     REML = REML,
     cutoff = cutoff,

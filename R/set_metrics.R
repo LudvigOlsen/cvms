@@ -8,11 +8,11 @@ set_metrics <- function(family, metrics_list = NULL, include_model_object_metric
     default_metrics <- list(
       "RMSE" = TRUE,
       "MAE" = TRUE,
-      "r2m" = TRUE,
-      "r2c" = TRUE,
-      "AIC" = TRUE,
-      "AICc" = TRUE,
-      "BIC" = TRUE
+      "r2m" = FALSE,
+      "r2c" = FALSE,
+      "AIC" = FALSE,
+      "AICc" = FALSE,
+      "BIC" = FALSE
     )
 
   } else if (family == "binomial"){

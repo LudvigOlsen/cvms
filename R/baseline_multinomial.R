@@ -12,7 +12,15 @@ create_multinomial_baseline_evaluations <- function(test_data,
   }
 
   # get metric names
-  metrics <- set_metrics("multinomial", metrics_list = metrics)
+  metric_names <- set_metrics("multinomial", metrics_list = metrics)
+
+  # If metric == "all", we'll convert it to the named list of logicals
+  if (!is.list(metrics) &&
+      is.character(metrics) &&
+      metrics == "all"){
+    metrics <- as.list(rep(TRUE, length(metric_names)))
+    names(metrics) <- metric_names
+  }
 
   # Extract the dependent column from the test set
   targets <- as.character(test_data[[dependent_col]])
@@ -75,7 +83,7 @@ create_multinomial_baseline_evaluations <- function(test_data,
       fold_info_cols = fold_info_cols,
       fold_and_fold_col = fold_and_fold_col,
       apply_softmax = FALSE,
-      metrics = list(),
+      metrics = metrics,
       include_predictions = TRUE,
       include_fold_columns = FALSE, # We're not providing any fold info so won't make sense
       na.rm = "both",
@@ -110,7 +118,7 @@ create_multinomial_baseline_evaluations <- function(test_data,
       fold_info_cols = fold_info_cols,
       fold_and_fold_col = fold_and_fold_col,
       apply_softmax = FALSE,
-      metrics = list(),
+      metrics = metrics,
       include_predictions = TRUE,
       include_fold_columns = FALSE, # We're not providing any fold info so won't make sense
       caller = "baseline()"
@@ -182,6 +190,9 @@ create_multinomial_baseline_evaluations <- function(test_data,
                                                     include_definitions = FALSE,
                                                     additional_includes = "Class")
 
+  # Prepare metrics to use in all or nothing evaluations
+  all_or_nothing_metrics <- set_all_or_nothing_metrics(metrics = metrics)
+
   # Find the class level summaries
   summarized_metrics_class_level <- plyr::ldply(classes, function(cl){
     # Extract the class level (non averaged) results and select the metric columns
@@ -198,7 +209,7 @@ create_multinomial_baseline_evaluations <- function(test_data,
         targets_col = dependent_col,
         current_class = cl,
         reps = reps,
-        metrics = list("AUC" = FALSE)) # AUC will be done along with Overall Acc.
+        metrics = all_or_nothing_metrics)
       ) %>%
       dplyr::mutate(Class = cl)
 
@@ -268,7 +279,7 @@ create_multinomial_baseline_evaluations <- function(test_data,
                        dplyr::mutate(Measure = paste0("All_", .data$All_class)) %>%
                        select_metrics(include_definitions = FALSE,
                                       additional_includes = "Measure")) %>%
-    base_select(c("Measure", metrics))  %>%
+    base_select(c("Measure", metric_names))  %>%
     dplyr::as_tibble()
 
   # Nest the repetition class level results
@@ -378,3 +389,36 @@ summarize_measure <- function(data, measure_name, FUN, na.rm = FALSE){
     dplyr::mutate(Measure = measure_name)
 }
 
+set_all_or_nothing_metrics <- function(metrics){
+  # Don't calculate AUC in the all_or_nothing_evaluations
+  # as it will be done along with Overall Acc.
+  all_or_nothing_metrics <- metrics
+  all_or_nothing_metrics[["AUC"]] <- FALSE
+
+  # Add the non-weighted version when f.i. "Accuracy" = FALSE but "Weighted Accuracy" = TRUE
+  weighted_metrics <- names(all_or_nothing_metrics)[
+    grepl("Weighted ", names(all_or_nothing_metrics))]
+  metric_names_to_add_as_true <- gsub("Weighted ", "", weighted_metrics)
+  metrics_to_add_as_true <- rep(TRUE, length(metric_names_to_add_as_true))
+  names(metrics_to_add_as_true) <- metric_names_to_add_as_true
+  # Remove from all_or_nothing_metrics
+  all_or_nothing_metrics <- all_or_nothing_metrics[
+    names(all_or_nothing_metrics) %ni% metric_names_to_add_as_true
+  ]
+  # Add as TRUE (c() also concatenates lists)
+  all_or_nothing_metrics <- c(all_or_nothing_metrics, metrics_to_add_as_true)
+
+  # Also remove multinomial metrics like weighted *
+  allowed_binomial_metrics <- set_metrics(
+    family = "binomial", metrics_list = "all")
+  all_or_nothing_metric_names <- intersect(
+    names(all_or_nothing_metrics), allowed_binomial_metrics)
+  all_or_nothing_metrics <- all_or_nothing_metrics[
+    names(all_or_nothing_metrics) %in% all_or_nothing_metric_names]
+
+  # Sanity check - TODO Add tests to make sure it's never used!
+  if (!is.logical(all_or_nothing_metrics[["AUC"]]))
+    stop("all_or_nothing_metrics had non-logical element.")
+
+  all_or_nothing_metrics
+}

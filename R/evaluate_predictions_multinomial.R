@@ -161,6 +161,10 @@ evaluate_predictions_multinomial <- function(data,
     # Count how many times each class are in the targets_col
     support <- create_support_object(data[[targets_col]])
 
+    # Find the metrics to calculate in one-vs-all
+    one_vs_all_metrics <- setdiff(metrics, c("AUC","Lower CI","Upper CI"))
+    one_vs_all_metrics <- unique(gsub("Weighted ", "", one_vs_all_metrics))
+
     # Perform one vs all evaluations
     one_vs_all_evaluations <- plyr::ldply(seq_len(num_classes), function(cl){
 
@@ -183,7 +187,7 @@ evaluate_predictions_multinomial <- function(data,
         fold_info_cols = fold_info_cols,
         fold_and_fold_col = fold_and_fold_col,
         model_specifics = model_specifics,
-        metrics = setdiff(metrics, c("AUC","Lower CI","Upper CI")),
+        metrics = one_vs_all_metrics,
         include_fold_columns = include_fold_columns,
         include_predictions = FALSE,
         calculate_roc = FALSE,

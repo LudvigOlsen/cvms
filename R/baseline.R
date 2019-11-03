@@ -1,5 +1,4 @@
 
-
 #' @title Create baseline evaluations
 #' @description
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("maturing")}
@@ -380,6 +379,7 @@ baseline <- function(test_data,
                      # how many times to randomly sample probabilities (bootstrapping?)
                      n = 100,
                      family = 'binomial',
+                     metrics = list(),
                      # Binomial
                      positive = 2,
                      cutoff = 0.5,
@@ -409,6 +409,11 @@ baseline <- function(test_data,
                      "Note that the 'random_generator_fn' is not used in ",
                      "the binomial version of baseline()."))
     }
+    unaccepted_metrics <- intersect(names(metrics), c("AIC","AICc","BIC"))
+    if (length(unaccepted_metrics) > 0)
+      stop(paste0("binomial baseline() does not accept the following metric",
+                  ifelse(length(unaccepted_metrics) > 1, "s", ""),
+                  ": ", paste(unaccepted_metrics, collapse = ", "), "."))
 
     return(
       create_binomial_baseline_evaluations(
@@ -417,6 +422,7 @@ baseline <- function(test_data,
         reps = n,
         positive = positive,
         cutoff = cutoff,
+        metrics = metrics,
         parallel_ = parallel
       )
     )
@@ -427,11 +433,17 @@ baseline <- function(test_data,
                  family = "multinomial", current_fn = "baseline")
     arg_not_used(arg = random_effects, arg_name = "random_effects",
                  family = "multinomial", current_fn = "baseline")
+    unaccepted_metrics <- intersect(names(metrics), c("AIC","AICc","BIC"))
+    if (length(unaccepted_metrics) > 0)
+      stop(paste0("multinomial baseline() does not accept the following metric",
+                  ifelse(length(unaccepted_metrics) > 1, "s", ""),
+                  ": ", paste(unaccepted_metrics, collapse = ", "), "."))
 
     return(
       create_multinomial_baseline_evaluations(test_data = test_data,
                                               dependent_col = dependent_col,
                                               reps = n,
+                                              metrics = metrics,
                                               parallel_ = parallel,
                                               random_generator_fn = random_generator_fn
       )
@@ -458,6 +470,7 @@ baseline <- function(test_data,
                                            min_training_rows = min_training_rows,
                                            min_training_rows_left_out = min_training_rows_left_out,
                                            REML = REML,
+                                           metrics = metrics,
                                            parallel_ = parallel
                                            )
     )

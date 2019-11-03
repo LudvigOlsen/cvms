@@ -5,8 +5,8 @@
 \title{Create baseline evaluations}
 \usage{
 baseline(test_data, dependent_col, train_data = NULL, n = 100,
-  family = "binomial", positive = 2, cutoff = 0.5,
-  random_generator_fn = runif, random_effects = NULL,
+  family = "binomial", metrics = list(), positive = 2,
+  cutoff = 0.5, random_generator_fn = runif, random_effects = NULL,
   min_training_rows = 5, min_training_rows_left_out = 3,
   REML = FALSE, parallel = FALSE)
 }
@@ -26,6 +26,17 @@ baseline(test_data, dependent_col, train_data = NULL, n = 100,
 \item{family}{Name of family. (Character)
 
  Currently supports \code{"gaussian"}, \code{"binomial"} and \code{"multinomial"}.}
+
+\item{metrics}{List for enabling/disabling metrics.
+
+  E.g. \code{list("RMSE" = FALSE)} would remove RMSE from the results,
+  and \code{list("Accuracy" = TRUE)} would add the regular accuracy metric
+  to the classification results.
+  Default values (TRUE/FALSE) will be used for the remaining metrics available.
+
+  Also accepts the string \code{"all"}.
+
+  N.B. Currently, disabled metrics are still computed.}
 
 \item{positive}{Level from dependent variable to predict.
  Either as character or level index (1 or 2 - alphabetically).

@@ -19,17 +19,28 @@
 * In `evaluate()`, `apply_softmax` now defaults to `FALSE`. 
 Throws error if probabilities do not add up 1 row-wise (tolerance of 5 decimals) when `type` is `multinomial`.
 
+* In `cross_validate_fn()`, the `AIC`, `AICc`, `BIC`, `r2m`, and `r2c` metrics are now disabled by default in `gaussian`. Only some model types will allow the computation of those metrics, and it is preferable that the user actively makes a choice to include them.
+
+* In `baseline()`, the `AIC`, `AICc`, `BIC`, `r2m`, and `r2c` metrics are now disabled by default in `gaussian`.
+It can be unclear whether the IC metrics (computed on the `lm()`/`lmer()` model objects) can be compared to those calculated for a given other model function. To avoid such confusion, it is preferable that the user actively makes a choice to include the metrics. The r-squared metrics will only be non-zero when random effects are passed. Given that we shouldn't use the r-squared metrics for model selection, it makes sense to not have them enabled by default.
+
 ## Additions
+
+* `validate_fn()` is added. Validate your custom model function on a test set.
 
 * `confusion_matrix()` is added. Create a confusion matrix and calculate associated metrics from your targets and predictions. 
 
 * `summarize_metrics()` is added. Use it summarize the numeric columns in your dataset with a set of common descriptors. Counts the `NA`s and `Inf`s. Used by `baseline()`.
 
-* `example_model_functions()` is added. Contains simple `model_fn` examples that can be used in `cross_validate_fn()` or as starting points.
+* `example_model_functions()` is added. Contains simple `model_fn` examples that can be used in `cross_validate_fn()` and `validate_fn()` or as starting points.
 
-* `example_predict_functions()` is added. Contains simple `predict_fn` examples that can be used in `cross_validate_fn()` or as starting points.
+* `example_predict_functions()` is added. Contains simple `predict_fn` examples that can be used in `cross_validate_fn()` and `validate_fn()` or as starting points.
 
-* `example_preprocess_functions()` is added. Contains simple `preprocess_fn` examples that can be used in `cross_validate_fn()` or as starting points.
+* `example_preprocess_functions()` is added. Contains simple `preprocess_fn` examples that can be used in `cross_validate_fn()` and `validate_fn()` or as starting points.
+
+* `simplify_formula()` is added. Converts a formula with inline functions to a simple formula 
+where all variables are added together (e.g. `y ~ x*z + log(a) + (1|b)` -> `y ~ x + z + a + b`). This is 
+useful when passing a formula to `recipes::recipe()`, which doesn't allow the inline functions.
 
 * Adds optional `hyperparameter` argument to `cross_validate_fn()`. 
 Pass a list of hyperparameters and every combination of these will be cross-validated. 
@@ -40,8 +51,12 @@ Pass a list of hyperparameters and every combination of these will be cross-vali
 
 * Adds `preprocess_once` argument to `cross_validate_fn()`. When preprocessing does not depend on the current formula or hyperparameters, we might as well perform it on each train/test split once, instead of for every model.
 
-* Adds Information Criteria metrics (AIC, AICc, BIC) to the `binomial` and `multinomial` output (disabled by default). 
+* Adds Information Criteria metrics (`AIC`, `AICc`, `BIC`) to the `binomial` and `multinomial` output (disabled by default). 
 These are based on the fitted model objects and will only work for some types of models.
+
+* Adds `metrics` argument to `baseline()`. Enable the non-default metrics you want a baseline evaluation for.
+
+* Adds `preprocessing` argument to `cross_validate()` and `validate()`. Currently allows "standardize", "scale", "center", and "range". Results will likely not be affected noticeably by the preprocessing.
 
 ## Other changes
 

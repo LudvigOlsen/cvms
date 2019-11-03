@@ -7,6 +7,7 @@ create_gaussian_baseline_evaluations <- function(train_data,
                                                  min_training_rows = 5,
                                                  min_training_rows_left_out = 3,
                                                  REML = FALSE,
+                                                 metrics = list(),
                                                  na.rm = TRUE,
                                                  parallel_ = FALSE){
 
@@ -86,7 +87,7 @@ create_gaussian_baseline_evaluations <- function(train_data,
                   limits = .data$inclusion_probability + .data$to_add,
                   min_max = c("max_","min_")) %>%
     base_select(cols = c("split_factor", "min_max", "limits")) %>%
-    tidyr::spread(key = "min_max", value="limits") %>%
+    tidyr::spread(key = "min_max", value = "limits") %>%
     dplyr::mutate(inclusion_probability_threshold = runif(1, min = .data$min_, max = .data$max_)) %>%
     dplyr::ungroup() %>%
     base_deselect(cols = c("max_", "min_"))
@@ -151,7 +152,7 @@ create_gaussian_baseline_evaluations <- function(train_data,
       id_method = "mean",
       fold_info_cols = fold_info_cols,
       fold_and_fold_col = fold_and_fold_col,
-      metrics = list(),
+      metrics = metrics,
       include_predictions = TRUE,
       include_fold_columns = FALSE, # We're not providing any fold info so won't make sense
       caller = "baseline()"

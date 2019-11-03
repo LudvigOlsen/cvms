@@ -8,6 +8,7 @@ call_validate <- function(train_data,
                           cutoff,
                           positive,
                           metrics,
+                          preprocessing,
                           err_nc,
                           rm_nc,
                           parallel,
@@ -23,6 +24,9 @@ call_validate <- function(train_data,
   if (!is.character(family))
     stop("cross_validate(): 'family' must have type character.")
 
+  # Add AIC, AICc, BIC, r2m, r2c (unless disabled by user)
+  metrics <- basics_update_metrics(metrics = metrics, family = family)
+
   results <- validate_list(
     train_data = train_data,
     test_data = test_data,
@@ -30,6 +34,8 @@ call_validate <- function(train_data,
     formulas = formulas,
     model_fn = basics_model_fn,
     predict_fn = basics_predict_fn,
+    preprocess_fn = basics_pick_preprocess_fn(
+      preprocessing = preprocessing),
     hyperparameters = basics_hparams(
       REML = REML, control = control,
       model_verbose = verbose,
@@ -73,6 +79,7 @@ call_cross_validate <- function(data,
                                 cutoff,
                                 positive,
                                 metrics,
+                                preprocessing,
                                 rm_nc,
                                 parallel,
                                 verbose){
@@ -87,11 +94,16 @@ call_cross_validate <- function(data,
   if (!is.character(family))
     stop("cross_validate(): 'family' must have type character.")
 
+  # Add AIC, AICc, BIC, r2m, r2c (unless disabled by user)
+  metrics <- basics_update_metrics(metrics = metrics, family = family)
+
   results <- cross_validate_list(
     data = data,
     formulas = formulas,
     model_fn = basics_model_fn,
     predict_fn = basics_predict_fn,
+    preprocess_fn = basics_pick_preprocess_fn(
+      preprocessing = preprocessing),
     hyperparameters = basics_hparams(
       REML = REML, control = control,
       model_verbose = verbose,
@@ -122,6 +134,38 @@ call_cross_validate <- function(data,
 
 
 ### Basics, shared between validate and cross_validate
+
+basics_update_metrics <- function(metrics, family){
+
+  # For cross_validate we expect AIC to be comparable
+  # Although with REML = TRUE we might not be able to compare
+  # models with and without random effects   TODO (add to documentation)
+
+  if (family == "gaussian"){
+    metric_names <- names(metrics)
+    if (is.list(metrics) &&
+        length(setdiff(c("AIC","AICc", "BIC", "r2m", "r2c"), metric_names)) > 1){
+
+      if ("AIC" %ni% metric_names){
+        metrics[["AIC"]] = TRUE
+      }
+      if ("AICc" %ni% metric_names){
+        metrics[["AICc"]] = TRUE
+      }
+      if ("BIC" %ni% metric_names){
+        metrics[["BIC"]] = TRUE
+      }
+      if ("r2m" %ni% metric_names){
+        metrics[["r2m"]] = TRUE
+      }
+      if ("r2c" %ni% metric_names){
+        metrics[["r2c"]] = TRUE
+      }
+    }
+  }
+
+  metrics
+}
 
 basics_hparams <- function(REML, control, model_verbose, family){
   list(
@@ -220,6 +264,26 @@ basics_predict_fn <- function(test_data, model, formula, hyperparameters){
 
   p_fn(test_data = test_data, model = model,
        formula = formula, hyperparameters = hyperparameters)
+}
+
+basics_pick_preprocess_fn <- function(preprocessing){
+
+  if (is.null(preprocessing))
+    return(NULL)
+
+  if (preprocessing == "standardize"){
+    preprocess_fn <- example_preprocess_functions("standardize")
+  } else if (preprocessing == "scale"){
+    preprocess_fn <- example_preprocess_functions("scale")
+  } else if (preprocessing == "center"){
+    preprocess_fn <- example_preprocess_functions("center")
+  } else if (preprocessing == "range"){
+    preprocess_fn <- example_preprocess_functions("range")
+  } else {
+    stop("'preprocessing' was not found.")
+  }
+
+  preprocess_fn
 }
 
 message_if_model_verbose <- function(model_verbose, msg, caller = "cross_validate()"){

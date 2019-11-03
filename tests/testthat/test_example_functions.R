@@ -65,14 +65,20 @@ test_that("the expected output is returned from example_preprocess_functions() f
     set_seed_for_R_compatibility(1)
     partitions <- groupdata2::partition(participant.scores, p = 0.75,
                                  cat_col = 'diagnosis',
-                                 id_col = 'participant')
-    train_set <- partitions[[1]]
-    test_set <- partitions[[2]]
+                                 id_col = 'participant',
+                                 list_out = FALSE) %>%
+      dplyr::mutate(diagnosis = as.numeric(diagnosis),
+                    notAVar = 1) %>%
+      dplyr::ungroup()
+    train_set <- partitions[partitions[[".partitions"]] == 1,]
+    test_set <- partitions[partitions[[".partitions"]] == 2,]
 
     # Standardize with preprocess_fn
     standardize_fn <- example_preprocess_functions("standardize")
     standardized_by_fn <- standardize_fn(train_data = train_set, test_data = test_set,
-                                         formula = as.formula("diagnosis ~ ."),
+                                         # notAVar is just to avoid changing the unit tests below
+                                         # when diagnosis wouldn't be standardized
+                                         formula = as.formula("notAVar ~ ."),
                                          hyperparameters = NULL)
 
     # Standardize manually
@@ -135,7 +141,7 @@ test_that("the expected output is returned from example_preprocess_functions() f
     # Normalize with preprocess_fn
     normalize_fn <- example_preprocess_functions("range")
     normalized_by_fn <- normalize_fn(train_data = train_set, test_data = test_set,
-                                     formula = as.formula("diagnosis ~ ."),
+                                     formula = as.formula("notAVar ~ ."),
                                      hyperparameters = NULL)
 
     # Normalize manually

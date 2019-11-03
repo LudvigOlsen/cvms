@@ -3,6 +3,7 @@ create_binomial_baseline_evaluations <- function(test_data,
                                                  reps = 100,
                                                  positive = 2,
                                                  cutoff = 0.5,
+                                                 metrics = list(),
                                                  na.rm = TRUE,
                                                  parallel_ = FALSE){
 
@@ -93,7 +94,7 @@ create_binomial_baseline_evaluations <- function(test_data,
       fold_and_fold_col = fold_and_fold_col,
       cutoff = cutoff,
       positive = positive,
-      metrics = list(),
+      metrics = metrics,
       include_predictions = TRUE,
       include_fold_columns = FALSE, # We're not providing any fold info so won't make sense
       caller = "baseline()"

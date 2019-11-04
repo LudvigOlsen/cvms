@@ -58,7 +58,7 @@ test_that("binomial glm model works with cross_validate_fn()",{
   expect_is(CVbinomlist$Predictions[[1]], "tbl_df")
   expect_is(CVbinomlist$ROC[[1]]$.folds, "roc")
   expect_equal(colnames(CVbinomlist$Predictions[[1]]),
-               c("Fold Column","Fold","Target","Prediction","Predicted Class"))
+               c("Fold Column","Fold","Observation","Target","Prediction","Predicted Class"))
   expect_equal(sum(CVbinomlist$ROC[[1]]$.folds$sensitivities), 17.7222222222222, tolerance = 1e-5)
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
   expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
@@ -472,7 +472,7 @@ test_that("binomial glm model with preprocess_fn works with cross_validate_fn()"
                c(0, 0, 0, 0, 0, 0, 0.25, 0.5, 0.75, 0.75, 1))
 
   expect_equal(colnames(CVbinomlist_prep_once$Predictions[[1]]),
-               c("Fold Column", "Fold", "Target", "Prediction", "Predicted Class"))
+               c("Fold Column", "Fold", "Observation", "Target", "Prediction", "Predicted Class"))
   expect_equal(nrow(CVbinomlist_prep_once$Predictions[[1]]), 90)
   expect_equal(CVbinomlist_prep_once$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
@@ -541,7 +541,7 @@ test_that("binomial svm models from e1071 work with cross_validate_fn()",{
   expect_is(CVbinomlist$Predictions[[1]], "tbl_df")
   expect_is(CVbinomlist$ROC[[1]]$.folds, "roc")
   expect_equal(colnames(CVbinomlist$Predictions[[1]]),
-               c("Fold Column", "Fold", "Target", "Prediction", "Predicted Class"))
+               c("Fold Column", "Fold", "Observation", "Target", "Prediction", "Predicted Class"))
   expect_equal(names(CVbinomlist$ROC[[1]]$.folds),
                c("percent", "sensitivities", "specificities", "thresholds",
                  "direction", "cases", "controls", "fun.sesp", "auc", "call",
@@ -893,7 +893,9 @@ test_that("binomial naiveBayes models from e1071 work with cross_validate_fn()",
   expect_is(CVbinomlist$Predictions[[1]], "tbl_df")
   expect_is(CVbinomlist$ROC[[1]]$.folds, "roc")
   expect_equal(length(CVbinomlist$ROC), 2)
-  expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
+  expect_equal(colnames(CVbinomlist$Predictions[[1]]),
+               c("Fold Column","Fold","Observation",
+                 "Target","Prediction","Predicted Class"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
   expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
@@ -962,7 +964,9 @@ test_that("binomial nnet models work with cross_validate_fn()",{
   expect_is(CVbinomlist$Predictions[[1]], "tbl_df")
   expect_is(CVbinomlist$ROC[[1]]$.folds, "roc")
   expect_equal(length(CVbinomlist$ROC), 2)
-  expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
+  expect_equal(colnames(CVbinomlist$Predictions[[1]]),
+               c("Fold Column","Fold","Observation",
+                 "Target","Prediction","Predicted Class"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
   expect_equal(CVbinomlist$ROC[[1]]$.folds$direction, "<")
   expect_equal(as.numeric(CVbinomlist$ROC[[1]]$.folds$auc), 0.6111, tolerance = 1e-3)
@@ -1219,7 +1223,7 @@ test_that("multinomial nnet models work with cross_validate_fn()",{
   # Predictions
   expect_is(CVmultinomlist$Predictions[[1]], "tbl_df")
   expect_equal(colnames(CVmultinomlist$Predictions[[1]]),
-               c("Fold Column","Fold","Target","Prediction","Predicted Class"))
+               c("Fold Column","Fold","Observation","Target","Prediction","Predicted Class"))
   expect_equal(nrow(CVmultinomlist$Predictions[[1]]),50)
 
   # ROC in Results
@@ -1342,7 +1346,9 @@ test_that("binomial randomForest models work with cross_validate_fn()",{
   expect_is(CVbinomlist$ROC[[1]]$.folds, "roc")
   expect_equal(CVbinomlist$ROC[[1]]$.folds$direction, "<")
   expect_equal(as.numeric(CVbinomlist$ROC[[1]]$.folds$auc), 0.648148148148148, tolerance = 1e-5)
-  expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
+  expect_equal(colnames(CVbinomlist$Predictions[[1]]),
+               c("Fold Column","Fold","Observation",
+                 "Target","Prediction","Predicted Class"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
   expect_equal(CVbinomlist$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
@@ -1456,7 +1462,8 @@ test_that("multinomial randomForest models work with cross_validate_fn()",{
   # Enter sub tibbles
   expect_is(CVmultinomlist$Predictions[[1]], "tbl_df")
   expect_equal(colnames(CVmultinomlist$Predictions[[1]]),
-               c("Fold Column","Fold","Target","Prediction","Predicted Class"))
+               c("Fold Column","Fold","Observation",
+                 "Target","Prediction","Predicted Class"))
   expect_equal(nrow(CVmultinomlist$Predictions[[1]]),50)
   expect_equal(CVmultinomlist$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
@@ -1972,7 +1979,14 @@ test_that("binomial random predictions work with cross_validate_fn()",{
   # Enter sub tibbles
   expect_is(CVrandom$Predictions[[1]], "tbl_df")
   expect_is(CVrandom$ROC[[1]]$.folds, "roc")
-  expect_equal(colnames(CVrandom$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
+  expect_equal(colnames(CVrandom$Predictions[[1]]),
+               c("Fold Column","Fold","Observation",
+                 "Target","Prediction","Predicted Class"))
+  expect_equal(CVrandom$Predictions[[1]]$Observation,
+               c(7L, 8L, 9L, 13L, 14L, 15L, 1L, 2L, 3L, 16L, 17L, 18L, 28L,
+                 29L, 30L, 4L, 5L, 6L, 25L, 26L, 27L, 10L, 11L, 12L, 19L, 20L,
+                 21L, 22L, 23L, 24L))
+  expect_equal(sort(CVrandom$Predictions[[1]]$Observation), 1:30)
   expect_equal(nrow(CVrandom$Predictions[[1]]),30)
   expect_equal(CVrandom$`Warnings and Messages`[[1]],
                structure(list(`Fold Column` = character(0), Fold = integer(0),
@@ -2304,7 +2318,8 @@ test_that("multinomial random predictions work with cross_validate_fn()",{
   # Predictions
   expect_is(CVmultinomlist$Predictions[[1]], "tbl_df")
   expect_equal(colnames(CVmultinomlist$Predictions[[1]]),
-               c("Fold Column","Fold","Target","Prediction","Predicted Class"))
+               c("Fold Column","Fold","Observation",
+                 "Target","Prediction","Predicted Class"))
   expect_equal(nrow(CVmultinomlist$Predictions[[1]]),50)
 
 

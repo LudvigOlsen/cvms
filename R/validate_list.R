@@ -29,10 +29,17 @@ validate_list <- function(train_data,
   train_data <- dplyr::as_tibble(train_data) %>%
     dplyr::ungroup()
 
+  tmp_observation_id_col <- create_tmp_var(test_data, tmp_var = ".observation")
+
   if (!is.null(test_data)){
 
     test_data <- dplyr::as_tibble(test_data) %>%
       dplyr::ungroup()
+
+    # Add identifier for each observation so we can find which
+    # ones are hard to predict
+    test_data[[tmp_observation_id_col]] <- seq_len(nrow(test_data))
+    train_data[[tmp_observation_id_col]] <- -1
 
     data <- train_data %>%
       dplyr::bind_rows(test_data, .id = partitions_col) %>%
@@ -46,9 +53,19 @@ validate_list <- function(train_data,
                   "where 1 signals the training set and 2 signals the test set"))
     }
 
+    if (".___observations___" %in% names(train_data))
+      warning("column '.___observations___' will be overwritten.")
+
     data <- train_data %>%
       dplyr::mutate(.partitions = as.factor(
-        as.integer(as.character(.data$.partitions))))
+        as.integer(as.character(.data$.partitions)))) %>%
+      dplyr::group_by(.data$.partitions) %>%
+      dplyr::mutate(.___observations___ = seq_len(dplyr::n())) %>%
+      base_rename(before = ".___observations___",
+                  after = tmp_observation_id_col)
+    # Set observation ids in training set to -1
+    data[data[[".partitions"]] == levels(data[[".partitions"]])[[1]],
+         ][[tmp_observation_id_col]] <- -1
   }
 
   # Get evaluation type
@@ -94,6 +111,7 @@ validate_list <- function(train_data,
     preprocess_fn = preprocess_fn,
     preprocess_once = preprocess_once,
     hparams = NULL,
+    observation_id_col = tmp_observation_id_col,
     caller = caller
   ) %>%
     update_model_specifics()

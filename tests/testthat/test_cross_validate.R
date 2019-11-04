@@ -61,7 +61,9 @@ test_that("binomial models work with cross_validate()",{
   # Enter sub tibbles
   expect_is(CVbinomlist$Predictions[[1]], "tbl_df")
   expect_is(CVbinomlist$ROC[[1]]$.folds, "roc")
-  expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
+  expect_equal(colnames(CVbinomlist$Predictions[[1]]),
+               c("Fold Column","Fold","Observation",
+                 "Target","Prediction","Predicted Class"))
   expect_equal(names(CVbinomlist$ROC[[1]]$.folds),
                c("percent", "sensitivities", "specificities", "thresholds",
                  "direction", "cases", "controls", "fun.sesp", "auc", "call",
@@ -143,7 +145,9 @@ test_that("binomial models checks that dependent variable is numeric with cross_
 
   # Enter sub tibbles
   expect_is(CVbinomlist$Predictions[[1]], "tbl_df")
-  expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
+  expect_equal(colnames(CVbinomlist$Predictions[[1]]),
+               c("Fold Column","Fold","Observation",
+                 "Target","Prediction","Predicted Class"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
 
   expect_is(CVbinomlist$ROC[[1]]$.folds, "roc")
@@ -234,7 +238,9 @@ test_that("binomial models work with cross_validate()",{
 
   # Enter sub tibbles
   expect_is(CVbinomlistrand$Predictions[[1]], "tbl_df")
-  expect_equal(colnames(CVbinomlistrand$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
+  expect_equal(colnames(CVbinomlistrand$Predictions[[1]]),
+               c("Fold Column","Fold","Observation",
+                 "Target","Prediction","Predicted Class"))
   expect_equal(nrow(CVbinomlistrand$Predictions[[1]]),30)
 
   expect_is(CVbinomlistrand$ROC[[1]]$.folds, "roc")
@@ -269,7 +275,9 @@ test_that("binomial models work with cross_validate()",{
                  0.990122822131509, 0.993513013802942, Inf), tolerance = 1e-5)
 
   expect_is(CVbinomlistrand$Predictions[[2]], "tbl_df")
-  expect_equal(colnames(CVbinomlistrand$Predictions[[2]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
+  expect_equal(colnames(CVbinomlistrand$Predictions[[2]]),
+               c("Fold Column","Fold","Observation",
+                 "Target","Prediction","Predicted Class"))
   expect_equal(nrow(CVbinomlistrand$Predictions[[2]]),30)
   expect_is(CVbinomlistrand$ROC[[2]]$.folds, "roc")
   expect_equal(names(CVbinomlistrand$ROC[[2]]$.folds),
@@ -619,12 +627,15 @@ test_that("binomial models work with repeated cross_validate()",{
   expect_is(CVbinomlist$Results[[1]], "tbl_df")
   expect_is(CVbinomlist$ROC[[1]]$.folds_1, "roc")
   expect_is(CVbinomlist$`Confusion Matrix`[[1]], "tbl_df")
-  expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
-  expect_equal(colnames(CVbinomlist$Results[[1]]), c("Fold Column","Balanced Accuracy","F1",
-                                                     "Sensitivity","Specificity","Pos Pred Value",
-                                                     "Neg Pred Value","AUC","Lower CI","Upper CI",
-                                                     "Kappa","MCC","Detection Rate","Detection Prevalence",
-                                                     "Prevalence"))
+  expect_equal(colnames(CVbinomlist$Predictions[[1]]),
+               c("Fold Column","Fold","Observation",
+                 "Target","Prediction","Predicted Class"))
+  expect_equal(colnames(CVbinomlist$Results[[1]]),
+               c("Fold Column","Balanced Accuracy","F1",
+                 "Sensitivity", "Specificity", "Pos Pred Value",
+                 "Neg Pred Value", "AUC", "Lower CI", "Upper CI",
+                 "Kappa", "MCC", "Detection Rate", "Detection Prevalence",
+                 "Prevalence"))
   expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]), c("Fold Column","Prediction","Target","Pos_0","Pos_1","N"))
   expect_equal(nrow(CVbinomlist$Predictions[[1]]),60)
 
@@ -880,7 +891,9 @@ test_that("gaussian models work with repeated cross_validate()",{
                c("Fold Column","Fold","RMSE","MAE","r2m","r2c","AIC","AICc","BIC"))
   expect_equal(CVgausslist$Results[[1]]$`Fold Column`,
                rep(c(".folds_1",".folds_2"), each=4))
-  expect_equal(colnames(CVgausslist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction"))
+  expect_equal(colnames(CVgausslist$Predictions[[1]]),
+               c("Fold Column","Fold","Observation",
+                 "Target","Prediction"))
   expect_equal(unique(CVgausslist$Predictions[[1]]$`Fold Column`), c(".folds_1",".folds_2"))
   expect_equal(colnames(CVgausslist$Coefficients[[1]]),
                c("Fold Column", "Fold", "term","estimate","std.error","statistic","p.value"))

@@ -22,8 +22,14 @@ cross_validate_list <- function(data,
             is.character(positive) || positive %in% c(1,2)
   )
 
+  # Convert to tibble
   data <- dplyr::as_tibble(data) %>%
     dplyr::ungroup()
+
+  # Add identifier for each observation so we can find which
+  # ones are hard to predict
+  tmp_observation_id_col <- create_tmp_var(data, tmp_var = ".observation")
+  data[[tmp_observation_id_col]] <- seq_len(nrow(data))
 
   # Get evaluation type
   if (family %in% c("gaussian", "binomial", "multinomial")){
@@ -71,6 +77,7 @@ cross_validate_list <- function(data,
     preprocess_fn = preprocess_fn,
     preprocess_once = preprocess_once,
     hparams = NULL,
+    observation_id_col = tmp_observation_id_col,
     caller = caller
   ) %>%
     update_model_specifics()

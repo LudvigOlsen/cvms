@@ -62,6 +62,12 @@ nesting_predictions<- function(data,
     predictions_for_nesting[["Predicted Class"]] <- data[[predicted_class_col]]
   }
 
+  if ("observation" %in% names(data)){
+    predictions_for_nesting <- predictions_for_nesting %>%
+      tibble::add_column("Observation" = data[["observation"]],
+                         .before = "Target")
+  }
+
   # If ID evaluation, add ID and method to nested predictions
   if (!is.null(id_col)){
     if (is.null(id_method))

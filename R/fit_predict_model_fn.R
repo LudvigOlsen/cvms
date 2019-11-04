@@ -60,7 +60,8 @@ fit_predict_model_fn <- function(train_data,
   )
 
   # Create tibble with predictions, targets and fold info
-  predictions_and_targets <- tibble::tibble("target" = test_data[[y_col]]) %>%
+  predictions_and_targets <- tibble::tibble("observation" = test_data[[model_specifics[["observation_id_col"]]]],
+                                            "target" = test_data[[y_col]]) %>%
     dplyr::bind_cols(prediction_process[["predictions"]])
   if (isTRUE(include_fold_columns)){
     predictions_and_targets <- predictions_and_targets %>%

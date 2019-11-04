@@ -18,6 +18,7 @@ update_model_specifics <- function(model_specifics){
                                          "cross_validate()", "validate()")){
   stop_if_argument_is_null("model_fn", model_specifics)
   stop_if_argument_is_null("predict_fn", model_specifics)
+  check_argument_in_model_specifics("observation_id_col", model_specifics)
   }
   stop_if_argument_is_null("caller", model_specifics)
 

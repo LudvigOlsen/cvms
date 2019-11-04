@@ -56,7 +56,7 @@ test_that("binomial model work with validate()", {
   expect_is(Vbinom$ROC[[1]], "roc")
   expect_equal(
     colnames(Vbinom$Predictions[[1]]),
-    c("Target","Prediction","Predicted Class")
+    c("Observation","Target","Prediction","Predicted Class")
   )
   expect_equal(nrow(Vbinom$Predictions[[1]]), 9)
 
@@ -182,7 +182,7 @@ test_that("binomial mixed model work with validate()", {
   expect_is(Vbinom$ROC[[1]], "roc")
   expect_equal(
     colnames(Vbinom$Predictions[[1]]),
-    c("Target","Prediction","Predicted Class")
+    c("Observation","Target","Prediction","Predicted Class")
   )
   expect_equal(nrow(Vbinom$Predictions[[1]]), 12)
 
@@ -263,7 +263,7 @@ test_that("binomial model work with test_data in validate()", {
   expect_is(Vbinom$ROC[[1]], "roc")
   expect_equal(
     colnames(Vbinom$Predictions[[1]]),
-    c("Target","Prediction","Predicted Class")
+    c("Observation","Target","Prediction","Predicted Class")
   )
   expect_equal(nrow(Vbinom$Predictions[[1]]), 9)
 

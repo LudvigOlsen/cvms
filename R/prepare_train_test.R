@@ -7,6 +7,13 @@ prepare_train_test <- function(data, fold_info, fold_cols, model_specifics){
   train_data <- data_subset[["train"]]
   test_data <- data_subset[["test"]]
 
+  if ("observation_id_col" %in% names(model_specifics)){
+    # We don't want to preprocess the observation IDs
+    test_observation_ids <- test_data[[model_specifics[["observation_id_col"]]]]
+    test_data[[model_specifics[["observation_id_col"]]]] <- NULL
+    train_data[[model_specifics[["observation_id_col"]]]] <- NULL
+  }
+
   # Preprocess data
 
   # Extract formula and hparams
@@ -148,6 +155,11 @@ prepare_train_test <- function(data, fold_info, fold_cols, model_specifics){
                   paste_hparams(current_hparams),
                   w, sep = "\n"))
 
+  }
+
+  if ("observation_id_col" %in% names(model_specifics)){
+    # Add back the observation IDs to the test set
+    test_data[[model_specifics[["observation_id_col"]]]] <- test_observation_ids
   }
 
   list("train" = train_data,

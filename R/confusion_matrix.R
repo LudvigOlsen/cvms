@@ -210,7 +210,7 @@ call_confusion_matrix <- function(targets,
   if (length(c_levels) == 2){
 
     # If not already a list of metric names
-    if (typeof(metrics) != "character" || metrics == "all"){
+    if (typeof(metrics) != "character" || (length(metrics) == 1 && metrics == "all")){
       metrics <- set_metrics(family = "binomial", metrics_list = metrics,
                              include_model_object_metrics = FALSE)
     }
@@ -228,7 +228,7 @@ call_confusion_matrix <- function(targets,
       warning("'positive' is ignored in multiclass confusion matrices.")
 
     # If not already a list of metric names
-    if (typeof(metrics) != "character" || metrics == "all"){
+    if (typeof(metrics) != "character" || (length(metrics) == 1 && metrics == "all")){
       metrics <- set_metrics(family = "multinomial",
                              metrics_list = metrics,
                              include_model_object_metrics = FALSE)

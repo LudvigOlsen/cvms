@@ -26,7 +26,7 @@ most_challenging <- function(data,
       dplyr::group_by_at(c(colnames(grouping_keys), obs_col)) %>%
       dplyr::summarise(Correct = sum(.data$Correct),
                        Incorrect = sum(.data$Incorrect),
-                       `Percentage Correct` = Correct/dplyr::n())
+                       `Percentage Correct` = .data$Correct/dplyr::n())
 
     return(
       by_observation[by_observation[["Percentage Correct"]] < (1-threshold),]

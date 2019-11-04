@@ -37,6 +37,7 @@
 #'
 #' # Simplify formula (as formula)
 #' simplify_formula(as.formula(f1))
+#' @importFrom stats as.formula
 simplify_formula <- function(formula, data = NULL){
 
   # TODO Add option to remove random effects before simplification

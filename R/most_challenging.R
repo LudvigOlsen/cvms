@@ -49,20 +49,6 @@
 #' @param threshold_is Either \code{"score"} or \code{"percentage"}. See \code{threshold}.
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
-#' @examples
-#' \donttest{
-#' # Attach packages
-#' library(cvms)
-#' library(groupdata2) # partition()
-#' library(dplyr) # \%>\% arrange()
-#' library(tibble)
-#'
-#' # Data is part of cvms
-#' data <- participant.scores
-#'
-#' # Set seed for reproducibility
-#' set.seed(1)
-#' }
 most_challenging <- function(data,
                              obs_id_col = "Observation",
                              target_col = "Target",

@@ -70,21 +70,6 @@ the performance of each observation.}
  based on a prediction score (\code{RMSE} for regression and
  \code{Accuracy} for classification).
 }
-\examples{
-\donttest{
-# Attach packages
-library(cvms)
-library(groupdata2) # partition()
-library(dplyr) # \%>\% arrange()
-library(tibble)
-
-# Data is part of cvms
-data <- participant.scores
-
-# Set seed for reproducibility
-set.seed(1)
-}
-}
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
 }

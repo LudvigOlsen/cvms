@@ -148,7 +148,8 @@ test_that("gaussian model works with most_challenging()",{
 
   CV_gauss <- cross_validate(
     dat_list,
-    formulas = c("score ~ diagnosis + session", "score ~ diagnosis + age + session"),
+    formulas = c("score ~ diagnosis + session",
+                 "score ~ diagnosis + age + session"),
     fold_cols = paste0(".folds_", 1:8),
     family = "gaussian"
   )

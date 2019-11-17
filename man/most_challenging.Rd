@@ -5,15 +5,21 @@
 \alias{hardest}
 \title{Find the data points that were hardest to predict}
 \usage{
-most_challenging(data, obs_id_col = "Observation",
-  target_col = "Target", prediction_col = dplyr::case_when(type ==
-  "gaussian" ~ "Prediction", TRUE ~ "Predicted Class"),
-  type = "binomial", threshold = 0.15, threshold_is = "percentage")
+most_challenging(
+  data,
+  obs_id_col = "Observation",
+  target_col = "Target",
+  prediction_col = dplyr::case_when(type == "gaussian" ~ "Prediction", TRUE ~
+    "Predicted Class"),
+  type = "binomial",
+  threshold = 0.15,
+  threshold_is = "percentage"
+)
 }
 \arguments{
 \item{data}{Data frame with predictions, targets and observation IDs.
 
- Can be grouped by \code{\link[dplyr:group_by()]{dplyr::group_by()}}.}
+ Can be grouped by \code{\link[dplyr:group_by]{dplyr::group_by()}}.}
 
 \item{obs_id_col}{Name of column with observation IDs. This will be used to aggregate
 the performance of each observation.}

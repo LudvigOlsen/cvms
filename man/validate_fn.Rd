@@ -4,11 +4,24 @@
 \alias{validate_fn}
 \title{Validate custom model functions on a test set}
 \usage{
-validate_fn(train_data, test_data = NULL, formulas, model_fn, predict_fn,
-  preprocess_fn = NULL, preprocess_once = FALSE,
-  hyperparameters = NULL, partitions_col = ".partitions",
-  type = "gaussian", cutoff = 0.5, positive = 2, metrics = list(),
-  rm_nc = FALSE, parallel = FALSE, verbose = TRUE)
+validate_fn(
+  train_data,
+  test_data = NULL,
+  formulas,
+  model_fn,
+  predict_fn,
+  preprocess_fn = NULL,
+  preprocess_once = FALSE,
+  hyperparameters = NULL,
+  partitions_col = ".partitions",
+  type = "gaussian",
+  cutoff = 0.5,
+  positive = 2,
+  metrics = list(),
+  rm_nc = FALSE,
+  parallel = FALSE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{train_data}{Data Frame.
@@ -414,8 +427,10 @@ data <- fold(data, k = 4,
     arrange(.folds)
 }
 \seealso{
-Other validation functions: \code{\link{cross_validate_fn}},
-  \code{\link{cross_validate}}, \code{\link{validate}}
+Other validation functions: 
+\code{\link{cross_validate_fn}()},
+\code{\link{cross_validate}()},
+\code{\link{validate}()}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

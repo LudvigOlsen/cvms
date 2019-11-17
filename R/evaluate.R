@@ -345,7 +345,7 @@
 #'     "id" = 1:6,
 #'     target = sample(x = class_names, size = 6, replace = TRUE)
 #' )
-#' data_mc <- data_mc %>%
+#' data_mc <- data_mc \%>\%
 #'     dplyr::left_join(id_classes, by = "id")
 #'
 #' # Perform ID evaluation
@@ -364,7 +364,7 @@
 #'     num_observations = 30,
 #'     apply_softmax = FALSE,
 #'     FUN = rnorm,
-#'     class_name = "predictor_") %>%
+#'     class_name = "predictor_") \%>\%
 #'     dplyr::mutate(class = sample(
 #'         class_names,
 #'         size = 30,
@@ -378,7 +378,7 @@
 #' # Predict the targets in the dataset
 #' # (we would usually use a test set instead)
 #' predictions <- predict(mn_model, data_for_nnet,
-#'                        type = "probs") %>%
+#'                        type = "probs") \%>\%
 #'     dplyr::as_tibble()
 #'
 #' # Add the targets

@@ -4,13 +4,26 @@
 \alias{validate}
 \title{Validate regression models on a test set}
 \usage{
-validate(train_data, formulas, test_data = NULL,
-  partitions_col = ".partitions", family = "gaussian",
-  control = NULL, REML = FALSE, cutoff = 0.5, positive = 2,
-  metrics = list(), preprocessing = NULL, err_nc = FALSE,
-  rm_nc = FALSE, parallel = FALSE, verbose = FALSE,
-  link = deprecated(), models = deprecated(),
-  model_verbose = deprecated())
+validate(
+  train_data,
+  formulas,
+  test_data = NULL,
+  partitions_col = ".partitions",
+  family = "gaussian",
+  control = NULL,
+  REML = FALSE,
+  cutoff = 0.5,
+  positive = 2,
+  metrics = list(),
+  preprocessing = NULL,
+  err_nc = FALSE,
+  rm_nc = FALSE,
+  parallel = FALSE,
+  verbose = FALSE,
+  link = deprecated(),
+  models = deprecated(),
+  model_verbose = deprecated()
+)
 }
 \arguments{
 \item{train_data}{Data Frame.
@@ -287,8 +300,10 @@ validate(train_data,
 
 }
 \seealso{
-Other validation functions: \code{\link{cross_validate_fn}},
-  \code{\link{cross_validate}}, \code{\link{validate_fn}}
+Other validation functions: 
+\code{\link{cross_validate_fn}()},
+\code{\link{cross_validate}()},
+\code{\link{validate_fn}()}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

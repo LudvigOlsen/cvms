@@ -39,8 +39,9 @@ example_predict_functions(name)
  They can either be used directly or be starting points.
 }
 \seealso{
-Other example functions: \code{\link{example_model_functions}},
-  \code{\link{example_preprocess_functions}}
+Other example functions: 
+\code{\link{example_model_functions}()},
+\code{\link{example_preprocess_functions}()}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

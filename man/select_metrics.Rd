@@ -4,8 +4,7 @@
 \alias{select_metrics}
 \title{Select columns with evaluation metrics and model definitions.}
 \usage{
-select_metrics(results, include_definitions = TRUE,
-  additional_includes = NULL)
+select_metrics(results, include_definitions = TRUE, additional_includes = NULL)
 }
 \arguments{
 \item{results}{Results tibble from \code{\link{cross_validate}()} or \code{\link{validate}()}.}

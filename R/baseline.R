@@ -292,7 +292,7 @@
 #' # Attach packages
 #' library(cvms)
 #' library(groupdata2) # partition()
-#' library(dplyr) # %>% arrange()
+#' library(dplyr) # \%>\% arrange()
 #' library(tibble)
 #'
 #' # Data is part of cvms
@@ -322,7 +322,7 @@
 #'
 #' # Create some data with multiple classes
 #' multiclass_data <- tibble(
-#'     "target" = rep(paste0("class_", 1:5), each = 10)) %>%
+#'     "target" = rep(paste0("class_", 1:5), each = 10)) \%>\%
 #'     dplyr::sample_n(35)
 #'
 #' baseline(test_data = multiclass_data,
@@ -353,8 +353,8 @@
 #'
 #' # Inspect the summarized class level results
 #' # for class_2
-#' mb$summarized_class_level_results %>%
-#'  dplyr::filter(Class == "class_2") %>%
+#' mb$summarized_class_level_results \%>\%
+#'  dplyr::filter(Class == "class_2") \%>\%
 #'  tidyr::unnest(Results)
 #'
 #' # Multinomial with custom random generator function

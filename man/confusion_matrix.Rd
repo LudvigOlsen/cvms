@@ -4,8 +4,15 @@
 \alias{confusion_matrix}
 \title{Create a confusion matrix}
 \usage{
-confusion_matrix(targets, predictions, metrics = list(), positive = 2,
-  c_levels = NULL, do_one_vs_all = TRUE, parallel = FALSE)
+confusion_matrix(
+  targets,
+  predictions,
+  metrics = list(),
+  positive = 2,
+  c_levels = NULL,
+  do_one_vs_all = TRUE,
+  parallel = FALSE
+)
 }
 \arguments{
 \item{targets}{Vector with true classes. Either numeric or character.}
@@ -191,7 +198,8 @@ cm <- confusion_matrix(targets, predictions,
 cm
 }
 \seealso{
-Other evaluation functions: \code{\link{evaluate}}
+Other evaluation functions: 
+\code{\link{evaluate}()}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

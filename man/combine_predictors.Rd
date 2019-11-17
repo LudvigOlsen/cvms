@@ -5,9 +5,14 @@
 \alias{generate_formulas}
 \title{Generate model formulas by combining predictors}
 \usage{
-combine_predictors(dependent, fixed_effects, random_effects = NULL,
-  max_fixed_effects = 5, max_interaction_size = 3,
-  max_effect_frequency = NULL)
+combine_predictors(
+  dependent,
+  fixed_effects,
+  random_effects = NULL,
+  max_fixed_effects = 5,
+  max_interaction_size = 3,
+  max_effect_frequency = NULL
+)
 }
 \arguments{
 \item{dependent}{Name of dependent variable. (Character)}

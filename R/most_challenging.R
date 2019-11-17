@@ -9,7 +9,7 @@
 #'
 #' @param data Data frame with predictions, targets and observation IDs.
 #'
-#'  Can be grouped by \code{\link[dplyr:group_by()]{dplyr::group_by()}}.
+#'  Can be grouped by \code{\link[dplyr:group_by]{dplyr::group_by()}}.
 #' @param obs_id_col Name of column with observation IDs. This will be used to aggregate
 #'  the performance of each observation.
 #' @param target_col Name of column with the true classes/values in \code{data}.
@@ -54,7 +54,7 @@
 #' # Attach packages
 #' library(cvms)
 #' library(groupdata2) # partition()
-#' library(dplyr) # %>% arrange()
+#' library(dplyr) # \%>\% arrange()
 #' library(tibble)
 #'
 #' # Data is part of cvms
@@ -135,7 +135,8 @@ most_challenging_classification <- function(data,
 
   } else if (threshold_is == "percentage"){
 
-    quantiles <- list("Accuracy" = quantile(by_observation[["Accuracy"]], probs = threshold))
+    quantiles <- list("Accuracy" = stats::quantile(by_observation[["Accuracy"]],
+                                                   probs = threshold))
     to_return <- by_observation[by_observation[["Accuracy"]] < quantiles[["Accuracy"]],]
 
   }
@@ -176,7 +177,8 @@ most_challenging_gaussian <- function(data,
 
   } else if (threshold_is == "percentage"){
 
-    quantiles <- list("RMSE" = quantile(by_observation[["RMSE"]], probs = (1-threshold)))
+    quantiles <- list("RMSE" = stats::quantile(by_observation[["RMSE"]],
+                                               probs = (1-threshold)))
 
     to_return <- by_observation[by_observation[["RMSE"]] > quantiles[["RMSE"]],]
 
@@ -184,6 +186,6 @@ most_challenging_gaussian <- function(data,
 
   to_return %>%
     dplyr::arrange(!!!rlang::syms(colnames(grouping_keys)),
-                   desc(.data$RMSE), desc(.data$MAE))
+                   dplyr::desc(.data$RMSE), dplyr::desc(.data$MAE))
 
 }

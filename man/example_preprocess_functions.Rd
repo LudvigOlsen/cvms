@@ -39,8 +39,9 @@ example_preprocess_functions(name)
  and \code{\link[cvms:validate_fn]{validate_fn()}} and save time.
 }
 \seealso{
-Other example functions: \code{\link{example_model_functions}},
-  \code{\link{example_predict_functions}}
+Other example functions: 
+\code{\link{example_model_functions}()},
+\code{\link{example_predict_functions}()}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

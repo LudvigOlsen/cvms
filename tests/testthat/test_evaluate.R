@@ -36,7 +36,8 @@ test_that("multinomial evaluations are correct in evaluate()",{
     target_col = "cl_char",
     prediction_cols = paste0("cl_", 1:5),
     type = "multinomial",
-    apply_softmax = TRUE
+    apply_softmax = TRUE,
+    metrics = list("AUC" = TRUE)
   )
 
   # TODO Add more tests
@@ -386,9 +387,9 @@ test_that("multinomial evaluations are correct in evaluate()",{
   expect_equal(dplyr::bind_rows(mn_id_eval_2$`Class Level Results`)$fold_,rep(1:2, each=5))
   expect_equal(colnames(mn_id_eval_2),
                c("fold_", "Overall Accuracy", "Balanced Accuracy", "F1", "Sensitivity",
-                 "Specificity", "Pos Pred Value", "Neg Pred Value", "AUC",
+                 "Specificity", "Pos Pred Value", "Neg Pred Value",
                  "Kappa", "MCC", "Detection Rate", "Detection Prevalence",
-                 "Prevalence", "Predictions", "ROC", "Confusion Matrix", "Class Level Results"
+                 "Prevalence", "Predictions", "Confusion Matrix", "Class Level Results"
                ))
   expect_equal(colnames(mn_id_eval_2$`Class Level Results`[[1]]),
                c("fold_", "Class", "Balanced Accuracy", "F1", "Sensitivity",
@@ -412,7 +413,8 @@ test_that("multinomial evaluations are correct in evaluate()",{
     target_col = "cl_char",
     prediction_cols = paste0("cl_", 1:5),
     apply_softmax = TRUE,
-    type = "multinomial"
+    type = "multinomial",
+    metrics = list("AUC" = TRUE)
   ), "The following classes were not found in 'response': cl_5.",
   fixed = TRUE)
 
@@ -698,6 +700,7 @@ test_that("specific multinomial predictions yield correct results in evaluate()"
   evals <- evaluate(data = data %>% dplyr::group_by(.data$.groups),
                     target_col = "target",
                     prediction_cols = c("1", "2", "3"),
+                    metrics = list("AUC" = TRUE),
                     type = "multinomial")
 
   expect_equal(colnames(evals),

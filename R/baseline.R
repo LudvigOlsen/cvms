@@ -168,6 +168,8 @@
 #'
 #'  \strong{AUC}, \strong{Lower CI}, and \strong{Upper CI}
 #'
+#'  Note, that the ROC curve is only computed when \code{AUC} is enabled.
+#'
 #'  Confusion Matrix:
 #'
 #'  \strong{Balanced Accuracy}, \strong{F1},
@@ -198,7 +200,7 @@
 #'
 #'  A nested tibble with the \strong{predictions} and targets.
 #'
-#'  A list of \strong{ROC} curve objects.
+#'  A list of \strong{ROC} curve objects (if computed).
 #'
 #'  A nested tibble with the \strong{confusion matrix}.
 #'  The \code{Pos_} columns tells you whether a row is a
@@ -218,8 +220,11 @@
 #'
 #'  Based on the generated test set predictions,
 #'  one-vs-all (binomial) evaluations are performed and aggregated
-#'  to get the same metrics as in the \code{binomial} results (excluding AUC, Lower CI and Upper CI),
-#'  with the addition of \strong{Overall Accuracy} and multiclass \strong{AUC} in the summarized results.
+#'  to get the same metrics as in the \code{binomial} results
+#'  (excluding \code{AUC}, \code{Lower CI} and \code{Upper CI}),
+#'  with the addition of \strong{Overall Accuracy} in the summarized results.
+#'  It is possible to enable multiclass \strong{AUC} as well, which has been
+#'  disabled by default as it is slow to calculate when there's a large set of classes.
 #'
 #'  ....................................................................
 #'
@@ -230,7 +235,7 @@
 #'  \strong{How}: First, the one-vs-all binomial evaluations are aggregated by repetition
 #'  (ignoring \code{NA}s), and then, these aggregations are summarized. Besides the
 #'  metrics from the binomial evaluations (see \emph{Binomial Results} above), it
-#'  also includes the \strong{Overall Accuracy} and multiclass \strong{AUC} metrics.
+#'  also includes the \strong{Overall Accuracy} metric.
 #'
 #'  The \strong{Measure} column indicates the statistical descriptor used on the evaluations.
 #'  The \strong{Mean}, \strong{Median}, \strong{SD}, and \strong{IQR} describe the

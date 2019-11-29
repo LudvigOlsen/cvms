@@ -468,7 +468,8 @@ create_confusion_matrix <- function(targets, predictions){
 }
 
 tidy_confusion_matrix <- function(conf_mat, c_levels = NULL){
-  conf_mat_df <- dplyr::as_tibble(conf_mat)
+  if (!tibble::is_tibble(conf_mat))
+    conf_mat_df <- dplyr::as_tibble(conf_mat)
 
   # If conf_mat was 2x2
   if (nrow(conf_mat_df) == 4){
@@ -533,10 +534,11 @@ confusion_label_counts <- function(tidy_conf_mat, positive = 2, c_levels = NULL)
 
   }
 
+  pos_labels <- paste0("Pos_", pos_level)
   label_cols <- tidy_conf_mat %>%
-    base_select(cols = c(paste0("Pos_", pos_level), "N")) %>%
+    base_select(cols = c(pos_labels, "N")) %>%
     dplyr::mutate(N = as.numeric(.data$N)) %>%
-    tidyr::spread(key = paste0("Pos_", pos_level), value = "N") %>%
+    tidyr::spread(key = pos_labels, value = "N") %>%
     unlist()
 
   label_cols

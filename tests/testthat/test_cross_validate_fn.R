@@ -1428,7 +1428,8 @@ test_that("multinomial randomForest models work with cross_validate_fn()",{
                                       metrics = list(
                                         "Accuracy" = TRUE,
                                         "F1" = FALSE,
-                                        "Weighted Accuracy" = TRUE
+                                        "Weighted Accuracy" = TRUE,
+                                        "AUC" = TRUE
                                       ))
 
   numeric_between_na <- function(x, min_ = -0.000000001, max_ = 1.000000001){
@@ -1885,7 +1886,8 @@ test_that("multinomial nnet model with metrics list works with cross_validate_fn
                                       metrics = list(
                                         "Accuracy" = TRUE,
                                         "F1" = FALSE,
-                                        "Weighted Accuracy" = TRUE
+                                        "Weighted Accuracy" = TRUE,
+                                        "AUC" = TRUE
                                       ))
 
   expect_equal(CVmultinomlist$`Overall Accuracy`, c(0.18, 0.3), tolerance=1e-3)
@@ -2137,9 +2139,18 @@ test_that("multinomial random predictions work with cross_validate_fn()",{
                                       predict_fn = random_predict_fn,
                                       formulas = c("target ~ predictor_1 + predictor_2 + predictor_3",
                                                    "target ~ predictor_1"),
-                                      fold_cols = '.folds', type = 'multinomial')
+                                      fold_cols = '.folds', type = 'multinomial',
+                                      metrics = list("AUC" = TRUE))
 
-  expect_equal(CVmultinomlist$AUC, c(0.558201058201058, 0.434817754262199), tolerance=1e-3)
+  expect_equal(colnames(CVmultinomlist),
+               c("Overall Accuracy", "Balanced Accuracy", "F1", "Sensitivity",
+                 "Specificity", "Pos Pred Value", "Neg Pred Value", "AUC", "Kappa",
+                 "MCC", "Detection Rate", "Detection Prevalence", "Prevalence",
+                 "Predictions", "Confusion Matrix", "Results", "Class Level Results",
+                 "Coefficients", "Folds", "Fold Columns", "Convergence Warnings",
+                 "Other Warnings", "Warnings and Messages", "Family", "Dependent",
+                 "Fixed"))
+
   expect_equal(CVmultinomlist$Kappa, c(0.0944809694238845, -0.13019211491683), tolerance=1e-3)
   expect_equal(CVmultinomlist$Sensitivity, c(0.391534391534392, 0.238095238095238), tolerance=1e-3)
   expect_equal(CVmultinomlist$Specificity, c(0.701388888888889, 0.623842592592593), tolerance=1e-3)

@@ -98,7 +98,7 @@ evaluate_predictions_binomial <- function(data,
       metrics = metrics
     )
 
-    if (isTRUE(calculate_roc)){
+    if (isTRUE(calculate_roc) && "AUC" %in% metrics){
       # Create ROC curves
       roc_curves_list <- binomial_eval_roc_curves(
         data = data,

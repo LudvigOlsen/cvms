@@ -100,38 +100,47 @@ evaluate_predictions_multinomial <- function(data,
       data[["predicted_class_index"]],
       .f = function(x){classes[[x]]})
 
-    # Compute multiclass ROC curves and AUC scores
-    multiclass_ROC_AUC <- plyr::llply(unique_fold_cols, function(fcol){
-
-      # Extract current fold column
-      fcol_data <- data[data[[fold_info_cols[["fold_column"]]]] == fcol,]
-
-      # Extract and prepare probabilities
-      fcol_probabilities <- as.data.frame(
-        dplyr::bind_rows(fcol_data[[predictions_col]]))
-
-      # Extract targets
-      fcol_targets <- fcol_data[[targets_col]]
-
-      # Calculate multiclass ROC
-      roc <- pROC::multiclass.roc(response = fcol_targets,
-                                  predictor = fcol_probabilities,
-                                  levels = cat_levels_in_targets_col)
-      list("ROC" = list(roc),
-           "AUC" = as.numeric(pROC::auc(roc)))
-
-    })
-
-    roc_curves <- multiclass_ROC_AUC %c% "ROC"
-    auc_scores <- unlist(multiclass_ROC_AUC %c% "AUC")
-
     # Calculate overall accuracy per fold column
-    # Add the AUC scores
     overall_metrics <- data %>%
       dplyr::group_by(!!as.name(fold_info_cols[["fold_column"]])) %>%
-      dplyr::summarise(`Overall Accuracy` = mean(.data$predicted_class == !!as.name(targets_col))) %>%
-      dplyr::mutate(AUC = auc_scores,
-                    ROC = roc_curves) %>%
+      dplyr::summarise(`Overall Accuracy` = mean(.data$predicted_class == !!as.name(targets_col)))
+
+    if ("AUC" %in% metrics){
+
+      # Compute multiclass ROC curves and AUC scores
+      multiclass_ROC_AUC <- plyr::llply(unique_fold_cols, function(fcol){
+
+        # Extract current fold column
+        fcol_data <- data[data[[fold_info_cols[["fold_column"]]]] == fcol,]
+
+        # Extract and prepare probabilities
+        fcol_probabilities <- as.data.frame(
+          dplyr::bind_rows(fcol_data[[predictions_col]]))
+
+        # Extract targets
+        fcol_targets <- fcol_data[[targets_col]]
+
+        # Calculate multiclass ROC
+        roc <- pROC::multiclass.roc(response = fcol_targets,
+                                    predictor = fcol_probabilities,
+                                    levels = cat_levels_in_targets_col)
+        list("ROC" = list(roc),
+             "AUC" = as.numeric(pROC::auc(roc)))
+
+      })
+
+      roc_curves <- multiclass_ROC_AUC %c% "ROC"
+      auc_scores <- unlist(multiclass_ROC_AUC %c% "AUC")
+
+      # Add the AUC scores to the overall metrics
+      overall_metrics <- overall_metrics %>%
+        dplyr::mutate(AUC = auc_scores,
+                      ROC = roc_curves)
+
+    }
+
+    # Rename the fold column
+    overall_metrics <- overall_metrics %>%
       base_rename(before = fold_info_cols[["fold_column"]],
                   after = "Fold Column")
 

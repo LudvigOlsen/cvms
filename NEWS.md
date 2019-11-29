@@ -10,6 +10,8 @@
 
 * `multinomial` `AUC` is calculated with `pROC::multiclass.roc()` instead of in the one-vs-all evaluations. This removes `AUC`, `Lower CI`, and `Upper CI` from the `Class Level Results` and removes `Lower CI` and `Upper CI` from the main output tibble. Also removes option to enable "Weighted AUC", "Weighted Lower CI", and "Weighted Upper CI".
 
+* `multinomial` `AUC` is disabled by default, as it can take a long time to calculate for a large set of classes.
+
 * `ROC` columns now return the `ROC` objects instead of the extracted `sensitivities` and `specificities`, both of which can be extracted from the objects.
 
 * In `cross_validate_fn()`, the `predict_type` argument is removed. You now have to pass a predict function as that is safer and more transparent.

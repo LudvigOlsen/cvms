@@ -539,7 +539,8 @@ test_that("multinomial evaluations are correct in baseline()",{
                                 family = "multinomial",
                                 metrics = list("Weighted Accuracy" = TRUE,
                                                "Accuracy" = FALSE,
-                                               "Specificity" = FALSE),
+                                               "Specificity" = FALSE,
+                                               "AUC" = TRUE),
                                 parallel = FALSE)
 
   multinom_baseline_summ <- multinom_baseline$summarized_metrics

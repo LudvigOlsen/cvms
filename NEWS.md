@@ -44,6 +44,8 @@ It can be unclear whether the IC metrics (computed on the `lm()`/`lmer()` model 
 where all variables are added together (e.g. `y ~ x*z + log(a) + (1|b)` -> `y ~ x + z + a + b`). This is 
 useful when passing a formula to `recipes::recipe()`, which doesn't allow the inline functions.
 
+* `wines` dataset is added. Contains a list of wine varieties in an approximately Zipfian distribution.
+
 * Adds optional `hyperparameter` argument to `cross_validate_fn()`. 
 Pass a list of hyperparameters and every combination of these will be cross-validated. 
 

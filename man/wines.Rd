@@ -9,7 +9,7 @@
   \item{Variety}{Wine variety, 11 levels}
 }}
 \description{
-A list of wine varieties in an approximately Zipfian distribution.
+A list of wine varieties in an approximately Zipfian distribution, ordered by descending frequencies.
 }
 \details{
 Based on the wine-reviews (v4) kaggle dataset by Zack Thoutt:

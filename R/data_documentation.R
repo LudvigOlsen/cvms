@@ -21,7 +21,7 @@ NULL
 
 #' Wine varieties
 #'
-#' A list of wine varieties in an approximately Zipfian distribution.
+#' A list of wine varieties in an approximately Zipfian distribution, ordered by descending frequencies.
 #'
 #' Based on the wine-reviews (v4) kaggle dataset by Zack Thoutt:
 #' https://www.kaggle.com/zynicide/wine-reviews

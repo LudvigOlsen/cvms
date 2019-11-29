@@ -26,9 +26,9 @@ NULL
 #' Based on the wine-reviews (v4) kaggle dataset by Zack Thoutt:
 #' https://www.kaggle.com/zynicide/wine-reviews
 #'
-#' @format A data frame with 372 rows and 1 variable:
+#' @format A data frame with 368 rows and 1 variable:
 #' \describe{
-#'   \item{Variety}{Wine variety, 11 levels}
+#'   \item{Variety}{Wine variety, 10 levels}
 #' }
 #'
 #' @name wines

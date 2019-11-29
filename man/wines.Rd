@@ -4,9 +4,9 @@
 \name{wines}
 \alias{wines}
 \title{Wine varieties}
-\format{A data frame with 372 rows and 1 variable:
+\format{A data frame with 368 rows and 1 variable:
 \describe{
-  \item{Variety}{Wine variety, 11 levels}
+  \item{Variety}{Wine variety, 10 levels}
 }}
 \description{
 A list of wine varieties in an approximately Zipfian distribution, ordered by descending frequencies.

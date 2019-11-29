@@ -19,6 +19,26 @@
 #' @importFrom utils data
 NULL
 
+#' Wine varieties
+#'
+#' A list of wine varieties in an approximately Zipfian distribution.
+#'
+#' Based on the wine-reviews (v4) kaggle dataset by Zack Thoutt:
+#' https://www.kaggle.com/zynicide/wine-reviews
+#'
+#' @format A data frame with 372 rows and 1 variable:
+#' \describe{
+#'   \item{Variety}{Wine variety, 11 levels}
+#' }
+#'
+#' @name wines
+#' @docType data
+#' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
+#' @keywords data
+#' @importFrom utils data
+NULL
+
+
 
 #' Precomputed formulas
 #'

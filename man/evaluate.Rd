@@ -190,6 +190,8 @@ when \code{data} is grouped with \code{\link[dplyr]{group_by}}.}
 
  \strong{AUC}, \strong{Lower CI}, and \strong{Upper CI}
 
+ Note, that the ROC curve is only computed if AUC is enabled. See \code{metrics}.
+
  Confusion Matrix:
 
  \strong{Balanced Accuracy},
@@ -211,7 +213,7 @@ when \code{data} is grouped with \code{\link[dplyr]{group_by}}.}
 
  A nested tibble with the \strong{predictions} and targets.
 
- A list of \strong{ROC} curve objects.
+ A list of \strong{ROC} curve objects (if computed).
 
  A nested tibble with the \strong{confusion matrix}.
  The \code{Pos_} columns tells you whether a row is a
@@ -236,11 +238,11 @@ when \code{data} is grouped with \code{\link[dplyr]{group_by}}.}
  The metrics that share their name with the metrics in the nested
  class level results tibble are averages of those metrics
  (note: does not remove \code{NA}s before averaging).
- In addition to these, it also includes the \strong{Overall Accuracy}
- and multiclass \strong{AUC} metrics.
+ In addition to these, it also includes the \strong{Overall Accuracy}.
 
  Other available metrics (disabled by default, see \code{metrics}):
- \strong{Accuracy}, \strong{AIC}, \strong{AICc}, \strong{BIC},
+ \strong{Accuracy}, multiclass \strong{AUC},
+ \strong{AIC}, \strong{AICc}, \strong{BIC},
  \strong{Weighted Balanced Accuracy}, \strong{Weighted Accuracy},
  \strong{Weighted F1}, \strong{Weighted Sensitivity}, \strong{Weighted Sensitivity},
  \strong{Weighted Specificity}, \strong{Weighted Pos Pred Value},
@@ -250,11 +252,13 @@ when \code{data} is grouped with \code{\link[dplyr]{group_by}}.}
 
  Note that the "Weighted" average metrics are weighted by the \code{Support}.
 
+ When having a large set of classes, we recommend keeping \code{AUC} disabled.
+
  Also includes:
 
  A nested tibble with the \strong{Predictions} and targets.
 
- A list of \strong{ROC} curve objects.
+ A list of \strong{ROC} curve objects when \code{AUC} is enabled.
 
  A nested tibble with the multiclass \strong{Confusion Matrix}.
 

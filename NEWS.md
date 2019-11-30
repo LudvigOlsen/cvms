@@ -1,4 +1,5 @@
-# cvms 0.3.1.9000
+
+# cvms 0.3.2.9000
 
 ## Breaking changes
 
@@ -78,6 +79,11 @@ Warnings are counted in `Other Warnings`.
 * Nesting is now done with `dplyr::group_nest` instead of `tidyr::nest_legacy` for speed improvements.
 
 * `caret`, `mltools`, and `ModelMetrics` are no longer dependencies. The confusion matrix metrics have instead been implemented in `cvms` (see `confusion_matrix()`).
+
+# cvms 0.3.2
+
+* Fixes bug in `evaluate()`, when used on a grouped data frame. The row order in the output was not guaranteed to fit the grouping keys. 
+
 
 # cvms 0.3.1
 

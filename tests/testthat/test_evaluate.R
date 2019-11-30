@@ -1627,6 +1627,7 @@ test_that("evaluate() works with wines dataset",{
 
   set_seed_for_R_compatibility(1)
 
+  # Load wines dataset
   w <- wines
   varieties <- unique(as.character(w$Variety))
 
@@ -1636,13 +1637,18 @@ test_that("evaluate() works with wines dataset",{
     d <- w
     d[["label"]] <- ifelse(as.character(d$Variety) == vary, 1, 0)
     d[["current_variety"]] <- vary
+    d[["probability"]] <- matrix(0, nrow = 1, ncol = length(varieties)) %>%
+      as.data.frame() %>%
+      setNames(varieties) %>%
+      dplyr::mutate_at(.vars = vary, .funs = ~1) %>%
+      list()
+
     d
   }) %>% dplyr::bind_rows() %>%
-    dplyr::mutate(prediction = 1) # %>%
-    #dplyr::arrange(current_variety)
+    dplyr::mutate(prediction = 1)
 
   evaluations <- to_evaluate %>%
-    group_by(current_variety) %>%
+    dplyr::group_by(current_variety) %>%
     evaluate(
       target_col = "label",
       prediction_cols = "prediction",
@@ -1653,19 +1659,22 @@ test_that("evaluate() works with wines dataset",{
 
   expect_equal(sort(evaluations$current_variety), sort(varieties))
   expect_equal(evaluations$`Balanced Accuracy`, rep(0.5, length(varieties)))
-  expect_equal(evaluations$Accuracy, c(0.513586956521739, 0.201086956521739, 0.108695652173913, 0.0570652173913043,
-                                         0.0380434782608696, 0.0271739130434783, 0.0217391304347826, 0.0135869565217391,
-                                         0.0108695652173913, 0.00815217391304348), tolerance = 1e-4)
+  expect_equal(evaluations$Accuracy,
+               c(0.0271739130434783, 0.0217391304347826, 0.0380434782608696,
+                 0.0108695652173913, 0.00815217391304348, 0.0135869565217391,
+                 0.513586956521739, 0.0570652173913043, 0.201086956521739, 0.108695652173913
+               ), tolerance = 1e-4)
   expect_equal(evaluations$F1,
-               c(0.678635547576302, 0.334841628959276, 0.196078431372549, 0.107969151670951,
-                 0.0732984293193717, 0.0529100529100529, 0.0425531914893617, 0.0268096514745308,
-                 0.021505376344086, 0.0161725067385445), tolerance = 1e-4)
+               c(0.0529100529100529, 0.0425531914893617, 0.0732984293193717,
+                 0.021505376344086, 0.0161725067385445, 0.0268096514745308, 0.678635547576302,
+                 0.107969151670951, 0.334841628959276, 0.196078431372549), tolerance = 1e-4)
   expect_equal(evaluations$Sensitivity, c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1), tolerance = 1e-4)
   expect_equal(evaluations$Specificity, c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), tolerance = 1e-4)
   expect_equal(evaluations$`Pos Pred Value`,
-               c(0.513586956521739, 0.201086956521739, 0.108695652173913, 0.0570652173913043,
-                 0.0380434782608696, 0.0271739130434783, 0.0217391304347826, 0.0135869565217391,
-                 0.0108695652173913, 0.00815217391304348), tolerance = 1e-4)
+               c(0.0271739130434783, 0.0217391304347826, 0.0380434782608696,
+                 0.0108695652173913, 0.00815217391304348, 0.0135869565217391,
+                 0.513586956521739, 0.0570652173913043, 0.201086956521739, 0.108695652173913
+               ), tolerance = 1e-4)
   expect_equal(evaluations$`Neg Pred Value`,
                c(NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN), tolerance = 1e-4)
   expect_equal(evaluations$AUC,
@@ -1679,32 +1688,108 @@ test_that("evaluate() works with wines dataset",{
   expect_equal(evaluations$MCC,
                c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), tolerance = 1e-4)
   expect_equal(evaluations$`Detection Rate`,
-               c(0.513586956521739, 0.201086956521739, 0.108695652173913, 0.0570652173913043,
-                 0.0380434782608696, 0.0271739130434783, 0.0217391304347826, 0.0135869565217391,
-                 0.0108695652173913, 0.00815217391304348), tolerance = 1e-4)
+               c(0.0271739130434783, 0.0217391304347826, 0.0380434782608696,
+                 0.0108695652173913, 0.00815217391304348, 0.0135869565217391,
+                 0.513586956521739, 0.0570652173913043, 0.201086956521739, 0.108695652173913
+               ), tolerance = 1e-4)
   expect_equal(evaluations$`Detection Prevalence`,
                c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1), tolerance = 1e-4)
   expect_equal(evaluations$Prevalence,
-               c(0.513586956521739, 0.201086956521739, 0.108695652173913, 0.0570652173913043,
-                 0.0380434782608696, 0.0271739130434783, 0.0217391304347826, 0.0135869565217391,
-                 0.0108695652173913, 0.00815217391304348), tolerance = 1e-4)
+               c(0.0271739130434783, 0.0217391304347826, 0.0380434782608696,
+                 0.0108695652173913, 0.00815217391304348, 0.0135869565217391,
+                 0.513586956521739, 0.0570652173913043, 0.201086956521739, 0.108695652173913
+               ), tolerance = 1e-4)
   expect_equal(evaluations$`Confusion Matrix`[[1]]$N,
-               c(0L, 179L, 0L, 189L), tolerance = 1e-4)
+               c(0L, 358L, 0L, 10L), tolerance = 1e-4)
+
+  ## Create All_x multinomial evaluations
+
+  mn_evaluations <- to_evaluate %>%
+    legacy_unnest(probability) %>%
+    dplyr::group_by(current_variety) %>%
+    evaluate(target_col = "Variety",
+             prediction_cols = varieties,
+             type = "multinomial",
+             metrics = list("Accuracy" = TRUE)
+    ) %>%
+    dplyr::arrange(current_variety)
+
+  expect_equal(mn_evaluations$`Class Level Results`[[1]]$Accuracy,
+               c(0.486413043478261, 0.798913043478261, 0.891304347826087, 0.942934782608696,
+                 0.96195652173913, 0.0271739130434783, 0.978260869565217, 0.986413043478261,
+                 0.989130434782609, 0.991847826086957), tolerance = 1e-4)
+  expect_equal(mn_evaluations$`Class Level Results`[[1]]$F1,
+               c(NaN, NaN, NaN, NaN, NaN, 0.0529100529100529, NaN, NaN, NaN,
+                 NaN), tolerance = 1e-4)
+  expect_equal(mn_evaluations$`Overall Accuracy`,
+               c(0.0271739130434783, 0.0217391304347826, 0.0380434782608696,
+                 0.0108695652173913, 0.00815217391304348, 0.0135869565217391,
+                 0.513586956521739, 0.0570652173913043, 0.201086956521739, 0.108695652173913
+               ), tolerance = 1e-4)
+  expect_equal(mn_evaluations$`Balanced Accuracy`,
+               c(0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5), tolerance = 1e-4)
+  expect_equal(mn_evaluations$Accuracy,
+               c(0.805434782608696, 0.804347826086957, 0.807608695652174, 0.802173913043478,
+                 0.801630434782609, 0.802717391304348, 0.902717391304348, 0.811413043478261,
+                 0.840217391304348, 0.821739130434783), tolerance = 1e-4)
+  expect_equal(mn_evaluations$F1,
+               c(NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN), tolerance = 1e-4)
+  expect_equal(mn_evaluations$Sensitivity,
+               c(0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1), tolerance = 1e-4)
+  expect_equal(mn_evaluations$Specificity,
+               c(0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9), tolerance = 1e-4)
+  expect_equal(mn_evaluations$`Pos Pred Value`,
+               c(NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN), tolerance = 1e-4)
+  expect_equal(mn_evaluations$`Neg Pred Value`,
+               c(NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN), tolerance = 1e-4)
+  expect_equal(mn_evaluations$Kappa,
+               c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), tolerance = 1e-4)
+  expect_equal(mn_evaluations$MCC,
+               c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), tolerance = 1e-4)
+  expect_equal(mn_evaluations$`Detection Rate`,
+               c(0.00271739130434783, 0.00217391304347826, 0.00380434782608696,
+                 0.00108695652173913, 0.000815217391304348, 0.00135869565217391,
+                 0.0513586956521739, 0.00570652173913043, 0.0201086956521739,
+                 0.0108695652173913), tolerance = 1e-4)
+  expect_equal(mn_evaluations$`Detection Prevalence`,
+               c(0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1), tolerance = 1e-4)
+  expect_equal(mn_evaluations$Prevalence,
+               c(0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1), tolerance = 1e-4)
+  expect_equal(mn_evaluations$`Confusion Matrix`[[1]]$N,
+               c(10L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 8L, 0L, 0L, 0L, 0L,
+                 0L, 0L, 0L, 0L, 0L, 14L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L,
+                 4L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 3L, 0L, 0L, 0L, 0L, 0L,
+                 0L, 0L, 0L, 0L, 5L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 189L,
+                 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 21L, 0L, 0L, 0L, 0L, 0L,
+                 0L, 0L, 0L, 0L, 74L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 40L,
+                 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L), tolerance = 1e-4)
+
 
   # Check that these All_x evaluations are the same in baseline()
 
-  bsl <- baseline(
+  set_seed_for_R_compatibility(1)
+  suppressWarnings(bsl <- baseline(
     w,
     dependent_col = "Variety",
     n = 1,
     family = "multinomial",
     metrics = list("Accuracy" = TRUE)
-  )
+  ))
 
   all_x_baseline_results <- bsl$summarized_metrics[bsl$summarized_metrics$Measure %in% paste0("All_", varieties),]
   expect_equal(all_x_baseline_results$`Overall Accuracy`, evaluations$Accuracy, tolerance = 1e-4)
-
-
-
+  expect_equal(mn_evaluations$`Overall Accuracy`, evaluations$Accuracy, tolerance = 1e-4)
+  expect_equal(all_x_baseline_results$`Balanced Accuracy`, mn_evaluations$`Balanced Accuracy`, tolerance = 1e-4)
+  expect_equal(all_x_baseline_results$Accuracy, mn_evaluations$Accuracy, tolerance = 1e-4)
+  expect_equal(all_x_baseline_results$F1, mn_evaluations$F1, tolerance = 1e-4)
+  expect_equal(all_x_baseline_results$Sensitivity, mn_evaluations$Sensitivity, tolerance = 1e-4)
+  expect_equal(all_x_baseline_results$Specificity, mn_evaluations$Specificity, tolerance = 1e-4)
+  expect_equal(all_x_baseline_results$`Pos Pred Value`, mn_evaluations$`Pos Pred Value`, tolerance = 1e-4)
+  expect_equal(all_x_baseline_results$`Neg Pred Value`, mn_evaluations$`Neg Pred Value`, tolerance = 1e-4)
+  expect_equal(all_x_baseline_results$Kappa, mn_evaluations$Kappa, tolerance = 1e-4)
+  expect_equal(all_x_baseline_results$MCC, mn_evaluations$MCC, tolerance = 1e-4)
+  expect_equal(all_x_baseline_results$`Detection Rate`, mn_evaluations$`Detection Rate`, tolerance = 1e-4)
+  expect_equal(all_x_baseline_results$`Detection Prevalence`, mn_evaluations$`Detection Prevalence`, tolerance = 1e-4)
+  expect_equal(all_x_baseline_results$Prevalence, mn_evaluations$Prevalence, tolerance = 1e-4)
 
 })

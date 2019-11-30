@@ -349,7 +349,7 @@
 #'     "id" = 1:6,
 #'     target = sample(x = class_names, size = 6, replace = TRUE)
 #' )
-#' data_mc <- data_mc \%>\%
+#' data_mc <- data_mc %>%
 #'     dplyr::left_join(id_classes, by = "id")
 #'
 #' # Perform ID evaluation
@@ -368,7 +368,7 @@
 #'     num_observations = 30,
 #'     apply_softmax = FALSE,
 #'     FUN = rnorm,
-#'     class_name = "predictor_") \%>\%
+#'     class_name = "predictor_") %>%
 #'     dplyr::mutate(class = sample(
 #'         class_names,
 #'         size = 30,
@@ -382,7 +382,7 @@
 #' # Predict the targets in the dataset
 #' # (we would usually use a test set instead)
 #' predictions <- predict(mn_model, data_for_nnet,
-#'                        type = "probs") \%>\%
+#'                        type = "probs") %>%
 #'     dplyr::as_tibble()
 #'
 #' # Add the targets
@@ -504,12 +504,14 @@ run_evaluate <- function(data,
 
   # If the dataset is grouped, we need the indices and keys for the groups
   # so we can evaluate group wise
-  grouping_factor <- dplyr::group_indices(data)
-  grouping_keys <- dplyr::group_keys(data)
 
+  # Get grouping keys
+  grouping_keys <- dplyr::group_keys(data)
   # Make sure, the grouping_keys and the dataset are in the same order
   # As we otherwise risk adding them in the wrong order later
   data <- dplyr::arrange(data, !!! rlang::syms(colnames(grouping_keys)))
+  # Get group indices
+  grouping_factor <- dplyr::group_indices(data)
 
   if (!is.null(models) && length(unique(grouping_factor)) != length(models)){
     stop(paste0("When the dataframe is grouped, ",

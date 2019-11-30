@@ -311,10 +311,12 @@ create_multinomial_baseline_evaluations <- function(test_data,
     dplyr::group_by(.data$Class)
 
   # Nest the summarized class level results
-  nested_class_level <- tibble::tibble("Class" = unlist(dplyr::group_keys(summarized_metrics_class_level)))
-  nested_class_level[["Results"]] <- summarized_metrics_class_level %>%
-    dplyr::group_nest(.key = "Results", keep = FALSE) %>%
-    dplyr::pull(.data$Results)
+  nested_class_level <- tibble::tibble("Class" = unlist(dplyr::group_keys(summarized_metrics_class_level))) %>%
+    dplyr::left_join(
+      summarized_metrics_class_level %>%
+        dplyr::group_nest(.key = "Results", keep = FALSE),
+      by = "Class"
+    )
 
   # TODO Rename to something meaningful.
   # Note, overall accuracy is not an average, so average metrics are not that meaningful!

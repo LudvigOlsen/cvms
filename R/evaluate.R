@@ -456,6 +456,10 @@ evaluate <- function(data,
   grouping_factor <- dplyr::group_indices(data)
   grouping_keys <- dplyr::group_keys(data)
 
+  # Make sure, the grouping_keys and the dataset are in the same order
+  # As we otherwise risk adding them in the wrong order later
+  data <- dplyr::arrange(data, !!! rlang::syms(colnames(grouping_keys)))
+
   if (!is.null(models) && length(unique(grouping_factor)) != length(models)){
     stop(paste0("When the dataframe is grouped, ",
                 "please provide a fitted model object per group or set models to NULL."))

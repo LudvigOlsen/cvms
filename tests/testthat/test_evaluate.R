@@ -1622,3 +1622,89 @@ test_that("evaluate() treats dfs and tbls the same",{
 #
 #
 # })
+
+test_that("evaluate() works with wines dataset",{
+
+  set_seed_for_R_compatibility(1)
+
+  w <- wines
+  varieties <- unique(as.character(w$Variety))
+
+  ## Create All_x one-vs-all evaluations
+
+  to_evaluate <- plyr::llply(varieties, function(vary){
+    d <- w
+    d[["label"]] <- ifelse(as.character(d$Variety) == vary, 1, 0)
+    d[["current_variety"]] <- vary
+    d
+  }) %>% dplyr::bind_rows() %>%
+    dplyr::mutate(prediction = 1) # %>%
+    #dplyr::arrange(current_variety)
+
+  evaluations <- to_evaluate %>%
+    group_by(current_variety) %>%
+    evaluate(
+      target_col = "label",
+      prediction_cols = "prediction",
+      type = "binomial",
+      metrics = list("Accuracy" = TRUE)
+    ) %>%
+    dplyr::arrange(current_variety)
+
+  expect_equal(sort(evaluations$current_variety), sort(varieties))
+  expect_equal(evaluations$`Balanced Accuracy`, rep(0.5, length(varieties)))
+  expect_equal(evaluations$Accuracy, c(0.513586956521739, 0.201086956521739, 0.108695652173913, 0.0570652173913043,
+                                         0.0380434782608696, 0.0271739130434783, 0.0217391304347826, 0.0135869565217391,
+                                         0.0108695652173913, 0.00815217391304348), tolerance = 1e-4)
+  expect_equal(evaluations$F1,
+               c(0.678635547576302, 0.334841628959276, 0.196078431372549, 0.107969151670951,
+                 0.0732984293193717, 0.0529100529100529, 0.0425531914893617, 0.0268096514745308,
+                 0.021505376344086, 0.0161725067385445), tolerance = 1e-4)
+  expect_equal(evaluations$Sensitivity, c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1), tolerance = 1e-4)
+  expect_equal(evaluations$Specificity, c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), tolerance = 1e-4)
+  expect_equal(evaluations$`Pos Pred Value`,
+               c(0.513586956521739, 0.201086956521739, 0.108695652173913, 0.0570652173913043,
+                 0.0380434782608696, 0.0271739130434783, 0.0217391304347826, 0.0135869565217391,
+                 0.0108695652173913, 0.00815217391304348), tolerance = 1e-4)
+  expect_equal(evaluations$`Neg Pred Value`,
+               c(NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN), tolerance = 1e-4)
+  expect_equal(evaluations$AUC,
+               c(0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5), tolerance = 1e-4)
+  expect_equal(evaluations$`Lower CI`,
+               c(0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5), tolerance = 1e-4)
+  expect_equal(evaluations$`Upper CI`,
+               c(0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5), tolerance = 1e-4)
+  expect_equal(evaluations$Kappa,
+               c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), tolerance = 1e-4)
+  expect_equal(evaluations$MCC,
+               c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), tolerance = 1e-4)
+  expect_equal(evaluations$`Detection Rate`,
+               c(0.513586956521739, 0.201086956521739, 0.108695652173913, 0.0570652173913043,
+                 0.0380434782608696, 0.0271739130434783, 0.0217391304347826, 0.0135869565217391,
+                 0.0108695652173913, 0.00815217391304348), tolerance = 1e-4)
+  expect_equal(evaluations$`Detection Prevalence`,
+               c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1), tolerance = 1e-4)
+  expect_equal(evaluations$Prevalence,
+               c(0.513586956521739, 0.201086956521739, 0.108695652173913, 0.0570652173913043,
+                 0.0380434782608696, 0.0271739130434783, 0.0217391304347826, 0.0135869565217391,
+                 0.0108695652173913, 0.00815217391304348), tolerance = 1e-4)
+  expect_equal(evaluations$`Confusion Matrix`[[1]]$N,
+               c(0L, 179L, 0L, 189L), tolerance = 1e-4)
+
+  # Check that these All_x evaluations are the same in baseline()
+
+  bsl <- baseline(
+    w,
+    dependent_col = "Variety",
+    n = 1,
+    family = "multinomial",
+    metrics = list("Accuracy" = TRUE)
+  )
+
+  all_x_baseline_results <- bsl$summarized_metrics[bsl$summarized_metrics$Measure %in% paste0("All_", varieties),]
+  expect_equal(all_x_baseline_results$`Overall Accuracy`, evaluations$Accuracy, tolerance = 1e-4)
+
+
+
+
+})

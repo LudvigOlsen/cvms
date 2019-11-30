@@ -1,6 +1,10 @@
+# cvms 0.3.2
+
+* Fixes bug in `evaluate()`, when used on a grouped data frame. The row order in the output was not guaranteed to fit the grouping keys. 
+
 # cvms 0.3.1
 
-* Fixes documentation in cross_validate_fn(). The examples section contained an unreasonable number of mistakes :-)
+* Fixes documentation in `cross_validate_fn()`. The examples section contained an unreasonable number of mistakes :-)
 
 * In `cross_validate_fn()`, warnings and messages from the predict function are now included in 
 `Warnings and Messages`. The warnings are counted in `Other Warnings`.

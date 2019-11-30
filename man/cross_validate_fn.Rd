@@ -4,10 +4,20 @@
 \alias{cross_validate_fn}
 \title{Cross-validate custom model functions for model selection}
 \usage{
-cross_validate_fn(data, model_fn, formulas, fold_cols = ".folds",
-  type = "gaussian", cutoff = 0.5, positive = 2,
-  predict_type = NULL, predict_fn = NULL, metrics = list(),
-  rm_nc = FALSE, parallel = FALSE)
+cross_validate_fn(
+  data,
+  model_fn,
+  formulas,
+  fold_cols = ".folds",
+  type = "gaussian",
+  cutoff = 0.5,
+  positive = 2,
+  predict_type = NULL,
+  predict_fn = NULL,
+  metrics = list(),
+  rm_nc = FALSE,
+  parallel = FALSE
+)
 }
 \arguments{
 \item{data}{Data frame.
@@ -448,8 +458,9 @@ system.time({cross_validate_fn(data,
 }
 }
 \seealso{
-Other validation functions: \code{\link{cross_validate}},
-  \code{\link{validate}}
+Other validation functions: 
+\code{\link{cross_validate}()},
+\code{\link{validate}()}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

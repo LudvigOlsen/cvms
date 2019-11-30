@@ -75,6 +75,8 @@ and (if defaults fail) a predict function, and it does the rest (see examples be
 
 ## Important News {#news}
 
+* Fixes bug in `evaluate()`, when used on a grouped data frame. The row order in the output was not guaranteed to fit with the grouping keys. If you have used `evaluate()` on a grouped data frame, please rerun to make sure your results are correct! (30th of November 2019)
+
 * `cross_validate_fn()` is added. Cross-validate custom model functions.
 
 * In `evaluate()`, when `type` is `multinomial`, the output is now a single tibble. The `Class Level Results` are included as a nested tibble.

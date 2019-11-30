@@ -3,7 +3,6 @@
 \docType{package}
 \name{cvms}
 \alias{cvms}
-\alias{cvms-package}
 \title{cvms: A package for cross-validating regression and classification models}
 \description{
 Perform (repeated) cross-validation on a list of model formulas. Validate the best model on a validation set.

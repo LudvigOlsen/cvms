@@ -4,11 +4,23 @@
 \alias{validate}
 \title{Validate regression models on a test set}
 \usage{
-validate(train_data, models, test_data = NULL,
-  partitions_col = ".partitions", family = "gaussian", link = NULL,
-  control = NULL, REML = FALSE, cutoff = 0.5, positive = 2,
-  metrics = list(), err_nc = FALSE, rm_nc = FALSE,
-  parallel = FALSE, model_verbose = FALSE)
+validate(
+  train_data,
+  models,
+  test_data = NULL,
+  partitions_col = ".partitions",
+  family = "gaussian",
+  link = NULL,
+  control = NULL,
+  REML = FALSE,
+  cutoff = 0.5,
+  positive = 2,
+  metrics = list(),
+  err_nc = FALSE,
+  rm_nc = FALSE,
+  parallel = FALSE,
+  model_verbose = FALSE
+)
 }
 \arguments{
 \item{train_data}{Data Frame.}
@@ -280,8 +292,9 @@ validate(train_data,
 
 }
 \seealso{
-Other validation functions: \code{\link{cross_validate_fn}},
-  \code{\link{cross_validate}}
+Other validation functions: 
+\code{\link{cross_validate_fn}()},
+\code{\link{cross_validate}()}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

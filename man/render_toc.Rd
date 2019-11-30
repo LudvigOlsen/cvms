@@ -4,8 +4,12 @@
 \alias{render_toc}
 \title{Render Table of Contents}
 \usage{
-render_toc(filename, toc_header_name = "Table of Contents",
-  base_level = NULL, toc_depth = 3)
+render_toc(
+  filename,
+  toc_header_name = "Table of Contents",
+  base_level = NULL,
+  toc_depth = 3
+)
 }
 \arguments{
 \item{filename}{Name of RMarkdown or Markdown document}

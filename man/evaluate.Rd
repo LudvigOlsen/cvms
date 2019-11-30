@@ -4,10 +4,21 @@
 \alias{evaluate}
 \title{Evaluate your model's performance}
 \usage{
-evaluate(data, target_col, prediction_cols, type = "gaussian",
-  id_col = NULL, id_method = "mean", models = NULL,
-  apply_softmax = TRUE, cutoff = 0.5, positive = 2,
-  metrics = list(), include_predictions = TRUE, parallel = FALSE)
+evaluate(
+  data,
+  target_col,
+  prediction_cols,
+  type = "gaussian",
+  id_col = NULL,
+  id_method = "mean",
+  models = NULL,
+  apply_softmax = TRUE,
+  cutoff = 0.5,
+  positive = 2,
+  metrics = list(),
+  include_predictions = TRUE,
+  parallel = FALSE
+)
 }
 \arguments{
 \item{data}{Data frame with predictions, targets and (optionally) an ID column.

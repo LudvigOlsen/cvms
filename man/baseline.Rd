@@ -4,11 +4,21 @@
 \alias{baseline}
 \title{Create baseline evaluations}
 \usage{
-baseline(test_data, dependent_col, train_data = NULL, n = 100,
-  family = "binomial", positive = 2, cutoff = 0.5,
-  random_generator_fn = runif, random_effects = NULL,
-  min_training_rows = 5, min_training_rows_left_out = 3,
-  REML = FALSE, parallel = FALSE)
+baseline(
+  test_data,
+  dependent_col,
+  train_data = NULL,
+  n = 100,
+  family = "binomial",
+  positive = 2,
+  cutoff = 0.5,
+  random_generator_fn = runif,
+  random_effects = NULL,
+  min_training_rows = 5,
+  min_training_rows_left_out = 3,
+  REML = FALSE,
+  parallel = FALSE
+)
 }
 \arguments{
 \item{test_data}{Data Frame.}

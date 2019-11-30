@@ -4,8 +4,13 @@
 \alias{multiclass_probability_tibble}
 \title{Generate a multiclass probability tibble}
 \usage{
-multiclass_probability_tibble(num_classes, num_observations,
-  apply_softmax = TRUE, FUN = runif, class_name = "class_")
+multiclass_probability_tibble(
+  num_classes,
+  num_observations,
+  apply_softmax = TRUE,
+  FUN = runif,
+  class_name = "class_"
+)
 }
 \arguments{
 \item{num_classes}{The number of classes. Also the number of columns in the tibble.}

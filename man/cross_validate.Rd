@@ -4,10 +4,21 @@
 \alias{cross_validate}
 \title{Cross-validate regression models for model selection}
 \usage{
-cross_validate(data, models, fold_cols = ".folds", family = "gaussian",
-  link = NULL, control = NULL, REML = FALSE, cutoff = 0.5,
-  positive = 2, metrics = list(), rm_nc = FALSE, parallel = FALSE,
-  model_verbose = FALSE)
+cross_validate(
+  data,
+  models,
+  fold_cols = ".folds",
+  family = "gaussian",
+  link = NULL,
+  control = NULL,
+  REML = FALSE,
+  cutoff = 0.5,
+  positive = 2,
+  metrics = list(),
+  rm_nc = FALSE,
+  parallel = FALSE,
+  model_verbose = FALSE
+)
 }
 \arguments{
 \item{data}{Data frame.
@@ -307,8 +318,9 @@ system.time({cross_validate(data,
 
 }
 \seealso{
-Other validation functions: \code{\link{cross_validate_fn}},
-  \code{\link{validate}}
+Other validation functions: 
+\code{\link{cross_validate_fn}()},
+\code{\link{validate}()}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

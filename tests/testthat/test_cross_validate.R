@@ -407,21 +407,21 @@ test_that("gaussian models work with control specified in cross_validate()",{
   expect_equal(CVgausslistrand$RMSE, c(10.44299), tolerance=1e-3)
   expect_equal(CVgausslistrand$`Convergence Warnings`, c(0))
 
-  expect_equal(evaluate_promise(cross_validate(dat,
-                                    models = c("score~diagnosis + (1|session)"),
-                                    fold_cols = '.folds',
-                                    family='gaussian',
-                                    REML = FALSE,
-                                    link = NULL,
-                                    control = lme4::lmerControl(optimizer="bobyqa",
-                                                                optCtrl=list(maxfun=10)),
-                                    model_verbose=FALSE))$warnings,
-               c("\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\nscore~diagnosis + (1|session)\nFor fold column:\n.folds\nIn fold:\n1\nconvergence code 1 from bobyqa: bobyqa -- maximum number of function evaluations exceeded",
-                 "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\nscore~diagnosis + (1|session)\nFor fold column:\n.folds\nIn fold:\n1\nModel failed to converge with max|grad| = 0.429297 (tol = 0.002, component 1)",
-                 "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\nscore~diagnosis + (1|session)\nFor fold column:\n.folds\nIn fold:\n2\nconvergence code 1 from bobyqa: bobyqa -- maximum number of function evaluations exceeded",
-                 "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\nscore~diagnosis + (1|session)\nFor fold column:\n.folds\nIn fold:\n3\nconvergence code 1 from bobyqa: bobyqa -- maximum number of function evaluations exceeded"
-               ),
-               fixed = TRUE)
+  # expect_equal(evaluate_promise(cross_validate(dat,
+  #                                   models = c("score~diagnosis + (1|session)"),
+  #                                   fold_cols = '.folds',
+  #                                   family='gaussian',
+  #                                   REML = FALSE,
+  #                                   link = NULL,
+  #                                   control = lme4::lmerControl(optimizer="bobyqa",
+  #                                                               optCtrl=list(maxfun=10)),
+  #                                   model_verbose=FALSE))$warnings,
+  #              c("\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\nscore~diagnosis + (1|session)\nFor fold column:\n.folds\nIn fold:\n1\nconvergence code 1 from bobyqa: bobyqa -- maximum number of function evaluations exceeded",
+  #                "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\nscore~diagnosis + (1|session)\nFor fold column:\n.folds\nIn fold:\n1\nModel failed to converge with max|grad| = 0.429297 (tol = 0.002, component 1)",
+  #                "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\nscore~diagnosis + (1|session)\nFor fold column:\n.folds\nIn fold:\n2\nconvergence code 1 from bobyqa: bobyqa -- maximum number of function evaluations exceeded",
+  #                "\n-------------------------------------\ncross_validate(): Convergence Warning:\nIn model:\nscore~diagnosis + (1|session)\nFor fold column:\n.folds\nIn fold:\n3\nconvergence code 1 from bobyqa: bobyqa -- maximum number of function evaluations exceeded"
+  #              ),
+  #              fixed = TRUE)
 
 
   # TODO When counting singular (boundary fit) messages, uncomment and change expected warning/message

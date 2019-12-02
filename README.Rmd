@@ -80,6 +80,8 @@ a preprocess function and a list or data frame with hyperparameter values to tes
 
 Note: Check NEWS.md for the full list of changes.
 
+* Fixes bug in `evaluate()`, when used on a grouped data frame. The row order in the output was not guaranteed to fit with the grouping keys. If you have used `evaluate()` on a grouped data frame, please rerun to make sure your results are correct! (30th of November 2019)
+
 * In `cross_validate()` and `validate()`, the `models` argument is renamed to `formulas` and the `model_verbose` argument is renamed to `verbose`. Further, the `link` argument is hard-deprecated and will throw an error if used.
 
 * `Multinomial` AUC is now calculated with `pROC::multiclass.roc`.

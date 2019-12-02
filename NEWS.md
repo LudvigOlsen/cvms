@@ -1,3 +1,5 @@
+# cvms 0.3.2.9000
+
 # cvms 0.3.2
 
 * Fixes bug in `evaluate()`, when used on a grouped data frame. The row order in the output was not guaranteed to fit the grouping keys. 

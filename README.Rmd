@@ -184,7 +184,7 @@ CV1$Coefficients[[1]] %>% kable()
 
 # Additional information about the model
 # and the training process
-CV1 %>% select(11:19) %>% kable()
+CV1 %>% select(13:21) %>% kable()
 
 ```
 
@@ -319,19 +319,19 @@ svm_model_fn <- function(train_data, formula, hyperparameters){
 # hyperparameters : a named list of hyparameters
 
 svm_predict_fn <- function(test_data, model, formula, hyperparameters){
-      predictions <- stats::predict(object = model,
-                     newdata = test_data,
-                     allow.new.levels = TRUE,
-                     probability = TRUE)
+  predictions <- stats::predict(object = model,
+                 newdata = test_data,
+                 allow.new.levels = TRUE,
+                 probability = TRUE)
 
-      # Extract probabilities
-      probabilities <- dplyr::as_tibble(
-        attr(predictions, "probabilities")
-        )
+  # Extract probabilities
+  probabilities <- dplyr::as_tibble(
+    attr(predictions, "probabilities")
+    )
 
-      # Return second column
-      probabilities[[2]]
-    }
+  # Return second column
+  probabilities[[2]]
+}
 ```
 
 <!-- For the `svm()` function, the default predict function and settings within `cross_validate_fn()` works, so we don't have to specify a predict function. In many cases, it's probably safer to supply a predict function anyway, so you're sure everything is correct. We will see how in the naive Bayes example below, but first, let's cross-validate the model function. Note, that some of the arguments have changed names (`models -> formulas`, `family -> type`). -->
@@ -375,9 +375,9 @@ The predict function should take the arguments `test_data`, `model`, and `formul
 # model : fitted model object
 # formula : a formula object
 nb_predict_fn <- function(test_data, model, formula, hyperparameters){
-    stats::predict(object = model, newdata = test_data, 
-                   type = "raw", allow.new.levels = TRUE)[,2]
-  }
+  stats::predict(object = model, newdata = test_data, 
+                 type = "raw", allow.new.levels = TRUE)[,2]
+}
 ```
 
 With both functions specified, we are ready to cross-validate our naive Bayes classifier.

@@ -124,8 +124,9 @@
 #'
 #'  The \strong{Summarized Results} tibble contains:
 #'
-#'  Average \strong{RMSE}, \strong{MAE}, \strong{r2m}, \strong{r2c},
-#'  \strong{AIC}, \strong{AICc}, and \strong{BIC}.
+#'  Average \strong{RMSE}, \strong{MAE}, \strong{NRMSE}, \strong{RMSEIQR},
+#'  \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
+#'  and \strong{BIC}.
 #'  }
 #'
 #'  The \strong{Measure} column indicates the statistical descriptor used on the evaluations.

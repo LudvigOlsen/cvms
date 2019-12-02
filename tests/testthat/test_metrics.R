@@ -514,20 +514,40 @@ test_that("mae and rmse works", {
   set_seed_for_R_compatibility(6)
   targets <- rnorm(100)
   preds <- rnorm(100)
+  df <- data.frame(t = targets, p = preds)
+  results <- regression_errors(df, predictions_col = "p", targets_col = "t", metrics = "all")
+
+  rmse_ <- function(targets, preds)
+    sqrt(mean((targets-preds)^2))
+
+  mae_ <- function(targets, preds)
+    mean(abs(targets-preds))
 
   # RMSE
-  expect_equal(rmse(predictions = preds, targets = targets), 1.23924, tolerance = 1e-3)
+  expect_equal(results$RMSE,
+               rmse_(targets, preds), tolerance = 1e-3)
+  expect_equal(results$RMSE, 1.23924, tolerance = 1e-3)
   # MAE
-  expect_equal(mae(predictions = preds, targets = targets), 0.9888096, tolerance = 1e-3)
+  expect_equal(results$MAE, mae_(targets, preds), tolerance = 1e-3)
+  expect_equal(results$MAE, 0.9888096, tolerance = 1e-3)
+
+  # TODO Add tests for the other regression error metrics
 
   # Uniform distribution
   set_seed_for_R_compatibility(9)
   targets <- runif(100,min = 45, max = 97)
   preds <- runif(100,min = 54, max = 120)
+  df <- data.frame(t = targets, p = preds)
+  results <- regression_errors(df, predictions_col = "p", targets_col = "t", metrics = "all")
 
   # RMSE
-  expect_equal(rmse(predictions = preds, targets = targets), 30.2487, tolerance = 1e-3)
+  expect_equal(results$RMSE,
+               rmse_(targets, preds), tolerance = 1e-3)
+  expect_equal(results$RMSE, 30.2487, tolerance = 1e-3)
   # MAE
-  expect_equal(mae(predictions = preds, targets = targets), 24.3477, tolerance = 1e-3)
+  expect_equal(results$MAE, mae_(targets, preds), tolerance = 1e-3)
+  expect_equal(results$MAE, 24.3477, tolerance = 1e-3)
+
+  # TODO Add tests for the other regression error metrics
 
 })

@@ -1634,7 +1634,7 @@ Please use the `verbose` argument instead.", fixed=TRUE)
                                   optCtrl = list(maxfun = 10)),
       rm_nc = TRUE
     ))),
-    structure(list(RMSE = logical(0), MAE = logical(0), r2m = numeric(0),
+    structure(list(RMSE = numeric(0), MAE = numeric(0), r2m = numeric(0),
                    r2c = numeric(0), AIC = numeric(0), AICc = numeric(0), BIC = numeric(0),
                    Predictions = logical(0), Results = list(), Coefficients = list(),
                    Folds = integer(0), `Fold Columns` = integer(0), `Convergence Warnings` = integer(0),

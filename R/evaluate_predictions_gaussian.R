@@ -43,60 +43,25 @@ evaluate_predictions_gaussian <- function(data,
                     !!as.name(fold_info_cols[["fold_column"]]),
                     !!as.name(fold_info_cols[["rel_fold"]]))
 
-  # Calculate RMSE
-  rmse_results <- calculate_gaussian_prediction_metric(
+  # Calculate residual errors
+  results_per_fold <- call_regression_errors(
     data = data,
     predictions_col = predictions_col,
     targets_col = targets_col,
-    model_was_null_col = model_was_null_col,
-    metric_fn = calculate_RMSE,
-    metric_name = "RMSE",
     metrics = metrics,
-    fold_info_cols = fold_info_cols,
-    fold_and_fold_col = fold_and_fold_col,
-    na.rm = na.rm)
+    return_nas = any(data[[model_was_null_col]]))
 
-  rmse_per_fold <- rmse_results[["metric_per_fold"]]
-  avg_rmse <- rmse_results[["avg_metric"]]
+  if (!is.null(results_per_fold)){
 
-  # Calculate MAE
-  mae_results <- calculate_gaussian_prediction_metric(
-    data = data,
-    predictions_col = predictions_col,
-    targets_col = targets_col,
-    model_was_null_col = model_was_null_col,
-    metric_fn = calculate_MAE,
-    metric_name = "MAE",
-    metrics = metrics,
-    fold_info_cols = fold_info_cols,
-    fold_and_fold_col = fold_and_fold_col,
-    na.rm = na.rm)
+    # Average metrics by first fold column then fold
+    avg_results <- mean_residual_errors_by_fcol_fold(
+      metrics_per_folds = results_per_fold,
+      fold_info_cols = fold_info_cols,
+      metrics = metrics,
+      na.rm = na.rm)
 
-  mae_per_fold <- mae_results[["metric_per_fold"]]
-  avg_mae <- mae_results[["avg_metric"]]
-
-  data <- data %>% dplyr::ungroup()
-
-  # Join the metrics
-  if (!is.null(rmse_per_fold) && !is.null(mae_per_fold)){
-
-    results_per_fold <- dplyr::full_join(rmse_per_fold, mae_per_fold,
-                                         by = c(fold_info_cols[["abs_fold"]],
-                                                fold_info_cols[["fold_column"]],
-                                                fold_info_cols[["rel_fold"]]))
-  } else if (!is.null(rmse_per_fold)){
-    results_per_fold <- rmse_per_fold
-  } else if (!is.null(mae_per_fold)){
-    results_per_fold <- mae_per_fold
   } else {
-    results_per_fold <- NULL
-  }
-
-  # Join the average metrics
-  if (is.null(avg_rmse) && is.null(avg_mae)){
     avg_results <- NULL
-  } else {
-    avg_results <- dplyr::as_tibble(dplyr::bind_cols(avg_rmse, avg_mae))
   }
 
   # Rename the fold info columns
@@ -153,84 +118,19 @@ evaluate_predictions_gaussian <- function(data,
 }
 
 
-calculate_gaussian_prediction_metric <- function(data,
-                                        predictions_col,
-                                        targets_col,
-                                        model_was_null_col,
-                                        metric_fn,
-                                        metric_name,
-                                        metrics,
-                                        fold_info_cols,
-                                        fold_and_fold_col,
-                                        na.rm){
+mean_residual_errors_by_fcol_fold <- function(metrics_per_folds,
+                                              fold_info_cols,
+                                              metrics,
+                                              na.rm) {
 
-  if (any(data[[model_was_null_col]])){
-    # If one or more of the model objects were NULL
-    # Return NA results
-    return(
-      calculate_gaussian_prediction_metric_NA(data = data,
-                                     metric_name = metric_name,
-                                     metrics = metrics,
-                                     fold_info_cols = fold_info_cols,
-                                     fold_and_fold_col = fold_and_fold_col)
-    )
-  }
+  metrics <- intersect(metrics, colnames(metrics_per_folds))
 
-  if (metric_name %in% metrics) {
-    # Calculate the metric per fold
-    metric_per_fold <- data %>%
-      dplyr::summarize(m = metric_fn(!!as.name(predictions_col),
-                                     !!as.name(targets_col)))
-
-    # First average per fold column, then average those
-    avg_metric <- metric_per_fold %>%
-      dplyr::group_by(!!as.name(fold_info_cols[["fold_column"]])) %>%
-      dplyr::summarize(m = mean(.data$m, na.rm = na.rm)) %>%
-      dplyr::summarize(m = mean(.data$m, na.rm = na.rm))
-
-    # Set colnames to the metric name
-    names(metric_per_fold)[names(metric_per_fold) == "m"] <- metric_name
-    names(avg_metric)[names(avg_metric) == "m"] <- metric_name
-
-  } else {
-    metric_per_fold <- NULL
-    avg_metric <- NULL
-  }
-
-  list("metric_per_fold" = metric_per_fold,
-       "avg_metric" = avg_metric)
-
-}
-
-calculate_gaussian_prediction_metric_NA <- function(data,
-                                           metric_name,
-                                           metrics,
-                                           fold_info_cols,
-                                           fold_and_fold_col){
-
-  if (metric_name %in% metrics) {
-
-    # Find number of columns
-    num_folds <- length(unique(data[[ fold_info_cols[["abs_fold"]] ]]))
-
-    # NA metric per fold
-    metric_per_fold <- tibble::tibble("metric" = rep(NA, num_folds))
-    colnames(metric_per_fold) <- metric_name
-
-    metric_per_fold[[fold_info_cols[["fold_column"]]]] <- fold_and_fold_col[[fold_info_cols[["fold_column"]]]]
-    metric_per_fold[[fold_info_cols[["abs_fold"]]]] <- fold_and_fold_col[[fold_info_cols[["abs_fold"]]]]
-    metric_per_fold[[fold_info_cols[["rel_fold"]]]] <- fold_and_fold_col[[fold_info_cols[["rel_fold"]]]]
-
-    # Average NA metric
-    avg_metric <- tibble::tibble("metric" = NA)
-    colnames(avg_metric) <- metric_name
-
-  } else {
-    metric_per_fold <- NULL
-    avg_metric <- NULL
-  }
-
-  list("metric_per_fold" = metric_per_fold,
-       "avg_metric" = avg_metric)
+  # First average per fold column, then average those
+  metrics_per_folds %>%
+    base_select(c(fold_info_cols[["fold_column"]], metrics)) %>%
+    dplyr::group_by(!!as.name(fold_info_cols[["fold_column"]])) %>%
+    dplyr::summarize_all(~mean(., na.rm = na.rm)) %>%
+    base_deselect(fold_info_cols[["fold_column"]]) %>%
+    dplyr::summarize_all(~mean(., na.rm = na.rm))
 
 }

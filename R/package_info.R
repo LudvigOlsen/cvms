@@ -11,7 +11,8 @@
 #' \code{baseline}, and \code{evaluate}.
 #'
 #' And a couple of helper functions:
-#' \code{combine_predictors}, \code{select_metrics}, \code{reconstruct_formulas}, \code{cv_plot}.
+#' \code{combine_predictors}, \code{select_metrics}, \code{reconstruct_formulas},
+#' \code{most_challenging}, \code{cv_plot}.
 #'
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @docType package

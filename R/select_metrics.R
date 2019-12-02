@@ -38,7 +38,9 @@ select_metrics <- function(results, include_definitions = TRUE,
 
   if (results[["Family"]][[1]] == "gaussian"){
 
-    metric_cols <- c("RMSE", "MAE", "r2m", "r2c", "AIC", "AICc", "BIC")
+    metric_cols <- c("RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD", # TODO Order the new metrics meaningfully!
+                     "RAE", "RRSE", "MAPE", "MSE", "TAE", "TSE",
+                     "r2m", "r2c", "AIC", "AICc", "BIC")
 
     metric_cols <- add_additional_colnames(metric_cols, additional_includes)
     metric_cols <- dplyr::intersect(metric_cols, colnames(results))

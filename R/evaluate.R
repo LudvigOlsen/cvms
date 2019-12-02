@@ -158,8 +158,8 @@
 #'
 #'  Tibble containing the following metrics by default:
 #'
-#'  Average \strong{RMSE}, \strong{MAE}, \strong{r2m},
-#'  \strong{r2c}, \strong{AIC}, \strong{AICc}, and \strong{BIC}.
+#'  Average \strong{RMSE}, \strong{MAE}, \strong{NRMSE}, \strong{RMSEIQR},
+#'  \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc}, and \strong{BIC}.
 #'
 #'  N.B. Some of the metrics will only be returned if model
 #'  objects were passed, and will be \code{NA} if they could not be

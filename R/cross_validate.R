@@ -156,7 +156,8 @@
 #'
 #'  ----------------------------------------------------------------
 #'
-#'  Average \strong{RMSE}, \strong{MAE}, \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
+#'  Average \strong{RMSE}, \strong{MAE}, \strong{NRMSE}, \strong{RMSEIQR},
+#'  \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
 #'  and \strong{BIC} of all the iterations*,
 #'  \emph{\strong{omitting potential NAs} from non-converged iterations}.
 #'  Note that the Information Criteria metrics (AIC, AICc, and BIC) are also averages.

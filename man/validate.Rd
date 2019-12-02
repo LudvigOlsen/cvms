@@ -157,7 +157,8 @@ Tbl (tibble) with the results and model objects.
 
  ----------------------------------------------------------------
 
- \strong{RMSE}, \strong{MAE}, \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
+ \strong{RMSE}, \strong{MAE}, \strong{NRMSE}, \strong{RMSEIQR},
+ \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
  and \strong{BIC}.
 
  A nested tibble with the \strong{predictions} and targets.

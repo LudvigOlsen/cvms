@@ -59,6 +59,8 @@ Pass a list of hyperparameters and every combination of these will be cross-vali
 * Adds Information Criteria metrics (`AIC`, `AICc`, `BIC`) to the `binomial` and `multinomial` output (disabled by default). 
 These are based on the fitted model objects and will only work for some types of models.
 
+* Adds `NRMSE` and `RMSEIQR` metrics to Gaussian evaluations. `NRMSE` is the RMSE divided by the range (max - min) of the target values. `RMSEIQR` is the RMSE divided by the IQR of the target values.
+
 * Adds `metrics` argument to `baseline()`. Enable the non-default metrics you want a baseline evaluation for.
 
 * Adds `preprocessing` argument to `cross_validate()` and `validate()`. Currently allows "standardize", "scale", "center", and "range". Results will likely not be affected noticeably by the preprocessing.

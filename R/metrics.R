@@ -1,16 +1,6 @@
 
 # Metrics
 
-calculate_RMSE <- function(predictions, targets, raise_errors = FALSE){
-  tryCatch({
-    rmse(predictions, targets)
-  }, error = function(e){
-    if (raise_errors) stop(e)
-    else warning(e)
-    return(NA)
-  })
-}
-
 calculate_MAE <- function(predictions, targets, raise_errors = FALSE){
   tryCatch({
     mae(predictions, targets)
@@ -21,15 +11,35 @@ calculate_MAE <- function(predictions, targets, raise_errors = FALSE){
   })
 }
 
-# calculate_accuracy <- function(predictions, targets, raise_errors = FALSE){
-#   tryCatch({
-#     accuracy(predictions, targets)
-#   }, error = function(e){
-#     if (raise_errors) stop(e)
-#     else warning(e)
-#     return(NA)
-#   })
-# }
+calculate_RMSE <- function(predictions, targets, raise_errors = FALSE){
+  tryCatch({
+    rmse(predictions, targets)
+  }, error = function(e){
+    if (raise_errors) stop(e)
+    else warning(e)
+    return(NA)
+  })
+}
+
+calculate_NRMSE <- function(predictions, targets, raise_errors = FALSE){
+  tryCatch({
+    nrmse(predictions, targets)
+  }, error = function(e){
+    if (raise_errors) stop(e)
+    else warning(e)
+    return(NA)
+  })
+}
+
+calculate_RMSEIQR <- function(predictions, targets, raise_errors = FALSE){
+  tryCatch({
+    rmseiqr(predictions, targets)
+  }, error = function(e){
+    if (raise_errors) stop(e)
+    else warning(e)
+    return(NA)
+  })
+}
 
 calculate_r2m <- function(model, raise_errors = FALSE){
   model_metric_wrapper(model, metric_fn = function(model_){
@@ -120,38 +130,6 @@ model_metric_wrapper <- function(model,
     warning(e)
     return(NA)
   })
-}
-
-mae <- function(predictions, targets, na.rm = TRUE){
-
-  if (!(is.numeric(predictions) || is.integer(predictions))){
-    stop("'predictions' must be numeric")
-  }
-  if (!(is.numeric(targets) || is.integer(targets))){
-    stop("'predictions' must be numeric")
-  }
-  if (length(predictions) != length(targets)){
-    stop("predictions and targets must have same length")
-  }
-
-  mean(abs(targets - predictions), na.rm = na.rm)
-
-}
-
-rmse <- function(predictions, targets, na.rm = TRUE){
-
-  if (!(is.numeric(predictions) || is.integer(predictions))){
-    stop("'predictions' must be numeric")
-  }
-  if (!(is.numeric(targets) || is.integer(targets))){
-    stop("'predictions' must be numeric")
-  }
-  if (length(predictions) != length(targets)){
-    stop("predictions and targets must have same length")
-  }
-
-  sqrt(mean((targets - predictions)^2, na.rm = na.rm))
-
 }
 
 

@@ -254,7 +254,8 @@ Tbl (tibble) with results for each model.
 
  ----------------------------------------------------------------
 
- Average \strong{RMSE}, \strong{MAE}, \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
+ Average \strong{RMSE}, \strong{MAE}, \strong{NRMSE}, \strong{RMSEIQR},
+ \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
  and \strong{BIC} of all the iterations*,
  \emph{\strong{omitting potential NAs} from non-converged iterations}. Some metrics will
  return \code{NA} if they can't be extracted from the fitted model objects.

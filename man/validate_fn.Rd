@@ -258,7 +258,8 @@ Tbl (tibble) with the results and model objects.
 
  ----------------------------------------------------------------
 
- \strong{RMSE}, \strong{MAE}, \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
+ \strong{RMSE}, \strong{MAE}, \strong{r2m}, \strong{NRMSE}, \strong{RMSEIQR},
+ \strong{r2c}, \strong{AIC}, \strong{AICc},
  and \strong{BIC}. Some metrics may return \code{NA} if they can't be
  extracted from the fitted model objects.
 

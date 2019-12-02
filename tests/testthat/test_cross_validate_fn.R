@@ -257,6 +257,15 @@ test_that("gaussian lm model works with cross_validate_fn()",{
 
   expect_equal(CVed$RMSE, 17.16817, tolerance=1e-3)
   expect_equal(CVed$MAE, 14.26914, tolerance=1e-3)
+  expect_equal(CVed$NRMSE, 0.316612, tolerance=1e-3)
+  expect_equal(CVed$RMSEIQR, 0.9073991, tolerance=1e-3)
+  expect_equal(CVed$RMSESTD, 0.9081804, tolerance=1e-3)
+  expect_equal(CVed$RAE, 0.9859855, tolerance=1e-3)
+  expect_equal(CVed$RRSE, 0.9805019, tolerance=1e-3)
+  expect_equal(CVed$MAPE, 0.4886251, tolerance=1e-3)
+  expect_equal(CVed$MSE, 299.26, tolerance=1e-3)
+  expect_equal(CVed$TAE, 105.1333, tolerance=1e-3)
+  expect_equal(CVed$TSE, 2156.193, tolerance=1e-3)
   expect_equal(CVed$r2m, 0.2640793, tolerance=1e-3)
   expect_equal(CVed$r2c, 0.2640793, tolerance=1e-3)
   expect_equal(CVed$AIC, 194.6904, tolerance=1e-3)
@@ -274,7 +283,8 @@ test_that("gaussian lm model works with cross_validate_fn()",{
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
   expect_equal(colnames(CVed),
-               c("RMSE", "MAE", "r2m", "r2c", "AIC", "AICc", "BIC", "Predictions",
+               c("RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD", "RAE", "RRSE",
+                 "MAPE", "MSE", "TAE", "TSE", "r2m", "r2c", "AIC", "AICc", "BIC", "Predictions",
                  "Results", "Coefficients", "Folds", "Fold Columns", "Convergence Warnings",
                  "Other Warnings", "Warnings and Messages", "Family", "Dependent",
                  "Fixed"))

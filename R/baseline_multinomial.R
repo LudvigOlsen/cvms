@@ -30,6 +30,14 @@ create_multinomial_baseline_evaluations <- function(test_data,
   # Count number of classes
   num_classes <- length(classes)
 
+  # Remove columns with the name of a class from the dataset
+  if (dependent_col %in% classes){
+    stop("'dependent_col' cannot be the name of one of the classes.")
+  }
+  # If we only include the dependent column
+  # we won't have a problem with columns named the same as the classes
+  test_data <- test_data[, dependent_col]
+
   # TODO Test num_classes etc.
 
   # Create predicted probability tibbles

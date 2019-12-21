@@ -39,6 +39,9 @@ create_binomial_baseline_evaluations <- function(test_data,
   targets <- test_data[[dependent_col]]
   n_targets <- length(targets)
 
+  # Subset test data
+  test_data <- test_data[, dependent_col]
+
   # Check dependent variable
   if (length(unique(targets)) > 2){
     if (is.numeric(targets) || is.integer(targets)){

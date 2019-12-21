@@ -227,23 +227,24 @@
 #'  It is possible to enable multiclass \strong{AUC} as well, which has been
 #'  disabled by default as it is slow to calculate when there's a large set of classes.
 #'
+#'  Note: we also refer to the \emph{one-vs-all evaluations} as the \emph{class level results}.
+#'
 #'  ....................................................................
 #'
 #'  The \strong{Summarized Results} tibble contains:
 #'
 #'  Summary of the random evaluations.
 #'
-#'  \strong{How}: First, the one-vs-all binomial evaluations are aggregated by repetition
-#'  (ignoring \code{NA}s), and then, these aggregations are summarized. Besides the
+#'  \strong{How}: First, the one-vs-all binomial evaluations are aggregated by repetition,
+#'  then, these aggregations are summarized. Besides the
 #'  metrics from the binomial evaluations (see \emph{Binomial Results} above), it
 #'  also includes the \strong{Overall Accuracy} metric.
 #'
 #'  The \strong{Measure} column indicates the statistical descriptor used on the evaluations.
-#'  The \strong{Mean}, \strong{Median}, \strong{SD}, and \strong{IQR} describe the
-#'  repetition evaluations (similar to the \emph{Random Evaluations} tibble, but ignoring \code{NA}s when aggregating,
-#'  as the \code{NA}s and \code{INF}s are counted instead), while the \strong{Max}, \strong{Min}, \strong{NAs}, and
-#'  \strong{INFs} are extracted from the \emph{Summarized Class Level Results} tibble, to get
-#'  the overall values. The \code{NA}s and \code{INF}s are only counted in the one-vs-all evaluations.
+#'  The \strong{Mean}, \strong{Median}, \strong{SD}, \strong{IQR}, \strong{Max}, \strong{Min},
+#'  \strong{NAs}, and \strong{INFs} measures describe the \emph{Random Evaluations} tibble,
+#'  while the \strong{CL_Max}, \strong{CL_Min}, \strong{CL_NAs}, and
+#'  \strong{CL_INFs} describe the \strong{C}lass \strong{L}evel results.
 #'
 #'  The rows where \code{Measure == All_<<class name>>} are the evaluations when all
 #'  the observations are predicted to be in that class.
@@ -264,12 +265,12 @@
 #'
 #'  ....................................................................
 #'
-#'  The \strong{Random Evaluation} tibble contains:
+#'  The \strong{Random Evaluations} tibble contains:
 #'
 #'  The repetition results with the same metrics as the \emph{Summarized Results} tibble.
 #'
 #'  \strong{How}: The one-vs-all evaluations are aggregated by repetition.
-#'  \code{NA}'s are not ignored, meaning that any \code{NA} from a one-vs-all evaluation
+#'  If a metric contains one or more \code{NAs} in the one-vs-all evaluations, it
 #'  will lead to an \code{NA} result for that repetition.
 #'
 #'  Also includes:

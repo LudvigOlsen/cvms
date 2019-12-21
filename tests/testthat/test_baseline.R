@@ -558,11 +558,13 @@ test_that("multinomial evaluations are correct in baseline()",{
                  "Prevalence"))
   expect_equal(multinom_baseline_summ$Measure,
                c("Mean", "Median", "SD", "IQR", "Max",
-                 "Min", "NAs", "INFs", "All_1", "All_2", "All_3"))
+                 "Min", "NAs", "INFs", "CL_Max", "CL_Min",
+                 "CL_NAs", "CL_INFs", "All_1", "All_2", "All_3"))
   expect_equal(multinom_baseline_summ$`Balanced Accuracy`,
                c(0.567046957671958, 0.566798941798942, 0.0945059449777177, 0.118138227513228,
+                 0.73776455026455, 0.427744708994709, 0, 0,
                  0.845238095238095, 0.349206349206349, 0, 0, 0.5, 0.5, 0.5), tolerance=1e-3)
-  expect_equal(multinom_baseline_summ$`Weighted Accuracy`,
+  expect_equal(multinom_baseline_summ$`Weighted Accuracy`, # TODO Update
                c(0.61312, 0.616, 0.0844143852932925, 0.1224, 0.7536, 0.4976,
                  NA, NA, 0.5616, 0.5392, 0.5616), tolerance=1e-3)
   expect_equal(multinom_baseline_summ$F1,
@@ -1706,5 +1708,68 @@ test_that("multinomial baseline() works when test_data contains columns with nam
   expect_equal(multiclass_baseline$random_evaluations$F1,
                c(0.317714964773788, 0.338624338624339, 0.397326649958229),
                tolerance=1e-5)
+
+})
+
+test_that("multinomial baseline() summarizes correctly with imbalanced dataset",{
+
+  # We simply test that we get different random evaluations
+  # when test_data contains columns with same names as the classes
+  # that could be interpreted as the probability columns
+
+  df <- tibble::tibble("Target" = c(rep("A", 1),
+                                    rep("A2", 1),
+                                    # rep("A3", 1),
+                                    rep("B", 50),
+                                    rep("C", 100)))
+
+  set_seed_for_R_compatibility(3)
+  multiclass_baseline <- df %>%
+    baseline(
+      dependent_col = "Target",
+      n = 5,
+      family = "multinomial",
+      parallel = FALSE
+    )
+
+  means <- multiclass_baseline$summarized_metrics[
+    multiclass_baseline$summarized_metrics[["Measure"]] == "Mean",
+  ] %>% base_deselect("Measure")
+  medians <- multiclass_baseline$summarized_metrics[
+    multiclass_baseline$summarized_metrics[["Measure"]] == "Median",
+  ] %>% base_deselect("Measure")
+  mins <- multiclass_baseline$summarized_metrics[
+    multiclass_baseline$summarized_metrics[["Measure"]] == "Min",
+  ] %>% base_deselect("Measure")
+  maxes <- multiclass_baseline$summarized_metrics[
+    multiclass_baseline$summarized_metrics[["Measure"]] == "Max",
+  ] %>% base_deselect("Measure")
+  sds <- multiclass_baseline$summarized_metrics[
+    multiclass_baseline$summarized_metrics[["Measure"]] == "SD",
+  ] %>% base_deselect("Measure")
+  IQRs <- multiclass_baseline$summarized_metrics[
+    multiclass_baseline$summarized_metrics[["Measure"]] == "IQR",
+  ] %>% base_deselect("Measure")
+
+  apply_descriptor <- function(random_evals, fn){
+    random_evals %>%
+      dplyr::summarise_if(is.numeric, .f = list(
+        ~fn(., na.rm = TRUE)
+      )) %>%
+      dplyr::select(-Repetition)
+  }
+
+  rand_eval_means <- apply_descriptor(multiclass_baseline$random_evaluations, mean)
+  expect_equal(means,rand_eval_means,tolerance=1e-5)
+  rand_eval_medians <- apply_descriptor(multiclass_baseline$random_evaluations, median)
+  expect_equal(medians,rand_eval_medians,tolerance=1e-5)
+  rand_eval_sds <- apply_descriptor(multiclass_baseline$random_evaluations, sd)
+  expect_equal(sds,rand_eval_sds,tolerance=1e-5)
+  rand_eval_IQRs <- apply_descriptor(multiclass_baseline$random_evaluations, IQR)
+  expect_equal(IQRs,rand_eval_IQRs,tolerance=1e-5)
+  rand_eval_mins <- apply_descriptor(multiclass_baseline$random_evaluations, min)
+  expect_equal(mins,rand_eval_mins,tolerance=1e-5)
+  rand_eval_maxes <- apply_descriptor(multiclass_baseline$random_evaluations, max)
+  expect_equal(maxes,rand_eval_maxes,tolerance=1e-5)
 
 })

@@ -110,7 +110,9 @@ create_multinomial_baseline_evaluations <- function(test_data,
     )
 
   # Evaluate all or nothing predictions
-  evaluations_all_or_nothing <- plyr::ldply(seq_len(num_classes), .parallel = parallel_, function(cl_ind){
+  evaluations_all_or_nothing <- plyr::ldply(seq_len(num_classes),
+                                            .parallel = parallel_,
+                                            function(cl_ind){
 
     probabilities <- all_or_nothing_probabilities[[cl_ind]]
     test_data <- dplyr::bind_cols(test_data,
@@ -239,50 +241,31 @@ create_multinomial_baseline_evaluations <- function(test_data,
   )
 
   # Summarize the metrics
-  summarized_repetitions <- metric_cols_results_NAs_removed %>%
-    summarize_metrics(na.rm = FALSE, inf.rm = TRUE)
-
-  # Extract the ones where we want min and max to come from
-  # the repetition results
-  summarized_repetition_result_metrics <- base_select(
-    summarized_repetitions,
-    cols = c("Measure", repetition_result_metrics)) %>%
-
-    # As these would have NA and INF counts from the
-    # random evaluation results (computed with na.rm = TRUE)
-    # it would be confusing to have two types of counts,
-    # and we instead set them to NA
-    dplyr::mutate_at(dplyr::vars(-.data$Measure),
-                     ~ifelse(.data$Measure == "NAs", NA, .)) %>%
-    dplyr::mutate_at(dplyr::vars(-.data$Measure),
-                     ~ifelse(.data$Measure == "INFs", NA, .))
-
-  # Remove
-  summarized_repetitions <- summarized_repetitions %>%
-    base_deselect(repetition_result_metrics)
-  summarized_repetitions <- summarized_repetitions[
-    summarized_repetitions[["Measure"]] %ni% c("Min","Max","NAs","INFs"),
-  ]
+  summarized_repetitions <- metric_cols_results_NAs_kept %>%
+    summarize_metrics(na.rm = TRUE, inf.rm = TRUE)
 
   # Extract the overall max,min,NAs count, and INFs count
   # from the summarized class level results
-  overall_max <- summarize_measure(data = summarized_metrics_class_level,
-                                   measure_name = "Max",
-                                   FUN = max, na.rm = FALSE)
-  overall_min <- summarize_measure(data = summarized_metrics_class_level,
+  class_level_max <- summarize_measure(data = summarized_metrics_class_level,
+                                       measure_name = "Max",
+                                       FUN = max, na.rm = FALSE) %>%
+    dplyr::mutate(Measure = "CL_Max")
+  class_level_min <- summarize_measure(data = summarized_metrics_class_level,
                                    measure_name = "Min",
-                                   FUN = min, na.rm = FALSE)
-  overall_NAs <- summarize_measure(data = summarized_metrics_class_level,
+                                   FUN = min, na.rm = FALSE) %>%
+    dplyr::mutate(Measure = "CL_Min")
+  class_level_NAs <- summarize_measure(data = summarized_metrics_class_level,
                                    measure_name = "NAs",
-                                   FUN = sum, na.rm = FALSE)
-  overall_INFs <- summarize_measure(data = summarized_metrics_class_level,
+                                   FUN = sum, na.rm = FALSE) %>%
+    dplyr::mutate(Measure = "CL_NAs")
+  class_level_INFs <- summarize_measure(data = summarized_metrics_class_level,
                                     measure_name = "INFs",
-                                    FUN = sum, na.rm = FALSE)
+                                    FUN = sum, na.rm = FALSE) %>%
+    dplyr::mutate(Measure = "CL_INFs")
 
   summarized_avg_metrics <- summarized_repetitions %>%
-    dplyr::bind_rows(overall_max, overall_min,
-                     overall_NAs, overall_INFs) %>%
-    dplyr::left_join(summarized_repetition_result_metrics, by = "Measure") %>%
+    dplyr::bind_rows(class_level_max, class_level_min,
+                     class_level_NAs, class_level_INFs) %>%
     dplyr::bind_rows(evaluations_all_or_nothing_results %>%
                        dplyr::mutate(Measure = paste0("All_", .data$All_class)) %>%
                        select_metrics(include_definitions = FALSE,

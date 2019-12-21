@@ -1,4 +1,4 @@
-#' Calculate regression error metrics
+# Calculate regression error metrics
 regression_errors <- function(data,
                               predictions_col,
                               targets_col,

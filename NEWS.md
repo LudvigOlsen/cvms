@@ -27,6 +27,8 @@ Throws error if probabilities do not add up 1 row-wise (tolerance of 5 decimals)
 * In `baseline()`, the `AIC`, `AICc`, `BIC`, `r2m`, and `r2c` metrics are now disabled by default in `gaussian`.
 It can be unclear whether the IC metrics (computed on the `lm()`/`lmer()` model objects) can be compared to those calculated for a given other model function. To avoid such confusion, it is preferable that the user actively makes a choice to include the metrics. The r-squared metrics will only be non-zero when random effects are passed. Given that we shouldn't use the r-squared metrics for model selection, it makes sense to not have them enabled by default.
 
+* In multinomial `baseline()`, the aggregation approach is changed. The summarized results now properly describe the random evaluations tibble, except for the four new measures `CL_Max`, `CL_Min`, `CL_NAs`, and `CL_INFs`, which describe the class level results. Previously, `NAs` were removed before aggregating the one-vs-all evaluations, meaning that some metric summaries could become inflated if small classes had `NA`s. It was also untransparent that the `NA`s and `INF`s were counted in the class level results instead of being a count of random evaluations with `NA`s or `INF`s.
+
 ## Additions
 
 * `validate_fn()` is added. Validate your custom model function on a test set.

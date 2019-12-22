@@ -94,7 +94,7 @@ create_multinomial_baseline_evaluations <- function(test_data,
       metrics = metrics,
       include_predictions = TRUE,
       include_fold_columns = FALSE, # We're not providing any fold info so won't make sense
-      na.rm = "both",
+      na.rm = FALSE,
       caller = "baseline()"
     )
 
@@ -146,32 +146,14 @@ create_multinomial_baseline_evaluations <- function(test_data,
   evaluations_random_results <- base_deselect(
     evaluations_random, cols = "Class Level Results")
 
-  # Keep NAs_removed == FALSE and pull Class Level Results
-  evaluations_random_class_level_results <- evaluations_random[
-    !evaluations_random[["NAs_removed"]],
-    ][["Class Level Results"]]
+  # Pull Class Level Results
+  evaluations_random_class_level_results <- evaluations_random[["Class Level Results"]]
 
   evaluations_all_or_nothing_results <- base_deselect(evaluations_all_or_nothing,
                                                       cols = "Class Level Results")
 
   evaluations_all_or_nothing_class_level_results <-
     evaluations_all_or_nothing[["Class Level Results"]]
-
-  # Subset the version with and without na.rm = TRUE
-
-  evaluations_random_results_NAs_removed <- evaluations_random_results[
-    # Keep NAs_removed == TRUE
-    evaluations_random_results[["NAs_removed"]] ,
-    # Remove the NAs_removed column
-    setdiff(colnames(evaluations_random_results), "NAs_removed")
-  ]
-
-  evaluations_random_results_NAs_kept <- evaluations_random_results[
-    # Keep NAs_removed == FALSE
-    !evaluations_random_results[["NAs_removed"]] ,
-    # Remove the NAs_removed column
-    setdiff(colnames(evaluations_random_results), "NAs_removed")
-  ]
 
   evaluations_random_class_level_results <- evaluations_random_class_level_results %>%
     dplyr::bind_rows(.id = "Repetition") %>%
@@ -192,10 +174,8 @@ create_multinomial_baseline_evaluations <- function(test_data,
   # Gather the evaluations in the correct form
 
   # Extract the metrics
-  metric_cols_results_NAs_removed <- select_metrics(evaluations_random_results_NAs_removed,
-                                                    include_definitions = FALSE)
-  metric_cols_results_NAs_kept <- select_metrics(evaluations_random_results_NAs_kept,
-                                                 include_definitions = FALSE)
+  metric_cols_results <- select_metrics(evaluations_random_results,
+                                        include_definitions = FALSE)
   metric_cols_class_level_results <- select_metrics(evaluations_random_class_level_results,
                                                     include_definitions = FALSE,
                                                     additional_includes = "Class")
@@ -236,12 +216,12 @@ create_multinomial_baseline_evaluations <- function(test_data,
 
   # Extract the metrics that we need to get from the repetition results
   repetition_result_metrics <- setdiff(
-    colnames(metric_cols_results_NAs_removed),
+    colnames(metric_cols_results),
     colnames(summarized_metrics_class_level)
   )
 
   # Summarize the metrics
-  summarized_repetitions <- metric_cols_results_NAs_kept %>%
+  summarized_repetitions <- metric_cols_results %>%
     summarize_metrics(na.rm = TRUE, inf.rm = TRUE)
 
   # Extract the overall max,min,NAs count, and INFs count
@@ -251,16 +231,16 @@ create_multinomial_baseline_evaluations <- function(test_data,
                                        FUN = max, na.rm = FALSE) %>%
     dplyr::mutate(Measure = "CL_Max")
   class_level_min <- summarize_measure(data = summarized_metrics_class_level,
-                                   measure_name = "Min",
-                                   FUN = min, na.rm = FALSE) %>%
+                                       measure_name = "Min",
+                                       FUN = min, na.rm = FALSE) %>%
     dplyr::mutate(Measure = "CL_Min")
   class_level_NAs <- summarize_measure(data = summarized_metrics_class_level,
-                                   measure_name = "NAs",
-                                   FUN = sum, na.rm = FALSE) %>%
+                                       measure_name = "NAs",
+                                       FUN = sum, na.rm = FALSE) %>%
     dplyr::mutate(Measure = "CL_NAs")
   class_level_INFs <- summarize_measure(data = summarized_metrics_class_level,
-                                    measure_name = "INFs",
-                                    FUN = sum, na.rm = FALSE) %>%
+                                        measure_name = "INFs",
+                                        FUN = sum, na.rm = FALSE) %>%
     dplyr::mutate(Measure = "CL_INFs")
 
   summarized_avg_metrics <- summarized_repetitions %>%
@@ -276,8 +256,8 @@ create_multinomial_baseline_evaluations <- function(test_data,
   # Nest the repetition class level results
   # And add to the random evaluations tibble
 
-  evaluations_random_results_NAs_kept <-
-    evaluations_random_results_NAs_kept %>%
+  evaluations_random_results <-
+    evaluations_random_results %>%
     tibble::add_column(
       "Class Level Results" = evaluations_random_class_level_results %>%
         dplyr::ungroup() %>%
@@ -289,12 +269,12 @@ create_multinomial_baseline_evaluations <- function(test_data,
     )
 
   # Add Repetition column to confusion matrix column
-  evaluations_random_results_NAs_kept[["Confusion Matrix"]] <-
-    add_repetition_col_to_nested_tibbles(evaluations_random_results_NAs_kept[["Confusion Matrix"]])
+  evaluations_random_results[["Confusion Matrix"]] <-
+    add_repetition_col_to_nested_tibbles(evaluations_random_results[["Confusion Matrix"]])
 
   # Add Repetition column to predictions column
-  evaluations_random_results_NAs_kept[["Predictions"]] <-
-    add_repetition_col_to_nested_tibbles(evaluations_random_results_NAs_kept[["Predictions"]])
+  evaluations_random_results[["Predictions"]] <-
+    add_repetition_col_to_nested_tibbles(evaluations_random_results[["Predictions"]])
 
   # Group the summarized class level results for nesting
   summarized_metrics_class_level <- summarized_metrics_class_level %>%
@@ -314,7 +294,7 @@ create_multinomial_baseline_evaluations <- function(test_data,
   list(
     "summarized_metrics" = summarized_avg_metrics,
     "summarized_class_level_results" = nested_class_level,
-    "random_evaluations" = evaluations_random_results_NAs_kept
+    "random_evaluations" = evaluations_random_results
   )
 
 }

@@ -313,3 +313,59 @@ test_that("glmer throws same warnings on mac and ubuntu",{
   expect_equal(mesgs, character())
 
 })
+
+
+test_that("one-hot encoding helper works for evaluate purposes",{
+
+  df <- tibble::tibble(
+    "Target" = c("D",rep(c("A","B","C"), 3)),
+    "PredictedClass" = c("A", rep(c("A","B","C"), 3))
+  )
+
+  df_large <- dplyr::bind_rows(rep(list(df), 100)) %>%
+    dplyr::mutate(x = runif(nrow(df)*100))
+
+  # system.time(one_hot_encode(df_large, "Target", c_levels=c("D","A","C","B","F")))
+  oh1 <- one_hot_encode(df, "Target")
+  oh2 <- one_hot_encode(df, "Target", c_levels=c("D","A","C","B","F"))
+
+  expect_equal(oh1,
+               structure(
+                 list(
+                   Target = c("D", "A", "B", "C", "A", "B", "C",
+                              "A", "B", "C"),
+                   PredictedClass = c("A", "A", "B", "C", "A", "B",
+                                      "C", "A", "B", "C"),
+                   A = c(0L, 1L, 0L, 0L, 1L, 0L, 0L, 1L, 0L, 0L),
+                   B = c(0L, 0L, 1L, 0L, 0L, 1L, 0L, 0L, 1L, 0L),
+                   C = c(0L, 0L, 0L, 1L, 0L, 0L, 1L, 0L, 0L, 1L),
+                   D = c(1L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L)
+                 ),
+                 row.names = c(NA,-10L),
+                 class = c("tbl_df", "tbl", "data.frame")
+               ))
+
+  expect_equal(oh2,
+               structure(
+                 list(
+                   Target = c("D", "A", "B", "C", "A", "B", "C",
+                              "A", "B", "C"),
+                   PredictedClass = c("A", "A", "B", "C", "A", "B",
+                                      "C", "A", "B", "C"),
+                   A = c(0L, 1L, 0L, 0L, 1L, 0L, 0L, 1L, 0L, 0L),
+                   B = c(0L, 0L, 1L, 0L, 0L, 1L, 0L, 0L, 1L, 0L),
+                   C = c(0L, 0L, 0L, 1L, 0L, 0L, 1L, 0L, 0L, 1L),
+                   D = c(1L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L),
+                   F = c(0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L)
+                 ),
+                 row.names = c(NA,-10L),
+                 class = c("tbl_df", "tbl", "data.frame")
+               ))
+
+
+
+})
+
+
+
+

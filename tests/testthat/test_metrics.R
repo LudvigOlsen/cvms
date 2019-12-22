@@ -515,7 +515,7 @@ test_that("mae and rmse works", {
   targets <- rnorm(100)
   preds <- rnorm(100)
   df <- data.frame(t = targets, p = preds)
-  results <- regression_errors(df, predictions_col = "p", targets_col = "t", metrics = "all")
+  results <- evaluate_residuals(df, predictions_col = "p", targets_col = "t", metrics = "all")
 
   rmse_ <- function(targets, preds)
     sqrt(mean((targets-preds)^2))
@@ -538,7 +538,7 @@ test_that("mae and rmse works", {
   targets <- runif(100,min = 45, max = 97)
   preds <- runif(100,min = 54, max = 120)
   df <- data.frame(t = targets, p = preds)
-  results <- regression_errors(df, predictions_col = "p", targets_col = "t", metrics = "all")
+  results <- evaluate_residuals(df, predictions_col = "p", targets_col = "t", metrics = "all")
 
   # RMSE
   expect_equal(results$RMSE,

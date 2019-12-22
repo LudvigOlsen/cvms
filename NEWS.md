@@ -19,6 +19,8 @@
 
 * `validate()` now returns a tibble with the model objects nested in the `Model` column. Previously, it returned a list with the results and models. This allows for easier use in `magrittr` pipelines (`%>%`).
 
+* In `evaluate()`, it's no longer possible to pass model objects. It now only evaluates the predictions. This removes the the `AIC`, `AICc`, `BIC`, `r2m`, and `r2c` metrics.
+
 * In `evaluate()`, `apply_softmax` now defaults to `FALSE`. 
 Throws error if probabilities do not add up 1 row-wise (tolerance of 5 decimals) when `type` is `multinomial`.
 
@@ -27,13 +29,15 @@ Throws error if probabilities do not add up 1 row-wise (tolerance of 5 decimals)
 * In `baseline()`, the `AIC`, `AICc`, `BIC`, `r2m`, and `r2c` metrics are now disabled by default in `gaussian`.
 It can be unclear whether the IC metrics (computed on the `lm()`/`lmer()` model objects) can be compared to those calculated for a given other model function. To avoid such confusion, it is preferable that the user actively makes a choice to include the metrics. The r-squared metrics will only be non-zero when random effects are passed. Given that we shouldn't use the r-squared metrics for model selection, it makes sense to not have them enabled by default.
 
-* In multinomial `baseline()`, the aggregation approach is changed. The summarized results now properly describe the random evaluations tibble, except for the four new measures `CL_Max`, `CL_Min`, `CL_NAs`, and `CL_INFs`, which describe the class level results. Previously, `NAs` were removed before aggregating the one-vs-all evaluations, meaning that some metric summaries could become inflated if small classes had `NA`s. It was also untransparent that the `NA`s and `INF`s were counted in the class level results instead of being a count of random evaluations with `NA`s or `INF`s.
+* In multinomial `baseline()`, the aggregation approach is changed. The summarized results now properly describe the random evaluations tibble, except for the four new measures `CL_Max`, `CL_Min`, `CL_NAs`, and `CL_INFs`, which describe the class level results. Previously, `NAs` were removed before aggregating the one-vs-all evaluations, meaning that some metric summaries could become inflated if small classes had `NA`s. It was also non-transparent that the `NA`s and `INF`s were counted in the class level results instead of being a count of random evaluations with `NA`s or `INF`s.
 
 ## Additions
 
 * `validate_fn()` is added. Validate your custom model function on a test set.
 
 * `confusion_matrix()` is added. Create a confusion matrix and calculate associated metrics from your targets and predictions. 
+
+* `evaluate_residuals()` is added. Calculate common metrics from regression residuals. 
 
 * `summarize_metrics()` is added. Use it summarize the numeric columns in your dataset with a set of common descriptors. Counts the `NA`s and `Inf`s. Used by `baseline()`.
 
@@ -42,6 +46,8 @@ It can be unclear whether the IC metrics (computed on the `lm()`/`lmer()` model 
 * `example_predict_functions()` is added. Contains simple `predict_fn` examples that can be used in `cross_validate_fn()` and `validate_fn()` or as starting points.
 
 * `example_preprocess_functions()` is added. Contains simple `preprocess_fn` examples that can be used in `cross_validate_fn()` and `validate_fn()` or as starting points.
+
+* `most_challenging()` is added. Finds the data points that were the most difficult to predict.
 
 * `simplify_formula()` is added. Converts a formula with inline functions to a simple formula 
 where all variables are added together (e.g. `y ~ x*z + log(a) + (1|b)` -> `y ~ x + z + a + b`). This is 
@@ -58,7 +64,7 @@ Pass a list of hyperparameters and every combination of these will be cross-vali
 
 * Adds `preprocess_once` argument to `cross_validate_fn()`. When preprocessing does not depend on the current formula or hyperparameters, we might as well perform it on each train/test split once, instead of for every model.
 
-* Adds Information Criteria metrics (`AIC`, `AICc`, `BIC`) to the `binomial` and `multinomial` output (disabled by default). 
+* Adds Information Criteria metrics (`AIC`, `AICc`, `BIC`) to the `binomial` and `multinomial` output of some functions (disabled by default). 
 These are based on the fitted model objects and will only work for some types of models.
 
 * Adds `NRMSE` and `RMSEIQR` metrics to Gaussian evaluations. `NRMSE` is the RMSE divided by the range (max - min) of the target values. `RMSEIQR` is the RMSE divided by the IQR of the target values.

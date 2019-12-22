@@ -521,6 +521,7 @@ test_that("gaussian models work with control specified in cross_validate()",{
                                     verbose=FALSE)
 
   expect_equal(CVgausslistrand$RMSE, c(10.44299), tolerance=1e-3)
+  expect_equal(CVgausslistrand$RMSLE, c(0.2959932), tolerance=1e-3)
   expect_equal(CVgausslistrand$`Convergence Warnings`, c(0))
 
   expect_equal(evaluate_promise(cross_validate(
@@ -867,11 +868,14 @@ test_that("gaussian models work with repeated cross_validate()",{
 
   CVgausslist <- cross_validate(dat, formulas = c("score~diagnosis","score~age"),
                                 fold_cols = c('.folds_1','.folds_2'), family='gaussian',
+                                metrics = list("MALE" = TRUE),
                                 REML = FALSE, verbose=FALSE)
 
 
   expect_equal(CVgausslist$RMSE, c(16.69535, 20.07280), tolerance=1e-3)
   expect_equal(CVgausslist$MAE, c(13.92099, 16.60674), tolerance=1e-3)
+  expect_equal(CVgausslist$RMSLE, c(0.4737409, 0.5595062), tolerance=1e-3)
+  expect_equal(CVgausslist$MALE, c(0.3837563, 0.4488940), tolerance=1e-3)
   expect_equal(CVgausslist$r2m, c(0.268698382, 0.008717078), tolerance=1e-3)
   expect_equal(CVgausslist$r2c, c(0.268698382, 0.008717078), tolerance=1e-3)
   expect_equal(CVgausslist$AIC, c(194.6793, 201.9189), tolerance=1e-3)
@@ -888,7 +892,7 @@ test_that("gaussian models work with repeated cross_validate()",{
   expect_is(CVgausslist$Results[[1]], "tbl_df")
   expect_is(CVgausslist$Coefficients[[1]], "tbl_df")
   expect_equal(colnames(CVgausslist$Results[[1]]),
-               c("Fold Column","Fold","RMSE","MAE","r2m","r2c","AIC","AICc","BIC"))
+               c("Fold Column","Fold","RMSE","MAE","RMSLE","MALE","r2m","r2c","AIC","AICc","BIC"))
   expect_equal(CVgausslist$Results[[1]]$`Fold Column`,
                rep(c(".folds_1",".folds_2"), each=4))
   expect_equal(colnames(CVgausslist$Predictions[[1]]),
@@ -1634,7 +1638,7 @@ Please use the `verbose` argument instead.", fixed=TRUE)
                                   optCtrl = list(maxfun = 10)),
       rm_nc = TRUE
     ))),
-    structure(list(RMSE = numeric(0), MAE = numeric(0), r2m = numeric(0),
+    structure(list(RMSE = numeric(0), MAE = numeric(0),RMSLE = numeric(0), r2m = numeric(0),
                    r2c = numeric(0), AIC = numeric(0), AICc = numeric(0), BIC = numeric(0),
                    Predictions = logical(0), Results = list(), Coefficients = list(),
                    Folds = integer(0), `Fold Columns` = integer(0), `Convergence Warnings` = integer(0),
@@ -1786,12 +1790,12 @@ test_that("gaussian models with metrics list work with cross_validate()",{
                          verbose = FALSE)
 
   expect_equal(colnames(CVed),
-               c("MAE", "r2m", "r2c", "AIC", "AICc", "BIC", "Predictions", "Results",
+               c("MAE","RMSLE", "r2m", "r2c", "AIC", "AICc", "BIC", "Predictions", "Results",
                  "Coefficients", "Folds", "Fold Columns", "Convergence Warnings",
                  "Singular Fit Messages", "Other Warnings", "Warnings and Messages",
                  "Family", "Dependent", "Fixed"))
   expect_equal(colnames(CVed$Results[[1]]),
-               c("Fold Column", "Fold", "MAE", "r2m", "r2c", "AIC", "AICc",
+               c("Fold Column", "Fold", "MAE","RMSLE", "r2m", "r2c", "AIC", "AICc",
                  "BIC"))
 
   # Cross-validate the data

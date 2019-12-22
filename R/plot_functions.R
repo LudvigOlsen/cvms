@@ -13,13 +13,13 @@ plot_confusion_matrix <- function(conf_mat,
                                   theme_fn = ggplot2::theme_light){
 
   conf_mat %>%
-    ggplot2::ggplot(ggplot2::aes(x = Target, y = Prediction, fill = N)) +
+    ggplot2::ggplot(ggplot2::aes(x = .data$Target, y = .data$Prediction, fill = .data$N)) +
     ggplot2::geom_tile() +
     theme_fn() +
     ggplot2::coord_equal() +
     ggplot2::scale_fill_distiller(palette = palette, direction = 1) +
     ggplot2::guides(fill = F) + # remove legend
-    ggplot2::geom_text(ggplot2::aes(label = N), color = "black")
+    ggplot2::geom_text(ggplot2::aes(label = .data$N), color = "black")
 }
 
 

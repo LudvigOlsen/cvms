@@ -1,46 +1,6 @@
 
 # Metrics
 
-calculate_MAE <- function(predictions, targets, raise_errors = FALSE){
-  tryCatch({
-    mae(predictions, targets)
-  }, error = function(e){
-    if (raise_errors) stop(e)
-    else warning(e)
-    return(NA)
-  })
-}
-
-calculate_RMSE <- function(predictions, targets, raise_errors = FALSE){
-  tryCatch({
-    rmse(predictions, targets)
-  }, error = function(e){
-    if (raise_errors) stop(e)
-    else warning(e)
-    return(NA)
-  })
-}
-
-calculate_NRMSE <- function(predictions, targets, raise_errors = FALSE){
-  tryCatch({
-    nrmse(predictions, targets)
-  }, error = function(e){
-    if (raise_errors) stop(e)
-    else warning(e)
-    return(NA)
-  })
-}
-
-calculate_RMSEIQR <- function(predictions, targets, raise_errors = FALSE){
-  tryCatch({
-    rmseiqr(predictions, targets)
-  }, error = function(e){
-    if (raise_errors) stop(e)
-    else warning(e)
-    return(NA)
-  })
-}
-
 calculate_r2m <- function(model, raise_errors = FALSE){
   model_metric_wrapper(model, metric_fn = function(model_){
 

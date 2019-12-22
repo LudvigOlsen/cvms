@@ -598,4 +598,50 @@ position_last <- function(data, col){
   base_select(data = data, cols = c(setdiff(names(data), col), col))
 }
 
+# use_epsilon: Add epsilon to 0s and subtract epsilon from 1s
+one_hot_encode <- function(data, col, c_levels = NULL, use_epsilon=FALSE, epsilon = 1e-6) {
+
+  # If not provided, extract categorical levels from col
+  if (is.null(c_levels)){
+    c_levels <- unique(data[[col]])
+  }
+
+  # Sort so columns will also be sorted
+  c_levels <- sort(c_levels)
+
+  # Check that none of the categorical levels already
+  # have a column in data
+  if (length(intersect(colnames(data), c_levels)) > 0)
+    stop("'data' already includes one or more columns with name of one of the levels.")
+
+  # Initialize zero tibble
+  initial_tbl <- matrix(rep(c_levels, each=nrow(data)),
+                        nrow=nrow(data),
+                        ncol = length(c_levels)) %>%
+    dplyr::as_tibble(.name_repair = "minimal")
+  colnames(initial_tbl) <- c_levels
+
+  # Add col with a unique name
+  tmp_colname <- create_tmp_var(data, ".__col__")
+  initial_tbl[[tmp_colname]] <- data[[col]]
+
+  equal_int <- function(x1, x2){
+    as.integer(x1 == x2)
+  }
+
+  # Create dummy variables
+  dummies <- initial_tbl %>%
+    dplyr::mutate_at(.vars = c_levels, .funs = list(
+      ~equal_int(., !!as.name(tmp_colname))
+    )) %>%
+    base_deselect(tmp_colname)
+
+  if (isTRUE(use_epsilon)){
+    dummies <- dummies + epsilon - (dummies * 2 * epsilon)
+  }
+
+  # Combine and return
+  dplyr::bind_cols(data, dummies)
+
+}
 

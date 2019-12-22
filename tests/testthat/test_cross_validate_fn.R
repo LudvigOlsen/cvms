@@ -283,7 +283,7 @@ test_that("gaussian lm model works with cross_validate_fn()",{
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
   expect_equal(colnames(CVed),
-               c("RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD", "RAE", "RRSE",
+               c("RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD", "RMSLE", "MALE", "RAE", "RSE", "RRSE",
                  "MAPE", "MSE", "TAE", "TSE", "r2m", "r2c", "AIC", "AICc", "BIC", "Predictions",
                  "Results", "Coefficients", "Folds", "Fold Columns", "Convergence Warnings",
                  "Other Warnings", "Warnings and Messages", "Family", "Dependent",
@@ -609,11 +609,12 @@ test_that("gaussian svm models from e1071 work with cross_validate_fn()",{
                             type = 'gaussian')
 
   expect_equal(colnames(CVed),
-               c("RMSE", "MAE", "Predictions", "Results", "Coefficients", "Folds",
+               c("RMSE", "MAE", "RMSLE", "Predictions", "Results", "Coefficients", "Folds",
                  "Fold Columns", "Convergence Warnings", "Other Warnings", "Warnings and Messages",
                  "Family", "Dependent", "Fixed"))
   expect_equal(CVed$RMSE, 18.01026, tolerance=1e-3)
   expect_equal(CVed$MAE, 15.27778, tolerance=1e-3)
+  expect_equal(CVed$RMSLE, 0.4828787, tolerance=1e-3)
   expect_equal(CVed$Folds, 4)
   expect_equal(CVed$`Fold Columns`, 1)
   expect_equal(CVed$`Convergence Warnings`, 0)
@@ -1857,7 +1858,7 @@ test_that("gaussian lm model with metrics list works with cross_validate_fn()",{
                             type = 'gaussian')
 
   expect_equal(colnames(CVed),
-               c("MAE", "r2c", "AIC", "AICc", "BIC", "Predictions", "Results",
+               c("MAE", "RMSLE", "r2c", "AIC", "AICc", "BIC", "Predictions", "Results",
                  "Coefficients", "Folds", "Fold Columns", "Convergence Warnings",
                  "Other Warnings", "Warnings and Messages", "Family", "Dependent",
                  "Fixed"))

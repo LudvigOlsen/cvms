@@ -366,6 +366,41 @@ test_that("multinomial evaluations are correct in evaluate()",{
   expect_equal(colnames(mn_id_eval_1$`Confusion Matrix`[[1]]),
                c("Prediction", "Target", "N"))
 
+  preds <- legacy_unnest(mn_id_eval_1$Predictions[[1]])
+  expect_equal(preds$Target,
+               c("cl_1", "cl_1", "cl_2", "cl_2", "cl_3", "cl_3", "cl_4", "cl_5",
+                 "cl_5"))
+  expect_equal(preds$`Predicted Class`,
+               c("cl_3", "cl_1", "cl_3", "cl_4", "cl_2", "cl_2", "cl_4", "cl_1",
+                 "cl_4"))
+  expect_equal(preds$id,
+               structure(
+                 c(1L, 2L, 3L, 4L, 5L, 6L, 8L, 9L, 10L),
+                 .Label = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10"),
+                 class = "factor"
+               ))
+  expect_equal(preds$id_method, rep("mean", 9))
+  expect_equal(preds$cl_1,
+               c(0.155671811050252, 0.248320604698989, 0.210232666790023, 0.233435859695667,
+                 0.215424349733198, 0.172214912622303, 0.175725517586139, 0.318193346232363,
+                 0.184499511821644))
+  expect_equal(preds$cl_2,
+               c(0.200809683386583, 0.174653590011229, 0.16814831665041, 0.176707798618296,
+                 0.274016028927649, 0.226977008772144, 0.208448230323408, 0.131459226131536,
+                 0.182435977816156))
+  expect_equal(preds$cl_3,
+               c(0.235788915387888, 0.230943855788057, 0.234561297999098, 0.194287616631672,
+                 0.238843732067503, 0.225966833951102, 0.118000650430999, 0.198221952164019,
+                 0.176500595260772))
+  expect_equal(preds$cl_4,
+               c(0.206887130859327, 0.175900816874267, 0.191066716938011, 0.259412699196439,
+                 0.124928637348059, 0.196731833826249, 0.260713554487017, 0.174293847520026,
+                 0.246626726585871))
+  expect_equal(preds$cl_5,
+               c(0.20084245931595, 0.170181132627457, 0.195991001622458, 0.136156025857926,
+                 0.146787251923591, 0.178109410828203, 0.237112047172437, 0.177831627952058,
+                 0.209937188515557))
+
 
 
   # Test grouping vars
@@ -482,6 +517,567 @@ test_that("multinomial evaluations are correct in evaluate()",{
   # TODO test that group_by and evaluate work correctly together
 
 })
+
+test_that("multinomial evaluations with one predicted class column is correctly unpacked in evaluate()",{
+
+  set_seed_for_R_compatibility(1)
+  random_probabilities <- multiclass_probability_tibble(
+    num_classes = 5,
+    num_observations = 20,
+    apply_softmax = FALSE # Test with as well
+  )
+  expect_equal(sum(random_probabilities), 51.78471, tolerance = 1e-5)
+
+  random_classes <- argmax(random_probabilities)
+
+  data_ <- random_probabilities %>%
+    dplyr::mutate(cl = as.factor(rep(1:5, each = 4)),
+                  cl_char = paste0("cl_", cl),
+                  pred_cl = random_classes)
+
+  data_ <- data_ %>%
+    dplyr::rename_at(dplyr::vars(paste0("class_", 1:5)), .funs = ~paste0("cl_", 1:5)) %>%
+    dplyr::mutate(pred_cl_char = paste0("cl_", pred_cl))
+
+  data_classes <- data_ %>%
+    base_select(c("cl", "cl_char","pred_cl","pred_cl_char"))
+
+  mn_eval_1 <- evaluate(
+    data = data_classes,
+    target_col = "cl_char",
+    prediction_cols = "pred_cl_char",
+    type = "multinomial",
+    apply_softmax = FALSE,
+    metrics = list("AUC" = TRUE)
+  )
+
+  # TODO Add more tests
+  expect_equal(mn_eval_1$`Overall Accuracy`, 0.2, tolerance = 1e-4)
+  expect_equal(mn_eval_1$`Balanced Accuracy`, 0.5, tolerance = 1e-4)
+  expect_equal(mn_eval_1$`Balanced Accuracy`,
+               mean(mn_eval_1$`Class Level Results`[[1]]$`Balanced Accuracy`))
+  expect_equal(mn_eval_1$F1, NaN)
+  expect_equal(mn_eval_1$Sensitivity, 0.2, tolerance = 1e-4)
+  expect_equal(mn_eval_1$Specificity, 0.8, tolerance = 1e-4)
+  expect_equal(mn_eval_1$`Pos Pred Value`, 0.23, tolerance = 1e-4)
+  expect_equal(mn_eval_1$`Neg Pred Value`, 0.7991667, tolerance = 1e-4)
+  expect_equal(mn_eval_1$AUC, 0.5)
+  expect_equal(mn_eval_1$Kappa, 0.008653846, tolerance = 1e-4)
+  expect_equal(mn_eval_1$MCC, 0.0125, tolerance = 1e-4)
+  expect_equal(mn_eval_1$`Detection Rate`, 0.04, tolerance = 1e-4)
+  expect_equal(mn_eval_1$`Detection Prevalence`, 0.2, tolerance = 1e-4)
+  expect_equal(mn_eval_1$Prevalence, 0.2, tolerance = 1e-4)
+  expect_equal(as.numeric(mn_eval_1$ROC[[1]]$auc),
+               0.5, tolerance = 1e-4)
+  expect_equal(names(mn_eval_1$ROC[[1]]$rocs),
+               c("cl_1/cl_2", "cl_1/cl_3", "cl_1/cl_4", "cl_1/cl_5", "cl_2/cl_3",
+                 "cl_2/cl_4", "cl_2/cl_5", "cl_3/cl_4", "cl_3/cl_5", "cl_4/cl_5"
+               ))
+  expect_equal(mn_eval_1$ROC[[1]]$rocs$`cl_1/cl_2`[[1]]$sensitivities,
+               c(1, 0.5, 0))
+  expect_equal(mn_eval_1$ROC[[1]]$rocs$`cl_1/cl_2`[[1]]$specificities,
+               c(0, 0.25, 1))
+  expect_equal(mn_eval_1$ROC[[1]]$rocs$`cl_1/cl_2`[[2]]$sensitivities,
+               c(1, 0.75, 0))
+  expect_equal(mn_eval_1$ROC[[1]]$rocs$`cl_1/cl_2`[[2]]$specificities,
+               c(0, 0, 1))
+
+  expect_equal(mn_eval_1$ROC[[1]]$rocs$`cl_4/cl_5`[[1]]$sensitivities,
+               c(1, 0.5, 0))
+  expect_equal(mn_eval_1$ROC[[1]]$rocs$`cl_4/cl_5`[[1]]$specificities,
+               c(0, 0.25, 1))
+  expect_equal(mn_eval_1$ROC[[1]]$rocs$`cl_4/cl_5`[[2]]$sensitivities,
+               c(1, 0.75, 0))
+  expect_equal(mn_eval_1$ROC[[1]]$rocs$`cl_4/cl_5`[[2]]$specificities,
+               c(0, 0.25, 1))
+
+  expect_equal(mn_eval_1$`Class Level Results`[[1]]$Class,
+               c("cl_1","cl_2","cl_3","cl_4","cl_5"))
+  expect_equal(mn_eval_1$`Class Level Results`[[1]]$`Balanced Accuracy`,
+               c(0.50000,0.37500,0.59375,0.50000,0.53125), tolerance = 1e-4)
+  expect_equal(mn_eval_1$`Class Level Results`[[1]]$F1,
+               c(0.2222222, NaN, 0.3333333, 0.2222222, 0.2500000), tolerance = 1e-4)
+  expect_equal(mn_eval_1$`Class Level Results`[[1]]$Sensitivity,
+               c(0.25, 0.0, 0.25, 0.25, 0.25), tolerance = 1e-4)
+  expect_equal(mn_eval_1$`Class Level Results`[[1]]$Specificity,
+               c(0.7500,0.7500,0.9375,0.7500,0.8125), tolerance = 1e-4)
+  expect_equal(mn_eval_1$`Class Level Results`[[1]]$`Pos Pred Value`,
+               c(0.20, 0.00, 0.50, 0.20, 0.25), tolerance = 1e-4)
+  expect_equal(mn_eval_1$`Class Level Results`[[1]]$`Neg Pred Value`,
+               c(0.80, 0.750, 0.8333333, 0.80, 0.81250), tolerance = 1e-4)
+  expect_equal(mn_eval_1$`Class Level Results`[[1]]$Kappa,
+               c(-3.172066e-16, -2.500000e-01, 2.307692e-01, -3.172066e-16, 6.250000e-02),
+               tolerance = 1e-4)
+  expect_equal(mn_eval_1$`Class Level Results`[[1]]$MCC,
+               c(0.0000, -0.2500, 0.2500, 0.0000, 0.0625), tolerance = 1e-4)
+  expect_equal(mn_eval_1$`Class Level Results`[[1]]$`Detection Rate`,
+               c(0.05,0.00, 0.05, 0.05, 0.05), tolerance = 1e-4)
+  expect_equal(mn_eval_1$`Class Level Results`[[1]]$`Detection Prevalence`,
+               c(0.25, 0.20, 0.10, 0.25, 0.20), tolerance = 1e-4)
+  expect_equal(mn_eval_1$`Class Level Results`[[1]]$Prevalence,
+               c(0.2,0.2,0.2,0.2,0.2), tolerance = 1e-4)
+  expect_equal(mn_eval_1$`Class Level Results`[[1]]$Support,
+               c(4,4,4,4,4))
+  expect_equal(mn_eval_1$`Class Level Results`[[1]]$`Confusion Matrix`[[1]]$Prediction,
+               as.character(c(0,1,0,1)))
+  expect_equal(mn_eval_1$`Class Level Results`[[1]]$`Confusion Matrix`[[1]]$Target,
+               as.character(c(0,0,1,1)))
+  expect_equal(mn_eval_1$`Class Level Results`[[1]]$`Confusion Matrix`[[1]]$Pos_0,
+               c("TP", "FN", "FP", "TN"))
+  expect_equal(mn_eval_1$`Class Level Results`[[1]]$`Confusion Matrix`[[1]]$Pos_1,
+               c("TN", "FP", "FN", "TP"))
+  expect_equal(mn_eval_1$`Class Level Results`[[1]]$`Confusion Matrix`[[1]]$N,
+               c(12,4,3,1))
+  expect_equal(mn_eval_1$`Class Level Results`[[1]]$`Confusion Matrix`[[2]]$Prediction,
+               as.character(c(0,1,0,1)))
+  expect_equal(mn_eval_1$`Class Level Results`[[1]]$`Confusion Matrix`[[2]]$Target,
+               as.character(c(0,0,1,1)))
+  expect_equal(mn_eval_1$`Class Level Results`[[1]]$`Confusion Matrix`[[2]]$Pos_0,
+               c("TP", "FN", "FP", "TN"))
+  expect_equal(mn_eval_1$`Class Level Results`[[1]]$`Confusion Matrix`[[2]]$Pos_1,
+               c("TN", "FP", "FN", "TP"))
+  expect_equal(mn_eval_1$`Class Level Results`[[1]]$`Confusion Matrix`[[2]]$N,
+               c(12,4,4,0))
+  expect_equal(colnames(mn_eval_1$`Class Level Results`[[1]]$`Confusion Matrix`[[1]]),
+               c("Prediction", "Target", "Pos_0", "Pos_1", "N"))
+  expect_equal(colnames(mn_eval_1$`Confusion Matrix`[[1]]),
+               c("Prediction", "Target", "N"))
+
+
+  # Test Weighted metrics, and metrics == "all"
+  # Sampled data frame
+  if (TRUE){
+
+    set_seed_for_R_compatibility(1)
+    mn_eval_2 <- evaluate(
+      data = data_classes %>% dplyr::sample_n(17),
+      target_col = "cl_char",
+      prediction_cols = "pred_cl_char",
+      type = "multinomial",
+      apply_softmax = FALSE,
+      metrics = "all"
+    )
+
+    # Create manual weighted mean function
+    manual_weighted_mean <- function(x,w){
+      sum(x * w)/sum(w)
+    }
+
+    # Test manual weighted mean function
+    expect_equal(manual_weighted_mean(x = c(0.2,0.8),w = c(1,1)), 0.5, tolerance = 1e-4)
+    expect_equal(manual_weighted_mean(x = c(0.3,0.7),w = c(1,1)), 0.5, tolerance = 1e-4)
+    expect_equal(manual_weighted_mean(x = c(0.5,0.5),w = c(1,1)), 0.5, tolerance = 1e-4)
+    expect_equal(manual_weighted_mean(x = c(0.2),w = c(4)), 0.2)
+    expect_equal(manual_weighted_mean(x = c(0.2,0.8),w = c(4,1)), 0.32, tolerance = 1e-4)
+
+    expect_equal(mn_eval_2$`Overall Accuracy`, 0.2352941, tolerance = 1e-4)
+    expect_equal(mn_eval_2$`Balanced Accuracy`, 0.5380586, tolerance = 1e-4)
+    expect_equal(mn_eval_2$`Balanced Accuracy`,
+                 mean(mn_eval_2$`Class Level Results`[[1]]$`Balanced Accuracy`))
+    expect_equal(mn_eval_2$`Weighted Balanced Accuracy`, 0.5236264, tolerance = 1e-4)
+    expect_equal(mn_eval_2$`Weighted Balanced Accuracy`,
+                 manual_weighted_mean(x = mn_eval_2$`Class Level Results`[[1]]$`Balanced Accuracy`,
+                                      w = mn_eval_2$`Class Level Results`[[1]]$Support))
+    expect_equal(mn_eval_2$Accuracy, 0.6941176, tolerance = 1e-4)
+    expect_equal(mn_eval_2$`Weighted Accuracy`, 0.6851211, tolerance = 1e-4)
+    expect_equal(mn_eval_2$F1, NaN)
+    expect_equal(mn_eval_2$`Weighted F1`, NaN)
+    expect_equal(mn_eval_2$Sensitivity, 0.2666667, tolerance = 1e-4)
+    expect_equal(mn_eval_2$`Weighted Sensitivity`, 0.2352941, tolerance = 1e-4)
+    expect_equal(mn_eval_2$Specificity, 0.8094505, tolerance = 1e-4)
+    expect_equal(mn_eval_2$`Weighted Specificity`, 0.8119586, tolerance = 1e-4)
+    expect_equal(mn_eval_2$`Pos Pred Value`, 0.2666667, tolerance = 1e-4)
+    expect_equal(mn_eval_2$`Weighted Pos Pred Value`, 0.2696078, tolerance = 1e-4)
+    expect_equal(mn_eval_2$`Neg Pred Value`, 0.8094505, tolerance = 1e-4)
+    expect_equal(mn_eval_2$`Weighted Neg Pred Value`, 0.7939237, tolerance = 1e-4)
+    expect_equal(mn_eval_2$AUC, 0.5416667, tolerance = 1e-4)
+    expect_equal(mn_eval_2$Kappa, 0.06428773, tolerance = 1e-4)
+    expect_equal(mn_eval_2$`Weighted Kappa`, 0.04481687, tolerance = 1e-4)
+    expect_equal(mn_eval_2$MCC, 0.07240413, tolerance = 1e-4)
+    expect_equal(mn_eval_2$`Weighted MCC`, 0.05207999, tolerance = 1e-4)
+    expect_equal(mn_eval_2$`Detection Rate`, 0.04705882, tolerance = 1e-4)
+    expect_equal(mn_eval_2$`Weighted Detection Rate`, 0.0449827, tolerance = 1e-4)
+    expect_equal(mn_eval_2$`Detection Prevalence`, 0.2, tolerance = 1e-4)
+    expect_equal(mn_eval_2$`Weighted Detection Prevalence`, 0.1937716, tolerance = 1e-4)
+    expect_equal(mn_eval_2$Prevalence, 0.2, tolerance = 1e-4)
+    expect_equal(mn_eval_2$`Weighted Prevalence`, 0.2110727, tolerance = 1e-4)
+
+    expect_equal(as.numeric(mn_eval_2$ROC[[1]]$auc), 0.5416667, tolerance = 1e-4)
+    expect_equal(mn_eval_2$ROC[[1]]$rocs$`cl_3/cl_4`[[1]]$direction, ">", tolerance = 1e-4)
+    expect_equal(mn_eval_2$ROC[[1]]$rocs$`cl_3/cl_4`[[1]]$sensitivities,
+                 c(1, 1, 0), tolerance = 1e-4)
+    expect_equal(mn_eval_2$ROC[[1]]$rocs$`cl_3/cl_4`[[1]]$specificities,
+                 c(0.00, 0.25, 1.00), tolerance = 1e-4)
+
+    expect_equal(mn_eval_2$`Class Level Results`[[1]]$Class,
+                 c("cl_1","cl_2","cl_3","cl_4","cl_5"))
+    expect_equal(mn_eval_2$`Class Level Results`[[1]]$`Balanced Accuracy`,
+                 c(0.5480769,0.3461538,0.5865385,0.5595238,0.6500000), tolerance = 1e-4)
+    expect_equal(mn_eval_2$`Class Level Results`[[1]]$F1,
+                 c(0.2857143, NaN, 0.3333333, 0.2857143, 0.3333333), tolerance = 1e-4)
+    expect_equal(mn_eval_2$`Class Level Results`[[1]]$Sensitivity,
+                 c(0.250, 0.00, 0.250, 0.3333333, 0.500), tolerance = 1e-4)
+    expect_equal(mn_eval_2$`Class Level Results`[[1]]$Specificity,
+                 c(0.8461538, 0.6923077, 0.9230769, 0.7857143, 0.80), tolerance = 1e-4)
+    expect_equal(mn_eval_2$`Class Level Results`[[1]]$`Pos Pred Value`,
+                 c(0.3333333, 0.0, 0.50, 0.25, 0.25), tolerance = 1e-4)
+    expect_equal(mn_eval_2$`Class Level Results`[[1]]$`Neg Pred Value`,
+                 c(0.7857143, 0.6923077, 0.80, 0.8461538, 0.9230769), tolerance = 1e-4)
+    expect_equal(mn_eval_2$`Class Level Results`[[1]]$Kappa,
+                 c(0.1052632, -0.3076923,  0.2093023,  0.1052632,  0.2093023), tolerance = 1e-4)
+    expect_equal(mn_eval_2$`Class Level Results`[[1]]$MCC,
+                 c(0.1069901, -0.3076923, 0.2278664, 0.1069901, 0.2278664), tolerance = 1e-4)
+    expect_equal(mn_eval_2$`Class Level Results`[[1]]$`Detection Rate`,
+                 c(0.05882353,0.00, 0.05882353, 0.05882353, 0.05882353), tolerance = 1e-4)
+    expect_equal(mn_eval_2$`Class Level Results`[[1]]$`Detection Prevalence`,
+                 c(0.1764706,0.2352941,0.1176471,0.2352941,0.2352941), tolerance = 1e-4)
+    expect_equal(mn_eval_2$`Class Level Results`[[1]]$Prevalence,
+                 c(0.2352941,0.2352941,0.2352941,0.1764706,0.1176471), tolerance = 1e-4)
+    expect_equal(mn_eval_2$`Class Level Results`[[1]]$Support,
+                 c(4,4,4,3,2))
+
+    expect_equal(mn_eval_2$`Class Level Results`[[1]]$`Confusion Matrix`[[1]]$Prediction,
+                 as.character(c(0,1,0,1)))
+    expect_equal(mn_eval_2$`Class Level Results`[[1]]$`Confusion Matrix`[[1]]$Target,
+                 as.character(c(0,0,1,1)))
+    expect_equal(mn_eval_2$`Class Level Results`[[1]]$`Confusion Matrix`[[1]]$Pos_0,
+                 c("TP", "FN", "FP", "TN"))
+    expect_equal(mn_eval_2$`Class Level Results`[[1]]$`Confusion Matrix`[[1]]$Pos_1,
+                 c("TN", "FP", "FN", "TP"))
+    expect_equal(mn_eval_2$`Class Level Results`[[1]]$`Confusion Matrix`[[1]]$N,
+                 c(11,2,3,1))
+    expect_equal(mn_eval_2$`Class Level Results`[[1]]$`Confusion Matrix`[[2]]$Prediction,
+                 as.character(c(0,1,0,1)))
+    expect_equal(mn_eval_2$`Class Level Results`[[1]]$`Confusion Matrix`[[2]]$Target,
+                 as.character(c(0,0,1,1)))
+    expect_equal(mn_eval_2$`Class Level Results`[[1]]$`Confusion Matrix`[[2]]$Pos_0,
+                 c("TP", "FN", "FP", "TN"))
+    expect_equal(mn_eval_2$`Class Level Results`[[1]]$`Confusion Matrix`[[2]]$Pos_1,
+                 c("TN", "FP", "FN", "TP"))
+    expect_equal(mn_eval_2$`Class Level Results`[[1]]$`Confusion Matrix`[[2]]$N,
+                 c(9,4,4,0))
+    expect_equal(colnames(mn_eval_2$`Class Level Results`[[1]]$`Confusion Matrix`[[1]]),
+                 c("Prediction", "Target", "Pos_0", "Pos_1", "N"))
+    expect_equal(colnames(mn_eval_2$`Confusion Matrix`[[1]]),
+                 c("Prediction", "Target", "N"))
+
+  }
+
+  # Enabling and disabling a few metrics
+
+  # TODO
+
+  # ID level
+  if (TRUE){
+
+    # ID level
+    data_classes <- data_classes %>%
+      dplyr::mutate(id = factor(rep(1:10, each=2)))
+
+    set_seed_for_R_compatibility(9)
+    suppressWarnings(
+      mn_id_eval_1 <- evaluate(
+        data = data_classes %>% dplyr::sample_n(13),
+        target_col = "cl_char",
+        prediction_cols = "pred_cl_char",
+        id_col = "id",
+        id_method = "mean",
+        type = "multinomial",
+        apply_softmax = FALSE,
+        metrics = "all"
+      ))
+
+    expect_equal(mn_id_eval_1$`Overall Accuracy`, 0.222222, tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$`Balanced Accuracy`, 0.5535714, tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$`Balanced Accuracy`,
+                 mean(mn_id_eval_1$`Class Level Results`[[1]]$`Balanced Accuracy`))
+    expect_equal(mn_id_eval_1$`Weighted Balanced Accuracy`, 0.5178571, tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$`Weighted Balanced Accuracy`,
+                 manual_weighted_mean(x = mn_id_eval_1$`Class Level Results`[[1]]$`Balanced Accuracy`,
+                                      w = mn_id_eval_1$`Class Level Results`[[1]]$Support))
+    expect_equal(mn_id_eval_1$Accuracy, 0.688888889, tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$`Weighted Accuracy`, 0.6790123, tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$F1, NaN)
+    expect_equal(mn_id_eval_1$`Weighted F1`, NaN)
+    expect_equal(mn_id_eval_1$Sensitivity, 0.3, tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$`Weighted Sensitivity`, 0.222222, tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$Specificity, 0.8071429, tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$`Weighted Specificity`, 0.8134921, tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$`Pos Pred Value`, NaN)
+    expect_equal(mn_id_eval_1$`Weighted Pos Pred Value`, NaN)
+    expect_equal(mn_id_eval_1$`Neg Pred Value`, 0.81111, tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$`Weighted Neg Pred Value`, 0.7901235, tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$AUC, 0.575, tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$Kappa, 0.043636, tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$`Weighted Kappa`, 0.00404, tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$MCC, 0.06220355, tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$`Weighted MCC`, 0.0135595, tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$`Detection Rate`, 0.04444444, tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$`Weighted Detection Rate`, 0.03703704, tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$`Detection Prevalence`, 0.2, tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$`Weighted Detection Prevalence`, 0.1851852, tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$Prevalence, 0.2, tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$`Weighted Prevalence`, 0.2098765, tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$`Class Level Results`[[1]]$Class,
+                 c("cl_1","cl_2","cl_3","cl_4","cl_5"))
+    expect_equal(mn_id_eval_1$`Class Level Results`[[1]]$`Balanced Accuracy`,
+                 c(0.607142857142857, 0.285714285714286, 0.5, 0.875, 0.5), tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$`Class Level Results`[[1]]$F1,
+                 c(0.4, NaN, NaN, 0.5, NA), tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$`Class Level Results`[[1]]$Sensitivity,
+                 c(0.5,0.0,0.0,1.0,0.0), tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$`Class Level Results`[[1]]$Specificity,
+                 c(0.714285714285714, 0.571428571428571, 1, 0.75, 1), tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$`Class Level Results`[[1]]$`Pos Pred Value`,
+                 c(0.333333333333333, 0, NaN, 0.333333333333333, NaN), tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$`Class Level Results`[[1]]$`Neg Pred Value`,
+                 c(0.833333333333333, 0.666666666666667, 0.777777777777778, 1,
+                   0.777777777777778), tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$`Class Level Results`[[1]]$Kappa,
+                 c(0.181818181818182, -0.363636363636363, 0, 0.4, 0), tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$`Class Level Results`[[1]]$MCC,
+                 c(0.1889822, -0.377964, 0, 0.5, 0), tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$`Class Level Results`[[1]]$`Detection Rate`,
+                 c(0.1111111, 0.0000000, 0.0000000, 0.1111111, 0.0000000), tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$`Class Level Results`[[1]]$`Detection Prevalence`,
+                 c(0.3333333, 0.3333333, 0, 0.3333333, 0), tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$`Class Level Results`[[1]]$Prevalence,
+                 c(0.2222222,0.2222222,0.2222222,0.1111111,0.2222222), tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$`Class Level Results`[[1]]$Support,
+                 c(2,2,2,1,2))
+    expect_equal(mn_id_eval_1$`Class Level Results`[[1]]$`Confusion Matrix`[[1]]$Prediction,
+                 c("0", "1", "0", "1"))
+    expect_equal(mn_id_eval_1$`Class Level Results`[[1]]$`Confusion Matrix`[[1]]$Target,
+                 c("0", "0", "1", "1"))
+    expect_equal(mn_id_eval_1$`Class Level Results`[[1]]$`Confusion Matrix`[[1]]$Pos_0,
+                 c("TP", "FN", "FP", "TN"))
+    expect_equal(mn_id_eval_1$`Class Level Results`[[1]]$`Confusion Matrix`[[1]]$Pos_1,
+                 c("TN", "FP", "FN", "TP"))
+    expect_equal(mn_id_eval_1$`Class Level Results`[[1]]$`Confusion Matrix`[[1]]$N,
+                 c(5, 2, 1, 1))
+    expect_equal(colnames(mn_id_eval_1$`Class Level Results`[[1]]$`Confusion Matrix`[[1]]),
+                 c("Prediction", "Target", "Pos_0", "Pos_1", "N"))
+    expect_equal(colnames(mn_id_eval_1$`Confusion Matrix`[[1]]),
+                 c("Prediction", "Target", "N"))
+
+    preds <- legacy_unnest(mn_id_eval_1$Predictions[[1]])
+    expect_equal(preds$Target,
+                 c("cl_1", "cl_1", "cl_2", "cl_2", "cl_3", "cl_3", "cl_4", "cl_5",
+                   "cl_5"))
+    expect_equal(preds$`Predicted Class`,
+                 c("cl_2", "cl_1", "cl_1", "cl_4", "cl_2", "cl_2", "cl_4", "cl_1",
+                   "cl_4"))
+    expect_equal(preds$id,
+                 structure(
+                   c(1L, 2L, 3L, 4L, 5L, 6L, 8L, 9L, 10L),
+                   .Label = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10"),
+                   class = "factor"
+                 ))
+    expect_equal(preds$id_method, rep("mean", 9))
+    expect_equal(preds$cl_1,
+                 c(0.158794620741017, 0.261808068888474, 0.261808068888474, 0.148847581202078,
+                   0.148847581202078, 0.148847581202078, 0.148847581202078, 0.40460967519169,
+                   0.158794620741017))
+    expect_equal(preds$cl_2,
+                 c(0.261808068888474, 0.158794620741017, 0.158794620741017, 0.148847581202078,
+                   0.40460967519169, 0.40460967519169, 0.148847581202078, 0.148847581202078,
+                   0.158794620741017))
+    expect_equal(preds$cl_3,
+                 c(0.158794620741017, 0.261808068888474, 0.158794620741017, 0.148847581202078,
+                   0.148847581202078, 0.148847581202078, 0.148847581202078, 0.148847581202078,
+                   0.158794620741017))
+    expect_equal(preds$cl_4,
+                 c(0.158794620741017, 0.158794620741017, 0.158794620741017, 0.40460967519169,
+                   0.148847581202078, 0.148847581202078, 0.40460967519169, 0.148847581202078,
+                   0.261808068888474))
+    expect_equal(preds$cl_5,
+                 c(0.261808068888474, 0.158794620741017, 0.261808068888474, 0.148847581202078,
+                   0.148847581202078, 0.148847581202078, 0.148847581202078, 0.148847581202078,
+                   0.261808068888474))
+
+  }
+
+  # Test grouping vars
+  data_2 <- data_classes %>% dplyr::mutate(fold_ = 1) %>%
+    dplyr::bind_rows(data_classes %>% dplyr::mutate(fold_ = 2))
+
+  mn_id_eval_2 <- evaluate(
+    data = data_2 %>% dplyr::group_by(fold_),
+    target_col = "cl_char",
+    prediction_cols = "pred_cl_char",
+    id_col = "id",
+    id_method = "majority",
+    type = "multinomial",
+    apply_softmax = FALSE
+  )
+
+  expect_equal(mn_id_eval_2$fold_, c(1,2))
+  expect_equal(dplyr::bind_rows(mn_id_eval_2$`Class Level Results`)$fold_,rep(1:2, each=5))
+  expect_equal(colnames(mn_id_eval_2),
+               c("fold_", "Overall Accuracy", "Balanced Accuracy", "F1", "Sensitivity",
+                 "Specificity", "Pos Pred Value", "Neg Pred Value",
+                 "Kappa", "MCC", "Detection Rate", "Detection Prevalence",
+                 "Prevalence", "Predictions", "Confusion Matrix", "Class Level Results"
+               ))
+  expect_equal(colnames(mn_id_eval_2$`Class Level Results`[[1]]),
+               c("fold_", "Class", "Balanced Accuracy", "F1", "Sensitivity",
+                 "Specificity", "Pos Pred Value", "Neg Pred Value",
+                 "Kappa", "MCC", "Detection Rate", "Detection Prevalence",
+                 "Prevalence", "Support", "Confusion Matrix"
+               ))
+  expect_equal(mn_id_eval_2$`Class Level Results`[[1]]$`Confusion Matrix`[[1]],
+               mn_id_eval_2$`Class Level Results`[[2]]$`Confusion Matrix`[[1]])
+
+  # What happens when a class is not in the targets but has a probability column?
+
+  data_3 <- data_classes %>%
+    dplyr::mutate(cl = as.factor(rep(1:4, each = 5)),
+                  cl_char = paste0("cl_", cl))
+
+  # Testing multinomial
+  expect_warning(mb_eval <- evaluate(
+    data = data_3,
+    target_col = "cl_char",
+    prediction_cols = "pred_cl_char",
+    apply_softmax = FALSE,
+    type = "multinomial",
+    metrics = list("AUC" = TRUE)
+  ), "The following classes were not found in 'response': cl_5.",
+  fixed = TRUE)
+
+  expect_equal(mb_eval$`Overall Accuracy`, 0.3)
+  expect_equal(mb_eval$`Balanced Accuracy`, NaN)
+  expect_equal(mb_eval$F1, NaN)
+  expect_equal(mb_eval$Sensitivity, NaN)
+  expect_equal(mb_eval$Specificity, 0.8266667, tolerance = 1e-4)
+  expect_equal(mb_eval$`Pos Pred Value`, 0.31, tolerance = 1e-4)
+  expect_equal(mb_eval$`Neg Pred Value`, 0.825555555555556, tolerance = 1e-4)
+  expect_equal(mb_eval$AUC, 0.5666667, tolerance = 1e-4)
+  expect_equal(mb_eval$Kappa, 0.1133333, tolerance = 1e-4)
+  expect_equal(mb_eval$MCC, 0.11849, tolerance = 1e-4)
+  expect_equal(mb_eval$`Detection Rate`, 0.06, tolerance = 1e-4)
+  expect_equal(mb_eval$`Detection Prevalence`, 0.2, tolerance = 1e-4)
+  expect_equal(mb_eval$Prevalence, 0.2, tolerance = 1e-4)
+  expect_true("cl_5" %ni% mb_eval$Predictions[[1]]$Target)
+  expect_equal(mb_eval$`Confusion Matrix`[[1]]$Target,
+               rep(paste0("cl_",1:5), each = 5))
+  expect_equal(mb_eval$`Confusion Matrix`[[1]]$Prediction,
+               rep(paste0("cl_",1:5), 5))
+  expect_equal(mb_eval$`Confusion Matrix`[[1]]$N,
+               c(1L, 1L, 1L, 0L, 2L, 2L, 1L, 0L, 2L, 0L, 1L, 2L, 1L, 0L, 1L,
+                 1L, 0L, 0L, 3L, 1L, 0L, 0L, 0L, 0L, 0L))
+
+
+  expect_equal(mb_eval$`Class Level Results`[[1]]$Class,
+               c("cl_1", "cl_2", "cl_3", "cl_4", "cl_5"))
+  expect_equal(mb_eval$`Class Level Results`[[1]]$`Balanced Accuracy`,
+               c(0.466666666666667, 0.5, 0.566666666666667,
+                 0.733333333333333, NaN))
+  expect_equal(mb_eval$`Class Level Results`[[1]]$F1,
+               c(0.2, 0.222222222222222, 0.285714285714286, 0.6, NaN))
+  expect_equal(mb_eval$`Class Level Results`[[1]]$Sensitivity,
+               c(0.2, 0.2, 0.2, 0.6, NA))
+  expect_equal(mb_eval$`Class Level Results`[[1]]$Specificity,
+               c(0.733333333333333, 0.8, 0.933333333333333,
+                 0.866666666666667, 0.8), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`[[1]]$`Pos Pred Value`,
+               c(0.2, 0.25, 0.5, 0.6, 0), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`[[1]]$`Neg Pred Value`,
+               c(0.733333333333333, 0.75, 0.777777777777778,
+                 0.866666666666667, 1), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`[[1]]$Kappa,
+               c(-0.0666666666666667, -3.17206578464331e-16, 0.166666666666666,
+                 0.466666666666667, 0), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`[[1]]$MCC,
+               c(-0.0666666666666667, 0, 0.192450089729875,
+                 0.466666666666667, 0), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`[[1]]$`Detection Rate`,
+               c(0.05, 0.05, 0.05, 0.15, 0), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`[[1]]$`Detection Prevalence`,
+               c(0.25, 0.2, 0.1, 0.25, 0.2), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`[[1]]$Prevalence,
+               c(0.25, 0.25, 0.25, 0.25, 0), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`[[1]]$Support,
+               c(5L, 5L, 5L, 5L, NaN), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`[[1]]$`Confusion Matrix`[[1]]$N,
+               c(11,4,4,1), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`[[1]]$`Confusion Matrix`[[5]]$N,
+               c(16,4,0,0), tolerance = 1e-4)
+
+
+  # What if a target class is never predicted?
+  mb_eval <- evaluate(
+    data = data_3,
+    target_col = "pred_cl_char",
+    prediction_cols = "cl_char",
+    apply_softmax = FALSE,
+    type = "multinomial",
+    metrics = list("AUC" = TRUE)
+  )
+
+  expect_equal(mb_eval$`Overall Accuracy`, 0.3, tolerance = 1e-4)
+  expect_equal(mb_eval$`Balanced Accuracy`, 0.5677778, tolerance = 1e-4)
+  expect_equal(mb_eval$F1, NaN)
+  expect_equal(mb_eval$Sensitivity, 0.31)
+  expect_equal(mb_eval$Specificity, 0.8255556, tolerance = 1e-4)
+  expect_equal(mb_eval$`Pos Pred Value`, NaN, tolerance = 1e-4)
+  expect_equal(mb_eval$`Neg Pred Value`, 0.8266667, tolerance = 1e-4)
+  expect_equal(mb_eval$AUC, 0.56875, tolerance = 1e-4)
+  expect_equal(mb_eval$Kappa, 0.1133333, tolerance = 1e-4)
+  expect_equal(mb_eval$MCC, 0.11849, tolerance = 1e-4)
+  expect_equal(mb_eval$`Detection Rate`, 0.06, tolerance = 1e-4)
+  expect_equal(mb_eval$`Detection Prevalence`, 0.2, tolerance = 1e-4)
+  expect_equal(mb_eval$Prevalence, 0.2, tolerance = 1e-4)
+  expect_true("cl_5" %in% mb_eval$Predictions[[1]]$Target)
+  expect_equal(mb_eval$`Confusion Matrix`[[1]]$Target,
+               rep(paste0("cl_",1:5), each = 5))
+  expect_equal(mb_eval$`Confusion Matrix`[[1]]$Prediction,
+               rep(paste0("cl_",1:5), 5))
+  expect_equal(mb_eval$`Confusion Matrix`[[1]]$N,
+               c(1L, 2L, 1L, 1L, 0L, 1L, 1L, 2L, 0L, 0L, 1L, 0L, 1L, 0L, 0L,
+                 0L, 2L, 0L, 3L, 0L, 2L, 0L, 1L, 1L, 0L))
+
+
+  expect_equal(mb_eval$`Class Level Results`[[1]]$Class,
+               c("cl_1", "cl_2", "cl_3", "cl_4", "cl_5"))
+  expect_equal(mb_eval$`Class Level Results`[[1]]$`Balanced Accuracy`,
+               c(0.466666666666667, 0.5, 0.638888888888889,
+                 0.733333333333333, 0.5))
+  expect_equal(mb_eval$`Class Level Results`[[1]]$F1,
+               c(0.2, 0.222222222222222, 0.285714285714286, 0.6, NaN))
+  expect_equal(mb_eval$`Class Level Results`[[1]]$Sensitivity,
+               c(0.2, 0.25, 0.5, 0.6, 0))
+  expect_equal(mb_eval$`Class Level Results`[[1]]$Specificity,
+               c(0.733333333333333, 0.75, 0.777777777777778,
+                 0.866666666666667, 1), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`[[1]]$`Pos Pred Value`,
+               c(0.2, 0.2, 0.2, 0.6, NaN), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`[[1]]$`Neg Pred Value`,
+               c(0.733333333333333, 0.8, 0.933333333333333, 0.866666666666667,
+                 0.8), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`[[1]]$Kappa,
+               c(-0.0666666666666667, -3.17206578464331e-16, 0.166666666666666,
+                 0.466666666666667, 0), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`[[1]]$MCC,
+               c(-0.0666666666666667, 0, 0.192450089729875,
+                 0.466666666666667, 0), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`[[1]]$`Detection Rate`,
+               c(0.05, 0.05, 0.05, 0.15, 0), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`[[1]]$`Detection Prevalence`,
+               c(0.25, 0.25, 0.25, 0.25, 0), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`[[1]]$Prevalence,
+               c(0.25, 0.2, 0.1, 0.25, 0.2), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`[[1]]$Support,
+               c(5L, 4L, 2L, 5L, 4), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`[[1]]$`Confusion Matrix`[[1]]$N,
+               c(11,4,4,1), tolerance = 1e-4)
+  expect_equal(mb_eval$`Class Level Results`[[1]]$`Confusion Matrix`[[5]]$N,
+               c(16, 0, 4, 0), tolerance = 1e-4)
+
+  # TODO test that group_by and evaluate work correctly together
+
+})
+
 
 test_that("specific multinomial predictions yield correct results in evaluate()",{
 
@@ -1302,54 +1898,58 @@ test_that("gaussian evaluations are correct in evaluate()",{
   eval_data <- participant.scores
   eval_data[["score_predictions"]] <- score_predictions
 
-  e1 <- evaluate(eval_data, target_col = "score",
+  expect_error(evaluate(eval_data, target_col = "score",
                  prediction_cols = "score_predictions",
                  models = list(score_model_1),
+                 type = "gaussian",
+                 metrics = "all"),
+               class = "lifecycle_error_deprecated"
+  )
+
+  e1 <- evaluate(eval_data, target_col = "score",
+                 prediction_cols = "score_predictions",
                  type = "gaussian",
                  metrics = "all")
 
   expect_equal(colnames(e1),
-               c("RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD", "RAE", "RRSE",
-                 "MAPE", "MSE", "TAE", "TSE", "r2m", "r2c", "AIC", "AICc", "BIC",
-                 "Predictions", "Coefficients"))
+               c("RMSE", "MAE","NRMSE", "RMSEIQR", "RMSESTD",
+                 "RMSLE", "MALE",
+                 "RAE", "RSE","RRSE",
+                 "MAPE", "MSE", "TAE", "TSE",
+                 "Predictions"))
 
   expect_equal(e1$RMSE, 16.16881, tolerance = 1e-4)
   expect_equal(e1$MAE, 13.47778, tolerance = 1e-4)
   expect_equal(e1$NRMSE, 0.2277298, tolerance = 1e-4)
   expect_equal(e1$RMSEIQR, 0.5774577, tolerance = 1e-4)
   expect_equal(e1$RMSESTD, 0.8380279, tolerance = 1e-4)
+  expect_equal(e1$RMSLE, 0.4677011, tolerance = 1e-4)
+  expect_equal(e1$MALE, 0.3768815, tolerance = 1e-4)
   expect_equal(e1$RAE, 0.8666762, tolerance = 1e-4)
+  expect_equal(e1$RSE, 0.7265077, tolerance = 1e-4)
   expect_equal(e1$RRSE, 0.8523542, tolerance = 1e-4)
   expect_equal(e1$MAPE, 0.4836546, tolerance = 1e-4)
   expect_equal(e1$MSE, 261.4306, tolerance = 1e-4)
   expect_equal(e1$TAE, 404.3333, tolerance = 1e-4)
   expect_equal(e1$TSE, 7842.917, tolerance = 1e-4)
-  expect_equal(e1$r2m, 0.2665756, tolerance = 1e-4)
-  expect_equal(e1$r2c, 0.2665756, tolerance = 1e-4)
-  expect_equal(e1$AIC, 258.1214, tolerance = 1e-4)
-  expect_equal(e1$AICc, 259.0444, tolerance = 1e-4)
-  expect_equal(e1$BIC, 262.325, tolerance = 1e-4)
   expect_equal(e1$Predictions[[1]][["Target"]], eval_data$score)
   expect_equal(e1$Predictions[[1]][["Prediction"]], eval_data$score_predictions)
-  expect_equal(e1$Coefficients[[1]]$term, c("(Intercept)","diagnosis"))
-  expect_equal(e1$Coefficients[[1]]$estimate, c(50.91667, -20.25000), tolerance = 1e-4)
-  expect_equal(e1$Coefficients[[1]]$std.error, c(4.831357, 6.237256), tolerance = 1e-4)
-  expect_equal(e1$Coefficients[[1]]$statistic, c(10.53879, -3.24662), tolerance = 1e-4)
-  expect_equal(e1$Coefficients[[1]]$p.value, c(2.984260e-11, 3.025349e-03), tolerance = 1e-4)
 
   # Not passing a model
   # This should remove the metrics that depend on the models to be passed
   e2 <- evaluate(eval_data, target_col = "score",
                  prediction_cols = "score_predictions",
-                 models = NULL,
                  type = "gaussian",
                  metrics = "all")
 
   expect_equal(colnames(e2),
-               c("RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD", "RAE", "RRSE",
+               c("RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD",
+                 "RMSLE","MALE","RAE", "RSE","RRSE",
                  "MAPE", "MSE", "TAE", "TSE", "Predictions"))
   expect_equal(e2$RMSE, 16.16881, tolerance = 1e-4)
   expect_equal(e2$MAE, 13.47778, tolerance = 1e-4)
+  expect_equal(e2$RMSLE, 0.4677011, tolerance = 1e-4)
+  expect_equal(e2$MALE, 0.3768815, tolerance = 1e-4)
   expect_equal(e2$Predictions[[1]][["Target"]], eval_data$score)
   expect_equal(e2$Predictions[[1]][["Prediction"]], eval_data$score_predictions)
 
@@ -1364,14 +1964,14 @@ test_that("gaussian evaluations are correct in evaluate()",{
 
   e3 <- evaluate(eval_data_2, target_col = "score",
                  prediction_cols = "score_predictions",
-                 models = list(score_model_2),
                  type = "gaussian",
                  metrics = "all")
 
   expect_equal(colnames(e3),
-               c("RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD", "RAE", "RRSE",
-                 "MAPE", "MSE", "TAE", "TSE", "r2m", "r2c", "AIC", "AICc", "BIC",
-                 "Predictions", "Coefficients"))
+               c("RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD",
+                 "RMSLE","MALE","RAE", "RSE", "RRSE",
+                 "MAPE", "MSE", "TAE", "TSE",
+                 "Predictions"))
 
   eval_data_3 <- dplyr::bind_rows(eval_data %>% dplyr::mutate(fold_ = 1),
                                   eval_data_2 %>% dplyr::mutate(fold_ = 2)) %>%
@@ -1382,16 +1982,14 @@ test_that("gaussian evaluations are correct in evaluate()",{
 
   e4 <- evaluate(eval_data_3, target_col = "score",
                  prediction_cols = "score_predictions",
-                 models = list(score_model_1,
-                               score_model_2),
                  type = "gaussian",
                  metrics = "all") %>%
     dplyr::mutate(fold_ = as.factor(.data$fold_))
 
   expect_equal(colnames(e4),
-               c("fold_", "RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD", "RAE",
-                 "RRSE", "MAPE", "MSE", "TAE", "TSE", "r2m", "r2c", "AIC", "AICc",
-                 "BIC", "Predictions", "Coefficients"))
+               c("fold_", "RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD",
+                 "RMSLE","MALE","RAE", "RSE", "RRSE","MAPE", "MSE", "TAE", "TSE",
+                 "Predictions"))
 
   e1_e3 <- dplyr::bind_rows(e1, e3) %>%
     dplyr::mutate(fold_ = factor(1:2)) %>%
@@ -1403,11 +2001,19 @@ test_that("gaussian evaluations are correct in evaluate()",{
   expect_equal(e4$fold_, factor(c(1,2)))
   expect_equal(e4$RMSE, c(16.16881, 16.12762), tolerance = 1e-4)
   expect_equal(e4$MAE, c(13.47778, 13.28942), tolerance = 1e-4)
-  expect_equal(e4$r2m, c(0.2665756, 0.2631030), tolerance = 1e-4)
-  expect_equal(e4$r2c, c(0.2665756, 0.2631030), tolerance = 1e-4)
-  expect_equal(e4$AIC, c(258.1214, 259.9683), tolerance = 1e-4)
-  expect_equal(e4$AICc, c(259.0444, 261.5683), tolerance = 1e-4)
-  expect_equal(e4$BIC, c(262.3250, 265.5731), tolerance = 1e-4)
+  expect_equal(e4$NRMSE, c(0.227729778737206, 0.227149512023389), tolerance = 1e-4)
+  expect_equal(e4$RMSEIQR, c(0.577457653226487, 0.575986262630736), tolerance = 1e-4)
+  expect_equal(e4$RMSESTD, c(0.838027891023239, 0.835892554603436), tolerance = 1e-4)
+  expect_equal(e4$RMSLE, c(0.4677011, 0.4666284), tolerance = 1e-4)
+  expect_equal(e4$MALE, c(0.3768815, 0.3723774), tolerance = 1e-4)
+  expect_equal(e4$RAE, c(0.866676193198057, 0.8545638890023), tolerance = 1e-4)
+  expect_equal(e4$RSE, c(0.852354191878764, 0.850182351337433)^2, tolerance = 1e-4)
+  expect_equal(e4$RRSE, c(0.852354191878764, 0.850182351337433), tolerance = 1e-4)
+  expect_equal(e4$MAPE, c(0.483654620140199, 0.478764805777454), tolerance = 1e-4)
+  expect_equal(e4$MSE, c(261.430555555556, 260.099976995629), tolerance = 1e-4)
+  expect_equal(e4$TAE, c(404.333333333333, 398.68253968254), tolerance = 1e-4)
+  expect_equal(e4$TSE, c(7842.91666666667, 7802.99930986888), tolerance = 1e-4)
+
   expect_equal(e4$Predictions[[1]]$Target,
                c(10,24,45,24,40,67,15,30,40,35,50,78,24,54,62,
                  14,25,30,11,35,41,16,32,44,33,53,66,29,55,81), tolerance = 1e-4)
@@ -1428,57 +2034,6 @@ test_that("gaussian evaluations are correct in evaluate()",{
                  30.99862,30.99862,30.99862,32.99034,32.99034,
                  32.99034,29.33885,29.33885,29.33885,51.99551,
                  51.99551,51.99551,51.66356,51.66356,51.66356), tolerance = 1e-4)
-  expect_equal(colnames(e4$Coefficients[[1]]),
-               colnames(e4$Coefficients[[2]]), tolerance = 1e-4)
-  expect_equal(colnames(e4$Coefficients[[1]]),
-               c("term","estimate","std.error","statistic","p.value"))
-  binded_coefficients <- dplyr::bind_rows(e4$Coefficients)
-  expect_equal(binded_coefficients$term,
-               c("(Intercept)", "diagnosis", "(Intercept)",
-                 "diagnosis", "age"), tolerance = 1e-4)
-  expect_equal(binded_coefficients$estimate,
-               c(50.9166667,-20.2500000, 46.3523119,
-                 -20.4989648, 0.1659765), tolerance = 1e-4)
-  expect_equal(binded_coefficients$std.error,
-               c(4.8313574,6.2372555,13.2255733, 6.3708432,
-                 0.4465959), tolerance = 1e-4)
-  expect_equal(binded_coefficients$statistic,
-               c(10.5387913,-3.2466202,3.5047488,
-                 -3.2176219,0.3716482), tolerance = 1e-4)
-  expect_equal(binded_coefficients$p.value,
-               c(2.984260e-11,3.025349e-03,1.613661e-03,
-                 3.348279e-03,7.130556e-01), tolerance = 1e-4)
-
-  # Errors
-
-  expect_error(evaluate(eval_data, target_col = "score",
-                        prediction_cols = "score_predictions",
-                        models = list(),
-                        type = "gaussian",
-                        metrics = "all"),
-               paste0(
-                 "'models' must be either NULL or an unnamed list with fitted model object(s). ",
-                 "'models' had length 0."),
-               fixed = TRUE)
-
-  expect_error(evaluate(eval_data, target_col = "score",
-           prediction_cols = "score_predictions",
-           models = score_model_1,
-           type = "gaussian",
-           metrics = "all"),
-           paste0("'models' must be provided as an unnamed list with fitted model object(s).",
-           " Did you pass the model object without putting it in a list?"),
-           fixed = TRUE)
-
-  expect_error(evaluate(eval_data_3, target_col = "score",
-                        prediction_cols = "score_predictions",
-                        models = list(score_model_1),
-                        type = "gaussian",
-                        metrics = "all"),
-               paste0("When the dataframe is grouped, please provide ",
-                      "a fitted model object per group or set models to NULL."),
-               fixed = TRUE)
-
 
   # ID evaluation
   age_model_1 <- lm("age ~ diagnosis", participant.scores)
@@ -1506,6 +2061,20 @@ test_that("gaussian evaluations are correct in evaluate()",{
   expect_equal(e5$fold_, c(1,2))
   expect_equal(e5$RMSE, c(6.949820, 6.917232), tolerance = 1e-4)
   expect_equal(e5$MAE, c(6.0, 5.935604), tolerance = 1e-4)
+  expect_equal(e5$NRMSE, c(0.302166093111201, 0.300749209434143), tolerance = 1e-4)
+  expect_equal(e5$RMSEIQR, c(0.661887632529297, 0.658783982570027), tolerance = 1e-4)
+  expect_equal(e5$RMSESTD, c(0.943424157020128, 0.939000357265295), tolerance = 1e-4)
+  expect_equal(e5$RMSLE, c(0.234168121096768, 0.23292937565111), tolerance = 1e-4)
+  expect_equal(e5$MALE, c(0.206142303617716, 0.203966962001996), tolerance = 1e-4)
+  expect_equal(e5$RAE, c(1, 0.989267385645221), tolerance = 1e-4)
+  expect_equal(e5$RSE, c(0.994456378602646, 0.98979328422339)^2, tolerance = 1e-4)
+  expect_equal(e5$RRSE, c(0.994456378602646, 0.98979328422339), tolerance = 1e-4)
+  expect_equal(e5$RRSE, c(0.994456378602646, 0.98979328422339), tolerance = 1e-4)
+  expect_equal(e5$MAPE, c(0.222585143343264, 0.220163297924543), tolerance = 1e-4)
+  expect_equal(e5$MSE, c(48.3, 47.8480960099135), tolerance = 1e-4)
+  expect_equal(e5$TAE, c(60, 59.3560431387133), tolerance = 1e-4)
+  expect_equal(e5$TSE, c(483, 478.480960099135), tolerance = 1e-4)
+
   expect_equal(length(e5$Predictions), 2, tolerance = 1e-4)
   expect_equal(colnames(e5$Predictions[[1]]),
                c("Target", "Prediction", "participant", "id_method"), tolerance = 1e-4)
@@ -1540,20 +2109,7 @@ test_that("gaussian evaluations are correct in evaluate()",{
 
   expect_equal(colnames(e6),
                c("fold_", "RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD",
-                 "RAE", "RRSE", "MAPE", "MSE", "TAE", "TSE"))
-
-  # Errors
-
-  expect_error(evaluate(id_eval_data_4, target_col = "age",
-                        prediction_cols = "predicted_age",
-                        models = list(age_model_1,
-                                      age_model_2),
-                        id_col = "participant",
-                        id_method = "mean",
-                        type = "gaussian",
-                        metrics = "all"),
-               "When aggregating by ID, 'models' should be NULL.",
-               fixed = T)
+                 "RMSLE", "MALE", "RAE", "RSE", "RRSE", "MAPE", "MSE", "TAE", "TSE"))
 
 })
 

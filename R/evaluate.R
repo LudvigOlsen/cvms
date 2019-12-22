@@ -13,9 +13,13 @@
 #'  Can be grouped with \code{\link[dplyr]{group_by}}.
 #'
 #'  \subsection{Multinomial}{
-#'  When \code{type} is \code{"multinomial"}, the predictions should be passed as
-#'  one column per class with the probability of that class. The columns should
-#'  have the name of their class, as they are named in the target column. E.g.:
+#'  When \code{type} is \code{"multinomial"}, the predictions can be passed in one of two formats.
+#'
+#'  \subsection{Probabilities (Preferable)}{
+#'
+#'  One column per class with the probability of that class.
+#'  The columns should have the name of their class,
+#'  as they are named in the target column. E.g.:
 #'
 #'  \tabular{rrrrr}{
 #'   \strong{class_1} \tab \strong{class_2} \tab
@@ -24,6 +28,19 @@
 #'   0.368 \tab 0.322 \tab 0.310 \tab class_3\cr
 #'   0.375 \tab 0.371 \tab 0.254 \tab class_2\cr
 #'   ... \tab ... \tab ... \tab ...}
+#'  }
+#'  \subsection{Classes}{
+#'
+#'  A single column with the predicted classes. E.g.:
+#'
+#'  \tabular{rrrrr}{
+#'   \strong{prediction} \tab \strong{target}\cr
+#'   class_2 \tab class_2\cr
+#'   class_1 \tab class_3\cr
+#'   class_1 \tab class_2\cr
+#'   ... \tab ...}
+#'
+#'  }
 #'  }
 #'  \subsection{Binomial}{
 #'  When \code{type} is \code{"binomial"}, the predictions should be passed as
@@ -75,18 +92,6 @@
 #'  the winning classes share the probability (e.g. \code{P = 0.5} each when two majority classes).
 #'  This method assumes that the target class/value is constant within the IDs.
 #'  }
-#' @param models Unnamed list of fitted model(s) for calculating R^2 metrics and information criterion metrics.
-#'  May only work for some types of models.
-#'
-#'  When only passing one model, remember to pass it in a list (e.g. \code{list(m)}).
-#'
-#'  N.B. When \code{data} is grouped, provide one model per group in the same order as the groups.
-#'
-#'  N.B. When aggregating by ID (i.e. when \code{id_col} is not \code{NULL}),
-#'  it's not currently possible to pass model objects,
-#'  as these would not be aggregated by the IDs.
-#'
-#'  N.B. Currently, \strong{Gaussian only}.
 #' @param apply_softmax Whether to apply the softmax function to the
 #'  prediction columns when \code{type} is \code{"multinomial"}.
 #'
@@ -126,21 +131,10 @@
 #'  \code{"multinomial"} for multiclass classification.
 #' @param include_predictions Whether to include the predictions
 #'  in the output as a nested tibble. (Logical)
+#' @param models Deprecated.
 #' @details
 #'
 #'  Packages used:
-#'
-#'  \strong{Gaussian}:
-#'
-#'  r2m : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
-#'
-#'  r2c : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
-#'
-#'  AIC : \code{\link[stats:AIC]{stats::AIC}}
-#'
-#'  AICc : \code{\link[MuMIn:AICc]{MuMIn::AICc}}
-#'
-#'  BIC : \code{\link[stats:BIC]{stats::BIC}}
 #'
 #'  \strong{Binomial} and \strong{Multinomial}:
 #'
@@ -158,21 +152,11 @@
 #'
 #'  Tibble containing the following metrics by default:
 #'
-#'  Average \strong{RMSE}, \strong{MAE}, \strong{NRMSE}, \strong{RMSEIQR},
-#'  \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc}, and \strong{BIC}.
-#'
-#'  N.B. Some of the metrics will only be returned if model
-#'  objects were passed, and will be \code{NA} if they could not be
-#'  extracted from the passed model objects.
+#'  Average \strong{RMSE}, \strong{MAE}, \strong{NRMSE}, \strong{RMSEIQR}.
 #'
 #'  Also includes:
 #'
 #'  A nested tibble with the \strong{Predictions} and targets.
-#'
-#'  A nested tibble with the model \strong{Coefficients}. The coefficients
-#'  are extracted from the model object with \code{\link[broom:tidy]{broom::tidy()}} or
-#'  \code{\link[stats:coef]{coef()}} (with some restrictions on the output).
-#'  If these attempts fail, a default coefficients tibble filled with \code{NA}s is returned.
 #'  }
 #'
 #'  ----------------------------------------------------------------
@@ -183,12 +167,6 @@
 #'
 #'  Tibble with the following evaluation metrics, based on a
 #'  confusion matrix and a ROC curve fitted to the predictions:
-#'
-#'  ROC:
-#'
-#'  \strong{AUC}, \strong{Lower CI}, and \strong{Upper CI}
-#'
-#'  Note, that the ROC curve is only computed if AUC is enabled. See \code{metrics}.
 #'
 #'  Confusion Matrix:
 #'
@@ -204,8 +182,14 @@
 #'  \strong{Prevalence}, and
 #'  \strong{MCC} (Matthews correlation coefficient).
 #'
+#'  ROC:
+#'
+#'  \strong{AUC}, \strong{Lower CI}, and \strong{Upper CI}
+#'
+#'  Note, that the ROC curve is only computed if AUC is enabled. See \code{metrics}.
+#'
 #'  Other available metrics (disabled by default, see \code{metrics}):
-#'  \strong{Accuracy}, \strong{AIC}, \strong{AICc}, \strong{BIC}.
+#'  \strong{Accuracy}.
 #'
 #'  Also includes:
 #'
@@ -240,7 +224,6 @@
 #'
 #'  Other available metrics (disabled by default, see \code{metrics}):
 #'  \strong{Accuracy}, multiclass \strong{AUC},
-#'  \strong{AIC}, \strong{AICc}, \strong{BIC},
 #'  \strong{Weighted Balanced Accuracy}, \strong{Weighted Accuracy},
 #'  \strong{Weighted F1}, \strong{Weighted Sensitivity}, \strong{Weighted Sensitivity},
 #'  \strong{Weighted Specificity}, \strong{Weighted Pos Pred Value},
@@ -260,7 +243,7 @@
 #'
 #'  A nested tibble with the multiclass \strong{Confusion Matrix}.
 #'
-#'  \strong{Class Level Results}
+#'  \subsection{Class Level Results}{
 #'
 #'  Besides the binomial evaluation metrics and the \code{Support} metric,
 #'  the nested class level results tibble also contains:
@@ -270,6 +253,7 @@
 #'  True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
 #'  depending on which level is the "positive" class. In our case, \code{1} is the current class
 #'  and \code{0} represents all the other classes together.
+#'  }
 #'  }
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
@@ -297,7 +281,6 @@
 #' # Gaussian evaluation
 #' evaluate(data = data, target_col = "age",
 #'          prediction_cols = "gaussian_predictions",
-#'          models = list(gaussian_model),
 #'          type = "gaussian")
 #'
 #' # Binomial evaluation
@@ -399,14 +382,26 @@ evaluate <- function(data,
                      type = "gaussian",
                      id_col = NULL,
                      id_method = "mean",
-                     models = NULL,
                      apply_softmax = FALSE,
                      cutoff = 0.5,
                      positive = 2,
                      metrics = list(),
                      include_predictions = TRUE,
-                     parallel = FALSE
+                     parallel = FALSE,
+                     models = deprecated()
 ){
+
+  if (!rlang::is_missing(models)){
+    deprecate_stop("1.0.0", "cvms::evaluate(models = )",
+                   details = "Now only evaluates predictions.")
+  }
+
+  # Remove unnecessary columns
+  data <- base_select(data,
+                      c(colnames(dplyr::group_keys(data)),
+                        target_col,
+                        prediction_cols,
+                        id_col))
 
   run_evaluate(
     data = data,
@@ -415,7 +410,7 @@ evaluate <- function(data,
     type = type,
     id_col = id_col,
     id_method = id_method,
-    models = models,
+    models = NULL,
     apply_softmax = apply_softmax,
     cutoff = cutoff,
     positive = positive,
@@ -489,6 +484,23 @@ run_evaluate <- function(data,
     update_model_specifics()
 
   info_cols <- list("Results" = FALSE)
+
+  # One-hot encode predicted classes, if multinomial
+  # and prediction_cols is one column with classes
+  if (type == "multinomial" && length(prediction_cols) == 1){
+    # Extract the categorical levels in both target and prediction cols
+    c_levels <- union(data[[target_col]],data[[prediction_cols]])
+    data <- one_hot_encode(data, prediction_cols,
+                           c_levels = c_levels,
+                           use_epsilon=FALSE)
+    prediction_cols <- sort(c_levels)
+
+    if (isTRUE(apply_softmax)){
+      stop(paste0("When passing 'prediction_cols' as single column with multiple classes, ",
+                  "'apply_softmax' should be FALSE."))
+    }
+
+  }
 
   # Find number of classes if classification
   if (type == "binomial"){

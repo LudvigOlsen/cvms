@@ -1,40 +1,45 @@
 library(cvms)
-context("regression_errors()")
+context("evaluate_residuals()")
 
-test_that("regression_errors() have expected output",{
+test_that("evaluate_residuals() have expected output",{
 
   set_seed_for_R_compatibility(1)
 
   df <- data.frame("t" = runif(20), "p" = runif(20), "grp" = rep(1:5,4))
 
-  ungrouped_res <- regression_errors(
+  ungrouped_res <- evaluate_residuals(
     df, "p", "t",
     metrics = "all"
   )
 
   expect_equal(colnames(ungrouped_res),
-               c("RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD", "RAE", "RRSE",
+               c("RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD",
+                 "RMSLE", "MALE", "RAE", "RSE" ,"RRSE",
                  "MAPE", "MSE", "TAE", "TSE"))
   expect_equal(ungrouped_res$RMSE, 0.4383415, tolerance = 1e-5)
   expect_equal(ungrouped_res$MAE,  0.3493256, tolerance = 1e-5)
   expect_equal(ungrouped_res$NRMSE,  0.4712743, tolerance = 1e-5)
   expect_equal(ungrouped_res$RMSEIQR,  1.028314, tolerance = 1e-5)
   expect_equal(ungrouped_res$RMSESTD,  1.532031, tolerance = 1e-5)
+  expect_equal(ungrouped_res$RMSLE,  0.2955423, tolerance = 1e-5)
+  expect_equal(ungrouped_res$MALE,  0.2355741, tolerance = 1e-5)
   expect_equal(ungrouped_res$RAE,  1.425217, tolerance = 1e-5)
+  expect_equal(ungrouped_res$RSE,  2.470652, tolerance = 1e-5)
   expect_equal(ungrouped_res$RRSE,  1.571831, tolerance = 1e-5)
   expect_equal(ungrouped_res$MAPE,  0.9233602, tolerance = 1e-5)
   expect_equal(ungrouped_res$MSE,  0.1921433, tolerance = 1e-5)
   expect_equal(ungrouped_res$TAE,  6.986512, tolerance = 1e-5)
   expect_equal(ungrouped_res$TSE,  3.842867, tolerance = 1e-5)
 
-  grouped_res <- regression_errors(
+  grouped_res <- evaluate_residuals(
     df %>% dplyr::group_by(grp),
     "p", "t",
     metrics = "all"
   )
 
   expect_equal(colnames(grouped_res),
-               c("grp", "RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD", "RAE",
+               c("grp", "RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD",
+                 "RMSLE", "MALE", "RAE", "RSE",
                  "RRSE", "MAPE", "MSE", "TAE", "TSE"))
   expect_equal(grouped_res$RMSE,
                c(0.451565647616432, 0.519060010936869, 0.475013011667194, 0.454888553611741,
@@ -51,9 +56,18 @@ test_that("regression_errors() have expected output",{
   expect_equal(grouped_res$RMSESTD,
                c(1.43814486544896, 1.50905226589782, 2.60289783098973, 1.81516488970619,
                  0.624379332243931), tolerance = 1e-5)
+  expect_equal(grouped_res$RMSLE,
+               c(0.2886413430748, 0.366211402088592, 0.314237354222149, 0.304503365190871,
+                 0.166835911010467), tolerance = 1e-5)
+  expect_equal(grouped_res$MALE,
+               c(0.263279042673231, 0.281636667412819, 0.235196273801541, 0.260569609060969,
+                 0.137188700334378), tolerance = 1e-5)
   expect_equal(grouped_res$RAE,
                c(1.76112392170928, 1.42859014846979, 2.71964745212324, 2.02383072091832,
                  0.598062880532025), tolerance = 1e-5)
+  expect_equal(grouped_res$RSE,
+               c(2.75768087202294, 3.03631832161513, 9.03343615809475, 4.39309810242944,
+                 0.51979940071117), tolerance = 1e-5)
   expect_equal(grouped_res$RRSE,
                c(1.66062665040127, 1.74250346387464, 3.00556752679003, 2.09597187539085,
                  0.720971151094945), tolerance = 1e-5)
@@ -73,7 +87,7 @@ test_that("regression_errors() have expected output",{
 })
 
 
-test_that("call_regression_errors() creates NA results correcly",{
+test_that("call_evaluate_residuals() creates NA results correcly",{
 
   set_seed_for_R_compatibility(1)
 
@@ -89,7 +103,7 @@ test_that("call_regression_errors() creates NA results correcly",{
   )
 
   expect_equal(
-    call_regression_errors(
+    call_evaluate_residuals(
       df, "p", "t",
       metrics = c("RMSE", "MAE", "TSE", "NRMSE", "RMSEIQR"),
       return_nas = TRUE
@@ -98,7 +112,7 @@ test_that("call_regression_errors() creates NA results correcly",{
   )
 
   expect_equal(
-    call_regression_errors(
+    call_evaluate_residuals(
       df %>% dplyr::group_by(grp),
       "p", "t",
       metrics = c("RMSE", "MAE", "TSE", "NRMSE", "RMSEIQR"),

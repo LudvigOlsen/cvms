@@ -353,7 +353,7 @@ test_that("gaussian model with metrics list works with validate()", {
 
   expect_equal(Vgauss$r2m, 0.305, tolerance = 1e-3)
   expect_equal(colnames(Vgauss),
-               c("MAE", "r2m", "r2c", "AIC", "AICc", "BIC", "Predictions", "Coefficients",
+               c("MAE","RMSLE", "r2m", "r2c", "AIC", "AICc", "BIC", "Predictions", "Coefficients",
                  "Convergence Warnings", "Singular Fit Messages", "Other Warnings",
                  "Warnings and Messages", "Family", "Model", "Dependent",
                  "Fixed", "Random"))

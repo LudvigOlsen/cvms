@@ -8,6 +8,9 @@
 #'
 #'  Multiclass results are based on one-vs-all evaluations.
 #'  Both regular averaging and weighted averaging are available. Also calculates the overall accuracy.
+#'
+#'  \strong{Note}: Used in \code{\link[cvms:evaluate]{evaluate()}}.
+#'  In most contexts, that is the function you want.
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
 #' @family evaluation functions

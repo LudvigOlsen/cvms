@@ -115,6 +115,9 @@ Tbl (tibble) with:
 
  Multiclass results are based on one-vs-all evaluations.
  Both regular averaging and weighted averaging are available. Also calculates the overall accuracy.
+
+ \strong{Note}: Used in \code{\link[cvms:evaluate]{evaluate()}}.
+ In most contexts, that is the function you want.
 }
 \details{
 The following formulas are used for calculating the metrics:
@@ -199,6 +202,7 @@ cm
 }
 \seealso{
 Other evaluation functions: 
+\code{\link{evaluate_residuals}()},
 \code{\link{evaluate}()}
 }
 \author{

@@ -77,6 +77,8 @@ These are based on the fitted model objects and will only work for some types of
 
 ## Other changes
 
+* The `metrics` argument now allows setting a boolean for `"all"` inside the list to enable or disable all the metrics. For instance, the following would disable all the metrics except `RMSE`: `metrics = list("all" = FALSE, "RMSE" = TRUE)`.
+
 * `multinomial` evaluation results now contain the `Results` tibble with the results for each fold column. The main metrics are now averages of these fold column results. Previously, they were not aggregated by fold column first. In the unit tests, this has not altered the results, but it is a more correct approach.
 
 * Changes the required arguments in the `predict_fn` function passed to `cross_validate_fn()`.

@@ -16,7 +16,12 @@ evaluate_residuals(data, predictions_col, targets_col, metrics = list())
 \item{metrics}{List for enabling/disabling metrics.
 
   E.g. \code{list("RMSE" = FALSE)} would disable \code{RMSE}.
-  Default values (\code{TRUE}/\code{FALSE}) will be used for the remaining metrics available.
+  Default values (\code{TRUE}/\code{FALSE}) will be used for the remaining available metrics.
+
+  You can enable/disable all metrics at once by including
+  \code{"all" = TRUE/FALSE} in the list. This is done prior to enabling/disabling
+  individual metrics, why f.i. \code{list("all" = FALSE, "RMSE" = TRUE)}
+  would return only the RMSE metric.
 
   Also accepts the string \code{"all"}.}
 }

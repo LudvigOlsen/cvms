@@ -103,19 +103,28 @@ set_metrics <- function(family, metrics_list = NULL, include_model_object_metric
 
   metrics <- default_metrics
 
-  if (!is.null(metrics_list)){
+  if (!is.null(metrics_list) && length(metrics_list) > 0){
 
-    if (!is.list(metrics_list) && metrics_list == "all"){
+    if (length(metrics_list) > 1 && !is.list(metrics_list))
+      stop("'metrics' must be either a named list or 'all'.")
 
-      # Set all metrics to TRUE
-      for (met in seq_along(metrics)){
-        metrics[[met]] <- TRUE
+    if (!is.list(metrics_list)){
+
+      if (metrics_list == "all"){
+        # Set all metrics to TRUE
+        metrics <- set_all(metrics, to = TRUE)
+      } else {
+        stop("'metrics' must be either a named list or 'all'.")
       }
 
-    } else if (!is.null(metrics_list) && length(metrics_list) > 0){
+    } else {
+
+      # Check for duplicates
+      if (length(unique(names(metrics_list))) != length(names(metrics_list)))
+        stop("'metrics' cannot contain duplicate names.")
 
       # Check for unknown metric names
-      unknown_metric_names <- setdiff(names(metrics_list), names(metrics))
+      unknown_metric_names <- c(setdiff(names(metrics_list), c(names(metrics), "all")))
       if (length(unknown_metric_names) > 0) {
         stop(paste0(
           "'metrics_list' contained unknown metric names: ",
@@ -127,6 +136,17 @@ set_metrics <- function(family, metrics_list = NULL, include_model_object_metric
       # Check for unknown values (Those not TRUE/FALSE)
       if (any(unlist(lapply(metrics_list, function(x){!(is.logical(x) && !is.na(x))})))){
         stop("The values in the 'metrics' list must be either TRUE or FALSE.")
+      }
+
+      # If "all" is a key in metrics_list
+      # apply its value (TRUE/FALSE) to every element
+      if ("all" %in% names(metrics_list)){
+        metrics <- set_all(metrics, to = metrics_list[["all"]])
+        if (length(metrics_list) == 1){
+          metrics_list <- list()
+        } else {
+          metrics_list <- metrics_list %>% purrr::list_modify("all" = NULL)
+        }
       }
 
       # Update metrics as specified by user
@@ -166,3 +186,10 @@ set_metrics <- function(family, metrics_list = NULL, include_model_object_metric
 
 }
 
+set_all <- function(metrics, to = TRUE) {
+  # Set all metrics to TRUE/FALSE
+  for (met in seq_along(metrics)) {
+    metrics[[met]] <- to
+  }
+  metrics
+}

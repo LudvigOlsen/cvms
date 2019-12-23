@@ -83,11 +83,13 @@ validate(
   E.g. \code{list("RMSE" = FALSE)} would remove RMSE from the results,
   and \code{list("Accuracy" = TRUE)} would add the regular accuracy metric
   to the classification results.
-  Default values (TRUE/FALSE) will be used for the remaining metrics available.
+  Default values (TRUE/FALSE) will be used for the remaining available metrics.
 
-  Also accepts the string \code{"all"}.
+  You can enable/disable all metrics at once by including
+  \code{"all" = TRUE/FALSE} in the list. This is done prior to enabling/disabling
+  individual metrics, why f.i. \code{list("all" = FALSE, "RMSE" = TRUE)} would return only the RMSE metric.
 
-  N.B. Currently, disabled metrics are still computed.}
+  Also accepts the string \code{"all"}.}
 
 \item{preprocessing}{Name of preprocessing to apply.
 

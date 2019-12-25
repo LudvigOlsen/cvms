@@ -85,7 +85,8 @@ plot_confusion_matrix <- function(conf_mat,
     theme_fn() +
     ggplot2::coord_equal() +
     # Add fill colors that differ by N
-    ggplot2::scale_fill_distiller(palette = palette, direction = 1,
+    ggplot2::scale_fill_distiller(palette = palette,
+                                  direction = 1,
                                   limits = color_limits) +
     # Remove the guide
     ggplot2::guides(fill = F) +
@@ -106,14 +107,14 @@ plot_confusion_matrix <- function(conf_mat,
 
   # Add horizontal percentages
   if (isTRUE(add_horizontal_percentage)){
-    pl <- pl + ggplot2::geom_text(ggplot2::aes(label = Class_Percentage),
+    pl <- pl + ggplot2::geom_text(ggplot2::aes(label = Prediction_Percentage),
                                   color = font_color,
                                   nudge_y = -0.42, size = font_size * 0.7)
   }
 
   # Add vertical percentages
   if (isTRUE(add_vertical_percentage)){
-    pl <- pl + ggplot2::geom_text(ggplot2::aes(label = Prediction_Percentage),
+    pl <- pl + ggplot2::geom_text(ggplot2::aes(label = Class_Percentage),
                                   color = font_color, angle = 90,
                                   nudge_x = -0.42, size = font_size * 0.7)
   }
@@ -121,6 +122,7 @@ plot_confusion_matrix <- function(conf_mat,
   pl
 
 }
+
 
 # Plot density plot for metric
 # params:

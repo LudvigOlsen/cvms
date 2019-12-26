@@ -49,6 +49,10 @@ It can be unclear whether the IC metrics (computed on the `lm()`/`lmer()` model 
 
 * `most_challenging()` is added. Finds the data points that were the most difficult to predict.
 
+* `plot_confusion_matrix()` is added. Creates a ggplot representing a given confusion matrix.
+
+* `font()` is added. Utility for setting font settings (size, color, etc.) in plotting functions. 
+
 * `simplify_formula()` is added. Converts a formula with inline functions to a simple formula 
 where all variables are added together (e.g. `y ~ x*z + log(a) + (1|b)` -> `y ~ x + z + a + b`). This is 
 useful when passing a formula to `recipes::recipe()`, which doesn't allow the inline functions.

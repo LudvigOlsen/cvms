@@ -24,19 +24,30 @@
 #'  \code{\link[cvms:evaluate]{evaluate()}}.
 #' @param targets_col Name of column with target levels.
 #' @param predictions_col Name of column with prediction levels.
-#' @param counts_col Name of column with a count for each combination of the target and prediction levels.
-#' @param add_normalized Normalize the counts to percentages and add to the middle of the tiles.
-#' @param add_horizontal_percentage Add the horizontal percentages, i.e. how big a part of its row the tile makes up.
-#' @param add_vertical_percentage Add the vertical percentages, i.e. how big a part of its column the tile makes up.
-#' @param counts_on_top Switch the counts and normalized counts, such that the counts are on top. (Logical)
-#' @param rotate_y_text Whether to rotate the y-axis text to be vertical instead of horizontal.
-#' @param font_counts List of font settings for the counts. Can be provided with font().
-#' @param font_normalized List of font settings for the normalized counts. Can be provided with font().
-#' @param font_horizontal List of font settings for the horizontal percentages. Can be provided with font().
-#' @param font_vertical List of font settings for the vertical percentages. Can be provided with font().
+#' @param counts_col Name of column with a count for each combination
+#'  of the target and prediction levels.
+#' @param add_counts Add the counts to the middle of the tiles. (Logical)
+#' @param add_normalized Normalize the counts to percentages and
+#'  add to the middle of the tiles. (Logical)
+#' @param add_horizontal_percentage Add the horizontal percentages,
+#'  i.e. how big a part of its row the tile makes up. (Logical)
+#' @param add_vertical_percentage Add the vertical percentages,
+#'  i.e. how big a part of its column the tile makes up. (Logical)
+#' @param counts_on_top Switch the counts and normalized counts,
+#'  such that the counts are on top. (Logical)
+#' @param rotate_y_text Whether to rotate the y-axis text to
+#'  be vertical instead of horizontal. (Logical)
+#' @param font_counts List of font settings for the counts.
+#'  Can be provided with \code{\link[cvms:font]{font()}}.
+#' @param font_normalized List of font settings for the normalized counts.
+#'  Can be provided with \code{\link[cvms:font]{font()}}.
+#' @param font_horizontal List of font settings for the horizontal percentages.
+#'  Can be provided with \code{\link[cvms:font]{font()}}.
+#' @param font_vertical List of font settings for the vertical percentages.
+#'  Can be provided with \code{\link[cvms:font]{font()}}.
 #' @param palette Color scheme. Passed directly to \code{palette} in
 #'  \code{\link[ggplot2:scale_fill_distiller]{ggplot2::scale_fill_distiller}}.
-#' @param darken How dark the darkest colors should be, between 0 and 1, where 1 is darkest.
+#' @param darkness How dark the darkest colors should be, between 0 and 1, where 1 is darkest.
 #'
 #'  Technically, a lower value increases the upper limit in
 #'  \code{\link[ggplot2:scale_fill_distiller]{ggplot2::scale_fill_distiller}}.

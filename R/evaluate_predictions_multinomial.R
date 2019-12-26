@@ -8,6 +8,7 @@ evaluate_predictions_multinomial <- function(data,
                                                                    abs_fold = "abs_fold",
                                                                    fold_column = "fold_column"),
                                              fold_and_fold_col = NULL,
+                                             group_info = NULL,
                                              model_specifics,
                                              metrics,
                                              include_fold_columns,
@@ -159,6 +160,7 @@ evaluate_predictions_multinomial <- function(data,
       id_col = id_col,
       id_method = id_method,
       fold_info_cols = fold_info_cols,
+      group_info = group_info,
       include_fold_columns = include_fold_columns,
       include_predictions = include_predictions)
 
@@ -185,6 +187,14 @@ evaluate_predictions_multinomial <- function(data,
       data[[local_tmp_predicted_class_var]] <- factor(
         ifelse(data[["predicted_class_index"]] == cl, 1, 0))
 
+      # Create temporary group info
+      if (is.null(group_info)){
+        tmp_group_info <- tibble::tibble("Class" = cl)
+      } else {
+        tmp_group_info <- group_info #dplyr::as_tibble(group_info)
+        tmp_group_info[["Class"]] <- cl
+      }
+
       # Perform binomial evaluation
       evaluate_predictions_binomial(
         data = data,
@@ -195,6 +205,7 @@ evaluate_predictions_multinomial <- function(data,
         cat_levels = levels(factor(c(0, 1))),
         fold_info_cols = fold_info_cols,
         fold_and_fold_col = fold_and_fold_col,
+        group_info = tmp_group_info,
         model_specifics = model_specifics,
         metrics = one_vs_all_metrics,
         include_fold_columns = include_fold_columns,
@@ -317,6 +328,13 @@ evaluate_predictions_multinomial <- function(data,
     }, error = function(e) {
       stop(paste0('Confusion matrix error: ',e))
     })
+
+    # Add group info
+    if (!is.null(group_info)){
+      overall_confusion_matrix[["Confusion Matrix"]][[1]] <- group_info %>%
+        dplyr::slice(rep(1, nrow(overall_confusion_matrix[["Confusion Matrix"]][[1]]))) %>%
+        dplyr::bind_cols(overall_confusion_matrix[["Confusion Matrix"]][[1]])
+    }
 
     # Nest the confusion matrix
     nested_multiclass_confusion_matrix <- nest_multiclass_confusion_matrices(

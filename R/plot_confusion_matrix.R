@@ -179,25 +179,25 @@ plot_confusion_matrix <- function(conf_matrix,
   # Calculate vertical percentages
   if (isTRUE(add_vertical_percentage)){
     vertical_sums <- cm %>%
-      dplyr::group_by(Target) %>%
-      dplyr::summarize(Class_N = sum(N))
+      dplyr::group_by(.data$Target) %>%
+      dplyr::summarize(Class_N = sum(.data$N))
     cm <- cm %>%
       dplyr::left_join(vertical_sums, by = "Target") %>%
-      dplyr::mutate(Class_Percentage = 100 * (N / Class_N),
+      dplyr::mutate(Class_Percentage = 100 * (.data$N / .data$Class_N),
                     Class_Percentage_text = preprocess_numeric(
-                      Class_Percentage, font_vertical))
+                      .data$Class_Percentage, font_vertical))
   }
 
   # Calculate horizontal percentages
   if (isTRUE(add_horizontal_percentage)){
     horizontal_sums <- cm %>%
-      dplyr::group_by(Prediction) %>%
-      dplyr::summarize(Prediction_N = sum(N))
+      dplyr::group_by(.data$Prediction) %>%
+      dplyr::summarize(Prediction_N = sum(.data$N))
     cm <- cm %>%
       dplyr::left_join(horizontal_sums, by = "Prediction") %>%
-      dplyr::mutate(Prediction_Percentage = 100 * (N / Prediction_N),
+      dplyr::mutate(Prediction_Percentage = 100 * (.data$N / .data$Prediction_N),
                     Prediction_Percentage_text = preprocess_numeric(
-                      Prediction_Percentage, font_horizontal))
+                      .data$Prediction_Percentage, font_horizontal))
   }
 
   #### Prepare for plotting ####
@@ -282,7 +282,7 @@ plot_confusion_matrix <- function(conf_matrix,
 
   # Add horizontal percentages
   if (isTRUE(add_horizontal_percentage)){
-    pl <- pl + ggplot2::geom_text(ggplot2::aes(label = Prediction_Percentage_text),
+    pl <- pl + ggplot2::geom_text(ggplot2::aes(label = .data$Prediction_Percentage_text),
                                   size = font_horizontal[["size"]],
                                   color = font_horizontal[["color"]],
                                   alpha = font_horizontal[["alpha"]],
@@ -298,7 +298,7 @@ plot_confusion_matrix <- function(conf_matrix,
 
   # Add vertical percentages
   if (isTRUE(add_vertical_percentage)){
-    pl <- pl + ggplot2::geom_text(ggplot2::aes(label = Class_Percentage_text),
+    pl <- pl + ggplot2::geom_text(ggplot2::aes(label = .data$Class_Percentage_text),
                                   size = font_vertical[["size"]],
                                   color = font_vertical[["color"]],
                                   alpha = font_vertical[["alpha"]],

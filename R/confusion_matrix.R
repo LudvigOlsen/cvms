@@ -207,7 +207,8 @@ call_confusion_matrix <- function(targets,
                                   c_levels = NULL,
                                   do_one_vs_all = TRUE,
                                   parallel = FALSE,
-                                  fold_col = NULL) {
+                                  fold_col = NULL,
+                                  group_info = NULL) {
 
   if (is.null(c_levels)){
     c_levels <- sort(unique(targets))
@@ -258,6 +259,14 @@ call_confusion_matrix <- function(targets,
     cfm[["Confusion Matrix"]][[1]] <- cfm[["Confusion Matrix"]][[1]] %>%
       tibble::add_column("Fold Column" = fold_col,
                          .before = "Prediction")
+  }
+
+  if (!is.null(group_info)){
+
+    # Add fold column (Only happens in internal use)
+    cfm[["Confusion Matrix"]][[1]] <- group_info %>%
+      dplyr::slice(rep(1, nrow(cfm[["Confusion Matrix"]][[1]]))) %>%
+      dplyr::bind_cols(cfm[["Confusion Matrix"]][[1]])
   }
 
   cfm

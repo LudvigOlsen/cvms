@@ -128,7 +128,7 @@ test_that("multinomial evaluations are correct in evaluate()",{
   expect_equal(mn_eval_1$`Class Level Results`[[1]]$`Confusion Matrix`[[2]]$N,
                c(12,4,4,0))
   expect_equal(colnames(mn_eval_1$`Class Level Results`[[1]]$`Confusion Matrix`[[1]]),
-               c("Prediction", "Target", "Pos_0", "Pos_1", "N"))
+               c("Class","Prediction", "Target", "Pos_0", "Pos_1", "N"))
   expect_equal(colnames(mn_eval_1$`Confusion Matrix`[[1]]),
                c("Prediction", "Target", "N"))
 
@@ -249,7 +249,7 @@ test_that("multinomial evaluations are correct in evaluate()",{
   expect_equal(mn_eval_2$`Class Level Results`[[1]]$`Confusion Matrix`[[2]]$N,
                c(9,4,4,0))
   expect_equal(colnames(mn_eval_2$`Class Level Results`[[1]]$`Confusion Matrix`[[1]]),
-               c("Prediction", "Target", "Pos_0", "Pos_1", "N"))
+               c("Class", "Prediction", "Target", "Pos_0", "Pos_1", "N"))
   expect_equal(colnames(mn_eval_2$`Confusion Matrix`[[1]]),
                c("Prediction", "Target", "N"))
 
@@ -362,7 +362,7 @@ test_that("multinomial evaluations are correct in evaluate()",{
   expect_equal(mn_id_eval_1$`Class Level Results`[[1]]$`Confusion Matrix`[[1]]$N,
                c(6, 1, 1, 1))
   expect_equal(colnames(mn_id_eval_1$`Class Level Results`[[1]]$`Confusion Matrix`[[1]]),
-               c("Prediction", "Target", "Pos_0", "Pos_1", "N"))
+               c("Class", "Prediction", "Target", "Pos_0", "Pos_1", "N"))
   expect_equal(colnames(mn_id_eval_1$`Confusion Matrix`[[1]]),
                c("Prediction", "Target", "N"))
 
@@ -416,8 +416,6 @@ test_that("multinomial evaluations are correct in evaluate()",{
     apply_softmax = TRUE
   )
 
-  # TODO Haven't added the grouping keys to the class level results
-  # Should this be done?
   expect_equal(mn_id_eval_2$fold_, c(1,2))
   expect_equal(dplyr::bind_rows(mn_id_eval_2$`Class Level Results`)$fold_,rep(1:2, each=5))
   expect_equal(colnames(mn_id_eval_2),
@@ -432,8 +430,11 @@ test_that("multinomial evaluations are correct in evaluate()",{
                  "Kappa", "MCC", "Detection Rate", "Detection Prevalence",
                  "Prevalence", "Support", "Confusion Matrix"
                ))
-  expect_equal(mn_id_eval_2$`Class Level Results`[[1]]$`Confusion Matrix`[[1]],
-               mn_id_eval_2$`Class Level Results`[[2]]$`Confusion Matrix`[[1]])
+  expect_equal(mn_id_eval_2$`Class Level Results`[[1]]$`Confusion Matrix`[[1]][,-1], # remove fold_
+               mn_id_eval_2$`Class Level Results`[[2]]$`Confusion Matrix`[[1]][,-1])
+  expect_equal(colnames(mn_id_eval_2$`Class Level Results`[[1]]$`Confusion Matrix`[[1]]),
+               c("fold_", "Class", "Prediction", "Target", "Pos_0", "Pos_1", "N"))
+
 
   # What happens when a class is not in the targets but has a probability column?
 
@@ -639,7 +640,7 @@ test_that("multinomial evaluations with one predicted class column is correctly 
   expect_equal(mn_eval_1$`Class Level Results`[[1]]$`Confusion Matrix`[[2]]$N,
                c(12,4,4,0))
   expect_equal(colnames(mn_eval_1$`Class Level Results`[[1]]$`Confusion Matrix`[[1]]),
-               c("Prediction", "Target", "Pos_0", "Pos_1", "N"))
+               c("Class", "Prediction", "Target", "Pos_0", "Pos_1", "N"))
   expect_equal(colnames(mn_eval_1$`Confusion Matrix`[[1]]),
                c("Prediction", "Target", "N"))
 
@@ -757,7 +758,7 @@ test_that("multinomial evaluations with one predicted class column is correctly 
     expect_equal(mn_eval_2$`Class Level Results`[[1]]$`Confusion Matrix`[[2]]$N,
                  c(9,4,4,0))
     expect_equal(colnames(mn_eval_2$`Class Level Results`[[1]]$`Confusion Matrix`[[1]]),
-                 c("Prediction", "Target", "Pos_0", "Pos_1", "N"))
+                 c("Class", "Prediction", "Target", "Pos_0", "Pos_1", "N"))
     expect_equal(colnames(mn_eval_2$`Confusion Matrix`[[1]]),
                  c("Prediction", "Target", "N"))
 
@@ -856,7 +857,7 @@ test_that("multinomial evaluations with one predicted class column is correctly 
     expect_equal(mn_id_eval_1$`Class Level Results`[[1]]$`Confusion Matrix`[[1]]$N,
                  c(5, 2, 1, 1))
     expect_equal(colnames(mn_id_eval_1$`Class Level Results`[[1]]$`Confusion Matrix`[[1]]),
-                 c("Prediction", "Target", "Pos_0", "Pos_1", "N"))
+                 c("Class", "Prediction", "Target", "Pos_0", "Pos_1", "N"))
     expect_equal(colnames(mn_id_eval_1$`Confusion Matrix`[[1]]),
                  c("Prediction", "Target", "N"))
 
@@ -925,8 +926,8 @@ test_that("multinomial evaluations with one predicted class column is correctly 
                  "Kappa", "MCC", "Detection Rate", "Detection Prevalence",
                  "Prevalence", "Support", "Confusion Matrix"
                ))
-  expect_equal(mn_id_eval_2$`Class Level Results`[[1]]$`Confusion Matrix`[[1]],
-               mn_id_eval_2$`Class Level Results`[[2]]$`Confusion Matrix`[[1]])
+  expect_equal(mn_id_eval_2$`Class Level Results`[[1]]$`Confusion Matrix`[[1]][,-1],
+               mn_id_eval_2$`Class Level Results`[[2]]$`Confusion Matrix`[[1]][,-1])
 
   # What happens when a class is not in the targets but has a probability column?
 
@@ -1078,6 +1079,190 @@ test_that("multinomial evaluations with one predicted class column is correctly 
 
 })
 
+test_that("nested tibbles are correctly added to grouped multinomial results in evaluate()",{
+
+  set_seed_for_R_compatibility(1)
+  random_probabilities <- multiclass_probability_tibble(
+    num_classes = 3,
+    num_observations = 60,
+    apply_softmax = FALSE # Test with as well
+  )
+  expect_equal(sum(random_probabilities), 92.56257, tolerance = 1e-5)
+
+  random_classes <- argmax(random_probabilities)
+
+  data_ <- random_probabilities %>%
+    dplyr::mutate(cl = as.factor(rep(1:3, each = 20)),
+                  cl_char = paste0("cl_", cl),
+                  pred_cl = random_classes)
+
+  data_ <- data_ %>%
+    dplyr::rename_at(dplyr::vars(paste0("class_", 1:3)), .funs = ~paste0("cl_", 1:3)) %>%
+    dplyr::mutate(pred_cl_char = paste0("cl_", pred_cl))
+
+  # add grouping vars
+  data_[["gk1_char"]] <- as.character(rep(1:3, each = 20))
+  data_[["gk2_int"]] <- rep(rep(1:5, each = 4), 3)
+
+  data_ <- data_ %>%
+    dplyr::bind_rows(data_ %>%
+                       dplyr::mutate(gk1_char = "10",
+                                     gk2_int = 10)
+                            )
+
+  data_ <- data_ %>%
+    dplyr::sample_frac()
+
+  mn_eval_1 <-
+    data_ %>%
+    dplyr::group_by(.data$gk1_char, .data$gk2_int) %>%
+    evaluate(
+    target_col = "cl_char",
+    prediction_cols = paste0("cl_", 1:3),
+    type = "multinomial",
+    apply_softmax = TRUE
+  ) %>% .[,c("gk1_char", "gk2_int", "Predictions", "Confusion Matrix", "Class Level Results")]
+
+  clr_grkeys <- plyr::ldply(mn_eval_1$`Class Level Results`, function(clr){
+    tibble::tibble("gk1_char" = unique(clr[["gk1_char"]]),
+                   "gk2_int" = unique(clr[["gk2_int"]]))
+  })
+
+  expect_equal(mn_eval_1$gk1_char, clr_grkeys$gk1_char)
+  expect_equal(mn_eval_1$gk2_int, clr_grkeys$gk2_int)
+
+  clr_cnfm_grkeys <- plyr::ldply(mn_eval_1$`Class Level Results`, function(clr){
+    bn_confmat <- dplyr::bind_rows(clr[["Confusion Matrix"]])
+    tibble::tibble("gk1_char" = unique(bn_confmat[["gk1_char"]]),
+                   "gk2_int" = unique(bn_confmat[["gk2_int"]]))
+  })
+
+  expect_equal(mn_eval_1$gk1_char, clr_cnfm_grkeys$gk1_char)
+  expect_equal(mn_eval_1$gk2_int, clr_cnfm_grkeys$gk2_int)
+
+  pred_grkeys <- plyr::ldply(mn_eval_1$Predictions, function(clr){
+    tibble::tibble("gk1_char" = unique(clr[["gk1_char"]]),
+                   "gk2_int" = unique(clr[["gk2_int"]]))
+  })
+
+  expect_equal(mn_eval_1$gk1_char, pred_grkeys$gk1_char)
+  expect_equal(mn_eval_1$gk2_int, pred_grkeys$gk2_int)
+
+  cnfm_grkeys <- plyr::ldply(mn_eval_1$`Confusion Matrix`, function(clr){
+    tibble::tibble("gk1_char" = unique(clr[["gk1_char"]]),
+                   "gk2_int" = unique(clr[["gk2_int"]]))
+  })
+
+  expect_equal(mn_eval_1$gk1_char, cnfm_grkeys$gk1_char)
+  expect_equal(mn_eval_1$gk2_int, cnfm_grkeys$gk2_int)
+
+
+
+
+})
+
+test_that("nested tibbles are correctly added to grouped binomial results in evaluate()",{
+
+  set_seed_for_R_compatibility(1)
+  random_probabilities <- multiclass_probability_tibble(
+    num_classes = 1,
+    num_observations = 60,
+    apply_softmax = FALSE # Test with as well
+  )
+  expect_equal(sum(random_probabilities), 30.72525, tolerance = 1e-5)
+
+  random_classes <- ifelse(random_probabilities$class_1 > 0.5, 1, 0)
+
+  data_ <- random_probabilities %>%
+    dplyr::mutate(pred_cl = random_classes,
+                  cl = as.factor(rep(c(0,1), each = 30)))
+
+  data_ <- data_ %>%
+    dplyr::sample_frac()
+
+  # add grouping vars
+  data_[["gk1_char"]] <- as.character(rep(1:3, each = 20))
+  data_[["gk2_int"]] <- rep(rep(1:2, each = 10), 3)
+
+  data_ <- data_ %>%
+    dplyr::bind_rows(data_ %>%
+                       dplyr::mutate(gk1_char = "10",
+                                     gk2_int = 10)
+    )
+
+  data_ <- data_ %>%
+    dplyr::sample_frac()
+
+  bn_eval_1 <-
+    data_ %>%
+    dplyr::group_by(.data$gk1_char, .data$gk2_int) %>%
+    evaluate(
+      target_col = "cl",
+      prediction_cols = "class_1",
+      type = "binomial",
+    ) %>% .[,c("gk1_char", "gk2_int", "Predictions", "Confusion Matrix")]
+
+  pred_grkeys <- plyr::ldply(bn_eval_1$Predictions, function(clr){
+    tibble::tibble("gk1_char" = unique(clr[["gk1_char"]]),
+                   "gk2_int" = unique(clr[["gk2_int"]]))
+  })
+
+  expect_equal(bn_eval_1$gk1_char, pred_grkeys$gk1_char)
+  expect_equal(bn_eval_1$gk2_int, pred_grkeys$gk2_int)
+
+  cnfm_grkeys <- plyr::ldply(bn_eval_1$`Confusion Matrix`, function(clr){
+    tibble::tibble("gk1_char" = unique(clr[["gk1_char"]]),
+                   "gk2_int" = unique(clr[["gk2_int"]]))
+  })
+
+  expect_equal(bn_eval_1$gk1_char, cnfm_grkeys$gk1_char)
+  expect_equal(bn_eval_1$gk2_int, cnfm_grkeys$gk2_int)
+
+})
+
+test_that("nested tibbles are correctly added to grouped gaussian results in evaluate()",{
+
+  set_seed_for_R_compatibility(1)
+  random_probabilities <- multiclass_probability_tibble(
+    num_classes = 2,
+    num_observations = 60,
+    apply_softmax = FALSE # Test with as well
+  )
+  expect_equal(sum(random_probabilities), 61.59519, tolerance = 1e-5)
+
+  data_ <- random_probabilities
+
+  # add grouping vars
+  data_[["gk1_char"]] <- as.character(rep(1:3, each = 20))
+  data_[["gk2_int"]] <- rep(rep(1:2, each = 10), 3)
+
+  data_ <- data_ %>%
+    dplyr::bind_rows(data_ %>%
+                       dplyr::mutate(gk1_char = "10",
+                                     gk2_int = 10)
+    )
+
+  data_ <- data_ %>%
+    dplyr::sample_frac()
+
+  gs_eval_1 <-
+    data_ %>%
+    dplyr::group_by(.data$gk1_char, .data$gk2_int) %>%
+    evaluate(
+      target_col = "class_1",
+      prediction_cols = "class_2",
+      type = "gaussian",
+    ) %>% .[,c("gk1_char", "gk2_int", "Predictions")]
+
+  pred_grkeys <- plyr::ldply(gs_eval_1$Predictions, function(clr){
+    tibble::tibble("gk1_char" = unique(clr[["gk1_char"]]),
+                   "gk2_int" = unique(clr[["gk2_int"]]))
+  })
+
+  expect_equal(gs_eval_1$gk1_char, pred_grkeys$gk1_char)
+  expect_equal(gs_eval_1$gk2_int, pred_grkeys$gk2_int)
+
+})
 
 test_that("specific multinomial predictions yield correct results in evaluate()",{
 
@@ -1392,7 +1577,9 @@ test_that("specific multinomial predictions yield correct results in evaluate()"
   expect_equal(evals$`Class Level Results`[[1]]$Support,
                c(9, 7, 9))
   expect_equal(evals$`Class Level Results`[[1]]$`Confusion Matrix`[[1]],
-               structure(list(Prediction = c("0", "1", "0", "1"),
+               structure(list(.groups = c(1L, 1L, 1L, 1L),
+                              Class = c(1L, 1L, 1L, 1L),
+                              Prediction = c("0", "1", "0", "1"),
                               Target = c("0","0", "1", "1"),
                               Pos_0 = c("TP", "FN", "FP", "TN"),
                               Pos_1 = c("TN", "FP", "FN", "TP"),
@@ -1994,6 +2181,12 @@ test_that("gaussian evaluations are correct in evaluate()",{
   e1_e3 <- dplyr::bind_rows(e1, e3) %>%
     dplyr::mutate(fold_ = factor(1:2)) %>%
     dplyr::select(.data$fold_, dplyr::everything())
+  e1_e3$Predictions[[1]] <- e1_e3$Predictions[[1]] %>%
+    dplyr::as_tibble() %>%
+    tibble::add_column("fold_" = 1, .before = "Target")
+  e1_e3$Predictions[[2]] <- e1_e3$Predictions[[2]] %>%
+    dplyr::as_tibble() %>%
+    tibble::add_column("fold_" = 2, .before = "Target")
 
   expect_true(length(setdiff(colnames(e4), colnames(e1_e3))) == 0)
   expect_identical(e4, e1_e3)
@@ -2077,9 +2270,9 @@ test_that("gaussian evaluations are correct in evaluate()",{
 
   expect_equal(length(e5$Predictions), 2, tolerance = 1e-4)
   expect_equal(colnames(e5$Predictions[[1]]),
-               c("Target", "Prediction", "participant", "id_method"), tolerance = 1e-4)
+               c("fold_", "Target", "Prediction", "participant", "id_method"), tolerance = 1e-4)
   expect_equal(colnames(e5$Predictions[[2]]),
-               c("Target", "Prediction", "participant", "id_method"), tolerance = 1e-4)
+               c("fold_", "Target", "Prediction", "participant", "id_method"), tolerance = 1e-4)
   expect_equal(e5$Predictions[[1]]$Target,
                c(20, 23, 27, 21, 32, 31, 43, 21, 34, 32), tolerance = 1e-4)
   expect_equal(e5$Predictions[[2]]$Target,
@@ -2157,6 +2350,10 @@ test_that("evaluate() treats dfs and tbls the same",{
     apply_softmax = TRUE
   )
 
+  expect_identical(mn_eval_1_df$`Class Level Results`[[1]]$`Confusion Matrix`,
+                   mn_eval_1_tbl$`Class Level Results`[[1]]$`Confusion Matrix`)
+  expect_identical(mn_eval_1_df$`Confusion Matrix`,
+                   mn_eval_1_tbl$`Confusion Matrix`)
   expect_identical(mn_eval_1_tbl, mn_eval_1_df)
 
   # TODO Find out why the group_nest attribute is only added to DT ?

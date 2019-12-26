@@ -10,6 +10,7 @@ evaluate_predictions_binomial <- function(data,
                                                                 abs_fold = "abs_fold",
                                                                 fold_column = "fold_column"),
                                           fold_and_fold_col = NULL,
+                                          group_info = NULL,
                                           model_specifics,
                                           metrics,
                                           include_fold_columns,
@@ -82,6 +83,7 @@ evaluate_predictions_binomial <- function(data,
       id_col = id_col,
       id_method = id_method,
       fold_info_cols = fold_info_cols,
+      group_info = group_info,
       include_fold_columns = include_fold_columns,
       include_predictions = include_predictions)
 
@@ -94,6 +96,7 @@ evaluate_predictions_binomial <- function(data,
       cat_levels = cat_levels,
       positive = model_specifics[["positive"]],
       fold_info_cols = fold_info_cols,
+      group_info = group_info,
       include_fold_columns = include_fold_columns,
       metrics = metrics
     )
@@ -158,6 +161,7 @@ binomial_eval_confusion_matrices <- function(
   cat_levels,
   positive,
   fold_info_cols,
+  group_info,
   include_fold_columns,
   metrics) {
 
@@ -181,6 +185,7 @@ binomial_eval_confusion_matrices <- function(
       cat_levels = cat_levels,
       positive = positive,
       fold_col = fold_col,
+      group_info = group_info,
       metrics = metrics))
 
     # Rename list element to the fold column name
@@ -234,33 +239,6 @@ binomial_eval_roc_curves <- function(data, targets_col, predictions_col,
   list("roc_curves" = roc_curves)
 
 }
-
-# binomial_eval_extra_metrics <- function(data, targets_col,
-#                                         predicted_class_col,
-#                                         unique_fold_cols,
-#                                         fold_info_cols){
-#
-#   extra_metrics <- plyr::llply(unique_fold_cols, function(fcol) {
-#
-#     # Subset data
-#     fcol_data <- data[data[[fold_info_cols[["fold_column"]]]] == fcol,]
-#
-#     # Regular old accuracy
-#     fcol_accuracy <- list("x" = list("accuracy" = calculate_accuracy(
-#       predictions = data[[predicted_class_col]],
-#       targets = data[[targets_col]]
-#     )))
-#
-#     # Rename list element to the fold column name
-#     names(fcol_accuracy) <- fcol
-#
-#     fcol_accuracy
-#
-#   }) %>% unlist(recursive = FALSE)
-#
-#   extra_metrics
-#
-# }
 
 binomial_eval_collect <- function(unique_fold_cols,
                                   roc_curves_list,
@@ -431,6 +409,7 @@ binomial_classification_results_tibble <- function(roc_curve,
 fit_confusion_matrix <- function(predicted_classes, targets,
                                  cat_levels, positive,
                                  fold_col = NULL,
+                                 group_info = NULL,
                                  metrics = list()){
 
   if (is.numeric(positive)) positive <- cat_levels[positive]
@@ -452,7 +431,8 @@ fit_confusion_matrix <- function(predicted_classes, targets,
                           positive = positive,
                           do_one_vs_all = TRUE,
                           parallel = FALSE,
-                          fold_col = fold_col)
+                          fold_col = fold_col,
+                          group_info = group_info)
   }, error = function(e) {
     stop(paste0('Confusion matrix error: ',e))
 

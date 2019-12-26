@@ -9,6 +9,7 @@ nest_predictions <- function(data,
                              id_col,
                              id_method,
                              fold_info_cols,
+                             group_info,
                              include_fold_columns,
                              include_predictions){
 
@@ -24,6 +25,7 @@ nest_predictions <- function(data,
       id_col = id_col,
       id_method = id_method,
       fold_info_cols = fold_info_cols,
+      group_info = group_info,
       include_fold_columns = include_fold_columns)
 
   } else {
@@ -49,6 +51,7 @@ nesting_predictions<- function(data,
                                id_col,
                                id_method,
                                fold_info_cols,
+                               group_info,
                                include_fold_columns) {
 
   predictions_for_nesting <- tibble::tibble(
@@ -57,6 +60,11 @@ nesting_predictions<- function(data,
     "Target" = data[[targets_col]],
     "Prediction" = data[[predictions_col]]
   )
+
+  if (!is.null(group_info)){
+    predictions_for_nesting <- group_info %>%
+      dplyr::bind_cols(predictions_for_nesting)
+  }
 
   if (!is.null(predicted_class_col)){
     predictions_for_nesting[["Predicted Class"]] <- data[[predicted_class_col]]

@@ -403,7 +403,9 @@ evaluate <- function(data,
                       c(colnames(dplyr::group_keys(data)),
                         target_col,
                         prediction_cols,
-                        id_col))
+                        id_col)) %>%
+    dplyr::as_tibble() %>% # removes grouping
+    dplyr::group_by_at(colnames(dplyr::group_keys(data)))
 
   run_evaluate(
     data = data,
@@ -527,6 +529,10 @@ run_evaluate <- function(data,
   # Get group indices
   grouping_factor <- dplyr::group_indices(data)
 
+  # Map for joining the grouping keys to the indices
+  grouping_keys_with_indices <- grouping_keys %>%
+    dplyr::mutate(.group = 1:dplyr::n())
+
   if (!is.null(models) && length(unique(grouping_factor)) != length(models)){
     stop(paste0("When the dataframe is grouped, ",
                 "please provide a fitted model object per group or set models to NULL."))
@@ -565,7 +571,8 @@ run_evaluate <- function(data,
       groups_col = local_tmp_grouping_factor_var,
       apply_softmax = FALSE,
       new_prediction_col_name = local_tmp_predictions_col_var
-    ) %>% dplyr::ungroup()
+    ) %>% dplyr::ungroup() %>%
+      dplyr::left_join(grouping_keys_with_indices, by=".group")
 
     if (family == "multinomial")
       prediction_cols <- local_tmp_predictions_col_var
@@ -691,6 +698,7 @@ run_internal_evaluate_wrapper <- function(
 
     data_for_current_group <- data[data[[groups_col]] == gr ,]
 
+
     # Assign current model
     if (is.null(models)){
       model <- NULL
@@ -707,6 +715,7 @@ run_internal_evaluate_wrapper <- function(
                       id_method = id_method,
                       fold_info_cols = fold_info_cols,
                       fold_and_fold_col = fold_and_fold_col,
+                      grouping_key_names = colnames(grouping_keys),
                       model_specifics = model_specifics,
                       metrics = metrics,
                       info_cols = info_cols,
@@ -732,25 +741,33 @@ run_internal_evaluate_wrapper <- function(
       tibble::as_tibble() %>%
       base_deselect(cols = "Results")
     evaluations[["Class Level Results"]] <- NULL
+    grouping_keys[[".__grouping__"]] <- as.character(seq_len(nrow(grouping_keys)))
+    evaluations[[".__grouping__"]] <- as.character(seq_len(nrow(evaluations)))
     class_level_results <- grouping_keys %>%
-      dplyr::slice(rep(1:dplyr::n(), each = num_classes)) %>%
-      dplyr::bind_cols(class_level_results)
+      # TODO This part might not work with na.rm = "both"
+      dplyr::right_join(class_level_results, by=".__grouping__")
 
     # Nest class level results
-    evaluations[["Class Level Results"]] <- class_level_results %>%
+    class_level_results <- class_level_results %>%
       dplyr::group_by_at(c(".__grouping__", colnames(grouping_keys))) %>%
       dplyr::group_nest(keep = TRUE) %>%
       # Remove ".__grouping__" again
       dplyr::mutate(data = purrr::map(.data$data,
                                       .f = ~ .x %>%
                                         base_deselect(cols = ".__grouping__"))) %>%
-      dplyr::pull(.data$data)
+      base_rename(before = "data", after = "Class Level Results") %>%
+      base_select(c(".__grouping__", "Class Level Results"))
+
+    evaluations <- evaluations %>%
+      dplyr::left_join(class_level_results, by=".__grouping__") %>%
+      base_deselect(".__grouping__")
 
   }
 
   # Add grouping keys
   results <- grouping_keys %>%
-    dplyr::bind_cols(evaluations)
+    dplyr::bind_cols(evaluations) %>%
+    base_deselect(".__grouping__")
 
   # If na.rm != "both" and it contains the NAs_removed column
   if ((!is.character(na.rm) || na.rm != "both") &&
@@ -770,6 +787,7 @@ internal_evaluate <- function(data,
                                                     abs_fold = "abs_fold",
                                                     fold_column = "fold_column"),
                               fold_and_fold_col = NULL,
+                              grouping_key_names = NULL,
                               models = NULL,
                               id_col = NULL,
                               id_method = NULL,
@@ -809,6 +827,15 @@ internal_evaluate <- function(data,
     data[[model_was_null_col]] <- FALSE
   }
 
+  # Extract grouping key info
+  if (!is.null(grouping_key_names)){
+    group_info <- data %>%
+      base_select(grouping_key_names)
+  } else {
+    group_info <- NULL
+  }
+
+
   # Evaluate the predictions
   prediction_evaluation <- internal_evaluate_predictions(
     data = data,
@@ -820,14 +847,13 @@ internal_evaluate <- function(data,
     type = type,
     fold_info_cols = fold_info_cols,
     fold_and_fold_col = fold_and_fold_col,
+    group_info = group_info,
     model_specifics = model_specifics,
     metrics = metrics,
     include_fold_columns = include_fold_columns,
     include_predictions = include_predictions,
     na.rm = na.rm
   )
-
-  # TODO Remove "Results" from class level results when in evaluate()
 
   if (!is.null(models)){
     model_evaluations <- plyr::ldply(seq_len(length(models)), function(i){

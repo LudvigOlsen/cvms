@@ -1,98 +1,5 @@
 # plot functions
 
-#' @title Create a list of font settings for plots
-#' @description
-#'  \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
-#'
-#'  Creates a list of font settings for plotting with cvms plotting functions.
-#'
-#'  NOTE: This is very experimental and will likely change.
-#' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
-#' @export
-#' @family plotting functions
-#' @param size Font size.
-#' @param color Color of the text. As passed to
-#'  \code{\link[ggplot2:geom_text]{ggplot2::geom_text}}.
-#' @param nudge_x,nudge_y Nudge on x/y axes. As passed to
-#'  \code{\link[ggplot2:geom_text]{ggplot2::geom_text}}.
-#' @param angle Rotation angle. As passed to
-#'  \code{\link[ggplot2:geom_text]{ggplot2::geom_text}}.
-#' @param digits Number of digits to round to. If negative, no rounding will take place.
-#' @param prefix A string prefix.
-#' @param suffix A string suffix.
-font <- function(size = NULL,
-                 color = NULL,
-                 nudge_x = NULL,
-                 nudge_y = NULL,
-                 angle = NULL,
-                 digits = NULL,
-                 prefix = NULL,
-                 suffix = NULL) {
-
-  # TODO Could this inherit from ggplot2::element_text?
-
-  list(
-    "size" = size,
-    "color" = color,
-    "nudge_x" = nudge_x,
-    "nudge_y" = nudge_y,
-    "angle" = angle,
-    "digits" = digits,
-    "prefix" = prefix,
-    "suffix" = suffix
-  )
-}
-
-update_font_setting <- function(settings, defaults, initial_vals=NULL){
-
-  # If defaults not provided,
-  # here are some reasonable backup defaults
-  backup_defaults <-
-    font(
-      size = 4,
-      color = "black",
-      nudge_x = 0,
-      nudge_y = 0,
-      angle = 0,
-      digits = -1,
-      prefix = "",
-      suffix = ""
-    )
-
-  new_settings <- list()
-  for (opt in names(backup_defaults)){
-
-    if (is.null(settings[[opt]])){
-
-      if (opt %in% names(defaults) &&
-          !is.null(defaults[[opt]])){
-        new_settings[[opt]] <- defaults[[opt]]
-      } else {
-        new_settings[[opt]] <- backup_defaults[[opt]]
-      }
-
-    } else {
-      new_settings[[opt]] <- settings[[opt]]
-    }
-
-    # Apply initial values
-    if (!is.null(initial_vals) && opt %in% names(initial_vals)){
-      new_settings[[opt]] <- initial_vals[[opt]](new_settings[[opt]])
-    }
-
-  }
-
-  new_settings
-}
-
-preprocess_numeric <- function(vec, settings){
-  # Don't round if digits is negative
-  if (settings[["digits"]] >= 0){
-    vec <- round(vec, settings[["digits"]])
-  }
-  paste0(settings[["prefix"]], vec, settings[["suffix"]])
-}
-
 #' @title Plot a confusion matrix
 #' @description
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
@@ -155,7 +62,7 @@ preprocess_numeric <- function(vec, settings){
 #' cm <- confusion_matrix(targets, predictions)
 #' cm[["Confusion Matrix"]]
 #'
-#' plot_confusion_matrix(cm[["Confusion Matrix"]])
+#' plot_confusion_matrix(cm[["Confusion Matrix"]][[1]])
 #'
 #' # Three (or more) classes
 #'
@@ -167,7 +74,7 @@ preprocess_numeric <- function(vec, settings){
 #' cm <- confusion_matrix(targets, predictions)
 #' cm[["Confusion Matrix"]]
 #'
-#' plot_confusion_matrix(cm[["Confusion Matrix"]])
+#' plot_confusion_matrix(cm[["Confusion Matrix"]][[1]])
 plot_confusion_matrix <- function(conf_matrix,
                                   targets_col = "Target",
                                   predictions_col = "Prediction",
@@ -193,7 +100,7 @@ plot_confusion_matrix <- function(conf_matrix,
 
   # Update font settings
 
-
+  # Font for counts
   font_counts <- update_font_setting(font_counts, defaults = list(
     "size" = ifelse(isTRUE(counts_on_top), 4.25, 3), "digits" = -1
   ), initial_vals = list(
@@ -205,6 +112,7 @@ plot_confusion_matrix <- function(conf_matrix,
     )
   )
 
+  # Font for normalized counts
   font_normalized <- update_font_setting(font_normalized, defaults = list(
     "size" = ifelse(!isTRUE(counts_on_top), 4.25, 3), "suffix" = "%", "digits" = 2),
     initial_vals = list(
@@ -216,12 +124,14 @@ plot_confusion_matrix <- function(conf_matrix,
     )
   )
 
+  # Font for horizontal percentages
   font_horizontal <- update_font_setting(font_horizontal, defaults = list(
     "size" = 2.5, "prefix" = "-- ", "suffix" = "% --", "digits" = 2
   ), initial_vals = list(
     "nudge_y" = function(x){x - 0.42}
   ))
 
+  # Font for vertical percentages
   font_vertical <- update_font_setting(font_vertical, defaults = list(
     "size" = 2.5, "prefix" = "-- ", "suffix" = "% --", "digits" = 2
   ), initial_vals = list(
@@ -299,22 +209,36 @@ plot_confusion_matrix <- function(conf_matrix,
     pl <- pl +
       # Add count labels to middle of tiles
       ggplot2::geom_text(ggplot2::aes(label = .data$N_text),
+                         size = font_counts[["size"]],
+                         color = font_counts[["color"]],
+                         alpha = font_counts[["alpha"]],
                          nudge_x = font_counts[["nudge_x"]],
                          nudge_y = font_counts[["nudge_y"]],
                          angle = font_counts[["angle"]],
-                         size = font_counts[["size"]],
-                         color = font_counts[["color"]])
+                         family = font_counts[["family"]],
+                         fontface = font_counts[["fontface"]],
+                         hjust = font_counts[["hjust"]],
+                         vjust = font_counts[["vjust"]],
+                         lineheight = font_counts[["lineheight"]]
+                         )
   }
 
   if (isTRUE(add_normalized)){
     pl <- pl +
       # Add count and percentages labels to middle of tiles
       ggplot2::geom_text(ggplot2::aes(label = .data$Normalized_text),
+                         size = font_normalized[["size"]],
+                         color = font_normalized[["color"]],
+                         alpha = font_normalized[["alpha"]],
                          nudge_x = font_normalized[["nudge_x"]],
                          nudge_y = font_normalized[["nudge_y"]],
                          angle = font_normalized[["angle"]],
-                         size = font_normalized[["size"]],
-                         color = font_normalized[["color"]])
+                         family = font_normalized[["family"]],
+                         fontface = font_normalized[["fontface"]],
+                         hjust = font_normalized[["hjust"]],
+                         vjust = font_normalized[["vjust"]],
+                         lineheight = font_normalized[["lineheight"]]
+                         )
   }
 
 
@@ -328,21 +252,33 @@ plot_confusion_matrix <- function(conf_matrix,
   # Add horizontal percentages
   if (isTRUE(add_horizontal_percentage)){
     pl <- pl + ggplot2::geom_text(ggplot2::aes(label = Prediction_Percentage_text),
+                                  size = font_horizontal[["size"]],
+                                  color = font_horizontal[["color"]],
+                                  alpha = font_horizontal[["alpha"]],
                                   nudge_x = font_horizontal[["nudge_x"]],
                                   nudge_y = font_horizontal[["nudge_y"]],
                                   angle = font_horizontal[["angle"]],
-                                  size = font_horizontal[["size"]],
-                                  color = font_horizontal[["color"]])
+                                  family = font_horizontal[["family"]],
+                                  fontface = font_horizontal[["fontface"]],
+                                  hjust = font_horizontal[["hjust"]],
+                                  vjust = font_horizontal[["vjust"]],
+                                  lineheight = font_horizontal[["lineheight"]])
   }
 
   # Add vertical percentages
   if (isTRUE(add_vertical_percentage)){
     pl <- pl + ggplot2::geom_text(ggplot2::aes(label = Class_Percentage_text),
+                                  size = font_vertical[["size"]],
+                                  color = font_vertical[["color"]],
+                                  alpha = font_vertical[["alpha"]],
                                   nudge_x = font_vertical[["nudge_x"]],
                                   nudge_y = font_vertical[["nudge_y"]],
                                   angle = font_vertical[["angle"]],
-                                  size = font_vertical[["size"]],
-                                  color = font_vertical[["color"]])
+                                  family = font_vertical[["family"]],
+                                  fontface = font_vertical[["fontface"]],
+                                  hjust = font_vertical[["hjust"]],
+                                  vjust = font_vertical[["vjust"]],
+                                  lineheight = font_vertical[["lineheight"]])
   }
 
   pl

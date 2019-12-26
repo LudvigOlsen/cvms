@@ -103,7 +103,7 @@ predictions <- c(1,1,0,0,0,1,1,1,0,1,0,0)
 cm <- confusion_matrix(targets, predictions)
 cm[["Confusion Matrix"]]
 
-plot_confusion_matrix(cm[["Confusion Matrix"]])
+plot_confusion_matrix(cm[["Confusion Matrix"]][[1]])
 
 # Three (or more) classes
 
@@ -115,7 +115,7 @@ predictions <- c(2,1,0,2,0,1,1,2,0,1,2,0,2)
 cm <- confusion_matrix(targets, predictions)
 cm[["Confusion Matrix"]]
 
-plot_confusion_matrix(cm[["Confusion Matrix"]])
+plot_confusion_matrix(cm[["Confusion Matrix"]][[1]])
 }
 \seealso{
 Other plotting functions: 

@@ -7,24 +7,22 @@
 font(
   size = NULL,
   color = NULL,
+  alpha = NULL,
   nudge_x = NULL,
   nudge_y = NULL,
   angle = NULL,
+  family = NULL,
+  fontface = NULL,
+  hjust = NULL,
+  vjust = NULL,
+  lineheight = NULL,
   digits = NULL,
   prefix = NULL,
   suffix = NULL
 )
 }
 \arguments{
-\item{size}{Font size.}
-
-\item{color}{Color of the text. As passed to
-\code{\link[ggplot2:geom_text]{ggplot2::geom_text}}.}
-
-\item{nudge_x, nudge_y}{Nudge on x/y axes. As passed to
-\code{\link[ggplot2:geom_text]{ggplot2::geom_text}}.}
-
-\item{angle}{Rotation angle. As passed to
+\item{size, color, alpha, nudge_x, nudge_y, angle, family, fontface, hjust, vjust, lineheight}{As passed to
 \code{\link[ggplot2:geom_text]{ggplot2::geom_text}}.}
 
 \item{digits}{Number of digits to round to. If negative, no rounding will take place.}

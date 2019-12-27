@@ -98,6 +98,7 @@ plot_confusion_matrix <- function(conf_matrix,
                                   theme_fn = ggplot2::theme_light,
                                   place_x_axis_above = TRUE,
                                   rotate_y_text = TRUE,
+                                  digits = 1,
                                   font_counts = font(),
                                   font_normalized = font(),
                                   font_horizontal = font(),
@@ -120,18 +121,22 @@ plot_confusion_matrix <- function(conf_matrix,
     is_logical_scalar_not_na(add_vertical_percentage),
     is_logical_scalar_not_na(counts_on_top),
     is_logical_scalar_not_na(place_x_axis_above),
-    is_logical_scalar_not_na(rotate_y_text)
+    is_logical_scalar_not_na(rotate_y_text),
+    is_wholenumber_(digits)
   )
 
   #### Update font settings ####
 
+  font_top_size <- 4.3
+  font_bottom_size <- 2.8
+
   # Font for counts
   font_counts <- update_font_setting(font_counts, defaults = list(
-    "size" = ifelse(isTRUE(counts_on_top), 4.25, 3), "digits" = -1
+    "size" = ifelse(isTRUE(counts_on_top), font_top_size, font_bottom_size), "digits" = -1
   ), initial_vals = list(
     "nudge_y" = function(x) {
       x + dplyr::case_when(!isTRUE(counts_on_top) &&
-                             isTRUE(add_normalized) ~ -0.15,
+                             isTRUE(add_normalized) ~ -0.16,
                            TRUE ~ 0)
     }
   )
@@ -139,11 +144,12 @@ plot_confusion_matrix <- function(conf_matrix,
 
   # Font for normalized counts
   font_normalized <- update_font_setting(font_normalized, defaults = list(
-    "size" = ifelse(!isTRUE(counts_on_top), 4.25, 3), "suffix" = "%", "digits" = 2),
+    "size" = ifelse(!isTRUE(counts_on_top), font_top_size, font_bottom_size),
+    "suffix" = "%", "digits" = digits),
     initial_vals = list(
       "nudge_y" = function(x) {
         x + dplyr::case_when(isTRUE(counts_on_top) &&
-                               isTRUE(add_counts) ~ -0.15,
+                               isTRUE(add_counts) ~ -0.16,
                              TRUE ~ 0)
       }
     )
@@ -151,16 +157,18 @@ plot_confusion_matrix <- function(conf_matrix,
 
   # Font for horizontal percentages
   font_horizontal <- update_font_setting(font_horizontal, defaults = list(
-    "size" = 2.5, "prefix" = "-- ", "suffix" = "% --", "digits" = 2
+    "size" = 2.35, "prefix" = "-- ", "suffix" = "% --",
+    "digits" = digits, "alpha" = 0.85
   ), initial_vals = list(
-    "nudge_y" = function(x){x - 0.42}
+    "nudge_y" = function(x){x - 0.43}
   ))
 
   # Font for vertical percentages
   font_vertical <- update_font_setting(font_vertical, defaults = list(
-    "size" = 2.5, "prefix" = "-- ", "suffix" = "% --", "digits" = 2
+    "size" = 2.35, "prefix" = "-- ", "suffix" = "% --",
+    "digits" = digits, "alpha" = 0.85
   ), initial_vals = list(
-    "nudge_x" = function(x){x - 0.42},
+    "nudge_x" = function(x){x + 0.43},
     "angle" = function(x){x + 90}
   ))
 

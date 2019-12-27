@@ -11,8 +11,8 @@ plot_confusion_matrix(
   counts_col = "N",
   add_counts = TRUE,
   add_normalized = TRUE,
-  add_horizontal_percentage = TRUE,
-  add_vertical_percentage = TRUE,
+  add_row_percentages = TRUE,
+  add_col_percentages = TRUE,
   counts_on_top = FALSE,
   palette = "Greens",
   theme_fn = ggplot2::theme_light,
@@ -21,8 +21,11 @@ plot_confusion_matrix(
   digits = 1,
   font_counts = font(),
   font_normalized = font(),
-  font_horizontal = font(),
-  font_vertical = font(),
+  font_row_percentages = font(),
+  font_col_percentages = font(),
+  tile_border_color = NA,
+  tile_border_size = 0.1,
+  tile_border_linetype = "solid",
   darkness = 0.8
 )
 }
@@ -54,11 +57,15 @@ of the target and prediction levels.}
 \item{add_normalized}{Normalize the counts to percentages and
 add to the middle of the tiles. (Logical)}
 
-\item{add_horizontal_percentage}{Add the horizontal percentages,
-i.e. how big a part of its row the tile makes up. (Logical)}
+\item{add_row_percentages}{Add the row percentages,
+ i.e. how big a part of its row the tile makes up. (Logical)
 
-\item{add_vertical_percentage}{Add the vertical percentages,
-i.e. how big a part of its column the tile makes up. (Logical)}
+ By default, the row percentage is placed to the right of the tile, rotated 90 degrees.}
+
+\item{add_col_percentages}{Add the column percentages,
+ i.e. how big a part of its column the tile makes up. (Logical)
+
+ By default, the row percentage is placed at the bottom of the tile.}
 
 \item{counts_on_top}{Switch the counts and normalized counts,
 such that the counts are on top. (Logical)}
@@ -77,7 +84,7 @@ be vertical instead of horizontal. (Logical)}
  Set to a negative number for no rounding.
 
  Can be set for each font individually via the
- \code{font_counts}, \code{font_normalized}, \code{font_horizontal} and \code{font_vertical} arguments.}
+ \code{font_counts}, \code{font_normalized}, \code{font_row_percentages} and \code{font_col_percentages} arguments.}
 
 \item{font_counts}{List of font settings for the counts.
 Can be provided with \code{\link[cvms:font]{font()}}.}
@@ -85,11 +92,20 @@ Can be provided with \code{\link[cvms:font]{font()}}.}
 \item{font_normalized}{List of font settings for the normalized counts.
 Can be provided with \code{\link[cvms:font]{font()}}.}
 
-\item{font_horizontal}{List of font settings for the horizontal percentages.
+\item{font_row_percentages}{List of font settings for the row percentages.
 Can be provided with \code{\link[cvms:font]{font()}}.}
 
-\item{font_vertical}{List of font settings for the vertical percentages.
+\item{font_col_percentages}{List of font settings for the column percentages.
 Can be provided with \code{\link[cvms:font]{font()}}.}
+
+\item{tile_border_color}{Color of the tile borders. Passed as \emph{\code{colour}} to
+\code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.}
+
+\item{tile_border_size}{Size of the tile borders. Passed as \emph{\code{size}} to
+\code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.}
+
+\item{tile_border_linetype}{Linetype for the tile borders. Passed as \emph{\code{linetype}} to
+\code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.}
 
 \item{darkness}{How dark the darkest colors should be, between 0 and 1, where 1 is darkest.
 
@@ -98,12 +114,21 @@ Can be provided with \code{\link[cvms:font]{font()}}.}
 }
 \value{
 A ggplot2 object representing a confusion matrix. Color intensity depends on the counts.
+
+ By default, each tile has the normalized count
+ (overall percentage) and count in the middle, the
+ column percentage at the bottom, and the
+ row percentage to the right and rotated 90 degrees.
+
+ In the "correct" diagonal (upper left to bottom right),
+ the column percentages are the class-level sensitivity scores,
+ while the row percentages are the class-level positive prediction values.
 }
 \description{
 \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
 
  Creates a ggplot2 object representing a confusion matrix with counts,
- percentages overall, horizontal percentages and vertical percentages.
+ percentages overall, row percentages and column percentages.
 }
 \details{
 Inspired by Antoine Sachet's answer at https://stackoverflow.com/a/53612391/11832955
@@ -135,6 +160,18 @@ cm <- confusion_matrix(targets, predictions)
 cm[["Confusion Matrix"]]
 
 plot_confusion_matrix(cm[["Confusion Matrix"]][[1]])
+
+# Add prefix to row and column percentages
+
+plot_confusion_matrix(cm[["Confusion Matrix"]][[1]],
+                      font_row_percentages = font(prefix = "\U2195 "),
+                      font_col_percentages = font(prefix = "\U2195 "))
+
+# Counts only
+plot_confusion_matrix(cm[["Confusion Matrix"]][[1]],
+                      add_normalized = FALSE,
+                      add_row_percentages = FALSE,
+                      add_col_percentages = FALSE)
 }
 \seealso{
 Other plotting functions: 

@@ -57,10 +57,10 @@ test_that("plot_confusion_matrix() returns expected plots",{
   expect_equal(p1$data$Normalized_text, c("33.3%", "16.7%", "16.7%", "33.3%"))
   expect_equal(p1$data$Class_N, c(6,6,6,6))
   expect_equal(p1$data$Class_Percentage, c(66.6666666666667, 33.3333333333333, 33.3333333333333, 66.6666666666667))
-  expect_equal(p1$data$Class_Percentage_text, c("-- 66.7% --", "-- 33.3% --", "-- 33.3% --", "-- 66.7% --"))
+  expect_equal(p1$data$Class_Percentage_text, c("66.7%", "33.3%", "33.3%", "66.7%"))
   expect_equal(p1$data$Prediction_N, c(6,6,6,6))
   expect_equal(p1$data$Prediction_Percentage, c(66.6666666666667, 33.3333333333333, 33.3333333333333, 66.6666666666667))
-  expect_equal(p1$data$Prediction_Percentage_text, c("-- 66.7% --", "-- 33.3% --", "-- 33.3% --", "-- 66.7% --"))
+  expect_equal(p1$data$Prediction_Percentage_text, c("66.7%", "33.3%", "33.3%", "66.7%"))
 
 
   expect_equal(length(p1$layers), 5)
@@ -122,16 +122,16 @@ test_that("plot_confusion_matrix() with multiclass conf mat returns expected plo
   expect_equal(p1$data$Class_Percentage, c(59.2233009708738, 32.871012482663, 7.90568654646325, 36.3295880149813,
                                            52.4344569288389, 11.2359550561798, 23.5722964763062, 32.3207776427704,
                                            44.1069258809235))
-  expect_equal(p1$data$Class_Percentage_text, c("-- 59.2% --", "-- 32.9% --", "-- 7.9% --", "-- 36.3% --",
-                                                "-- 52.4% --", "-- 11.2% --", "-- 23.6% --", "-- 32.3% --",
-                                                "-- 44.1% --"))
+  expect_equal(p1$data$Class_Percentage_text, c("59.2%", "32.9%", "7.9%", "36.3%",
+                                                "52.4%", "11.2%", "23.6%", "32.3%",
+                                                "44.1%"))
   expect_equal(p1$data$Prediction_N, c(912L, 923L, 510L, 912L, 923L, 510L, 912L, 923L, 510L))
   expect_equal(p1$data$Prediction_Percentage, c(46.8201754385965, 25.6771397616468, 11.1764705882353, 31.9078947368421,
                                                 45.5037919826652, 17.6470588235294, 21.2719298245614, 28.819068255688,
                                                 71.1764705882353))
-  expect_equal(p1$data$Prediction_Percentage_text, c("-- 46.8% --", "-- 25.7% --", "-- 11.2% --", "-- 31.9% --",
-                                                     "-- 45.5% --", "-- 17.6% --", "-- 21.3% --", "-- 28.8% --",
-                                                     "-- 71.2% --"))
+  expect_equal(p1$data$Prediction_Percentage_text, c("46.8%", "25.7%", "11.2%", "31.9%",
+                                                     "45.5%", "17.6%", "21.3%", "28.8%",
+                                                     "71.2%"))
 
   expect_equal(length(p1$layers), 5)
   expect_equal(sapply(p1$layers, function(x) class(x$geom)[1]),

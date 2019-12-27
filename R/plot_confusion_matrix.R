@@ -4,7 +4,7 @@
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
 #'
 #'  Creates a ggplot2 object representing a confusion matrix with counts,
-#'  percentages overall, horizontal percentages and vertical percentages.
+#'  percentages overall, row percentages and column percentages.
 #'
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
@@ -30,10 +30,14 @@
 #' @param add_counts Add the counts to the middle of the tiles. (Logical)
 #' @param add_normalized Normalize the counts to percentages and
 #'  add to the middle of the tiles. (Logical)
-#' @param add_horizontal_percentage Add the horizontal percentages,
+#' @param add_row_percentages Add the row percentages,
 #'  i.e. how big a part of its row the tile makes up. (Logical)
-#' @param add_vertical_percentage Add the vertical percentages,
+#'
+#'  By default, the row percentage is placed to the right of the tile, rotated 90 degrees.
+#' @param add_col_percentages Add the column percentages,
 #'  i.e. how big a part of its column the tile makes up. (Logical)
+#'
+#'  By default, the row percentage is placed at the bottom of the tile.
 #' @param counts_on_top Switch the counts and normalized counts,
 #'  such that the counts are on top. (Logical)
 #' @param rotate_y_text Whether to rotate the y-axis text to
@@ -42,17 +46,23 @@
 #'  Can be provided with \code{\link[cvms:font]{font()}}.
 #' @param font_normalized List of font settings for the normalized counts.
 #'  Can be provided with \code{\link[cvms:font]{font()}}.
-#' @param font_horizontal List of font settings for the horizontal percentages.
+#' @param font_row_percentages List of font settings for the row percentages.
 #'  Can be provided with \code{\link[cvms:font]{font()}}.
-#' @param font_vertical List of font settings for the vertical percentages.
+#' @param font_col_percentages List of font settings for the column percentages.
 #'  Can be provided with \code{\link[cvms:font]{font()}}.
 #' @param digits Number of digits to round to (percentages only).
 #'  Set to a negative number for no rounding.
 #'
 #'  Can be set for each font individually via the
-#'  \code{font_counts}, \code{font_normalized}, \code{font_horizontal} and \code{font_vertical} arguments.
+#'  \code{font_counts}, \code{font_normalized}, \code{font_row_percentages} and \code{font_col_percentages} arguments.
 #' @param palette Color scheme. Passed directly to \code{palette} in
 #'  \code{\link[ggplot2:scale_fill_distiller]{ggplot2::scale_fill_distiller}}.
+#' @param tile_border_color Color of the tile borders. Passed as \emph{\code{colour}} to
+#' \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.
+#' @param tile_border_size Size of the tile borders. Passed as \emph{\code{size}} to
+#' \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.
+#' @param tile_border_linetype Linetype for the tile borders. Passed as \emph{\code{linetype}} to
+#' \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.
 #' @param darkness How dark the darkest colors should be, between 0 and 1, where 1 is darkest.
 #'
 #'  Technically, a lower value increases the upper limit in
@@ -64,6 +74,15 @@
 #'  Inspired by Antoine Sachet's answer at https://stackoverflow.com/a/53612391/11832955
 #' @return
 #'  A ggplot2 object representing a confusion matrix. Color intensity depends on the counts.
+#'
+#'  By default, each tile has the normalized count
+#'  (overall percentage) and count in the middle, the
+#'  column percentage at the bottom, and the
+#'  row percentage to the right and rotated 90 degrees.
+#'
+#'  In the "correct" diagonal (upper left to bottom right),
+#'  the column percentages are the class-level sensitivity scores,
+#'  while the row percentages are the class-level positive prediction values.
 #' @examples
 #' # Attach cvms
 #' library(cvms)
@@ -91,14 +110,26 @@
 #' cm[["Confusion Matrix"]]
 #'
 #' plot_confusion_matrix(cm[["Confusion Matrix"]][[1]])
+#'
+#' # Add prefix to row and column percentages
+#'
+#' plot_confusion_matrix(cm[["Confusion Matrix"]][[1]],
+#'                       font_row_percentages = font(prefix = "\U2195 "),
+#'                       font_col_percentages = font(prefix = "\U2195 "))
+#'
+#' # Counts only
+#' plot_confusion_matrix(cm[["Confusion Matrix"]][[1]],
+#'                       add_normalized = FALSE,
+#'                       add_row_percentages = FALSE,
+#'                       add_col_percentages = FALSE)
 plot_confusion_matrix <- function(conf_matrix,
                                   targets_col = "Target",
                                   predictions_col = "Prediction",
                                   counts_col = "N",
                                   add_counts = TRUE,
                                   add_normalized = TRUE,
-                                  add_horizontal_percentage = TRUE,
-                                  add_vertical_percentage = TRUE,
+                                  add_row_percentages = TRUE,
+                                  add_col_percentages = TRUE,
                                   counts_on_top = FALSE,
                                   palette = "Greens",
                                   theme_fn = ggplot2::theme_light,
@@ -107,8 +138,11 @@ plot_confusion_matrix <- function(conf_matrix,
                                   digits = 1,
                                   font_counts = font(),
                                   font_normalized = font(),
-                                  font_horizontal = font(),
-                                  font_vertical = font(),
+                                  font_row_percentages = font(),
+                                  font_col_percentages = font(),
+                                  tile_border_color = NA,
+                                  tile_border_size = 0.1,
+                                  tile_border_linetype = "solid",
                                   darkness = 0.8){
 
   #### Check inputs ####
@@ -123,8 +157,8 @@ plot_confusion_matrix <- function(conf_matrix,
     is.character(counts_col), length(counts_col) == 1,
     is_logical_scalar_not_na(add_counts),
     is_logical_scalar_not_na(add_normalized),
-    is_logical_scalar_not_na(add_horizontal_percentage),
-    is_logical_scalar_not_na(add_vertical_percentage),
+    is_logical_scalar_not_na(add_row_percentages),
+    is_logical_scalar_not_na(add_col_percentages),
     is_logical_scalar_not_na(counts_on_top),
     is_logical_scalar_not_na(place_x_axis_above),
     is_logical_scalar_not_na(rotate_y_text),
@@ -135,10 +169,11 @@ plot_confusion_matrix <- function(conf_matrix,
 
   font_top_size <- 4.3
   font_bottom_size <- 2.8
+  big_counts <- isTRUE(counts_on_top) || !isTRUE(add_normalized)
 
   # Font for counts
   font_counts <- update_font_setting(font_counts, defaults = list(
-    "size" = ifelse(isTRUE(counts_on_top), font_top_size, font_bottom_size), "digits" = -1
+    "size" = ifelse(isTRUE(big_counts), font_top_size, font_bottom_size), "digits" = -1
   ), initial_vals = list(
     "nudge_y" = function(x) {
       x + dplyr::case_when(!isTRUE(counts_on_top) &&
@@ -150,7 +185,7 @@ plot_confusion_matrix <- function(conf_matrix,
 
   # Font for normalized counts
   font_normalized <- update_font_setting(font_normalized, defaults = list(
-    "size" = ifelse(!isTRUE(counts_on_top), font_top_size, font_bottom_size),
+    "size" = ifelse(!isTRUE(big_counts), font_top_size, font_bottom_size),
     "suffix" = "%", "digits" = digits),
     initial_vals = list(
       "nudge_y" = function(x) {
@@ -161,8 +196,8 @@ plot_confusion_matrix <- function(conf_matrix,
     )
   )
 
-  # Font for horizontal percentages
-  font_horizontal <- update_font_setting(font_horizontal, defaults = list(
+  # Font for row percentages
+  font_row_percentages <- update_font_setting(font_row_percentages, defaults = list(
     "size" = 2.35, "prefix" = "",
     "suffix" = "%", "fontface" = "italic",
     "digits" = digits, "alpha" = 0.85
@@ -171,8 +206,8 @@ plot_confusion_matrix <- function(conf_matrix,
     "angle" = function(x){x + 90}
   ))
 
-  # Font for vertical percentages
-  font_vertical <- update_font_setting(font_vertical, defaults = list(
+  # Font for column percentages
+  font_col_percentages <- update_font_setting(font_col_percentages, defaults = list(
     "size" = 2.35, "prefix" = "",
     "suffix" = "%", "fontface" = "italic",
     "digits" = digits, "alpha" = 0.85
@@ -192,28 +227,28 @@ plot_confusion_matrix <- function(conf_matrix,
   cm[["N_text"]] <- preprocess_numeric(cm[["N"]], font_counts)
   cm[["Normalized_text"]] <- preprocess_numeric(cm[["Normalized"]], font_normalized)
 
-  # Calculate vertical percentages
-  if (isTRUE(add_vertical_percentage)){
-    vertical_sums <- cm %>%
+  # Calculate column percentages
+  if (isTRUE(add_col_percentages)){
+    column_sums <- cm %>%
       dplyr::group_by(.data$Target) %>%
       dplyr::summarize(Class_N = sum(.data$N))
     cm <- cm %>%
-      dplyr::left_join(vertical_sums, by = "Target") %>%
+      dplyr::left_join(column_sums, by = "Target") %>%
       dplyr::mutate(Class_Percentage = 100 * (.data$N / .data$Class_N),
                     Class_Percentage_text = preprocess_numeric(
-                      .data$Class_Percentage, font_vertical))
+                      .data$Class_Percentage, font_col_percentages))
   }
 
-  # Calculate horizontal percentages
-  if (isTRUE(add_horizontal_percentage)){
-    horizontal_sums <- cm %>%
+  # Calculate row percentages
+  if (isTRUE(add_row_percentages)){
+    row_sums <- cm %>%
       dplyr::group_by(.data$Prediction) %>%
       dplyr::summarize(Prediction_N = sum(.data$N))
     cm <- cm %>%
-      dplyr::left_join(horizontal_sums, by = "Prediction") %>%
+      dplyr::left_join(row_sums, by = "Prediction") %>%
       dplyr::mutate(Prediction_Percentage = 100 * (.data$N / .data$Prediction_N),
                     Prediction_Percentage_text = preprocess_numeric(
-                      .data$Prediction_Percentage, font_horizontal))
+                      .data$Prediction_Percentage, font_row_percentages))
   }
 
   #### Prepare for plotting ####
@@ -238,7 +273,9 @@ plot_confusion_matrix <- function(conf_matrix,
                   y = "Prediction",
                   fill = "N",
                   label = "N") +
-    ggplot2::geom_tile() +
+    ggplot2::geom_tile(colour = tile_border_color,
+                       size = tile_border_size,
+                       linetype = tile_border_linetype) +
     theme_fn() +
     ggplot2::coord_equal() +
     # Add fill colors that differ by N
@@ -248,9 +285,13 @@ plot_confusion_matrix <- function(conf_matrix,
     # Remove the guide
     ggplot2::guides(fill = F) +
     # Rotate y-axis text
-    ggplot2::theme(axis.text.y = ggplot2::element_text(angle = ifelse(isTRUE(rotate_y_text), 90, 0),
-                                                       hjust = ifelse(isTRUE(rotate_y_text), 0.5, 1),
-                                                       vjust = ifelse(isTRUE(rotate_y_text), 0.5, 0)))
+    ggplot2::theme(axis.text.y = ggplot2::element_text(
+      angle = ifelse(isTRUE(rotate_y_text), 90, 0),
+      hjust = ifelse(isTRUE(rotate_y_text), 0.5, 1),
+      vjust = ifelse(isTRUE(rotate_y_text), 0.5, 0)))
+
+
+  ##### Add numbers to plot ####
 
   if (isTRUE(add_counts)){
     pl <- pl +
@@ -296,37 +337,37 @@ plot_confusion_matrix <- function(conf_matrix,
                                 limits = rev(levels(cm$Target)))
   }
 
-  # Add horizontal percentages
-  if (isTRUE(add_horizontal_percentage)){
+  # Add row percentages
+  if (isTRUE(add_row_percentages)){
     pl <- pl + ggplot2::geom_text(ggplot2::aes(label = .data$Prediction_Percentage_text),
-                                  size = font_horizontal[["size"]],
-                                  color = font_horizontal[["color"]],
-                                  alpha = font_horizontal[["alpha"]],
-                                  nudge_x = font_horizontal[["nudge_x"]],
-                                  nudge_y = font_horizontal[["nudge_y"]],
-                                  angle = font_horizontal[["angle"]],
-                                  family = font_horizontal[["family"]],
-                                  fontface = font_horizontal[["fontface"]],
-                                  hjust = font_horizontal[["hjust"]],
-                                  vjust = font_horizontal[["vjust"]],
-                                  lineheight = font_horizontal[["lineheight"]])
+                                  size = font_row_percentages[["size"]],
+                                  color = font_row_percentages[["color"]],
+                                  alpha = font_row_percentages[["alpha"]],
+                                  nudge_x = font_row_percentages[["nudge_x"]],
+                                  nudge_y = font_row_percentages[["nudge_y"]],
+                                  angle = font_row_percentages[["angle"]],
+                                  family = font_row_percentages[["family"]],
+                                  fontface = font_row_percentages[["fontface"]],
+                                  hjust = font_row_percentages[["hjust"]],
+                                  vjust = font_row_percentages[["vjust"]],
+                                  lineheight = font_row_percentages[["lineheight"]])
   }
 
-  # Add vertical percentages
-  if (isTRUE(add_vertical_percentage)){
+  # Add column percentages
+  if (isTRUE(add_col_percentages)){
     pl <- pl +
       ggplot2::geom_text(ggplot2::aes(label = .data$Class_Percentage_text),
-                         size = font_vertical[["size"]],
-                         color = font_vertical[["color"]],
-                         alpha = font_vertical[["alpha"]],
-                         nudge_x = font_vertical[["nudge_x"]],
-                         nudge_y = font_vertical[["nudge_y"]],
-                         angle = font_vertical[["angle"]],
-                         family = font_vertical[["family"]],
-                         fontface = font_vertical[["fontface"]],
-                         hjust = font_vertical[["hjust"]],
-                         vjust = font_vertical[["vjust"]],
-                         lineheight = font_vertical[["lineheight"]])
+                         size = font_col_percentages[["size"]],
+                         color = font_col_percentages[["color"]],
+                         alpha = font_col_percentages[["alpha"]],
+                         nudge_x = font_col_percentages[["nudge_x"]],
+                         nudge_y = font_col_percentages[["nudge_y"]],
+                         angle = font_col_percentages[["angle"]],
+                         family = font_col_percentages[["family"]],
+                         fontface = font_col_percentages[["fontface"]],
+                         hjust = font_col_percentages[["hjust"]],
+                         vjust = font_col_percentages[["vjust"]],
+                         lineheight = font_col_percentages[["lineheight"]])
   }
 
   pl

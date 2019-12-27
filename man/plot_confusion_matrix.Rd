@@ -18,6 +18,7 @@ plot_confusion_matrix(
   theme_fn = ggplot2::theme_light,
   place_x_axis_above = TRUE,
   rotate_y_text = TRUE,
+  digits = 1,
   font_counts = font(),
   font_normalized = font(),
   font_horizontal = font(),
@@ -72,6 +73,12 @@ such that the counts are on top. (Logical)}
 \item{rotate_y_text}{Whether to rotate the y-axis text to
 be vertical instead of horizontal. (Logical)}
 
+\item{digits}{Number of digits to round to (percentages only).
+ Set to a negative number for no rounding.
+
+ Can be set for each font individually via the
+ \code{font_counts}, \code{font_normalized}, \code{font_horizontal} and \code{font_vertical} arguments.}
+
 \item{font_counts}{List of font settings for the counts.
 Can be provided with \code{\link[cvms:font]{font()}}.}
 
@@ -99,7 +106,7 @@ A ggplot2 object representing a confusion matrix. Color intensity depends on the
  percentages overall, horizontal percentages and vertical percentages.
 }
 \details{
-Inspired by Antoine Sachet at https://stackoverflow.com/a/53612391/11832955
+Inspired by Antoine Sachet's answer at https://stackoverflow.com/a/53612391/11832955
 }
 \examples{
 # Attach cvms

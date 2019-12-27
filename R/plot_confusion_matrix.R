@@ -45,6 +45,11 @@
 #'  Can be provided with \code{\link[cvms:font]{font()}}.
 #' @param font_vertical List of font settings for the vertical percentages.
 #'  Can be provided with \code{\link[cvms:font]{font()}}.
+#' @param digits Number of digits to round to (percentages only).
+#'  Set to a negative number for no rounding.
+#'
+#'  Can be set for each font individually via the
+#'  \code{font_counts}, \code{font_normalized}, \code{font_horizontal} and \code{font_vertical} arguments.
 #' @param palette Color scheme. Passed directly to \code{palette} in
 #'  \code{\link[ggplot2:scale_fill_distiller]{ggplot2::scale_fill_distiller}}.
 #' @param darkness How dark the darkest colors should be, between 0 and 1, where 1 is darkest.
@@ -55,7 +60,7 @@
 #' @param place_x_axis_above Move the x-axis text to the top and reverse the levels such that
 #     the "correct" diagonal goes from top left to bottom right. (Logical)
 #' @details
-#'  Inspired by Antoine Sachet at https://stackoverflow.com/a/53612391/11832955
+#'  Inspired by Antoine Sachet's answer at https://stackoverflow.com/a/53612391/11832955
 #' @return
 #'  A ggplot2 object representing a confusion matrix. Color intensity depends on the counts.
 #' @examples

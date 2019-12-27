@@ -5,6 +5,7 @@
 #'
 #'  Creates a ggplot2 object representing a confusion matrix with counts,
 #'  percentages overall, horizontal percentages and vertical percentages.
+#'
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
 #' @family plotting functions
@@ -162,19 +163,21 @@ plot_confusion_matrix <- function(conf_matrix,
 
   # Font for horizontal percentages
   font_horizontal <- update_font_setting(font_horizontal, defaults = list(
-    "size" = 2.35, "prefix" = "-- ", "suffix" = "% --",
-    "digits" = digits, "alpha" = 0.85
-  ), initial_vals = list(
-    "nudge_y" = function(x){x - 0.43}
-  ))
-
-  # Font for vertical percentages
-  font_vertical <- update_font_setting(font_vertical, defaults = list(
-    "size" = 2.35, "prefix" = "-- ", "suffix" = "% --",
+    "size" = 2.35, "prefix" = "",
+    "suffix" = "%", "fontface" = "italic",
     "digits" = digits, "alpha" = 0.85
   ), initial_vals = list(
     "nudge_x" = function(x){x + 0.43},
     "angle" = function(x){x + 90}
+  ))
+
+  # Font for vertical percentages
+  font_vertical <- update_font_setting(font_vertical, defaults = list(
+    "size" = 2.35, "prefix" = "",
+    "suffix" = "%", "fontface" = "italic",
+    "digits" = digits, "alpha" = 0.85
+  ), initial_vals = list(
+    "nudge_y" = function(x){x - 0.43}
   ))
 
   #### Prepare dataset ####
@@ -311,18 +314,19 @@ plot_confusion_matrix <- function(conf_matrix,
 
   # Add vertical percentages
   if (isTRUE(add_vertical_percentage)){
-    pl <- pl + ggplot2::geom_text(ggplot2::aes(label = .data$Class_Percentage_text),
-                                  size = font_vertical[["size"]],
-                                  color = font_vertical[["color"]],
-                                  alpha = font_vertical[["alpha"]],
-                                  nudge_x = font_vertical[["nudge_x"]],
-                                  nudge_y = font_vertical[["nudge_y"]],
-                                  angle = font_vertical[["angle"]],
-                                  family = font_vertical[["family"]],
-                                  fontface = font_vertical[["fontface"]],
-                                  hjust = font_vertical[["hjust"]],
-                                  vjust = font_vertical[["vjust"]],
-                                  lineheight = font_vertical[["lineheight"]])
+    pl <- pl +
+      ggplot2::geom_text(ggplot2::aes(label = .data$Class_Percentage_text),
+                         size = font_vertical[["size"]],
+                         color = font_vertical[["color"]],
+                         alpha = font_vertical[["alpha"]],
+                         nudge_x = font_vertical[["nudge_x"]],
+                         nudge_y = font_vertical[["nudge_y"]],
+                         angle = font_vertical[["angle"]],
+                         family = font_vertical[["family"]],
+                         fontface = font_vertical[["fontface"]],
+                         hjust = font_vertical[["hjust"]],
+                         vjust = font_vertical[["vjust"]],
+                         lineheight = font_vertical[["lineheight"]])
   }
 
   pl

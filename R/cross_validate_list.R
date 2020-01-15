@@ -114,7 +114,7 @@ cross_validate_list <- function(data,
 
   # Add identifier for each observation so we can find which
   # ones are hard to predict
-  tmp_observation_id_col <- create_tmp_name(data, tmp_var = ".observation")
+  tmp_observation_id_col <- create_tmp_name(data, name = ".observation")
   data[[tmp_observation_id_col]] <- seq_len(nrow(data))
 
   # Get evaluation type

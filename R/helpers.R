@@ -881,7 +881,7 @@ one_hot_encode <- function(data, col, c_levels = NULL, use_epsilon=FALSE, epsilo
   colnames(initial_tbl) <- c_levels
 
   # Add col with a unique name
-  tmp_colname <- create_tmp_var(data, ".__col__")
+  tmp_colname <- create_tmp_name(data, ".__col__")
   initial_tbl[[tmp_colname]] <- data[[col]]
 
   equal_int <- function(x1, x2){

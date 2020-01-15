@@ -103,7 +103,7 @@ validate_list <- function(train_data,
   train_data <- dplyr::as_tibble(train_data) %>%
     dplyr::ungroup()
 
-  tmp_observation_id_col <- create_tmp_name(test_data, tmp_var = ".observation")
+  tmp_observation_id_col <- create_tmp_name(test_data, name = ".observation")
 
   if (!is.null(test_data)){
 

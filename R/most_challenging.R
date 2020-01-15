@@ -60,14 +60,32 @@ most_challenging <- function(data,
                              threshold = 0.15,
                              threshold_is = "percentage"){
 
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_data_frame(x = data, min.rows = 1,
+                               min.cols = 3,
+                               add = assert_collection)
+  checkmate::assert_string(x = obs_id_col, min.chars = 1, add = assert_collection)
+  checkmate::assert_string(x = target_col, min.chars = 1, add = assert_collection)
+  checkmate::assert_string(x = prediction_col, min.chars = 1, add = assert_collection)
+  checkmate::assert_choice(x = type, choices = c("gaussian", "binomial", "multinomial"),
+                           add = assert_collection)
+  checkmate::assert_choice(x = threshold_is, choices = c("score", "percentage"),
+                           add = assert_collection)
+  checkmate::assert_number(x = threshold, add = assert_collection)
+  if (threshold_is == "percentage" &&
+      !rtilities2::is_between(threshold, 0.0, 1.0)) {
+    assert_collection$push(
+      "when 'threshold_is' a percentage, 'threshold' must be between 0 and 1.")
+  }
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
+
   # If the dataset is grouped, we need the indices and keys for the groups
   # so we can evaluate group wise
   # grouping_factor <- dplyr::group_indices(data)
   grouping_keys <- dplyr::group_keys(data)
   data <- dplyr::ungroup(data)
-
-  if (threshold_is == "percentage" && !is_between_(threshold, 0.0, 1.0))
-    stop("when 'threshold_is' a percentage, 'threshold' must be between 0 and 1.")
 
   if (type %in% c("binomial", "multinomial")) {
     most_challenging_classification(
@@ -142,10 +160,10 @@ most_challenging_gaussian <- function(data,
                                       threshold_is,
                                       grouping_keys){
 
-  if (!is.numeric(data[[target_col]]))
-    stop("target_col must be numeric.")
-  if (!is.numeric(data[[prediction_col]]))
-    stop("target_col must be numeric.")
+  stop_if(!is.numeric(data[[target_col]]),
+          "'target_col' must be numeric.")
+  stop_if(!is.numeric(data[[prediction_col]]),
+          "'prediction_col' must be numeric.")
 
   tmp_residual_var <- create_tmp_name(data, ".__residuals__")
   data[tmp_residual_var] <- data[[target_col]] - data[[prediction_col]]

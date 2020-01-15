@@ -1,3 +1,8 @@
+
+#   __________________ #< f29ca547300fc1bd04428e6410ff2da3 ># __________________
+#   Evaluate residuals                                                      ####
+
+
 #' @title Evaluate residuals from a regression task
 #' @description
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
@@ -50,44 +55,33 @@
 #'
 #'  The \strong{Name} column refers to the name used in the package.
 #'  This is the name in the output and when enabling/disabling in \code{metrics}.
-#' @examples
-#' # Attach cvms
-#' library(cvms)
-#'
-#' # Two classes
-#'
-#' # Create targets and predictions
-#' targets <- c(0,1,0,1,0,1,0,1,0,1,0,1)
-#' predictions <- c(1,1,0,0,0,1,1,1,0,1,0,0)
-#'
-#' # Create confusion matrix with default metrics
-#' cm <- confusion_matrix(targets, predictions)
-#' cm
-#' cm[["Confusion Matrix"]]
-#' cm[["Table"]]
-#'
-#' # Three classes
-#'
-#' # Create targets and predictions
-#' targets <- c(0,1,2,1,0,1,2,1,0,1,2,1,0)
-#' predictions <- c(2,1,0,2,0,1,1,2,0,1,2,0,2)
-#'
-#' # Create confusion matrix with default metrics
-#' cm <- confusion_matrix(targets, predictions)
-#' cm
-#' cm[["Confusion Matrix"]]
-#' cm[["Table"]]
-#'
-#' # Enabling weighted accuracy
-#'
-#' # Create confusion matrix with Weighted Accuracy enabled
-#' cm <- confusion_matrix(targets, predictions,
-#'                        metrics = list("Weighted Accuracy" = TRUE))
-#' cm
 evaluate_residuals <- function(data,
                                predictions_col,
                                targets_col,
                                metrics = list()) {
+
+  if (checkmate::test_string(x = metrics, pattern = "^all$")){
+    metrics <- list("all" = TRUE)
+  }
+
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_data_frame(x = data, min.rows = 1, min.cols = 2, add = assert_collection)
+  checkmate::assert_string(x = predictions_col, add = assert_collection)
+  checkmate::assert_string(x = targets_col, add = assert_collection)
+  checkmate::reportAssertions(assert_collection)
+  checkmate::assert_names(x = colnames(data),
+                          must.include = c(predictions_col, targets_col),
+                          what = "colnames")
+  checkmate::assert_list(
+    x = metrics,
+    types = "logical",
+    any.missing = FALSE,
+    names = "named",
+    add = assert_collection
+  )
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
 
   metrics <- set_metrics(family = "gaussian", metrics_list = metrics,
                          include_model_object_metrics = FALSE)

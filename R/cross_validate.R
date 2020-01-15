@@ -1,4 +1,9 @@
 
+
+#   __________________ #< ccfcdb8c94c692518bdaf6f1509380e1 ># __________________
+#   Cross-validate lm lmer glm glmer                                        ####
+
+
 #' @title Cross-validate regression models for model selection
 #' @description
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("stable")}
@@ -289,6 +294,7 @@
 #' @importFrom stats binomial gaussian glm lm
 #' @importFrom rlang .data
 #' @importFrom lifecycle deprecated deprecate_warn deprecate_stop
+#' @importFrom rtilities2 message_if stop_if create_tmp_name
 cross_validate <- function(data, formulas, fold_cols = '.folds', family = 'gaussian',
                            control = NULL, REML = FALSE,
                            cutoff = 0.5, positive = 2,

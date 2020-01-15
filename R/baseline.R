@@ -1,4 +1,9 @@
 
+
+#   __________________ #< c52208f58dea1e7a0b9da8e2ec9c59ac ># __________________
+#   Baseline                                                                ####
+
+
 #' @title Create baseline evaluations
 #' @description
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("maturing")}
@@ -400,6 +405,79 @@ baseline <- function(test_data,
                      # Parallelization
                      parallel = FALSE) {
 
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+
+  # Data frames
+  checkmate::assert_data_frame(test_data, col.names = "named",
+                               add = assert_collection)
+  checkmate::assert_data_frame(train_data, col.names = "named",
+                               null.ok = family != "gaussian",
+                               add = assert_collection)
+  checkmate::assert_names(colnames(test_data),
+                          must.include = dependent_col,
+                          add = assert_collection)
+  if (!is.null(train_data)){
+    checkmate::assert_names(colnames(train_data),
+                            must.include = dependent_col,
+                            add = assert_collection)
+  }
+
+  # Character
+  checkmate::assert_string(x = dependent_col, add = assert_collection)
+  checkmate::assert_choice(x = family,
+                           choices = c("gaussian", "binomial", "multinomial"),
+                           add = assert_collection)
+  checkmate::assert_string(x = random_effects, null.ok = TRUE,
+                           add = assert_collection)
+
+  # Numeric
+  checkmate::assert_count(x = n,
+                          positive = TRUE,
+                          add = assert_collection)
+  # TODO make check that have both assertions
+  # E.g. with check_* and then push manually
+  if (!is.character(positive)){
+    checkmate::assert_choice(x = positive,
+                             choices = c(1,2),
+                             add = assert_collection)
+  } else {
+    checkmate::assert_string(x = positive,
+                             add = assert_collection)
+  }
+
+  checkmate::assert_number(x = cutoff,
+                           lower = 0,
+                           upper = 1,
+                           add = assert_collection)
+  checkmate::assert_count(x = min_training_rows,
+                          positive = TRUE,
+                          add = assert_collection)
+  checkmate::assert_count(x = min_training_rows_left_out,
+                          positive = TRUE,
+                          add = assert_collection)
+
+  # Flags
+  checkmate::assert_flag(x = REML, add = assert_collection)
+  checkmate::assert_flag(x = parallel, add = assert_collection)
+
+  # Functional
+  checkmate::assert_function(x = random_generator_fn,
+                             add = assert_collection)
+
+  # Multi
+  # TODO Find way to have "either or" assertions in the collection
+  if (is.character(metrics)){
+    checkmate::assert_string(x = metrics, fixed = "all", add = assert_collection)
+  } else {
+    checkmate::assert_list(x = metrics, any.missing = FALSE,
+                           types = c("logical", "character"))
+  }
+
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
+
+
   # Start by converting the train and test data to tibbles
   # Will be NULL if they were NULL before
   test_data <- to_tibble(test_data, "test_data", caller = "baseline()")
@@ -459,7 +537,7 @@ baseline <- function(test_data,
   } else if (family == "gaussian"){
 
     if (is.null(train_data)){
-      stop("train_data must be passed for Gaussian baseline.")
+      stop("'train_data' must be passed for Gaussian baseline.")
     }
 
     if (!isTRUE(all.equal(random_generator_fn, runif))){

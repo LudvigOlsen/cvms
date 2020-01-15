@@ -1,3 +1,9 @@
+
+
+#   __________________ #< 1ee2f435e0cd344bcd4c561d5eb5542d ># __________________
+#   Evaluate                                                                ####
+
+
 #' @title Evaluate your model's performance
 #' @description
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("maturing")}
@@ -446,10 +452,95 @@ run_evaluate <- function(data,
                          caller = "evaluate()"
 ){
 
-  # Test if type is allowed
-  stopifnot(type %in% c("gaussian",
-                        "binomial",
-                        "multinomial"))
+  if (checkmate::test_string(x = metrics, pattern = "^all$")){
+    metrics <- list("all" = TRUE)
+  }
+
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  # Data frame
+  checkmate::assert_data_frame(x = data, min.rows = 1,
+                               min.cols = 2,
+                               col.names = "named",
+                               add = assert_collection)
+
+  # String
+  checkmate::assert_string(x = target_col, min.chars = 1,
+                           add = assert_collection)
+  checkmate::assert_character(x = prediction_cols,
+                              min.len = 1,
+                              min.chars = 1,
+                              add = assert_collection)
+  checkmate::assert_string(x = id_col, min.chars = 1, null.ok = TRUE,
+                           add = assert_collection)
+  checkmate::assert_string(x = caller, add = assert_collection)
+
+  # Names
+  checkmate::reportAssertions(assert_collection) # before names check
+  checkmate::assert_names(x = colnames(data),
+                          must.include = c(target_col, prediction_cols),
+                          what = "colnames",
+                          add = assert_collection)
+
+  # Choice
+  checkmate::assert_choice(x = type,
+                           choices = c("gaussian", "binomial", "multinomial"),
+                           add = assert_collection)
+  checkmate::assert_choice(x = id_method,
+                           choices = c("mean", "majority"),
+                           add = assert_collection)
+
+  # Flag
+  checkmate::assert_flag(x = apply_softmax, add = assert_collection)
+  checkmate::assert_flag(x = include_predictions, add = assert_collection)
+  checkmate::assert_flag(x = include_fold_columns, add = assert_collection)
+  checkmate::assert_flag(x = parallel, add = assert_collection)
+  checkmate::assert_flag(x = na.rm, null.ok = TRUE, add = assert_collection)
+
+  # List
+  checkmate::assert_list(x = models, null.ok = TRUE,
+                         add = assert_collection)
+  checkmate::assert_list(
+    x = metrics,
+    types = "logical",
+    any.missing = FALSE,
+    names = "named",
+    add = assert_collection
+  )
+  checkmate::assert_list(
+    x = fold_info_cols,
+    types = "character",
+    any.missing = FALSE,
+    names = "named",
+    null.ok = TRUE,
+    add = assert_collection
+  )
+  checkmate::assert_data_frame(
+    x = fold_and_fold_col,
+    col.names = "named",
+    any.missing = FALSE,
+    null.ok = TRUE,
+    add = assert_collection
+  )
+
+  # Number
+  checkmate::assert_number(x = cutoff,
+                           lower = 0,
+                           upper = 1,
+                           add = assert_collection)
+  if (is.numeric(positive)){
+    # TODO make meaningful combined assert (numeric or string)
+    checkmate::assert_choice(x = positive,
+                             choices = c(1,2),
+                             add = assert_collection)
+  } else {
+    checkmate::assert_string(x = positive,
+                             min.chars = 1,
+                             add = assert_collection)
+  }
+
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
 
   # Convert families to the internally used
   family <- type
@@ -539,7 +630,7 @@ run_evaluate <- function(data,
   }
 
   # Add grouping factor with a unique tmp var
-  local_tmp_grouping_factor_var <- create_tmp_var(data, ".group")
+  local_tmp_grouping_factor_var <- create_tmp_name(data, ".group")
   data[[local_tmp_grouping_factor_var]] <- grouping_factor
 
   # Now that we've saved the groups
@@ -547,7 +638,7 @@ run_evaluate <- function(data,
   data <- data %>% dplyr::ungroup()
 
   # Create temporary prediction column name
-  local_tmp_predictions_col_var <- create_tmp_var(data, "tmp_predictions_col")
+  local_tmp_predictions_col_var <- create_tmp_name(data, "tmp_predictions_col")
 
   if (!is.null(id_col)) {
 
@@ -555,9 +646,8 @@ run_evaluate <- function(data,
 
     # Currently don't support model object metrics
     # in ID aggregation mode
-    if (!is.null(models)){
-      stop("When aggregating by ID, 'models' should be NULL.")
-    }
+    stop_if(!is.null(models),
+            "When aggregating by ID, 'models' should be NULL.")
 
     # Prepare data for ID level evaluation
     data_for_id_evaluation <- prepare_id_level_evaluation(
@@ -991,9 +1081,9 @@ check_args_evaluate <- function(data,
 
 create_tmp_fold_cols <- function(data){
   # Create fold columns
-  local_tmp_fold_col_var <- create_tmp_var(data, "fold_column")
-  local_tmp_rel_fold_col_var <- create_tmp_var(data, "rel_fold")
-  local_tmp_abs_fold_col_var <- create_tmp_var(data, "abs_fold")
+  local_tmp_fold_col_var <- create_tmp_name(data, "fold_column")
+  local_tmp_rel_fold_col_var <- create_tmp_name(data, "rel_fold")
+  local_tmp_abs_fold_col_var <- create_tmp_name(data, "abs_fold")
 
   data[[local_tmp_fold_col_var]] <- as.character(1)
   data[[local_tmp_rel_fold_col_var]] <- as.character(1)

@@ -165,9 +165,9 @@ evaluate_predictions_multinomial <- function(data,
       include_predictions = include_predictions)
 
     # Create unique temporary variable names
-    local_tmp_target_var <- create_tmp_var(data,"one_vs_all_targets")
-    local_tmp_predicted_probability_var <- create_tmp_var(data,"one_vs_all_predicted_probability")
-    local_tmp_predicted_class_var <- create_tmp_var(data,"one_vs_all_predicted_class")
+    local_tmp_target_var <- create_tmp_name(data,"one_vs_all_targets")
+    local_tmp_predicted_probability_var <- create_tmp_name(data,"one_vs_all_predicted_probability")
+    local_tmp_predicted_class_var <- create_tmp_name(data,"one_vs_all_predicted_class")
 
     # Count how many times each class are in the targets_col
     support <- create_support_object(data[[targets_col]])

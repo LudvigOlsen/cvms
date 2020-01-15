@@ -1,3 +1,9 @@
+
+
+#   __________________ #< 4dfc02f9f16d691fdde16cc9a0024e9f ># __________________
+#   Combine predictors                                                      ####
+
+
 #' @title Generate model formulas by combining predictors
 #' @description
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("maturing")}
@@ -81,6 +87,71 @@ combine_predictors <- function(dependent,
                                max_fixed_effects = 5,
                                max_interaction_size = 3,
                                max_effect_frequency = NULL){
+
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_string(x = dependent,
+                           min.chars = 1,
+                           add = assert_collection)
+  checkmate::assert_string(x = random_effects,
+                           min.chars = 1, # lmer will fail if ""
+                           null.ok = TRUE,
+                           add = assert_collection)
+
+  checkmate::assert_count(x = max_effect_frequency,
+                          null.ok = TRUE,
+                          add = assert_collection)
+
+  # Ror range
+  checkmate::assert_number(x = max_interaction_size,
+                           lower = 0, upper = 3,
+                           null.ok = TRUE,
+                           add = assert_collection)
+
+  # We need max_interaction_size for the next asserts
+  checkmate::reportAssertions(assert_collection)
+
+  # For integer
+  checkmate::assert_count(x = max_interaction_size,
+                          null.ok = TRUE,
+                          add = assert_collection)
+
+  arg_max__max_interaction_size <- ifelse(max_interaction_size <= 1, 256, 8)
+  if (is.list(fixed_effects)){ # TODO should be in one assertion!
+    checkmate::assert_list(
+      x = fixed_effects,
+      types = c("character", "list"),
+      any.missing = FALSE,
+      min.len = 2,
+      max.len = arg_max__max_interaction_size,
+      add = assert_collection
+    )
+  } else {
+    checkmate::assert_character(
+      x = fixed_effects,
+      any.missing = FALSE,
+      min.len = 2,
+      max.len = arg_max__max_interaction_size,
+      add = assert_collection
+    )
+  }
+
+  checkmate::assert_number(x = max_fixed_effects,
+                           lower = 2,
+                           upper = ifelse(max_interaction_size <= 1, 256, 5),
+                           null.ok = TRUE,
+                           add = assert_collection)
+
+  # We don't want the same assertions twice
+  checkmate::reportAssertions(assert_collection)
+
+  checkmate::assert_count(x = max_fixed_effects,
+                          positive = TRUE,
+                          null.ok = TRUE,
+                          add = assert_collection)
+
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
 
   args_ <- combine_predictors_prepare_args(dependent = dependent,
                                            fixed_effects = fixed_effects,

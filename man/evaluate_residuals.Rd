@@ -62,41 +62,6 @@ Tbl (tibble) with the calculated metrics.
 \details{
 The metric formulas are listed in the \emph{Metrics} vignette.
 }
-\examples{
-# Attach cvms
-library(cvms)
-
-# Two classes
-
-# Create targets and predictions
-targets <- c(0,1,0,1,0,1,0,1,0,1,0,1)
-predictions <- c(1,1,0,0,0,1,1,1,0,1,0,0)
-
-# Create confusion matrix with default metrics
-cm <- confusion_matrix(targets, predictions)
-cm
-cm[["Confusion Matrix"]]
-cm[["Table"]]
-
-# Three classes
-
-# Create targets and predictions
-targets <- c(0,1,2,1,0,1,2,1,0,1,2,1,0)
-predictions <- c(2,1,0,2,0,1,1,2,0,1,2,0,2)
-
-# Create confusion matrix with default metrics
-cm <- confusion_matrix(targets, predictions)
-cm
-cm[["Confusion Matrix"]]
-cm[["Table"]]
-
-# Enabling weighted accuracy
-
-# Create confusion matrix with Weighted Accuracy enabled
-cm <- confusion_matrix(targets, predictions,
-                       metrics = list("Weighted Accuracy" = TRUE))
-cm
-}
 \seealso{
 Other evaluation functions: 
 \code{\link{confusion_matrix}()},

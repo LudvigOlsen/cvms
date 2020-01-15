@@ -1,4 +1,7 @@
 
+#   __________________ #< d6eabafb9158df7c6175abd6bd32366c ># __________________
+#   Extract model effects                                                   ####
+
 # Takes the model from the model_list and split it up into
 # fixed effects and random effects
 # Some users might want to mix models with and without random effects,

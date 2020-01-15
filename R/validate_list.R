@@ -1,3 +1,9 @@
+
+
+#   __________________ #< 9d281822e7dafc7afc466a38db278b1e ># __________________
+#   Validate list                                                           ####
+
+
 validate_list <- function(train_data,
                           test_data = NULL,
                           formulas,
@@ -19,17 +25,85 @@ validate_list <- function(train_data,
                           return_models = TRUE,
                           caller = "validate_fn()") {
 
-  # Set errors if input variables aren't what we expect / can handle
-  # TODO WORK ON THIS SECTION!
-  stopifnot(is.data.frame(train_data),
-            is.null(test_data) || is.data.frame(test_data),
-            is.character(positive) || positive %in% c(1,2)
+  if (checkmate::test_string(x = metrics, pattern = "^all$")){
+    metrics <- list("all" = TRUE)
+  }
+
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_data_frame(x = train_data,
+                               min.rows = 1,
+                               min.cols = 2,
+                               add = assert_collection)
+  checkmate::assert_data_frame(x = test_data,
+                               min.rows = 1,
+                               min.cols = 2,
+                               null.ok = TRUE,
+                               add = assert_collection)
+  checkmate::assert_character(x = formulas, min.len = 1,
+                              any.missing = FALSE,
+                              add = assert_collection)
+  checkmate::assert_choice(x = family,
+                           choices = c("gaussian",
+                                       "binomial",
+                                       "multinomial"),
+                           add = assert_collection)
+  checkmate::assert_number(x = cutoff,
+                           lower = 0,
+                           upper = 1,
+                           add = assert_collection)
+  if (is.numeric(positive)){
+    # TODO make meaningful combined assert (numeric or string)
+    checkmate::assert_choice(x = positive,
+                             choices = c(1,2),
+                             add = assert_collection)
+  } else {
+    checkmate::assert_string(x = positive,
+                             min.chars = 1,
+                             add = assert_collection)
+  }
+  checkmate::assert_list(
+    x = metrics,
+    types = "logical",
+    any.missing = FALSE,
+    names = "named",
+    add = assert_collection
   )
+  if (checkmate::test_data_frame(hyperparameters)){
+    checkmate::assert_data_frame(
+      x = hyperparameters,col.names = "named",
+      min.rows = 1, min.cols = 1,
+      add = assert_collection
+    )
+  } else {
+    checkmate::assert_list(
+      x = hyperparameters,
+      null.ok = TRUE,
+      any.missing = FALSE,
+      names = "named",
+      add = assert_collection
+    )
+  }
+  checkmate::assert_list(
+    x = info_cols,
+    any.missing = FALSE,
+    names = "named",
+    add = assert_collection
+  )
+  checkmate::assert_flag(x = verbose, add = assert_collection)
+  checkmate::assert_flag(x = err_nc, add = assert_collection)
+  checkmate::assert_flag(x = preprocess_once, add = assert_collection)
+  checkmate::assert_flag(x = parallel_, add = assert_collection,
+                         .var.name = "parallel")
+  checkmate::assert_flag(x = return_models, add = assert_collection)
+  checkmate::assert_string(x = caller, add = assert_collection)
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
 
   train_data <- dplyr::as_tibble(train_data) %>%
     dplyr::ungroup()
 
-  tmp_observation_id_col <- create_tmp_var(test_data, tmp_var = ".observation")
+  tmp_observation_id_col <- create_tmp_name(test_data, tmp_var = ".observation")
 
   if (!is.null(test_data)){
 

@@ -35,7 +35,6 @@ NULL
 #' @docType data
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @keywords data
-#' @importFrom utils data
 NULL
 
 
@@ -64,7 +63,6 @@ NULL
 #' @docType data
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
 #' @keywords data
-#' @importFrom utils data
 NULL
 
 #' Compatible formula terms
@@ -98,5 +96,4 @@ NULL
 #' @docType data
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
 #' @keywords data
-#' @importFrom utils data
 NULL

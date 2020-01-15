@@ -1,5 +1,6 @@
 library(cvms)
 context("helpers")
+library(rtilities2)
 
 test_that("Helper count_nulls_in_list() works",{
 
@@ -298,8 +299,8 @@ test_that("glmer throws same warnings on mac and ubuntu",{
   # NOTE devtools::test() used '' but console outputted ‘’
   # which is weird.. but now I'm just stripping the punctuations
   # cause it's not a problem here
-  expect_equal(strip_for_punctuation(sort(warns)),
-               strip_for_punctuation(sort(
+  expect_equal(strip(sort(warns)),
+               strip(sort(
                  c("extra argument(s) ‘REML’ disregarded", "extra argument(s) ‘REML’ disregarded",
                    "extra argument(s) ‘REML’ disregarded", "extra argument(s) ‘REML’ disregarded",
                    "extra argument(s) ‘REML’ disregarded", "extra argument(s) ‘REML’ disregarded",

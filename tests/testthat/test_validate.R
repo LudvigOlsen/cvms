@@ -509,11 +509,13 @@ test_that("the expected errors are thrown by validate()",{
   set_seed_for_R_compatibility(1)
   dat <- participant.scores
 
-  expect_error(validate(dat, dat, formulas = c("diagnosis~score", "diagnosis~age"),
+  expect_error(strip_msg(validate(dat, dat, formulas = c("diagnosis~score", "diagnosis~age"),
                         family = 'fdsfs',
                         REML = FALSE, verbose = FALSE,
-                        positive = 1),
-               "Only 'gaussian', 'binomial', and 'multinomial' evaluation types are currently allowed.", fixed=TRUE)
+                        positive = 1)),
+               strip(paste0("1 assertions failed:\n * Variable 'family': Must be element",
+                      " of set\n * {'gaussian','binomial','multinomial'}, but is 'f",
+                      "dsfs'.")), fixed=TRUE)
 
   expect_error(suppressWarnings(
     validate(

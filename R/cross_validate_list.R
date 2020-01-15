@@ -16,11 +16,97 @@ cross_validate_list <- function(data,
                                 parallel_ = FALSE,
                                 caller = "cross_validate_fn()") {
 
-  # Set errors if input variables aren't what we expect / can handle
-  # WORK ON THIS SECTION!
-  stopifnot(is.data.frame(data),
-            is.character(positive) || positive %in% c(1,2)
+  if (checkmate::test_string(x = metrics, pattern = "^all$")){
+    metrics <- list("all" = TRUE)
+  }
+
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_data_frame(x = data,
+                               min.rows = 2,
+                               min.cols = 2,
+                               add = assert_collection)
+  checkmate::assert_character(x = formulas, min.len = 1,
+                              any.missing = FALSE,
+                              add = assert_collection)
+  checkmate::assert_character(x = fold_cols, min.len = 1,
+                              any.missing = FALSE,
+                              add = assert_collection)
+  checkmate::assert_choice(x = family,
+                           choices = c("gaussian",
+                                       "binomial",
+                                       "multinomial"),
+                           add = assert_collection)
+  checkmate::assert_number(x = cutoff,
+                           lower = 0,
+                           upper = 1,
+                           add = assert_collection)
+  if (is.numeric(positive)){
+    # TODO make meaningful combined assert (numeric or string)
+    checkmate::assert_choice(x = positive,
+                             choices = c(1,2),
+                             add = assert_collection)
+  } else {
+    checkmate::assert_string(x = positive,
+                             min.chars = 1,
+                             add = assert_collection)
+  }
+  checkmate::assert_list(
+    x = metrics,
+    types = "logical",
+    any.missing = FALSE,
+    names = "named",
+    add = assert_collection
   )
+  if (checkmate::test_data_frame(hyperparameters)){
+    checkmate::assert_data_frame(
+      x = hyperparameters,col.names = "named",
+      min.rows = 1, min.cols = 1,
+      add = assert_collection
+    )
+  } else {
+    checkmate::assert_list(
+      x = hyperparameters,
+      null.ok = TRUE,
+      any.missing = FALSE,
+      names = "named",
+      add = assert_collection
+    )
+  }
+  checkmate::assert_list(
+    x = info_cols,
+    any.missing = FALSE,
+    names = "named",
+    add = assert_collection
+  )
+  checkmate::assert_flag(x = verbose, add = assert_collection)
+  checkmate::assert_flag(x = rm_nc, add = assert_collection)
+  checkmate::assert_flag(x = preprocess_once, add = assert_collection)
+  checkmate::assert_flag(x = parallel_, add = assert_collection,
+                         .var.name = "parallel")
+  checkmate::assert_string(x = caller, add = assert_collection)
+
+  checkmate::assert_function(
+    x = model_fn,
+    args = c("train_data", "formula", "hyperparameters"),
+    add = assert_collection
+  )
+  checkmate::assert_function(
+    x = predict_fn,
+    args = c("test_data", "model",
+             "formula", "hyperparameters"),
+    add = assert_collection
+  )
+  checkmate::assert_function(
+    x = preprocess_fn,
+    args = c("train_data", "test_data",
+             "formula", "hyperparameters"),
+    null.ok = TRUE,
+    add = assert_collection
+  )
+
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
 
   # Convert to tibble
   data <- dplyr::as_tibble(data) %>%
@@ -28,17 +114,13 @@ cross_validate_list <- function(data,
 
   # Add identifier for each observation so we can find which
   # ones are hard to predict
-  tmp_observation_id_col <- create_tmp_var(data, tmp_var = ".observation")
+  tmp_observation_id_col <- create_tmp_name(data, tmp_var = ".observation")
   data[[tmp_observation_id_col]] <- seq_len(nrow(data))
 
   # Get evaluation type
-  if (family %in% c("gaussian", "binomial", "multinomial")){
-    evaluation_type <- family
-  } else {
-    stop(paste0("Only 'gaussian', 'binomial', and 'multinomial' ",
-                "evaluation types are currently allowed."))}
+  evaluation_type <- family
 
-  # Check metrics
+  # Check metrics # TODO Is this redundant?
   check_metrics_list(metrics)
   check_metrics_list(info_cols)
 
@@ -93,16 +175,17 @@ cross_validate_list <- function(data,
   n_model_instances <- nrow(computation_grid)
   n_folds <- length(unique(computation_grid[["abs_fold"]]))
 
-  if (isTRUE(verbose)){
-    # TODO Make better message here. It seems like a good idea
-    # to inform the user about the number of models to fit etc.
-    # so they know how long it may take
-    # Perhaps add a progress bar?
-    message(paste0("Will cross-validate ", n_models,
-                   " models. This requires fitting ",
-                   n_model_instances, " model instances."))
-  }
-
+  # TODO Perhaps add a progress bar?
+  message_if(
+    condition = isTRUE(verbose),
+    message = paste0(
+      "Will cross-validate ",
+      n_models,
+      " models. This requires fitting ",
+      n_model_instances,
+      " model instances."
+    )
+  )
 
   if(isTRUE(preprocess_once)){
 

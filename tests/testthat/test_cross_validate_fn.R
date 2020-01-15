@@ -1,5 +1,6 @@
 library(cvms)
 context("cross_validate_fn()")
+library(rtilities2)
 
 test_that("binomial glm model works with cross_validate_fn()",{
 
@@ -77,36 +78,40 @@ test_that("binomial glm model works with cross_validate_fn()",{
 
 
   # Check error when no model_fn is provided
-  expect_error(cross_validate_fn(dat,
+  expect_error(strip_msg(cross_validate_fn(dat,
                     model_fn = NULL,
                     predict_fn = glm_predict_fn,
                     formulas = c("diagnosis~score","diagnosis~age"),
-                    fold_cols = '.folds', type = 'binomial'),
-               "'model_fn' was NULL.", fixed = TRUE)
+                    fold_cols = '.folds', type = 'binomial')),
+               strip(paste0("1 assertions failed:\n * Variable 'model_fn': Must be a fun",
+                      "ction, not 'NULL'.")), fixed = TRUE)
 
   # Check error when no predict_fn is provided
-  expect_error(cross_validate_fn(dat,
+  expect_error(strip_msg(cross_validate_fn(dat,
                                  model_fn = glm_model_fn,
                                  predict_fn = NULL,
                                  formulas = c("diagnosis~score","diagnosis~age"),
-                                 fold_cols = '.folds', type = 'binomial'),
-               "'predict_fn' was NULL.", fixed = TRUE)
+                                 fold_cols = '.folds', type = 'binomial')),
+               strip(paste0("1 assertions failed:\n * Variable 'predict_fn': Must be a f",
+                      "unction, not 'NULL'.")), fixed = TRUE)
 
   # Check error when wrong model_fn type is provided
-  expect_error(cross_validate_fn(dat,
+  expect_error(strip_msg(cross_validate_fn(dat,
                                  model_fn = 3,
                                  predict_fn = glm_predict_fn,
                                  formulas = c("diagnosis~score","diagnosis~age"),
-                                 fold_cols = '.folds', type = 'binomial'),
-               "'model_fn' was not a function.", fixed = TRUE)
+                                 fold_cols = '.folds', type = 'binomial')),
+               strip(paste0("1 assertions failed:\n * Variable 'model_fn': Must be a fun",
+                      "ction, not 'double'.")), fixed = TRUE)
 
   # Check error when wrong predict_fn type is provided
-  expect_error(cross_validate_fn(dat,
+  expect_error(strip_msg(cross_validate_fn(dat,
                                  model_fn = glm_model_fn,
                                  predict_fn = 3,
                                  formulas = c("diagnosis~score","diagnosis~age"),
-                                 fold_cols = '.folds', type = 'binomial'),
-               "'predict_fn' was not a function.", fixed = TRUE)
+                                 fold_cols = '.folds', type = 'binomial')),
+               strip(paste0("1 assertions failed:\n * Variable 'predict_fn': Must be a f",
+                      "unction, not 'double'.")), fixed = TRUE)
 
   expect_error(cross_validate_fn(dat,
                                  model_fn = glm_model_fn,
@@ -116,13 +121,15 @@ test_that("binomial glm model works with cross_validate_fn()",{
                "The model formula does not contain a dependent variable.",
                fixed = TRUE)
 
-  expect_error(cross_validate_fn(dat,
+  expect_error(strip_msg(cross_validate_fn(dat,
                                  model_fn = glm_model_fn,
                                  predict_fn = glm_predict_fn,
                                  formulas = c("score","diagnosis~age"),
                                  fold_cols = '.folds',
-                                 type = 'fishcat'),
-               "Only 'gaussian', 'binomial', and 'multinomial' evaluation types are currently allowed.",
+                                 type = 'fishcat')),
+               strip(paste0("1 assertions failed:\n * Variable 'family': Must be element",
+                      " of set\n * {'gaussian','binomial','multinomial'}, but is 'f",
+                      "ishcat'.")),
                fixed = TRUE)
 
   # wrong predict fn
@@ -166,13 +173,14 @@ test_that("binomial glm model works with cross_validate_fn()",{
                       "The original error was: Error in as.vector(x, mode): cannot coerce ",
                       "type 'closure' to vector of type 'any'"),
                fixed = TRUE)
-  expect_error(cross_validate_fn(dat,
+  expect_error(strip_msg(cross_validate_fn(dat,
                                  model_fn = glm_model_fn,
                                  formulas = c("diagnosis~score","diagnosis~age"),
                                  fold_cols = '.folds',
                                  predict_fn = NULL,
-                                 type = 'binomial'),
-               "'predict_fn' was NULL.",
+                                 type = 'binomial')),
+               strip(paste0("1 assertions failed:\n * Variable 'predict_fn': Must be a f",
+                      "unction, not 'NULL'.")),
                fixed = TRUE)
   expect_error(cross_validate_fn(dat,
                                  model_fn = glm_model_fn,
@@ -204,17 +212,15 @@ test_that("binomial glm model works with cross_validate_fn()",{
                       "user_predict_fn(test_data = test_data, model = model, ",
                       "formula = stats::as.formula(formula), : predict_fn error"),
                fixed = TRUE)
-  expect_error(cross_validate_fn(dat,
+  expect_error(strip_msg(cross_validate_fn(dat,
                                  model_fn = glm_model_fn,
                                  formulas = c("diagnosis~score","diagnosis~age"),
                                  fold_cols = '.folds',
                                  predict_fn = function(t_data, model, formula = NULL,
                                                        hyperparameters = NULL){NULL},
-                                 type = 'binomial'),
-               paste0("Got the following error while using ",
-                      "specified 'predict_fn': Error in user_predict_fn(test_data = ",
-                      "test_data, model = model, formula = stats::as.formula(formula), : ",
-                      "unused argument (test_data = test_data)"),
+                                 type = 'binomial')),
+               strip(paste0("1 assertions failed:\n * Variable 'predict_fn': Must have f",
+                      "ormal arguments: test_data.")),
                fixed = TRUE)
 
   expect_equal(run_predict_fn(test_data = data.frame(), model = NULL,
@@ -490,13 +496,14 @@ test_that("binomial glm model with preprocess_fn works with cross_validate_fn()"
                          row.names = c(NA,0L), class = c("tbl_df", "tbl", "data.frame")))
 
   # Check error when no model_fn is provided
-  expect_error(cross_validate_fn(dat,
+  expect_error(strip_msg(cross_validate_fn(dat,
                                  model_fn = glm_model_fn,
                                  predict_fn = glm_predict_fn,
                                  preprocess_fn = "notAFunction",
                                  formulas = c("diagnosis~score","diagnosis~age"),
-                                 fold_cols = '.folds_1', type = 'binomial'),
-               "'preprocess_fn' was not a function.", fixed = TRUE)
+                                 fold_cols = '.folds_1', type = 'binomial')),
+               strip(paste0("1 assertions failed:\n * Variable 'preprocess_fn': Must be ",
+                      "a function (or 'NULL'), not\n * 'character'.")), fixed = TRUE)
 
 })
 

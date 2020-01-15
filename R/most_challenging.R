@@ -147,7 +147,7 @@ most_challenging_gaussian <- function(data,
   if (!is.numeric(data[[prediction_col]]))
     stop("target_col must be numeric.")
 
-  tmp_residual_var <- create_tmp_var(data, ".__residuals__")
+  tmp_residual_var <- create_tmp_name(data, ".__residuals__")
   data[tmp_residual_var] <- data[[target_col]] - data[[prediction_col]]
 
   root_mean_square <- function(x) sqrt(mean(x^2))

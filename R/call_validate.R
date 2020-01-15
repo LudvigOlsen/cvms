@@ -17,12 +17,35 @@ call_validate <- function(train_data,
   # Set default arguments
   link <- default_link(NULL, family = family)
   control <- default_control(control, family = family, link = link)
-  if(!is_logical_scalar_not_na(REML))
-    stop("cross_validate(): 'REML' must be either TRUE or FALSE.")
-  if(!is_logical_scalar_not_na(verbose))
-    stop("cross_validate(): 'verbose' must be either TRUE or FALSE.")
-  if (!is.character(family))
-    stop("cross_validate(): 'family' must have type character.")
+  if (checkmate::test_string(x = metrics, pattern = "^all$")){
+    metrics <- list("all" = TRUE)
+  }
+
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_choice(x = preprocessing,
+                           choices = c("standardize",
+                                       "scale",
+                                       "center",
+                                       "range"),
+                           null.ok = TRUE,
+                           add = assert_collection)
+  checkmate::assert_choice(x = family,
+                           choices = c("gaussian",
+                                       "binomial",
+                                       "multinomial"),
+                           add = assert_collection)
+  checkmate::assert_list(
+    x = metrics,
+    types = "logical",
+    any.missing = FALSE,
+    names = "named",
+    add = assert_collection
+  )
+  checkmate::assert_flag(x = rm_nc, add = assert_collection)
+  checkmate::assert_flag(x = REML, add = assert_collection)
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
 
   # Add AIC, AICc, BIC, r2m, r2c (unless disabled by user)
   metrics <- basics_update_metrics(metrics = metrics, family = family)
@@ -87,12 +110,35 @@ call_cross_validate <- function(data,
   # Set default arguments
   link <- default_link(NULL, family = family)
   control <- default_control(control, family = family, link = link)
-  if(!is_logical_scalar_not_na(REML))
-    stop("cross_validate(): 'REML' must be either TRUE or FALSE.")
-  if(!is_logical_scalar_not_na(verbose))
-    stop("cross_validate(): 'verbose' must be either TRUE or FALSE.")
-  if (!is.character(family))
-    stop("cross_validate(): 'family' must have type character.")
+  if (checkmate::test_string(x = metrics, pattern = "^all$")){
+    metrics <- list("all" = TRUE)
+  }
+
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_choice(x = preprocessing,
+                           choices = c("standardize",
+                                       "scale",
+                                       "center",
+                                       "range"),
+                           null.ok = TRUE,
+                           add = assert_collection)
+  checkmate::assert_choice(x = family,
+                           choices = c("gaussian",
+                                       "binomial",
+                                       "multinomial"),
+                           add = assert_collection)
+  checkmate::assert_list(
+    x = metrics,
+    types = "logical",
+    any.missing = FALSE,
+    names = "named",
+    add = assert_collection
+  )
+  checkmate::assert_flag(x = REML, add = assert_collection)
+  checkmate::assert_flag(x = rm_nc, add = assert_collection)
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
 
   # Add AIC, AICc, BIC, r2m, r2c (unless disabled by user)
   metrics <- basics_update_metrics(metrics = metrics, family = family)

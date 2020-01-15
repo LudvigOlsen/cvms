@@ -1,6 +1,6 @@
 library(cvms)
 context("evaluate()")
-
+library(rtilities2)
 
 test_that("multinomial evaluations are correct in evaluate()",{
 
@@ -1605,24 +1605,26 @@ test_that("arguments throw proper errors and warnings in evaluate()",{
 
   # Testing 'metrics'
 
-  expect_error(evaluate(
+  expect_error(strip_msg(evaluate(
     data = data_,
     target_col = "cl_char",
     prediction_cols = paste0("cl_", 1:5),
     type = "multinomial",
     apply_softmax = TRUE,
     metrics = "none"
-  ), "'metrics' must be either a list or the string 'all'.",
+  )),
+  strip(paste0("1 assertions failed:\n * Variable 'metrics': Must be of typ",
+               "e 'list', not 'character'.")),
   fixed=TRUE)
 
-  expect_error(evaluate(
+  expect_error(strip_msg(evaluate(
     data = data_,
     target_col = "cl_char",
     prediction_cols = paste0("cl_", 1:5),
     type = "multinomial",
     apply_softmax = TRUE,
     metrics = list(TRUE,FALSE)
-  ), "when 'metrics' is a non-empty list, it must be a named list.",
+  )), strip("1 assertions failed:\n * Variable 'metrics': Must have names."),
   fixed=TRUE)
 
   # TODO add more

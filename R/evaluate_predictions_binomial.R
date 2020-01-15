@@ -63,7 +63,7 @@ evaluate_predictions_binomial <- function(data,
     # Create a column with the predicted class based on the chosen cutoff
     # If it wasn't passed by parent function
     if (is.null(predicted_class_col)){
-      predicted_class_col <- create_tmp_var(data, "predicted_class")
+      predicted_class_col <- create_tmp_name(data, "predicted_class")
       data[[predicted_class_col]] <- ifelse(data[[predictions_col]] < model_specifics[["cutoff"]],
                                             cat_levels[1], cat_levels[2])
     }

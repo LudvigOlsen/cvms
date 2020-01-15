@@ -1,6 +1,6 @@
 library(cvms)
 context("baseline()")
-
+library(rtilities2)
 
 test_that("binomial evaluations are correct in baseline()",{
 
@@ -1556,25 +1556,27 @@ test_that("baseline() throws expected errors",{
                         n = 10,
                         family = "binomial",
                         cutoff = 1.1),
-               "'cutoff' must be between 0.0 and 1.0.", fixed=T)
+               "1 assertions failed:\n * Variable 'cutoff': Element 1 is not <= 1.",
+               fixed=T)
   expect_error(baseline(test_data = participant.scores,
                         dependent_col = "diagnosis",
                         n = 10,
                         family = "binomial",
                         cutoff = NA),
-               "'cutoff' must be numeric.", fixed=T)
+               "1 assertions failed:\n * Variable 'cutoff': May not be NA.", fixed=T)
   expect_error(baseline(test_data = participant.scores,
                         dependent_col = "diagnosis",
                         n = 10,
                         family = "binomial",
                         cutoff = NULL),
-               "'cutoff' was NULL. Must be numeric between 0.0 and 1.0.", fixed=T)
+               paste0("1 assertions failed:\n * Variable 'cutoff': Must be of type",
+                      " 'number', not 'NULL'."), fixed=T)
   expect_error(baseline(test_data = participant.scores,
                         dependent_col = "diagnosis",
                         n = 10,
                         family = "binomial",
                         cutoff = c(0,1)),
-               "'cutoff' must have length 1.", fixed=T)
+               "1 assertions failed:\n * Variable 'cutoff': Must have length 1.", fixed=T)
 
   # positive
   expect_error(baseline(test_data = participant.scores,
@@ -1582,37 +1584,42 @@ test_that("baseline() throws expected errors",{
                         n = 10,
                         family = "binomial",
                         positive = NULL),
-               "'positive' was NULL. Must be either whole number or character.", fixed=T)
+               paste0("1 assertions failed:\n * Variable 'positive': Must be a sub",
+                      "set of {'1','2'}, not 'NULL'."), fixed=T)
   expect_error(baseline(test_data = participant.scores,
                         dependent_col = "diagnosis",
                         n = 10,
                         family = "binomial",
                         positive = NA),
-               "'positive' must be either a whole number or character.", fixed=T)
+               paste0("1 assertions failed:\n * Variable 'positive': Must be eleme",
+                      "nt of set {'1','2'}, but is 'NA'."), fixed=T)
   expect_error(baseline(test_data = participant.scores,
                         dependent_col = "diagnosis",
                         n = 10,
                         family = "binomial",
                         positive = 3),
-               "When 'positive' is numeric, it must be either 1 or 2.", fixed=T)
+               paste0("1 assertions failed:\n * Variable 'positive': Must be eleme",
+                      "nt of set {'1','2'}, but is '3'."), fixed=T)
   expect_error(baseline(test_data = participant.scores,
                         dependent_col = "diagnosis",
                         n = 10,
                         family = "binomial",
                         positive = -1),
-               "When 'positive' is numeric, it must be either 1 or 2.", fixed=T)
+               paste0("1 assertions failed:\n * Variable 'positive': Must be eleme",
+                      "nt of set {'1','2'}, but is '-1'."), fixed=T)
   expect_error(baseline(test_data = participant.scores,
                         dependent_col = "diagnosis",
                         n = 10,
                         family = "binomial",
                         positive = c("0","1")),
-               "'positive' must have length 1.", fixed=T)
-  expect_error(baseline(test_data = participant.scores,
+               "1 assertions failed:\n * Variable 'positive': Must have length 1.", fixed=T)
+  expect_error(strip_msg(baseline(test_data = participant.scores,
                         dependent_col = "diagnosis",
                         n = 10,
                         family = "binomial",
-                        positive = c(0,1)),
-               "'positive' must have length 1.", fixed=T)
+                        positive = c(0,1))),
+               strip(paste0("1 assertions failed:\n * Variable 'positive': Must be eleme",
+                      "nt of set {'1','2'}, but is not atomic scalar.")), fixed=T)
 
   expect_message(baseline(train_data = participant.scores,
                           test_data = participant.scores,
@@ -1661,7 +1668,8 @@ test_that("baseline() throws expected errors",{
                           dependent_col = "score",
                           n = 10,
                           family = "gaussian"),
-                 "train_data must be passed for Gaussian baseline.",
+                 paste0("1 assertions failed:\n * Variable 'train_data': Must be of ",
+                        "type 'data.frame', not 'NULL'."),
                  fixed=T
   )
 
@@ -1671,16 +1679,20 @@ test_that("baseline() throws expected errors",{
     dependent_col = "xxx",
     n = 10,
     family = "gaussian"),
-    "could not find these variables in the training data: xxx",
+    paste0("2 assertions failed:\n * Variable 'colnames(test_data)': Mu",
+           "st include the elements {xxx}.\n * Variable 'colnames(train_",
+           "data)': Must include the elements {xxx}."),
     fixed=T
   )
+
   expect_error(baseline(
     train_data = participant.scores,
     test_data = dplyr::select(participant.scores, -.data$score),
     dependent_col = "score",
     n = 10,
     family = "gaussian"),
-    "could not find these variables in the test data: score",
+    paste0("1 assertions failed:\n * Variable 'colnames(test_data)': Mu",
+           "st include the elements {score}."),
     fixed=T
   )
 

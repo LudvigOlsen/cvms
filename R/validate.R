@@ -1,4 +1,9 @@
 
+
+#   __________________ #< 3755b5a0653d6b77bd3e8d85c1780003 ># __________________
+#   Validate lm lmer glm glmer                                              ####
+
+
 #' @title Validate regression models on a test set
 #' @description
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("stable")}

@@ -304,9 +304,9 @@ all_or_nothing_evaluations <- function(test_data, targets_col, current_class, re
 
   num_targets <- nrow(test_data)
 
-  local_tmp_target_var <- create_tmp_var(test_data, "all_or_nothing_targets")
-  local_tmp_predicted_probability_all_1_var <- create_tmp_var(test_data, "all_1_predicted_probability")
-  local_tmp_predicted_probability_all_0_var <- create_tmp_var(test_data, "all_0_predicted_probability")
+  local_tmp_target_var <- create_tmp_name(test_data, "all_or_nothing_targets")
+  local_tmp_predicted_probability_all_1_var <- create_tmp_name(test_data, "all_1_predicted_probability")
+  local_tmp_predicted_probability_all_0_var <- create_tmp_name(test_data, "all_0_predicted_probability")
 
   test_data[[local_tmp_target_var]] <- factor(ifelse(test_data[[targets_col]] == current_class, 1, 0))
   test_data[[local_tmp_predicted_probability_all_1_var]] <- rep(0.999999, num_targets)
@@ -346,7 +346,7 @@ all_or_nothing_evaluations <- function(test_data, targets_col, current_class, re
 # but it was a lot slower
 nest_rowwise <- function(data){
   n_cols <- ncol(data)
-  tmp_index <- create_tmp_var(data)
+  tmp_index <- create_tmp_name(data)
   data[[tmp_index]] <- seq_len(nrow(data))
   data %>%
     dplyr::group_by(!!as.name(tmp_index)) %>%

@@ -1,5 +1,6 @@
 library(cvms)
 context("combine_predictors()")
+library(rtilities2)
 
 test_that("predictors are properly combined with combine_predictors()",{
 
@@ -53,10 +54,10 @@ test_that("predictors are properly combined with combine_predictors()",{
   expect_equal(nchar(paste0(formulas_7, collapse=" ; ")), 4273)
 
   expect_error(combine_predictors(dep, NULL, random_effects = NULL),
-               "Please specify vector/list of at least 2 fixed_effects.")
+               "1 assertions failed:\n * Variable 'fixed_effects': Must be of type 'character', not 'NULL'.", fixed =TRUE)
 
   expect_error(combine_predictors(NULL, fx, random_effects = NULL),
-               "Please specify the name of the dependent variable.")
+               "1 assertions failed:\n * Variable 'dependent': Must be of type 'string', not 'NULL'.", fixed =TRUE)
 
   formulas_8 <- combine_predictors("y", as.character(1:4), random_effects = NULL,
                                    max_interaction_size = 2, max_fixed_effects = 3,
@@ -250,66 +251,77 @@ test_that("the expected errors are thrown by combine_predictors()",{
                                   max_fixed_effects = 3,
                                   max_interaction_size = NA,
                                   max_effect_frequency = 1),
-               "max_interactions_size must be numeric scalar or NULL.", fixed=T)
+               paste0("1 assertions failed:\n * Variable 'max_interaction_size': M",
+                      "ay not be NA."), fixed=T)
   expect_error(combine_predictors(dependent = "Price",
                                   fixed_effects = c("Mileage", "Cylinder",
                                                     "Doors", "Cruise"),
                                   max_fixed_effects = 3,
                                   max_interaction_size = 5,
                                   max_effect_frequency = 1),
-               "max_interaction_size must be numeric between 0 and 3.", fixed=T)
+               paste0("1 assertions failed:\n * Variable 'max_interaction_size': E",
+                      "lement 1 is not <= 3."), fixed=T)
   expect_error(combine_predictors(dependent = "Price",
                                   fixed_effects = c("Mileage", "Cylinder",
                                                     "Doors", "Cruise"),
                                   max_fixed_effects = 3,
                                   max_interaction_size = -1,
                                   max_effect_frequency = 1),
-               "max_interaction_size must be numeric between 0 and 3.", fixed=T)
+               paste0("1 assertions failed:\n * Variable 'max_interaction_size': E",
+                      "lement 0 is not >= 0."), fixed=T)
   expect_error(combine_predictors(dependent = "Price",
                                   fixed_effects = c("Mileage", "Cylinder",
                                                     "Doors", "Cruise"),
                                   max_fixed_effects = 10),
-               "max_fixed_effects was greater than the max. limit of 5.", fixed=T)
+               paste0("1 assertions failed:\n * Variable 'max_fixed_effects': Elem",
+                      "ent 1 is not <= 5."), fixed=T)
   expect_error(combine_predictors(dependent = "Price",
                                   fixed_effects = c("Mileage", "Cylinder",
                                                     "Doors", "Cruise"),
                                   max_fixed_effects = -10),
-               "max_fixed_effects must be at least 2.", fixed=T)
+               paste0("1 assertions failed:\n * Variable 'max_fixed_effects': Elem",
+                      "ent 0 is not >= 2."), fixed=T)
   expect_error(combine_predictors(dependent = "Price",
                                   fixed_effects = c("Mileage", "Cylinder",
                                                     "Doors", "Cruise"),
                                   max_fixed_effects = c(2,3)),
-               "max_fixed_effects must be scalar or NULL.", fixed=T)
+               paste0("1 assertions failed:\n * Variable 'max_fixed_effects': Must",
+                      " have length 1."), fixed=T)
   expect_error(combine_predictors(dependent = "Price",
                                   fixed_effects = c("Mileage", "Cylinder",
                                                     "Doors", "Cruise"),
                                   max_effect_frequency = c(2,3)),
-               "max_effect_frequency must be scalar or NULL.", fixed=T)
+               "1 assertions failed:\n * Variable 'max_effect_frequency': Must have length 1.", fixed=T)
   expect_error(combine_predictors(dependent = NULL,
                                   fixed_effects = c("Mileage", "Cylinder",
                                                     "Doors", "Cruise")),
-               "Please specify the name of the dependent variable.", fixed=T)
+               paste0("1 assertions failed:\n * Variable 'dependent': Must be of t",
+                      "ype 'string', not 'NULL'."), fixed=T)
   expect_error(combine_predictors(dependent = 3,
                                   fixed_effects = c("Mileage", "Cylinder",
                                                     "Doors", "Cruise")),
-               "Please specify the name of the dependent variable.", fixed=T)
+               paste0("1 assertions failed:\n * Variable 'dependent': Must be of t",
+                      "ype 'string', not 'double'."), fixed=T)
   expect_error(combine_predictors(dependent = "Price",
                                   fixed_effects = NULL),
-               "Please specify vector/list of at least 2 fixed_effects.", fixed=T)
+               paste0("1 assertions failed:\n * Variable 'fixed_effects': Must be ",
+                      "of type 'character', not 'NULL'."), fixed=T)
   expect_error(combine_predictors(dependent = "Price",
                                   fixed_effects = "lol"),
-               "Please specify vector/list of at least 2 fixed_effects.", fixed=T)
+               paste0("1 assertions failed:\n * Variable 'fixed_effects': Must hav",
+                      "e length >= 2, but has length 1."), fixed=T)
   expect_error(combine_predictors(dependent = "Price",
                                   fixed_effects = c("a","b","c","d","e","f","g","h","i")),
-               "fixed_effects contained more elements than the max. limit of 8.", fixed=T)
+               "1 assertions failed:\n * Variable 'fixed_effects': Must have length <= 8, but has length 9.", fixed=T)
   expect_error(combine_predictors(dependent = "Price",
                                   fixed_effects = c(1,2,3)),
-               "fixed_effects must be of type character.", fixed=T)
-  expect_error(combine_predictors(dependent = "Price",
+               "1 assertions failed:\n * Variable 'fixed_effects': Must be of type 'character', not 'double'.", fixed=T)
+  expect_error(strip_msg(combine_predictors(dependent = "Price",
                                   fixed_effects = c("Mileage", "Cylinder",
                                                     "Doors", "Cruise"),
-                                  random_effects = 28),
-               "random_effects must be either a string or NULL. Example: '(1|x)'.", fixed=T)
+                                  random_effects = 28)),
+               strip(paste0("1 assertions failed:\n * Variable 'random_effects': Must be",
+                            " of type 'string' (or 'NULL'), not 'double'.")), fixed=T)
 
 
 })

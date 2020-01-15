@@ -17,7 +17,6 @@
 # Not in
 `%ni%` <- function(x, table) {
   return(!(x %in% table))
-
 }
 
 
@@ -25,11 +24,17 @@
 #   Default link                                                            ####
 
 
-default_link <- function(link, family){
-  if (is.null(link)){
-    if(family == 'gaussian') return('identity')
-    if(family == 'binomial') return('logit')
-  } else return(link)
+default_link <- function(link, family) {
+  if (is.null(link)) {
+    if (family == "gaussian") {
+      return("identity")
+    }
+    if (family == "binomial") {
+      return("logit")
+    }
+  } else {
+    return(link)
+  }
 }
 
 
@@ -37,17 +42,22 @@ default_link <- function(link, family){
 #   Default control                                                         ####
 
 
-default_control <- function(control, family, link){
-  if (is.null(control)){
+default_control <- function(control, family, link) {
+  if (is.null(control)) {
 
-     # Note that gaussian models with alternative link functions are run with glmer
-    if(family == 'gaussian'){
-      if (link == "identity") return(lme4::lmerControl())
+    # Note that gaussian models with alternative link functions are run with glmer
+    if (family == "gaussian") {
+      if (link == "identity") {
+        return(lme4::lmerControl())
+      }
       return(lme4::glmerControl())
     }
-    if(family == 'binomial') return(lme4::glmerControl())
-
-    } else return(control)
+    if (family == "binomial") {
+      return(lme4::glmerControl())
+    }
+  } else {
+    return(control)
+  }
 }
 
 
@@ -58,9 +68,11 @@ default_control <- function(control, family, link){
 ## For validate_single and cross_validate_single
 
 # Extract y_column from model
-extract_y <- function(formula){
-  splits <- unlist(strsplit(formula, '\\s*~'))
-  if (length(splits)<2) return(NULL)
+extract_y <- function(formula) {
+  splits <- unlist(strsplit(formula, "\\s*~"))
+  if (length(splits) < 2) {
+    return(NULL)
+  }
   return(splits[1])
 }
 
@@ -72,8 +84,8 @@ extract_y <- function(formula){
 # Check if there are random effects
 # returns TRUE or FALSE
 # TODO This doesn't work with inline functions
-rand_effects <- function(formula){
-  any(grepl('\\(\\d', formula, perl=TRUE))
+rand_effects <- function(formula) {
+  any(grepl("\\(\\d", formula, perl = TRUE))
 }
 
 
@@ -81,16 +93,16 @@ rand_effects <- function(formula){
 #   Count convergence warnings                                              ####
 
 
-count_convergence_warnings <- function(convergences){ # "Yes" or "No"
+count_convergence_warnings <- function(convergences) { # "Yes" or "No"
   # Count the convergence warnings
-  if (length(setdiff(convergences, c("Yes","No"))) > 0){
+  if (length(setdiff(convergences, c("Yes", "No"))) > 0) {
     stop(paste0(
       "'convergences' can only contain 'Yes' and 'No'. Found: ",
       paste0(setdiff(convergences, c("Yes", "No")), collapse = ", "), "."
     ))
   }
-  conv_warns <- as.integer(table(convergences)['No'])
-  if (is.na(conv_warns)){
+  conv_warns <- as.integer(table(convergences)["No"])
+  if (is.na(conv_warns)) {
     conv_warns <- 0
   }
   return(conv_warns)
@@ -101,10 +113,12 @@ count_convergence_warnings <- function(convergences){ # "Yes" or "No"
 #   Count NULLs in list                                                     ####
 
 
-count_nulls_in_list <- function(l){
-  plyr::llply(l, function(e){
+count_nulls_in_list <- function(l) {
+  plyr::llply(l, function(e) {
     ifelse(is.null(e), 1, 0)
-  }) %>% unlist() %>% sum()
+  }) %>%
+    unlist() %>%
+    sum()
 }
 
 
@@ -112,7 +126,7 @@ count_nulls_in_list <- function(l){
 #   Contains NA                                                             ####
 
 
-contains_na <- function(v){
+contains_na <- function(v) {
   sum(is.na(v)) > 0
 }
 
@@ -125,13 +139,15 @@ contains_na <- function(v){
 ##  Check model specifics                                                   ####
 
 
-check_model_specifics <- function(passed_model_specifics, required_named_arguments){
+check_model_specifics <- function(passed_model_specifics, required_named_arguments) {
   # Check that model_specifics contains all named arguments
   non_empty_names <- names(passed_model_specifics)[names(passed_model_specifics) != ""]
   diff <- setdiff(non_empty_names, required_named_arguments)
   if (length(diff) > 0) {
-    stop(paste0("model_specifics must (only) contain all named arguments. Be sure to name arguments. Wrongly passed argument(s): ",
-                diff))
+    stop(paste0(
+      "model_specifics must (only) contain all named arguments. Be sure to name arguments. Wrongly passed argument(s): ",
+      diff
+    ))
   }
 }
 
@@ -140,9 +156,10 @@ check_model_specifics <- function(passed_model_specifics, required_named_argumen
 ##  Check argument in model specifics                                       ####
 
 
-check_argument_in_model_specifics <- function(var_name, model_specifics){
-  if (var_name %ni% names(model_specifics))
-    stop(paste0(var_name," is a required named argument in model_specifics. Be sure to name arguments."))
+check_argument_in_model_specifics <- function(var_name, model_specifics) {
+  if (var_name %ni% names(model_specifics)) {
+    stop(paste0(var_name, " is a required named argument in model_specifics. Be sure to name arguments."))
+  }
 }
 
 
@@ -150,16 +167,16 @@ check_argument_in_model_specifics <- function(var_name, model_specifics){
 ##  Replace argument in model specifics                                     ####
 
 
-replace_argument_in_model_specifics_if_null <- function(var_name, model_specifics, new_value, err=TRUE){
-  if (is.null(model_specifics[[var_name]])){
-
-    if (isTRUE(err)){
-      stop(paste0(var_name," was NULL in model_specifics. Remember to name arguments, i.e. ",
-                  var_name, " = ??? when passing model_specifics."))
+replace_argument_in_model_specifics_if_null <- function(var_name, model_specifics, new_value, err = TRUE) {
+  if (is.null(model_specifics[[var_name]])) {
+    if (isTRUE(err)) {
+      stop(paste0(
+        var_name, " was NULL in model_specifics. Remember to name arguments, i.e. ",
+        var_name, " = ??? when passing model_specifics."
+      ))
     }
 
     model_specifics[[var_name]] <- new_value
-
   }
 
   model_specifics
@@ -170,8 +187,8 @@ replace_argument_in_model_specifics_if_null <- function(var_name, model_specific
 ##  Stop if argument is not NULL                                            ####
 
 
-stop_if_argument_not_null <- function(var_name, model_specifics){
-  if (!is.null(model_specifics[[var_name]])){
+stop_if_argument_not_null <- function(var_name, model_specifics) {
+  if (!is.null(model_specifics[[var_name]])) {
     stop(paste0("'", var_name, "' was not NULL."))
   }
 }
@@ -181,8 +198,8 @@ stop_if_argument_not_null <- function(var_name, model_specifics){
 ##  Stop if argument is NULL                                                ####
 
 
-stop_if_argument_is_null <- function(var_name, model_specifics){
-  if (is.null(model_specifics[[var_name]])){
+stop_if_argument_is_null <- function(var_name, model_specifics) {
+  if (is.null(model_specifics[[var_name]])) {
     stop(paste0("'", var_name, "' was NULL."))
   }
 }
@@ -192,8 +209,8 @@ stop_if_argument_is_null <- function(var_name, model_specifics){
 ##  Stop if argument is not function                                        ####
 
 
-stop_if_argument_is_not_function <- function(var_name, model_specifics){
-  if (!is.function(model_specifics[[var_name]])){
+stop_if_argument_is_not_function <- function(var_name, model_specifics) {
+  if (!is.function(model_specifics[[var_name]])) {
     stop(paste0("'", var_name, "' was not a function."))
   }
 }
@@ -207,7 +224,7 @@ stop_if_argument_is_not_function <- function(var_name, model_specifics){
 ##  Nest results                                                            ####
 
 
-nest_results <- function(results){
+nest_results <- function(results) {
 
   # Make results into a tibble
   iter_results <- tibble::as_tibble(results)
@@ -223,10 +240,10 @@ nest_results <- function(results){
 ##  Nest models                                                             ####
 
 
-nest_models <- function(model_coefs){
+nest_models <- function(model_coefs) {
   # Make tidied models into a tibble
   iter_models <- tibble::as_tibble(model_coefs)
-  if ("p.value" %ni% colnames(iter_models)){
+  if ("p.value" %ni% colnames(iter_models)) {
     iter_models[["p.value"]] <- NA
   }
   iter_models <- iter_models %>%
@@ -240,11 +257,10 @@ nest_models <- function(model_coefs){
 #   Levels as characters                                                    ####
 
 
-levels_as_characters <- function(col){
-
+levels_as_characters <- function(col) {
   levs <- levels(factor(col))
 
-  cat_levels <- plyr::llply(seq_len(length(levs)), function(i){
+  cat_levels <- plyr::llply(seq_len(length(levs)), function(i) {
     as.character(levs[i])
   }) %>% unlist()
 
@@ -256,7 +272,7 @@ levels_as_characters <- function(col){
 #   Return if not null for named list                                       ####
 
 
-assign_if_not_null_named_lists <- function(var, var_name, list_name){
+assign_if_not_null_named_lists <- function(var, var_name, list_name) {
   if (is.null(var)) {
     stop(paste0(
       var_name,
@@ -274,9 +290,9 @@ assign_if_not_null_named_lists <- function(var, var_name, list_name){
 
 
 # Removes pattern from all column names
-remove_from_colnames <- function(data, pattern){
+remove_from_colnames <- function(data, pattern) {
   colnames(data) <- colnames(data) %>%
-    tibble::enframe(name=NULL) %>%
+    tibble::enframe(name = NULL) %>%
     dplyr::mutate(colname = stringr::str_remove_all(.data$value, pattern)) %>%
     dplyr::pull(.data$colname)
 
@@ -289,21 +305,23 @@ remove_from_colnames <- function(data, pattern){
 
 
 # Returns list with folds_map and n_folds
-create_folds_map <- function(data, fold_cols){
+create_folds_map <- function(data, fold_cols) {
 
   # Create a map of number of folds per fold column
   # The range tells what fold column a specific fold belongs to.
-  folds_map <- plyr::llply(seq_len(length(fold_cols)), function(fold_column){
+  folds_map <- plyr::llply(seq_len(length(fold_cols)), function(fold_column) {
     nlevels(data[[ fold_cols[[fold_column]] ]])
   }) %>%
     unlist() %>%
-    tibble::enframe(name="fold_col", value="num_folds")
+    tibble::enframe(name = "fold_col", value = "num_folds")
 
   # Create ranges
   first_start <- folds_map$num_folds[[1]]
   folds_map <- folds_map %>%
-    dplyr::mutate(end_ = cumsum(.data$num_folds),
-                  start_ = .data$end_ - (first_start-1))
+    dplyr::mutate(
+      end_ = cumsum(.data$num_folds),
+      start_ = .data$end_ - (first_start - 1)
+    )
 
   # Calculate number of folds
   n_folds <- sum(folds_map$num_folds)
@@ -321,10 +339,10 @@ create_folds_map <- function(data, fold_cols){
 
   return(
     list(
-    "folds_map" = folds_map_expanded,
-    "n_folds" = n_folds)
+      "folds_map" = folds_map_expanded,
+      "n_folds" = n_folds
     )
-
+  )
 }
 
 
@@ -334,10 +352,12 @@ create_folds_map <- function(data, fold_cols){
 
 # Creates data frame with existing combinations of fold column, abs_fold and rel_fold
 # For adding the info to other data frames via joins
-create_fold_and_fold_column_map <- function(data, fold_info_cols){
-  tibble::tibble("fold_column" = data[[fold_info_cols[["fold_column"]]]],
-                 "abs_fold" = data[[fold_info_cols[["abs_fold"]]]],
-                 "rel_fold" = data[[fold_info_cols[["rel_fold"]]]]) %>%
+create_fold_and_fold_column_map <- function(data, fold_info_cols) {
+  tibble::tibble(
+    "fold_column" = data[[fold_info_cols[["fold_column"]]]],
+    "abs_fold" = data[[fold_info_cols[["abs_fold"]]]],
+    "rel_fold" = data[[fold_info_cols[["rel_fold"]]]]
+  ) %>%
     dplyr::distinct()
 }
 
@@ -351,7 +371,7 @@ create_fold_and_fold_column_map <- function(data, fold_info_cols){
 
 # TODO use getRversion() instead
 # Extracts the major and minor version numbers.
-check_R_version <- function(){
+check_R_version <- function() {
   major <- as.integer(R.Version()$major)
   minor <- as.numeric(strsplit(R.Version()$minor, ".", fixed = TRUE)[[1]][[1]])
   list("major" = major, "minor" = minor)
@@ -368,8 +388,8 @@ check_R_version <- function(){
 # It is possible to fix this by using the old generator for
 # unit tests, but that would take a long time to convert,
 # and most likely the code works the same on v3.5
-skip_test_if_old_R_version <- function(min_R_version = "3.6"){
-  if(check_R_version()[["minor"]] < strsplit(min_R_version, ".", fixed = TRUE)[[1]][[2]]){
+skip_test_if_old_R_version <- function(min_R_version = "3.6") {
+  if (check_R_version()[["minor"]] < strsplit(min_R_version, ".", fixed = TRUE)[[1]][[2]]) {
     testthat::skip(message = paste0("Skipping test as R version is < ", min_R_version, "."))
   }
 }
@@ -408,7 +428,7 @@ is_wholenumber_ <- function(n) {
   # else
   # .. return FALSE
 
-  return( floor(n) == n )
+  return(floor(n) == n)
 }
 
 
@@ -416,7 +436,7 @@ is_wholenumber_ <- function(n) {
 ##  Argument is wholenumber                                                 ####
 
 
-arg_is_wholenumber_ <- function(n){
+arg_is_wholenumber_ <- function(n) {
 
   # Checks if n is a whole number of either
   # type integer or numeric
@@ -430,23 +450,15 @@ arg_is_wholenumber_ <- function(n){
   # .. if not a numeric
   # .... return FALSE
 
-  if ( is.integer(n) ){
-
+  if (is.integer(n)) {
     return(TRUE)
-
-  } else if ( is.numeric(n) ){
-
-    if ( is_wholenumber_(n) ){
-
+  } else if (is.numeric(n)) {
+    if (is_wholenumber_(n)) {
       return(TRUE)
-
     } else {
-
       return(FALSE)
     }
-
   } else {
-
     return(FALSE)
   }
 }
@@ -456,21 +468,16 @@ arg_is_wholenumber_ <- function(n){
 ##  Argument is number                                                      ####
 
 
-arg_is_number_ <- function(n){
+arg_is_number_ <- function(n) {
 
   # Checks if n is either an integer or a numeric
   # Returns TRUE if yes, FALSE if no
 
-  if ( is.integer(n) || is.numeric(n) ){
-
+  if (is.integer(n) || is.numeric(n)) {
     return(TRUE)
-
   } else {
-
     return(FALSE)
-
   }
-
 }
 
 
@@ -478,7 +485,7 @@ arg_is_number_ <- function(n){
 #   Is logical scalar and not NA                                            ####
 
 # TODO just use checkmate::test_flag
-is_logical_scalar_not_na <- function(arg){
+is_logical_scalar_not_na <- function(arg) {
   rlang::is_scalar_logical(arg) && !is.na(arg)
 }
 
@@ -519,7 +526,8 @@ softmax_row <- function(...) {
   # Convert to row in tibble
   # TODO There must be a better way
   x <- dplyr::as_tibble(t(matrix(x)),
-                        .name_repair = ~ paste0("V", seq_len(length(x))))
+    .name_repair = ~ paste0("V", seq_len(length(x)))
+  )
   x
 }
 
@@ -528,7 +536,7 @@ softmax_row <- function(...) {
 ##  Softmax on vector                                                       ####
 
 
-softmax_vector <- function(...){
+softmax_vector <- function(...) {
   x <- unname(c(...))
   exp(x - logsumexp(x))
 }
@@ -539,24 +547,21 @@ softmax_vector <- function(...){
 
 
 # TODO Add tests of this !!!
-softmax <- function(data, cols=NULL){
+softmax <- function(data, cols = NULL) {
 
   # Convert to tibble
   data <- dplyr::as_tibble(data)
 
   # TODO is this necessary?
-  if (!is.null(cols)){
-
-    if (is.numeric(cols)){
-      data_to_process <- data[,cols]
-      data_to_leave <- data[,setdiff(seq_len(ncol(data)), cols)]
+  if (!is.null(cols)) {
+    if (is.numeric(cols)) {
+      data_to_process <- data[, cols]
+      data_to_leave <- data[, setdiff(seq_len(ncol(data)), cols)]
       cols <- colnames(data_to_process)
-
-      } else if (is.character(cols)){
-        data_to_process <- data[,cols]
-        data_to_leave <- data[,setdiff(colnames(data), cols)]
-      }
-
+    } else if (is.character(cols)) {
+      data_to_process <- data[, cols]
+      data_to_leave <- data[, setdiff(colnames(data), cols)]
+    }
   } else {
     data_to_process <- data
     data_to_leave <- NULL
@@ -569,11 +574,12 @@ softmax <- function(data, cols=NULL){
     stop("softmax only works on numeric columns.")
   }
 
-  processed_data <- purrr::pmap_dfr(data_to_process,
-                                    softmax_row)
+  processed_data <- purrr::pmap_dfr(
+    data_to_process,
+    softmax_row
+  )
   colnames(processed_data) <- cols
   dplyr::bind_cols(processed_data, data_to_leave)
-
 }
 
 
@@ -599,8 +605,8 @@ tidyr_new_interface <- function() {
 # to nest (and unnest!), we make sure it's compatible for now
 # TODO replace nest_legacy with the new nest syntax within the
 # code, once people have moved to that.
-legacy_nest <- function(...){
-  if (tidyr_new_interface()){
+legacy_nest <- function(...) {
+  if (tidyr_new_interface()) {
     tidyr::nest_legacy(...)
   } else {
     tidyr::nest(...)
@@ -612,8 +618,8 @@ legacy_nest <- function(...){
 ##  Legacy unnest                                                           ####
 
 
-legacy_unnest <- function(...){
-  if (tidyr_new_interface()){
+legacy_unnest <- function(...) {
+  if (tidyr_new_interface()) {
     tidyr::unnest_legacy(...)
   } else {
     tidyr::unnest(...)
@@ -638,7 +644,7 @@ legacy_unnest <- function(...){
 
 
 # Wraps tibble::add_column
-reposition_column <- function(data, col, .before = NULL, .after = NULL){
+reposition_column <- function(data, col, .before = NULL, .after = NULL) {
   col_values <- data[[col]]
   data[[col]] <- NULL
   data %>%
@@ -650,9 +656,9 @@ reposition_column <- function(data, col, .before = NULL, .after = NULL){
 #   Argument not used                                                       ####
 
 
-arg_not_used <- function(arg, arg_name, family, current_fn, message_fn = message){
-  if (!is.null(arg)){
-    message_fn(paste0("'",arg_name,"' was not used for ", family, " version of ", current_fn, "()."))
+arg_not_used <- function(arg, arg_name, family, current_fn, message_fn = message) {
+  if (!is.null(arg)) {
+    message_fn(paste0("'", arg_name, "' was not used for ", family, " version of ", current_fn, "()."))
   }
 }
 
@@ -665,10 +671,10 @@ arg_not_used <- function(arg, arg_name, family, current_fn, message_fn = message
 ##  Check fold column factor                                                ####
 
 
-check_fold_col_factor <- function(data, fold_cols){
+check_fold_col_factor <- function(data, fold_cols) {
   # Check that the fold column(s) is/are factor(s)
-  if (length(fold_cols) == 1){
-    if (fold_cols %ni% names(data)){
+  if (length(fold_cols) == 1) {
+    if (fold_cols %ni% names(data)) {
       stop(paste0("'", fold_cols, "' not found in 'data'."))
     }
     stopifnot(is.factor(data[[fold_cols]]))
@@ -687,11 +693,11 @@ check_fold_col_factor <- function(data, fold_cols){
 ##  Check partitions column factor                                          ####
 
 
-check_partitions_col_factor <- function(data, partitions_col){
+check_partitions_col_factor <- function(data, partitions_col) {
   # Check that the fold column(s) is/are factor(s)
-  if (length(partitions_col) == 1){
-    if (partitions_col %ni% names(data)){
-      stop(paste0("'",partitions_col,"' not found in 'data'."))
+  if (length(partitions_col) == 1) {
+    if (partitions_col %ni% names(data)) {
+      stop(paste0("'", partitions_col, "' not found in 'data'."))
     }
     stopifnot(is.factor(data[[partitions_col]]))
   } else {
@@ -708,14 +714,13 @@ check_partitions_col_factor <- function(data, partitions_col){
 
 
 # Check metrics argument
-check_metrics_list <- function(metrics){
-
-  if (!(is.list(metrics) || metrics == "all")){
+check_metrics_list <- function(metrics) {
+  if (!(is.list(metrics) || metrics == "all")) {
     stop("'metrics' must be either a list or the string 'all'.")
   }
 
-  if (is.list(metrics) && length(metrics) > 0){
-    if (!rlang::is_named(metrics)){
+  if (is.list(metrics) && length(metrics) > 0) {
+    if (!rlang::is_named(metrics)) {
       stop("when 'metrics' is a non-empty list, it must be a named list.")
     }
   }
@@ -728,11 +733,15 @@ check_metrics_list <- function(metrics){
 
 # Creates initial warnings and messages tibble
 # cols: Message, Type, Function
-create_warnings_and_messages_tibble <- function(warnings, messages, fn){
-  tibble::tibble("Message" = warnings,
-                 "Type" = "warning") %>%
-    dplyr::bind_rows(tibble::tibble("Message" = messages,
-                                    "Type" = "message")) %>%
+create_warnings_and_messages_tibble <- function(warnings, messages, fn) {
+  tibble::tibble(
+    "Message" = warnings,
+    "Type" = "warning"
+  ) %>%
+    dplyr::bind_rows(tibble::tibble(
+      "Message" = messages,
+      "Type" = "message"
+    )) %>%
     dplyr::mutate(Function = fn)
 }
 
@@ -743,13 +752,16 @@ create_warnings_and_messages_tibble <- function(warnings, messages, fn){
 
 # Wraps dplyr::as_tibble()
 # If x is NULL, returns NULL
-to_tibble <- function(x, x_name, caller = ""){
-  if (!is.null(x)){
-    x <- tryCatch({
-      dplyr::as_tibble(x)
-    }, error = function(e){
-      stop(paste0(caller, ": Could not convert '", x_name, "' to a tibble."))
-    })
+to_tibble <- function(x, x_name, caller = "") {
+  if (!is.null(x)) {
+    x <- tryCatch(
+      {
+        dplyr::as_tibble(x)
+      },
+      error = function(e) {
+        stop(paste0(caller, ": Could not convert '", x_name, "' to a tibble."))
+      }
+    )
   }
   x
 }
@@ -764,35 +776,34 @@ to_tibble <- function(x, x_name, caller = ""){
 
 
 base_rename <- function(data, before, after,
-                        warn_at_overwrite = FALSE){
+                        warn_at_overwrite = FALSE) {
 
   #
   # Replaces name of column in data frame
   #
 
   # Check names
-  if (!is.character(before) || !is.character(after)){
+  if (!is.character(before) || !is.character(after)) {
     stop("'before' and 'after' must both be of type character.")
   }
-  if (length(before) != 1 || length(before) != 1){
+  if (length(before) != 1 || length(before) != 1) {
     stop("'before' and 'after' must both have length 1.")
   }
 
-  if (before == after){
+  if (before == after) {
     message("'before' and 'after' were identical.")
     return(data)
   }
   # If after is already a column in data
   # remove it, so we don't have duplicate column names
-  if (after %in% colnames(data)){
-    if (isTRUE(warn_at_overwrite)){
+  if (after %in% colnames(data)) {
+    if (isTRUE(warn_at_overwrite)) {
       warning("'after' already existed in 'data' and will be replaced.")
     }
     data[[after]] <- NULL
   }
   colnames(data)[names(data) == before] <- after
   return(data)
-
 }
 
 
@@ -801,16 +812,18 @@ base_rename <- function(data, before, after,
 
 
 # Cols should be col names
-base_select <- function(data, cols){
+base_select <- function(data, cols) {
   if (is.numeric(cols)) stop("cols must be names")
 
-  if (length(cols) == 1 && !tibble::is_tibble(data)){
-    warning(paste0("Selecting a single column with base_select ",
-                   "on a data frame (not tibble) might not keep ",
-                   "the data frame structure."))
+  if (length(cols) == 1 && !tibble::is_tibble(data)) {
+    warning(paste0(
+      "Selecting a single column with base_select ",
+      "on a data frame (not tibble) might not keep ",
+      "the data frame structure."
+    ))
   }
 
-  if(is.data.table(data)){
+  if (is.data.table(data)) {
     return(data[, cols, with = FALSE])
   }
 
@@ -823,7 +836,7 @@ base_select <- function(data, cols){
 
 
 # Cols should be col names
-base_deselect <- function(data, cols){
+base_deselect <- function(data, cols) {
   if (is.numeric(cols)) stop("cols must be names")
 
   base_select(data = data, cols = setdiff(names(data), cols))
@@ -835,7 +848,7 @@ base_deselect <- function(data, cols){
 
 
 # Col should be col name
-position_first <- function(data, col){
+position_first <- function(data, col) {
   if (is.numeric(col)) stop("col must be name")
 
   base_select(data = data, cols = c(col, setdiff(names(data), col)))
@@ -846,7 +859,7 @@ position_first <- function(data, col){
 ##  Position last                                                           ####
 
 
-position_last <- function(data, col){
+position_last <- function(data, col) {
   if (is.numeric(col)) stop("col must be name")
 
   base_select(data = data, cols = c(setdiff(names(data), col), col))
@@ -858,10 +871,10 @@ position_last <- function(data, col){
 
 
 # use_epsilon: Add epsilon to 0s and subtract epsilon from 1s
-one_hot_encode <- function(data, col, c_levels = NULL, use_epsilon=FALSE, epsilon = 1e-6) {
+one_hot_encode <- function(data, col, c_levels = NULL, use_epsilon = FALSE, epsilon = 1e-6) {
 
   # If not provided, extract categorical levels from col
-  if (is.null(c_levels)){
+  if (is.null(c_levels)) {
     c_levels <- unique(data[[col]])
   }
 
@@ -870,13 +883,15 @@ one_hot_encode <- function(data, col, c_levels = NULL, use_epsilon=FALSE, epsilo
 
   # Check that none of the categorical levels already
   # have a column in data
-  if (length(intersect(colnames(data), c_levels)) > 0)
+  if (length(intersect(colnames(data), c_levels)) > 0) {
     stop("'data' already includes one or more columns with name of one of the levels.")
+  }
 
   # Initialize zero tibble
-  initial_tbl <- matrix(rep(c_levels, each=nrow(data)),
-                        nrow=nrow(data),
-                        ncol = length(c_levels)) %>%
+  initial_tbl <- matrix(rep(c_levels, each = nrow(data)),
+    nrow = nrow(data),
+    ncol = length(c_levels)
+  ) %>%
     dplyr::as_tibble(.name_repair = "minimal")
   colnames(initial_tbl) <- c_levels
 
@@ -884,24 +899,23 @@ one_hot_encode <- function(data, col, c_levels = NULL, use_epsilon=FALSE, epsilo
   tmp_colname <- create_tmp_name(data, ".__col__")
   initial_tbl[[tmp_colname]] <- data[[col]]
 
-  equal_int <- function(x1, x2){
+  equal_int <- function(x1, x2) {
     as.integer(x1 == x2)
   }
 
   # Create dummy variables
   dummies <- initial_tbl %>%
     dplyr::mutate_at(.vars = c_levels, .funs = list(
-      ~equal_int(., !!as.name(tmp_colname))
+      ~ equal_int(., !!as.name(tmp_colname))
     )) %>%
     base_deselect(tmp_colname)
 
-  if (isTRUE(use_epsilon)){
+  if (isTRUE(use_epsilon)) {
     dummies <- dummies + epsilon - (dummies * 2 * epsilon)
   }
 
   # Combine and return
   dplyr::bind_cols(data, dummies)
-
 }
 
 
@@ -910,7 +924,6 @@ one_hot_encode <- function(data, col, c_levels = NULL, use_epsilon=FALSE, epsilo
 
 
 # Never used, but removes R CMD check NOTEs
-rcmd_import_handler <- function(){
+rcmd_import_handler <- function() {
   lifecycle::deprecate_soft()
 }
-

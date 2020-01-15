@@ -3,21 +3,25 @@ context("metrics")
 
 # Diagnosis by score
 
-test_that("Metrics work for glm in validate()",{
+test_that("Metrics work for glm in validate()", {
 
   # skip_test_if_old_R_version()
 
   set_seed_for_R_compatibility(7)
 
-  dat <- groupdata2::partition(participant.scores, p = 0.8,
-                               cat_col = 'diagnosis',
-                               id_col = 'participant',
-                               list_out = FALSE)
+  dat <- groupdata2::partition(participant.scores,
+    p = 0.8,
+    cat_col = "diagnosis",
+    id_col = "participant",
+    list_out = FALSE
+  )
 
-  validated <- validate(train_data=dat, formulas="diagnosis~score",
-                        partitions_col = '.partitions', family = 'binomial',
-                        positive=1)
-  same_model <- glm(diagnosis~score, data=dat[dat$.partitions==1,], family = 'binomial')
+  validated <- validate(
+    train_data = dat, formulas = "diagnosis~score",
+    partitions_col = ".partitions", family = "binomial",
+    positive = 1
+  )
+  same_model <- glm(diagnosis ~ score, data = dat[dat$.partitions == 1, ], family = "binomial")
 
   train_data <- dat[dat$.partitions == 1, ]
   test_data <- dat[dat$.partitions == 2, ]
@@ -25,21 +29,23 @@ test_that("Metrics work for glm in validate()",{
 
   test_data$prob <- prob
   test_data <- test_data %>%
-    dplyr::mutate(pred = dplyr::if_else(prob>0.5,1,0))
+    dplyr::mutate(pred = dplyr::if_else(prob > 0.5, 1, 0))
 
   # AUC
-  g <- pROC::roc(diagnosis ~ prob, data = test_data, direction = "<", levels=c(0,1))
-  expect_equal(validated$AUC,as.numeric(g$auc))
+  g <- pROC::roc(diagnosis ~ prob, data = test_data, direction = "<", levels = c(0, 1))
+  expect_equal(validated$AUC, as.numeric(g$auc))
 
   auc2 <- AUC::auc(AUC::roc(test_data$prob, factor(test_data$diagnosis)))
-  expect_equal(validated$AUC,auc2)
+  expect_equal(validated$AUC, auc2)
 
   # Confusion Matrix Metrics
 
-  conf_mat <- confusion_matrix(targets = test_data$diagnosis,
-                               predictions = test_data$pred,
-                               positive = levels(as.factor(test_data$diagnosis))[1],
-                               c_levels = levels(as.factor(train_data$diagnosis)))
+  conf_mat <- confusion_matrix(
+    targets = test_data$diagnosis,
+    predictions = test_data$pred,
+    positive = levels(as.factor(test_data$diagnosis))[1],
+    c_levels = levels(as.factor(train_data$diagnosis))
+  )
 
   # Sensitivity
   expect_equal(validated$Sensitivity, conf_mat$Sensitivity)
@@ -52,48 +58,53 @@ test_that("Metrics work for glm in validate()",{
 
   # negPredValue
   expect_equal(validated$`Neg Pred Value`, conf_mat$`Neg Pred Value`)
-
 })
 
 
-test_that("Metrics work for glmer in validate()",{
+test_that("Metrics work for glmer in validate()", {
 
   # skip_test_if_old_R_version()
 
   set_seed_for_R_compatibility(7)
 
-  dat <- groupdata2::partition(participant.scores, p = 0.8,
-                               cat_col = 'diagnosis',
-                               id_col = 'participant',
-                               list_out = FALSE)
+  dat <- groupdata2::partition(participant.scores,
+    p = 0.8,
+    cat_col = "diagnosis",
+    id_col = "participant",
+    list_out = FALSE
+  )
 
-  validated <- validate(train_data=dat, formulas="diagnosis~score+(1|session)",
-                        partitions_col = '.partitions', family = 'binomial',
-                        positive=1)
-  same_model <- lme4::glmer(diagnosis~score+(1|session), data=dat[dat$.partitions==1,], family = 'binomial')
+  validated <- validate(
+    train_data = dat, formulas = "diagnosis~score+(1|session)",
+    partitions_col = ".partitions", family = "binomial",
+    positive = 1
+  )
+  same_model <- lme4::glmer(diagnosis ~ score + (1 | session), data = dat[dat$.partitions == 1, ], family = "binomial")
 
-  train_data <- dat[dat$.partitions==1,]
-  test_data <- dat[dat$.partitions==2,]
-  prob <- predict(same_model, newdata=test_data, type=c("response"))
+  train_data <- dat[dat$.partitions == 1, ]
+  test_data <- dat[dat$.partitions == 2, ]
+  prob <- predict(same_model, newdata = test_data, type = c("response"))
 
   test_data$prob <- prob
   test_data <- test_data %>%
-    dplyr::mutate(pred = dplyr::if_else(prob>0.5,1,0))
+    dplyr::mutate(pred = dplyr::if_else(prob > 0.5, 1, 0))
 
   # AUC
   auc1 <- pROC::roc(diagnosis ~ prob, data = test_data, levels = c(0, 1), direction = "<")
-  expect_equal(validated$AUC,as.numeric(auc1$auc))
+  expect_equal(validated$AUC, as.numeric(auc1$auc))
 
   auc2 <- AUC::auc(AUC::roc(test_data$prob, factor(test_data$diagnosis)))
-  expect_equal(validated$AUC,auc2)
+  expect_equal(validated$AUC, auc2)
 
 
   # Confusion Matrix metrics
 
-  conf_mat <- confusion_matrix(targets = test_data$diagnosis,
-                               predictions = test_data$pred,
-                               positive = levels(as.factor(test_data$diagnosis))[1],
-                               c_levels = levels(as.factor(train_data$diagnosis)))
+  conf_mat <- confusion_matrix(
+    targets = test_data$diagnosis,
+    predictions = test_data$pred,
+    positive = levels(as.factor(test_data$diagnosis))[1],
+    c_levels = levels(as.factor(train_data$diagnosis))
+  )
 
   # Sensitivity
   expect_equal(validated$Sensitivity, conf_mat$Sensitivity)
@@ -106,52 +117,59 @@ test_that("Metrics work for glmer in validate()",{
 
   # negPredValue
   expect_equal(validated$`Neg Pred Value`, conf_mat$`Neg Pred Value`)
-
 })
 
 # Diagnosis by age
 
 
-test_that("Metrics work for glm in validate()",{
+test_that("Metrics work for glm in validate()", {
 
   # skip_test_if_old_R_version()
 
   set_seed_for_R_compatibility(6)
 
-  dat <- groupdata2::partition(participant.scores, p = 0.8,
-                               cat_col = 'diagnosis',
-                               id_col = 'participant',
-                               list_out = FALSE)
+  dat <- groupdata2::partition(participant.scores,
+    p = 0.8,
+    cat_col = "diagnosis",
+    id_col = "participant",
+    list_out = FALSE
+  )
 
 
-  validated <- validate(train_data=dat, formulas="diagnosis~age",
-                        partitions_col = '.partitions', family = 'binomial',
-                        positive=1)
-  same_model <- glm(diagnosis~age, data=dat[dat$.partitions==1,], family = 'binomial')
+  validated <- validate(
+    train_data = dat, formulas = "diagnosis~age",
+    partitions_col = ".partitions", family = "binomial",
+    positive = 1
+  )
+  same_model <- glm(diagnosis ~ age, data = dat[dat$.partitions == 1, ], family = "binomial")
 
-  train_data <- dat[dat$.partitions==1,]
-  test_data <- dat[dat$.partitions==2,]
-  prob <- predict(same_model, newdata=test_data, type=c("response"))
+  train_data <- dat[dat$.partitions == 1, ]
+  test_data <- dat[dat$.partitions == 2, ]
+  prob <- predict(same_model, newdata = test_data, type = c("response"))
 
   test_data$prob <- prob
   test_data <- test_data %>%
-    dplyr::mutate(pred = dplyr::if_else(prob>0.5,1,0))
+    dplyr::mutate(pred = dplyr::if_else(prob > 0.5, 1, 0))
 
   # AUC
-  g <- pROC::roc(diagnosis ~ prob, data = test_data,
-                 direction = "<", levels=c(0,1))
-  expect_equal(validated$AUC,as.numeric(g$auc))
+  g <- pROC::roc(diagnosis ~ prob,
+    data = test_data,
+    direction = "<", levels = c(0, 1)
+  )
+  expect_equal(validated$AUC, as.numeric(g$auc))
 
   roc_ <- AUC::roc(test_data$prob, factor(test_data$diagnosis))
   auc2 <- AUC::auc(AUC::roc(test_data$prob, factor(test_data$diagnosis)))
-  expect_equal(validated$AUC, auc2)  # TODO What is the actual underlying error here?
+  expect_equal(validated$AUC, auc2) # TODO What is the actual underlying error here?
 
   # Confusion matrix metrics
 
-  conf_mat <- confusion_matrix(targets = test_data$diagnosis,
-                               predictions = test_data$pred,
-                               positive = levels(as.factor(test_data$diagnosis))[1],
-                               c_levels = levels(as.factor(train_data$diagnosis)))
+  conf_mat <- confusion_matrix(
+    targets = test_data$diagnosis,
+    predictions = test_data$pred,
+    positive = levels(as.factor(test_data$diagnosis))[1],
+    c_levels = levels(as.factor(train_data$diagnosis))
+  )
 
   # Sensitivity
   expect_equal(validated$Sensitivity, conf_mat$Sensitivity)
@@ -164,49 +182,57 @@ test_that("Metrics work for glm in validate()",{
 
   # negPredValue
   expect_equal(validated$`Neg Pred Value`, conf_mat$`Neg Pred Value`)
-
 })
 
 
-test_that("Metrics work for glmer in validate()",{
+test_that("Metrics work for glmer in validate()", {
 
   # skip_test_if_old_R_version()
 
   set_seed_for_R_compatibility(201)
 
-  dat <- groupdata2::partition(participant.scores, p = 0.8,
-                               cat_col = 'diagnosis',
-                               id_col = 'participant',
-                               list_out = FALSE)
+  dat <- groupdata2::partition(participant.scores,
+    p = 0.8,
+    cat_col = "diagnosis",
+    id_col = "participant",
+    list_out = FALSE
+  )
 
-  validated <- validate(train_data = dat, formulas = "diagnosis~age+(1|session)",
-                        partitions_col = '.partitions', family = 'binomial',
-                        positive = 1)
-  same_model <- lme4::glmer(diagnosis~age+(1|session),
-                            data=dat[dat$.partitions==1,], family = 'binomial')
+  validated <- validate(
+    train_data = dat, formulas = "diagnosis~age+(1|session)",
+    partitions_col = ".partitions", family = "binomial",
+    positive = 1
+  )
+  same_model <- lme4::glmer(diagnosis ~ age + (1 | session),
+    data = dat[dat$.partitions == 1, ], family = "binomial"
+  )
 
-  train_data <- dat[dat$.partitions==1,]
-  test_data <- dat[dat$.partitions==2,]
-  prob <- predict(same_model, newdata=test_data, type=c("response"))
+  train_data <- dat[dat$.partitions == 1, ]
+  test_data <- dat[dat$.partitions == 2, ]
+  prob <- predict(same_model, newdata = test_data, type = c("response"))
 
   test_data$prob <- prob
   test_data <- test_data %>%
-    dplyr::mutate(pred = dplyr::if_else(prob>0.5,1,0))
+    dplyr::mutate(pred = dplyr::if_else(prob > 0.5, 1, 0))
 
   # AUC
-  auc1 <- pROC::roc(diagnosis ~ prob, data = test_data, direction = "<", levels=c(0,1))
-  expect_equal(validated$AUC,as.numeric(auc1$auc))
+  auc1 <- pROC::roc(diagnosis ~ prob, data = test_data, direction = "<", levels = c(0, 1))
+  expect_equal(validated$AUC, as.numeric(auc1$auc))
 
-  auc2 <- AUC::auc(AUC::roc(test_data$prob,
-                            factor(test_data$diagnosis, levels=levels(as.factor(train_data$diagnosis)))))
-  expect_equal(validated$AUC,auc2)
+  auc2 <- AUC::auc(AUC::roc(
+    test_data$prob,
+    factor(test_data$diagnosis, levels = levels(as.factor(train_data$diagnosis)))
+  ))
+  expect_equal(validated$AUC, auc2)
 
   # Confusion matrix metrics
 
-  conf_mat <- confusion_matrix(targets = test_data$diagnosis,
-                               predictions = test_data$pred,
-                               positive = levels(as.factor(test_data$diagnosis))[1],
-                               c_levels = levels(as.factor(train_data$diagnosis)))
+  conf_mat <- confusion_matrix(
+    targets = test_data$diagnosis,
+    predictions = test_data$pred,
+    positive = levels(as.factor(test_data$diagnosis))[1],
+    c_levels = levels(as.factor(train_data$diagnosis))
+  )
 
   # Sensitivity
   expect_equal(validated$Sensitivity, conf_mat$Sensitivity)
@@ -219,12 +245,10 @@ test_that("Metrics work for glmer in validate()",{
 
   # negPredValue
   expect_equal(validated$`Neg Pred Value`, conf_mat$`Neg Pred Value`)
-
-
 })
 
 
-test_that("Metrics work when 0 is positive class for glmer in validate()",{
+test_that("Metrics work when 0 is positive class for glmer in validate()", {
 
   # skip_test_if_old_R_version()
 
@@ -232,54 +256,70 @@ test_that("Metrics work when 0 is positive class for glmer in validate()",{
   # Here I test that it works.
 
   # First we will check what should be the behavior, when changing positive to 0.
-  participant.scores$perfect_predicted_probability <- c(0.8, 0.9, 0.7, 0.3,0.2,0.1,
-                                                        0.8,0.7,0.7,0.1,0.4,0.3,
-                                                        0.8, 0.9, 0.7, 0.8,0.7,
-                                                        0.7, 0.7, 0.9, 0.8, 0.8,
-                                                        0.7, 0.95, 0.3, 0.2, 0.1,
-                                                        0.4, 0.25, 0.2)
+  participant.scores$perfect_predicted_probability <- c(
+    0.8, 0.9, 0.7, 0.3, 0.2, 0.1,
+    0.8, 0.7, 0.7, 0.1, 0.4, 0.3,
+    0.8, 0.9, 0.7, 0.8, 0.7,
+    0.7, 0.7, 0.9, 0.8, 0.8,
+    0.7, 0.95, 0.3, 0.2, 0.1,
+    0.4, 0.25, 0.2
+  )
 
-  participant.scores$few_false_negs_predicted_probability <-c(0.2, 0.3, 0.4, 0.3,0.2,0.1,
-                                                              0.8,0.7,0.7,0.1,0.4,0.3,
-                                                              0.8, 0.9, 0.7, 0.8,0.7,
-                                                              0.7, 0.7, 0.9, 0.8, 0.8,
-                                                              0.7, 0.95, 0.3, 0.2, 0.1,
-                                                              0.4, 0.25, 0.2)
+  participant.scores$few_false_negs_predicted_probability <- c(
+    0.2, 0.3, 0.4, 0.3, 0.2, 0.1,
+    0.8, 0.7, 0.7, 0.1, 0.4, 0.3,
+    0.8, 0.9, 0.7, 0.8, 0.7,
+    0.7, 0.7, 0.9, 0.8, 0.8,
+    0.7, 0.95, 0.3, 0.2, 0.1,
+    0.4, 0.25, 0.2
+  )
 
-  participant.scores$few_false_pos_predicted_probability <- c(0.8, 0.9, 0.7, 0.7,0.9,0.6,
-                                                              0.8,0.7,0.7,0.1,0.4,0.3,
-                                                              0.8, 0.9, 0.7, 0.8,0.7,
-                                                              0.7, 0.7, 0.9, 0.8, 0.8,
-                                                              0.7, 0.95, 0.3, 0.2, 0.1,
-                                                              0.4, 0.25, 0.2)
+  participant.scores$few_false_pos_predicted_probability <- c(
+    0.8, 0.9, 0.7, 0.7, 0.9, 0.6,
+    0.8, 0.7, 0.7, 0.1, 0.4, 0.3,
+    0.8, 0.9, 0.7, 0.8, 0.7,
+    0.7, 0.7, 0.9, 0.8, 0.8,
+    0.7, 0.95, 0.3, 0.2, 0.1,
+    0.4, 0.25, 0.2
+  )
 
-  participant.scores$worst_predicted_probability <- 1 - c(0.8, 0.9, 0.7, 0.3,0.2,0.1,
-                                                          0.8,0.7,0.7,0.1,0.4,0.3,
-                                                          0.8, 0.9, 0.7, 0.8,0.7,
-                                                          0.7, 0.7, 0.9, 0.8, 0.8,
-                                                          0.7, 0.95, 0.3, 0.2, 0.1,
-                                                          0.4, 0.25, 0.2)
+  participant.scores$worst_predicted_probability <- 1 - c(
+    0.8, 0.9, 0.7, 0.3, 0.2, 0.1,
+    0.8, 0.7, 0.7, 0.1, 0.4, 0.3,
+    0.8, 0.9, 0.7, 0.8, 0.7,
+    0.7, 0.7, 0.9, 0.8, 0.8,
+    0.7, 0.95, 0.3, 0.2, 0.1,
+    0.4, 0.25, 0.2
+  )
 
   # AUC (positive = 1 vs positive = 0)
 
   # PERFECT
 
   # With AUC::
-  AUC_auc_perfect <- AUC::auc(AUC::roc(participant.scores$perfect_predicted_probability,
-                                   factor(participant.scores$diagnosis)))
-  AUC_auc_perfect_pos0 <- AUC::auc(AUC::roc(1 - participant.scores$perfect_predicted_probability,
-                                   factor(1 - participant.scores$diagnosis)))
+  AUC_auc_perfect <- AUC::auc(AUC::roc(
+    participant.scores$perfect_predicted_probability,
+    factor(participant.scores$diagnosis)
+  ))
+  AUC_auc_perfect_pos0 <- AUC::auc(AUC::roc(
+    1 - participant.scores$perfect_predicted_probability,
+    factor(1 - participant.scores$diagnosis)
+  ))
 
   expect_equal(AUC_auc_perfect, AUC_auc_perfect_pos0)
 
   # With pROC
-  pROC_auc_perfect <- as.numeric(pROC::roc(response = participant.scores$diagnosis,
-                    predictor = participant.scores$perfect_predicted_probability,
-                    direction = "<", levels=c(0,1))$auc)
+  pROC_auc_perfect <- as.numeric(pROC::roc(
+    response = participant.scores$diagnosis,
+    predictor = participant.scores$perfect_predicted_probability,
+    direction = "<", levels = c(0, 1)
+  )$auc)
 
-  pROC_auc_perfect_pos0 <- as.numeric(pROC::roc(response = 1-participant.scores$diagnosis,
-                                predictor = 1-participant.scores$perfect_predicted_probability,
-                                direction = ">", levels=c(1,0))$auc)
+  pROC_auc_perfect_pos0 <- as.numeric(pROC::roc(
+    response = 1 - participant.scores$diagnosis,
+    predictor = 1 - participant.scores$perfect_predicted_probability,
+    direction = ">", levels = c(1, 0)
+  )$auc)
 
   expect_equal(pROC_auc_perfect, pROC_auc_perfect_pos0)
   expect_equal(pROC_auc_perfect, AUC_auc_perfect)
@@ -289,23 +329,31 @@ test_that("Metrics work when 0 is positive class for glmer in validate()",{
 
   # With AUC
 
-  AUC_auc_false_negs <- AUC::auc(AUC::roc(participant.scores$few_false_negs_predicted_probability,
-                                      factor(participant.scores$diagnosis)))
+  AUC_auc_false_negs <- AUC::auc(AUC::roc(
+    participant.scores$few_false_negs_predicted_probability,
+    factor(participant.scores$diagnosis)
+  ))
 
-  AUC_auc_false_negs_pos0 <- AUC::auc(AUC::roc(1 - participant.scores$few_false_negs_predicted_probability,
-                                      factor(1 - participant.scores$diagnosis)))
+  AUC_auc_false_negs_pos0 <- AUC::auc(AUC::roc(
+    1 - participant.scores$few_false_negs_predicted_probability,
+    factor(1 - participant.scores$diagnosis)
+  ))
 
   expect_equal(AUC_auc_false_negs, AUC_auc_false_negs_pos0)
 
 
   # With pROC
-  pROC_auc_false_negs <- as.numeric(pROC::roc(response = participant.scores$diagnosis,
-                                predictor = participant.scores$few_false_negs_predicted_probability,
-                                direction = "<", levels=c(0,1))$auc)
+  pROC_auc_false_negs <- as.numeric(pROC::roc(
+    response = participant.scores$diagnosis,
+    predictor = participant.scores$few_false_negs_predicted_probability,
+    direction = "<", levels = c(0, 1)
+  )$auc)
 
-  pROC_auc_false_negs_pos0 <- as.numeric(pROC::roc(response = 1-participant.scores$diagnosis,
-                                     predictor = 1-participant.scores$few_false_negs_predicted_probability,
-                                     direction = ">", levels=c(1,0))$auc)
+  pROC_auc_false_negs_pos0 <- as.numeric(pROC::roc(
+    response = 1 - participant.scores$diagnosis,
+    predictor = 1 - participant.scores$few_false_negs_predicted_probability,
+    direction = ">", levels = c(1, 0)
+  )$auc)
 
   expect_equal(pROC_auc_false_negs, pROC_auc_false_negs_pos0)
   expect_equal(pROC_auc_false_negs, AUC_auc_false_negs)
@@ -315,22 +363,30 @@ test_that("Metrics work when 0 is positive class for glmer in validate()",{
 
   # With AUC
 
-  AUC_auc_false_pos <- AUC::auc(AUC::roc(participant.scores$few_false_pos_predicted_probability,
-                                     factor(participant.scores$diagnosis)))
+  AUC_auc_false_pos <- AUC::auc(AUC::roc(
+    participant.scores$few_false_pos_predicted_probability,
+    factor(participant.scores$diagnosis)
+  ))
 
-  AUC_auc_false_pos_pos0 <- AUC::auc(AUC::roc(1 - participant.scores$few_false_pos_predicted_probability,
-                                     factor(1 - participant.scores$diagnosis)))
+  AUC_auc_false_pos_pos0 <- AUC::auc(AUC::roc(
+    1 - participant.scores$few_false_pos_predicted_probability,
+    factor(1 - participant.scores$diagnosis)
+  ))
 
   expect_equal(AUC_auc_false_pos, AUC_auc_false_pos_pos0)
 
   # With pROC
-  pROC_auc_false_pos <- as.numeric(pROC::roc(response = participant.scores$diagnosis,
-                                              predictor = participant.scores$few_false_pos_predicted_probability,
-                                              direction = "<", levels=c(0,1))$auc)
+  pROC_auc_false_pos <- as.numeric(pROC::roc(
+    response = participant.scores$diagnosis,
+    predictor = participant.scores$few_false_pos_predicted_probability,
+    direction = "<", levels = c(0, 1)
+  )$auc)
 
-  pROC_auc_false_pos_pos0 <- as.numeric(pROC::roc(response = 1-participant.scores$diagnosis,
-                                                   predictor = 1-participant.scores$few_false_pos_predicted_probability,
-                                                   direction = ">", levels=c(1,0))$auc)
+  pROC_auc_false_pos_pos0 <- as.numeric(pROC::roc(
+    response = 1 - participant.scores$diagnosis,
+    predictor = 1 - participant.scores$few_false_pos_predicted_probability,
+    direction = ">", levels = c(1, 0)
+  )$auc)
 
   expect_equal(pROC_auc_false_pos, pROC_auc_false_pos_pos0)
   expect_equal(pROC_auc_false_pos, AUC_auc_false_pos)
@@ -340,22 +396,30 @@ test_that("Metrics work when 0 is positive class for glmer in validate()",{
 
   # With AUC
 
-  AUC_auc_worst <- AUC::auc(AUC::roc(participant.scores$worst_predicted_probability,
-                                 factor(participant.scores$diagnosis)))
+  AUC_auc_worst <- AUC::auc(AUC::roc(
+    participant.scores$worst_predicted_probability,
+    factor(participant.scores$diagnosis)
+  ))
 
-  AUC_auc_worst_pos0 <- AUC::auc(AUC::roc(1 - participant.scores$worst_predicted_probability,
-                                 factor(1 - participant.scores$diagnosis)))
+  AUC_auc_worst_pos0 <- AUC::auc(AUC::roc(
+    1 - participant.scores$worst_predicted_probability,
+    factor(1 - participant.scores$diagnosis)
+  ))
 
   expect_equal(AUC_auc_worst, AUC_auc_worst_pos0)
 
   # With pROC
-  pROC_auc_worst <- as.numeric(pROC::roc(response = participant.scores$diagnosis,
-                                         predictor = participant.scores$worst_predicted_probability,
-                                         direction = "<", levels=c(0,1))$auc)
+  pROC_auc_worst <- as.numeric(pROC::roc(
+    response = participant.scores$diagnosis,
+    predictor = participant.scores$worst_predicted_probability,
+    direction = "<", levels = c(0, 1)
+  )$auc)
 
-  pROC_auc_worst_pos0 <- as.numeric(pROC::roc(response = 1-participant.scores$diagnosis,
-                                              predictor = 1-participant.scores$worst_predicted_probability,
-                                              direction = ">", levels=c(1,0))$auc)
+  pROC_auc_worst_pos0 <- as.numeric(pROC::roc(
+    response = 1 - participant.scores$diagnosis,
+    predictor = 1 - participant.scores$worst_predicted_probability,
+    direction = ">", levels = c(1, 0)
+  )$auc)
 
   expect_equal(pROC_auc_worst, pROC_auc_worst_pos0)
   expect_equal(pROC_auc_worst, AUC_auc_worst)
@@ -363,62 +427,78 @@ test_that("Metrics work when 0 is positive class for glmer in validate()",{
 
   set_seed_for_R_compatibility(201)
 
-  dat <- groupdata2::partition(participant.scores, p = 0.8,
-                               cat_col = 'diagnosis',
-                               id_col = 'participant',
-                               list_out = FALSE)
+  dat <- groupdata2::partition(participant.scores,
+    p = 0.8,
+    cat_col = "diagnosis",
+    id_col = "participant",
+    list_out = FALSE
+  )
 
-  validated_pos1 <- validate(train_data=dat, formulas="diagnosis~score",
-                        partitions_col = '.partitions', family = 'binomial',
-                        positive = 2)
+  validated_pos1 <- validate(
+    train_data = dat, formulas = "diagnosis~score",
+    partitions_col = ".partitions", family = "binomial",
+    positive = 2
+  )
 
-  validated_pos0 <- validate(train_data=dat, formulas="diagnosis~score",
-                        partitions_col = '.partitions', family = 'binomial',
-                        positive = 1)
+  validated_pos0 <- validate(
+    train_data = dat, formulas = "diagnosis~score",
+    partitions_col = ".partitions", family = "binomial",
+    positive = 1
+  )
 
-  expect_equal(validated_pos1$AUC,validated_pos0$AUC)
+  expect_equal(validated_pos1$AUC, validated_pos0$AUC)
 
-  validated_pos1 <- validate(train_data=dat, formulas="diagnosis~age",
-                             partitions_col = '.partitions', family = 'binomial',
-                             positive = 2)
+  validated_pos1 <- validate(
+    train_data = dat, formulas = "diagnosis~age",
+    partitions_col = ".partitions", family = "binomial",
+    positive = 2
+  )
 
-  validated_pos0 <- validate(train_data=dat, formulas="diagnosis~age",
-                             partitions_col = '.partitions', family = 'binomial',
-                             positive = 1)
+  validated_pos0 <- validate(
+    train_data = dat, formulas = "diagnosis~age",
+    partitions_col = ".partitions", family = "binomial",
+    positive = 1
+  )
 
-  expect_equal(validated_pos1$AUC,validated_pos0$AUC)
+  expect_equal(validated_pos1$AUC, validated_pos0$AUC)
 
   # If dependent variable is character factor
 
   dat$diagnosis_chr <- factor(ifelse(dat$diagnosis == 0, "a", "b"))
 
-  validated_pos1_num <- validate(train_data=dat, formulas="diagnosis_chr~age",
-                             partitions_col = '.partitions', family = 'binomial',
-                             positive = 2)
-  validated_pos1_chr <- validate(train_data=dat, formulas="diagnosis_chr~age",
-                                 partitions_col = '.partitions', family = 'binomial',
-                                 positive = "b")
+  validated_pos1_num <- validate(
+    train_data = dat, formulas = "diagnosis_chr~age",
+    partitions_col = ".partitions", family = "binomial",
+    positive = 2
+  )
+  validated_pos1_chr <- validate(
+    train_data = dat, formulas = "diagnosis_chr~age",
+    partitions_col = ".partitions", family = "binomial",
+    positive = "b"
+  )
 
-  expect_equal(validated_pos1_num$AUC,validated_pos1_chr$AUC)
+  expect_equal(validated_pos1_num$AUC, validated_pos1_chr$AUC)
 
-  validated_pos0_num <- validate(train_data=dat, formulas="diagnosis_chr~age",
-                             partitions_col = '.partitions', family = 'binomial',
-                             positive = 1)
-  validated_pos0_chr <- validate(train_data=dat, formulas="diagnosis_chr~age",
-                                 partitions_col = '.partitions', family = 'binomial',
-                                 positive = "a")
+  validated_pos0_num <- validate(
+    train_data = dat, formulas = "diagnosis_chr~age",
+    partitions_col = ".partitions", family = "binomial",
+    positive = 1
+  )
+  validated_pos0_chr <- validate(
+    train_data = dat, formulas = "diagnosis_chr~age",
+    partitions_col = ".partitions", family = "binomial",
+    positive = "a"
+  )
 
-  expect_equal(validated_pos0_num$AUC,validated_pos0_chr$AUC)
+  expect_equal(validated_pos0_num$AUC, validated_pos0_chr$AUC)
 
-  expect_equal(validated_pos0_num$AUC,validated_pos1_num$AUC)
-  expect_equal(validated_pos0_chr$AUC,validated_pos1_chr$AUC)
-
-
+  expect_equal(validated_pos0_num$AUC, validated_pos1_num$AUC)
+  expect_equal(validated_pos0_chr$AUC, validated_pos1_chr$AUC)
 })
 
 
 
-test_that("Metrics work in cross_validate()",{
+test_that("Metrics work in cross_validate()", {
 
   # skip_test_if_old_R_version()
 
@@ -430,52 +510,58 @@ test_that("Metrics work in cross_validate()",{
   # Metrics are calculated and compared to the metrics I got from cross_validate.
   #
 
-  target <- c(0,0,0,1,1,1,
-              0,0,0,1,1,1,1,1,1,
-              0,0,0,1,1,1,
-              0,0,0,1,1,1,1,1,1)
-  predictions_prob <- c(0.77379615,0.36952324,0.09125579,0.89205819,
-                        0.73620142,0.55282759,0.8307928,0.6042899,
-                        0.1754574,0.9317034,0.8307928,0.5145979,
-                        0.9269098,0.6874739,0.5867096,0.71867985,
-                        0.26746773,0.09346533,0.85976827,0.24884534,
-                        0.13205012,0.6503171,0.4541755,0.1564246,
-                        0.8445872,0.7085838,0.5871876,0.8514956,
-                        0.7607141,0.7085838)
-  predictions <- dplyr::if_else(predictions_prob>0.5,1,0)
+  target <- c(
+    0, 0, 0, 1, 1, 1,
+    0, 0, 0, 1, 1, 1, 1, 1, 1,
+    0, 0, 0, 1, 1, 1,
+    0, 0, 0, 1, 1, 1, 1, 1, 1
+  )
+  predictions_prob <- c(
+    0.77379615, 0.36952324, 0.09125579, 0.89205819,
+    0.73620142, 0.55282759, 0.8307928, 0.6042899,
+    0.1754574, 0.9317034, 0.8307928, 0.5145979,
+    0.9269098, 0.6874739, 0.5867096, 0.71867985,
+    0.26746773, 0.09346533, 0.85976827, 0.24884534,
+    0.13205012, 0.6503171, 0.4541755, 0.1564246,
+    0.8445872, 0.7085838, 0.5871876, 0.8514956,
+    0.7607141, 0.7085838
+  )
+  predictions <- dplyr::if_else(predictions_prob > 0.5, 1, 0)
 
-  pred_df <- data.frame("obs"=target, "prob"=predictions_prob, "pred"=predictions)
+  pred_df <- data.frame("obs" = target, "prob" = predictions_prob, "pred" = predictions)
 
   # AUC
-  auc1 <- pROC::roc(obs ~ prob, data = pred_df, direction = "<", levels=c(0,1))
+  auc1 <- pROC::roc(obs ~ prob, data = pred_df, direction = "<", levels = c(0, 1))
   expect_equal(as.numeric(auc1$auc), 0.7615741, tolerance = 1e-3)
 
   auc2 <- AUC::auc(AUC::roc(pred_df$prob, factor(pred_df$obs)))
-  expect_equal(auc2,0.7615741, tolerance = 1e-3)
+  expect_equal(auc2, 0.7615741, tolerance = 1e-3)
 
 
   # Confusion matrix metrics
 
-  conf_mat <- confusion_matrix(targets = pred_df$obs,
-                               predictions = pred_df$pred,
-                               positive = levels(as.factor(pred_df$obs))[1],
-                               c_levels = levels(as.factor(pred_df$obs)))
+  conf_mat <- confusion_matrix(
+    targets = pred_df$obs,
+    predictions = pred_df$pred,
+    positive = levels(as.factor(pred_df$obs))[1],
+    c_levels = levels(as.factor(pred_df$obs))
+  )
 
   # Sensitivity
   expect_equal(conf_mat$Sensitivity, 0.5833333, tolerance = 1e-5)
 
   # Specificity
-  expect_equal(conf_mat$Specificity,0.8888889, tolerance = 1e-5)
+  expect_equal(conf_mat$Specificity, 0.8888889, tolerance = 1e-5)
 
   # posPredValue
-  expect_equal(conf_mat$`Pos Pred Value`,0.7777778, tolerance = 1e-5)
+  expect_equal(conf_mat$`Pos Pred Value`, 0.7777778, tolerance = 1e-5)
 
   # negPredValue
   expect_equal(conf_mat$`Neg Pred Value`, 0.7619048, tolerance = 1e-5)
 
   # F1
   F1 <- (2 * conf_mat$`Pos Pred Value` * conf_mat$Sensitivity) / (conf_mat$`Pos Pred Value` + conf_mat$Sensitivity)
-  expect_equal(F1,0.6666667, tolerance = 1e-5)
+  expect_equal(F1, 0.6666667, tolerance = 1e-5)
   expect_equal(conf_mat$F1, F1, tolerance = 1e-5)
 
   confMatTable <- conf_mat[["Table"]][[1]]
@@ -490,8 +576,10 @@ test_that("Metrics work in cross_validate()",{
   expect_equal(F1_2, 0.6666667, tolerance = 1e-3)
 
   # Test that MCC does not care about what class if positive
-  expect_equal(mcc(list("TP"=TP, "FP"=FP, "FN"=FN, "TN"=TN)),
-               mcc(list("TP"=TN, "FP"=FN, "FN"=FP, "TN"=TP)))
+  expect_equal(
+    mcc(list("TP" = TP, "FP" = FP, "FN" = FN, "TN" = TN)),
+    mcc(list("TP" = TN, "FP" = FN, "FN" = FP, "TN" = TP))
+  )
 
   # TODO Add many more tests of confusion_matrix!!!
 
@@ -503,7 +591,6 @@ test_that("Metrics work in cross_validate()",{
   # expect_equal(#detectionrate, 0.2333333)
   # expect_equal(#detectionprevalence, 0.3)
   # expect_equal(#balanceACC, 0.7361111)
-
 })
 
 test_that("mae and rmse works", {
@@ -517,15 +604,19 @@ test_that("mae and rmse works", {
   df <- data.frame(t = targets, p = preds)
   results <- evaluate_residuals(df, predictions_col = "p", targets_col = "t", metrics = "all")
 
-  rmse_ <- function(targets, preds)
-    sqrt(mean((targets-preds)^2))
+  rmse_ <- function(targets, preds) {
+    sqrt(mean((targets - preds)^2))
+  }
 
-  mae_ <- function(targets, preds)
-    mean(abs(targets-preds))
+  mae_ <- function(targets, preds) {
+    mean(abs(targets - preds))
+  }
 
   # RMSE
   expect_equal(results$RMSE,
-               rmse_(targets, preds), tolerance = 1e-3)
+    rmse_(targets, preds),
+    tolerance = 1e-3
+  )
   expect_equal(results$RMSE, 1.23924, tolerance = 1e-3)
   # MAE
   expect_equal(results$MAE, mae_(targets, preds), tolerance = 1e-3)
@@ -535,19 +626,20 @@ test_that("mae and rmse works", {
 
   # Uniform distribution
   set_seed_for_R_compatibility(9)
-  targets <- runif(100,min = 45, max = 97)
-  preds <- runif(100,min = 54, max = 120)
+  targets <- runif(100, min = 45, max = 97)
+  preds <- runif(100, min = 54, max = 120)
   df <- data.frame(t = targets, p = preds)
   results <- evaluate_residuals(df, predictions_col = "p", targets_col = "t", metrics = "all")
 
   # RMSE
   expect_equal(results$RMSE,
-               rmse_(targets, preds), tolerance = 1e-3)
+    rmse_(targets, preds),
+    tolerance = 1e-3
+  )
   expect_equal(results$RMSE, 30.2487, tolerance = 1e-3)
   # MAE
   expect_equal(results$MAE, mae_(targets, preds), tolerance = 1e-3)
   expect_equal(results$MAE, 24.3477, tolerance = 1e-3)
 
   # TODO Add tests for the other regression error metrics
-
 })

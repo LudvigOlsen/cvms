@@ -174,11 +174,13 @@
 #' set.seed(7)
 #'
 #' # Fold data
-#' data <- fold(data, k = 4,
-#'              cat_col = 'diagnosis',
-#'              id_col = 'participant') %>%
-#'     mutate(diagnosis = as.factor(diagnosis)) %>%
-#'     arrange(.folds)
+#' data <- fold(data,
+#'   k = 4,
+#'   cat_col = "diagnosis",
+#'   id_col = "participant"
+#' ) %>%
+#'   mutate(diagnosis = as.factor(diagnosis)) %>%
+#'   arrange(.folds)
 validate_fn <- function(train_data,
                         test_data = NULL,
                         formulas,
@@ -187,15 +189,14 @@ validate_fn <- function(train_data,
                         preprocess_fn = NULL,
                         preprocess_once = FALSE,
                         hyperparameters = NULL,
-                        partitions_col = '.partitions',
-                        type = 'gaussian',
+                        partitions_col = ".partitions",
+                        type = "gaussian",
                         cutoff = 0.5,
                         positive = 2,
                         metrics = list(),
                         rm_nc = FALSE,
                         parallel = FALSE,
                         verbose = TRUE) {
-
   validate_list(
     train_data = train_data,
     test_data = test_data,

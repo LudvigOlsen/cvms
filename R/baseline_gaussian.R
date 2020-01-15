@@ -9,22 +9,24 @@ create_gaussian_baseline_evaluations <- function(train_data,
                                                  REML = FALSE,
                                                  metrics = list(),
                                                  na.rm = TRUE,
-                                                 parallel_ = FALSE){
+                                                 parallel_ = FALSE) {
 
 
   # Minimum requirement
   # Is there a better heuristic including n_samplings?
   # We want at least 3 rows in a sampled training set. (This is arbitrary)
-  stopifnot(nrow(train_data) > 10,
-            min_training_rows >= 3,
-            min_training_rows_left_out >= 2)
+  stopifnot(
+    nrow(train_data) > 10,
+    min_training_rows >= 3,
+    min_training_rows_left_out >= 2
+  )
 
   # Check na.rm
-  if(!is_logical_scalar_not_na(na.rm)){
+  if (!is_logical_scalar_not_na(na.rm)) {
     stop("'na.rm' must be logical scalar (TRUE/FALSE).")
   }
 
-  if (!is.null(random_effects)){
+  if (!is.null(random_effects)) {
     model_formula <- formula(paste0(dependent_col, " ~ 1 + ", random_effects))
   } else {
     model_formula <- formula(paste0(dependent_col, " ~ 1"))
@@ -38,18 +40,20 @@ create_gaussian_baseline_evaluations <- function(train_data,
 
   # Test that all model variables are in the data frames
 
-  if (length(setdiff(model_variables, colnames(train_data)))){
+  if (length(setdiff(model_variables, colnames(train_data)))) {
     stop(paste0(
       "could not find these variables in the training data: ",
       paste0(setdiff(model_variables, colnames(train_data)),
-             collapse = ", ")
+        collapse = ", "
+      )
     ))
   }
-  if (length(setdiff(model_variables, colnames(test_data)))){
+  if (length(setdiff(model_variables, colnames(test_data)))) {
     stop(paste0(
       "could not find these variables in the test data: ",
       paste0(setdiff(model_variables, colnames(test_data)),
-             collapse = ", ")
+        collapse = ", "
+      )
     ))
   }
 
@@ -82,10 +86,12 @@ create_gaussian_baseline_evaluations <- function(train_data,
   sampling_boundaries <- train_set_inclusion_vals %>%
     dplyr::arrange(.data$split_factor, dplyr::desc(.data$inclusion_probability)) %>%
     dplyr::filter(dplyr::row_number() == min_training_rows |
-                  dplyr::row_number() == n_train_targets - min_training_rows_left_out + 1) %>%
-    dplyr::mutate(to_add = c(-0.001, 0.001),
-                  limits = .data$inclusion_probability + .data$to_add,
-                  min_max = c("max_","min_")) %>%
+      dplyr::row_number() == n_train_targets - min_training_rows_left_out + 1) %>%
+    dplyr::mutate(
+      to_add = c(-0.001, 0.001),
+      limits = .data$inclusion_probability + .data$to_add,
+      min_max = c("max_", "min_")
+    ) %>%
     base_select(cols = c("split_factor", "min_max", "limits")) %>%
     tidyr::spread(key = "min_max", value = "limits") %>%
     dplyr::mutate(inclusion_probability_threshold = runif(1, min = .data$min_, max = .data$max_)) %>%
@@ -99,20 +105,23 @@ create_gaussian_baseline_evaluations <- function(train_data,
     dplyr::inner_join(sampling_boundaries, by = "split_factor")
   train_sets_indices <- train_sets_indices[
     train_sets_indices[["inclusion_probability"]] >
-      train_sets_indices[["inclusion_probability_threshold"]]
-    ,] %>%
+      train_sets_indices[["inclusion_probability_threshold"]],
+  ] %>%
     base_select(cols = c("split_factor", "indices"))
 
   # Get the lists of indices
   train_sets_indices <- split(train_sets_indices[["indices"]],
-                              f = train_sets_indices[["split_factor"]])
-  train_sets_indices[[as.character(n_samplings+1)]] <- seq_len(n_train_targets)
+    f = train_sets_indices[["split_factor"]]
+  )
+  train_sets_indices[[as.character(n_samplings + 1)]] <- seq_len(n_train_targets)
 
   # Fit baseline model
-  if (is.null(random_effects)){
+  if (is.null(random_effects)) {
     lm_fn <- lm
   } else {
-    lm_fn <- function(...){lme4::lmer(..., REML = REML)}
+    lm_fn <- function(...) {
+      lme4::lmer(..., REML = REML)
+    }
   }
 
   # Create temporary fold columns
@@ -120,58 +129,67 @@ create_gaussian_baseline_evaluations <- function(train_data,
   test_data <- tmp_fold_cols_obj[["data"]]
   fold_info_cols <- tmp_fold_cols_obj[["fold_info_cols"]]
   fold_and_fold_col <- create_fold_and_fold_column_map(
-    data = test_data, fold_info_cols = fold_info_cols)
+    data = test_data, fold_info_cols = fold_info_cols
+  )
 
   # Evaluate randomly sampled train set with model "y~1" (potentially plus random effects)
 
   evaluations <- plyr::llply(1:(n_samplings + 1),
-                             .parallel = parallel_,
-                             function(evaluation) {
+    .parallel = parallel_,
+    function(evaluation) {
 
-    # Get indices for this evaluation
-    inds <- train_sets_indices[[evaluation]]
+      # Get indices for this evaluation
+      inds <- train_sets_indices[[evaluation]]
 
-    # Subset training data for this evaluation
-    sampled_train_set <- train_data[inds,]
+      # Subset training data for this evaluation
+      sampled_train_set <- train_data[inds, ]
 
-    # Fit baseline model
-    baseline_linear_model <- lm_fn(formula = model_formula,
-                                   data = sampled_train_set)
+      # Fit baseline model
+      baseline_linear_model <- lm_fn(
+        formula = model_formula,
+        data = sampled_train_set
+      )
 
-    # Predict test set with baseline model
-    test_data[["prediction"]] <- stats::predict(baseline_linear_model,
-                                                test_data, allow.new.levels = TRUE)
+      # Predict test set with baseline model
+      test_data[["prediction"]] <- stats::predict(baseline_linear_model,
+        test_data,
+        allow.new.levels = TRUE
+      )
 
-    run_evaluate(
-      data = test_data,
-      target_col = dependent_col,
-      prediction_cols = "prediction",
-      models = list(baseline_linear_model),
-      type = "gaussian",
-      id_col = NULL,
-      id_method = "mean",
-      fold_info_cols = fold_info_cols,
-      fold_and_fold_col = fold_and_fold_col,
-      metrics = metrics,
-      include_predictions = TRUE,
-      include_fold_columns = FALSE, # We're not providing any fold info so won't make sense
-      caller = "baseline()"
-    ) %>%
-      dplyr::mutate(`Training Rows` = nrow(sampled_train_set))
-  }) %>%  dplyr::bind_rows() %>%
+      run_evaluate(
+        data = test_data,
+        target_col = dependent_col,
+        prediction_cols = "prediction",
+        models = list(baseline_linear_model),
+        type = "gaussian",
+        id_col = NULL,
+        id_method = "mean",
+        fold_info_cols = fold_info_cols,
+        fold_and_fold_col = fold_and_fold_col,
+        metrics = metrics,
+        include_predictions = TRUE,
+        include_fold_columns = FALSE, # We're not providing any fold info so won't make sense
+        caller = "baseline()"
+      ) %>%
+        dplyr::mutate(`Training Rows` = nrow(sampled_train_set))
+    }
+  ) %>%
+    dplyr::bind_rows() %>%
     dplyr::mutate(
       Family = "gaussian"
     ) %>%
-    tibble::add_column(!!! model_effects) # bind_cols for recycling 1-row tibble
+    tibble::add_column(!!!model_effects) # bind_cols for recycling 1-row tibble
 
   # Extract the "all_rows" evaluation
-  evaluation_all_rows <- evaluations[c(n_samplings+1) ,] %>%
-    select_metrics(include_definitions = FALSE,
-                   additional_includes = "Training Rows") %>%
+  evaluation_all_rows <- evaluations[c(n_samplings + 1), ] %>%
+    select_metrics(
+      include_definitions = FALSE,
+      additional_includes = "Training Rows"
+    ) %>%
     dplyr::mutate(Measure = "All_rows")
 
   # Extract the random evaluations
-  evaluations_random <- evaluations[-c(n_samplings+1) ,]
+  evaluations_random <- evaluations[-c(n_samplings + 1), ]
 
   # Remove collected evaluations from memory
   evaluations <- NULL
@@ -184,8 +202,10 @@ create_gaussian_baseline_evaluations <- function(train_data,
     add_repetition_col_to_nested_tibbles(evaluations_random[["Coefficients"]])
 
   # Summarize metric cols
-  metric_cols <- select_metrics(evaluations_random, include_definitions = FALSE,
-                                additional_includes = "Training Rows")
+  metric_cols <- select_metrics(evaluations_random,
+    include_definitions = FALSE,
+    additional_includes = "Training Rows"
+  )
   summarized_metrics <- summarize_metrics(metric_cols, na.rm = na.rm, inf.rm = TRUE)
 
   # Collect the summarized metrics
@@ -193,24 +213,22 @@ create_gaussian_baseline_evaluations <- function(train_data,
     dplyr::bind_rows(evaluation_all_rows) %>%
     dplyr::as_tibble()
 
-  return(list("summarized_metrics" = overall_evaluations,
-              "random_evaluations" = evaluations_random))
-
+  return(list(
+    "summarized_metrics" = overall_evaluations,
+    "random_evaluations" = evaluations_random
+  ))
 }
 
 # Remove the INFs from the NAs count
-subtract_inf_count_from_na_count <- function(summarized_metrics){
+subtract_inf_count_from_na_count <- function(summarized_metrics) {
 
   # Find the row indices of the NA and INF counts
   NAs_row_number <- which(summarized_metrics$Measure == "NAs")
   INFs_row_number <- which(summarized_metrics$Measure == "INFs")
 
   # Subtract the INF counts from the NA counts
-  summarized_metrics[NAs_row_number,-1] <- summarized_metrics[NAs_row_number,-1] -
-    summarized_metrics[INFs_row_number,-1]
+  summarized_metrics[NAs_row_number, -1] <- summarized_metrics[NAs_row_number, -1] -
+    summarized_metrics[INFs_row_number, -1]
 
   summarized_metrics
-
 }
-
-

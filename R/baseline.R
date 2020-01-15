@@ -304,7 +304,7 @@
 #' # Attach packages
 #' library(cvms)
 #' library(groupdata2) # partition()
-#' library(dplyr) # %>% arrange()
+#' library(dplyr) # \%>\% arrange()
 #' library(tibble)
 #'
 #' # Data is part of cvms
@@ -322,24 +322,31 @@
 #' # Note: usually n=100 is a good setting
 #'
 #' # Gaussian
-#' baseline(test_data = test_set, train_data = train_set,
-#'          dependent_col = "score", random_effects = "(1|session)",
-#'          n = 2, family = "gaussian")
+#' baseline(
+#'   test_data = test_set, train_data = train_set,
+#'   dependent_col = "score", random_effects = "(1|session)",
+#'   n = 2, family = "gaussian"
+#' )
 #'
 #' # Binomial
-#' baseline(test_data = test_set, dependent_col = "diagnosis",
-#'          n = 2, family = "binomial")
+#' baseline(
+#'   test_data = test_set, dependent_col = "diagnosis",
+#'   n = 2, family = "binomial"
+#' )
 #'
 #' # Multinomial
 #'
 #' # Create some data with multiple classes
 #' multiclass_data <- tibble(
-#'     "target" = rep(paste0("class_", 1:5), each = 10)) %>%
-#'     dplyr::sample_n(35)
+#'   "target" = rep(paste0("class_", 1:5), each = 10)
+#' ) %>%
+#'   dplyr::sample_n(35)
 #'
-#' baseline(test_data = multiclass_data,
-#'          dependent_col = "target",
-#'          n = 4, family = "multinomial")
+#' baseline(
+#'   test_data = multiclass_data,
+#'   dependent_col = "target",
+#'   n = 4, family = "multinomial"
+#' )
 #'
 #' # Parallelize evaluations
 #'
@@ -349,40 +356,47 @@
 #' # registerDoParallel(4)
 #'
 #' # Binomial
-#' baseline(test_data = test_set, dependent_col = "diagnosis",
-#'          n = 4, family = "binomial", parallel = TRUE)
+#' baseline(
+#'   test_data = test_set, dependent_col = "diagnosis",
+#'   n = 4, family = "binomial", parallel = TRUE
+#' )
 #'
 #' # Gaussian
-#' baseline(test_data = test_set, train_data = train_set,
-#'          dependent_col = "score", random_effects = "(1|session)",
-#'          n = 4, family = "gaussian", parallel = TRUE)
+#' baseline(
+#'   test_data = test_set, train_data = train_set,
+#'   dependent_col = "score", random_effects = "(1|session)",
+#'   n = 4, family = "gaussian", parallel = TRUE
+#' )
 #'
 #' # Multinomial
-#' (mb <- baseline(test_data = multiclass_data,
-#'                dependent_col = "target",
-#'                n = 4, family = "multinomial",
-#'                parallel = TRUE))
+#' (mb <- baseline(
+#'   test_data = multiclass_data,
+#'   dependent_col = "target",
+#'   n = 4, family = "multinomial",
+#'   parallel = TRUE
+#' ))
 #'
 #' # Inspect the summarized class level results
 #' # for class_2
 #' mb$summarized_class_level_results %>%
-#'  dplyr::filter(Class == "class_2") %>%
-#'  tidyr::unnest(Results)
+#'   dplyr::filter(Class == "class_2") %>%
+#'   tidyr::unnest(Results)
 #'
 #' # Multinomial with custom random generator function
 #' # that creates very "certain" predictions
 #' # (once softmax is applied)
 #'
-#' rcertain <- function(n){
-#'     (runif(n, min = 1, max = 100)^1.4)/100
+#' rcertain <- function(n) {
+#'   (runif(n, min = 1, max = 100)^1.4) / 100
 #' }
 #'
-#' baseline(test_data = multiclass_data,
-#'          dependent_col = "target",
-#'          n = 4, family = "multinomial",
-#'          parallel = TRUE,
-#'          random_generator_fn = rcertain)
-#'
+#' baseline(
+#'   test_data = multiclass_data,
+#'   dependent_col = "target",
+#'   n = 4, family = "multinomial",
+#'   parallel = TRUE,
+#'   random_generator_fn = rcertain
+#' )
 #' }
 #' @importFrom stats runif rnorm terms IQR median predict sd
 baseline <- function(test_data,
@@ -390,7 +404,7 @@ baseline <- function(test_data,
                      train_data = NULL,
                      # how many times to randomly sample probabilities (bootstrapping?)
                      n = 100,
-                     family = 'binomial',
+                     family = "binomial",
                      metrics = list(),
                      # Binomial
                      positive = 2,
@@ -409,69 +423,95 @@ baseline <- function(test_data,
   assert_collection <- checkmate::makeAssertCollection()
 
   # Data frames
-  checkmate::assert_data_frame(test_data, col.names = "named",
-                               add = assert_collection)
-  checkmate::assert_data_frame(train_data, col.names = "named",
-                               null.ok = family != "gaussian",
-                               add = assert_collection)
+  checkmate::assert_data_frame(test_data,
+    col.names = "named",
+    add = assert_collection
+  )
+  checkmate::assert_data_frame(train_data,
+    col.names = "named",
+    null.ok = family != "gaussian",
+    add = assert_collection
+  )
   checkmate::assert_names(colnames(test_data),
-                          must.include = dependent_col,
-                          add = assert_collection)
-  if (!is.null(train_data)){
+    must.include = dependent_col,
+    add = assert_collection
+  )
+  if (!is.null(train_data)) {
     checkmate::assert_names(colnames(train_data),
-                            must.include = dependent_col,
-                            add = assert_collection)
+      must.include = dependent_col,
+      add = assert_collection
+    )
   }
 
   # Character
   checkmate::assert_string(x = dependent_col, add = assert_collection)
-  checkmate::assert_choice(x = family,
-                           choices = c("gaussian", "binomial", "multinomial"),
-                           add = assert_collection)
-  checkmate::assert_string(x = random_effects, null.ok = TRUE,
-                           add = assert_collection)
+  checkmate::assert_choice(
+    x = family,
+    choices = c("gaussian", "binomial", "multinomial"),
+    add = assert_collection
+  )
+  checkmate::assert_string(
+    x = random_effects, null.ok = TRUE,
+    add = assert_collection
+  )
 
   # Numeric
-  checkmate::assert_count(x = n,
-                          positive = TRUE,
-                          add = assert_collection)
+  checkmate::assert_count(
+    x = n,
+    positive = TRUE,
+    add = assert_collection
+  )
   # TODO make check that have both assertions
   # E.g. with check_* and then push manually
-  if (!is.character(positive)){
-    checkmate::assert_choice(x = positive,
-                             choices = c(1,2),
-                             add = assert_collection)
+  if (!is.character(positive)) {
+    checkmate::assert_choice(
+      x = positive,
+      choices = c(1, 2),
+      add = assert_collection
+    )
   } else {
-    checkmate::assert_string(x = positive,
-                             add = assert_collection)
+    checkmate::assert_string(
+      x = positive,
+      add = assert_collection
+    )
   }
 
-  checkmate::assert_number(x = cutoff,
-                           lower = 0,
-                           upper = 1,
-                           add = assert_collection)
-  checkmate::assert_count(x = min_training_rows,
-                          positive = TRUE,
-                          add = assert_collection)
-  checkmate::assert_count(x = min_training_rows_left_out,
-                          positive = TRUE,
-                          add = assert_collection)
+  checkmate::assert_number(
+    x = cutoff,
+    lower = 0,
+    upper = 1,
+    add = assert_collection
+  )
+  checkmate::assert_count(
+    x = min_training_rows,
+    positive = TRUE,
+    add = assert_collection
+  )
+  checkmate::assert_count(
+    x = min_training_rows_left_out,
+    positive = TRUE,
+    add = assert_collection
+  )
 
   # Flags
   checkmate::assert_flag(x = REML, add = assert_collection)
   checkmate::assert_flag(x = parallel, add = assert_collection)
 
   # Functional
-  checkmate::assert_function(x = random_generator_fn,
-                             add = assert_collection)
+  checkmate::assert_function(
+    x = random_generator_fn,
+    add = assert_collection
+  )
 
   # Multi
   # TODO Find way to have "either or" assertions in the collection
-  if (is.character(metrics)){
+  if (is.character(metrics)) {
     checkmate::assert_string(x = metrics, fixed = "all", add = assert_collection)
   } else {
-    checkmate::assert_list(x = metrics, any.missing = FALSE,
-                           types = c("logical", "character"))
+    checkmate::assert_list(
+      x = metrics, any.missing = FALSE,
+      types = c("logical", "character")
+    )
   }
 
   checkmate::reportAssertions(assert_collection)
@@ -483,22 +523,30 @@ baseline <- function(test_data,
   test_data <- to_tibble(test_data, "test_data", caller = "baseline()")
   train_data <- to_tibble(train_data, "train_data", caller = "baseline()")
 
-  if (family == "binomial"){
-
-    arg_not_used(arg = train_data, arg_name = "train_data",
-                 family = "binomial", current_fn = "baseline")
-    arg_not_used(arg = random_effects, arg_name = "random_effects",
-                 family = "binomial", current_fn = "baseline")
-    if (!isTRUE(all.equal(random_generator_fn, runif))){
-      message(paste0("'random_generator_fn' was not default function. ",
-                     "Note that the 'random_generator_fn' is not used in ",
-                     "the binomial version of baseline()."))
+  if (family == "binomial") {
+    arg_not_used(
+      arg = train_data, arg_name = "train_data",
+      family = "binomial", current_fn = "baseline"
+    )
+    arg_not_used(
+      arg = random_effects, arg_name = "random_effects",
+      family = "binomial", current_fn = "baseline"
+    )
+    if (!isTRUE(all.equal(random_generator_fn, runif))) {
+      message(paste0(
+        "'random_generator_fn' was not default function. ",
+        "Note that the 'random_generator_fn' is not used in ",
+        "the binomial version of baseline()."
+      ))
     }
-    unaccepted_metrics <- intersect(names(metrics), c("AIC","AICc","BIC"))
-    if (length(unaccepted_metrics) > 0)
-      stop(paste0("binomial baseline() does not accept the following metric",
-                  ifelse(length(unaccepted_metrics) > 1, "s", ""),
-                  ": ", paste(unaccepted_metrics, collapse = ", "), "."))
+    unaccepted_metrics <- intersect(names(metrics), c("AIC", "AICc", "BIC"))
+    if (length(unaccepted_metrics) > 0) {
+      stop(paste0(
+        "binomial baseline() does not accept the following metric",
+        ifelse(length(unaccepted_metrics) > 1, "s", ""),
+        ": ", paste(unaccepted_metrics, collapse = ", "), "."
+      ))
+    }
 
     return(
       create_binomial_baseline_evaluations(
@@ -511,54 +559,60 @@ baseline <- function(test_data,
         parallel_ = parallel
       )
     )
-
-  } else if (family == "multinomial"){
-
-    arg_not_used(arg = train_data, arg_name = "train_data",
-                 family = "multinomial", current_fn = "baseline")
-    arg_not_used(arg = random_effects, arg_name = "random_effects",
-                 family = "multinomial", current_fn = "baseline")
-    unaccepted_metrics <- intersect(names(metrics), c("AIC","AICc","BIC"))
-    if (length(unaccepted_metrics) > 0)
-      stop(paste0("multinomial baseline() does not accept the following metric",
-                  ifelse(length(unaccepted_metrics) > 1, "s", ""),
-                  ": ", paste(unaccepted_metrics, collapse = ", "), "."))
+  } else if (family == "multinomial") {
+    arg_not_used(
+      arg = train_data, arg_name = "train_data",
+      family = "multinomial", current_fn = "baseline"
+    )
+    arg_not_used(
+      arg = random_effects, arg_name = "random_effects",
+      family = "multinomial", current_fn = "baseline"
+    )
+    unaccepted_metrics <- intersect(names(metrics), c("AIC", "AICc", "BIC"))
+    if (length(unaccepted_metrics) > 0) {
+      stop(paste0(
+        "multinomial baseline() does not accept the following metric",
+        ifelse(length(unaccepted_metrics) > 1, "s", ""),
+        ": ", paste(unaccepted_metrics, collapse = ", "), "."
+      ))
+    }
 
     return(
-      create_multinomial_baseline_evaluations(test_data = test_data,
-                                              dependent_col = dependent_col,
-                                              reps = n,
-                                              metrics = metrics,
-                                              parallel_ = parallel,
-                                              random_generator_fn = random_generator_fn
+      create_multinomial_baseline_evaluations(
+        test_data = test_data,
+        dependent_col = dependent_col,
+        reps = n,
+        metrics = metrics,
+        parallel_ = parallel,
+        random_generator_fn = random_generator_fn
       )
     )
-
-  } else if (family == "gaussian"){
-
-    if (is.null(train_data)){
+  } else if (family == "gaussian") {
+    if (is.null(train_data)) {
       stop("'train_data' must be passed for Gaussian baseline.")
     }
 
-    if (!isTRUE(all.equal(random_generator_fn, runif))){
-      message(paste0("'random_generator_fn' was not default function. ",
-                     "Note that the 'random_generator_fn' is not used in ",
-                     "the Gaussian version of baseline()."))
+    if (!isTRUE(all.equal(random_generator_fn, runif))) {
+      message(paste0(
+        "'random_generator_fn' was not default function. ",
+        "Note that the 'random_generator_fn' is not used in ",
+        "the Gaussian version of baseline()."
+      ))
     }
 
     return(
-      create_gaussian_baseline_evaluations(train_data = train_data,
-                                           test_data = test_data,
-                                           dependent_col = dependent_col,
-                                           random_effects = random_effects,
-                                           n_samplings = n,
-                                           min_training_rows = min_training_rows,
-                                           min_training_rows_left_out = min_training_rows_left_out,
-                                           REML = REML,
-                                           metrics = metrics,
-                                           parallel_ = parallel
-                                           )
+      create_gaussian_baseline_evaluations(
+        train_data = train_data,
+        test_data = test_data,
+        dependent_col = dependent_col,
+        random_effects = random_effects,
+        n_samplings = n,
+        min_training_rows = min_training_rows,
+        min_training_rows_left_out = min_training_rows_left_out,
+        REML = REML,
+        metrics = metrics,
+        parallel_ = parallel
+      )
     )
   }
-
 }

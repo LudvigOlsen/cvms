@@ -1,5 +1,5 @@
 
-create_boxplot_ <- function(data, var_start=NULL, var_end=NULL){
+create_boxplot_ <- function(data, var_start = NULL, var_end = NULL) {
 
   # Data: gaussian_return or likewise
   # Vars (Variables to plot):
@@ -28,14 +28,12 @@ create_boxplot_ <- function(data, var_start=NULL, var_end=NULL){
 
   # Fix for now
   data <- data %>%
-    tidyr::gather(key="key", value="value")
+    tidyr::gather(key = "key", value = "value")
 
   # Create and print plot
   gg <- ggplot2::ggplot(data, ggplot2::aes(.data$key, .data$value)) +
     ggplot2::geom_boxplot() +
-    ggplot2::labs(x = 'Measure', y = 'Value')
+    ggplot2::labs(x = "Measure", y = "Value")
 
   return(gg)
-
-
 }

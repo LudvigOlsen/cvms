@@ -58,25 +58,32 @@ most_challenging <- function(data,
                              ),
                              type = "binomial",
                              threshold = 0.15,
-                             threshold_is = "percentage"){
+                             threshold_is = "percentage") {
 
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
-  checkmate::assert_data_frame(x = data, min.rows = 1,
-                               min.cols = 3,
-                               add = assert_collection)
+  checkmate::assert_data_frame(
+    x = data, min.rows = 1,
+    min.cols = 3,
+    add = assert_collection
+  )
   checkmate::assert_string(x = obs_id_col, min.chars = 1, add = assert_collection)
   checkmate::assert_string(x = target_col, min.chars = 1, add = assert_collection)
   checkmate::assert_string(x = prediction_col, min.chars = 1, add = assert_collection)
-  checkmate::assert_choice(x = type, choices = c("gaussian", "binomial", "multinomial"),
-                           add = assert_collection)
-  checkmate::assert_choice(x = threshold_is, choices = c("score", "percentage"),
-                           add = assert_collection)
+  checkmate::assert_choice(
+    x = type, choices = c("gaussian", "binomial", "multinomial"),
+    add = assert_collection
+  )
+  checkmate::assert_choice(
+    x = threshold_is, choices = c("score", "percentage"),
+    add = assert_collection
+  )
   checkmate::assert_number(x = threshold, add = assert_collection)
   if (threshold_is == "percentage" &&
-      !rtilities2::is_between(threshold, 0.0, 1.0)) {
+    !rtilities2::is_between(threshold, 0.0, 1.0)) {
     assert_collection$push(
-      "when 'threshold_is' a percentage, 'threshold' must be between 0 and 1.")
+      "when 'threshold_is' a percentage, 'threshold' must be between 0 and 1."
+    )
   }
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
@@ -97,7 +104,6 @@ most_challenging <- function(data,
       threshold_is = threshold_is,
       grouping_keys = grouping_keys
     )
-
   } else if (type == "gaussian") {
     most_challenging_gaussian(
       data = data,
@@ -108,9 +114,7 @@ most_challenging <- function(data,
       threshold_is = threshold_is,
       grouping_keys = grouping_keys
     )
-
   }
-
 }
 
 most_challenging_classification <- function(data,
@@ -129,26 +133,26 @@ most_challenging_classification <- function(data,
 
   by_observation <- data %>%
     dplyr::group_by_at(c(colnames(grouping_keys), obs_id_col)) %>%
-    dplyr::summarise(Correct = sum(.data$Correct),
-                     Incorrect = sum(.data$Incorrect),
-                     Accuracy = .data$Correct/dplyr::n())
+    dplyr::summarise(
+      Correct = sum(.data$Correct),
+      Incorrect = sum(.data$Incorrect),
+      Accuracy = .data$Correct / dplyr::n()
+    )
 
-  if (threshold_is == "score"){
-
-    to_return <- by_observation[by_observation[["Accuracy"]] < threshold,]
-
-  } else if (threshold_is == "percentage"){
-
+  if (threshold_is == "score") {
+    to_return <- by_observation[by_observation[["Accuracy"]] < threshold, ]
+  } else if (threshold_is == "percentage") {
     quantiles <- list("Accuracy" = stats::quantile(by_observation[["Accuracy"]],
-                                                   probs = threshold))
-    to_return <- by_observation[by_observation[["Accuracy"]] < quantiles[["Accuracy"]],]
-
+      probs = threshold
+    ))
+    to_return <- by_observation[by_observation[["Accuracy"]] < quantiles[["Accuracy"]], ]
   }
 
   to_return %>%
-    dplyr::arrange(!!!rlang::syms(colnames(grouping_keys)),
-                   .data$Accuracy)
-
+    dplyr::arrange(
+      !!!rlang::syms(colnames(grouping_keys)),
+      .data$Accuracy
+    )
 }
 
 
@@ -158,12 +162,15 @@ most_challenging_gaussian <- function(data,
                                       prediction_col,
                                       threshold,
                                       threshold_is,
-                                      grouping_keys){
-
-  stop_if(!is.numeric(data[[target_col]]),
-          "'target_col' must be numeric.")
-  stop_if(!is.numeric(data[[prediction_col]]),
-          "'prediction_col' must be numeric.")
+                                      grouping_keys) {
+  stop_if(
+    !is.numeric(data[[target_col]]),
+    "'target_col' must be numeric."
+  )
+  stop_if(
+    !is.numeric(data[[prediction_col]]),
+    "'prediction_col' must be numeric."
+  )
 
   tmp_residual_var <- create_tmp_name(data, ".__residuals__")
   data[tmp_residual_var] <- data[[target_col]] - data[[prediction_col]]
@@ -172,24 +179,24 @@ most_challenging_gaussian <- function(data,
 
   by_observation <- data %>%
     dplyr::group_by_at(c(colnames(grouping_keys), obs_id_col)) %>%
-    dplyr::summarise(`MAE` = mean(abs(!!as.name(tmp_residual_var))),
-                     `RMSE` = root_mean_square(!!as.name(tmp_residual_var)))
+    dplyr::summarise(
+      `MAE` = mean(abs(!!as.name(tmp_residual_var))),
+      `RMSE` = root_mean_square(!!as.name(tmp_residual_var))
+    )
 
-  if (threshold_is == "score"){
-
-    to_return <- by_observation[by_observation[["RMSE"]] > threshold,]
-
-  } else if (threshold_is == "percentage"){
-
+  if (threshold_is == "score") {
+    to_return <- by_observation[by_observation[["RMSE"]] > threshold, ]
+  } else if (threshold_is == "percentage") {
     quantiles <- list("RMSE" = stats::quantile(by_observation[["RMSE"]],
-                                               probs = (1-threshold)))
+      probs = (1 - threshold)
+    ))
 
-    to_return <- by_observation[by_observation[["RMSE"]] > quantiles[["RMSE"]],]
-
+    to_return <- by_observation[by_observation[["RMSE"]] > quantiles[["RMSE"]], ]
   }
 
   to_return %>%
-    dplyr::arrange(!!!rlang::syms(colnames(grouping_keys)),
-                   dplyr::desc(.data$RMSE), dplyr::desc(.data$MAE))
-
+    dplyr::arrange(
+      !!!rlang::syms(colnames(grouping_keys)),
+      dplyr::desc(.data$RMSE), dplyr::desc(.data$MAE)
+    )
 }

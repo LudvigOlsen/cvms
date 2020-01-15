@@ -22,64 +22,73 @@
 #'   "svm_multinomial" \tab \code{\link[e1071:svm]{e1071::svm()}} \tab \code{kernel}, \code{cost}\cr
 #'   "naive_bayes" \tab \code{\link[e1071:naiveBayes]{e1071::naiveBayes()}} \tab \code{laplace} \cr
 #'   }
-example_model_functions <- function(name){
-
-  if (name == "lm"){
-    model_fn <- function(train_data, formula, hyperparameters){
+example_model_functions <- function(name) {
+  if (name == "lm") {
+    model_fn <- function(train_data, formula, hyperparameters) {
       lm(formula = formula, data = train_data)
     }
-  } else if (name == "lmer"){
-    model_fn <- function(train_data, formula, hyperparameters){
+  } else if (name == "lmer") {
+    model_fn <- function(train_data, formula, hyperparameters) {
 
       # Expected hyperparameters:
       #  - REML
 
-      lme4::lmer(formula = formula,
-                 data = train_data,
-                 family = "binomial",
-                 REML = hyperparameters[["REML"]])
+      lme4::lmer(
+        formula = formula,
+        data = train_data,
+        family = "binomial",
+        REML = hyperparameters[["REML"]]
+      )
     }
-  } else if (name == "glm_binomial"){
-    model_fn <- function(train_data, formula, hyperparameters){
-      glm(formula = formula, data = train_data,
-          family = "binomial")
+  } else if (name == "glm_binomial") {
+    model_fn <- function(train_data, formula, hyperparameters) {
+      glm(
+        formula = formula, data = train_data,
+        family = "binomial"
+      )
     }
-  } else if (name == "glmer_binomial"){
-    model_fn <- function(train_data, formula, hyperparameters){
-      lme4::glmer(formula = formula, data = train_data,
-                  family = "binomial")
+  } else if (name == "glmer_binomial") {
+    model_fn <- function(train_data, formula, hyperparameters) {
+      lme4::glmer(
+        formula = formula, data = train_data,
+        family = "binomial"
+      )
     }
-  } else if (name == "svm_gaussian"){
-    model_fn <- function(train_data, formula, hyperparameters){
+  } else if (name == "svm_gaussian") {
+    model_fn <- function(train_data, formula, hyperparameters) {
 
       # Expected hyperparameters:
       #  - kernel
       #  - cost
 
-      e1071::svm(formula = formula,
-                 data = train_data,
-                 kernel = hyperparameters[["kernel"]],
-                 cost = hyperparameters[["cost"]],
-                 scale = FALSE,
-                 type = "eps-regression")
+      e1071::svm(
+        formula = formula,
+        data = train_data,
+        kernel = hyperparameters[["kernel"]],
+        cost = hyperparameters[["cost"]],
+        scale = FALSE,
+        type = "eps-regression"
+      )
     }
-  } else if (name %in% c("svm_binomial", "svm_multinomial")){
-    model_fn <- function(train_data, formula, hyperparameters){
+  } else if (name %in% c("svm_binomial", "svm_multinomial")) {
+    model_fn <- function(train_data, formula, hyperparameters) {
 
       # Expected hyperparameters:
       #  - kernel
       #  - cost
 
-      e1071::svm(formula = formula,
-                 data = train_data,
-                 kernel = hyperparameters[["kernel"]],
-                 cost = hyperparameters[["cost"]],
-                 scale = FALSE,
-                 type = "C-classification",
-                 probability = TRUE)
+      e1071::svm(
+        formula = formula,
+        data = train_data,
+        kernel = hyperparameters[["kernel"]],
+        cost = hyperparameters[["cost"]],
+        scale = FALSE,
+        type = "C-classification",
+        probability = TRUE
+      )
     }
-  } else if (name == "naive_bayes"){
-    model_fn <- function(train_data, formula, hyperparameters){
+  } else if (name == "naive_bayes") {
+    model_fn <- function(train_data, formula, hyperparameters) {
 
       # Expected hyperparameters:
       #  - laplace
@@ -87,12 +96,12 @@ example_model_functions <- function(name){
       e1071::naiveBayes(
         formula = formula,
         data = train_data,
-        laplace = hyperparameters[["laplace"]])
+        laplace = hyperparameters[["laplace"]]
+      )
     }
   } else {
     stop(paste0("Could not find '", name, "'."))
   }
 
   model_fn
-
 }

@@ -31,11 +31,9 @@
 #'   "center" \tab Centers the numeric predictors to have a mean of zero\cr
 #'   "warn" \tab Identity function that throws a warning and a message\cr
 #'   }
-example_preprocess_functions <- function(name){
-
-  if (name == "standardize"){
-
-    preprocess_fn <- function(train_data, test_data, formula, hyperparameters){
+example_preprocess_functions <- function(name) {
+  if (name == "standardize") {
+    preprocess_fn <- function(train_data, test_data, formula, hyperparameters) {
 
       # Create simplified version of the formula
       # as recipe does not like inline functions
@@ -52,12 +50,13 @@ example_preprocess_functions <- function(name){
         # instead of for every formula
         # Tip: Use `y ~ .` to include all predictors (where `y` is your dependent variable)
         formula = formula,
-        data = train_data) %>%
+        data = train_data
+      ) %>%
 
         # Add preprocessing steps
         # Note: We could add specific variable to each step
         # instead of just selecting all numeric predictors
-        recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes())  %>%
+        recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
         recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
 
         # Find parameters from the training set
@@ -72,18 +71,17 @@ example_preprocess_functions <- function(name){
       sds <- recipe_object$steps[[2]]$sds
 
       # Add preprocessing parameters to a tibble
-      tidy_parameters <- tibble::tibble("Measure" = c("Mean" , "SD")) %>%
+      tidy_parameters <- tibble::tibble("Measure" = c("Mean", "SD")) %>%
         dplyr::bind_cols(dplyr::bind_rows(means, sds))
 
-      list("train" = train_data,
-           "test" = test_data,
-           "parameters" = tidy_parameters)
-
+      list(
+        "train" = train_data,
+        "test" = test_data,
+        "parameters" = tidy_parameters
+      )
     }
-
-  } else if (name == "scale"){
-
-    preprocess_fn <- function(train_data, test_data, formula, hyperparameters){
+  } else if (name == "scale") {
+    preprocess_fn <- function(train_data, test_data, formula, hyperparameters) {
 
       # Create simplified version of the formula
       # as recipe does not like inline functions
@@ -100,7 +98,8 @@ example_preprocess_functions <- function(name){
         # instead of for every formula
         # Tip: Use `y ~ .` to include all predictors (where `y` is your dependent variable)
         formula = formula,
-        data = train_data) %>%
+        data = train_data
+      ) %>%
 
         # Add preprocessing steps
         # Note: We could add specific variable to each step
@@ -121,14 +120,14 @@ example_preprocess_functions <- function(name){
       tidy_parameters <- tibble::tibble("Measure" = c("SD")) %>%
         dplyr::bind_cols(dplyr::bind_rows(sds))
 
-      list("train" = train_data,
-           "test" = test_data,
-           "parameters" = tidy_parameters)
+      list(
+        "train" = train_data,
+        "test" = test_data,
+        "parameters" = tidy_parameters
+      )
     }
-
-  } else if (name == "center"){
-
-    preprocess_fn <- function(train_data, test_data, formula, hyperparameters){
+  } else if (name == "center") {
+    preprocess_fn <- function(train_data, test_data, formula, hyperparameters) {
 
       # Create simplified version of the formula
       # as recipe does not like inline functions
@@ -145,7 +144,8 @@ example_preprocess_functions <- function(name){
         # instead of for every formula
         # Tip: Use `y ~ .` to include all predictors (where `y` is your dependent variable)
         formula = formula,
-        data = train_data) %>%
+        data = train_data
+      ) %>%
 
         # Add preprocessing steps
         # Note: We could add specific variable to each step
@@ -166,14 +166,14 @@ example_preprocess_functions <- function(name){
       tidy_parameters <- tibble::tibble("Measure" = c("Mean")) %>%
         dplyr::bind_cols(dplyr::bind_rows(means))
 
-      list("train" = train_data,
-           "test" = test_data,
-           "parameters" = tidy_parameters)
+      list(
+        "train" = train_data,
+        "test" = test_data,
+        "parameters" = tidy_parameters
+      )
     }
-
-  } else if (name == "range"){
-
-    preprocess_fn <- function(train_data, test_data, formula, hyperparameters){
+  } else if (name == "range") {
+    preprocess_fn <- function(train_data, test_data, formula, hyperparameters) {
 
       # Create simplified version of the formula
       # as recipe does not like inline functions
@@ -190,13 +190,15 @@ example_preprocess_functions <- function(name){
         # instead of for every formula
         # Tip: Use `y ~ .` to include all predictors (where `y` is your dependent variable)
         formula = formula,
-        data = train_data) %>%
+        data = train_data
+      ) %>%
 
         # Add preprocessing steps
         # Note: We could add specific variable to each step
         # instead of just selecting all numeric variables
         recipes::step_range(recipes::all_numeric(), -recipes::all_outcomes(),
-                            min = 0.0, max = 1.0)  %>%
+          min = 0.0, max = 1.0
+        ) %>%
 
         # Find parameters from the training set
         recipes::prep(training = train_data)
@@ -209,17 +211,17 @@ example_preprocess_functions <- function(name){
       ranges <- dplyr::as_tibble(recipe_object$steps[[1]]$ranges)
 
       # Add preprocessing parameters to a tibble
-      tidy_parameters <- tibble::tibble("Measure" = c("Min" , "Max")) %>%
+      tidy_parameters <- tibble::tibble("Measure" = c("Min", "Max")) %>%
         dplyr::bind_cols(ranges)
 
-      list("train" = train_data,
-           "test" = test_data,
-           "parameters" = tidy_parameters)
+      list(
+        "train" = train_data,
+        "test" = test_data,
+        "parameters" = tidy_parameters
+      )
     }
-
-  } else if (name == "warn"){
-
-    preprocess_fn <- function(train_data, test_data, formula, hyperparameters){
+  } else if (name == "warn") {
+    preprocess_fn <- function(train_data, test_data, formula, hyperparameters) {
 
       # For testing that warnings and messages are caught
 
@@ -227,16 +229,14 @@ example_preprocess_functions <- function(name){
       warning("This is a preprocess_fn warning")
       message("This is a preprocess_fn message")
 
-      list("train" = train_data,
-           "test" = test_data)
+      list(
+        "train" = train_data,
+        "test" = test_data
+      )
     }
-
   } else {
-
     stop(paste0("Could not find '", name, "'."))
-
   }
 
   preprocess_fn
-
 }

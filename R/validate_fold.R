@@ -10,18 +10,17 @@ validate_fold <- function(data,
                           err_nc = FALSE,
                           include_fold_columns = TRUE,
                           return_model = FALSE) {
-
   if (evaluation_type %ni% c("gaussian", "binomial", "multinomial")) {
     stop("evaluation_type must be either 'gaussian', 'binomial', or 'multinomial'.")
   }
 
   # Check arguments
   # Check model_specifics arguments
-  if (!is.null(model_specifics_update_fn)){
+  if (!is.null(model_specifics_update_fn)) {
     model_specifics <- model_specifics_update_fn(model_specifics)
   }
 
-  if (isTRUE(model_specifics[["preprocess_once"]])){
+  if (isTRUE(model_specifics[["preprocess_once"]])) {
 
     # The preprocessing will have happened in the parent function
     # so we simply need to extract it
@@ -35,7 +34,6 @@ validate_fold <- function(data,
     preprocess_params <- train_test[["preprocess_parameters"]][[1]]
     preprocess_warnings_and_messages <- train_test[["warnings_and_messages"]][[1]]
     preprocess_n_unknown_warnings <- train_test[["n_unknown_warnings"]][[1]]
-
   } else {
 
     # Subset and preprocess train/test split
@@ -43,14 +41,14 @@ validate_fold <- function(data,
       data = data,
       fold_info = fold_info,
       fold_cols = fold_cols,
-      model_specifics = model_specifics)
+      model_specifics = model_specifics
+    )
 
     train_data <- train_test[["train"]]
     test_data <- train_test[["test"]]
     preprocess_params <- train_test[["preprocess_parameters"]]
     preprocess_warnings_and_messages <- train_test[["warnings_and_messages"]]
     preprocess_n_unknown_warnings <- train_test[["n_unknown_warnings"]]
-
   }
 
   # Fit model, predict test set, and collect warnings
@@ -73,17 +71,21 @@ validate_fold <- function(data,
   warnings_and_messages <- fitted_model_process[["warnings_and_messages"]] %>%
     dplyr::bind_rows(preprocess_warnings_and_messages)
 
-  if (!isTRUE(include_fold_columns)){
+  if (!isTRUE(include_fold_columns)) {
 
     # If required, remove fold columns from tibbles that go in the output
 
     warnings_and_messages <- warnings_and_messages %>%
-      base_deselect(cols = intersect(colnames(warnings_and_messages),
-                                     c("Fold Column", "Fold")))
+      base_deselect(cols = intersect(
+        colnames(warnings_and_messages),
+        c("Fold Column", "Fold")
+      ))
 
     preprocess_params <- preprocess_params %>%
-      base_deselect(cols = intersect(colnames(preprocess_params),
-                                     c("Fold Column", "Fold")))
+      base_deselect(cols = intersect(
+        colnames(preprocess_params),
+        c("Fold Column", "Fold")
+      ))
   }
 
   # Nest warnings and messages tibble
@@ -103,28 +105,29 @@ validate_fold <- function(data,
     fold_info_cols = fold_info_cols,
     model_specifics = model_specifics,
     metrics = metrics,
-    include_fold_columns = include_fold_columns) %>%
+    include_fold_columns = include_fold_columns
+  ) %>%
     dplyr::mutate(
-      `Convergence Warnings` = fitted_model_process[['n_convergence_warnings']],
-      `Singular Fit Messages` = fitted_model_process[['n_singular_fit_messages']],
-      `Other Warnings` = fitted_model_process[['n_unknown_warnings']] +
-        fitted_model_process[['n_prediction_warnings']] +
+      `Convergence Warnings` = fitted_model_process[["n_convergence_warnings"]],
+      `Singular Fit Messages` = fitted_model_process[["n_singular_fit_messages"]],
+      `Other Warnings` = fitted_model_process[["n_unknown_warnings"]] +
+        fitted_model_process[["n_prediction_warnings"]] +
         preprocess_n_unknown_warnings,
-      `Warnings and Messages` = nested_warnings_and_messages)
+      `Warnings and Messages` = nested_warnings_and_messages
+    )
 
   if (isTRUE(err_nc) && model_evaluation[["Convergence Warnings"]] != 0) {
     stop("Model did not converge.")
   }
 
-  if (!isTRUE(return_model)){
+  if (!isTRUE(return_model)) {
     model <- NULL
   }
 
-  list("predictions_and_targets" = predictions_and_targets,
-       "model_evaluation" = model_evaluation,
-       "preprocess_parameters" = preprocess_params,
-       "model" = model)
-
+  list(
+    "predictions_and_targets" = predictions_and_targets,
+    "model_evaluation" = model_evaluation,
+    "preprocess_parameters" = preprocess_params,
+    "model" = model
+  )
 }
-
-

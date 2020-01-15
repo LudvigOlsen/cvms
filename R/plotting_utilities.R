@@ -50,7 +50,7 @@ font <- function(size = NULL,
   )
 }
 
-update_font_setting <- function(settings, defaults, initial_vals=NULL){
+update_font_setting <- function(settings, defaults, initial_vals = NULL) {
 
   # If defaults not provided,
   # here are some reasonable backup defaults
@@ -73,34 +73,30 @@ update_font_setting <- function(settings, defaults, initial_vals=NULL){
     )
 
   new_settings <- list()
-  for (opt in names(backup_defaults)){
-
-    if (is.null(settings[[opt]])){
-
+  for (opt in names(backup_defaults)) {
+    if (is.null(settings[[opt]])) {
       if (opt %in% names(defaults) &&
-          !is.null(defaults[[opt]])){
+        !is.null(defaults[[opt]])) {
         new_settings[[opt]] <- defaults[[opt]]
       } else {
         new_settings[[opt]] <- backup_defaults[[opt]]
       }
-
     } else {
       new_settings[[opt]] <- settings[[opt]]
     }
 
     # Apply initial values
-    if (!is.null(initial_vals) && opt %in% names(initial_vals)){
+    if (!is.null(initial_vals) && opt %in% names(initial_vals)) {
       new_settings[[opt]] <- initial_vals[[opt]](new_settings[[opt]])
     }
-
   }
 
   new_settings
 }
 
-preprocess_numeric <- function(vec, settings){
+preprocess_numeric <- function(vec, settings) {
   # Don't round if digits is negative
-  if (settings[["digits"]] >= 0){
+  if (settings[["digits"]] >= 0) {
     vec <- round(vec, settings[["digits"]])
   }
   paste0(settings[["prefix"]], vec, settings[["suffix"]])

@@ -281,55 +281,70 @@
 #'
 #' # Add predictions
 #' data[["gaussian_predictions"]] <- predict(gaussian_model, data,
-#'                                           type = "response",
-#'                                           allow.new.levels = TRUE)
+#'   type = "response",
+#'   allow.new.levels = TRUE
+#' )
 #' data[["binomial_predictions"]] <- predict(binomial_model, data,
-#'                                           allow.new.levels = TRUE)
+#'   allow.new.levels = TRUE
+#' )
 #'
 #' # Gaussian evaluation
-#' evaluate(data = data, target_col = "age",
-#'          prediction_cols = "gaussian_predictions",
-#'          type = "gaussian")
+#' evaluate(
+#'   data = data, target_col = "age",
+#'   prediction_cols = "gaussian_predictions",
+#'   type = "gaussian"
+#' )
 #'
 #' # Binomial evaluation
-#' evaluate(data = data, target_col = "diagnosis",
-#'          prediction_cols = "binomial_predictions",
-#'          type = "binomial")
+#' evaluate(
+#'   data = data, target_col = "diagnosis",
+#'   prediction_cols = "binomial_predictions",
+#'   type = "binomial"
+#' )
 #'
 #' # Multinomial
 #'
 #' # Create a tibble with predicted probabilities
 #' data_mc <- multiclass_probability_tibble(
-#'     num_classes = 3, num_observations = 30,
-#'     apply_softmax = TRUE, FUN = runif,
-#'     class_name = "class_")
+#'   num_classes = 3, num_observations = 30,
+#'   apply_softmax = TRUE, FUN = runif,
+#'   class_name = "class_"
+#' )
 #'
 #' # Add targets
-#' class_names <- paste0("class_", c(1,2,3))
-#' data_mc[["target"]] <- sample(x = class_names,
-#'                               size = 30, replace = TRUE)
+#' class_names <- paste0("class_", c(1, 2, 3))
+#' data_mc[["target"]] <- sample(
+#'   x = class_names,
+#'   size = 30, replace = TRUE
+#' )
 #'
 #' # Multinomial evaluation
-#' evaluate(data = data_mc, target_col = "target",
-#'          prediction_cols = class_names,
-#'          type = "multinomial")
+#' evaluate(
+#'   data = data_mc, target_col = "target",
+#'   prediction_cols = class_names,
+#'   type = "multinomial"
+#' )
 #'
 #' # ID evaluation
 #'
 #' # Gaussian ID evaluation
 #' # Note that 'age' is the same for all observations
 #' # of a participant
-#' evaluate(data = data, target_col = "age",
-#'          prediction_cols = "gaussian_predictions",
-#'          id_col = "participant",
-#'          type = "gaussian")
+#' evaluate(
+#'   data = data, target_col = "age",
+#'   prediction_cols = "gaussian_predictions",
+#'   id_col = "participant",
+#'   type = "gaussian"
+#' )
 #'
 #' # Binomial ID evaluation
-#' evaluate(data = data, target_col = "diagnosis",
-#'          prediction_cols = "binomial_predictions",
-#'          id_col = "participant",
-#'          id_method = "mean", # alternatively: "majority"
-#'          type = "binomial")
+#' evaluate(
+#'   data = data, target_col = "diagnosis",
+#'   prediction_cols = "binomial_predictions",
+#'   id_col = "participant",
+#'   id_method = "mean", # alternatively: "majority"
+#'   type = "binomial"
+#' )
 #'
 #' # Multinomial ID evaluation
 #'
@@ -337,52 +352,60 @@
 #' data_mc[["target"]] <- NULL
 #' data_mc[["id"]] <- rep(1:6, each = 5)
 #' id_classes <- tibble::tibble(
-#'     "id" = 1:6,
-#'     target = sample(x = class_names, size = 6, replace = TRUE)
+#'   "id" = 1:6,
+#'   target = sample(x = class_names, size = 6, replace = TRUE)
 #' )
 #' data_mc <- data_mc %>%
-#'     dplyr::left_join(id_classes, by = "id")
+#'   dplyr::left_join(id_classes, by = "id")
 #'
 #' # Perform ID evaluation
-#' evaluate(data = data_mc, target_col = "target",
-#'          prediction_cols = class_names,
-#'          id_col = "id",
-#'          id_method = "mean", # alternatively: "majority"
-#'          type = "multinomial")
+#' evaluate(
+#'   data = data_mc, target_col = "target",
+#'   prediction_cols = class_names,
+#'   id_col = "id",
+#'   id_method = "mean", # alternatively: "majority"
+#'   type = "multinomial"
+#' )
 #'
 #' # Training and evaluating a multinomial model with nnet
 #'
 #' # Create a data frame with some predictors and a target column
 #' class_names <- paste0("class_", 1:4)
 #' data_for_nnet <- multiclass_probability_tibble(
-#'     num_classes = 3, # Here, number of predictors
-#'     num_observations = 30,
-#'     apply_softmax = FALSE,
-#'     FUN = rnorm,
-#'     class_name = "predictor_") %>%
-#'     dplyr::mutate(class = sample(
-#'         class_names,
-#'         size = 30,
-#'         replace = TRUE))
+#'   num_classes = 3, # Here, number of predictors
+#'   num_observations = 30,
+#'   apply_softmax = FALSE,
+#'   FUN = rnorm,
+#'   class_name = "predictor_"
+#' ) %>%
+#'   dplyr::mutate(class = sample(
+#'     class_names,
+#'     size = 30,
+#'     replace = TRUE
+#'   ))
 #'
 #' # Train multinomial model using the nnet package
 #' mn_model <- nnet::multinom(
-#'     "class ~ predictor_1 + predictor_2 + predictor_3",
-#'     data = data_for_nnet)
+#'   "class ~ predictor_1 + predictor_2 + predictor_3",
+#'   data = data_for_nnet
+#' )
 #'
 #' # Predict the targets in the dataset
 #' # (we would usually use a test set instead)
 #' predictions <- predict(mn_model, data_for_nnet,
-#'                        type = "probs") %>%
-#'     dplyr::as_tibble()
+#'   type = "probs"
+#' ) %>%
+#'   dplyr::as_tibble()
 #'
 #' # Add the targets
 #' predictions[["target"]] <- data_for_nnet[["class"]]
 #'
 #' # Evaluate predictions
-#' evaluate(data = predictions, target_col = "target",
-#'          prediction_cols = class_names,
-#'          type = "multinomial")
+#' evaluate(
+#'   data = predictions, target_col = "target",
+#'   prediction_cols = class_names,
+#'   type = "multinomial"
+#' )
 #' }
 evaluate <- function(data,
                      target_col,
@@ -396,20 +419,23 @@ evaluate <- function(data,
                      metrics = list(),
                      include_predictions = TRUE,
                      parallel = FALSE,
-                     models = deprecated()
-){
-
-  if (!rlang::is_missing(models)){
+                     models = deprecated()) {
+  if (!rlang::is_missing(models)) {
     deprecate_stop("1.0.0", "cvms::evaluate(models = )",
-                   details = "Now only evaluates predictions.")
+      details = "Now only evaluates predictions."
+    )
   }
 
   # Remove unnecessary columns
-  data <- base_select(data,
-                      c(colnames(dplyr::group_keys(data)),
-                        target_col,
-                        prediction_cols,
-                        id_col)) %>%
+  data <- base_select(
+    data,
+    c(
+      colnames(dplyr::group_keys(data)),
+      target_col,
+      prediction_cols,
+      id_col
+    )
+  ) %>%
     dplyr::as_tibble() %>% # removes grouping
     dplyr::group_by_at(colnames(dplyr::group_keys(data)))
 
@@ -429,7 +455,6 @@ evaluate <- function(data,
     parallel = parallel,
     caller = "evaluate()"
   )
-
 }
 
 run_evaluate <- function(data,
@@ -449,46 +474,58 @@ run_evaluate <- function(data,
                          include_fold_columns = TRUE,
                          parallel = FALSE,
                          na.rm = NULL,
-                         caller = "evaluate()"
-){
-
-  if (checkmate::test_string(x = metrics, pattern = "^all$")){
+                         caller = "evaluate()") {
+  if (checkmate::test_string(x = metrics, pattern = "^all$")) {
     metrics <- list("all" = TRUE)
   }
 
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
   # Data frame
-  checkmate::assert_data_frame(x = data, min.rows = 1,
-                               min.cols = 2,
-                               col.names = "named",
-                               add = assert_collection)
+  checkmate::assert_data_frame(
+    x = data, min.rows = 1,
+    min.cols = 2,
+    col.names = "named",
+    add = assert_collection
+  )
 
   # String
-  checkmate::assert_string(x = target_col, min.chars = 1,
-                           add = assert_collection)
-  checkmate::assert_character(x = prediction_cols,
-                              min.len = 1,
-                              min.chars = 1,
-                              add = assert_collection)
-  checkmate::assert_string(x = id_col, min.chars = 1, null.ok = TRUE,
-                           add = assert_collection)
+  checkmate::assert_string(
+    x = target_col, min.chars = 1,
+    add = assert_collection
+  )
+  checkmate::assert_character(
+    x = prediction_cols,
+    min.len = 1,
+    min.chars = 1,
+    add = assert_collection
+  )
+  checkmate::assert_string(
+    x = id_col, min.chars = 1, null.ok = TRUE,
+    add = assert_collection
+  )
   checkmate::assert_string(x = caller, add = assert_collection)
 
   # Names
   checkmate::reportAssertions(assert_collection) # before names check
-  checkmate::assert_names(x = colnames(data),
-                          must.include = c(target_col, prediction_cols),
-                          what = "colnames",
-                          add = assert_collection)
+  checkmate::assert_names(
+    x = colnames(data),
+    must.include = c(target_col, prediction_cols),
+    what = "colnames",
+    add = assert_collection
+  )
 
   # Choice
-  checkmate::assert_choice(x = type,
-                           choices = c("gaussian", "binomial", "multinomial"),
-                           add = assert_collection)
-  checkmate::assert_choice(x = id_method,
-                           choices = c("mean", "majority"),
-                           add = assert_collection)
+  checkmate::assert_choice(
+    x = type,
+    choices = c("gaussian", "binomial", "multinomial"),
+    add = assert_collection
+  )
+  checkmate::assert_choice(
+    x = id_method,
+    choices = c("mean", "majority"),
+    add = assert_collection
+  )
 
   # Flag
   checkmate::assert_flag(x = apply_softmax, add = assert_collection)
@@ -498,8 +535,10 @@ run_evaluate <- function(data,
   checkmate::assert_flag(x = na.rm, null.ok = TRUE, add = assert_collection)
 
   # List
-  checkmate::assert_list(x = models, null.ok = TRUE,
-                         add = assert_collection)
+  checkmate::assert_list(
+    x = models, null.ok = TRUE,
+    add = assert_collection
+  )
   checkmate::assert_list(
     x = metrics,
     types = "logical",
@@ -524,19 +563,25 @@ run_evaluate <- function(data,
   )
 
   # Number
-  checkmate::assert_number(x = cutoff,
-                           lower = 0,
-                           upper = 1,
-                           add = assert_collection)
-  if (is.numeric(positive)){
+  checkmate::assert_number(
+    x = cutoff,
+    lower = 0,
+    upper = 1,
+    add = assert_collection
+  )
+  if (is.numeric(positive)) {
     # TODO make meaningful combined assert (numeric or string)
-    checkmate::assert_choice(x = positive,
-                             choices = c(1,2),
-                             add = assert_collection)
+    checkmate::assert_choice(
+      x = positive,
+      choices = c(1, 2),
+      add = assert_collection
+    )
   } else {
-    checkmate::assert_string(x = positive,
-                             min.chars = 1,
-                             add = assert_collection)
+    checkmate::assert_string(
+      x = positive,
+      min.chars = 1,
+      add = assert_collection
+    )
   }
 
   checkmate::reportAssertions(assert_collection)
@@ -546,18 +591,20 @@ run_evaluate <- function(data,
   family <- type
 
   # Check the passed arguments TODO Add more checks
-  check_args_evaluate(data = data,
-                      target_col = target_col,
-                      prediction_cols = prediction_cols,
-                      id_col = id_col,
-                      models = models,
-                      type = type,
-                      apply_softmax = apply_softmax,
-                      cutoff = cutoff,
-                      positive = positive,
-                      parallel = parallel,
-                      include_predictions = include_predictions,
-                      metrics = metrics)
+  check_args_evaluate(
+    data = data,
+    target_col = target_col,
+    prediction_cols = prediction_cols,
+    id_col = id_col,
+    models = models,
+    type = type,
+    apply_softmax = apply_softmax,
+    cutoff = cutoff,
+    positive = positive,
+    parallel = parallel,
+    include_predictions = include_predictions,
+    metrics = metrics
+  )
 
   # Create basic model_specifics object
   model_specifics <- list(
@@ -582,23 +629,25 @@ run_evaluate <- function(data,
 
   # One-hot encode predicted classes, if multinomial
   # and prediction_cols is one column with classes
-  if (type == "multinomial" && length(prediction_cols) == 1){
+  if (type == "multinomial" && length(prediction_cols) == 1) {
     # Extract the categorical levels in both target and prediction cols
-    c_levels <- union(data[[target_col]],data[[prediction_cols]])
+    c_levels <- union(data[[target_col]], data[[prediction_cols]])
     data <- one_hot_encode(data, prediction_cols,
-                           c_levels = c_levels,
-                           use_epsilon=FALSE)
+      c_levels = c_levels,
+      use_epsilon = FALSE
+    )
     prediction_cols <- sort(c_levels)
 
-    if (isTRUE(apply_softmax)){
-      stop(paste0("When passing 'prediction_cols' as single column with multiple classes, ",
-                  "'apply_softmax' should be FALSE."))
+    if (isTRUE(apply_softmax)) {
+      stop(paste0(
+        "When passing 'prediction_cols' as single column with multiple classes, ",
+        "'apply_softmax' should be FALSE."
+      ))
     }
-
   }
 
   # Find number of classes if classification
-  if (type == "binomial"){
+  if (type == "binomial") {
     num_classes <- 2
   } else if (type == "multinomial") {
     # We might not have every available class
@@ -616,7 +665,7 @@ run_evaluate <- function(data,
   grouping_keys <- dplyr::group_keys(data)
   # Make sure, the grouping_keys and the dataset are in the same order
   # As we otherwise risk adding them in the wrong order later
-  data <- dplyr::arrange(data, !!! rlang::syms(colnames(grouping_keys)))
+  data <- dplyr::arrange(data, !!!rlang::syms(colnames(grouping_keys)))
   # Get group indices
   grouping_factor <- dplyr::group_indices(data)
 
@@ -624,9 +673,11 @@ run_evaluate <- function(data,
   grouping_keys_with_indices <- grouping_keys %>%
     dplyr::mutate(.group = 1:dplyr::n())
 
-  if (!is.null(models) && length(unique(grouping_factor)) != length(models)){
-    stop(paste0("When the dataframe is grouped, ",
-                "please provide a fitted model object per group or set models to NULL."))
+  if (!is.null(models) && length(unique(grouping_factor)) != length(models)) {
+    stop(paste0(
+      "When the dataframe is grouped, ",
+      "please provide a fitted model object per group or set models to NULL."
+    ))
   }
 
   # Add grouping factor with a unique tmp var
@@ -646,8 +697,10 @@ run_evaluate <- function(data,
 
     # Currently don't support model object metrics
     # in ID aggregation mode
-    stop_if(!is.null(models),
-            "When aggregating by ID, 'models' should be NULL.")
+    stop_if(
+      !is.null(models),
+      "When aggregating by ID, 'models' should be NULL."
+    )
 
     # Prepare data for ID level evaluation
     data_for_id_evaluation <- prepare_id_level_evaluation(
@@ -661,11 +714,13 @@ run_evaluate <- function(data,
       groups_col = local_tmp_grouping_factor_var,
       apply_softmax = FALSE,
       new_prediction_col_name = local_tmp_predictions_col_var
-    ) %>% dplyr::ungroup() %>%
-      dplyr::left_join(grouping_keys_with_indices, by=".group")
+    ) %>%
+      dplyr::ungroup() %>%
+      dplyr::left_join(grouping_keys_with_indices, by = ".group")
 
-    if (family == "multinomial")
+    if (family == "multinomial") {
       prediction_cols <- local_tmp_predictions_col_var
+    }
     # TODO Test that prediction_cols is correct for the other families?
 
     # Run ID level evaluation
@@ -690,23 +745,22 @@ run_evaluate <- function(data,
       include_fold_columns = include_fold_columns,
       na.rm = na.rm
     )
-
   } else {
 
     # Regular evaluation
 
-    if (family == "multinomial"){
+    if (family == "multinomial") {
 
       # Prepare data for multinomial evaluation
-      data <- prepare_multinomial_evaluation(data = data,
-                                             target_col = target_col,
-                                             prediction_cols = prediction_cols,
-                                             apply_softmax = apply_softmax,
-                                             new_prediction_col_name = local_tmp_predictions_col_var
+      data <- prepare_multinomial_evaluation(
+        data = data,
+        target_col = target_col,
+        prediction_cols = prediction_cols,
+        apply_softmax = apply_softmax,
+        new_prediction_col_name = local_tmp_predictions_col_var
       )
 
       prediction_cols <- local_tmp_predictions_col_var
-
     } else {
       if (length(prediction_cols) > 1) {
         stop(paste0("'prediction_cols' must have length 1 when type is '", type, "'."))
@@ -736,45 +790,41 @@ run_evaluate <- function(data,
   }
 
   evaluations
-
 }
 
 
 run_internal_evaluate_wrapper <- function(
-  data,
-  type,
-  predictions_col,
-  targets_col,
-  models,
-  groups_col,
-  grouping_keys,
-  id_col = NULL,
-  id_method = NULL,
-  fold_info_cols = NULL,
-  fold_and_fold_col = NULL,
-  model_specifics,
-  metrics = list(),
-  info_cols = list(),
-  include_predictions = TRUE,
-  include_fold_columns = TRUE,
-  num_classes = NULL,
-  na.rm = NULL,
-  parallel = FALSE
-) {
-
-  if (type != "gaussian"){
-    if (is.null(num_classes)){
+                                          data,
+                                          type,
+                                          predictions_col,
+                                          targets_col,
+                                          models,
+                                          groups_col,
+                                          grouping_keys,
+                                          id_col = NULL,
+                                          id_method = NULL,
+                                          fold_info_cols = NULL,
+                                          fold_and_fold_col = NULL,
+                                          model_specifics,
+                                          metrics = list(),
+                                          info_cols = list(),
+                                          include_predictions = TRUE,
+                                          include_fold_columns = TRUE,
+                                          num_classes = NULL,
+                                          na.rm = NULL,
+                                          parallel = FALSE) {
+  if (type != "gaussian") {
+    if (is.null(num_classes)) {
       num_classes <- length(unique(data[[targets_col]]))
     }
   }
 
-  if (is.null(fold_info_cols)){
-
+  if (is.null(fold_info_cols)) {
     tmp_fold_cols_obj <- create_tmp_fold_cols(data)
     data <- tmp_fold_cols_obj[["data"]]
     fold_info_cols <- tmp_fold_cols_obj[["fold_info_cols"]]
     include_fold_columns <- FALSE
-  } else{
+  } else {
     include_fold_columns <- include_fold_columns
   }
 
@@ -782,45 +832,47 @@ run_internal_evaluate_wrapper <- function(
   unique_group_levels <- unique(data[[groups_col]])
 
   evaluations <- plyr::llply(seq_along(unique_group_levels),
-                             .parallel = parallel, function(gr_ind){
+    .parallel = parallel, function(gr_ind) {
+      gr <- unique_group_levels[[gr_ind]]
 
-    gr <- unique_group_levels[[gr_ind]]
-
-    data_for_current_group <- data[data[[groups_col]] == gr ,]
+      data_for_current_group <- data[data[[groups_col]] == gr, ]
 
 
-    # Assign current model
-    if (is.null(models)){
-      model <- NULL
-    } else {
-      model <- list(models[[gr_ind]])
+      # Assign current model
+      if (is.null(models)) {
+        model <- NULL
+      } else {
+        model <- list(models[[gr_ind]])
+      }
+
+      internal_evaluate(
+        data = data_for_current_group,
+        type = type,
+        predictions_col = predictions_col,
+        targets_col = targets_col,
+        models = model,
+        id_col = id_col,
+        id_method = id_method,
+        fold_info_cols = fold_info_cols,
+        fold_and_fold_col = fold_and_fold_col,
+        grouping_key_names = colnames(grouping_keys),
+        model_specifics = model_specifics,
+        metrics = metrics,
+        info_cols = info_cols,
+        include_fold_columns = include_fold_columns,
+        include_predictions = include_predictions,
+        na.rm = na.rm
+      )
     }
-
-    internal_evaluate(data = data_for_current_group,
-                      type = type,
-                      predictions_col = predictions_col,
-                      targets_col = targets_col,
-                      models = model,
-                      id_col = id_col,
-                      id_method = id_method,
-                      fold_info_cols = fold_info_cols,
-                      fold_and_fold_col = fold_and_fold_col,
-                      grouping_key_names = colnames(grouping_keys),
-                      model_specifics = model_specifics,
-                      metrics = metrics,
-                      info_cols = info_cols,
-                      include_fold_columns = include_fold_columns,
-                      include_predictions = include_predictions,
-                      na.rm = na.rm)
-  }) %>%
+  ) %>%
     dplyr::bind_rows() %>%
     tibble::as_tibble()
 
   # Add group key to class level results
-  if (type == "multinomial"){
-
+  if (type == "multinomial") {
     grouping_keys <- repeat_data_frame_if(grouping_keys, 2,
-                                          condition = na.rm == "both")
+      condition = na.rm == "both"
+    )
 
     # Extract all the class level results tibbles
     # Remove the Results column
@@ -835,7 +887,7 @@ run_internal_evaluate_wrapper <- function(
     evaluations[[".__grouping__"]] <- as.character(seq_len(nrow(evaluations)))
     class_level_results <- grouping_keys %>%
       # TODO This part might not work with na.rm = "both"
-      dplyr::right_join(class_level_results, by=".__grouping__")
+      dplyr::right_join(class_level_results, by = ".__grouping__")
 
     # Nest class level results
     class_level_results <- class_level_results %>%
@@ -843,15 +895,15 @@ run_internal_evaluate_wrapper <- function(
       dplyr::group_nest(keep = TRUE) %>%
       # Remove ".__grouping__" again
       dplyr::mutate(data = purrr::map(.data$data,
-                                      .f = ~ .x %>%
-                                        base_deselect(cols = ".__grouping__"))) %>%
+        .f = ~ .x %>%
+          base_deselect(cols = ".__grouping__")
+      )) %>%
       base_rename(before = "data", after = "Class Level Results") %>%
       base_select(c(".__grouping__", "Class Level Results"))
 
     evaluations <- evaluations %>%
-      dplyr::left_join(class_level_results, by=".__grouping__") %>%
+      dplyr::left_join(class_level_results, by = ".__grouping__") %>%
       base_deselect(".__grouping__")
-
   }
 
   # Add grouping keys
@@ -861,11 +913,11 @@ run_internal_evaluate_wrapper <- function(
 
   # If na.rm != "both" and it contains the NAs_removed column
   if ((!is.character(na.rm) || na.rm != "both") &&
-      "NAs_removed" %in% names(results))
+    "NAs_removed" %in% names(results)) {
     results[["NAs_removed"]] <- NULL
+  }
 
   return(results)
-
 }
 
 internal_evaluate <- function(data,
@@ -873,9 +925,11 @@ internal_evaluate <- function(data,
                               predictions_col = "prediction",
                               targets_col = "target",
                               model_was_null_col = NULL,
-                              fold_info_cols = list(rel_fold = "rel_fold",
-                                                    abs_fold = "abs_fold",
-                                                    fold_column = "fold_column"),
+                              fold_info_cols = list(
+                                rel_fold = "rel_fold",
+                                abs_fold = "abs_fold",
+                                fold_column = "fold_column"
+                              ),
                               fold_and_fold_col = NULL,
                               grouping_key_names = NULL,
                               models = NULL,
@@ -887,19 +941,21 @@ internal_evaluate <- function(data,
                               include_fold_columns = TRUE,
                               include_predictions = TRUE,
                               na.rm = NULL) {
-
-  stopifnot(type %in% c("gaussian", "binomial", "multinomial")) #, "multiclass", "multilabel"))
+  stopifnot(type %in% c("gaussian", "binomial", "multinomial")) # , "multiclass", "multilabel"))
 
   # Fill metrics with default values for non-specified metrics
   # and get the names of the metrics
-  metrics <- set_metrics(family = type, metrics_list = metrics,
-                         include_model_object_metrics = !is.null(models))
+  metrics <- set_metrics(
+    family = type, metrics_list = metrics,
+    include_model_object_metrics = !is.null(models)
+  )
   info_cols <- set_info_cols(family = type, info_cols_list = info_cols)
-  if (!is.null(na.rm) && na.rm == "both")
+  if (!is.null(na.rm) && na.rm == "both") {
     info_cols <- c(info_cols, "NAs_removed")
+  }
 
   # Set default na.rm if NULL
-  if (is.null(na.rm)){
+  if (is.null(na.rm)) {
     na.rm <- dplyr::case_when(
       type == "gaussian" ~ TRUE,
       type == "binomial" ~ FALSE,
@@ -912,13 +968,13 @@ internal_evaluate <- function(data,
 
   # Unless specified otherwise, we don't care about non-converged models etc. here
   # so we tell the eval that the models were not NULL. (TODO Would we even have predictions otherwise?)
-  if (is.null(model_was_null_col)){
+  if (is.null(model_was_null_col)) {
     model_was_null_col <- "model_was_null"
     data[[model_was_null_col]] <- FALSE
   }
 
   # Extract grouping key info
-  if (!is.null(grouping_key_names)){
+  if (!is.null(grouping_key_names)) {
     group_info <- data %>%
       base_select(grouping_key_names)
   } else {
@@ -945,17 +1001,18 @@ internal_evaluate <- function(data,
     na.rm = na.rm
   )
 
-  if (!is.null(models)){
-    model_evaluations <- plyr::ldply(seq_len(length(models)), function(i){
-      internal_evaluate_model(model = models[[i]],
-                              train_data = NULL,
-                              test_data = NULL,
-                              type = type,
-                              fold_info = NULL,
-                              fold_info_cols = fold_info_cols,
-                              model_specifics = model_specifics,
-                              metrics = metrics,
-                              include_fold_columns = include_fold_columns
+  if (!is.null(models)) {
+    model_evaluations <- plyr::ldply(seq_len(length(models)), function(i) {
+      internal_evaluate_model(
+        model = models[[i]],
+        train_data = NULL,
+        test_data = NULL,
+        type = type,
+        fold_info = NULL,
+        fold_info_cols = fold_info_cols,
+        model_specifics = model_specifics,
+        metrics = metrics,
+        include_fold_columns = include_fold_columns
       )
     })
 
@@ -965,7 +1022,7 @@ internal_evaluate <- function(data,
   }
 
   # Extract ROC from Results col
-  if (type == "multinomial"){
+  if (type == "multinomial") {
     ROCs <- output[["Results"]] %c% "ROC" %>%
       unlist(recursive = FALSE) %>%
       unlist(recursive = FALSE) # TODO Remove for repeated cv?
@@ -987,7 +1044,7 @@ check_args_evaluate <- function(data,
                                 positive,
                                 parallel,
                                 include_predictions,
-                                metrics){
+                                metrics) {
 
   # TODO Add more checks !!
 
@@ -996,8 +1053,8 @@ check_args_evaluate <- function(data,
   if (!is.character(target_col)) {
     stop("'target_col' must be name of the dependent column in 'data'.")
   }
-  if (target_col %ni% colnames(data)){
-    stop(paste0("the 'target_col', ",target_col,", was not found in 'data'"))
+  if (target_col %ni% colnames(data)) {
+    stop(paste0("the 'target_col', ", target_col, ", was not found in 'data'"))
   }
 
   # prediction_cols
@@ -1009,7 +1066,7 @@ check_args_evaluate <- function(data,
   }
 
   # id_col
-  if (!is.null(id_col)){
+  if (!is.null(id_col)) {
     if (!is.character(id_col)) {
       stop("'id_col' must be either a column name or NULL.")
     }
@@ -1022,64 +1079,66 @@ check_args_evaluate <- function(data,
   }
 
   # softmax
-  if (!is_logical_scalar_not_na(apply_softmax)){
+  if (!is_logical_scalar_not_na(apply_softmax)) {
     stop("'apply_softmax' must be logical scalar (TRUE/FALSE).")
   }
 
   # parallel
-  if (!is_logical_scalar_not_na(parallel)){
+  if (!is_logical_scalar_not_na(parallel)) {
     stop("'parallel' must be a logical scalar (TRUE/FALSE).")
   }
 
   # parallel
-  if (!is_logical_scalar_not_na(include_predictions)){
+  if (!is_logical_scalar_not_na(include_predictions)) {
     stop("'include_predictions' must be a logical scalar (TRUE/FALSE).")
   }
 
   # metrics
-  if (!(is.list(metrics) || metrics == "all")){
+  if (!(is.list(metrics) || metrics == "all")) {
     stop("'metrics' must be either a list or the string 'all'.")
   }
 
-  if (is.list(metrics) && length(metrics)>0){
-    if (!rlang::is_named(metrics)){
+  if (is.list(metrics) && length(metrics) > 0) {
+    if (!rlang::is_named(metrics)) {
       stop("when 'metrics' is a non-empty list, it must be a named list.")
     }
   }
 
   # models
-  if (!is.null(models)){
-    if (!is.list(models)){
+  if (!is.null(models)) {
+    if (!is.list(models)) {
       stop("'models' must be provided as an unnamed list with fitted model object(s) or be set to NULL.")
     }
-    if (length(models) == 0){
+    if (length(models) == 0) {
       stop(paste0(
         "'models' must be either NULL or an unnamed list with fitted model object(s). ",
-        "'models' had length 0."))
+        "'models' had length 0."
+      ))
     }
-    if (!is.null(names(models))){
+    if (!is.null(names(models))) {
       if (length(intersect(names(models), c(
         "coefficients", "residuals", "effects", "call",
         "terms", "formula", "contrasts", "converged", "xlevels"
-      ))) > 0){
-        stop(paste0("'models' must be provided as an unnamed list with fitted model object(s). ",
-                    "Did you pass the model object without putting it in a list?"))
+      ))) > 0) {
+        stop(paste0(
+          "'models' must be provided as an unnamed list with fitted model object(s). ",
+          "Did you pass the model object without putting it in a list?"
+        ))
       }
       stop("'models' must be provided as an *unnamed* list with fitted model objects.")
     }
   }
 
-  if (type != "gaussian" && length(models) > 0){
+  if (type != "gaussian" && length(models) > 0) {
     stop("Currently, 'models' can only be passed when 'type' is 'gaussian'.")
   }
 
 
   # TODO add for rest of args
-
 }
 
 
-create_tmp_fold_cols <- function(data){
+create_tmp_fold_cols <- function(data) {
   # Create fold columns
   local_tmp_fold_col_var <- create_tmp_name(data, "fold_column")
   local_tmp_rel_fold_col_var <- create_tmp_name(data, "rel_fold")
@@ -1089,10 +1148,14 @@ create_tmp_fold_cols <- function(data){
   data[[local_tmp_rel_fold_col_var]] <- as.character(1)
   data[[local_tmp_abs_fold_col_var]] <- as.character(1)
 
-  fold_info_cols <- list(rel_fold = local_tmp_rel_fold_col_var,
-                         abs_fold = local_tmp_abs_fold_col_var,
-                         fold_column = local_tmp_fold_col_var)
+  fold_info_cols <- list(
+    rel_fold = local_tmp_rel_fold_col_var,
+    abs_fold = local_tmp_abs_fold_col_var,
+    fold_column = local_tmp_fold_col_var
+  )
 
-  list("data" = data,
-       "fold_info_cols" = fold_info_cols)
+  list(
+    "data" = data,
+    "fold_info_cols" = fold_info_cols
+  )
 }

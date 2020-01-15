@@ -7,8 +7,7 @@ context("parallelization")
 # Uncomment to run and comment before CRAN submission
 
 
-test_that("parallelization works with cross_validate()",{
-
+test_that("parallelization works with cross_validate()", {
   testthat::skip(message = "Skipping parallel tests")
 
   # library(doParallel)
@@ -50,12 +49,10 @@ test_that("parallelization works with cross_validate()",{
   #   expect_equal(cv_par$`Balanced Accuracy`, cv_not_par$`Balanced Accuracy`)
   #   expect_equal(cv_par$AUC, cv_not_par$AUC)
   #   expect_equal(cv_par$Fixed, cv_not_par$Fixed)
-
 })
 
 
-test_that("parallelization works with validate()",{
-
+test_that("parallelization works with validate()", {
   testthat::skip(message = "Skipping parallel tests")
 
   # library(doParallel)
@@ -97,10 +94,9 @@ test_that("parallelization works with validate()",{
   #   expect_equal(v_par$AUC, v_not_par$AUC)
   #   expect_equal(v_par$Fixed, v_not_par$Fixed)
   #
-
 })
 
-test_that("parallelization works with binomial baseline()",{
+test_that("parallelization works with binomial baseline()", {
 
   # testthat::skip(message = "Skipping parallel tests")
   #
@@ -139,11 +135,9 @@ test_that("parallelization works with binomial baseline()",{
   #
   # expect_equal(b_par$summarized_metrics$`Balanced Accuracy`, b_not_par$summarized_metrics$`Balanced Accuracy`)
   # expect_equal(b_par$summarized_metrics$AUC, b_not_par$summarized_metrics$AUC)
-
 })
 
-test_that("parallelization works with gaussian baseline()",{
-
+test_that("parallelization works with gaussian baseline()", {
   testthat::skip(message = "Skipping parallel tests")
 
   # library(doParallel)
@@ -188,5 +182,4 @@ test_that("parallelization works with gaussian baseline()",{
   # expect_equal(b_par$summarized_metrics$MAE,b_not_par$summarized_metrics$MAE)
   # expect_equal(b_par$summarized_metrics$RMSE,b_not_par$summarized_metrics$RMSE)
   # expect_equal(b_par$summarized_metrics$`Training Rows`, b_not_par$summarized_metrics$`Training Rows`)
-
 })

@@ -16,10 +16,30 @@
 #'  The \strong{INFs} row is a count of \code{Inf}s in the column.
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
-summarize_metrics <- function(data, cols = NULL, na.rm = TRUE, inf.rm = TRUE){
+summarize_metrics <- function(data, cols = NULL, na.rm = TRUE, inf.rm = TRUE) {
+
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_data_frame(
+    x = data,
+    min.rows = 1,
+    min.cols = 1,
+    col.names = "named",
+    add = assert_collection
+  )
+  checkmate::assert_character(
+    x = cols, null.ok = TRUE,
+    min.len = 1,
+    any.missing = FALSE,
+    add = assert_collection
+  )
+  checkmate::assert_flag(x = na.rm, add = assert_collection)
+  checkmate::assert_flag(x = inf.rm, add = assert_collection)
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
 
   # Subset the chosen columns
-  if (!is.null(cols)){
+  if (!is.null(cols)) {
     data <- data %>%
       base_select(cols = cols)
   }
@@ -35,7 +55,7 @@ summarize_metrics <- function(data, cols = NULL, na.rm = TRUE, inf.rm = TRUE){
   rows_with_infs <- inf_replacement[["rows_with_infs"]]
 
   # TODO Test this - what is the effect when there are actual Infs in data?
-  if (isTRUE(inf.rm)){
+  if (isTRUE(inf.rm)) {
     data <- data_no_infs
   }
 
@@ -50,43 +70,48 @@ summarize_metrics <- function(data, cols = NULL, na.rm = TRUE, inf.rm = TRUE){
     "IQR" = IQR,
     "Max" = max,
     "Min" = min,
-    "NAs" = function(x, na.rm){sum(is.na(x))}
+    "NAs" = function(x, na.rm) {
+      sum(is.na(x))
+    }
   )
 
   summarized_metrics <- dplyr::bind_rows(
-    plyr::ldply(names(descriptors), function(descr){
+    plyr::ldply(names(descriptors), function(descr) {
       d_fn <- descriptors[[descr]]
       data %>%
-        dplyr::summarize_all(.funs = list( ~ d_fn(., na.rm = na.rm))) %>%
+        dplyr::summarize_all(.funs = list(~ d_fn(., na.rm = na.rm))) %>%
         dplyr::mutate(Measure = descr)
     }),
     rows_with_infs %>%
-      dplyr::summarize_all(.funs = list(~sum(is.infinite(.)))) %>%
+      dplyr::summarize_all(.funs = list(~ sum(is.infinite(.)))) %>%
       dplyr::mutate(Measure = "INFs")
   ) %>%
     position_first(col = "Measure")
 
   # Remove the INFs from the NAs count
-  if(nrow(rows_with_infs) > 0){
+  if (nrow(rows_with_infs) > 0) {
     summarized_metrics <- subtract_inf_count_from_na_count(summarized_metrics)
   }
 
   summarized_metrics
 }
 
-replace_inf_with_na <- function(metric_cols){
+replace_inf_with_na <- function(metric_cols) {
 
   # Get rows with INFs
-  metric_cols_with_infs <- metric_cols[is.infinite(rowSums(metric_cols)),]
+  metric_cols_with_infs <- metric_cols[is.infinite(rowSums(metric_cols)), ]
 
   # Replace infs with NA
-  if(nrow(metric_cols_with_infs) > 0){
+  if (nrow(metric_cols_with_infs) > 0) {
     metric_cols <- do.call(
       data.frame,
       c(
-        lapply(metric_cols,
-               function(x)
-                 replace(x, is.infinite(x), NA)),
+        lapply(
+          metric_cols,
+          function(x) {
+            replace(x, is.infinite(x), NA)
+          }
+        ),
         check.names = FALSE,
         fix.empty.names = FALSE,
         stringsAsFactors = FALSE
@@ -94,8 +119,8 @@ replace_inf_with_na <- function(metric_cols){
     )
   }
 
-  list("metric_cols" = metric_cols,
-       "rows_with_infs" = metric_cols_with_infs)
+  list(
+    "metric_cols" = metric_cols,
+    "rows_with_infs" = metric_cols_with_infs
+  )
 }
-
-

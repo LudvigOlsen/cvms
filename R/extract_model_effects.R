@@ -44,9 +44,8 @@ extract_model_effects <- function(model_list) {
       # From fixed we remove the last "+"
       dplyr::mutate(
         Fixed = gsub("[+]$", "", .data$Fixed),
-        Random = ifelse(!is.na(.data$Random), paste0("(",.data$Random), .data$Random)
-        #Random = gsub('\\(|\\)', '', .data$Random)
-
+        Random = ifelse(!is.na(.data$Random), paste0("(", .data$Random), .data$Random)
+        # Random = gsub('\\(|\\)', '', .data$Random)
       )
   ))
 
@@ -54,9 +53,7 @@ extract_model_effects <- function(model_list) {
   # drop column random
   if (all(is.na(mixed_effects$Random))) {
     mixed_effects$Random <- NULL
-
   }
 
   return(mixed_effects)
-
 }

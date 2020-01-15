@@ -1,4 +1,9 @@
 
+
+#   __________________ #< e5efa5aa075de36169902b4bf6e14ce8 ># __________________
+#   Plot a confusion matrix                                                 ####
+
+
 #' @title Plot a confusion matrix
 #' @description
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
@@ -90,8 +95,8 @@
 #' # Two classes
 #'
 #' # Create targets and predictions
-#' targets <- c(0,1,0,1,0,1,0,1,0,1,0,1)
-#' predictions <- c(1,1,0,0,0,1,1,1,0,1,0,0)
+#' targets <- c(0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1)
+#' predictions <- c(1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0)
 #'
 #' # Create confusion matrix with default metrics
 #' cm <- confusion_matrix(targets, predictions)
@@ -102,8 +107,8 @@
 #' # Three (or more) classes
 #'
 #' # Create targets and predictions
-#' targets <- c(0,1,2,1,0,1,2,1,0,1,2,1,0)
-#' predictions <- c(2,1,0,2,0,1,1,2,0,1,2,0,2)
+#' targets <- c(0, 1, 2, 1, 0, 1, 2, 1, 0, 1, 2, 1, 0)
+#' predictions <- c(2, 1, 0, 2, 0, 1, 1, 2, 0, 1, 2, 0, 2)
 #'
 #' # Create confusion matrix with default metrics
 #' cm <- confusion_matrix(targets, predictions)
@@ -114,14 +119,16 @@
 #' # Add prefix to row and column percentages
 #'
 #' plot_confusion_matrix(cm[["Confusion Matrix"]][[1]],
-#'                       font_row_percentages = font(prefix = "\U2195 "),
-#'                       font_col_percentages = font(prefix = "\U2195 "))
+#'   font_row_percentages = font(prefix = "\U2195 "),
+#'   font_col_percentages = font(prefix = "\U2195 ")
+#' )
 #'
 #' # Counts only
 #' plot_confusion_matrix(cm[["Confusion Matrix"]][[1]],
-#'                       add_normalized = FALSE,
-#'                       add_row_percentages = FALSE,
-#'                       add_col_percentages = FALSE)
+#'   add_normalized = FALSE,
+#'   add_row_percentages = FALSE,
+#'   add_col_percentages = FALSE
+#' )
 plot_confusion_matrix <- function(conf_matrix,
                                   targets_col = "Target",
                                   predictions_col = "Prediction",
@@ -143,27 +150,81 @@ plot_confusion_matrix <- function(conf_matrix,
                                   tile_border_color = NA,
                                   tile_border_size = 0.1,
                                   tile_border_linetype = "solid",
-                                  darkness = 0.8){
+                                  darkness = 0.8) {
 
-  #### Check inputs ####
-
-  if (darkness<0 || darkness > 1){
-    stop("'darkness' must be between 0 and 1")
-  }
-
-  stopifnot(
-    is.character(targets_col), length(targets_col) == 1,
-    is.character(predictions_col), length(predictions_col) == 1,
-    is.character(counts_col), length(counts_col) == 1,
-    is_logical_scalar_not_na(add_counts),
-    is_logical_scalar_not_na(add_normalized),
-    is_logical_scalar_not_na(add_row_percentages),
-    is_logical_scalar_not_na(add_col_percentages),
-    is_logical_scalar_not_na(counts_on_top),
-    is_logical_scalar_not_na(place_x_axis_above),
-    is_logical_scalar_not_na(rotate_y_text),
-    is_wholenumber_(digits)
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_data_frame(
+    x = conf_matrix,
+    any.missing = FALSE,
+    min.rows = 4,
+    min.cols = 3,
+    col.names = "named",
+    add = assert_collection
   )
+  # String
+  checkmate::assert_string(x = targets_col, min.chars = 1, add = assert_collection)
+  checkmate::assert_string(x = predictions_col, min.chars = 1, add = assert_collection)
+  checkmate::assert_string(x = counts_col, min.chars = 1, add = assert_collection)
+  checkmate::assert_string(x = tile_border_linetype, na.ok = TRUE, add = assert_collection)
+  checkmate::assert_string(x = tile_border_color, na.ok = TRUE, add = assert_collection)
+  checkmate::assert_string(x = palette, na.ok = TRUE, null.ok = TRUE, add = assert_collection)
+
+  # Flag
+  checkmate::assert_flag(x = add_counts, add = assert_collection)
+  checkmate::assert_flag(x = add_normalized, add = assert_collection)
+  checkmate::assert_flag(x = add_row_percentages, add = assert_collection)
+  checkmate::assert_flag(x = add_col_percentages, add = assert_collection)
+  checkmate::assert_flag(x = counts_on_top, add = assert_collection)
+  checkmate::assert_flag(x = place_x_axis_above, add = assert_collection)
+  checkmate::assert_flag(x = rotate_y_text, add = assert_collection)
+
+  # Function
+  checkmate::assert_function(x = theme_fn, add = assert_collection)
+
+  # Number
+  checkmate::assert_number(x = darkness, lower = 0, upper = 1, add = assert_collection)
+  checkmate::assert_number(x = tile_border_size, lower = 0, add = assert_collection)
+  checkmate::assert_count(x = digits, add = assert_collection)
+
+  # List
+  checkmate::assert_list(x = font_counts, names = "named", add = assert_collection)
+  checkmate::assert_list(x = font_normalized, names = "named", add = assert_collection)
+  checkmate::assert_list(x = font_row_percentages, names = "named", add = assert_collection)
+  checkmate::assert_list(x = font_col_percentages, names = "named", add = assert_collection)
+
+  checkmate::reportAssertions(assert_collection)
+
+  # Names
+  checkmate::assert_names(
+    x = colnames(conf_matrix),
+    must.include = c(targets_col, predictions_col, counts_col),
+    add = assert_collection
+  )
+  available_font_settings <- names(font())
+  checkmate::assert_names(
+    x = names(font_counts),
+    subset.of = available_font_settings,
+    add = assert_collection
+  )
+  checkmate::assert_names(
+    x = names(font_normalized),
+    subset.of = available_font_settings,
+    add = assert_collection
+  )
+  checkmate::assert_names(
+    x = names(font_row_percentages),
+    subset.of = available_font_settings,
+    add = assert_collection
+  )
+  checkmate::assert_names(
+    x = names(font_col_percentages),
+    subset.of = available_font_settings,
+    add = assert_collection
+  )
+
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
 
   #### Update font settings ####
 
@@ -176,22 +237,27 @@ plot_confusion_matrix <- function(conf_matrix,
     "size" = ifelse(isTRUE(big_counts), font_top_size, font_bottom_size), "digits" = -1
   ), initial_vals = list(
     "nudge_y" = function(x) {
-      x + dplyr::case_when(!isTRUE(counts_on_top) &&
-                             isTRUE(add_normalized) ~ -0.16,
-                           TRUE ~ 0)
+      x + dplyr::case_when(
+        !isTRUE(counts_on_top) &&
+          isTRUE(add_normalized) ~ -0.16,
+        TRUE ~ 0
+      )
     }
-  )
-  )
+  ))
 
   # Font for normalized counts
-  font_normalized <- update_font_setting(font_normalized, defaults = list(
-    "size" = ifelse(!isTRUE(big_counts), font_top_size, font_bottom_size),
-    "suffix" = "%", "digits" = digits),
+  font_normalized <- update_font_setting(font_normalized,
+    defaults = list(
+      "size" = ifelse(!isTRUE(big_counts), font_top_size, font_bottom_size),
+      "suffix" = "%", "digits" = digits
+    ),
     initial_vals = list(
       "nudge_y" = function(x) {
-        x + dplyr::case_when(isTRUE(counts_on_top) &&
-                               isTRUE(add_counts) ~ -0.16,
-                             TRUE ~ 0)
+        x + dplyr::case_when(
+          isTRUE(counts_on_top) &&
+            isTRUE(add_counts) ~ -0.16,
+          TRUE ~ 0
+        )
       }
     )
   )
@@ -202,8 +268,12 @@ plot_confusion_matrix <- function(conf_matrix,
     "suffix" = "%", "fontface" = "italic",
     "digits" = digits, "alpha" = 0.85
   ), initial_vals = list(
-    "nudge_x" = function(x){x + 0.43},
-    "angle" = function(x){x + 90}
+    "nudge_x" = function(x) {
+      x + 0.43
+    },
+    "angle" = function(x) {
+      x + 90
+    }
   ))
 
   # Font for column percentages
@@ -212,15 +282,19 @@ plot_confusion_matrix <- function(conf_matrix,
     "suffix" = "%", "fontface" = "italic",
     "digits" = digits, "alpha" = 0.85
   ), initial_vals = list(
-    "nudge_y" = function(x){x - 0.43}
+    "nudge_y" = function(x) {
+      x - 0.43
+    }
   ))
 
   #### Prepare dataset ####
 
   # Extract needed columns
-  cm <- tibble::tibble("Target" = factor(as.character(conf_matrix[[targets_col]])),
-                       "Prediction" = factor(as.character(conf_matrix[[predictions_col]])),
-                       "N" = as.integer(conf_matrix[[counts_col]]))
+  cm <- tibble::tibble(
+    "Target" = factor(as.character(conf_matrix[[targets_col]])),
+    "Prediction" = factor(as.character(conf_matrix[[predictions_col]])),
+    "N" = as.integer(conf_matrix[[counts_col]])
+  )
   cm[["Normalized"]] <- 100 * (cm[["N"]] / sum(cm[["N"]]))
 
   # Prepare text versions of the numerics
@@ -228,27 +302,33 @@ plot_confusion_matrix <- function(conf_matrix,
   cm[["Normalized_text"]] <- preprocess_numeric(cm[["Normalized"]], font_normalized)
 
   # Calculate column percentages
-  if (isTRUE(add_col_percentages)){
+  if (isTRUE(add_col_percentages)) {
     column_sums <- cm %>%
       dplyr::group_by(.data$Target) %>%
       dplyr::summarize(Class_N = sum(.data$N))
     cm <- cm %>%
       dplyr::left_join(column_sums, by = "Target") %>%
-      dplyr::mutate(Class_Percentage = 100 * (.data$N / .data$Class_N),
-                    Class_Percentage_text = preprocess_numeric(
-                      .data$Class_Percentage, font_col_percentages))
+      dplyr::mutate(
+        Class_Percentage = 100 * (.data$N / .data$Class_N),
+        Class_Percentage_text = preprocess_numeric(
+          .data$Class_Percentage, font_col_percentages
+        )
+      )
   }
 
   # Calculate row percentages
-  if (isTRUE(add_row_percentages)){
+  if (isTRUE(add_row_percentages)) {
     row_sums <- cm %>%
       dplyr::group_by(.data$Prediction) %>%
       dplyr::summarize(Prediction_N = sum(.data$N))
     cm <- cm %>%
       dplyr::left_join(row_sums, by = "Prediction") %>%
-      dplyr::mutate(Prediction_Percentage = 100 * (.data$N / .data$Prediction_N),
-                    Prediction_Percentage_text = preprocess_numeric(
-                      .data$Prediction_Percentage, font_row_percentages))
+      dplyr::mutate(
+        Prediction_Percentage = 100 * (.data$N / .data$Prediction_N),
+        Prediction_Percentage_text = preprocess_numeric(
+          .data$Prediction_Percentage, font_row_percentages
+        )
+      )
   }
 
   #### Prepare for plotting ####
@@ -266,110 +346,122 @@ plot_confusion_matrix <- function(conf_matrix,
 
   # Create plot
   pl <- cm %>%
-    ggplot2::ggplot(ggplot2::aes(x = .data$Target,
-                                 y = .data$Prediction,
-                                 fill = .data$N)) +
-    ggplot2::labs(x = "Target",
-                  y = "Prediction",
-                  fill = "N",
-                  label = "N") +
-    ggplot2::geom_tile(colour = tile_border_color,
-                       size = tile_border_size,
-                       linetype = tile_border_linetype) +
+    ggplot2::ggplot(ggplot2::aes(
+      x = .data$Target,
+      y = .data$Prediction,
+      fill = .data$N
+    )) +
+    ggplot2::labs(
+      x = "Target",
+      y = "Prediction",
+      fill = "N",
+      label = "N"
+    ) +
+    ggplot2::geom_tile(
+      colour = tile_border_color,
+      size = tile_border_size,
+      linetype = tile_border_linetype
+    ) +
     theme_fn() +
     ggplot2::coord_equal() +
     # Add fill colors that differ by N
-    ggplot2::scale_fill_distiller(palette = palette,
-                                  direction = 1,
-                                  limits = color_limits) +
+    ggplot2::scale_fill_distiller(
+      palette = palette,
+      direction = 1,
+      limits = color_limits
+    ) +
     # Remove the guide
     ggplot2::guides(fill = F) +
     # Rotate y-axis text
     ggplot2::theme(axis.text.y = ggplot2::element_text(
       angle = ifelse(isTRUE(rotate_y_text), 90, 0),
       hjust = ifelse(isTRUE(rotate_y_text), 0.5, 1),
-      vjust = ifelse(isTRUE(rotate_y_text), 0.5, 0)))
+      vjust = ifelse(isTRUE(rotate_y_text), 0.5, 0)
+    ))
 
 
   ##### Add numbers to plot ####
 
-  if (isTRUE(add_counts)){
+  if (isTRUE(add_counts)) {
     pl <- pl +
       # Add count labels to middle of tiles
       ggplot2::geom_text(ggplot2::aes(label = .data$N_text),
-                         size = font_counts[["size"]],
-                         color = font_counts[["color"]],
-                         alpha = font_counts[["alpha"]],
-                         nudge_x = font_counts[["nudge_x"]],
-                         nudge_y = font_counts[["nudge_y"]],
-                         angle = font_counts[["angle"]],
-                         family = font_counts[["family"]],
-                         fontface = font_counts[["fontface"]],
-                         hjust = font_counts[["hjust"]],
-                         vjust = font_counts[["vjust"]],
-                         lineheight = font_counts[["lineheight"]]
+        size = font_counts[["size"]],
+        color = font_counts[["color"]],
+        alpha = font_counts[["alpha"]],
+        nudge_x = font_counts[["nudge_x"]],
+        nudge_y = font_counts[["nudge_y"]],
+        angle = font_counts[["angle"]],
+        family = font_counts[["family"]],
+        fontface = font_counts[["fontface"]],
+        hjust = font_counts[["hjust"]],
+        vjust = font_counts[["vjust"]],
+        lineheight = font_counts[["lineheight"]]
       )
   }
 
-  if (isTRUE(add_normalized)){
+  if (isTRUE(add_normalized)) {
     pl <- pl +
       # Add count and percentages labels to middle of tiles
       ggplot2::geom_text(ggplot2::aes(label = .data$Normalized_text),
-                         size = font_normalized[["size"]],
-                         color = font_normalized[["color"]],
-                         alpha = font_normalized[["alpha"]],
-                         nudge_x = font_normalized[["nudge_x"]],
-                         nudge_y = font_normalized[["nudge_y"]],
-                         angle = font_normalized[["angle"]],
-                         family = font_normalized[["family"]],
-                         fontface = font_normalized[["fontface"]],
-                         hjust = font_normalized[["hjust"]],
-                         vjust = font_normalized[["vjust"]],
-                         lineheight = font_normalized[["lineheight"]]
+        size = font_normalized[["size"]],
+        color = font_normalized[["color"]],
+        alpha = font_normalized[["alpha"]],
+        nudge_x = font_normalized[["nudge_x"]],
+        nudge_y = font_normalized[["nudge_y"]],
+        angle = font_normalized[["angle"]],
+        family = font_normalized[["family"]],
+        fontface = font_normalized[["fontface"]],
+        hjust = font_normalized[["hjust"]],
+        vjust = font_normalized[["vjust"]],
+        lineheight = font_normalized[["lineheight"]]
       )
   }
 
 
   # Place x-axis text on top of the plot
-  if (isTRUE(place_x_axis_above)){
+  if (isTRUE(place_x_axis_above)) {
     pl <- pl +
-      ggplot2::scale_x_discrete(position = "top",
-                                limits = rev(levels(cm$Target)))
+      ggplot2::scale_x_discrete(
+        position = "top",
+        limits = rev(levels(cm$Target))
+      )
   }
 
   # Add row percentages
-  if (isTRUE(add_row_percentages)){
+  if (isTRUE(add_row_percentages)) {
     pl <- pl + ggplot2::geom_text(ggplot2::aes(label = .data$Prediction_Percentage_text),
-                                  size = font_row_percentages[["size"]],
-                                  color = font_row_percentages[["color"]],
-                                  alpha = font_row_percentages[["alpha"]],
-                                  nudge_x = font_row_percentages[["nudge_x"]],
-                                  nudge_y = font_row_percentages[["nudge_y"]],
-                                  angle = font_row_percentages[["angle"]],
-                                  family = font_row_percentages[["family"]],
-                                  fontface = font_row_percentages[["fontface"]],
-                                  hjust = font_row_percentages[["hjust"]],
-                                  vjust = font_row_percentages[["vjust"]],
-                                  lineheight = font_row_percentages[["lineheight"]])
+      size = font_row_percentages[["size"]],
+      color = font_row_percentages[["color"]],
+      alpha = font_row_percentages[["alpha"]],
+      nudge_x = font_row_percentages[["nudge_x"]],
+      nudge_y = font_row_percentages[["nudge_y"]],
+      angle = font_row_percentages[["angle"]],
+      family = font_row_percentages[["family"]],
+      fontface = font_row_percentages[["fontface"]],
+      hjust = font_row_percentages[["hjust"]],
+      vjust = font_row_percentages[["vjust"]],
+      lineheight = font_row_percentages[["lineheight"]]
+    )
   }
 
   # Add column percentages
-  if (isTRUE(add_col_percentages)){
+  if (isTRUE(add_col_percentages)) {
     pl <- pl +
       ggplot2::geom_text(ggplot2::aes(label = .data$Class_Percentage_text),
-                         size = font_col_percentages[["size"]],
-                         color = font_col_percentages[["color"]],
-                         alpha = font_col_percentages[["alpha"]],
-                         nudge_x = font_col_percentages[["nudge_x"]],
-                         nudge_y = font_col_percentages[["nudge_y"]],
-                         angle = font_col_percentages[["angle"]],
-                         family = font_col_percentages[["family"]],
-                         fontface = font_col_percentages[["fontface"]],
-                         hjust = font_col_percentages[["hjust"]],
-                         vjust = font_col_percentages[["vjust"]],
-                         lineheight = font_col_percentages[["lineheight"]])
+        size = font_col_percentages[["size"]],
+        color = font_col_percentages[["color"]],
+        alpha = font_col_percentages[["alpha"]],
+        nudge_x = font_col_percentages[["nudge_x"]],
+        nudge_y = font_col_percentages[["nudge_y"]],
+        angle = font_col_percentages[["angle"]],
+        family = font_col_percentages[["family"]],
+        fontface = font_col_percentages[["fontface"]],
+        hjust = font_col_percentages[["hjust"]],
+        vjust = font_col_percentages[["vjust"]],
+        lineheight = font_col_percentages[["lineheight"]]
+      )
   }
 
   pl
-
 }

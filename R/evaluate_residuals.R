@@ -59,8 +59,7 @@ evaluate_residuals <- function(data,
                                predictions_col,
                                targets_col,
                                metrics = list()) {
-
-  if (checkmate::test_string(x = metrics, pattern = "^all$")){
+  if (checkmate::test_string(x = metrics, pattern = "^all$")) {
     metrics <- list("all" = TRUE)
   }
 
@@ -70,9 +69,11 @@ evaluate_residuals <- function(data,
   checkmate::assert_string(x = predictions_col, add = assert_collection)
   checkmate::assert_string(x = targets_col, add = assert_collection)
   checkmate::reportAssertions(assert_collection)
-  checkmate::assert_names(x = colnames(data),
-                          must.include = c(predictions_col, targets_col),
-                          what = "colnames")
+  checkmate::assert_names(
+    x = colnames(data),
+    must.include = c(predictions_col, targets_col),
+    what = "colnames"
+  )
   checkmate::assert_list(
     x = metrics,
     types = "logical",
@@ -83,8 +84,10 @@ evaluate_residuals <- function(data,
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
 
-  metrics <- set_metrics(family = "gaussian", metrics_list = metrics,
-                         include_model_object_metrics = FALSE)
+  metrics <- set_metrics(
+    family = "gaussian", metrics_list = metrics,
+    include_model_object_metrics = FALSE
+  )
 
   call_evaluate_residuals(
     data = data,
@@ -93,7 +96,6 @@ evaluate_residuals <- function(data,
     metrics = metrics,
     return_nas = FALSE
   )
-
 }
 
 call_evaluate_residuals <- function(data,
@@ -109,7 +111,7 @@ call_evaluate_residuals <- function(data,
   grouping_keys <- dplyr::group_keys(data)
   # Make sure, the grouping_keys and the dataset are in the same order
   # As we otherwise risk adding them in the wrong order later
-  data <- dplyr::arrange(data, !!! rlang::syms(colnames(grouping_keys)))
+  data <- dplyr::arrange(data, !!!rlang::syms(colnames(grouping_keys)))
   # Get group indices
   grouping_factor <- dplyr::group_indices(data)
 
@@ -119,19 +121,19 @@ call_evaluate_residuals <- function(data,
     dplyr::summarize(m = list(residual_metrics(
       !!as.name(predictions_col),
       !!as.name(targets_col),
-      return_nas = return_nas))) %>%
+      return_nas = return_nas
+    ))) %>%
     legacy_unnest()
 
   metrics_per_group %>%
-    base_select(c(colnames(grouping_keys),
-                  intersect(metrics, colnames(metrics_per_group))))
-
+    base_select(c(
+      colnames(grouping_keys),
+      intersect(metrics, colnames(metrics_per_group))
+    ))
 }
 
-residual_metrics <- function(predictions, targets, na.rm = TRUE, return_nas = FALSE){
-
-  if (isTRUE(return_nas)){
-
+residual_metrics <- function(predictions, targets, na.rm = TRUE, return_nas = FALSE) {
+  if (isTRUE(return_nas)) {
     rmse <- NA
     mae <- NA
     nrmse <- NA
@@ -146,16 +148,14 @@ residual_metrics <- function(predictions, targets, na.rm = TRUE, return_nas = FA
     mse <- NA
     tae <- NA
     tse <- NA
-
   } else {
-
-    if (!(is.numeric(predictions) || is.integer(predictions))){
+    if (!(is.numeric(predictions) || is.integer(predictions))) {
       stop("'predictions' must be numeric")
     }
-    if (!(is.numeric(targets) || is.integer(targets))){
+    if (!(is.numeric(targets) || is.integer(targets))) {
       stop("'predictions' must be numeric")
     }
-    if (length(predictions) != length(targets)){
+    if (length(predictions) != length(targets)) {
       stop("predictions and targets must have same length")
     }
 
@@ -198,7 +198,7 @@ residual_metrics <- function(predictions, targets, na.rm = TRUE, return_nas = FA
     # root relative squared error
     rrse <- sqrt(rse)
     # absolute percentage error
-    ape <- abs(residuals__/targets)
+    ape <- abs(residuals__ / targets)
     # mean absolute percentage error
     mape <- mean(ape)
 
@@ -215,31 +215,33 @@ residual_metrics <- function(predictions, targets, na.rm = TRUE, return_nas = FA
     # smape <- mean(abs_residuals / (abs(targets) + abs(predictions)))
 
     # log error
-    le <- tryCatch(log(1+predictions) - log(1+targets),
-                    warning = function(w){return(NaN)})
+    le <- tryCatch(log(1 + predictions) - log(1 + targets),
+      warning = function(w) {
+        return(NaN)
+      }
+    )
     # mean squared log error
     msle <- mean(le^2)
     # root mean squared log error
     rmsle <- sqrt(msle)
     # mean absolute log error
     male <- mean(abs(le))
-
   }
 
-  tibble::tibble("RMSE" = rmse,
-                 "MAE" = mae,
-                 "NRMSE" = nrmse,
-                 "RMSEIQR" = rmseiqr,
-                 "RMSESTD" = rmsestd,
-                 "RMSLE" = rmsle,
-                 "MALE" = male,
-                 "RAE" = rae,
-                 "RSE" = rse,
-                 "RRSE" = rrse,
-                 "MAPE" = mape,
-                 "MSE" = mse,
-                 "TAE" = tae,
-                 "TSE" = tse
-                 )
-
+  tibble::tibble(
+    "RMSE" = rmse,
+    "MAE" = mae,
+    "NRMSE" = nrmse,
+    "RMSEIQR" = rmseiqr,
+    "RMSESTD" = rmsestd,
+    "RMSLE" = rmsle,
+    "MALE" = male,
+    "RAE" = rae,
+    "RSE" = rse,
+    "RRSE" = rrse,
+    "MAPE" = mape,
+    "MSE" = mse,
+    "TAE" = tae,
+    "TSE" = tse
+  )
 }

@@ -155,8 +155,8 @@
 #' # Two classes
 #'
 #' # Create targets and predictions
-#' targets <- c(0,1,0,1,0,1,0,1,0,1,0,1)
-#' predictions <- c(1,1,0,0,0,1,1,1,0,1,0,0)
+#' targets <- c(0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1)
+#' predictions <- c(1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0)
 #'
 #' # Create confusion matrix with default metrics
 #' cm <- confusion_matrix(targets, predictions)
@@ -167,8 +167,8 @@
 #' # Three classes
 #'
 #' # Create targets and predictions
-#' targets <- c(0,1,2,1,0,1,2,1,0,1,2,1,0)
-#' predictions <- c(2,1,0,2,0,1,1,2,0,1,2,0,2)
+#' targets <- c(0, 1, 2, 1, 0, 1, 2, 1, 0, 1, 2, 1, 0)
+#' predictions <- c(2, 1, 0, 2, 0, 1, 1, 2, 0, 1, 2, 0, 2)
 #'
 #' # Create confusion matrix with default metrics
 #' cm <- confusion_matrix(targets, predictions)
@@ -180,7 +180,8 @@
 #'
 #' # Create confusion matrix with Weighted Accuracy enabled
 #' cm <- confusion_matrix(targets, predictions,
-#'                        metrics = list("Weighted Accuracy" = TRUE))
+#'   metrics = list("Weighted Accuracy" = TRUE)
+#' )
 #' cm
 confusion_matrix <- function(targets,
                              predictions,
@@ -188,16 +189,16 @@ confusion_matrix <- function(targets,
                              positive = 2,
                              c_levels = NULL,
                              do_one_vs_all = TRUE,
-                             parallel = FALSE){
-
-  call_confusion_matrix(targets = targets,
-                        predictions = predictions,
-                        metrics = metrics,
-                        positive = positive,
-                        c_levels = c_levels,
-                        do_one_vs_all = do_one_vs_all,
-                        parallel = parallel)
-
+                             parallel = FALSE) {
+  call_confusion_matrix(
+    targets = targets,
+    predictions = predictions,
+    metrics = metrics,
+    positive = positive,
+    c_levels = c_levels,
+    do_one_vs_all = do_one_vs_all,
+    parallel = parallel
+  )
 }
 
 call_confusion_matrix <- function(targets,
@@ -209,19 +210,75 @@ call_confusion_matrix <- function(targets,
                                   parallel = FALSE,
                                   fold_col = NULL,
                                   group_info = NULL) {
+  if (checkmate::test_string(x = metrics, pattern = "^all$")) {
+    metrics <- list("all" = TRUE)
+  }
 
-  if (is.null(c_levels)){
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_data_frame(
+    x = group_info, null.ok = TRUE,
+    add = assert_collection
+  )
+  checkmate::assert_flag(x = do_one_vs_all, add = assert_collection)
+  checkmate::assert_flag(x = parallel, add = assert_collection)
+  checkmate::assert_vector(
+    x = targets,
+    any.missing = FALSE, add = assert_collection
+  )
+  checkmate::assert_vector(
+    x = predictions,
+    any.missing = FALSE, add = assert_collection
+  )
+  checkmate::assert_vector(
+    x = fold_col, null.ok = TRUE,
+    any.missing = FALSE, add = assert_collection
+  )
+  checkmate::assert_vector(
+    x = c_levels, null.ok = TRUE,
+    any.missing = FALSE, add = assert_collection
+  )
+  if (is.numeric(positive)) {
+    # TODO make meaningful combined assert (numeric or string)
+    checkmate::assert_choice(
+      x = positive,
+      choices = c(1, 2),
+      add = assert_collection
+    )
+  } else {
+    checkmate::assert_string(
+      x = positive,
+      min.chars = 1,
+      add = assert_collection
+    )
+  }
+
+  # Is checked later - can both be list and character
+  # TODO Would be nicer to check here though!
+  # checkmate::assert_list(
+  #   x = metrics,
+  #   types = "logical",
+  #   any.missing = FALSE,
+  #   names = "named",
+  #   add = assert_collection
+  # )
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
+
+  if (is.null(c_levels)) {
     c_levels <- sort(unique(targets))
   } else {
     c_levels <- sort(c_levels)
   }
 
-  if (length(c_levels) == 2){
+  if (length(c_levels) == 2) {
 
     # If not already a list of metric names
-    if (typeof(metrics) != "character" || (length(metrics) == 1 && metrics == "all")){
-      metrics <- set_metrics(family = "binomial", metrics_list = metrics,
-                             include_model_object_metrics = FALSE)
+    if (typeof(metrics) != "character" || (length(metrics) == 1 && metrics == "all")) {
+      metrics <- set_metrics(
+        family = "binomial", metrics_list = metrics,
+        include_model_object_metrics = FALSE
+      )
     }
 
     cfm <- create_binomial_confusion_matrix(
@@ -229,18 +286,21 @@ call_confusion_matrix <- function(targets,
       predictions = predictions,
       metrics = metrics,
       positive = positive,
-      c_levels = c_levels)
-
+      c_levels = c_levels
+    )
   } else {
-
-    if (positive != 2)
+    if (positive != 2) {
       warning("'positive' is ignored in multiclass confusion matrices.")
+    }
 
     # If not already a list of metric names
-    if (typeof(metrics) != "character" || (length(metrics) == 1 && metrics == "all")){
-      metrics <- set_metrics(family = "multinomial",
-                             metrics_list = metrics,
-                             include_model_object_metrics = FALSE)
+    if (typeof(metrics) != "character" ||
+      (length(metrics) == 1 && metrics == "all")) {
+      metrics <- set_metrics(
+        family = "multinomial",
+        metrics_list = metrics,
+        include_model_object_metrics = FALSE
+      )
     }
 
     cfm <- create_multinomial_confusion_matrix(
@@ -249,28 +309,29 @@ call_confusion_matrix <- function(targets,
       metrics = metrics,
       c_levels = c_levels,
       do_one_vs_all = do_one_vs_all,
-      parallel = parallel)
-
+      parallel = parallel
+    )
   }
 
-  if (!is.null(fold_col)){
+  if (!is.null(fold_col)) {
 
     # Add fold column (Only happens in internal use)
     cfm[["Confusion Matrix"]][[1]] <- cfm[["Confusion Matrix"]][[1]] %>%
-      tibble::add_column("Fold Column" = fold_col,
-                         .before = "Prediction")
+      tibble::add_column(
+        "Fold Column" = fold_col,
+        .before = "Prediction"
+      )
   }
 
-  if (!is.null(group_info)){
+  if (!is.null(group_info)) {
 
-    # Add fold column (Only happens in internal use)
+    # Add group columns
     cfm[["Confusion Matrix"]][[1]] <- group_info %>%
       dplyr::slice(rep(1, nrow(cfm[["Confusion Matrix"]][[1]]))) %>%
       dplyr::bind_cols(cfm[["Confusion Matrix"]][[1]])
   }
 
   cfm
-
 }
 
 
@@ -278,9 +339,8 @@ create_binomial_confusion_matrix <- function(targets,
                                              predictions,
                                              metrics,
                                              positive = 2,
-                                             c_levels = NULL){
-
-  if (is.null(c_levels)){
+                                             c_levels = NULL) {
+  if (is.null(c_levels)) {
     c_levels <- sort(unique(targets))
   } else {
     c_levels <- sort(c_levels)
@@ -288,13 +348,15 @@ create_binomial_confusion_matrix <- function(targets,
 
   conf_mat <- create_confusion_matrix(
     targets = factor(targets, levels = c_levels),
-    predictions = factor(predictions, levels = c_levels))
+    predictions = factor(predictions, levels = c_levels)
+  )
 
   tidy_conf_mat <- tidy_confusion_matrix(conf_mat, c_levels = c_levels)
 
   label_counts <- confusion_label_counts(tidy_conf_mat,
-                                         positive = positive,
-                                         c_levels = c_levels)
+    positive = positive,
+    c_levels = c_levels
+  )
 
   # Get metric functions
   metric_fns <- confusion_matrix_metric_fns()
@@ -305,9 +367,10 @@ create_binomial_confusion_matrix <- function(targets,
   metrics_to_compute <- intersect(names(metric_fns), metrics)
 
   # Compute metrics
-  computed_metrics <- plyr::llply(metrics_to_compute, function(m){
+  computed_metrics <- plyr::llply(metrics_to_compute, function(m) {
     metric_fns[[m]](label_counts)
-  }) %>% dplyr::bind_cols() %>%
+  }) %>%
+    dplyr::bind_cols() %>%
     dplyr::as_tibble()
   colnames(computed_metrics) <- metrics_to_compute
 
@@ -316,7 +379,6 @@ create_binomial_confusion_matrix <- function(targets,
     "Table" = list(conf_mat)
   ) %>%
     dplyr::bind_cols(computed_metrics)
-
 }
 
 
@@ -326,9 +388,8 @@ create_multinomial_confusion_matrix <- function(targets,
                                                 c_levels = NULL,
                                                 do_one_vs_all = TRUE,
                                                 na.rm = FALSE,
-                                                parallel = FALSE){
-
-  if (is.null(c_levels)){
+                                                parallel = FALSE) {
+  if (is.null(c_levels)) {
     c_levels <- sort(unique(targets))
   } else {
     c_levels <- sort(c_levels)
@@ -336,7 +397,8 @@ create_multinomial_confusion_matrix <- function(targets,
 
   conf_mat <- create_confusion_matrix(
     targets = factor(targets, levels = c_levels),
-    predictions = factor(predictions, levels = c_levels))
+    predictions = factor(predictions, levels = c_levels)
+  )
 
   tidy_conf_mat <- tidy_confusion_matrix(conf_mat, c_levels = c_levels)
 
@@ -345,12 +407,14 @@ create_multinomial_confusion_matrix <- function(targets,
     "Table" = list(conf_mat)
   )
 
-  if ("Overall Accuracy" %in% metrics){
-    overall[["Overall Accuracy"]] <- overall_accuracy(targets = targets,
-                                                      predictions = predictions)
+  if ("Overall Accuracy" %in% metrics) {
+    overall[["Overall Accuracy"]] <- overall_accuracy(
+      targets = targets,
+      predictions = predictions
+    )
   }
 
-  if (isTRUE(do_one_vs_all)){
+  if (isTRUE(do_one_vs_all)) {
 
     # If a metric is only included in its weighted version
     # we still need to calculate it in the one-vs-all evaluations
@@ -369,25 +433,28 @@ create_multinomial_confusion_matrix <- function(targets,
 
     # Perform One-vs-All evaluations
     one_vs_all_evaluations <- plyr::ldply(c_levels,
-                                          .parallel = parallel,
-                                          function(cl){
+      .parallel = parallel,
+      function(cl) {
 
-      # Create temporary columns with
-      # one-vs-all targets and predictions
-      binomial_tmp_targets <- ifelse(targets == cl, 1, 0)
-      binomial_tmp_predictions <- ifelse(predictions == cl, 1, 0)
+        # Create temporary columns with
+        # one-vs-all targets and predictions
+        binomial_tmp_targets <- ifelse(targets == cl, 1, 0)
+        binomial_tmp_predictions <- ifelse(predictions == cl, 1, 0)
 
-      create_binomial_confusion_matrix(
-        targets = binomial_tmp_targets,
-        predictions = binomial_tmp_predictions,
-        metrics = metrics_to_compute,
-        positive = 2,
-        c_levels = c(0, 1)) %>%
-        tibble::add_column("Class" = as.character(cl),
-                           "Support" = sum(binomial_tmp_targets),
-                           .before = "Confusion Matrix")
-
-    }) %>%
+        create_binomial_confusion_matrix(
+          targets = binomial_tmp_targets,
+          predictions = binomial_tmp_predictions,
+          metrics = metrics_to_compute,
+          positive = 2,
+          c_levels = c(0, 1)
+        ) %>%
+          tibble::add_column(
+            "Class" = as.character(cl),
+            "Support" = sum(binomial_tmp_targets),
+            .before = "Confusion Matrix"
+          )
+      }
+    ) %>%
       dplyr::as_tibble()
 
     support <- one_vs_all_evaluations[["Support"]]
@@ -395,22 +462,24 @@ create_multinomial_confusion_matrix <- function(targets,
     metric_columns <- one_vs_all_evaluations %>%
       base_deselect(cols = c("Class", "Confusion Matrix", "Table", "Support"))
 
-    if (length(metrics_for_avg) > 0){
+    if (length(metrics_for_avg) > 0) {
       avg_metrics <- metric_columns %>%
         base_select(metrics_for_avg) %>%
-        dplyr::summarise_all(.funs = list( ~ mean(., na.rm = na.rm)))
+        dplyr::summarise_all(.funs = list(~ mean(., na.rm = na.rm)))
 
       overall <- overall %>%
         dplyr::bind_cols(avg_metrics)
     }
 
-    if (length(metrics_for_weighted_avg) > 0){
+    if (length(metrics_for_weighted_avg) > 0) {
       weighted_avg_metrics <- metric_columns %>%
         base_select(metrics_for_weighted_avg) %>%
         dplyr::summarise_all(.funs = list(
-          ~ weighted.mean(., w = support, na.rm = na.rm)))
+          ~ weighted.mean(., w = support, na.rm = na.rm)
+        ))
       colnames(weighted_avg_metrics) <- paste0(
-        "Weighted ", colnames(weighted_avg_metrics))
+        "Weighted ", colnames(weighted_avg_metrics)
+      )
 
       overall <- overall %>%
         dplyr::bind_cols(weighted_avg_metrics)
@@ -420,16 +489,16 @@ create_multinomial_confusion_matrix <- function(targets,
 
     metrics_order <- intersect(metrics, colnames(overall))
     overall <- overall %>%
-      base_select(cols = c("Confusion Matrix", "Table",
-                           metrics_order, "Class Level Results"))
-
+      base_select(cols = c(
+        "Confusion Matrix", "Table",
+        metrics_order, "Class Level Results"
+      ))
   }
 
   overall
-
 }
 
-confusion_matrix_metric_fns <- function(){
+confusion_matrix_metric_fns <- function() {
   metric_fns <- list(
     "Balanced Accuracy" = balanced_accuracy,
     "Accuracy" = accuracy,
@@ -453,9 +522,10 @@ confusion_matrix_metric_fns <- function(){
 
 # Convert a tidied binomial confusion matrix to the "table" format
 # NOTE: Probably misses some attributes and class stuff to be an actual table
-confusion_matrix_to_table <- function(conf_mat){
-  if (nrow(conf_mat) != 4)
+confusion_matrix_to_table <- function(conf_mat) {
+  if (nrow(conf_mat) != 4) {
     stop("only works with 2-class confusion matrix.")
+  }
 
   ns <- conf_mat[["N"]]
   c_levels <- conf_mat[["Prediction"]][1:2]
@@ -469,29 +539,31 @@ confusion_matrix_to_table <- function(conf_mat){
 # example:
 # create_confusion_matrix(factor(c(1,2,3), levels = c(1,2,3)),
 #                         factor(c(1,1,1), levels = c(1,2,3)))
-create_confusion_matrix <- function(targets, predictions){
-
-  if (!is.factor(targets))
+create_confusion_matrix <- function(targets, predictions) {
+  if (!is.factor(targets)) {
     stop("'targets' must be a factor")
-  if (!is.factor(predictions))
+  }
+  if (!is.factor(predictions)) {
     stop("'predictions' must be a factor")
+  }
   if (!all(levels(targets) %in% levels(predictions)) ||
-      !all(levels(predictions) %in% levels(targets)))
+    !all(levels(predictions) %in% levels(targets))) {
     stop("'targets' and 'predictions' must have the same levels. Consider setting levels explicitly in the factors.")
+  }
 
   Prediction <- predictions
   Target <- targets
   table(Prediction, Target)
 }
 
-tidy_confusion_matrix <- function(conf_mat, c_levels = NULL){
-  if (!tibble::is_tibble(conf_mat))
+tidy_confusion_matrix <- function(conf_mat, c_levels = NULL) {
+  if (!tibble::is_tibble(conf_mat)) {
     conf_mat_df <- dplyr::as_tibble(conf_mat)
+  }
 
   # If conf_mat was 2x2
-  if (nrow(conf_mat_df) == 4){
-
-    if (is.null(c_levels)){
+  if (nrow(conf_mat_df) == 4) {
+    if (is.null(c_levels)) {
       c_levels <- c("0", "1")
     }
 
@@ -503,52 +575,46 @@ tidy_confusion_matrix <- function(conf_mat, c_levels = NULL){
     N <- conf_mat_df[["n"]]
     conf_mat_df[["n"]] <- NULL
     conf_mat_df[["N"]] <- N
-
   } else {
-
     conf_mat_df <- base_rename(conf_mat_df,
-                               before = "n",
-                               after = "N")
-
+      before = "n",
+      after = "N"
+    )
   }
 
   conf_mat_df
 }
 
-confusion_label_counts <- function(tidy_conf_mat, positive = 2, c_levels = NULL){
-
-  if (nrow(tidy_conf_mat) != 4)
+confusion_label_counts <- function(tidy_conf_mat, positive = 2, c_levels = NULL) {
+  if (nrow(tidy_conf_mat) != 4) {
     stop("'confusion_label_counts' only works with 2x2 confusion matrices.")
-
-  if (is.null(c_levels)){
-
-    if (is.character(positive))
-      stop("when 'positive' has type character, 'c_levels' must be passed")
-
-    c_levels <- c("0", "1")
-
-  } else {
-
-    c_levels <- sort(c_levels)
-
   }
 
-  if (is.character(positive)){
+  if (is.null(c_levels)) {
+    if (is.character(positive)) {
+      stop("when 'positive' has type character, 'c_levels' must be passed")
+    }
 
-    if (!is.character(c_levels))
+    c_levels <- c("0", "1")
+  } else {
+    c_levels <- sort(c_levels)
+  }
+
+  if (is.character(positive)) {
+    if (!is.character(c_levels)) {
       stop("when 'positive' has type character, 'c_levels' must have type character as well.")
-    if (positive %ni% c_levels)
+    }
+    if (positive %ni% c_levels) {
       stop("'positive' was not found in 'c_levels'.")
+    }
 
     pos_level <- positive
-
   } else {
-
-    if (positive %ni% 1:2)
+    if (positive %ni% 1:2) {
       stop("when 'positive' is numeric, it must be either 1 or 2.")
+    }
 
     pos_level <- c_levels[[positive]]
-
   }
 
   pos_labels <- paste0("Pos_", pos_level)
@@ -559,145 +625,122 @@ confusion_label_counts <- function(tidy_conf_mat, positive = 2, c_levels = NULL)
     unlist()
 
   label_cols
-
 }
 
-check_label_counts <- function(label_counts){
+check_label_counts <- function(label_counts) {
   if (length(setdiff(names(label_counts), c("FN", "FP", "TN", "TP"))) > 0 ||
-      length(setdiff(c("FN", "FP", "TN", "TP"), names(label_counts))) > 0)
+    length(setdiff(c("FN", "FP", "TN", "TP"), names(label_counts))) > 0) {
     stop("'label_counts' must contain exactly the columns 'FN', 'FP', 'TN', and 'TP'.")
+  }
 }
 
-total_label_count <- function(label_counts){
-
+total_label_count <- function(label_counts) {
   check_label_counts(label_counts)
 
   label_counts[["TP"]] + label_counts[["FN"]] +
     label_counts[["TN"]] + label_counts[["FP"]]
 }
 
-sensitivity <- function(label_counts){
+sensitivity <- function(label_counts) {
 
   # TP / (TP + FN)
-  label_counts[["TP"]] / ( label_counts[["TP"]] + label_counts[["FN"]] )
-
+  label_counts[["TP"]] / (label_counts[["TP"]] + label_counts[["FN"]])
 }
 
-specificity <- function(label_counts){
-
+specificity <- function(label_counts) {
   check_label_counts(label_counts)
 
   # TN / (TN + FP)
-  label_counts[["TN"]] / ( label_counts[["TN"]] + label_counts[["FP"]] )
-
+  label_counts[["TN"]] / (label_counts[["TN"]] + label_counts[["FP"]])
 }
 
-prevalence <- function(label_counts){
-
+prevalence <- function(label_counts) {
   check_label_counts(label_counts)
 
   # (TP + FN) / (TP + FN + TN + FP)
   (label_counts[["TP"]] + label_counts[["FN"]]) / total_label_count(label_counts)
-
 }
 
-pos_pred_value <- function(label_counts){
+pos_pred_value <- function(label_counts) {
 
   # TODO Find out why caret uses such a weird formula for this?
 
   check_label_counts(label_counts)
 
   # TP / (TP + FP)
-  label_counts[["TP"]] / ( label_counts[["TP"]] + label_counts[["FP"]] )
-
+  label_counts[["TP"]] / (label_counts[["TP"]] + label_counts[["FP"]])
 }
 
-neg_pred_value <- function(label_counts){
+neg_pred_value <- function(label_counts) {
 
   # TODO Find out why caret uses such a weird formula for this?
 
   check_label_counts(label_counts)
 
   # TN / (TN + FN)
-  label_counts[["TN"]] / ( label_counts[["TN"]] + label_counts[["FN"]] )
-
+  label_counts[["TN"]] / (label_counts[["TN"]] + label_counts[["FN"]])
 }
 
-detection_rate <- function(label_counts){
-
+detection_rate <- function(label_counts) {
   check_label_counts(label_counts)
 
   # TP / (TP + FN + TN + FP)
   label_counts[["TP"]] / total_label_count(label_counts)
-
 }
 
-detection_prevalence <- function(label_counts){
-
+detection_prevalence <- function(label_counts) {
   check_label_counts(label_counts)
 
   # (TP + FP) / (TP + FN + TN + FP)
   (label_counts[["TP"]] + label_counts[["FP"]]) / total_label_count(label_counts)
-
 }
 
-false_neg_rate <- function(label_counts){
+false_neg_rate <- function(label_counts) {
 
   # FN / (FN + TP)
   1 - sensitivity(label_counts)
-
 }
 
-false_pos_rate <- function(label_counts){
+false_pos_rate <- function(label_counts) {
 
   # FP / (FP + TN)
   1 - specificity(label_counts)
-
 }
 
-false_discovery_rate <- function(label_counts){
+false_discovery_rate <- function(label_counts) {
 
   # FP / (FP + TP)
   1 - pos_pred_value(label_counts)
-
 }
 
-false_omission_rate <- function(label_counts){
+false_omission_rate <- function(label_counts) {
 
   # FN / (FN + TN)
   1 - neg_pred_value(label_counts)
-
 }
 
-threat_score <- function(label_counts){
-
+threat_score <- function(label_counts) {
   check_label_counts(label_counts)
 
   # FP / (TP + FN + FP)
   label_counts[["FP"]] / (label_counts[["TP"]] + label_counts[["FN"]] + label_counts[["FP"]])
-
 }
 
-balanced_accuracy <- function(label_counts){
-
+balanced_accuracy <- function(label_counts) {
   check_label_counts(label_counts)
 
   # (sensitivity + specificity) / 2
   (sensitivity(label_counts) + specificity(label_counts)) / 2
-
 }
 
-accuracy <- function(label_counts){
-
+accuracy <- function(label_counts) {
   check_label_counts(label_counts)
 
   # (TP + TN) / (TP + TN + FP + FN)
   (label_counts[["TP"]] + label_counts[["TN"]]) / total_label_count(label_counts)
-
 }
 
-f_score <- function(label_counts, beta = 1){
-
+f_score <- function(label_counts, beta = 1) {
   check_label_counts(label_counts)
 
   prec <- pos_pred_value(label_counts)
@@ -705,17 +748,13 @@ f_score <- function(label_counts, beta = 1){
 
   # (1 + beta^2) * precision * recall / ((beta^2 * precision) + recall)
   (1 + beta^2) * prec * reca / ((beta^2 * prec) + reca)
-
 }
 
-f1 <- function(label_counts){
-
+f1 <- function(label_counts) {
   f_score(label_counts, beta = 1)
-
 }
 
-kappa <- function(label_counts){
-
+kappa <- function(label_counts) {
   check_label_counts(label_counts)
 
   # Normalize counts (i.e. sum to 1)
@@ -733,11 +772,9 @@ kappa <- function(label_counts){
 
   # Kappa
   (p_observed - p_expected) / (1 - p_expected)
-
 }
 
-mcc <- function(label_counts){
-
+mcc <- function(label_counts) {
   check_label_counts(label_counts)
 
   # ( (TP * TN) - (FP * FN) ) / sqrt( (TP + FP)(TP + FN)(TN + FP)(TN + FN) )
@@ -750,15 +787,16 @@ mcc <- function(label_counts){
   fn <- label_counts[["FN"]]
 
   num <- (tp * tn) - (fp * fn)
-  denom <- sqrt( (tp + fp) * (tp + fn) * (tn + fp) * (tn + fn) )
-  if (denom == 0)
+  denom <- sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
+  if (denom == 0) {
     denom <- 1
-  num/denom
-
+  }
+  num / denom
 }
 
-overall_accuracy <- function(targets, predictions, na.rm = FALSE){
-  if (length(targets) != length(predictions))
+overall_accuracy <- function(targets, predictions, na.rm = FALSE) {
+  if (length(targets) != length(predictions)) {
     stop("'predictions' and 'targets' must have the same number of elements.")
+  }
   mean(targets == predictions, na.rm = na.rm)
 }

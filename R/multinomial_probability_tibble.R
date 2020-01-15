@@ -1,3 +1,9 @@
+
+
+#   __________________ #< 714f7a4cd397a84c2a8f5b22229c7ade ># __________________
+#   Multiclass probability tibble                                           ####
+
+
 #' @title Generate a multiclass probability tibble
 #' @description
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("maturing")}
@@ -20,44 +26,65 @@
 #'
 #' # Create a tibble with 5 classes and 10 observations
 #' # Apply softmax to make sure the probabilities sum to 1
-#' multiclass_probability_tibble(num_classes = 5,
-#'                               num_observations = 10,
-#'                               apply_softmax = TRUE)
+#' multiclass_probability_tibble(
+#'   num_classes = 5,
+#'   num_observations = 10,
+#'   apply_softmax = TRUE
+#' )
 #'
 #' # Using the rnorm function to generate the random numbers
-#' multiclass_probability_tibble(num_classes = 5,
-#'                               num_observations = 10,
-#'                               apply_softmax = TRUE,
-#'                               FUN = rnorm)
+#' multiclass_probability_tibble(
+#'   num_classes = 5,
+#'   num_observations = 10,
+#'   apply_softmax = TRUE,
+#'   FUN = rnorm
+#' )
 #'
 #' # Creating a custom generator function that
 #' # exponentiates the numbers to create more "certain" predictions
-#' rcertain <- function(n){
-#'     (runif(n, min = 1, max = 100)^1.4)/100
+#' rcertain <- function(n) {
+#'   (runif(n, min = 1, max = 100)^1.4) / 100
 #' }
-#' multiclass_probability_tibble(num_classes = 5,
-#'                               num_observations = 10,
-#'                               apply_softmax = TRUE,
-#'                               FUN = rcertain)
+#' multiclass_probability_tibble(
+#'   num_classes = 5,
+#'   num_observations = 10,
+#'   apply_softmax = TRUE,
+#'   FUN = rcertain
+#' )
 multiclass_probability_tibble <- function(num_classes,
-                                           num_observations,
-                                           apply_softmax = TRUE,
-                                           FUN = runif,
-                                           class_name = "class_") {
+                                          num_observations,
+                                          apply_softmax = TRUE,
+                                          FUN = runif,
+                                          class_name = "class_") {
+
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_count(x = num_classes, add = assert_collection)
+  checkmate::assert_count(x = num_observations, add = assert_collection)
+  checkmate::assert_flag(x = apply_softmax, add = assert_collection)
+  checkmate::assert_function(x = FUN, add = assert_collection)
+  checkmate::assert_string(x = class_name, add = assert_collection)
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
+
   # Generate random numbers
-  random_numbers <- tryCatch({
-    FUN(num_classes * num_observations)
-  }, error = function(e) {
-    stop("Could not use 'FUN' to generate a sequence of random numbers.")
-  })
+  random_numbers <- tryCatch(
+    {
+      FUN(num_classes * num_observations)
+    },
+    error = function(e) {
+      stop("Could not use 'FUN' to generate a sequence of random numbers.")
+    }
+  )
 
   # Create the tibble
   probability_matrix <- matrix(random_numbers,
-                               ncol = num_classes) %>%
+    ncol = num_classes
+  ) %>%
     dplyr::as_tibble(.name_repair = ~ paste0(class_name, 1:num_classes))
 
   # Apply the softmax function if requested
-  if (isTRUE(apply_softmax)){
+  if (isTRUE(apply_softmax)) {
     probability_matrix <- softmax(probability_matrix)
   }
 

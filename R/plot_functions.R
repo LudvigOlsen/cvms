@@ -17,14 +17,15 @@ plot_metric_density <- function(data,
 
   # Add ` ` around the metric name
   # if it's not already there
-  if (substr(metric, 1, 1) != "`")
+  if (substr(metric, 1, 1) != "`") {
     metric <- paste0("`", metric, "`")
+  }
 
   # Create and return a density plot
   data %>%
     ggplot2::ggplot(ggplot2::aes_string(x = metric)) +
     ggplot2::geom_density(fill = fill, alpha = alpha) +
-    ggplot2::coord_cartesian(xlim=xlim) +
+    ggplot2::coord_cartesian(xlim = xlim) +
     theme_fn() +
     ggplot2::labs(y = "Density")
 }

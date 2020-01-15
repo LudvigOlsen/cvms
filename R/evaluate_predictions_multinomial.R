@@ -4,9 +4,11 @@ evaluate_predictions_multinomial <- function(data,
                                              model_was_null_col,
                                              id_col,
                                              id_method,
-                                             fold_info_cols = list(rel_fold = "rel_fold",
-                                                                   abs_fold = "abs_fold",
-                                                                   fold_column = "fold_column"),
+                                             fold_info_cols = list(
+                                               rel_fold = "rel_fold",
+                                               abs_fold = "abs_fold",
+                                               fold_column = "fold_column"
+                                             ),
                                              fold_and_fold_col = NULL,
                                              group_info = NULL,
                                              model_specifics,
@@ -14,29 +16,33 @@ evaluate_predictions_multinomial <- function(data,
                                              include_fold_columns,
                                              include_predictions,
                                              na.rm = TRUE) {
-
-  if (!is.character(predictions_col)){
+  if (!is.character(predictions_col)) {
     stop("'predictions_col' must be the name of a column in 'data' with nested probabilities.")
   }
-  if (predictions_col %ni% colnames(data)){
+  if (predictions_col %ni% colnames(data)) {
     stop("Could not find the specified 'predictions_col' in 'data'.")
   }
 
-  if (model_specifics[["positive"]] != 2){
+  if (model_specifics[["positive"]] != 2) {
     stop("'positive' must be 2 for multinomial evaluation.")
   }
 
-  predicted_probabilities <- tryCatch({
-    dplyr::bind_rows(data[[predictions_col]])
-  }, error = function(e){
-    stop("Could not bind the specified predictions_col: ", predictions_col, ".")
-  })
+  predicted_probabilities <- tryCatch(
+    {
+      dplyr::bind_rows(data[[predictions_col]])
+    },
+    error = function(e) {
+      stop("Could not bind the specified predictions_col: ", predictions_col, ".")
+    }
+  )
 
   # Make sure probabilities sum to 1 row-wise
   probability_row_sums <- predicted_probabilities %>%
-    dplyr::mutate(row_sum = round(rowSums(.) * 1e+5) / 1e+5,
-                  sums_to_one = .data$row_sum == 1)
-  if (any(!probability_row_sums[["sums_to_one"]])){
+    dplyr::mutate(
+      row_sum = round(rowSums(.) * 1e+5) / 1e+5,
+      sums_to_one = .data$row_sum == 1
+    )
+  if (any(!probability_row_sums[["sums_to_one"]])) {
     stop("'multinomial' evaluate(): Not all probabilities added up to 1 row-wise (tolerance of 5 decimals).")
   }
 
@@ -45,7 +51,7 @@ evaluate_predictions_multinomial <- function(data,
   na_in_targets <- contains_na(data[[targets_col]])
 
   # Warn if NA in predictions
-  if (isTRUE(na_in_predictions)){
+  if (isTRUE(na_in_predictions)) {
     warning(paste0(
       model_specifics[["caller"]], ": ",
       "predictions contained NA."
@@ -53,14 +59,14 @@ evaluate_predictions_multinomial <- function(data,
   }
 
   # Warn if NA in targets
-  if (isTRUE(na_in_targets)){
+  if (isTRUE(na_in_targets)) {
     warning(paste0(
       model_specifics[["caller"]], ": ",
       "targets contained NA."
     ))
   }
 
-  if (is.null(fold_and_fold_col)){
+  if (is.null(fold_and_fold_col)) {
     # Map of fold column, abs_fold and rel_fold
     fold_and_fold_col <- create_fold_and_fold_column_map(data, fold_info_cols)
   }
@@ -71,7 +77,7 @@ evaluate_predictions_multinomial <- function(data,
   # Keep both aggregates with and without removing NAs
   both_keep_and_remove_NAs <- is.character(na.rm) && na.rm == "both"
 
-  if (!na_in_targets && !na_in_predictions){
+  if (!na_in_targets && !na_in_predictions) {
 
     # Convert target column to type character
     data[[targets_col]] <- as.character(data[[targets_col]])
@@ -86,48 +92,58 @@ evaluate_predictions_multinomial <- function(data,
     # The following errors if there are classes in target
     # that does not have a probability column
 
-    if (length(setdiff(cat_levels_in_targets_col, classes)) != 0){
-      stop(paste0("The column names in the nested predicted probabilities ",
-                  "do not match the class names in the dependent column."))
+    if (length(setdiff(cat_levels_in_targets_col, classes)) != 0) {
+      stop(paste0(
+        "The column names in the nested predicted probabilities ",
+        "do not match the class names in the dependent column."
+      ))
     }
 
     # Order columns by the class names
     predicted_probabilities <- base_select(predicted_probabilities,
-                                           cols = classes)
+      cols = classes
+    )
 
     # Create a column with the predicted class
     data[["predicted_class_index"]] <- argmax(predicted_probabilities)
     data[["predicted_class"]] <- purrr::map_chr(
       data[["predicted_class_index"]],
-      .f = function(x){classes[[x]]})
+      .f = function(x) {
+        classes[[x]]
+      }
+    )
 
     # Calculate overall accuracy per fold column
     overall_metrics <- data %>%
       dplyr::group_by(!!as.name(fold_info_cols[["fold_column"]])) %>%
       dplyr::summarise(`Overall Accuracy` = mean(.data$predicted_class == !!as.name(targets_col)))
 
-    if ("AUC" %in% metrics){
+    if ("AUC" %in% metrics) {
 
       # Compute multiclass ROC curves and AUC scores
-      multiclass_ROC_AUC <- plyr::llply(unique_fold_cols, function(fcol){
+      multiclass_ROC_AUC <- plyr::llply(unique_fold_cols, function(fcol) {
 
         # Extract current fold column
-        fcol_data <- data[data[[fold_info_cols[["fold_column"]]]] == fcol,]
+        fcol_data <- data[data[[fold_info_cols[["fold_column"]]]] == fcol, ]
 
         # Extract and prepare probabilities
         fcol_probabilities <- as.data.frame(
-          dplyr::bind_rows(fcol_data[[predictions_col]]))
+          dplyr::bind_rows(fcol_data[[predictions_col]])
+        )
 
         # Extract targets
         fcol_targets <- fcol_data[[targets_col]]
 
         # Calculate multiclass ROC
-        roc <- pROC::multiclass.roc(response = fcol_targets,
-                                    predictor = fcol_probabilities,
-                                    levels = cat_levels_in_targets_col)
-        list("ROC" = list(roc),
-             "AUC" = as.numeric(pROC::auc(roc)))
-
+        roc <- pROC::multiclass.roc(
+          response = fcol_targets,
+          predictor = fcol_probabilities,
+          levels = cat_levels_in_targets_col
+        )
+        list(
+          "ROC" = list(roc),
+          "AUC" = as.numeric(pROC::auc(roc))
+        )
       })
 
       roc_curves <- multiclass_ROC_AUC %c% "ROC"
@@ -135,15 +151,18 @@ evaluate_predictions_multinomial <- function(data,
 
       # Add the AUC scores to the overall metrics
       overall_metrics <- overall_metrics %>%
-        dplyr::mutate(AUC = auc_scores,
-                      ROC = roc_curves)
-
+        dplyr::mutate(
+          AUC = auc_scores,
+          ROC = roc_curves
+        )
     }
 
     # Rename the fold column
     overall_metrics <- overall_metrics %>%
-      base_rename(before = fold_info_cols[["fold_column"]],
-                  after = "Fold Column")
+      base_rename(
+        before = fold_info_cols[["fold_column"]],
+        after = "Fold Column"
+      )
 
     # Nest predictions and targets
     # Will be NA if any model_was_null is TRUE and
@@ -162,36 +181,39 @@ evaluate_predictions_multinomial <- function(data,
       fold_info_cols = fold_info_cols,
       group_info = group_info,
       include_fold_columns = include_fold_columns,
-      include_predictions = include_predictions)
+      include_predictions = include_predictions
+    )
 
     # Create unique temporary variable names
-    local_tmp_target_var <- create_tmp_name(data,"one_vs_all_targets")
-    local_tmp_predicted_probability_var <- create_tmp_name(data,"one_vs_all_predicted_probability")
-    local_tmp_predicted_class_var <- create_tmp_name(data,"one_vs_all_predicted_class")
+    local_tmp_target_var <- create_tmp_name(data, "one_vs_all_targets")
+    local_tmp_predicted_probability_var <- create_tmp_name(data, "one_vs_all_predicted_probability")
+    local_tmp_predicted_class_var <- create_tmp_name(data, "one_vs_all_predicted_class")
 
     # Count how many times each class are in the targets_col
     support <- create_support_object(data[[targets_col]])
 
     # Find the metrics to calculate in one-vs-all
-    one_vs_all_metrics <- setdiff(metrics, c("AUC","Lower CI","Upper CI"))
+    one_vs_all_metrics <- setdiff(metrics, c("AUC", "Lower CI", "Upper CI"))
     one_vs_all_metrics <- unique(gsub("Weighted ", "", one_vs_all_metrics))
 
     # Perform one vs all evaluations
-    one_vs_all_evaluations <- plyr::ldply(seq_len(num_classes), function(cl){
+    one_vs_all_evaluations <- plyr::ldply(seq_len(num_classes), function(cl) {
 
       # Create temporary columns with
       # one-vs-all targets and predictions
       data[[local_tmp_target_var]] <- factor(
-        ifelse(data[[targets_col]] == classes[[cl]], 1, 0))
+        ifelse(data[[targets_col]] == classes[[cl]], 1, 0)
+      )
       data[[local_tmp_predicted_probability_var]] <- predicted_probabilities[[cl]]
       data[[local_tmp_predicted_class_var]] <- factor(
-        ifelse(data[["predicted_class_index"]] == cl, 1, 0))
+        ifelse(data[["predicted_class_index"]] == cl, 1, 0)
+      )
 
       # Create temporary group info
-      if (is.null(group_info)){
+      if (is.null(group_info)) {
         tmp_group_info <- tibble::tibble("Class" = cl)
       } else {
-        tmp_group_info <- group_info #dplyr::as_tibble(group_info)
+        tmp_group_info <- group_info # dplyr::as_tibble(group_info)
         tmp_group_info[["Class"]] <- cl
       }
 
@@ -215,23 +237,23 @@ evaluate_predictions_multinomial <- function(data,
       ) %>%
         dplyr::as_tibble() %>%
         dplyr::mutate(Class = classes[[cl]])
-
     }) %>%
       dplyr::left_join(support, by = "Class") %>%
       dplyr::as_tibble()
 
     # Remove Predictions column if it exists
-    if ("Predictions" %in% colnames(one_vs_all_evaluations)){
+    if ("Predictions" %in% colnames(one_vs_all_evaluations)) {
       one_vs_all_evaluations[["Predictions"]] <- NULL
     }
 
     # Move Support column
     one_vs_all_evaluations <- reposition_column(one_vs_all_evaluations,
-                                                "Support",
-                                                .after = tail(
-                                                  intersect(metrics, colnames(one_vs_all_evaluations)),
-                                                  1)
-                                                )
+      "Support",
+      .after = tail(
+        intersect(metrics, colnames(one_vs_all_evaluations)),
+        1
+      )
+    )
 
     # Place Class column first
     one_vs_all_evaluations <- one_vs_all_evaluations[
@@ -249,13 +271,14 @@ evaluate_predictions_multinomial <- function(data,
       dplyr::bind_rows()
 
     # Values to use in na.rm
-    if (isTRUE(both_keep_and_remove_NAs))
+    if (isTRUE(both_keep_and_remove_NAs)) {
       na.rm_values <- c(TRUE, FALSE)
-    else
+    } else {
       na.rm_values <- na.rm
+    }
 
     # Calculate the average metrics
-    average_metrics <- plyr::ldply(na.rm_values, function(nr){
+    average_metrics <- plyr::ldply(na.rm_values, function(nr) {
       metrics_only %>%
         dplyr::group_by(!!as.name("Fold Column")) %>%
         dplyr::summarise_all(list(mean), na.rm = nr) %>%
@@ -266,71 +289,88 @@ evaluate_predictions_multinomial <- function(data,
     support <- one_vs_all_evaluations[["Support"]]
 
     # Calculate the weighted average metrics
-    weighted_average_metrics <- plyr::ldply(na.rm_values, function(nr){
+    weighted_average_metrics <- plyr::ldply(na.rm_values, function(nr) {
       metrics_only %>%
         dplyr::group_by(!!as.name("Fold Column")) %>%
         dplyr::summarise_all(list(
-          ~ weighted.mean(., w = support, na.rm = nr))) %>%
-        dplyr::rename_at(.vars = dplyr::vars(-dplyr::one_of("Fold Column")),
-                          function(x) paste0("Weighted ", x)) %>%
+          ~ weighted.mean(., w = support, na.rm = nr)
+        )) %>%
+        dplyr::rename_at(
+          .vars = dplyr::vars(-dplyr::one_of("Fold Column")),
+          function(x) paste0("Weighted ", x)
+        ) %>%
         dplyr::mutate(NAs_removed = nr)
     })
 
     # Keep only the requested metrics
     weighted_average_metrics_to_keep <- intersect(
       c("Fold Column", metrics, "NAs_removed"),
-      c(colnames(weighted_average_metrics)))
+      c(colnames(weighted_average_metrics))
+    )
     weighted_average_metrics <- base_select(
-      weighted_average_metrics, cols = weighted_average_metrics_to_keep)
+      weighted_average_metrics,
+      cols = weighted_average_metrics_to_keep
+    )
 
     # Gather summarized metrics
     fold_column_results <- dplyr::left_join(
       overall_metrics,
-        dplyr::left_join(
-          average_metrics,
-          weighted_average_metrics,
-          by = c("Fold Column", "NAs_removed")
-        ),
-      by = "Fold Column")
+      dplyr::left_join(
+        average_metrics,
+        weighted_average_metrics,
+        by = c("Fold Column", "NAs_removed")
+      ),
+      by = "Fold Column"
+    )
 
     overall_results <- base_deselect(fold_column_results,
-                                     cols = c("Fold Column", "ROC"))
+      cols = c("Fold Column", "ROC")
+    )
 
     # Average results
-    overall_results <- plyr::ldply(na.rm_values, function(nr){ # TODO Document this behavior
-      overall_results[overall_results[["NAs_removed"]] == nr ,] %>%
-        dplyr::group_by(!! as.name("NAs_removed")) %>% # Ensures NAs_removed is kept and not summarized
-        dplyr::summarise_all(~mean(., na.rm = nr))
+    overall_results <- plyr::ldply(na.rm_values, function(nr) { # TODO Document this behavior
+      overall_results[overall_results[["NAs_removed"]] == nr, ] %>%
+        dplyr::group_by(!!as.name("NAs_removed")) %>% # Ensures NAs_removed is kept and not summarized
+        dplyr::summarise_all(~ mean(., na.rm = nr))
     }) %>% dplyr::as_tibble()
 
     # Add nested predictions
-    if (isTRUE(include_predictions) && !is.null(predictions_nested)){
-      overall_results[["Predictions"]] <- repeat_list_if(predictions_nested$predictions, 2,
-                                                         both_keep_and_remove_NAs)
+    if (isTRUE(include_predictions) && !is.null(predictions_nested)) {
+      overall_results[["Predictions"]] <- repeat_list_if(
+        predictions_nested$predictions, 2,
+        both_keep_and_remove_NAs
+      )
     }
 
     # If we don't want the Overall Accuracy metric, remove it
-    if ("Overall Accuracy" %ni% metrics){
+    if ("Overall Accuracy" %ni% metrics) {
       overall_results <- base_deselect(overall_results,
-                                       cols = "Overall Accuracy")
+        cols = "Overall Accuracy"
+      )
       fold_column_results <- base_deselect(fold_column_results,
-                                           cols = "Overall Accuracy")
+        cols = "Overall Accuracy"
+      )
     }
 
     # Add total counts confusion matrix
     # Try to fit a confusion matrix with the predictions and targets
-    overall_confusion_matrix <- tryCatch({
-      confusion_matrix(targets = data[[targets_col]],
-                       predictions = data[["predicted_class"]],
-                       c_levels = classes,
-                       metrics = metrics,
-                       do_one_vs_all = FALSE)
-    }, error = function(e) {
-      stop(paste0('Confusion matrix error: ',e))
-    })
+    overall_confusion_matrix <- tryCatch(
+      {
+        confusion_matrix(
+          targets = data[[targets_col]],
+          predictions = data[["predicted_class"]],
+          c_levels = classes,
+          metrics = metrics,
+          do_one_vs_all = FALSE
+        )
+      },
+      error = function(e) {
+        stop(paste0("Confusion matrix error: ", e))
+      }
+    )
 
     # Add group info
-    if (!is.null(group_info)){
+    if (!is.null(group_info)) {
       overall_confusion_matrix[["Confusion Matrix"]][[1]] <- group_info %>%
         dplyr::slice(rep(1, nrow(overall_confusion_matrix[["Confusion Matrix"]][[1]]))) %>%
         dplyr::bind_cols(overall_confusion_matrix[["Confusion Matrix"]][[1]])
@@ -339,12 +379,14 @@ evaluate_predictions_multinomial <- function(data,
     # Nest the confusion matrix
     nested_multiclass_confusion_matrix <- nest_multiclass_confusion_matrices(
       list(overall_confusion_matrix),
-      include_fold_columns = include_fold_columns)[["confusion_matrices"]]
+      include_fold_columns = include_fold_columns
+    )[["confusion_matrices"]]
 
     # Add confusion matrix to overall results
     overall_results[["Confusion Matrix"]] <- repeat_list_if(
       nested_multiclass_confusion_matrix, 2,
-      condition = both_keep_and_remove_NAs)
+      condition = both_keep_and_remove_NAs
+    )
 
     fcr_all_cols <- colnames(fold_column_results)
     fcr_prediction_metrics <- intersect(metrics, fcr_all_cols)
@@ -358,7 +400,8 @@ evaluate_predictions_multinomial <- function(data,
           base_select(cols = fcr_new_order) %>%
           dplyr::group_nest(!!as.name("NAs_removed"), .key = "Results") %>%
           tibble::as_tibble(),
-        by = "NAs_removed")
+        by = "NAs_removed"
+      )
 
     # Add the nested class level results
     overall_results[["Class Level Results"]] <- one_vs_all_evaluations %>%
@@ -374,14 +417,13 @@ evaluate_predictions_multinomial <- function(data,
     new_order <- c(prediction_metrics, "Results", "Class Level Results", non_metric_cols)
     results <- overall_results %>%
       base_select(cols = new_order)
-
   } else {
 
     # TODO replace with multinomial NA result
     stop("NOT YET IMPLEMENTED!")
     results <- binomial_classification_NA_results_tibble()
 
-    if (length(unique_fold_cols) > 1){
+    if (length(unique_fold_cols) > 1) {
       results[["Results"]] <- NA
     }
   }
@@ -392,20 +434,19 @@ evaluate_predictions_multinomial <- function(data,
 
 
 
-argmax_row <- function(...){
+argmax_row <- function(...) {
   x <- unname(c(...))
   which.max(x)
 }
 
-argmax <- function(data){
+argmax <- function(data) {
   purrr::pmap_dbl(data, .f = argmax_row)
 }
 
 # Counts how many times each class are in the targets_col
-create_support_object <- function(targets){
+create_support_object <- function(targets) {
   support <- data.frame(table(targets), stringsAsFactors = F)
   colnames(support) <- c("Class", "Support")
   support[["Class"]] <- as.character(support[["Class"]])
   support
 }
-

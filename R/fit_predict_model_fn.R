@@ -1,9 +1,11 @@
 
 fit_predict_model_fn <- function(train_data,
                                  test_data,
-                                 fold_info = list(rel_fold = NULL,
-                                                  abs_fold = NULL,
-                                                  fold_column = NULL),
+                                 fold_info = list(
+                                   rel_fold = NULL,
+                                   abs_fold = NULL,
+                                   fold_column = NULL
+                                 ),
                                  include_fold_columns = TRUE,
                                  model_specifics = list(
                                    model_formula = NULL,
@@ -17,10 +19,10 @@ fit_predict_model_fn <- function(train_data,
                                    model_fn = NULL,
                                    predict_fn = NULL,
                                    caller = NULL
-                                 )){
+                                 )) {
 
   # Make sure, a model function was actually passed
-  if (is.null(model_specifics[["model_fn"]])){
+  if (is.null(model_specifics[["model_fn"]])) {
     stop("'model_fn' was NULL.")
   }
 
@@ -30,7 +32,7 @@ fit_predict_model_fn <- function(train_data,
   user_predict_fn <- model_specifics[["predict_fn"]]
 
   # Check task/evaluation type
-  if (model_specifics[["family"]] %ni% c("gaussian", "binomial", "multinomial")){
+  if (model_specifics[["family"]] %ni% c("gaussian", "binomial", "multinomial")) {
     stop(paste0("Does not recognize '", model_specifics[["family"]], "'."))
   }
 
@@ -44,7 +46,8 @@ fit_predict_model_fn <- function(train_data,
       fold_info = fold_info,
       model_verbose = model_specifics[["model_verbose"]],
       caller = model_specifics[["caller"]]
-    ))
+    )
+  )
 
   model <- fitted_model[["model"]]
 
@@ -60,14 +63,18 @@ fit_predict_model_fn <- function(train_data,
   )
 
   # Create tibble with predictions, targets and fold info
-  predictions_and_targets <- tibble::tibble("observation" = test_data[[model_specifics[["observation_id_col"]]]],
-                                            "target" = test_data[[y_col]]) %>%
+  predictions_and_targets <- tibble::tibble(
+    "observation" = test_data[[model_specifics[["observation_id_col"]]]],
+    "target" = test_data[[y_col]]
+  ) %>%
     dplyr::bind_cols(prediction_process[["predictions"]])
-  if (isTRUE(include_fold_columns)){
+  if (isTRUE(include_fold_columns)) {
     predictions_and_targets <- predictions_and_targets %>%
-      dplyr::mutate(rel_fold = fold_info[["rel_fold"]],
-                    abs_fold = fold_info[["abs_fold"]],
-                    fold_column = fold_info[["fold_column"]])
+      dplyr::mutate(
+        rel_fold = fold_info[["rel_fold"]],
+        abs_fold = fold_info[["abs_fold"]],
+        fold_column = fold_info[["fold_column"]]
+      )
   }
 
 
@@ -75,11 +82,13 @@ fit_predict_model_fn <- function(train_data,
   # the model_fn and predict_fn processes
   warnings_and_messages <- fitted_model[["warnings_and_messages"]] %>%
     dplyr::bind_rows(prediction_process[["warnings_and_messages"]]) %>%
-    dplyr::mutate(Fold = fold_info[["rel_fold"]],
-                  `Fold Column` = as.character(fold_info[["fold_column"]])) %>%
+    dplyr::mutate(
+      Fold = fold_info[["rel_fold"]],
+      `Fold Column` = as.character(fold_info[["fold_column"]])
+    ) %>%
     base_select(cols = c("Fold Column", "Fold", "Function", "Type", "Message"))
 
-  if (!isTRUE(include_fold_columns)){
+  if (!isTRUE(include_fold_columns)) {
     warnings_and_messages <- warnings_and_messages %>%
       base_deselect(cols = c("Fold Column", "Fold"))
   }
@@ -93,9 +102,7 @@ fit_predict_model_fn <- function(train_data,
     n_convergence_warnings = sum(fitted_model[["threw_convergence_warning"]]),
     n_unknown_warnings = sum(fitted_model[["threw_unknown_warning"]]),
     n_prediction_warnings = ifelse(is.null(prediction_process[["n_unknown_warnings"]]), 0,
-                                   prediction_process[["n_unknown_warnings"]])
+      prediction_process[["n_unknown_warnings"]]
+    )
   )
 }
-
-
-

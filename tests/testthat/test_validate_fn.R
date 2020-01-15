@@ -1,33 +1,35 @@
 library(cvms)
 context("validate_fn()")
 
-test_that("binomial glm model works with validate_fn()",{
+test_that("binomial glm model works with validate_fn()", {
 
   # Load data and fold it
   set_seed_for_R_compatibility(1)
   dat_ready <- participant.scores %>%
     dplyr::mutate(diagnosis = as.factor(diagnosis))
   dat_list <- groupdata2::partition(dat_ready,
-                               p = 0.75,
-                               cat_col = 'diagnosis',
-                               id_col = 'participant')
+    p = 0.75,
+    cat_col = "diagnosis",
+    id_col = "participant"
+  )
 
   set_seed_for_R_compatibility(1)
   dat_not_list <- groupdata2::partition(dat_ready,
-                                        p = 0.75,
-                                        cat_col = 'diagnosis',
-                                        id_col = 'participant',
-                                        list_out = FALSE)
+    p = 0.75,
+    cat_col = "diagnosis",
+    id_col = "participant",
+    list_out = FALSE
+  )
 
-  glm_model_fn <- function(train_data, formula, hyperparameters){
-    warning(paste0("a = ",hyperparameters[["a"]], "; b = ", hyperparameters[["b"]]))
+  glm_model_fn <- function(train_data, formula, hyperparameters) {
+    warning(paste0("a = ", hyperparameters[["a"]], "; b = ", hyperparameters[["b"]]))
     glm(formula = formula, data = train_data, family = "binomial")
   }
 
   glm_predict_fn <- example_predict_functions("glm_binomial")
 
   # The example fn requires formula, but we need it hardcoded for test
-  glm_preprocess_fn <- function(train_data, test_data, formula, hyperparameters){
+  glm_preprocess_fn <- function(train_data, test_data, formula, hyperparameters) {
 
     # Create recipes object
     recipe_object <- recipes::recipe(
@@ -37,12 +39,13 @@ test_that("binomial glm model works with validate_fn()",{
       # instead of for every formula
       # Tip: Use `y ~ .` to include all predictors (where `y` is your dependent variable)
       formula = diagnosis ~ .,
-      data = train_data) %>%
+      data = train_data
+    ) %>%
 
       # Add preprocessing steps
       # Note: We could add specific variable to each step
       # instead of just selecting all numeric variables
-      recipes::step_center(recipes::all_numeric())  %>%
+      recipes::step_center(recipes::all_numeric()) %>%
       recipes::step_scale(recipes::all_numeric()) %>%
 
       # Find parameters from the training set
@@ -57,93 +60,130 @@ test_that("binomial glm model works with validate_fn()",{
     sds <- recipe_object$steps[[2]]$sds
 
     # Add preprocessing parameters to a tibble
-    tidy_parameters <- tibble::tibble("Measure" = c("Mean" , "SD")) %>%
+    tidy_parameters <- tibble::tibble("Measure" = c("Mean", "SD")) %>%
       dplyr::bind_cols(dplyr::bind_rows(means, sds))
 
-    list("train" = train_data,
-         "test" = test_data,
-         "parameters" = tidy_parameters)
+    list(
+      "train" = train_data,
+      "test" = test_data,
+      "parameters" = tidy_parameters
+    )
   }
 
-  hparams <- list("a" = c(1,2),
-                  "b" = c(3,4))
+  hparams <- list(
+    "a" = c(1, 2),
+    "b" = c(3, 4)
+  )
 
-  suppressWarnings(Vbinomlist_list <- validate_fn(train_data = dat_list[[1]],
-                                  test_data = dat_list[[2]],
-                                  model_fn = glm_model_fn,
-                                  predict_fn = glm_predict_fn,
-                                  preprocess_fn = glm_preprocess_fn,
-                                  preprocess_once = FALSE,
-                                  formulas = c("diagnosis~score", "diagnosis~age"),
-                                  hyperparameters = hparams,
-                                  type = "binomial",
-                                  metrics = list("AIC" = TRUE,
-                                                 "AICc" = TRUE,
-                                                 "BIC" = TRUE),
-                                  positive = 2))
+  suppressWarnings(Vbinomlist_list <- validate_fn(
+    train_data = dat_list[[1]],
+    test_data = dat_list[[2]],
+    model_fn = glm_model_fn,
+    predict_fn = glm_predict_fn,
+    preprocess_fn = glm_preprocess_fn,
+    preprocess_once = FALSE,
+    formulas = c("diagnosis~score", "diagnosis~age"),
+    hyperparameters = hparams,
+    type = "binomial",
+    metrics = list(
+      "AIC" = TRUE,
+      "AICc" = TRUE,
+      "BIC" = TRUE
+    ),
+    positive = 2
+  ))
 
-  suppressWarnings(Vbinomlist_not_list <- validate_fn(train_data = dat_not_list,
-                                      model_fn = glm_model_fn,
-                                      predict_fn = glm_predict_fn,
-                                      preprocess_fn = glm_preprocess_fn,
-                                      preprocess_once = TRUE,
-                                      formulas = c("diagnosis~score", "diagnosis~age"),
-                                      hyperparameters = hparams,
-                                      partitions_col = '.partitions',
-                                      type = 'binomial',
-                                      metrics = list("AIC" = TRUE,
-                                                     "AICc" = TRUE,
-                                                     "BIC" = TRUE),
-                                      positive = 2))
+  suppressWarnings(Vbinomlist_not_list <- validate_fn(
+    train_data = dat_not_list,
+    model_fn = glm_model_fn,
+    predict_fn = glm_predict_fn,
+    preprocess_fn = glm_preprocess_fn,
+    preprocess_once = TRUE,
+    formulas = c("diagnosis~score", "diagnosis~age"),
+    hyperparameters = hparams,
+    partitions_col = ".partitions",
+    type = "binomial",
+    metrics = list(
+      "AIC" = TRUE,
+      "AICc" = TRUE,
+      "BIC" = TRUE
+    ),
+    positive = 2
+  ))
 
-  expect_true(all.equal.list(Vbinomlist_list,
-                   Vbinomlist_not_list))
+  expect_true(all.equal.list(
+    Vbinomlist_list,
+    Vbinomlist_not_list
+  ))
   warns <- dplyr::bind_rows(Vbinomlist_list$`Warnings and Messages`)
-  expect_equal(warns,
-               structure(list(Function = c("model_fn", "model_fn", "model_fn",
-                                           "model_fn", "model_fn", "model_fn", "model_fn", "model_fn"),
-                              Type = c("warning", "warning", "warning", "warning", "warning",
-                                       "warning", "warning", "warning"),
-                              Message = c(
-                                "a = 1; b = 3",
-                                "a = 2; b = 3",
-                                "a = 1; b = 4",
-                                "a = 2; b = 4",
-                                "a = 1; b = 3",
-                                "a = 2; b = 3",
-                                "a = 1; b = 4",
-                                "a = 2; b = 4"
-                              )),
-                         row.names = c(NA,-8L), class = c("tbl_df", "tbl", "data.frame")))
+  expect_equal(
+    warns,
+    structure(list(
+      Function = c(
+        "model_fn", "model_fn", "model_fn",
+        "model_fn", "model_fn", "model_fn", "model_fn", "model_fn"
+      ),
+      Type = c(
+        "warning", "warning", "warning", "warning", "warning",
+        "warning", "warning", "warning"
+      ),
+      Message = c(
+        "a = 1; b = 3",
+        "a = 2; b = 3",
+        "a = 1; b = 4",
+        "a = 2; b = 4",
+        "a = 1; b = 3",
+        "a = 2; b = 3",
+        "a = 1; b = 4",
+        "a = 2; b = 4"
+      )
+    ),
+    row.names = c(NA, -8L), class = c("tbl_df", "tbl", "data.frame")
+    )
+  )
 
-  expect_equal(colnames(Vbinomlist_list),
-               c("Balanced Accuracy", "F1", "Sensitivity", "Specificity", "Pos Pred Value",
-                 "Neg Pred Value", "AUC", "Lower CI", "Upper CI", "Kappa", "MCC",
-                 "Detection Rate", "Detection Prevalence", "Prevalence", "AIC",
-                 "AICc", "BIC", "Predictions", "ROC", "Confusion Matrix", "Coefficients",
-                 "Preprocess", "Convergence Warnings", "Other Warnings",
-                 "Warnings and Messages", "Family", "HParams", "Model", "Dependent", "Fixed"))
+  expect_equal(
+    colnames(Vbinomlist_list),
+    c(
+      "Balanced Accuracy", "F1", "Sensitivity", "Specificity", "Pos Pred Value",
+      "Neg Pred Value", "AUC", "Lower CI", "Upper CI", "Kappa", "MCC",
+      "Detection Rate", "Detection Prevalence", "Prevalence", "AIC",
+      "AICc", "BIC", "Predictions", "ROC", "Confusion Matrix", "Coefficients",
+      "Preprocess", "Convergence Warnings", "Other Warnings",
+      "Warnings and Messages", "Family", "HParams", "Model", "Dependent", "Fixed"
+    )
+  )
 
   expect_equal(Vbinomlist_list$`Convergence Warnings`, rep(0, 8))
-  expect_equal(Vbinomlist_list$Family, rep('binomial', 8))
-  expect_equal(Vbinomlist_list$Dependent, rep('diagnosis', 8))
-  expect_equal(Vbinomlist_list$Fixed, rep(c('score','age'), each=4))
+  expect_equal(Vbinomlist_list$Family, rep("binomial", 8))
+  expect_equal(Vbinomlist_list$Dependent, rep("diagnosis", 8))
+  expect_equal(Vbinomlist_list$Fixed, rep(c("score", "age"), each = 4))
 
   models <- dplyr::as_tibble(t(sapply(Vbinomlist_list$Model, FUN = summary)))
-  expect_equal(unlist(models$aic),
-               c(28.4526796540548, 28.4526796540548, 28.4526796540548, 28.4526796540548,
-                 32.6440231222318, 32.6440231222318, 32.6440231222318, 32.6440231222318
-               ))
-  expect_equal(unlist(models$deviance),
-               c(24.4526796540548, 24.4526796540548, 24.4526796540548, 24.4526796540548,
-                 28.6440231222318, 28.6440231222318, 28.6440231222318, 28.6440231222318
-               ))
+  expect_equal(
+    unlist(models$aic),
+    c(
+      28.4526796540548, 28.4526796540548, 28.4526796540548, 28.4526796540548,
+      32.6440231222318, 32.6440231222318, 32.6440231222318, 32.6440231222318
+    )
+  )
+  expect_equal(
+    unlist(models$deviance),
+    c(
+      24.4526796540548, 24.4526796540548, 24.4526796540548, 24.4526796540548,
+      28.6440231222318, 28.6440231222318, 28.6440231222318, 28.6440231222318
+    )
+  )
 
   # TODO :
   expect_equal(Vbinomlist_list$AUC,
-               c(0.944444444444444, 0.944444444444444,
-                 0.944444444444444, 0.944444444444444,
-                 0, 0, 0, 0), tolerance=1e-3)
+    c(
+      0.944444444444444, 0.944444444444444,
+      0.944444444444444, 0.944444444444444,
+      0, 0, 0, 0
+    ),
+    tolerance = 1e-3
+  )
   # expect_equal(CVbinomlist$`Lower CI`, c(0.58511535, 0.01748744), tolerance=1e-3)
   # expect_equal(CVbinomlist$`Upper CI`, c(0.9380328, 0.3158459), tolerance=1e-3)
   # expect_equal(CVbinomlist$Kappa, c(0.4927536, -0.3636364), tolerance=1e-3)
@@ -324,8 +364,6 @@ test_that("binomial glm model works with validate_fn()",{
   #                        row.names = integer(0),
   #                        class = c("tbl_df",
   #                                  "tbl", "data.frame")))
-
-
 })
 
 

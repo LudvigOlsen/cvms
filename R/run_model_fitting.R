@@ -1,16 +1,17 @@
 
 
 run_model_fitting <- function(
-  model_fitting_fn, model_specifics, train_data,
-  warn_info = list(
-    model_formula = NULL,
-    fold_info = list(
-      rel_fold = NULL,
-      abs_fold = NULL,
-      fold_column = NULL),
-    model_verbose = FALSE,
-    caller = "cross_validate_fn()"
-  )) {
+                              model_fitting_fn, model_specifics, train_data,
+                              warn_info = list(
+                                model_formula = NULL,
+                                fold_info = list(
+                                  rel_fold = NULL,
+                                  abs_fold = NULL,
+                                  fold_column = NULL
+                                ),
+                                model_verbose = FALSE,
+                                caller = "cross_validate_fn()"
+                              )) {
 
   # Tries to fit the given model with the given model_type
   # .. If it gives a warning
@@ -38,26 +39,31 @@ run_model_fitting <- function(
 
   # We run the model fitting function once, but use map, so we can use the
   # quietly function from purrr. Perhaps there's a way to avoid map() ?
-  fitted_model_process <- tryCatch({
-    purrr::map(.x = 1, .f = purrr::quietly(function(.x){
-      model_fitting_fn(model_specifics, train_data)
-    }))
-  }, error = function(e){
-    message(e) # The error is not always shown in full, in the below
-               # making it hard to debug
-    stop(paste('',
-               '-------------------------------------',
-               paste0(caller, ': Error:'),
-               'In model:',
-               model_formula,
-               'For fold column:',
-               fold_column,
-               'In fold:',
-               rel_fold,
-               "Hyperparameters:",
-               paste_hparams(extract_hparams(model_specifics)),
-               e, sep = "\n"))
-  })
+  fitted_model_process <- tryCatch(
+    {
+      purrr::map(.x = 1, .f = purrr::quietly(function(.x) {
+        model_fitting_fn(model_specifics, train_data)
+      }))
+    },
+    error = function(e) {
+      message(e) # The error is not always shown in full, in the below
+      # making it hard to debug
+      stop(paste("",
+        "-------------------------------------",
+        paste0(caller, ": Error:"),
+        "In model:",
+        model_formula,
+        "For fold column:",
+        fold_column,
+        "In fold:",
+        rel_fold,
+        "Hyperparameters:",
+        paste_hparams(extract_hparams(model_specifics)),
+        e,
+        sep = "\n"
+      ))
+    }
+  )
 
   model <- fitted_model_process[[1]][["result"]]
   warnings <- fitted_model_process[[1]][["warnings"]]
@@ -72,81 +78,85 @@ run_model_fitting <- function(
   # Check messages
   # We assume there will never be a lot of messages
   # and use a basic for loop
-  for(m in messages){
+  for (m in messages) {
 
     # purrr::quietly adds \n to end of messages, which we're not interested in here
-    m <- gsub('\\\n$', '', m)
+    m <- gsub("\\\n$", "", m)
 
-    if (grepl('boundary \\(singular\\) fit', as.character(m), ignore.case = TRUE)){
-      message(paste('',
-                    '--------------------------------------------------',
-                    paste0(caller, ': Boundary (Singular) Fit Message:'),
-                    'In model:',
-                    model_formula,
-                    'For fold column:',
-                    fold_column,
-                    'In fold:',
-                    rel_fold,
-                    "Hyperparameters:",
-                    paste_hparams(extract_hparams(model_specifics)),
-                    m, sep = "\n"))
+    if (grepl("boundary \\(singular\\) fit", as.character(m), ignore.case = TRUE)) {
+      message(paste("",
+        "--------------------------------------------------",
+        paste0(caller, ": Boundary (Singular) Fit Message:"),
+        "In model:",
+        model_formula,
+        "For fold column:",
+        fold_column,
+        "In fold:",
+        rel_fold,
+        "Hyperparameters:",
+        paste_hparams(extract_hparams(model_specifics)),
+        m,
+        sep = "\n"
+      ))
 
       threw_singular_message <- TRUE
-
-    } else if (grepl('Model function: Used', as.character(m), ignore.case = TRUE)) {
+    } else if (grepl("Model function: Used", as.character(m), ignore.case = TRUE)) {
       # Happens on purpose, when model_verbose is TRUE
       message(m)
     } else {
       threw_unknown_message <- TRUE
-      message(paste('',
-                    '--------------------------',
-                    paste0(caller, ': Message:'),
-                    'In model:',
-                    model_formula,
-                    'For fold column:',
-                    fold_column,
-                    'In fold:',
-                    rel_fold,
-                    "Hyperparameters:",
-                    paste_hparams(extract_hparams(model_specifics)),
-                    m, sep = "\n"))
+      message(paste("",
+        "--------------------------",
+        paste0(caller, ": Message:"),
+        "In model:",
+        model_formula,
+        "For fold column:",
+        fold_column,
+        "In fold:",
+        rel_fold,
+        "Hyperparameters:",
+        paste_hparams(extract_hparams(model_specifics)),
+        m,
+        sep = "\n"
+      ))
     }
   }
 
   # We assume only a few warnings will occur at once
   # why we use a basic for loop
-  for(w in warnings){
+  for (w in warnings) {
 
     # Check if the warning contains some words that would
     # indicate that it is a convergence warning
     # TODO This part could be improved upon, as it's currently only based on
     # the warnings that we got with a limited dataset and set of models
-    if (grepl('checkConv', as.character(w), ignore.case = TRUE) ||
-        grepl('convergence', as.character(w), ignore.case = TRUE) ||
-        grepl('converge', as.character(w), ignore.case = TRUE)){
+    if (grepl("checkConv", as.character(w), ignore.case = TRUE) ||
+      grepl("convergence", as.character(w), ignore.case = TRUE) ||
+      grepl("converge", as.character(w), ignore.case = TRUE)) {
 
       # If it seemed to be a convergence warning:
       # .. message the user of the failed model and fold
       # .. issue the warning
       # .. and return NULL to model
 
-      warning(paste('',
-                    '-------------------------------------',
-                    paste0(caller, ': Convergence Warning:'),
-                    'In model:',
-                    model_formula,
-                    'For fold column:',
-                    fold_column,
-                    'In fold:',
-                    rel_fold,
-                    "Hyperparameters:",
-                    paste_hparams(extract_hparams(model_specifics)),
-                    w, sep = "\n"))
+      warning(paste("",
+        "-------------------------------------",
+        paste0(caller, ": Convergence Warning:"),
+        "In model:",
+        model_formula,
+        "For fold column:",
+        fold_column,
+        "In fold:",
+        rel_fold,
+        "Hyperparameters:",
+        paste_hparams(extract_hparams(model_specifics)),
+        w,
+        sep = "\n"
+      ))
 
       threw_convergence_warning <- TRUE
       # We don't want to evaluate the non-converged models
       model <- NULL
-
     } else {
 
       # If it didn't seem to be a convergence warning
@@ -154,27 +164,31 @@ run_model_fitting <- function(
       # .. issue the warning
       # .. and return the fitted model
 
-      warning(paste('',
-                    '-------------------------------------',
-                    paste0(caller, ': Warning:'),
-                    'In model:',
-                    model_formula,
-                    'For fold column:',
-                    fold_column,
-                    'In fold:',
-                    rel_fold,
-                    "Hyperparameters:",
-                    paste_hparams(extract_hparams(model_specifics)),
-                    w, sep = "\n"))
+      warning(paste("",
+        "-------------------------------------",
+        paste0(caller, ": Warning:"),
+        "In model:",
+        model_formula,
+        "For fold column:",
+        fold_column,
+        "In fold:",
+        rel_fold,
+        "Hyperparameters:",
+        paste_hparams(extract_hparams(model_specifics)),
+        w,
+        sep = "\n"
+      ))
 
       threw_unknown_warning <- TRUE
     }
   }
 
   # Create tibble with warnings and messages
-  warnings_and_messages <- create_warnings_and_messages_tibble(warnings = warnings,
-                                                               messages = messages,
-                                                               fn = "model_fn")
+  warnings_and_messages <- create_warnings_and_messages_tibble(
+    warnings = warnings,
+    messages = messages,
+    fn = "model_fn"
+  )
 
   # If it threw a message or warning, we want to count that.
   return(
@@ -187,11 +201,10 @@ run_model_fitting <- function(
       "threw_unknown_warning" = threw_unknown_warning
     )
   )
-
 }
 
-paste_hparams <- function(hparams){
-  if (is.null(hparams)){
+paste_hparams <- function(hparams) {
+  if (is.null(hparams)) {
     return("")
   }
   paste(names(hparams), hparams, sep = " : ", collapse = ", ")
@@ -199,9 +212,9 @@ paste_hparams <- function(hparams){
 
 # Extract hparams, either as list or tibble, or NULL if
 # hparams wasn't passed originally
-extract_hparams <- function(model_specifics){
+extract_hparams <- function(model_specifics) {
   hparams <- dplyr::bind_rows(model_specifics[["hparams"]])
-  if (".__NA__" %in% names(hparams) && length(hparams) == 1){
+  if (".__NA__" %in% names(hparams) && length(hparams) == 1) {
     return(NULL)
   }
   hparams

@@ -38,24 +38,39 @@
 #' # Simplify formula (as formula)
 #' simplify_formula(as.formula(f1))
 #' @importFrom stats as.formula
-simplify_formula <- function(formula, data = NULL){
+simplify_formula <- function(formula, data = NULL) {
+  if (is.character(formula)) {
+    formula <- as.formula(formula)
+  }
+
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_data_frame(
+    x = data, null.ok = TRUE,
+    min.cols = 1, add = assert_collection
+  )
+  checkmate::assert_formula(x = formula, add = assert_collection)
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
 
   # TODO Add option to remove random effects before simplification
-
-  if (is.character(formula))
-    formula <- as.formula(formula)
 
   # Extract variables
   vars <- all.vars(formula)
   y <- vars[1]
   x <- vars[-1]
-  if ("." %in% x){
-    if (is.null(data)){
-      stop("when 'formula' contains a '.', 'data' must be a data frame, not NULL.")
-    }
-    if (length(x) > 1)
-      warning(paste0("simplify_formula(): when a formula contains '.', ",
-                     "any other right-hand side terms will be ignored."))
+  if ("." %in% x) {
+    stop_if(
+      is.null(data),
+      "when 'formula' contains a '.', 'data' must be a data frame, not NULL."
+    )
+    warn_if(
+      length(x) > 1,
+      paste0(
+        "simplify_formula(): when a formula contains '.', ",
+        "any other right-hand side terms will be ignored."
+      )
+    )
     x <- colnames(data)
     x <- x[x != y]
   }

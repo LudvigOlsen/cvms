@@ -32,46 +32,55 @@
 #'   "randomForest_binomial" \tab \code{\link[randomForest:randomForest]{randomForest::randomForest()}} \tab \cr
 #'   "randomForest_multinomial" \tab \code{\link[randomForest:randomForest]{randomForest::randomForest()}} \tab \cr
 #'  }
-example_predict_functions <- function(name){
-
-  if (name %in% c("lm",
-                  "lmer",
-                  "glm_binomial",
-                  "glmer_binomial",
-                  "randomForest_gaussian")){
-    predict_fn <- function(test_data, model, formula, hyperparameters){
-      stats::predict(object = model,
-                     newdata = test_data,
-                     type = "response",
-                     allow.new.levels = TRUE)
+example_predict_functions <- function(name) {
+  if (name %in% c(
+    "lm",
+    "lmer",
+    "glm_binomial",
+    "glmer_binomial",
+    "randomForest_gaussian"
+  )) {
+    predict_fn <- function(test_data, model, formula, hyperparameters) {
+      stats::predict(
+        object = model,
+        newdata = test_data,
+        type = "response",
+        allow.new.levels = TRUE
+      )
     }
-  } else if (name %in% c("svm_gaussian")){
-    predict_fn <- function(test_data, model, formula, hyperparameters){
-      stats::predict(object = model,
-                     newdata = test_data,
-                     allow.new.levels = TRUE)
+  } else if (name %in% c("svm_gaussian")) {
+    predict_fn <- function(test_data, model, formula, hyperparameters) {
+      stats::predict(
+        object = model,
+        newdata = test_data,
+        allow.new.levels = TRUE
+      )
     }
-  } else if (name == "svm_binomial"){
-    predict_fn <- function(test_data, model, formula, hyperparameters){
-      predictions <- stats::predict(object = model,
-                     newdata = test_data,
-                     allow.new.levels = TRUE,
-                     probability = TRUE)
+  } else if (name == "svm_binomial") {
+    predict_fn <- function(test_data, model, formula, hyperparameters) {
+      predictions <- stats::predict(
+        object = model,
+        newdata = test_data,
+        allow.new.levels = TRUE,
+        probability = TRUE
+      )
 
       # Extract probabilities
       probabilities <- dplyr::as_tibble(
         attr(predictions, "probabilities")
-        )
+      )
 
       # Return second column
       probabilities[[2]]
     }
-  } else if (name == "svm_multinomial"){
-    predict_fn <- function(test_data, model, formula, hyperparameters){
-      predictions <- stats::predict(object = model,
-                                    newdata = test_data,
-                                    allow.new.levels = TRUE,
-                                    probability = TRUE)
+  } else if (name == "svm_multinomial") {
+    predict_fn <- function(test_data, model, formula, hyperparameters) {
+      predictions <- stats::predict(
+        object = model,
+        newdata = test_data,
+        allow.new.levels = TRUE,
+        probability = TRUE
+      )
 
       # Extract probabilities
       probabilities <- dplyr::as_tibble(
@@ -81,38 +90,48 @@ example_predict_functions <- function(name){
       # Return probabilities
       probabilities
     }
-  } else if (name == "naive_bayes"){
-    predict_fn <- function(test_data, model, formula, hyperparameters){
-      stats::predict(object = model,
-                     newdata = test_data,
-                     type = "raw",
-                     allow.new.levels = TRUE)[,2]
+  } else if (name == "naive_bayes") {
+    predict_fn <- function(test_data, model, formula, hyperparameters) {
+      stats::predict(
+        object = model,
+        newdata = test_data,
+        type = "raw",
+        allow.new.levels = TRUE
+      )[, 2]
     }
-  } else if (name == "nnet_multinom"){
-    predict_fn <- function(test_data, model, formula, hyperparameters){
-      stats::predict(object = model,
-                     newdata = test_data,
-                     type = "probs",
-                     allow.new.levels = TRUE)
+  } else if (name == "nnet_multinom") {
+    predict_fn <- function(test_data, model, formula, hyperparameters) {
+      stats::predict(
+        object = model,
+        newdata = test_data,
+        type = "probs",
+        allow.new.levels = TRUE
+      )
     }
-  } else if (name %in% c("nnet_gaussian", "nnet_binomial")){
-    predict_fn <- function(test_data, model, formula, hyperparameters){
-      stats::predict(object = model,
-                     newdata = test_data,
-                     type = "raw",
-                     allow.new.levels = TRUE)
+  } else if (name %in% c("nnet_gaussian", "nnet_binomial")) {
+    predict_fn <- function(test_data, model, formula, hyperparameters) {
+      stats::predict(
+        object = model,
+        newdata = test_data,
+        type = "raw",
+        allow.new.levels = TRUE
+      )
     }
-  } else if (name %in% c("randomForest_binomial")){
-    predict_fn <- function(test_data, model, formula, hyperparameters){
-      stats::predict(object = model,
-                     newdata = test_data,
-                     type = "prob")[,2]
+  } else if (name %in% c("randomForest_binomial")) {
+    predict_fn <- function(test_data, model, formula, hyperparameters) {
+      stats::predict(
+        object = model,
+        newdata = test_data,
+        type = "prob"
+      )[, 2]
     }
-  } else if (name %in% c("randomForest_multinomial")){
-    predict_fn <- function(test_data, model, formula, hyperparameters){
-      stats::predict(object = model,
-                     newdata = test_data,
-                     type = "prob")
+  } else if (name %in% c("randomForest_multinomial")) {
+    predict_fn <- function(test_data, model, formula, hyperparameters) {
+      stats::predict(
+        object = model,
+        newdata = test_data,
+        type = "prob"
+      )
     }
   } else {
     stop(paste0("Could not find '", name, "'."))

@@ -776,7 +776,8 @@ to_tibble <- function(x, x_name, caller = "") {
 
 
 base_rename <- function(data, before, after,
-                        warn_at_overwrite = FALSE) {
+                        warn_at_overwrite = FALSE,
+                        message_if_identical = FALSE) {
 
   #
   # Replaces name of column in data frame
@@ -790,7 +791,7 @@ base_rename <- function(data, before, after,
     stop("'before' and 'after' must both have length 1.")
   }
 
-  if (before == after) {
+  if (isTRUE(message_if_identical) && before == after) {
     message("'before' and 'after' were identical.")
     return(data)
   }

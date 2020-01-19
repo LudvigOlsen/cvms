@@ -44,28 +44,32 @@ library(groupdata2) # fold()
 data <- participant.scores
 
 # Fold data
-data <- fold(data, k = 4,
-             cat_col = 'diagnosis',
-             id_col = 'participant')
+data <- fold(data,
+  k = 4,
+  cat_col = "diagnosis",
+  id_col = "participant"
+)
 
 # Cross-validate a gaussian model
 CVgauss <- cross_validate(data,
-                          "score~diagnosis",
-                          family='gaussian')
+  "score~diagnosis",
+  family = "gaussian"
+)
 
 # Plot results for gaussian model
-cv_plot(CVgauss, type = 'RMSE')
-cv_plot(CVgauss, type = 'r2')
-cv_plot(CVgauss, type = 'IC')
-cv_plot(CVgauss, type = 'coefficients')
+cv_plot(CVgauss, type = "RMSE")
+cv_plot(CVgauss, type = "r2")
+cv_plot(CVgauss, type = "IC")
+cv_plot(CVgauss, type = "coefficients")
 
 # Cross-validate a binomial model
 CVbinom <- cross_validate(data,
-                          "diagnosis~score",
-                          family='binomial')
+  "diagnosis~score",
+  family = "binomial"
+)
 
 # Plot results for binomial model
-cv_plot(CVbinom, type = 'ROC')
+cv_plot(CVbinom, type = "ROC")
 }
 }
 \author{

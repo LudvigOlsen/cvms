@@ -697,10 +697,9 @@ run_evaluate <- function(data,
 
     # Currently don't support model object metrics
     # in ID aggregation mode
-    stop_if(
-      !is.null(models),
-      "When aggregating by ID, 'models' should be NULL."
-    )
+    if (!is.null(models)){
+      stop("When aggregating by ID, 'models' should be NULL.")
+    }
 
     # Prepare data for ID level evaluation
     data_for_id_evaluation <- prepare_id_level_evaluation(

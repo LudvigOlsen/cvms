@@ -74,22 +74,23 @@ library(cvms)
 
 # Create effect names
 dependent <- "y"
-fixed_effects <- c("a","b","c")
+fixed_effects <- c("a", "b", "c")
 random_effects <- "(1|e)"
-
 \donttest{
 # Create model formulas
-combine_predictors(dependent, fixed_effects,
-                   random_effects)
-
+combine_predictors(
+  dependent, fixed_effects,
+  random_effects
+)
 }
 # Create effect names with interchangeable effects in sublists
-fixed_effects <- list("a",list("b","log_b"),"c")
-
+fixed_effects <- list("a", list("b", "log_b"), "c")
 \donttest{
 # Create model formulas
-combine_predictors(dependent, fixed_effects,
-                   random_effects)
+combine_predictors(
+  dependent, fixed_effects,
+  random_effects
+)
 }
 }
 \author{

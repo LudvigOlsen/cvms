@@ -1,6 +1,5 @@
 library(cvms)
 context("cv_plot()")
-library(rtilities2)
 
 test_that("cv_plot() works", {
 
@@ -98,12 +97,14 @@ test_that("plot_confusion_matrix() returns expected plots", {
 
   expect_true(!p1$guides$fill[[1]])
 
-  expect_error(strip_msg(plot_confusion_matrix(cm[["Confusion Matrix"]][[1]], darkness = 1.1)),
-    strip("1 assertions failed:\n * Variable 'darkness': Element 1 is not <= 1."),
+  expect_error(
+    xpectr::strip_msg(plot_confusion_matrix(cm[["Confusion Matrix"]][[1]], darkness = 1.1)),
+    xpectr::strip("1 assertions failed:\n * Variable 'darkness': Element 1 is not <= 1."),
     fixed = TRUE
   )
-  expect_error(strip_msg(plot_confusion_matrix(cm[["Confusion Matrix"]][[1]], darkness = -.1)),
-    strip("1 assertions failed:\n * Variable 'darkness': Element 0 is not >= 0."),
+  expect_error(
+    xpectr::strip_msg(plot_confusion_matrix(cm[["Confusion Matrix"]][[1]], darkness = -.1)),
+    xpectr::strip("1 assertions failed:\n * Variable 'darkness': Element 0 is not >= 0."),
     fixed = TRUE
   )
 })

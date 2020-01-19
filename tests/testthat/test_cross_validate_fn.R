@@ -1,6 +1,5 @@
 library(cvms)
 context("cross_validate_fn()")
-library(rtilities2)
 
 test_that("binomial glm model works with cross_validate_fn()", {
 
@@ -97,13 +96,14 @@ test_that("binomial glm model works with cross_validate_fn()", {
 
 
   # Check error when no model_fn is provided
-  expect_error(strip_msg(cross_validate_fn(dat,
+  expect_error(
+    xpectr::strip_msg(cross_validate_fn(dat,
     model_fn = NULL,
     predict_fn = glm_predict_fn,
     formulas = c("diagnosis~score", "diagnosis~age"),
     fold_cols = ".folds", type = "binomial"
   )),
-  strip(paste0(
+  xpectr::strip(paste0(
     "1 assertions failed:\n * Variable 'model_fn': Must be a fun",
     "ction, not 'NULL'."
   )),
@@ -111,13 +111,14 @@ test_that("binomial glm model works with cross_validate_fn()", {
   )
 
   # Check error when no predict_fn is provided
-  expect_error(strip_msg(cross_validate_fn(dat,
+  expect_error(
+    xpectr::strip_msg(cross_validate_fn(dat,
     model_fn = glm_model_fn,
     predict_fn = NULL,
     formulas = c("diagnosis~score", "diagnosis~age"),
     fold_cols = ".folds", type = "binomial"
   )),
-  strip(paste0(
+  xpectr::strip(paste0(
     "1 assertions failed:\n * Variable 'predict_fn': Must be a f",
     "unction, not 'NULL'."
   )),
@@ -125,13 +126,14 @@ test_that("binomial glm model works with cross_validate_fn()", {
   )
 
   # Check error when wrong model_fn type is provided
-  expect_error(strip_msg(cross_validate_fn(dat,
+  expect_error(
+    xpectr::strip_msg(cross_validate_fn(dat,
     model_fn = 3,
     predict_fn = glm_predict_fn,
     formulas = c("diagnosis~score", "diagnosis~age"),
     fold_cols = ".folds", type = "binomial"
   )),
-  strip(paste0(
+  xpectr::strip(paste0(
     "1 assertions failed:\n * Variable 'model_fn': Must be a fun",
     "ction, not 'double'."
   )),
@@ -139,13 +141,14 @@ test_that("binomial glm model works with cross_validate_fn()", {
   )
 
   # Check error when wrong predict_fn type is provided
-  expect_error(strip_msg(cross_validate_fn(dat,
+  expect_error(
+    xpectr::strip_msg(cross_validate_fn(dat,
     model_fn = glm_model_fn,
     predict_fn = 3,
     formulas = c("diagnosis~score", "diagnosis~age"),
     fold_cols = ".folds", type = "binomial"
   )),
-  strip(paste0(
+    xpectr::strip(paste0(
     "1 assertions failed:\n * Variable 'predict_fn': Must be a f",
     "unction, not 'double'."
   )),
@@ -162,14 +165,15 @@ test_that("binomial glm model works with cross_validate_fn()", {
   fixed = TRUE
   )
 
-  expect_error(strip_msg(cross_validate_fn(dat,
+  expect_error(
+    xpectr::strip_msg(cross_validate_fn(dat,
     model_fn = glm_model_fn,
     predict_fn = glm_predict_fn,
     formulas = c("score", "diagnosis~age"),
     fold_cols = ".folds",
     type = "fishcat"
   )),
-  strip(paste0(
+    xpectr::strip(paste0(
     "1 assertions failed:\n * Variable 'family': Must be element",
     " of set\n * {'gaussian','binomial','multinomial'}, but is 'f",
     "ishcat'."
@@ -238,14 +242,15 @@ test_that("binomial glm model works with cross_validate_fn()", {
   ),
   fixed = TRUE
   )
-  expect_error(strip_msg(cross_validate_fn(dat,
+  expect_error(
+    xpectr::strip_msg(cross_validate_fn(dat,
     model_fn = glm_model_fn,
     formulas = c("diagnosis~score", "diagnosis~age"),
     fold_cols = ".folds",
     predict_fn = NULL,
     type = "binomial"
   )),
-  strip(paste0(
+    xpectr::strip(paste0(
     "1 assertions failed:\n * Variable 'predict_fn': Must be a f",
     "unction, not 'NULL'."
   )),
@@ -295,7 +300,8 @@ test_that("binomial glm model works with cross_validate_fn()", {
   ),
   fixed = TRUE
   )
-  expect_error(strip_msg(cross_validate_fn(dat,
+  expect_error(
+    xpectr::strip_msg(cross_validate_fn(dat,
     model_fn = glm_model_fn,
     formulas = c("diagnosis~score", "diagnosis~age"),
     fold_cols = ".folds",
@@ -305,7 +311,7 @@ test_that("binomial glm model works with cross_validate_fn()", {
     },
     type = "binomial"
   )),
-  strip(paste0(
+    xpectr::strip(paste0(
     "1 assertions failed:\n * Variable 'predict_fn': Must have f",
     "ormal arguments: test_data."
   )),
@@ -659,14 +665,15 @@ test_that("binomial glm model with preprocess_fn works with cross_validate_fn()"
   )
 
   # Check error when no model_fn is provided
-  expect_error(strip_msg(cross_validate_fn(dat,
+  expect_error(
+    xpectr::strip_msg(cross_validate_fn(dat,
     model_fn = glm_model_fn,
     predict_fn = glm_predict_fn,
     preprocess_fn = "notAFunction",
     formulas = c("diagnosis~score", "diagnosis~age"),
     fold_cols = ".folds_1", type = "binomial"
   )),
-  strip(paste0(
+    xpectr::strip(paste0(
     "1 assertions failed:\n * Variable 'preprocess_fn': Must be ",
     "a function (or 'NULL'), not\n * 'character'."
   )),

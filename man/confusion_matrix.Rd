@@ -177,8 +177,8 @@ library(cvms)
 # Two classes
 
 # Create targets and predictions
-targets <- c(0,1,0,1,0,1,0,1,0,1,0,1)
-predictions <- c(1,1,0,0,0,1,1,1,0,1,0,0)
+targets <- c(0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1)
+predictions <- c(1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0)
 
 # Create confusion matrix with default metrics
 cm <- confusion_matrix(targets, predictions)
@@ -189,8 +189,8 @@ cm[["Table"]]
 # Three classes
 
 # Create targets and predictions
-targets <- c(0,1,2,1,0,1,2,1,0,1,2,1,0)
-predictions <- c(2,1,0,2,0,1,1,2,0,1,2,0,2)
+targets <- c(0, 1, 2, 1, 0, 1, 2, 1, 0, 1, 2, 1, 0)
+predictions <- c(2, 1, 0, 2, 0, 1, 1, 2, 0, 1, 2, 0, 2)
 
 # Create confusion matrix with default metrics
 cm <- confusion_matrix(targets, predictions)
@@ -202,7 +202,8 @@ cm[["Table"]]
 
 # Create confusion matrix with Weighted Accuracy enabled
 cm <- confusion_matrix(targets, predictions,
-                       metrics = list("Weighted Accuracy" = TRUE))
+  metrics = list("Weighted Accuracy" = TRUE)
+)
 cm
 }
 \seealso{

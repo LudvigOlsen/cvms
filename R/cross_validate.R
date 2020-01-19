@@ -307,7 +307,6 @@
 #' @importFrom stats binomial gaussian glm lm
 #' @importFrom rlang .data
 #' @importFrom lifecycle deprecated deprecate_warn deprecate_stop
-#' @importFrom rtilities2 message_if stop_if warn_if create_tmp_name
 cross_validate <- function(data, formulas, fold_cols = ".folds", family = "gaussian",
                            control = NULL, REML = FALSE,
                            cutoff = 0.5, positive = 2,

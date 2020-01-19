@@ -1,6 +1,5 @@
 library(cvms)
 context("combine_predictors()")
-library(rtilities2)
 
 test_that("predictors are properly combined with combine_predictors()", {
   dep <- "y"
@@ -431,7 +430,8 @@ test_that("the expected errors are thrown by combine_predictors()", {
   "1 assertions failed:\n * Variable 'fixed_effects': Must be of type 'character', not 'double'.",
   fixed = T
   )
-  expect_error(strip_msg(combine_predictors(
+  expect_error(
+    xpectr::strip_msg(combine_predictors(
     dependent = "Price",
     fixed_effects = c(
       "Mileage", "Cylinder",
@@ -439,7 +439,7 @@ test_that("the expected errors are thrown by combine_predictors()", {
     ),
     random_effects = 28
   )),
-  strip(paste0(
+  xpectr::strip(paste0(
     "1 assertions failed:\n * Variable 'random_effects': Must be",
     " of type 'string' (or 'NULL'), not 'double'."
   )),

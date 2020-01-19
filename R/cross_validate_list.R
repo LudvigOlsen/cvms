@@ -204,16 +204,17 @@ cross_validate_list <- function(data,
   n_folds <- length(unique(computation_grid[["abs_fold"]]))
 
   # TODO Perhaps add a progress bar?
-  message_if(
-    condition = isTRUE(verbose),
-    message = paste0(
-      "Will cross-validate ",
-      n_models,
-      " models. This requires fitting ",
-      n_model_instances,
-      " model instances."
+  if (isTRUE(verbose)){
+    message(
+      paste0(
+        "Will cross-validate ",
+        n_models,
+        " models. This requires fitting ",
+        n_model_instances,
+        " model instances."
+      )
     )
-  )
+  }
 
   if (isTRUE(preprocess_once)) {
     data <- run_preprocess_once(

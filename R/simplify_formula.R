@@ -60,17 +60,14 @@ simplify_formula <- function(formula, data = NULL) {
   y <- vars[1]
   x <- vars[-1]
   if ("." %in% x) {
-    stop_if(
-      is.null(data),
-      "when 'formula' contains a '.', 'data' must be a data frame, not NULL."
-    )
-    warn_if(
-      length(x) > 1,
-      paste0(
+    if (is.null(data))
+      stop("when 'formula' contains a '.', 'data' must be a data frame, not NULL.")
+    if (length(x) > 1){
+      warning(paste0(
         "simplify_formula(): when a formula contains '.', ",
         "any other right-hand side terms will be ignored."
-      )
-    )
+      ))
+    }
     x <- colnames(data)
     x <- x[x != y]
   }

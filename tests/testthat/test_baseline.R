@@ -1,6 +1,5 @@
 library(cvms)
 context("baseline()")
-library(rtilities2)
 
 test_that("binomial evaluations are correct in baseline()", {
   set_seed_for_R_compatibility(1)
@@ -2660,14 +2659,15 @@ test_that("baseline() throws expected errors", {
   "1 assertions failed:\n * Variable 'positive': Must have length 1.",
   fixed = T
   )
-  expect_error(strip_msg(baseline(
+  expect_error(
+    xpectr::strip_msg(baseline(
     test_data = participant.scores,
     dependent_col = "diagnosis",
     n = 10,
     family = "binomial",
     positive = c(0, 1)
   )),
-  strip(paste0(
+  xpectr::strip(paste0(
     "1 assertions failed:\n * Variable 'positive': Must be eleme",
     "nt of set {'1','2'}, but is not atomic scalar."
   )),

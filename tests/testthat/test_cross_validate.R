@@ -1,8 +1,6 @@
 library(cvms)
 context("cross_validate()")
 
-library(rtilities2)
-
 # NOTICE:
 # Numbers tested are the results I got and not "what should be"
 # This will allow me to see if something changes, but it shouldn't give false confidence.
@@ -1279,14 +1277,15 @@ test_that("preprocessing works with binomial models in cross_validate()", {
   # the new values are truncated at min or max."
   # Hence, we might get different predictions for that specific cv
 
-  expect_error(strip_msg(cross_validate(dat,
+  expect_error(
+    xpectr::strip_msg(cross_validate(dat,
     formulas = c("diagnosis~score", "diagnosis~age"),
     fold_cols = ".folds", family = "binomial",
     preprocessing = "standardization",
     REML = FALSE, verbose = FALSE,
     positive = 1
   )),
-  strip(paste0(
+  xpectr::strip(paste0(
     "1 assertions failed:\n * Variable 'preprocessing': Must be ",
     "element of set\n * {'standardize','scale','center','range'},",
     " but is 'standardization'."
@@ -2103,13 +2102,14 @@ test_that("the expected errors are thrown by cross_validate()", {
   "At least one of the fold columns is not a factor.",
   fixed = TRUE
   )
-  expect_error(strip_msg(cross_validate(dat,
+  expect_error(
+    xpectr::strip_msg(cross_validate(dat,
     formulas = c("diagnosis~score", "diagnosis~age"),
     fold_cols = paste0(".folds_", 1), family = "fdsfs",
     REML = FALSE, verbose = FALSE,
     positive = 1
   )),
-  strip(paste0(
+  xpectr::strip(paste0(
     "1 assertions failed:\n * Variable 'family': Must be element",
     " of set\n * {'gaussian','binomial','multinomial'}, but is 'f",
     "dsfs'."
@@ -2320,7 +2320,8 @@ test_that("binomial models with metrics list work with cross_validate()", {
   "'metrics_list' contained unknown metric names: AKG, Prevalencer.",
   fixed = TRUE
   )
-  expect_error(strip_msg(cross_validate(dat,
+  expect_error(
+    xpectr::strip_msg(cross_validate(dat,
     formulas = c("diagnosis~score", "diagnosis~age"),
     fold_cols = ".folds", family = "binomial",
     REML = FALSE,
@@ -2332,7 +2333,7 @@ test_that("binomial models with metrics list work with cross_validate()", {
     verbose = FALSE,
     positive = 1
   )),
-  strip(paste0(
+  xpectr::strip(paste0(
     "1 assertions failed:\n * Variable 'metrics': May only conta",
     "in the following types: logical."
   )),

@@ -433,96 +433,109 @@ data <- participant.scores
 set.seed(7)
 
 # Fold data
-data <- fold(data, k = 4,
-             cat_col = 'diagnosis',
-             id_col = 'participant') \%>\%
-    mutate(diagnosis = as.factor(diagnosis)) \%>\%
-    arrange(.folds)
+data <- fold(data,
+  k = 4,
+  cat_col = "diagnosis",
+  id_col = "participant"
+) \%>\%
+  mutate(diagnosis = as.factor(diagnosis)) \%>\%
+  arrange(.folds)
 
 # Cross-validate multiple formulas
 
-formulas_gaussian <- c("score ~ diagnosis",
-                       "score ~ age")
-formulas_binomial <- c("diagnosis ~ score",
-                       "diagnosis ~ age")
-
+formulas_gaussian <- c(
+  "score ~ diagnosis",
+  "score ~ age"
+)
+formulas_binomial <- c(
+  "diagnosis ~ score",
+  "diagnosis ~ age"
+)
 \donttest{
 # Gaussian
 
 # Create model function with args 'train_data' and 'formula'
 # that returns a fitted model object
-lm_model_fn <- function(train_data, formula){
-    lm(formula = formula, data = train_data)
+lm_model_fn <- function(train_data, formula) {
+  lm(formula = formula, data = train_data)
 }
 
 # Cross-validate the model function
 cross_validate_fn(data,
-                  model_fn = lm_model_fn,
-                  formulas = formulas_gaussian,
-                  type = 'gaussian',
-                  fold_cols = ".folds")
+  model_fn = lm_model_fn,
+  formulas = formulas_gaussian,
+  type = "gaussian",
+  fold_cols = ".folds"
+)
 
 # Binomial
 
 # Create model function with args 'train_data' and 'formula'
 # that returns a fitted model object
-glm_model_fn <- function(train_data, formula){
-    glm(formula = formula, data = train_data, family = "binomial")
+glm_model_fn <- function(train_data, formula) {
+  glm(formula = formula, data = train_data, family = "binomial")
 }
 
 # Cross-validate the model function
 cross_validate_fn(data,
-                  model_fn = glm_model_fn,
-                  formulas = formulas_binomial,
-                  type = 'binomial',
-                  fold_cols = ".folds")
+  model_fn = glm_model_fn,
+  formulas = formulas_binomial,
+  type = "binomial",
+  fold_cols = ".folds"
+)
 
 # Support Vector Machine (svm)
 
 # Create model function with args 'train_data' and 'formula'
 # that returns a fitted model object
-svm_model_fn <- function(train_data, formula){
-    e1071::svm(formula = formula,
-               data = train_data,
-               kernel = "linear",
-               type = "C-classification")
+svm_model_fn <- function(train_data, formula) {
+  e1071::svm(
+    formula = formula,
+    data = train_data,
+    kernel = "linear",
+    type = "C-classification"
+  )
 }
 
 # Cross-validate the model function
 cross_validate_fn(data,
-                  model_fn = svm_model_fn,
-                  formulas = formulas_binomial,
-                  type = 'binomial',
-                  fold_cols = ".folds")
+  model_fn = svm_model_fn,
+  formulas = formulas_binomial,
+  type = "binomial",
+  fold_cols = ".folds"
+)
 
 # Naive Bayes
 
 # Create model function with args 'train_data' and 'formula'
 # that returns a fitted model object
-nb_model_fn <- function(train_data, formula){
-    e1071::naiveBayes(formula = formula,
-                      data = train_data)
+nb_model_fn <- function(train_data, formula) {
+  e1071::naiveBayes(
+    formula = formula,
+    data = train_data
+  )
 }
 
 # Create predict function with args 'test_data', 'model', and 'formula'
 # that returns predictions in right format (here, a one-column matrix)
 # Note the type = "raw" and that we pick the probabilities for class 1 with [,2]
-nb_predict_fn <- function(test_data, model, formula = NULL){
-  stats::predict(object = model, newdata = test_data,
-                 type = "raw", allow.new.levels = TRUE)[,2]
+nb_predict_fn <- function(test_data, model, formula = NULL) {
+  stats::predict(
+    object = model, newdata = test_data,
+    type = "raw", allow.new.levels = TRUE
+  )[, 2]
 }
 
 # Cross-validate the model function
 cross_validate_fn(data,
-                  model_fn = nb_model_fn,
-                  formulas = formulas_binomial,
-                  type = 'binomial',
-                  predict_fn = nb_predict_fn,
-                  fold_cols = ".folds")
-
+  model_fn = nb_model_fn,
+  formulas = formulas_binomial,
+  type = "binomial",
+  predict_fn = nb_predict_fn,
+  fold_cols = ".folds"
+)
 }
 # Use parallelization
-
 \donttest{
 # Attach doParallel and register four cores
 # Uncomment:
@@ -530,24 +543,32 @@ cross_validate_fn(data,
 # registerDoParallel(4)
 
 # Create list of 20 model formulas
-formulas <- rep(c("score~diagnosis",
-                "score~age"), 10)
+formulas <- rep(c(
+  "score~diagnosis",
+  "score~age"
+), 10)
 
 # Cross-validate a list of 20 model formulas in parallel
-system.time({cross_validate_fn(data,
-                               model_fn = lm_model_fn,
-                               formulas = formulas,
-                               type = 'gaussian',
-                               fold_cols = ".folds",
-                               parallel = TRUE)})
+system.time({
+  cross_validate_fn(data,
+    model_fn = lm_model_fn,
+    formulas = formulas,
+    type = "gaussian",
+    fold_cols = ".folds",
+    parallel = TRUE
+  )
+})
 
 # Cross-validate a list of 20 model formulas sequentially
-system.time({cross_validate_fn(data,
-                               model_fn = lm_model_fn,
-                               formulas = formulas,
-                               type = 'gaussian',
-                               fold_cols = ".folds",
-                               parallel = FALSE)})
+system.time({
+  cross_validate_fn(data,
+    model_fn = lm_model_fn,
+    formulas = formulas,
+    type = "gaussian",
+    fold_cols = ".folds",
+    parallel = FALSE
+  )
+})
 }
 }
 \seealso{

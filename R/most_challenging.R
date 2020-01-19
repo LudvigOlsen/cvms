@@ -80,7 +80,7 @@ most_challenging <- function(data,
   )
   checkmate::assert_number(x = threshold, add = assert_collection)
   if (threshold_is == "percentage" &&
-    !rtilities2::is_between(threshold, 0.0, 1.0)) {
+      !is_between_(threshold, 0.0, 1.0)) {
     assert_collection$push(
       "when 'threshold_is' a percentage, 'threshold' must be between 0 and 1."
     )
@@ -163,14 +163,13 @@ most_challenging_gaussian <- function(data,
                                       threshold,
                                       threshold_is,
                                       grouping_keys) {
-  stop_if(
-    !is.numeric(data[[target_col]]),
-    "'target_col' must be numeric."
-  )
-  stop_if(
-    !is.numeric(data[[prediction_col]]),
-    "'prediction_col' must be numeric."
-  )
+  if (!is.numeric(data[[target_col]])){
+    stop("'target_col' must be numeric.")
+  }
+
+  if (!is.numeric(data[[prediction_col]])){
+    stop("'prediction_col' must be numeric.")
+  }
 
   tmp_residual_var <- create_tmp_name(data, ".__residuals__")
   data[tmp_residual_var] <- data[[target_col]] - data[[prediction_col]]

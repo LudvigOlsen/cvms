@@ -268,37 +268,42 @@ data <- participant.scores
 set.seed(7)
 
 # Fold data
-data <- fold(data, k = 4,
-             cat_col = 'diagnosis',
-             id_col = 'participant') \%>\%
-        arrange(.folds)
+data <- fold(data,
+  k = 4,
+  cat_col = "diagnosis",
+  id_col = "participant"
+) \%>\%
+  arrange(.folds)
 
 # Cross-validate a single model
-
 \donttest{
 # Gaussian
 cross_validate(data,
-               formulas = "score~diagnosis",
-               family = 'gaussian',
-               REML = FALSE)
+  formulas = "score~diagnosis",
+  family = "gaussian",
+  REML = FALSE
+)
 
 # Binomial
 cross_validate(data,
-               formulas = "diagnosis~score",
-               family='binomial')
+  formulas = "diagnosis~score",
+  family = "binomial"
+)
 
 # Cross-validate multiple models
 
-formulas <- c("score~diagnosis+(1|session)",
-              "score~age+(1|session)")
+formulas <- c(
+  "score~diagnosis+(1|session)",
+  "score~age+(1|session)"
+)
 
 cross_validate(data,
-               formulas = formulas,
-               family = 'gaussian',
-               REML = FALSE)
+  formulas = formulas,
+  family = "gaussian",
+  REML = FALSE
+)
 }
 # Use parallelization
-
 \donttest{
 # Attach doParallel and register four cores
 # Uncomment:
@@ -306,20 +311,28 @@ cross_validate(data,
 # registerDoParallel(4)
 
 # Create list of 20 model formulas
-formulas <- rep(c("score~diagnosis+(1|session)",
-                  "score~age+(1|session)"), 10)
+formulas <- rep(c(
+  "score~diagnosis+(1|session)",
+  "score~age+(1|session)"
+), 10)
 
 # Cross-validate a list of 20 model formulas in parallel
-system.time({cross_validate(data,
-                            formulas = formulas,
-                            family = 'gaussian',
-                            parallel = TRUE)})
+system.time({
+  cross_validate(data,
+    formulas = formulas,
+    family = "gaussian",
+    parallel = TRUE
+  )
+})
 
 # Cross-validate a list of 20 model formulas sequentially
-system.time({cross_validate(data,
-                            formulas = formulas,
-                            family = 'gaussian',
-                            parallel = FALSE)})
+system.time({
+  cross_validate(data,
+    formulas = formulas,
+    family = "gaussian",
+    parallel = FALSE
+  )
+})
 }
 
 }

@@ -37,7 +37,6 @@ Imports:
     MuMIn (>= 1.43.6),
     broom (>= 0.5.2),
     stringr,
-    rtilities2,
     checkmate (>= 1.9.4),
     lifecycle,
     recipes
@@ -47,6 +46,7 @@ Suggests:
     e1071 (>= 1.7-2),
     rmarkdown,
     testthat (>= 2.2.1),
+    xpectr,
     AUC,
     furrr,
     covr (>= 3.3.1),

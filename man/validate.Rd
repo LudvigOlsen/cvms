@@ -259,36 +259,41 @@ set.seed(7)
 # Keep as single data frame
 # We could also have fed validate() separate train and test sets.
 data_partitioned <- partition(data,
-                              p = 0.7,
-                              cat_col = 'diagnosis',
-                              id_col = 'participant',
-                              list_out = FALSE) \%>\%
-    arrange(.partitions)
+  p = 0.7,
+  cat_col = "diagnosis",
+  id_col = "participant",
+  list_out = FALSE
+) \%>\%
+  arrange(.partitions)
 
 # Validate a model
 
 # Gaussian
 validate(data_partitioned,
-         formulas = "score~diagnosis",
-         partitions_col = '.partitions',
-         family = 'gaussian',
-         REML = FALSE)
+  formulas = "score~diagnosis",
+  partitions_col = ".partitions",
+  family = "gaussian",
+  REML = FALSE
+)
 
 # Binomial
 validate(data_partitioned,
-         formulas = "diagnosis~score",
-         partitions_col = '.partitions',
-         family = 'binomial')
+  formulas = "diagnosis~score",
+  partitions_col = ".partitions",
+  family = "binomial"
+)
 
 ## Feed separate train and test sets
 
 # Partition data to list of data frames
 # The first data frame will be train (70\% of the data)
 # The second will be test (30\% of the data)
-data_partitioned <- partition(data, p = 0.7,
-                              cat_col = 'diagnosis',
-                              id_col = 'participant',
-                              list_out = TRUE)
+data_partitioned <- partition(data,
+  p = 0.7,
+  cat_col = "diagnosis",
+  id_col = "participant",
+  list_out = TRUE
+)
 train_data <- data_partitioned[[1]]
 test_data <- data_partitioned[[2]]
 
@@ -296,11 +301,11 @@ test_data <- data_partitioned[[2]]
 
 # Gaussian
 validate(train_data,
-         test_data = test_data,
-         formulas = "score~diagnosis",
-         family = 'gaussian',
-         REML = FALSE)
-
+  test_data = test_data,
+  formulas = "score~diagnosis",
+  family = "gaussian",
+  REML = FALSE
+)
 }
 \seealso{
 Other validation functions: 

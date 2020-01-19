@@ -588,13 +588,14 @@ test_that("the expected errors are thrown by validate()", {
   set_seed_for_R_compatibility(1)
   dat <- participant.scores
 
-  expect_error(strip_msg(validate(dat, dat,
+  expect_error(
+    xpectr::strip_msg(validate(dat, dat,
     formulas = c("diagnosis~score", "diagnosis~age"),
     family = "fdsfs",
     REML = FALSE, verbose = FALSE,
     positive = 1
   )),
-  strip(paste0(
+    xpectr::strip(paste0(
     "1 assertions failed:\n * Variable 'family': Must be element",
     " of set\n * {'gaussian','binomial','multinomial'}, but is 'f",
     "dsfs'."

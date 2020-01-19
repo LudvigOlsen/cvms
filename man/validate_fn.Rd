@@ -423,11 +423,13 @@ data <- participant.scores
 set.seed(7)
 
 # Fold data
-data <- fold(data, k = 4,
-             cat_col = 'diagnosis',
-             id_col = 'participant') \%>\%
-    mutate(diagnosis = as.factor(diagnosis)) \%>\%
-    arrange(.folds)
+data <- fold(data,
+  k = 4,
+  cat_col = "diagnosis",
+  id_col = "participant"
+) \%>\%
+  mutate(diagnosis = as.factor(diagnosis)) \%>\%
+  arrange(.folds)
 }
 \seealso{
 Other validation functions: 

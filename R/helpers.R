@@ -919,6 +919,43 @@ one_hot_encode <- function(data, col, c_levels = NULL, use_epsilon = FALSE, epsi
 }
 
 
+#   __________________ #< d1964aaebfb875051d2b33ff5db3383e ># __________________
+#   Create tmp name                                                         ####
+
+
+create_tmp_name <- function(data, name = ".tmp_") {
+
+  # Assert input
+  # 'data' can be anything where names() can be used,
+  # so we don't add assertions for that
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_string(x = name, min.chars = 1, add = assert_collection)
+  checkmate::reportAssertions(assert_collection)
+
+  # Extract non-empty names from 'data'
+  data_names <- non_empty_names(data)
+
+  # Append underscore until unique
+  while (name %in% data_names) {
+    name <- paste0(name, "_")
+  }
+
+  name
+}
+
+
+#   __________________ #< bf63eb325847267b713b04037906e09e ># __________________
+#   Get non-empty names                                                     ####
+
+
+# Remove NAs and empty "" names
+non_empty_names <- function(x) {
+  ns <- names(x)
+  ns <- ns[!is.na(ns)]
+  ns[nzchar(ns, keepNA = TRUE)]
+}
+
+
 #   __________________ #< 044131f18e1777a3f55f678ac9a6e0e8 ># __________________
 #   R cmd check imports                                                     ####
 

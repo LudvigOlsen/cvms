@@ -304,7 +304,7 @@
 #' # Attach packages
 #' library(cvms)
 #' library(groupdata2) # partition()
-#' library(dplyr) # \%>\% arrange()
+#' library(dplyr) # %>% arrange()
 #' library(tibble)
 #'
 #' # Data is part of cvms

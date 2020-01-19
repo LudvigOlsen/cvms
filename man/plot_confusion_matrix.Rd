@@ -140,8 +140,8 @@ library(cvms)
 # Two classes
 
 # Create targets and predictions
-targets <- c(0,1,0,1,0,1,0,1,0,1,0,1)
-predictions <- c(1,1,0,0,0,1,1,1,0,1,0,0)
+targets <- c(0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1)
+predictions <- c(1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0)
 
 # Create confusion matrix with default metrics
 cm <- confusion_matrix(targets, predictions)
@@ -152,8 +152,8 @@ plot_confusion_matrix(cm[["Confusion Matrix"]][[1]])
 # Three (or more) classes
 
 # Create targets and predictions
-targets <- c(0,1,2,1,0,1,2,1,0,1,2,1,0)
-predictions <- c(2,1,0,2,0,1,1,2,0,1,2,0,2)
+targets <- c(0, 1, 2, 1, 0, 1, 2, 1, 0, 1, 2, 1, 0)
+predictions <- c(2, 1, 0, 2, 0, 1, 1, 2, 0, 1, 2, 0, 2)
 
 # Create confusion matrix with default metrics
 cm <- confusion_matrix(targets, predictions)
@@ -164,14 +164,16 @@ plot_confusion_matrix(cm[["Confusion Matrix"]][[1]])
 # Add prefix to row and column percentages
 
 plot_confusion_matrix(cm[["Confusion Matrix"]][[1]],
-                      font_row_percentages = font(prefix = "\U2195 "),
-                      font_col_percentages = font(prefix = "\U2195 "))
+  font_row_percentages = font(prefix = "\U2195 "),
+  font_col_percentages = font(prefix = "\U2195 ")
+)
 
 # Counts only
 plot_confusion_matrix(cm[["Confusion Matrix"]][[1]],
-                      add_normalized = FALSE,
-                      add_row_percentages = FALSE,
-                      add_col_percentages = FALSE)
+  add_normalized = FALSE,
+  add_row_percentages = FALSE,
+  add_col_percentages = FALSE
+)
 }
 \seealso{
 Other plotting functions: 

@@ -1,6 +1,5 @@
 library(cvms)
 context("helpers")
-library(rtilities2)
 
 test_that("Helper count_nulls_in_list() works", {
 

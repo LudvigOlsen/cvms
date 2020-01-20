@@ -817,26 +817,7 @@ base_rename <- function(data, before, after,
 # Cols should be col names
 # TODO just use subset() instead
 base_select <- function(data, cols) {
-  # Check arguments ####
-  assert_collection <- checkmate::makeAssertCollection()
-  checkmate::assert_data_frame(x = data, add = assert_collection)
-  checkmate::assert_character(x = cols, add = assert_collection)
-  checkmate::reportAssertions(assert_collection)
-  # End of argument checks ####
-
-  if (length(cols) == 1 && !tibble::is_tibble(data)) {
-    warning(paste0(
-      "Selecting a single column with base_select ",
-      "on a data frame (not tibble) might not keep ",
-      "the data frame structure."
-    ))
-  }
-
-  if (is.data.table(data)) {
-    return(data[, cols, with = FALSE])
-  }
-
-  data[, cols]
+  subset(data, select = cols)
 }
 
 
@@ -846,8 +827,7 @@ base_select <- function(data, cols) {
 
 # Cols should be col names
 base_deselect <- function(data, cols) {
-  if (is.numeric(cols)) stop("cols must be names")
-
+  if (!is.character(cols)) stop("cols must be names")
   base_select(data = data, cols = setdiff(names(data), cols))
 }
 

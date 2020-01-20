@@ -7,33 +7,24 @@ create_binomial_baseline_evaluations <- function(test_data,
                                                  na.rm = TRUE,
                                                  parallel_ = FALSE) {
 
-  # Check positive
-  if (is.null(positive)) {
-    stop("'positive' was NULL. Must be either whole number or character.")
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  if (is.character(positive)){
+    checkmate::assert_string(x = positive, min.chars = 1, add = assert_collection)
+  } else if (is.numeric(positive)){
+    checkmate::assert_count(x = positive, add = assert_collection)
+    if (positive %ni% c(1, 2)) {
+      assert_collection$push("When 'positive' is a number, it must be either 1 or 2.")
+    }
+  } else {
+    assert_collection$push("'positive' must be either a string or a whole number.")
   }
-  if (length(positive) != 1) {
-    stop("'positive' must have length 1.")
+  checkmate::assert_number(x = cutoff, add = assert_collection)
+  if (!is_between_(cutoff, 0, 1)){
+    assert_collection$push("'cutoff' must be between 0.0 and 1.0.")
   }
-  if (!(is.character(positive) || arg_is_wholenumber_(positive))) {
-    stop("'positive' must be either a whole number or character.")
-  }
-  if (arg_is_wholenumber_(positive) && positive %ni% c(1, 2)) {
-    stop("When 'positive' is numeric, it must be either 1 or 2.")
-  }
-
-  # Check cutoff
-  if (is.null(cutoff)) {
-    stop("'cutoff' was NULL. Must be numeric between 0.0 and 1.0.")
-  }
-  if (length(cutoff) != 1) {
-    stop("'cutoff' must have length 1.")
-  }
-  if (!is.numeric(cutoff)) {
-    stop("'cutoff' must be numeric.")
-  }
-  if (!is_between_(cutoff, 0.0, 1.0)) {
-    stop("'cutoff' must be between 0.0 and 1.0.")
-  }
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
 
   # Get targets
   targets <- test_data[[dependent_col]]

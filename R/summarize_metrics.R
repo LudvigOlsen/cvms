@@ -75,6 +75,7 @@ summarize_metrics <- function(data, cols = NULL, na.rm = TRUE, inf.rm = TRUE) {
     }
   )
 
+  # Summarize metrics
   summarized_metrics <- dplyr::bind_rows(
     plyr::ldply(names(descriptors), function(descr) {
       d_fn <- descriptors[[descr]]
@@ -97,6 +98,14 @@ summarize_metrics <- function(data, cols = NULL, na.rm = TRUE, inf.rm = TRUE) {
 }
 
 replace_inf_with_na <- function(metric_cols) {
+
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_data_frame(x = metric_cols,
+                               types = "numeric",
+                               add = assert_collection)
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
 
   # Get rows with INFs
   metric_cols_with_infs <- metric_cols[is.infinite(rowSums(metric_cols)), ]

@@ -94,13 +94,15 @@ rand_effects <- function(formula) {
 
 
 count_convergence_warnings <- function(convergences) { # "Yes" or "No"
+
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_names(x = unique(convergences), subset.of = c("Yes", "No"),
+                           add = assert_collection)
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
+
   # Count the convergence warnings
-  if (length(setdiff(convergences, c("Yes", "No"))) > 0) {
-    stop(paste0(
-      "'convergences' can only contain 'Yes' and 'No'. Found: ",
-      paste0(setdiff(convergences, c("Yes", "No")), collapse = ", "), "."
-    ))
-  }
   conv_warns <- as.integer(table(convergences)["No"])
   if (is.na(conv_warns)) {
     conv_warns <- 0
@@ -813,8 +815,14 @@ base_rename <- function(data, before, after,
 
 
 # Cols should be col names
+# TODO just use subset() instead
 base_select <- function(data, cols) {
-  if (is.numeric(cols)) stop("cols must be names")
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_data_frame(x = data, add = assert_collection)
+  checkmate::assert_character(x = cols, add = assert_collection)
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
 
   if (length(cols) == 1 && !tibble::is_tibble(data)) {
     warning(paste0(
@@ -873,6 +881,20 @@ position_last <- function(data, col) {
 
 # use_epsilon: Add epsilon to 0s and subtract epsilon from 1s
 one_hot_encode <- function(data, col, c_levels = NULL, use_epsilon = FALSE, epsilon = 1e-6) {
+
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_data_frame(x = data, add = assert_collection)
+  checkmate::assert_string(x = col, add = assert_collection)
+  checkmate::assert_character(x = c_levels, null.ok = TRUE,
+                              add = assert_collection)
+  checkmate::assert_flag(x = use_epsilon, add = assert_collection)
+  checkmate::assert_number(x = epsilon, upper = 0.01, add = assert_collection)
+  checkmate::reportAssertions(assert_collection)
+  checkmate::assert_names(x = colnames(data), must.include = col,
+                          add = assert_collection)
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
 
   # If not provided, extract categorical levels from col
   if (is.null(c_levels)) {

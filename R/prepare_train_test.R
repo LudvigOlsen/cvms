@@ -1,5 +1,30 @@
 prepare_train_test <- function(data, fold_info, fold_cols, model_specifics) {
 
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_data_frame(x = data , add = assert_collection)
+  checkmate::assert_character(x = fold_cols, add = assert_collection)
+  checkmate::assert_list(x = fold_info, types = c("character", "numeric"),
+                         add = assert_collection)
+  checkmate::assert_list(x = model_specifics,
+                         add = assert_collection)
+  checkmate::reportAssertions(assert_collection)
+  checkmate::assert_names(x = colnames(data),
+                          must.include = fold_cols,
+                          what = "colnames",
+                          add = assert_collection)
+  checkmate::assert_names(x = names(fold_info),
+                          must.include = c("fold_column", "rel_fold"),
+                          add = assert_collection)
+  checkmate::assert_names(x = names(model_specifics),
+                          must.include = c("preprocess_once",
+                                           "model_formula",
+                                           "preprocess_fn",
+                                           "caller"),
+                          add = assert_collection)
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
+
   # Extract train and test sets
   data_subset <- subset_data(
     data = data,

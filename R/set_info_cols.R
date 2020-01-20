@@ -1,4 +1,23 @@
 set_info_cols <- function(family, info_cols_list = NULL) {
+
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_choice(
+    x = family,
+    choices = c("gaussian", "binomial", "multinomial"),
+    add = assert_collection
+  )
+  checkmate::assert_list(
+    x = info_cols_list,
+    types = c("logical"),
+    names = "named",
+    any.missing = FALSE,
+    null.ok = TRUE,
+    add = assert_collection
+  )
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
+
   if (family == "gaussian") {
     default_cols <- list(
       "Predictions" = TRUE,

@@ -2,6 +2,31 @@
 # Returns a list of metric names
 # With default values unless
 set_metrics <- function(family, metrics_list = NULL, include_model_object_metrics = FALSE) {
+
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_choice(
+    x = family,
+    choices = c("gaussian", "binomial", "multinomial"),
+    add = assert_collection
+  )
+
+  if (!checkmate::test_string(x = metrics_list,
+                              pattern = "^all$")) {
+    checkmate::assert_list(
+      x = metrics_list,
+      types = c("logical"),
+      names = "named",
+      any.missing = FALSE,
+      null.ok = TRUE,
+      add = assert_collection
+    )
+  }
+  checkmate::assert_flag(x = include_model_object_metrics,
+                         add = assert_collection)
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
+
   if (family == "gaussian") {
     default_metrics <- list(
       "RMSE" = TRUE,

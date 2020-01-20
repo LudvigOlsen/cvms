@@ -15,10 +15,11 @@ test_that("Helper count_nulls_in_list() works", {
 test_that("Helper count_convergence_warnings() works", {
   expect_equal(count_convergence_warnings(c("Yes", "No", "No", "Yes", "No")), 3)
   expect_error(
-    count_convergence_warnings(c(
+    xpectr::strip_msg(count_convergence_warnings(c(
       "Yes", "No", "No", "Yes", "No", "Lol", "Nay"
-    )),
-    "'convergences' can only contain 'Yes' and 'No'. Found: Lol, Nay.",
+    ))),
+    xpectr::strip(paste0("1 assertions failed:\n * Variable 'unique(convergences)': M",
+                         "ust be a subset of set {Yes,No}.")),
     fixed = T
   )
 })

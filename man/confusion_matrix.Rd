@@ -30,6 +30,10 @@ confusion_matrix(
   individual metrics, why f.i. \code{list("all" = FALSE, "Accuracy" = TRUE)}
   would return only the Accuracy metric.
 
+  The list can be created with
+  \code{\link[cvms:binomial_metrics]{binomial_metrics()}} or
+  \code{\link[cvms:multinomial_metrics]{multinomial_metrics()}}.
+
   Also accepts the string \code{"all"}.}
 
 \item{positive}{Level from \code{targets} to predict.

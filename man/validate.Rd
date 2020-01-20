@@ -89,6 +89,10 @@ validate(
   \code{"all" = TRUE/FALSE} in the list. This is done prior to enabling/disabling
   individual metrics, why f.i. \code{list("all" = FALSE, "RMSE" = TRUE)} would return only the RMSE metric.
 
+  The list can be created with
+  \code{\link[cvms:gaussian_metrics]{gaussian_metrics()}} or
+  \code{\link[cvms:binomial_metrics]{binomial_metrics()}}.
+
   Also accepts the string \code{"all"}.}
 
 \item{preprocessing}{Name of preprocessing to apply.

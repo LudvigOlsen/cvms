@@ -23,6 +23,9 @@ evaluate_residuals(data, predictions_col, targets_col, metrics = list())
   individual metrics, why f.i. \code{list("all" = FALSE, "RMSE" = TRUE)}
   would return only the RMSE metric.
 
+  The list can be created with
+  \code{\link[cvms:gaussian_metrics]{gaussian_metrics()}}.
+
   Also accepts the string \code{"all"}.}
 }
 \value{

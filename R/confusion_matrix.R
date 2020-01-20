@@ -27,6 +27,10 @@
 #'   individual metrics, why f.i. \code{list("all" = FALSE, "Accuracy" = TRUE)}
 #'   would return only the Accuracy metric.
 #'
+#'   The list can be created with
+#'   \code{\link[cvms:binomial_metrics]{binomial_metrics()}} or
+#'   \code{\link[cvms:multinomial_metrics]{multinomial_metrics()}}.
+#'
 #'   Also accepts the string \code{"all"}.
 #' @param positive Level from \code{targets} to predict.
 #'  Either as character or level index (1 or 2 - alphabetically). (\strong{Two-class only})

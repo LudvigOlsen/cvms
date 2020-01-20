@@ -27,6 +27,9 @@
 #'   individual metrics, why f.i. \code{list("all" = FALSE, "RMSE" = TRUE)}
 #'   would return only the RMSE metric.
 #'
+#'   The list can be created with
+#'   \code{\link[cvms:gaussian_metrics]{gaussian_metrics()}}.
+#'
 #'   Also accepts the string \code{"all"}.
 #' @details
 #'  The metric formulas are listed in the \emph{Metrics} vignette.

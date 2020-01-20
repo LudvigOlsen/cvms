@@ -22,7 +22,7 @@
 #'  baseline evaluations for \code{n} sets of random predictions against the dependent variable,
 #'  along with sets of "all class x,y,z,..." predictions.
 #'
-#' @inheritParams cross_validate
+#' @inheritParams evaluate
 #' @param test_data Data Frame.
 #' @param train_data Data Frame. Only used when \code{family == "gaussian"}.
 #' @param dependent_col Name of dependent variable in the supplied test and training sets.

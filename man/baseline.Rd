@@ -40,7 +40,7 @@ baseline(
 
 \item{metrics}{List for enabling/disabling metrics.
 
-  E.g. \code{list("RMSE" = FALSE)} would remove RMSE from the results,
+  E.g. \code{list("RMSE" = FALSE)} would remove RMSE from the regression results,
   and \code{list("Accuracy" = TRUE)} would add the regular accuracy metric
   to the classification results.
   Default values (TRUE/FALSE) will be used for the remaining available metrics.
@@ -48,6 +48,11 @@ baseline(
   You can enable/disable all metrics at once by including
   \code{"all" = TRUE/FALSE} in the list. This is done prior to enabling/disabling
   individual metrics, why f.i. \code{list("all" = FALSE, "RMSE" = TRUE)} would return only the RMSE metric.
+
+  The list can be created with
+  \code{\link[cvms:gaussian_metrics]{gaussian_metrics()}},
+  \code{\link[cvms:binomial_metrics]{binomial_metrics()}}, or
+  \code{\link[cvms:multinomial_metrics]{multinomial_metrics()}}.
 
   Also accepts the string \code{"all"}.}
 

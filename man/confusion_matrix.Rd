@@ -208,8 +208,11 @@ cm
 }
 \seealso{
 Other evaluation functions: 
+\code{\link{binomial_metrics}()},
 \code{\link{evaluate_residuals}()},
-\code{\link{evaluate}()}
+\code{\link{evaluate}()},
+\code{\link{gaussian_metrics}()},
+\code{\link{multinomial_metrics}()}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

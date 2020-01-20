@@ -64,8 +64,11 @@ The metric formulas are listed in the \emph{Metrics} vignette.
 }
 \seealso{
 Other evaluation functions: 
+\code{\link{binomial_metrics}()},
 \code{\link{confusion_matrix}()},
-\code{\link{evaluate}()}
+\code{\link{evaluate}()},
+\code{\link{gaussian_metrics}()},
+\code{\link{multinomial_metrics}()}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

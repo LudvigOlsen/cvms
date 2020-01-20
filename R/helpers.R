@@ -957,6 +957,27 @@ non_empty_names <- function(x) {
 }
 
 
+#   __________________ #< 5189dc5658a43b24ed8273c326c7c50c ># __________________
+#   Checkmate apply to multiple arguments                                   ####
+
+# argument apply
+# https://github.com/mllg/checkmate/issues/115#issuecomment-331800164
+aapply = function(fun, formula, ..., fixed = list()) {
+  fun = match.fun(fun)
+  terms = terms(formula)
+  vnames = attr(terms, "term.labels")
+  ee = attr(terms, ".Environment")
+
+  dots = list(...)
+  dots$.var.name = vnames
+  dots$x = unname(mget(vnames, envir = ee))
+  .mapply(fun, dots, MoreArgs = fixed)
+
+  invisible(NULL)
+}
+
+
+
 #   __________________ #< 044131f18e1777a3f55f678ac9a6e0e8 ># __________________
 #   R cmd check imports                                                     ####
 

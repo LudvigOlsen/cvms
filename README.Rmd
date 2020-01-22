@@ -54,7 +54,6 @@ Main functions:
 * `evaluate()`
 * `baseline()`  
 * `combine_predictors()`  
-* `cv_plot()`  
 * `select_metrics()`  
 * `reconstruct_formulas()`   
 
@@ -79,6 +78,8 @@ a preprocess function and a list or data frame with hyperparameter values to tes
 ## Important News {#news}
 
 Note: Check NEWS.md for the full list of changes.
+
+* `cv_plot()` has been removed.
 
 * Fixes bug in `evaluate()`, when used on a grouped data frame. The row order in the output was not guaranteed to fit with the grouping keys. If you have used `evaluate()` on a grouped data frame, please rerun to make sure your results are correct! (30th of November 2019)
 
@@ -537,25 +538,8 @@ multiclass_baseline$summarized_class_level_results %>%
 # Note, that the class level results for each repetition
 # is available as well
 multiclass_baseline$random_evaluations
+
 ```
-
-## Plot results {#plot}
-
-There are currently a small set of plots for quick visualization of the results. It is supposed to be easy to extract the needed information to create your own plots. If you lack access to any information or have other requests or ideas, feel free to open an issue.
-
-### Gaussian {#plot-gaussian}
-
-```{r}
-cv_plot(CV1, type = "RMSE") +
-  theme_bw()
-cv_plot(CV1, type = "r2") +
-  theme_bw()
-cv_plot(CV1, type = "IC") +
-  theme_bw()
-cv_plot(CV1, type = "coefficients") +
-  theme_bw()
-```
-
 
 ## Generate model formulas {#generate-formulas}
 

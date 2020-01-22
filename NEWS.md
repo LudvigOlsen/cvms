@@ -31,6 +31,8 @@ It can be unclear whether the IC metrics (computed on the `lm()`/`lmer()` model 
 
 * In multinomial `baseline()`, the aggregation approach is changed. The summarized results now properly describe the random evaluations tibble, except for the four new measures `CL_Max`, `CL_Min`, `CL_NAs`, and `CL_INFs`, which describe the class level results. Previously, `NAs` were removed before aggregating the one-vs-all evaluations, meaning that some metric summaries could become inflated if small classes had `NA`s. It was also non-transparent that the `NA`s and `INF`s were counted in the class level results instead of being a count of random evaluations with `NA`s or `INF`s.
 
+* `cv_plot()` is removed. It wasn't very useful and have never been developed properly. We aim to provide multiple specialized plotting functions instead.
+
 ## Additions
 
 * `validate_fn()` is added. Validate your custom model function on a test set.

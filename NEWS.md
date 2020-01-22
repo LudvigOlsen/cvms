@@ -104,6 +104,8 @@ Warnings are counted in `Other Warnings`.
 
 * `caret`, `mltools`, and `ModelMetrics` are no longer dependencies. The confusion matrix metrics have instead been implemented in `cvms` (see `confusion_matrix()`).
 
+* `select_metrics()` now works with a wider range of inputs as it no longer depends on a `Family` column.
+
 # cvms 0.3.2
 
 * Fixes bug in `evaluate()`, when used on a grouped data frame. The row order in the output was not guaranteed to fit the grouping keys. 

@@ -24,7 +24,12 @@
 #' @param formula Formula object.
 #'
 #'  If a string is passed, it will be converted with \code{\link[stats:as.formula]{as.formula()}}.
+#'
+#'  When a side \emph{only} contains a \code{NULL}, it is kept. Otherwise \code{NULL}s are removed.
+#'
+#'  An intercept (\code{1}) will only be kept if there are no variables on that side of the formula.
 #' @param data Data frame. Used to extract variables when the formula contains a "\code{.}".
+#' @param string_out Whether to return as a string. (Logical)
 #' @examples
 #' # Attach cvms
 #' library(cvms)
@@ -38,9 +43,13 @@
 #' # Simplify formula (as formula)
 #' simplify_formula(as.formula(f1))
 #' @importFrom stats as.formula
-simplify_formula <- function(formula, data = NULL) {
+simplify_formula <- function(formula, data = NULL, string_out = FALSE) {
+
+  # Convert to formula object
   if (is.character(formula)) {
-    formula <- as.formula(formula)
+    formula <- tryCatch(as.formula(formula), error = function(e){
+      stop(paste0("Could not convert 'formula' to a formula object. Got error:\n  ", e))
+    })
   }
 
   # Check arguments ####
@@ -50,15 +59,31 @@ simplify_formula <- function(formula, data = NULL) {
     min.cols = 1, add = assert_collection
   )
   checkmate::assert_formula(x = formula, add = assert_collection)
+  checkmate::assert_flag(x = string_out, add = assert_collection)
+  if (as.character(formula)[[1]] != "~"){
+    assert_collection$push("'formula' did not contain '~'. This use case is not currently supported.")
+  }
+  checkmate::reportAssertions(assert_collection)
+  tryCatch(terms(formula, data = data), error = function(e){
+    assert_collection$push(paste0(
+      "Could not extract variables from 'formula': ", e
+    ))
+  })
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
 
   # TODO Add option to remove random effects before simplification
 
   # Extract variables
-  vars <- all.vars(formula)
-  y <- vars[1]
-  x <- vars[-1]
+  # Get the lhs and rhs
+  # Note that we need to do it like this instead of with as.character
+  # for cases with no lhs or rhs
+  formula_parts <- unlist(strsplit(deparse(formula), "~"))
+  y <- get_vars_from_side(formula_parts[[1]])
+  x <- get_vars_from_side(formula_parts[[2]])
+  if (length(x) == 0){
+    stop("the rhs of 'formula' did not contain any variables or allowed values.")
+  }
   if ("." %in% x) {
     if (is.null(data))
       stop("when 'formula' contains a '.', 'data' must be a data frame, not NULL.")
@@ -69,11 +94,28 @@ simplify_formula <- function(formula, data = NULL) {
       ))
     }
     x <- colnames(data)
-    x <- x[x != y]
+    x <- x[x %ni% y]
   }
 
   # Create simplified formula
-  form <- paste0(y, " ~ ", paste0(x, collapse = " + "))
-  form <- as.formula(form)
+  form <- paste0(paste0(y, collapse = " + "), " ~ ", paste0(x, collapse = " + "))
+  if (!isTRUE(string_out))
+    form <- as.formula(form)
   form
+}
+
+# Get all vars from one side of a formula
+get_vars_from_side <- function(string){
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_string(x = string, add = assert_collection)
+  if (grepl("~", string))
+    assert_collection$push("'string' cannot contain '~'. Use on one side at a time only.")
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
+
+  if (trimws(string) %in% c("", "NULL", "1")){
+    return(trimws(string))
+  }
+  all.vars(as.formula(paste0("~", string)))
 }

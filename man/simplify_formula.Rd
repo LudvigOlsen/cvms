@@ -4,14 +4,20 @@
 \alias{simplify_formula}
 \title{Simplify formula with inline functions}
 \usage{
-simplify_formula(formula, data = NULL)
+simplify_formula(formula, data = NULL, string_out = FALSE)
 }
 \arguments{
 \item{formula}{Formula object.
 
- If a string is passed, it will be converted with \code{\link[stats:as.formula]{as.formula()}}.}
+ If a string is passed, it will be converted with \code{\link[stats:as.formula]{as.formula()}}.
+
+ When a side \emph{only} contains a \code{NULL}, it is kept. Otherwise \code{NULL}s are removed.
+
+ An intercept (\code{1}) will only be kept if there are no variables on that side of the formula.}
 
 \item{data}{Data frame. Used to extract variables when the formula contains a "\code{.}".}
+
+\item{string_out}{Whether to return as a string. (Logical)}
 }
 \description{
 \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}

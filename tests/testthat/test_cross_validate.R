@@ -9,7 +9,7 @@ context("cross_validate()")
 # test_that("binomial models work with cross_validate()",{
 #
 #   # Load data and fold it
-#   set_seed_for_R_compatibility(1)
+#   xpectr::set_test_seed(1)
 #   dat <- groupdata2::fold(participant.scores, k = 4,
 #                           num_fold_cols = 3,
 #                           cat_col = 'diagnosis',
@@ -26,7 +26,7 @@ context("cross_validate()")
 test_that("binomial models work with cross_validate()", {
 
   # Load data and fold it
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   dat <- groupdata2::fold(participant.scores,
     k = 4,
     cat_col = "diagnosis",
@@ -136,7 +136,7 @@ test_that("binomial models checks that dependent variable is numeric with cross_
   # skip_test_if_old_R_version()
 
   # Load data and fold it
-  set_seed_for_R_compatibility(7)
+  xpectr::set_test_seed(7)
   dat <- groupdata2::fold(participant.scores,
     k = 4,
     cat_col = "diagnosis",
@@ -253,7 +253,7 @@ test_that("binomial models work with cross_validate()", {
   # skip_test_if_old_R_version()
 
   # Load data and fold it
-  set_seed_for_R_compatibility(20)
+  xpectr::set_test_seed(20)
   dat <- groupdata2::fold(participant.scores,
     k = 4,
     cat_col = "diagnosis",
@@ -390,7 +390,7 @@ test_that("gaussian model with cross_validate()", {
   # skip_test_if_old_R_version()
 
   # Load data and fold it
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   dat <- groupdata2::fold(participant.scores,
     k = 4,
     cat_col = "diagnosis",
@@ -434,7 +434,7 @@ test_that("gaussian mixed models with cross_validate()", {
   # skip_test_if_old_R_version()
 
   # Load data and fold it
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   dat <- groupdata2::fold(participant.scores,
     k = 4,
     cat_col = "diagnosis",
@@ -482,7 +482,7 @@ test_that("binomial models work with control specified in cross_validate()", {
   skip("testing different optimizers is too difficult given platform differences")
 
   # Load data and fold it
-  set_seed_for_R_compatibility(7)
+  xpectr::set_test_seed(7)
   dat <- groupdata2::fold(participant.scores,
     k = 3,
     cat_col = "diagnosis",
@@ -551,7 +551,7 @@ test_that("binomial models gives warnings with control specified in cross_valida
   # skip_test_if_old_R_version()
 
   # Load data and fold it
-  set_seed_for_R_compatibility(7)
+  xpectr::set_test_seed(7)
   dat <- groupdata2::fold(participant.scores,
     k = 3,
     cat_col = "diagnosis",
@@ -562,7 +562,7 @@ test_that("binomial models gives warnings with control specified in cross_valida
 
   cv_process <- tryCatch({
     purrr::map(.x = 1, .f = purrr::quietly(function(.x) {
-      set_seed_for_R_compatibility(2)
+      xpectr::set_test_seed(2)
       cross_validate(dat,
         formulas = c("diagnosis ~ score + age + (1|session) + (1|age)"),
         fold_cols = ".folds",
@@ -600,7 +600,7 @@ test_that("binomial models gives warnings with control specified in cross_valida
   )
 
 
-  # set_seed_for_R_compatibility(2)
+  # xpectr::set_test_seed(2)
   # cv_messages <- suppressMessages(cross_validate(dat,
   #                               formulas = c("diagnosis ~ score + age + (1|session) + (1|age)"),
   #                               fold_cols = '.folds',
@@ -616,7 +616,7 @@ test_that("gaussian models work with control specified in cross_validate()", {
   # skip_test_if_old_R_version()
 
   # Load data and fold it
-  set_seed_for_R_compatibility(2)
+  xpectr::set_test_seed(2)
   dat <- groupdata2::fold(participant.scores,
     k = 3,
     cat_col = "diagnosis",
@@ -682,7 +682,7 @@ test_that("model using dot in formula ( y ~ . ) works with cross_validate()", {
   # correctly leaves out .folds column.
 
   # Load data and fold it
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   dat <- groupdata2::fold(participant.scores,
     k = 4,
     cat_col = "diagnosis",
@@ -716,7 +716,7 @@ test_that("binomial models work with repeated cross_validate()", {
   # skip_test_if_old_R_version()
 
   # Load data and fold it
-  set_seed_for_R_compatibility(2)
+  xpectr::set_test_seed(2)
   dat <- groupdata2::fold(participant.scores,
     k = 4,
     cat_col = "diagnosis",
@@ -934,7 +934,7 @@ test_that("binomial models work with positive as.character in cross_validate()",
   # skip_test_if_old_R_version()
 
   # Load data and fold it
-  set_seed_for_R_compatibility(2)
+  xpectr::set_test_seed(2)
   dat <- groupdata2::fold(participant.scores,
     k = 4,
     cat_col = "diagnosis",
@@ -1005,7 +1005,7 @@ test_that("binomial models work with positive as.character in cross_validate()",
 
   # Interchanging the level names
 
-  set_seed_for_R_compatibility(2)
+  xpectr::set_test_seed(2)
   dat <- groupdata2::fold(participant.scores,
     k = 4,
     cat_col = "diagnosis",
@@ -1082,7 +1082,7 @@ test_that("gaussian models work with repeated cross_validate()", {
   # skip_test_if_old_R_version()
 
   # Load data and fold it
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   dat <- groupdata2::fold(participant.scores,
     k = 4,
     cat_col = "diagnosis",
@@ -1221,7 +1221,7 @@ test_that("gaussian models work with repeated cross_validate()", {
 test_that("preprocessing works with binomial models in cross_validate()", {
 
   # Load data and fold it
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   dat <- groupdata2::fold(participant.scores,
     k = 4,
     cat_col = "diagnosis",
@@ -1701,7 +1701,7 @@ test_that("preprocessing works with binomial models in cross_validate()", {
 test_that("preprocessing works with binomial mixed models in cross_validate()", {
 
   # Load data and fold it
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   dat <- groupdata2::fold(participant.scores,
     k = 3,
     cat_col = "diagnosis",
@@ -2047,7 +2047,7 @@ test_that("that singular fit messages are caught, counted and messaged about in 
 
   # skip_test_if_old_R_version()
 
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   dat <- groupdata2::fold(participant.scores,
     k = 4,
     cat_col = "diagnosis",
@@ -2084,7 +2084,7 @@ test_that("the expected errors are thrown by cross_validate()", {
 
 
   # Load data and fold it
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   dat <- groupdata2::fold(participant.scores,
     k = 4,
     num_fold_cols = 3,
@@ -2153,7 +2153,7 @@ Please use the `verbose` argument instead.",
   # With rm_nc, the non-converged model is removed
   # and we only have an empty data frame left
   # Note, this may fail on ubuntu?
-  set_seed_for_R_compatibility(2)
+  xpectr::set_test_seed(2)
   expect_identical(
     suppressMessages(suppressWarnings(
       cross_validate(
@@ -2187,7 +2187,7 @@ test_that("verbose reports the correct model functions in cross_validate()", {
 
 
   # Load data and fold it
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   dat <- groupdata2::fold(participant.scores,
     k = 4,
     num_fold_cols = 3,
@@ -2268,7 +2268,7 @@ test_that("verbose reports the correct model functions in cross_validate()", {
 test_that("binomial models with metrics list work with cross_validate()", {
 
   # Load data and fold it
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   dat <- groupdata2::fold(participant.scores,
     k = 4,
     cat_col = "diagnosis",
@@ -2346,7 +2346,7 @@ test_that("gaussian models with metrics list work with cross_validate()", {
   # skip_test_if_old_R_version()
 
   # Load data and fold it
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   dat <- groupdata2::fold(participant.scores,
     k = 4,
     cat_col = "diagnosis",

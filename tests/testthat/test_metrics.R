@@ -7,7 +7,7 @@ test_that("Metrics work for glm in validate()", {
 
   # skip_test_if_old_R_version()
 
-  set_seed_for_R_compatibility(7)
+  xpectr::set_test_seed(7)
 
   dat <- groupdata2::partition(participant.scores,
     p = 0.8,
@@ -65,7 +65,7 @@ test_that("Metrics work for glmer in validate()", {
 
   # skip_test_if_old_R_version()
 
-  set_seed_for_R_compatibility(7)
+  xpectr::set_test_seed(7)
 
   dat <- groupdata2::partition(participant.scores,
     p = 0.8,
@@ -126,7 +126,7 @@ test_that("Metrics work for glm in validate()", {
 
   # skip_test_if_old_R_version()
 
-  set_seed_for_R_compatibility(6)
+  xpectr::set_test_seed(6)
 
   dat <- groupdata2::partition(participant.scores,
     p = 0.8,
@@ -189,7 +189,7 @@ test_that("Metrics work for glmer in validate()", {
 
   # skip_test_if_old_R_version()
 
-  set_seed_for_R_compatibility(201)
+  xpectr::set_test_seed(201)
 
   dat <- groupdata2::partition(participant.scores,
     p = 0.8,
@@ -425,7 +425,7 @@ test_that("Metrics work when 0 is positive class for glmer in validate()", {
   expect_equal(pROC_auc_worst, AUC_auc_worst)
   expect_equal(AUC_auc_worst_pos0, pROC_auc_worst_pos0)
 
-  set_seed_for_R_compatibility(201)
+  xpectr::set_test_seed(201)
 
   dat <- groupdata2::partition(participant.scores,
     p = 0.8,
@@ -598,7 +598,7 @@ test_that("mae and rmse works", {
   # skip_test_if_old_R_version()
 
   # Normal distribution
-  set_seed_for_R_compatibility(6)
+  xpectr::set_test_seed(6)
   targets <- rnorm(100)
   preds <- rnorm(100)
   df <- data.frame(t = targets, p = preds)
@@ -625,7 +625,7 @@ test_that("mae and rmse works", {
   # TODO Add tests for the other regression error metrics
 
   # Uniform distribution
-  set_seed_for_R_compatibility(9)
+  xpectr::set_test_seed(9)
   targets <- runif(100, min = 45, max = 97)
   preds <- runif(100, min = 54, max = 120)
   df <- data.frame(t = targets, p = preds)

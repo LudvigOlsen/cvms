@@ -5,7 +5,7 @@ test_that("formulas without random effects are properly reconstructed from cross
 
   # skip_test_if_old_R_version()
 
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   data <- participant.scores
 
   model_formulas <- c(
@@ -29,7 +29,7 @@ test_that("formulas with random effects are properly reconstructed from cross_va
 
   # skip_test_if_old_R_version()
 
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
 
   data <- participant.scores
 

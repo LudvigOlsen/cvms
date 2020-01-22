@@ -355,7 +355,7 @@ basics_pick_preprocess_fn <- function(preprocessing) {
 }
 
 message_if_model_verbose <- function(model_verbose, msg, caller = "cross_validate()") {
-  if (model_verbose == TRUE) {
+  if (isTRUE(model_verbose)) {
     message(paste0(caller, ": ", msg))
   }
 }

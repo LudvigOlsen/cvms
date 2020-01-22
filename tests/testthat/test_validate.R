@@ -11,7 +11,7 @@ test_that("binomial model work with validate()", {
   # skip_test_if_old_R_version()
 
   # Load data and partition it
-  set_seed_for_R_compatibility(2)
+  xpectr::set_test_seed(2)
   dat <- groupdata2::partition(
     participant.scores,
     p = 0.8,
@@ -110,7 +110,7 @@ test_that("binomial model with metrics list work with validate()", {
   # skip_test_if_old_R_version()
 
   # Load data and partition it
-  set_seed_for_R_compatibility(2)
+  xpectr::set_test_seed(2)
   dat <- groupdata2::partition(
     participant.scores,
     p = 0.8,
@@ -159,7 +159,7 @@ test_that("binomial mixed model work with validate()", {
   # skip_test_if_old_R_version()
 
   # Load data and fold it
-  set_seed_for_R_compatibility(7)
+  xpectr::set_test_seed(7)
   dat <- groupdata2::partition(
     participant.scores,
     p = 0.7,
@@ -267,7 +267,7 @@ test_that("binomial model work with test_data in validate()", {
   # skip_test_if_old_R_version()
 
   # Load data and partition it
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   dat <- groupdata2::partition(
     participant.scores,
     p = 0.8,
@@ -353,7 +353,7 @@ test_that("gaussian model with validate()", {
   # skip_test_if_old_R_version()
 
   # Load data and fold it
-  set_seed_for_R_compatibility(4)
+  xpectr::set_test_seed(4)
 
   dat <- groupdata2::partition(
     participant.scores,
@@ -391,7 +391,7 @@ test_that("gaussian model with validate()", {
 test_that("gaussian model with metrics list works with validate()", {
 
   # Load data and fold it
-  set_seed_for_R_compatibility(4)
+  xpectr::set_test_seed(4)
 
   dat <- groupdata2::partition(
     participant.scores,
@@ -434,7 +434,7 @@ test_that("Right glm model used in validate()", {
   # skip_test_if_old_R_version()
 
   # Create data that should be easy to model
-  set_seed_for_R_compatibility(7)
+  xpectr::set_test_seed(7)
 
   dat <- groupdata2::partition(
     participant.scores,
@@ -474,7 +474,7 @@ test_that("Right glmer model used in validate()", {
   # skip_test_if_old_R_version()
 
   # Create data that should be easy to model
-  set_seed_for_R_compatibility(7)
+  xpectr::set_test_seed(7)
 
   dat <- groupdata2::partition(
     participant.scores,
@@ -520,7 +520,7 @@ test_that("model using dot in formula ( y ~ . ) works with validate()", {
   # correctly leaves out .folds column.
 
   # Create data that should be easy to model
-  set_seed_for_R_compatibility(7)
+  xpectr::set_test_seed(7)
 
   dat <- groupdata2::partition(
     participant.scores,
@@ -560,7 +560,7 @@ test_that("Singular fit messages counted in validate()", {
   # skip_test_if_old_R_version()
 
   # Create data that should be easy to model
-  set_seed_for_R_compatibility(7)
+  xpectr::set_test_seed(7)
 
   dat <- groupdata2::partition(
     participant.scores,
@@ -585,7 +585,7 @@ test_that("the expected errors are thrown by validate()", {
 
 
   # Load data and fold it
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   dat <- participant.scores
 
   expect_error(
@@ -627,7 +627,7 @@ test_that("verbose reports the correct model functions in validate()", {
 
 
   # Load data and fold it
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   dat <- groupdata2::partition(participant.scores,
     p = .75,
     cat_col = "diagnosis",

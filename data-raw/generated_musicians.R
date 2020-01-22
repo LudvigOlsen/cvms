@@ -8,7 +8,7 @@ create_multinomial_dataset <- function(n_participants = 60){
   if (!is_wholenumber_(n_participants/4))
     stop("'n_participants' must be divisible with 4 (and be a wholenumber).")
 
-  set_seed_for_R_compatibility(43)
+  xpectr::set_test_seed(43)
   d <- tibble::tibble(
     "ID" = 1:n_participants,
     "Age" = round(runif(n_participants ,min = 16, max = 67)),
@@ -50,7 +50,7 @@ create_multinomial_dataset <- function(n_participants = 60){
 
 get_probabilities <- function(df){
 
-  set_seed_for_R_compatibility(43)
+  xpectr::set_test_seed(43)
 
   df_folded <-
     df %>% groupdata2::fold(

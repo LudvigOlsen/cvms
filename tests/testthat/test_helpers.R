@@ -42,14 +42,14 @@ test_that("nnet gives same predictions on mac and ubuntu", {
   # Tested on both platforms on travis as well
   # Local test should run on mac as is
 
-  set_seed_for_R_compatibility(10)
+  xpectr::set_test_seed(10)
 
   dat <- participant.scores %>%
     dplyr::mutate(diagnosis = as.factor(diagnosis))
 
   # binomial
   predictions <- plyr::llply(1:10, function(s) {
-    set_seed_for_R_compatibility(s)
+    xpectr::set_test_seed(s)
     co <- testthat::capture_output(nn <- nnet::nnet(as.formula("diagnosis~score"), data = dat, size = 10))
     as.vector(predict(nn, dat))
   }) %>% unlist()
@@ -127,7 +127,7 @@ test_that("nnet gives same predictions on mac and ubuntu", {
 
   # gaussian
   predictions <- plyr::llply(1:10, function(s) {
-    set_seed_for_R_compatibility(s)
+    xpectr::set_test_seed(s)
     nn <- nnet::nnet(as.formula("score~diagnosis"), data = dat, size = 10, linout = TRUE)
     as.vector(predict(nn, dat))
   }) %>% unlist()
@@ -222,7 +222,7 @@ test_that("nnet gives same predictions on mac and ubuntu", {
     )
 
   predictions <- plyr::llply(1:10, function(s) {
-    set_seed_for_R_compatibility(s)
+    xpectr::set_test_seed(s)
     nn <- nnet::multinom(as.formula("diagnosis~score"), data = dat2)
     as.vector(predict(nn, dat2))
   }) %>% unlist()
@@ -287,7 +287,7 @@ test_that("glmer throws same warnings on mac and ubuntu", {
   # 13 warnings on mac, 16 on ubuntu
   # Local test should run on mac as is
 
-  set_seed_for_R_compatibility(10)
+  xpectr::set_test_seed(10)
 
   dat <- participant.scores %>%
     dplyr::mutate(diagnosis = as.factor(diagnosis))
@@ -299,7 +299,7 @@ test_that("glmer throws same warnings on mac and ubuntu", {
 
   warnings_and_messages <- plyr::llply(1:10, function(s) {
     process_ <- testthat::evaluate_promise({
-      set_seed_for_R_compatibility(s)
+      xpectr::set_test_seed(s)
       lme4::glmer(
         formula = formula, family = family, data = dplyr::sample_frac(dat, 0.95),
         REML = REML, control = control

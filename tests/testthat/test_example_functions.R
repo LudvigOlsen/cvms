@@ -66,7 +66,7 @@ test_that("the expected output is returned from example_preprocess_functions() f
   # Standardize
 
   # Load data and fold it
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   partitions <- groupdata2::partition(participant.scores,
     p = 0.75,
     cat_col = "diagnosis",

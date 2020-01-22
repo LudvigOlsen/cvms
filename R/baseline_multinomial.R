@@ -395,6 +395,8 @@ set_all_or_nothing_metrics <- function(metrics) {
   # as it will be done along with Overall Acc.
   all_or_nothing_metrics <- metrics
   all_or_nothing_metrics[["AUC"]] <- FALSE
+  all_or_nothing_metrics[["Lower CI"]] <- FALSE
+  all_or_nothing_metrics[["Upper CI"]] <- FALSE
 
   # Add the non-weighted version when f.i. "Accuracy" = FALSE but "Weighted Accuracy" = TRUE
   weighted_metrics <- names(all_or_nothing_metrics)[

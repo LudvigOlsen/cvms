@@ -5,7 +5,7 @@ context("create_computation_grid()")
 test_that("the correct grid is created with create_computation_grid()", {
 
   # Load data and fold it
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   dat <- groupdata2::fold(participant.scores,
     k = 4,
     num_fold_cols = 3,
@@ -65,7 +65,7 @@ test_that("the correct grid is created with create_computation_grid()", {
 test_that("the correct sampled grid is created with create_computation_grid()", {
 
   # Load data and fold it
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   dat <- groupdata2::fold(participant.scores,
     k = 4,
     num_fold_cols = 3,
@@ -122,7 +122,7 @@ test_that("the correct sampled grid is created with create_computation_grid()", 
 
   # Fraction
 
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   grid_2 <- create_computation_grid(
     data = dat,
     hparams = list(
@@ -158,7 +158,7 @@ test_that("the correct sampled grid is created with create_computation_grid()", 
 test_that("the correct folds map is created with create_folds_map()", {
 
   # Load data and fold it
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   dat <- groupdata2::fold(participant.scores,
     k = 4,
     num_fold_cols = 3,

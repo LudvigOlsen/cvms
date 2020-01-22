@@ -1,7 +1,6 @@
 
 
-run_model_fitting <- function(
-                              model_fitting_fn, model_specifics, train_data,
+run_model_fitting <- function(model_fitting_fn, model_specifics, train_data,
                               warn_info = list(
                                 model_formula = NULL,
                                 fold_info = list(

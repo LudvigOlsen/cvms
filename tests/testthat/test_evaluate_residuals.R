@@ -2,7 +2,7 @@ library(cvms)
 context("evaluate_residuals()")
 
 test_that("evaluate_residuals() have expected output", {
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
 
   df <- data.frame("t" = runif(20), "p" = runif(20), "grp" = rep(1:5, 4))
 
@@ -150,7 +150,7 @@ test_that("evaluate_residuals() have expected output", {
 
 
 test_that("call_evaluate_residuals() creates NA results correcly", {
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
 
   df <- data.frame("t" = runif(20), "p" = runif(20), "grp" = rep(1:5, 4))
 

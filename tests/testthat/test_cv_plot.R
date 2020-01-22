@@ -4,7 +4,7 @@ context("cv_plot()")
 test_that("cv_plot() works", {
 
   # Load data and fold it
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   dat <- groupdata2::fold(participant.scores,
     k = 4,
     cat_col = "diagnosis",
@@ -117,7 +117,7 @@ test_that("plot_confusion_matrix() with multiclass conf mat returns expected plo
   # TODO Check out https://github.com/r-lib/vdiffr
   # It may make testing easier and better
 
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   targets <- c(0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 2, 2, 2, 2, 2, 2)
   predictions <- c(1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 2, 2, 1, 2)
 

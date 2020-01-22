@@ -2,7 +2,7 @@ library(cvms)
 context("evaluate()")
 
 test_that("multinomial evaluations are correct in evaluate()", {
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   random_probabilities <- multiclass_probability_tibble(
     num_classes = 5,
     num_observations = 20,
@@ -207,7 +207,7 @@ test_that("multinomial evaluations are correct in evaluate()", {
 
   # Test Weighted metrics, and metrics == "all"
 
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   mn_eval_2 <- evaluate(
     data = data_ %>% dplyr::sample_n(17),
     target_col = "cl_char",
@@ -391,7 +391,7 @@ test_that("multinomial evaluations are correct in evaluate()", {
 
   # Enabling and disabling a few metrics
 
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   mn_eval_3 <- evaluate(
     data = data_ %>% dplyr::sample_n(17),
     target_col = "cl_char",
@@ -419,7 +419,7 @@ test_that("multinomial evaluations are correct in evaluate()", {
   data_ <- data_ %>%
     dplyr::mutate(id = factor(rep(1:10, each = 2)))
 
-  set_seed_for_R_compatibility(9)
+  xpectr::set_test_seed(9)
   suppressWarnings(
     mn_id_eval_1 <- evaluate(
       data = data_ %>% dplyr::sample_n(13),
@@ -797,7 +797,7 @@ test_that("multinomial evaluations are correct in evaluate()", {
 })
 
 test_that("multinomial evaluations with one predicted class column is correctly unpacked in evaluate()", {
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   random_probabilities <- multiclass_probability_tibble(
     num_classes = 5,
     num_observations = 20,
@@ -998,7 +998,7 @@ test_that("multinomial evaluations with one predicted class column is correctly 
   # Test Weighted metrics, and metrics == "all"
   # Sampled data frame
   if (TRUE) {
-    set_seed_for_R_compatibility(1)
+    xpectr::set_test_seed(1)
     mn_eval_2 <- evaluate(
       data = data_classes %>% dplyr::sample_n(17),
       target_col = "cl_char",
@@ -1183,7 +1183,7 @@ test_that("multinomial evaluations with one predicted class column is correctly 
     data_classes <- data_classes %>%
       dplyr::mutate(id = factor(rep(1:10, each = 2)))
 
-    set_seed_for_R_compatibility(9)
+    xpectr::set_test_seed(9)
     suppressWarnings(
       mn_id_eval_1 <- evaluate(
         data = data_classes %>% dplyr::sample_n(13),
@@ -1673,7 +1673,7 @@ test_that("multinomial evaluations with one predicted class column is correctly 
 })
 
 test_that("nested tibbles are correctly added to grouped multinomial results in evaluate()", {
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   random_probabilities <- multiclass_probability_tibble(
     num_classes = 3,
     num_observations = 60,
@@ -1762,7 +1762,7 @@ test_that("nested tibbles are correctly added to grouped multinomial results in 
 })
 
 test_that("nested tibbles are correctly added to grouped binomial results in evaluate()", {
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   random_probabilities <- multiclass_probability_tibble(
     num_classes = 1,
     num_observations = 60,
@@ -1827,7 +1827,7 @@ test_that("nested tibbles are correctly added to grouped binomial results in eva
 })
 
 test_that("nested tibbles are correctly added to grouped gaussian results in evaluate()", {
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   random_probabilities <- multiclass_probability_tibble(
     num_classes = 2,
     num_observations = 60,
@@ -2289,7 +2289,7 @@ test_that("specific multinomial predictions yield correct results in evaluate()"
 # TODO Add test that majority vote id_method works when not all classes are predicted most by one of the ids
 
 test_that("arguments throw proper errors and warnings in evaluate()", {
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   random_probabilities <- multiclass_probability_tibble(
     num_classes = 5,
     num_observations = 20,
@@ -2383,7 +2383,7 @@ test_that("arguments throw proper errors and warnings in evaluate()", {
 })
 
 test_that("binomial evaluation works in evaluate()", {
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   random_probabilities <- multiclass_probability_tibble(
     num_classes = 1,
     num_observations = 20,
@@ -2896,13 +2896,13 @@ test_that("binomial evaluation works in evaluate()", {
 test_that("softmax works in multiclass_probability_tibble()", {
 
   # Test softmax was applied correctly in multiclass_probability_tibble
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   random_probabilities_1 <- multiclass_probability_tibble(
     num_classes = 3,
     num_observations = 20,
     apply_softmax = TRUE
   )
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   random_probabilities_2 <- multiclass_probability_tibble(
     num_classes = 3,
     num_observations = 20,
@@ -2921,7 +2921,7 @@ test_that("softmax works in multiclass_probability_tibble()", {
 })
 
 test_that("probability nesting works in multinomial evaluate", {
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   random_probabilities_1 <- multiclass_probability_tibble(
     num_classes = 3,
     num_observations = 20,
@@ -2954,7 +2954,7 @@ test_that("probability nesting works in multinomial evaluate", {
 })
 
 test_that("gaussian evaluations are correct in evaluate()", {
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
 
   score_model_1 <- lm("score ~ diagnosis", data = participant.scores)
   score_model_2 <- lm("score ~ diagnosis+age", data = participant.scores)
@@ -3276,7 +3276,7 @@ test_that("evaluate() treats dfs and tbls the same", {
   # Binomial
 
   # Multinomial
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   random_probabilities <- multiclass_probability_tibble(
     num_classes = 5,
     num_observations = 20,
@@ -3359,7 +3359,7 @@ test_that("evaluate() treats dfs and tbls the same", {
 # })
 
 test_that("evaluate() works with wines dataset", {
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
 
   # Load wines dataset
   w <- wines
@@ -3578,7 +3578,7 @@ test_that("evaluate() works with wines dataset", {
 
   # Check that these All_x evaluations are the same in baseline()
 
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   suppressWarnings(bsl <- baseline(
     w,
     dependent_col = "Variety",

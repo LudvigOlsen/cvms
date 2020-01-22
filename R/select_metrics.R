@@ -45,75 +45,46 @@ select_metrics <- function(results, include_definitions = TRUE,
     model_formula_cols <- c("Dependent", "Fixed")
   }
 
-  if ("Family" %ni% colnames(results)) {
-    stop("results must contain the column Family.")
+  # TODO What about "Convergence Warnings"? People should be aware of this!
+
+  metric_cols <- c(
+    # Gaussian
+    "RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD", # TODO Order the new metrics meaningfully!
+    "RMSLE", "MALE", "RAE", "RSE", "RRSE",
+    "MAPE", "MSE", "TAE", "TSE",
+    "r2m", "r2c",
+    # Multi- and binomial
+    "Overall Accuracy",
+    "Balanced Accuracy", "Weighted Balanced Accuracy",
+    "Accuracy", "Weighted Accuracy",
+    "F1", "Weighted F1",
+    "Sensitivity", "Weighted Sensitivity",
+    "Specificity", "Weighted Specificity",
+    "Pos Pred Value", "Weighted Pos Pred Value",
+    "Neg Pred Value", "Weighted Neg Pred Value",
+    "AUC", "Lower CI", "Upper CI",
+    "Kappa", "Weighted Kappa",
+    "MCC", "Weighted MCC",
+    "Detection Rate", "Weighted Detection Rate",
+    "Detection Prevalence", "Weighted Detection Prevalence",
+    "Prevalence", "Weighted Prevalence",
+    "False Neg Rate", "Weighted False Neg Rate",
+    "False Pos Rate", "Weighted False Pos Rate",
+    "False Discovery Rate", "Weighted False Discovery Rate",
+    "False Omission Rate", "Weighted False Omission Rate",
+    "Threat Score", "Weighted Threat Score",
+    # All
+    "AIC", "AICc", "BIC"
+  )
+
+  metric_cols <- add_additional_colnames(metric_cols, additional_includes)
+  if (isTRUE(include_definitions)) {
+    metric_cols <- add_additional_colnames(metric_cols, model_formula_cols)
   }
-
-  if (length(setdiff(additional_includes, colnames(results))) != 0) {
-    stop("not all columns in 'additional_includes' were found in 'results'.")
-  }
-
-  # What about "Convergence Warnings"? People should be aware of this!
-
-  if (results[["Family"]][[1]] == "gaussian") {
-    metric_cols <- c(
-      "RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD", # TODO Order the new metrics meaningfully!
-      "RMSLE", "MALE", "RAE", "RSE", "RRSE",
-      "MAPE", "MSE", "TAE", "TSE",
-      "r2m", "r2c", "AIC", "AICc", "BIC"
-    )
-
-    metric_cols <- add_additional_colnames(metric_cols, additional_includes)
-    metric_cols <- dplyr::intersect(metric_cols, colnames(results))
-  } else if (results[["Family"]][[1]] == "binomial") {
-    metric_cols <- c(
-      "Balanced Accuracy", "Accuracy",
-      "F1", "Sensitivity", "Specificity", "Pos Pred Value",
-      "Neg Pred Value", "AUC", "Lower CI", "Upper CI", "Kappa",
-      "MCC", "Detection Rate", "Detection Prevalence", "Prevalence",
-      "False Neg Rate", "False Pos Rate", "False Discovery Rate",
-      "False Omission Rate", "Threat Score",
-      "AIC", "AICc", "BIC"
-    )
-
-    metric_cols <- add_additional_colnames(metric_cols, additional_includes)
-    metric_cols <- dplyr::intersect(metric_cols, colnames(results))
-  } else if (results[["Family"]][[1]] == "multinomial") {
-    metric_cols <- c(
-      "Overall Accuracy",
-      "Balanced Accuracy", "Weighted Balanced Accuracy",
-      "Accuracy", "Weighted Accuracy",
-      "F1", "Weighted F1",
-      "Sensitivity", "Weighted Sensitivity",
-      "Specificity", "Weighted Specificity",
-      "Pos Pred Value", "Weighted Pos Pred Value",
-      "Neg Pred Value", "Weighted Neg Pred Value",
-      "AUC",
-      "Kappa", "Weighted Kappa",
-      "MCC", "Weighted MCC",
-      "Detection Rate", "Weighted Detection Rate",
-      "Detection Prevalence", "Weighted Detection Prevalence",
-      "Prevalence", "Weighted Prevalence",
-      "False Neg Rate", "Weighted False Neg Rate",
-      "False Pos Rate", "Weighted False Pos Rate",
-      "False Discovery Rate", "Weighted False Discovery Rate",
-      "False Omission Rate", "Weighted False Omission Rate",
-      "Threat Score", "Weighted Threat Score",
-      "AIC", "AICc", "BIC"
-    )
-
-    metric_cols <- add_additional_colnames(metric_cols, additional_includes)
-    metric_cols <- dplyr::intersect(metric_cols, colnames(results))
-  } else {
-    stop(paste0("Family, ", results[["Family"]], ", not currently supported."))
-  }
+  metric_cols <- dplyr::intersect(metric_cols, colnames(results))
 
   # Return the specified columns
-  if (isTRUE(include_definitions)) {
-    return(base_select(results, cols = c(metric_cols, model_formula_cols)))
-  } else {
-    return(base_select(results, cols = c(metric_cols)))
-  }
+  base_select(results, cols = c(metric_cols))
 }
 
 add_additional_colnames <- function(metric_cols, additional_includes) {

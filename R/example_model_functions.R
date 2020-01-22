@@ -32,11 +32,12 @@ example_model_functions <- function(name) {
 
       # Expected hyperparameters:
       #  - REML
+      if (!"REML" %in% names(hyperparameters))
+        stop("'hyperparameters' must include 'REML'")
 
       lme4::lmer(
         formula = formula,
         data = train_data,
-        family = "binomial",
         REML = hyperparameters[["REML"]]
       )
     }
@@ -60,6 +61,10 @@ example_model_functions <- function(name) {
       # Expected hyperparameters:
       #  - kernel
       #  - cost
+      if (!"kernel" %in% names(hyperparameters))
+        stop("'hyperparameters' must include 'kernel'")
+      if (!"cost" %in% names(hyperparameters))
+        stop("'hyperparameters' must include 'cost'")
 
       e1071::svm(
         formula = formula,
@@ -76,6 +81,10 @@ example_model_functions <- function(name) {
       # Expected hyperparameters:
       #  - kernel
       #  - cost
+      if (!"kernel" %in% names(hyperparameters))
+        stop("'hyperparameters' must include 'kernel'")
+      if (!"cost" %in% names(hyperparameters))
+        stop("'hyperparameters' must include 'cost'")
 
       e1071::svm(
         formula = formula,
@@ -92,6 +101,8 @@ example_model_functions <- function(name) {
 
       # Expected hyperparameters:
       #  - laplace
+      if (!"laplace" %in% names(hyperparameters))
+        stop("'hyperparameters' must include 'laplace'")
 
       e1071::naiveBayes(
         formula = formula,

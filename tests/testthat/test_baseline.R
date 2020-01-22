@@ -2,7 +2,7 @@ library(cvms)
 context("baseline()")
 
 test_that("binomial evaluations are correct in baseline()", {
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   binom_baseline <- baseline(
     test_data = participant.scores,
     dependent_col = "diagnosis",
@@ -349,7 +349,7 @@ test_that("binomial evaluations are correct in baseline()", {
 })
 
 test_that("gaussian evaluations are correct in baseline()", {
-  set_seed_for_R_compatibility(2)
+  xpectr::set_test_seed(2)
   # set.seed(1)
   dat <- groupdata2::partition(participant.scores, p = 0.6, list_out = TRUE)
   train_data <- dat[[1]]
@@ -517,7 +517,7 @@ test_that("gaussian evaluations are correct in baseline()", {
 })
 
 test_that("gaussian evaluations of random effects models are correct in baseline()", {
-  set_seed_for_R_compatibility(2)
+  xpectr::set_test_seed(2)
   # set.seed(1)
   dat <- groupdata2::partition(participant.scores, p = 0.6, list_out = TRUE)
   train_data <- dat[[1]]
@@ -695,7 +695,7 @@ test_that("gaussian evaluations of random effects models are correct in baseline
 })
 
 test_that("gaussian evaluations of random effects models are correct with REML FALSE in baseline()", {
-  set_seed_for_R_compatibility(2)
+  xpectr::set_test_seed(2)
   # set.seed(1)
   dat <- groupdata2::partition(participant.scores, p = 0.6, list_out = TRUE)
   train_data <- dat[[1]]
@@ -879,7 +879,7 @@ test_that("gaussian evaluations of random effects models are correct with REML F
 
 
 test_that("multinomial evaluations are correct in baseline()", {
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   targets_1 <- dplyr::sample_n(tibble::enframe(rep(1:3, each = 10), value = "targets_3"), 25) %>%
     dplyr::select(-name)
   targets_2 <- dplyr::sample_n(tibble::enframe(rep(1:4, each = 10), value = "targets_4"), 25) %>%
@@ -1582,7 +1582,7 @@ test_that("multinomial evaluations are correct in baseline()", {
     (runif(n, min = 1, max = 100)^1.4) / 100
   }
 
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
 
   multinom_baseline_certain <- baseline(
     test_data = different_targets,
@@ -2548,7 +2548,7 @@ test_that("baseline() throws expected errors", {
 
   # Binomial
 
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
 
   # cutoff
 
@@ -2807,7 +2807,7 @@ test_that("baseline() throws expected errors", {
   )
 
 
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   dat <- participant.scores
   dat$diagnosis <- c(head(dat$diagnosis, 20), rep(2, 10))
   expect_error(baseline(
@@ -2845,7 +2845,7 @@ test_that("multinomial baseline() works when test_data contains columns with nam
     "C" = rep(0, 30)
   )
 
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   multiclass_baseline <- df %>%
     baseline(
       dependent_col = "Target",
@@ -2874,7 +2874,7 @@ test_that("multinomial baseline() summarizes correctly with imbalanced dataset",
     rep("C", 100)
   ))
 
-  set_seed_for_R_compatibility(3)
+  xpectr::set_test_seed(3)
   multiclass_baseline <- df %>%
     baseline(
       dependent_col = "Target",

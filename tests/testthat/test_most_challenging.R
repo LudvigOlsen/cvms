@@ -4,7 +4,7 @@ context("most_challenging()")
 test_that("binomial model works with most_challenging()", {
 
   # Load data and fold it
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   dat_ready <- participant.scores %>%
     dplyr::mutate(diagnosis = as.factor(diagnosis))
   dat_list <- groupdata2::fold(dat_ready,
@@ -84,7 +84,7 @@ test_that("binomial model works with most_challenging()", {
 test_that("multinomial model works with most_challenging()", {
 
   # Load data and fold it
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
 
   # Create and fold dataset
   data_mc <- multiclass_probability_tibble(
@@ -199,7 +199,7 @@ test_that("multinomial model works with most_challenging()", {
 test_that("gaussian model works with most_challenging()", {
 
   # Load data and fold it
-  set_seed_for_R_compatibility(1)
+  xpectr::set_test_seed(1)
   dat_ready <- participant.scores %>%
     dplyr::mutate(diagnosis = as.factor(diagnosis))
   dat_list <- groupdata2::fold(dat_ready,

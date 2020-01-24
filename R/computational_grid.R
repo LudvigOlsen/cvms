@@ -11,8 +11,10 @@ create_computation_grid <- function(data, hparams, formulas,
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
   checkmate::assert_data_frame(x = data, add = assert_collection)
-  if (!is.null(hparams) && !is.data.frame(hparams) && !is.list(hparams)) {
-    assert_collection$push("'hparams' must be either a data frame, a named list or 'NULL'.")
+  if (!is.null(hparams) &&
+      !checkmate::test_data_frame(x = hparams, col.names = "unique") &&
+      !checkmate::test_list(x = hparams, names = "unique")) {
+    assert_collection$push("'hparams' must be either a data frame, a named list or 'NULL'. All names must be unique.")
   }
   checkmate::assert_character(
     x = formulas,

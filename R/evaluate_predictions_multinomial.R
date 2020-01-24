@@ -16,16 +16,23 @@ evaluate_predictions_multinomial <- function(data,
                                              include_fold_columns,
                                              include_predictions,
                                              na.rm = TRUE) {
-  if (!is.character(predictions_col)) {
-    stop("'predictions_col' must be the name of a column in 'data' with nested probabilities.")
-  }
-  if (predictions_col %ni% colnames(data)) {
-    stop("Could not find the specified 'predictions_col' in 'data'.")
-  }
 
+  # TODO Consider if adding more tests here is worth it?
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_data_frame(x = data, min.cols = 2, add = assert_collection)
+  checkmate::assert_string(x = predictions_col, add = assert_collection)
   if (model_specifics[["positive"]] != 2) {
-    stop("'positive' must be 2 for multinomial evaluation.")
+    assert_collection$push("'positive' must be 2 for multinomial evaluation.")
   }
+  checkmate::reportAssertions(assert_collection)
+  checkmate::assert_names(x = names(data),
+                          must.include = c(predictions_col, targets_col),
+                          type = "unique",
+                          add = assert_collection)
+  checkmate::assert_list(x = data[[predictions_col]], add = assert_collection)
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
 
   predicted_probabilities <- tryCatch(
     {

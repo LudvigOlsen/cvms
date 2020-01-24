@@ -143,14 +143,22 @@ contains_na <- function(v) {
 
 check_model_specifics <- function(passed_model_specifics, required_named_arguments) {
   # Check that model_specifics contains all named arguments
-  non_empty_names <- names(passed_model_specifics)[names(passed_model_specifics) != ""]
-  diff <- setdiff(non_empty_names, required_named_arguments)
-  if (length(diff) > 0) {
-    stop(paste0(
-      "model_specifics must (only) contain all named arguments. Be sure to name arguments. Wrongly passed argument(s): ",
-      diff
-    ))
-  }
+
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_list(x = passed_model_specifics,
+                         names = "unique",
+                         add = assert_collection)
+  checkmate::assert_character(x = required_named_arguments,
+                              add = assert_collection)
+  checkmate::reportAssertions(assert_collection)
+  checkmate::assert_names(x = names(passed_model_specifics),
+                          must.include = required_named_arguments,
+                          add = assert_collection)
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
+
+  invisible(NULL)
 }
 
 
@@ -934,8 +942,12 @@ create_tmp_name <- function(data, name = ".tmp_") {
 
 
 # Remove NAs and empty "" names
-non_empty_names <- function(x) {
+# Note: Output is always a character vector
+# whereas names() usually returns NULL for unnamed objects
+non_empty_names <- function(x, always_character = TRUE) {
   ns <- names(x)
+  if (is.null(ns) && isTRUE(always_character))
+    return(character(0))
   ns <- ns[!is.na(ns)]
   ns[nzchar(ns, keepNA = TRUE)]
 }
@@ -946,15 +958,15 @@ non_empty_names <- function(x) {
 
 # argument apply
 # https://github.com/mllg/checkmate/issues/115#issuecomment-331800164
-aapply = function(fun, formula, ..., fixed = list()) {
-  fun = match.fun(fun)
-  terms = terms(formula)
-  vnames = attr(terms, "term.labels")
-  ee = attr(terms, ".Environment")
+aapply <- function(fun, formula, ..., fixed = list()) {
+  fun <- match.fun(fun)
+  terms <- terms(formula)
+  vnames <- attr(terms, "term.labels")
+  ee <- attr(terms, ".Environment")
 
-  dots = list(...)
-  dots$.var.name = vnames
-  dots$x = unname(mget(vnames, envir = ee))
+  dots <- list(...)
+  dots$.var.name <- vnames
+  dots$x <- unname(mget(vnames, envir = ee))
   .mapply(fun, dots, MoreArgs = fixed)
 
   invisible(NULL)

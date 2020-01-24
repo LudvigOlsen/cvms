@@ -90,11 +90,12 @@ summarize_metrics <- function(data, cols = NULL, na.rm = TRUE, inf.rm = TRUE) {
     position_first(col = "Measure")
 
   # Remove the INFs from the NAs count
-  if (nrow(rows_with_infs) > 0) {
+  if (isTRUE(inf.rm) && nrow(rows_with_infs) > 0) {
     summarized_metrics <- subtract_inf_count_from_na_count(summarized_metrics)
   }
 
-  summarized_metrics
+  summarized_metrics %>%
+    dplyr::as_tibble()
 }
 
 replace_inf_with_na <- function(metric_cols) {

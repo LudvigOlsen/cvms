@@ -5,8 +5,6 @@
 #'  Finds the data points that, overall, were the most challenging to predict,
 #'  based on a prediction score (\code{RMSE} for regression and
 #'  \code{Accuracy} for classification).
-#'
-#'
 #' @param data Data frame with predictions, targets and observation IDs.
 #'
 #'  Can be grouped by \code{\link[dplyr:group_by]{dplyr::group_by()}}.
@@ -31,30 +29,94 @@
 #'
 #'  \subsection{"gaussian"}{
 #'  \subsection{threshold_is "percentage"}{
-#'  Percentage of the observations with the largest root mean square errors
+#'  (Approximate) percentage of the observations with the largest root mean square errors
 #'  to return.
 #'  }
 #'  \subsection{threshold_is "score"}{
-#'  Observations with a root mean square error larger than the \code{threshold} will be returned.
+#'  Observations with a root mean square error larger than or equal to the \code{threshold} will be returned.
 #'  }
 #'  }
 #'  \subsection{"binomial", "multinomial"}{
 #'  \subsection{threshold_is "percentage"}{
-#'  Percentage of the observations with the lowest accuracies to return.
+#'  (Approximate) percentage of the observations with the lowest accuracies to return.
 #'  }
 #'  \subsection{threshold_is "score"}{
-#'  Observations with an accuracy below the threshold will be returned.
+#'  Observations with an accuracy below or equal to the threshold will be returned.
 #'  }
 #'  }
 #' @param threshold_is Either \code{"score"} or \code{"percentage"}. See \code{threshold}.
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
+#' @examples
+#' # Attach packages
+#' library(cvms)
+#' library(dplyr)
+#'
+#' \donttest{
+#'
+#' ## Multinomial
+#'
+#' # Find the most challenging data points (per classifier)
+#' # in the predicted.musicians dataset
+#' # which resembles the "Predictions" tibble from the evaluation results
+#'
+#' # The 20% lowest scoring on accuracy
+#' most_challenging(predicted.musicians,
+#'                  obs_id_col = "ID",
+#'                  type = "multinomial",
+#'                  threshold = 0.30,
+#'                  threshold_is = "percentage")
+#'
+#' # The 20% lowest scoring on accuracy per classifier
+#' predicted.musicians %>%
+#'   dplyr::group_by(Classifier) %>%
+#'   most_challenging(obs_id_col = "ID",
+#'                    type = "multinomial",
+#'                    threshold = 0.40,
+#'                    threshold_is = "percentage")
+#'
+#' # Accuracy scores below 0.05
+#' most_challenging(predicted.musicians,
+#'                  obs_id_col = "ID",
+#'                  type = "multinomial",
+#'                  threshold = 0.05,
+#'                  threshold_is = "score")
+#'
+#' # Accuracy scores below 0.05 per classifier
+#' predicted.musicians %>%
+#'   dplyr::group_by(Classifier) %>%
+#'   most_challenging(obs_id_col = "ID",
+#'                    type = "multinomial",
+#'                    threshold = 0.05,
+#'                    threshold_is = "score")
+#'
+#' ## Gaussian
+#'
+#' set.seed(1)
+#'
+#' df <- data.frame("Observation" = rep(1:10, n = 3),
+#'                  "Target" = rnorm(n = 30, mean = 25, sd = 5),
+#'                  "Prediction" = rnorm(n = 30, mean = 27, sd = 7))
+#'
+#' # The 20% highest RMSE scores
+#' most_challenging(df,
+#'                  type = "gaussian",
+#'                  threshold = 0.2,
+#'                  threshold_is = "percentage")
+#'
+#' # RMSE scores above 9
+#' most_challenging(df,
+#'                  type = "gaussian",
+#'                  threshold = 9,
+#'                  threshold_is = "score")
+#' }
 most_challenging <- function(data,
                              obs_id_col = "Observation",
                              target_col = "Target",
-                             prediction_col = dplyr::case_when(
-                               type == "gaussian" ~ "Prediction",
-                               TRUE ~ "Predicted Class"
+                             prediction_col = ifelse(
+                               type == "gaussian",
+                               "Prediction",
+                               "Predicted Class"
                              ),
                              type = "binomial",
                              threshold = 0.15,
@@ -128,31 +190,34 @@ most_challenging_classification <- function(data,
   data[[target_col]] <- as.character(data[[target_col]])
   data[[prediction_col]] <- as.character(data[[prediction_col]])
 
+  # Count correct and incorrect predictions
   data[["Correct"]] <- data[[prediction_col]] == data[[target_col]]
   data[["Incorrect"]] <- data[[prediction_col]] != data[[target_col]]
 
+  # Calculate metrics per group
   by_observation <- data %>%
     dplyr::group_by_at(c(colnames(grouping_keys), obs_id_col)) %>%
     dplyr::summarise(
+      Accuracy = mean(.data$Correct),
       Correct = sum(.data$Correct),
-      Incorrect = sum(.data$Incorrect),
-      Accuracy = .data$Correct / dplyr::n()
+      Incorrect = sum(.data$Incorrect)
     )
+  by_observation <- position_last(by_observation, "Accuracy")
 
-  if (threshold_is == "score") {
-    to_return <- by_observation[by_observation[["Accuracy"]] < threshold, ]
-  } else if (threshold_is == "percentage") {
-    quantiles <- list("Accuracy" = stats::quantile(by_observation[["Accuracy"]],
-      probs = threshold
-    ))
-    to_return <- by_observation[by_observation[["Accuracy"]] < quantiles[["Accuracy"]], ]
-  }
+  # Find the observations that were the most difficult to predict
+  to_return <- exceeds_threshold(data = by_observation,
+                                 threshold = threshold,
+                                 threshold_is = threshold_is,
+                                 metric_name = "Accuracy",
+                                 maximize = TRUE,
+                                 grouping_keys = grouping_keys)
 
   to_return %>%
     dplyr::arrange(
       !!!rlang::syms(colnames(grouping_keys)),
       .data$Accuracy
-    )
+    ) %>%
+    dplyr::rename(`<=` = Threshold)
 }
 
 
@@ -163,19 +228,32 @@ most_challenging_gaussian <- function(data,
                                       threshold,
                                       threshold_is,
                                       grouping_keys) {
-  if (!is.numeric(data[[target_col]])){
-    stop("'target_col' must be numeric.")
-  }
 
-  if (!is.numeric(data[[prediction_col]])){
-    stop("'prediction_col' must be numeric.")
-  }
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_numeric(
+    x = data[[target_col]],
+    any.missing = FALSE,
+    min.len = 1,
+    add = assert_collection
+  )
+  checkmate::assert_numeric(
+    x = data[[prediction_col]],
+    any.missing = FALSE,
+    min.len = 1,
+    add = assert_collection
+  )
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
 
+  # Calculate residuals
   tmp_residual_var <- create_tmp_name(data, ".__residuals__")
-  data[tmp_residual_var] <- data[[target_col]] - data[[prediction_col]]
+  data[[tmp_residual_var]] <- data[[target_col]] - data[[prediction_col]]
 
+  # RMS() (x is the residuals)
   root_mean_square <- function(x) sqrt(mean(x^2))
 
+  # Calculate metrics per group
   by_observation <- data %>%
     dplyr::group_by_at(c(colnames(grouping_keys), obs_id_col)) %>%
     dplyr::summarise(
@@ -183,19 +261,65 @@ most_challenging_gaussian <- function(data,
       `RMSE` = root_mean_square(!!as.name(tmp_residual_var))
     )
 
-  if (threshold_is == "score") {
-    to_return <- by_observation[by_observation[["RMSE"]] > threshold, ]
-  } else if (threshold_is == "percentage") {
-    quantiles <- list("RMSE" = stats::quantile(by_observation[["RMSE"]],
-      probs = (1 - threshold)
-    ))
+  # Find the observations that were the most difficult to predict
+  to_return <- exceeds_threshold(data = by_observation,
+                                 threshold = threshold,
+                                 threshold_is = threshold_is,
+                                 metric_name = "RMSE",
+                                 maximize = FALSE,
+                                 grouping_keys = grouping_keys)
 
-    to_return <- by_observation[by_observation[["RMSE"]] > quantiles[["RMSE"]], ]
-  }
-
+  # Reorder and return
   to_return %>%
     dplyr::arrange(
       !!!rlang::syms(colnames(grouping_keys)),
       dplyr::desc(.data$RMSE), dplyr::desc(.data$MAE)
-    )
+    ) %>%
+    dplyr::rename(`>=` = Threshold)
 }
+
+# TODO add tests
+exceeds_threshold <- function(data,
+                              threshold,
+                              threshold_is,
+                              metric_name,
+                              maximize,
+                              grouping_keys) {
+
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_data_frame(x = data, add = assert_collection)
+  checkmate::assert_data_frame(x = grouping_keys, add = assert_collection)
+  checkmate::assert_flag(x = maximize, add = assert_collection)
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
+
+  if (threshold_is == "percentage"){
+    # Calculate thresholds per grouping
+    probs <- ifelse(isTRUE(maximize), threshold, 1 - threshold)
+    thresholds <- data %>%
+      dplyr::group_by_at(colnames(grouping_keys)) %>%
+      dplyr::summarise(Threshold = stats::quantile(
+        !!as.name(metric_name), probs = probs))
+    # Add thresholds to data
+    if (ncol(grouping_keys) > 0){
+      data <- data %>%
+        dplyr::left_join(thresholds, by = colnames(grouping_keys))
+    } else {
+      data[["Threshold"]] <- thresholds[["Threshold"]]
+    }
+  } else if (threshold_is == "score") {
+    # Add threshold to data
+    data[["Threshold"]] <- threshold
+  }
+
+  # Find the most difficult observations
+  if (isTRUE(maximize)){
+    to_return <- data[data[[metric_name]] <= data[["Threshold"]],]
+  } else {
+    to_return <- data[data[[metric_name]] >= data[["Threshold"]],]
+  }
+
+  to_return
+}
+

@@ -9,8 +9,7 @@ most_challenging(
   data,
   obs_id_col = "Observation",
   target_col = "Target",
-  prediction_col = dplyr::case_when(type == "gaussian" ~ "Prediction", TRUE ~
-    "Predicted Class"),
+  prediction_col = ifelse(type == "gaussian", "Prediction", "Predicted Class"),
   type = "binomial",
   threshold = 0.15,
   threshold_is = "percentage"
@@ -46,19 +45,19 @@ the performance of each observation.}
 
  \subsection{"gaussian"}{
  \subsection{threshold_is "percentage"}{
- Percentage of the observations with the largest root mean square errors
+ (Approximate) percentage of the observations with the largest root mean square errors
  to return.
  }
  \subsection{threshold_is "score"}{
- Observations with a root mean square error larger than the \code{threshold} will be returned.
+ Observations with a root mean square error larger than or equal to the \code{threshold} will be returned.
  }
  }
  \subsection{"binomial", "multinomial"}{
  \subsection{threshold_is "percentage"}{
- Percentage of the observations with the lowest accuracies to return.
+ (Approximate) percentage of the observations with the lowest accuracies to return.
  }
  \subsection{threshold_is "score"}{
- Observations with an accuracy below the threshold will be returned.
+ Observations with an accuracy below or equal to the threshold will be returned.
  }
  }}
 
@@ -69,6 +68,70 @@ the performance of each observation.}
  Finds the data points that, overall, were the most challenging to predict,
  based on a prediction score (\code{RMSE} for regression and
  \code{Accuracy} for classification).
+}
+\examples{
+# Attach packages
+library(cvms)
+library(dplyr)
+
+\donttest{
+
+## Multinomial
+
+# Find the most challenging data points (per classifier)
+# in the predicted.musicians dataset
+# which resembles the "Predictions" tibble from the evaluation results
+
+# The 20\% lowest scoring on accuracy
+most_challenging(predicted.musicians,
+                 obs_id_col = "ID",
+                 type = "multinomial",
+                 threshold = 0.30,
+                 threshold_is = "percentage")
+
+# The 20\% lowest scoring on accuracy per classifier
+predicted.musicians \%>\%
+  dplyr::group_by(Classifier) \%>\%
+  most_challenging(obs_id_col = "ID",
+                   type = "multinomial",
+                   threshold = 0.40,
+                   threshold_is = "percentage")
+
+# Accuracy scores below 0.05
+most_challenging(predicted.musicians,
+                 obs_id_col = "ID",
+                 type = "multinomial",
+                 threshold = 0.05,
+                 threshold_is = "score")
+
+# Accuracy scores below 0.05 per classifier
+predicted.musicians \%>\%
+  dplyr::group_by(Classifier) \%>\%
+  most_challenging(obs_id_col = "ID",
+                   type = "multinomial",
+                   threshold = 0.05,
+                   threshold_is = "score")
+
+## Gaussian
+
+set.seed(1)
+
+df <- data.frame("Observation" = rep(1:10, n = 3),
+                 "Target" = rnorm(n = 30, mean = 25, sd = 5),
+                 "Prediction" = rnorm(n = 30, mean = 27, sd = 7))
+
+# The 20\% highest RMSE scores
+most_challenging(df,
+                 type = "gaussian",
+                 threshold = 0.2,
+                 threshold_is = "percentage")
+
+# RMSE scores above 9
+most_challenging(df,
+                 type = "gaussian",
+                 threshold = 9,
+                 threshold_is = "score")
+}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

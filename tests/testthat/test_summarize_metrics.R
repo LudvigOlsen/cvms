@@ -105,50 +105,52 @@ test_that("summarize_metrics() works with argument combinations", {
     fixed = TRUE)
 
   # Testing summarize_metrics(data = df, cols = NULL, na.r...
+  # Assigning output
+  output_17570 <- summarize_metrics(data = df, cols = NULL, na.rm = TRUE, inf.rm = FALSE)
   # Testing class
   expect_equal(
-    class(summarize_metrics(data = df, cols = NULL, na.rm = TRUE, inf.rm = FALSE)),
+    class(output_17570),
     c("tbl_df", "tbl", "data.frame"),
     fixed = TRUE)
   # Testing column values
   expect_equal(
-    summarize_metrics(data = df, cols = NULL, na.rm = TRUE, inf.rm = FALSE)[["Measure"]],
+    output_17570[["Measure"]],
     c("Mean", "Median", "SD", "IQR", "Max", "Min", "NAs", "INFs"),
     fixed = TRUE)
   expect_equal(
-    summarize_metrics(data = df, cols = NULL, na.rm = TRUE, inf.rm = FALSE)[["a_num_1"]],
+    output_17570[["a_num_1"]],
     c(1.20778, 0.9, 1.65129, 1.96, 5, -0.3, 1, 0),
     tolerance = 1e-4)
   expect_equal(
-    summarize_metrics(data = df, cols = NULL, na.rm = TRUE, inf.rm = FALSE)[["a_num_2"]],
+    output_17570[["a_num_2"]],
     c(Inf, 0.4, NaN, 0.6375, Inf, 0.04, 0, 1),
     tolerance = 1e-4)
   expect_equal(
-    summarize_metrics(data = df, cols = NULL, na.rm = TRUE, inf.rm = FALSE)[["an_int"]],
+    output_17570[["an_int"]],
     c(3.44444, 3, 2.50555, 4, 8, 1, 1, 0),
     tolerance = 1e-4)
   # Testing column names
   expect_equal(
-    names(summarize_metrics(data = df, cols = NULL, na.rm = TRUE, inf.rm = FALSE)),
+    names(output_17570),
     c("Measure", "a_num_1", "a_num_2", "an_int"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
-    xpectr::element_classes(summarize_metrics(data = df, cols = NULL, na.rm = TRUE, inf.rm = FALSE)),
+    xpectr::element_classes(output_17570),
     c("character", "numeric", "numeric", "numeric"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
-    xpectr::element_types(summarize_metrics(data = df, cols = NULL, na.rm = TRUE, inf.rm = FALSE)),
+    xpectr::element_types(output_17570),
     c("character", "double", "double", "double"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
-    dim(summarize_metrics(data = df, cols = NULL, na.rm = TRUE, inf.rm = FALSE)),
+    dim(output_17570),
     c(8L, 4L))
   # Testing group keys
   expect_equal(
-    colnames(dplyr::group_keys(summarize_metrics(data = df, cols = NULL, na.rm = TRUE, inf.rm = FALSE))),
+    colnames(dplyr::group_keys(output_17570)),
     character(0),
     fixed = TRUE)
 
@@ -177,86 +179,90 @@ test_that("summarize_metrics() works with argument combinations", {
     fixed = TRUE)
 
   # Testing summarize_metrics(data = df, cols = c("an_int"...
+  # Assigning output
+  output_12026 <- summarize_metrics(data = df, cols = c("an_int", "a_num_1"), na.rm = TRUE, inf.rm = TRUE)
   # Testing class
   expect_equal(
-    class(summarize_metrics(data = df, cols = c("an_int", "a_num_1"), na.rm = TRUE, inf.rm = TRUE)),
+    class(output_12026),
     c("tbl_df", "tbl", "data.frame"),
     fixed = TRUE)
   # Testing column values
   expect_equal(
-    summarize_metrics(data = df, cols = c("an_int", "a_num_1"), na.rm = TRUE, inf.rm = TRUE)[["Measure"]],
+    output_12026[["Measure"]],
     c("Mean", "Median", "SD", "IQR", "Max", "Min", "NAs", "INFs"),
     fixed = TRUE)
   expect_equal(
-    summarize_metrics(data = df, cols = c("an_int", "a_num_1"), na.rm = TRUE, inf.rm = TRUE)[["an_int"]],
+    output_12026[["an_int"]],
     c(3.44444, 3, 2.50555, 4, 8, 1, 1, 0),
     tolerance = 1e-4)
   expect_equal(
-    summarize_metrics(data = df, cols = c("an_int", "a_num_1"), na.rm = TRUE, inf.rm = TRUE)[["a_num_1"]],
+    output_12026[["a_num_1"]],
     c(1.20778, 0.9, 1.65129, 1.96, 5, -0.3, 1, 0),
     tolerance = 1e-4)
   # Testing column names
   expect_equal(
-    names(summarize_metrics(data = df, cols = c("an_int", "a_num_1"), na.rm = TRUE, inf.rm = TRUE)),
+    names(output_12026),
     c("Measure", "an_int", "a_num_1"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
-    xpectr::element_classes(summarize_metrics(data = df, cols = c("an_int", "a_num_1"), na.rm = TRUE, inf.rm = TRUE)),
+    xpectr::element_classes(output_12026),
     c("character", "numeric", "numeric"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
-    xpectr::element_types(summarize_metrics(data = df, cols = c("an_int", "a_num_1"), na.rm = TRUE, inf.rm = TRUE)),
+    xpectr::element_types(output_12026),
     c("character", "double", "double"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
-    dim(summarize_metrics(data = df, cols = c("an_int", "a_num_1"), na.rm = TRUE, inf.rm = TRUE)),
+    dim(output_12026),
     c(8L, 3L))
   # Testing group keys
   expect_equal(
-    colnames(dplyr::group_keys(summarize_metrics(data = df, cols = c("an_int", "a_num_1"), na.rm = TRUE, inf.rm = TRUE))),
+    colnames(dplyr::group_keys(output_12026)),
     character(0),
     fixed = TRUE)
 
   # Testing summarize_metrics(data = df, cols = c("a_num_1...
+  # Assigning output
+  output_17110 <- summarize_metrics(data = df, cols = c("a_num_1", "a_char"), na.rm = TRUE, inf.rm = TRUE)
   # Testing class
   expect_equal(
-    class(summarize_metrics(data = df, cols = c("a_num_1", "a_char"), na.rm = TRUE, inf.rm = TRUE)),
+    class(output_17110),
     c("tbl_df", "tbl", "data.frame"),
     fixed = TRUE)
   # Testing column values
   expect_equal(
-    summarize_metrics(data = df, cols = c("a_num_1", "a_char"), na.rm = TRUE, inf.rm = TRUE)[["Measure"]],
+    output_17110[["Measure"]],
     c("Mean", "Median", "SD", "IQR", "Max", "Min", "NAs", "INFs"),
     fixed = TRUE)
   expect_equal(
-    summarize_metrics(data = df, cols = c("a_num_1", "a_char"), na.rm = TRUE, inf.rm = TRUE)[["a_num_1"]],
+    output_17110[["a_num_1"]],
     c(1.20778, 0.9, 1.65129, 1.96, 5, -0.3, 1, 0),
     tolerance = 1e-4)
   # Testing column names
   expect_equal(
-    names(summarize_metrics(data = df, cols = c("a_num_1", "a_char"), na.rm = TRUE, inf.rm = TRUE)),
+    names(output_17110),
     c("Measure", "a_num_1"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
-    xpectr::element_classes(summarize_metrics(data = df, cols = c("a_num_1", "a_char"), na.rm = TRUE, inf.rm = TRUE)),
+    xpectr::element_classes(output_17110),
     c("character", "numeric"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
-    xpectr::element_types(summarize_metrics(data = df, cols = c("a_num_1", "a_char"), na.rm = TRUE, inf.rm = TRUE)),
+    xpectr::element_types(output_17110),
     c("character", "double"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
-    dim(summarize_metrics(data = df, cols = c("a_num_1", "a_char"), na.rm = TRUE, inf.rm = TRUE)),
+    dim(output_17110),
     c(8L, 2L))
   # Testing group keys
   expect_equal(
-    colnames(dplyr::group_keys(summarize_metrics(data = df, cols = c("a_num_1", "a_char"), na.rm = TRUE, inf.rm = TRUE))),
+    colnames(dplyr::group_keys(output_17110)),
     character(0),
     fixed = TRUE)
 
@@ -292,50 +298,52 @@ test_that("summarize_metrics() works with argument combinations", {
     fixed = TRUE)
 
   # Testing summarize_metrics(data = df, cols = NULL, na.r...
+  # Assigning output
+  output_11216 <- summarize_metrics(data = df, cols = NULL, na.rm = TRUE, inf.rm = TRUE)
   # Testing class
   expect_equal(
-    class(summarize_metrics(data = df, cols = NULL, na.rm = TRUE, inf.rm = TRUE)),
+    class(output_11216),
     c("tbl_df", "tbl", "data.frame"),
     fixed = TRUE)
   # Testing column values
   expect_equal(
-    summarize_metrics(data = df, cols = NULL, na.rm = TRUE, inf.rm = TRUE)[["Measure"]],
+    output_11216[["Measure"]],
     c("Mean", "Median", "SD", "IQR", "Max", "Min", "NAs", "INFs"),
     fixed = TRUE)
   expect_equal(
-    summarize_metrics(data = df, cols = NULL, na.rm = TRUE, inf.rm = TRUE)[["a_num_1"]],
+    output_11216[["a_num_1"]],
     c(1.20778, 0.9, 1.65129, 1.96, 5, -0.3, 1, 0),
     tolerance = 1e-4)
   expect_equal(
-    summarize_metrics(data = df, cols = NULL, na.rm = TRUE, inf.rm = TRUE)[["a_num_2"]],
+    output_11216[["a_num_2"]],
     c(0.45778, 0.3, 0.34622, 0.5, 1.03, 0.04, 0, 1),
     tolerance = 1e-4)
   expect_equal(
-    summarize_metrics(data = df, cols = NULL, na.rm = TRUE, inf.rm = TRUE)[["an_int"]],
+    output_11216[["an_int"]],
     c(3.44444, 3, 2.50555, 4, 8, 1, 1, 0),
     tolerance = 1e-4)
   # Testing column names
   expect_equal(
-    names(summarize_metrics(data = df, cols = NULL, na.rm = TRUE, inf.rm = TRUE)),
+    names(output_11216),
     c("Measure", "a_num_1", "a_num_2", "an_int"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
-    xpectr::element_classes(summarize_metrics(data = df, cols = NULL, na.rm = TRUE, inf.rm = TRUE)),
+    xpectr::element_classes(output_11216),
     c("character", "numeric", "numeric", "numeric"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
-    xpectr::element_types(summarize_metrics(data = df, cols = NULL, na.rm = TRUE, inf.rm = TRUE)),
+    xpectr::element_types(output_11216),
     c("character", "double", "double", "double"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
-    dim(summarize_metrics(data = df, cols = NULL, na.rm = TRUE, inf.rm = TRUE)),
+    dim(output_11216),
     c(8L, 4L))
   # Testing group keys
   expect_equal(
-    colnames(dplyr::group_keys(summarize_metrics(data = df, cols = NULL, na.rm = TRUE, inf.rm = TRUE))),
+    colnames(dplyr::group_keys(output_11216)),
     character(0),
     fixed = TRUE)
 

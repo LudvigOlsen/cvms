@@ -201,7 +201,7 @@ most_challenging_classification <- function(data,
       Accuracy = mean(.data$Correct),
       Correct = sum(.data$Correct),
       Incorrect = sum(.data$Incorrect)
-    )
+    ) %>% dplyr::ungroup()
   by_observation <- position_last(by_observation, "Accuracy")
 
   # Find the observations that were the most difficult to predict
@@ -259,7 +259,7 @@ most_challenging_gaussian <- function(data,
     dplyr::summarise(
       `MAE` = mean(abs(!!as.name(tmp_residual_var))),
       `RMSE` = root_mean_square(!!as.name(tmp_residual_var))
-    )
+    ) %>% dplyr::ungroup()
 
   # Find the observations that were the most difficult to predict
   to_return <- exceeds_threshold(data = by_observation,
@@ -289,8 +289,20 @@ exceeds_threshold <- function(data,
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
   checkmate::assert_data_frame(x = data, add = assert_collection)
+  if (dplyr::is_grouped_df(data))
+    assert_collection$push("'data' cannot be grouped at this stage.")
   checkmate::assert_data_frame(x = grouping_keys, add = assert_collection)
+  checkmate::assert_choice(x = threshold_is, choices = c("percentage", "score"),
+                           add = assert_collection)
   checkmate::assert_flag(x = maximize, add = assert_collection)
+  checkmate::reportAssertions(assert_collection)
+  if (threshold_is == "percentage")
+    checkmate::assert_number(x = threshold, lower = 0, upper = 1, add = assert_collection)
+  else {
+    checkmate::assert_number(x = threshold, add = assert_collection)
+  }
+  checkmate::assert_names(x = colnames(data), must.include = c(colnames(grouping_keys), metric_name),
+                          what = "colnames", add = assert_collection)
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
 

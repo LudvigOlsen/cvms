@@ -2,11 +2,11 @@
 #' @description
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
 #'
-#'  Summarizes all numeric columns. Counts the NAs and Infs in the columns.
+#'  Summarizes all numeric columns. Counts the \code{NA}s and \code{Inf}s in the columns.
 #' @param data Data frame with numeric columns to summarize.
 #' @param cols Names of columns to summarize. Non-numeric columns are ignored.
-#' @param na.rm Whether to remove NAs before summarizing. (logical)
-#' @param inf.rm Whether to remove Infs before summarizing. (logical)
+#' @param na.rm Whether to remove \code{NA}s before summarizing. (logical)
+#' @param inf.rm Whether to remove \code{Inf}s before summarizing. (logical)
 #' @return tibble where each row is a descriptor of the column.
 #'
 #'  The \strong{Measure} column contains the name of the descriptor.
@@ -16,6 +16,20 @@
 #'  The \strong{INFs} row is a count of \code{Inf}s in the column.
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
+#' @examples
+#' # Attach packages
+#' library(cvms)
+#' library(dplyr)
+#'
+#' df <- data.frame("a" = c("a", "a", "a", "b", "b", "b", "c", "c", "c"),
+#'                  "b" = c(0.8, 0.6, 0.3, 0.2, 0.4, 0.5, 0.8, 0.1, 0.5),
+#'                  "c" = c(0.2, 0.3, 0.4, 0.6, 0.5, 0.8, 0.1, 0.8, 0.3))
+#'
+#' # Summarize all numeric columns
+#' summarize_metrics(df)
+#'
+#' # Summarize column "b"
+#' summarize_metrics(df, cols = "b")
 summarize_metrics <- function(data, cols = NULL, na.rm = TRUE, inf.rm = TRUE) {
 
   # Check arguments ####
@@ -35,6 +49,9 @@ summarize_metrics <- function(data, cols = NULL, na.rm = TRUE, inf.rm = TRUE) {
   )
   checkmate::assert_flag(x = na.rm, add = assert_collection)
   checkmate::assert_flag(x = inf.rm, add = assert_collection)
+  checkmate::reportAssertions(assert_collection)
+  if (dplyr::is_grouped_df(data))
+    assert_collection$push("Currently, 'data' cannot be grouped.")
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
 
@@ -104,9 +121,16 @@ replace_inf_with_na <- function(metric_cols) {
   assert_collection <- checkmate::makeAssertCollection()
   checkmate::assert_data_frame(x = metric_cols,
                                types = "numeric",
+                               min.cols = 1,
                                add = assert_collection)
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
+
+  # Convert to tibble - required so
+  # metric_cols_with_infs won't be numeric(0)
+  if (!tibble::is_tibble(metric_cols)){
+    metric_cols <- dplyr::as_tibble(metric_cols)
+  }
 
   # Get rows with INFs
   metric_cols_with_infs <- metric_cols[is.infinite(rowSums(metric_cols)), ]

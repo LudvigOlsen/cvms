@@ -11,9 +11,9 @@ summarize_metrics(data, cols = NULL, na.rm = TRUE, inf.rm = TRUE)
 
 \item{cols}{Names of columns to summarize. Non-numeric columns are ignored.}
 
-\item{na.rm}{Whether to remove NAs before summarizing. (logical)}
+\item{na.rm}{Whether to remove \code{NA}s before summarizing. (logical)}
 
-\item{inf.rm}{Whether to remove Infs before summarizing. (logical)}
+\item{inf.rm}{Whether to remove \code{Inf}s before summarizing. (logical)}
 }
 \value{
 tibble where each row is a descriptor of the column.
@@ -27,7 +27,22 @@ tibble where each row is a descriptor of the column.
 \description{
 \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
 
- Summarizes all numeric columns. Counts the NAs and Infs in the columns.
+ Summarizes all numeric columns. Counts the \code{NA}s and \code{Inf}s in the columns.
+}
+\examples{
+# Attach packages
+library(cvms)
+library(dplyr)
+
+df <- data.frame("a" = c("a", "a", "a", "b", "b", "b", "c", "c", "c"),
+                 "b" = c(0.8, 0.6, 0.3, 0.2, 0.4, 0.5, 0.8, 0.1, 0.5),
+                 "c" = c(0.2, 0.3, 0.4, 0.6, 0.5, 0.8, 0.1, 0.8, 0.3))
+
+# Summarize all numeric columns
+summarize_metrics(df)
+
+# Summarize column "b"
+summarize_metrics(df, cols = "b")
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

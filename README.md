@@ -27,30 +27,55 @@ status](https://ci.appveyor.com/api/projects/status/github/LudvigOlsen/cvms?bran
 R package: Cross-validate one or multiple regression or classification
 models and get relevant evaluation metrics in a tidy format. Validate
 the best model on a test set and compare it to a baseline evaluation.
-Perform hyperparameter tuning with (sampled) grid search. Evaluate
-predictions from an external model. Currently supports regression
-(`'gaussian'`), binary classification (`'binomial'`), and (some
-functions only) multiclass classification (`'multinomial'`).
+Perform hyperparameter tuning with grid search. Evaluate predictions
+from an external model. Currently supports regression (`'gaussian'`),
+binary classification (`'binomial'`), and (some functions only)
+multiclass classification
+(`'multinomial'`).
 
-Main functions:
+### Main functions
 
-  - `cross_validate()`  
-  - `cross_validate_fn()`  
-  - `validate()`  
-  - `validate_fn()`  
-  - `evaluate()`
-  - `baseline()`  
-  - `combine_predictors()`  
-  - `cv_plot()`  
-  - `select_metrics()`  
-  - `reconstruct_formulas()`
+| Function              | Description                                                         |
+| :-------------------- | :------------------------------------------------------------------ |
+| `cross_validate()`    | Cross-validate linear models with `lm()`/`lmer()`/`glm()`/`glmer()` |
+| `cross_validate_fn()` | Cross-validate custom model function                                |
+| `validate()`          | Validate linear models with (`lm`/`lmer`/`glm`/`glmer`)             |
+| `validate_fn()`       | Validate custom model function                                      |
+| `evaluate()`          | Evaluate predictions on a large set of metrics                      |
+| `baseline()`          | Perform baseline evaluations of a dataset                           |
+
+### Utilities
+
+| Function                                                                                             | Description                                                                         |
+| :--------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------- |
+| `confusion_matrix()`                                                                                 | Create a confusion matrix from predictions and targets                              |
+| `evaluate_residuals()`                                                                               | Evaluate residuals from a regression task                                           |
+| `most_challenging()`                                                                                 | Find the observations that were the most challenging to predict                     |
+| `select_metrics()`                                                                                   | Select the metric columns from the output                                           |
+| `gaussian_metrics()`<br />`binomial_metrics()`<br />`multinomial_metrics()`                          | Create list of metrics for the common `metrics` argument                            |
+| `summarize_metrics()`                                                                                | Summarize numeric columns with a set of descriptors                                 |
+| `multiclass_probability_tibble()`                                                                    | Generate a multiclass probability tibble                                            |
+| `combine_predictors()`                                                                               | Generate model formulas from a list of predictors                                   |
+| `reconstruct_formulas()`                                                                             | Extract formulas from output tibble                                                 |
+| `simplify_formula()`                                                                                 | Remove inline functions with more from a formula object                             |
+| `example_model_functions()`<br />`example_predict_functions()`<br />`example_preprocess_functions()` | Example functions for `cross_validate_fn()`                                         |
+| `plot_confusion_matrix()`                                                                            | Plot a confusion matrix                                                             |
+| `font()`                                                                                             | Set font settings for plotting functions (currently only `plot_confusion_matrix()`) |
+
+### Datasets
+
+  - `participant.scores`
+  - `wines`
+  - `musicians`, `predicted.musicians`
+  - `precomputed.formulas`, `compatible.formula.terms`
 
 ## Table of Contents
 
   - [cvms](#cvms)
       - [Overview](#overview)
-          - [The difference between `cross_validate()` and
-            `cross_validate_fn()`](#diff-cv-fn)
+          - [Main functions](#main-functions)
+          - [Utilities](#utilities)
+          - [Datasets](#datasets)
       - [Important News](#news)
       - [Installation](#installation)
   - [Examples](#examples)
@@ -74,28 +99,19 @@ Main functions:
           - [Gaussian](#baseline-gaussian)
           - [Binomial](#baseline-binomial)
           - [Multinomial](#baseline-multinomial)
-      - [Plot results](#plot)
-          - [Gaussian](#plot-gaussian)
       - [Generate model formulas](#generate-formulas)
-
-### The difference between `cross_validate()` and `cross_validate_fn()`
-
-Originally, `cvms` only provided the option to cross-validate Gaussian
-and binomial regression models, fitting the models internally with the
-`lm()`, `lmer()`, `glm()`, and `glmer()` functions. The
-`cross_validate()` function has thus been designed specifically to work
-with those functions.
-
-To allow cross-validation of custom model functions like support-vector
-machines, neural networks, etc., the `cross_validate_fn()` function has
-been added. You provide a model function and a predict function, and it
-does the rest (see examples below). Additionally, you can provide a
-preprocess function and a list or data frame with hyperparameter values
-to test.
 
 ## Important News
 
 Note: Check NEWS.md for the full list of changes.
+
+  - `cv_plot()` has been removed.
+
+  - Fixes bug in `evaluate()`, when used on a grouped data frame. The
+    row order in the output was not guaranteed to fit with the grouping
+    keys. If you have used `evaluate()` on a grouped data frame, please
+    rerun to make sure your results are correct\! (30th of November
+    2019)
 
   - In `cross_validate()` and `validate()`, the `models` argument is
     renamed to `formulas` and the `model_verbose` argument is renamed to
@@ -110,23 +126,6 @@ Note: Check NEWS.md for the full list of changes.
 
   - `cross_validate_fn()` and `validate_fn()` are added.
     (Cross-)validate custom model functions.
-
-  - In `evaluate()`, when `type` is `multinomial`, the output is now a
-    single tibble. The `Class Level Results` are included as a nested
-    tibble.
-
-  - Adds `'multinomial'` family to `baseline()` and `evaluate()`.
-
-  - `evaluate()` is added. Evaluate your model’s predictions with the
-    same metrics as used in `cross_validate()`.
-
-  - `Binomial` AUC calculation has changed. Now explicitly sets the
-    direction in `pROC::roc`. (27th of May 2019)
-
-  - Argument `positive` now defaults to `2`. If a dependent variable has
-    the values 0 and 1, 1 is now the default positive class, as that’s
-    the second smallest value. If the dependent variable is of type
-    `character`, it’s in alphabetical order.
 
 ## Installation
 
@@ -212,10 +211,10 @@ CV1 <- cross_validate(data,
 
 # Show results
 CV1
-#> # A tibble: 1 x 21
-#>    RMSE   MAE NRMSE RMSEIQR   r2m   r2c   AIC  AICc   BIC Predictions Results
-#>   <dbl> <dbl> <dbl>   <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <list>      <list> 
-#> 1  16.4  13.8 0.272   0.937 0.271 0.271  195.  196.  198. <tibble [3… <tibbl…
+#> # A tibble: 1 x 20
+#>    RMSE   MAE RMSLE   r2m   r2c   AIC  AICc   BIC Predictions Results
+#>   <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <list>      <list> 
+#> 1  16.4  13.8 0.474 0.271 0.271  195.  196.  198. <tibble [3… <tibbl…
 #> # … with 10 more variables: Coefficients <list>, Folds <int>, `Fold
 #> #   Columns` <int>, `Convergence Warnings` <int>, `Singular Fit
 #> #   Messages` <int>, `Other Warnings` <int>, `Warnings and Messages` <list>,
@@ -227,9 +226,9 @@ CV1
 CV1 %>% select_metrics() %>% kable()
 ```
 
-|     RMSE |      MAE |   NRMSE |   RMSEIQR |      r2m |      r2c |      AIC |     AICc |      BIC | Dependent | Fixed     |
-| -------: | -------: | ------: | --------: | -------: | -------: | -------: | -------: | -------: | :-------- | :-------- |
-| 16.35261 | 13.75772 | 0.27203 | 0.9373575 | 0.270991 | 0.270991 | 194.6218 | 195.9276 | 197.9556 | score     | diagnosis |
+|     RMSE |      MAE |     RMSLE |      r2m |      r2c |      AIC |     AICc |      BIC | Dependent | Fixed     |
+| -------: | -------: | --------: | -------: | -------: | -------: | -------: | -------: | :-------- | :-------- |
+| 16.35261 | 13.75772 | 0.4736577 | 0.270991 | 0.270991 | 194.6218 | 195.9276 | 197.9556 | score     | diagnosis |
 
 ``` r
 
@@ -253,12 +252,12 @@ CV1$Predictions[[1]] %>% head() %>% kable()
 CV1$Results[[1]] %>% kable()
 ```
 
-| Fold Column | Fold |      MAE |     RMSE |     NRMSE |   RMSEIQR |       r2m |       r2c |      AIC |     AICc |      BIC |
-| :---------- | ---: | -------: | -------: | --------: | --------: | --------: | --------: | -------: | -------: | -------: |
-| .folds      |    1 | 10.72222 | 12.56760 | 0.2513519 | 0.6793295 | 0.2439198 | 0.2439198 | 209.9622 | 211.1622 | 213.4963 |
-| .folds      |    2 | 14.77778 | 16.60767 | 0.2913627 | 1.0379796 | 0.2525524 | 0.2525524 | 182.8739 | 184.2857 | 186.0075 |
-| .folds      |    3 | 12.87037 | 15.97355 | 0.2384112 | 1.2528275 | 0.2306104 | 0.2306104 | 207.9074 | 209.1074 | 211.4416 |
-| .folds      |    4 | 16.66049 | 20.26162 | 0.3069943 | 0.7792933 | 0.3568816 | 0.3568816 | 177.7436 | 179.1554 | 180.8772 |
+| Fold Column | Fold |     RMSE |      MAE |     RMSLE |       r2m |       r2c |      AIC |     AICc |      BIC |
+| :---------- | ---: | -------: | -------: | --------: | --------: | --------: | -------: | -------: | -------: |
+| .folds      |    1 | 12.56760 | 10.72222 | 0.3555080 | 0.2439198 | 0.2439198 | 209.9622 | 211.1622 | 213.4963 |
+| .folds      |    2 | 16.60767 | 14.77778 | 0.5805901 | 0.2525524 | 0.2525524 | 182.8739 | 184.2857 | 186.0075 |
+| .folds      |    3 | 15.97355 | 12.87037 | 0.4767100 | 0.2306104 | 0.2306104 | 207.9074 | 209.1074 | 211.4416 |
+| .folds      |    4 | 20.26162 | 16.66049 | 0.4818228 | 0.3568816 | 0.3568816 | 177.7436 | 179.1554 | 180.8772 |
 
 ``` r
 
@@ -283,7 +282,7 @@ CV1$Coefficients[[1]] %>% kable()
 
 # Additional information about the model
 # and the training process
-CV1 %>% select(13:21) %>% kable()
+CV1 %>% select(12:20) %>% kable()
 ```
 
 | Folds | Fold Columns | Convergence Warnings | Singular Fit Messages | Other Warnings | Warnings and Messages                                                                                                       | Family   | Dependent | Fixed     |
@@ -364,11 +363,11 @@ CV3 <- cross_validate(data,
 
 # Show results
 CV3
-#> # A tibble: 2 x 21
-#>    RMSE   MAE NRMSE RMSEIQR    r2m    r2c   AIC  AICc   BIC Predictions Results
-#>   <dbl> <dbl> <dbl>   <dbl>  <dbl>  <dbl> <dbl> <dbl> <dbl> <list>      <list> 
-#> 1  16.4  13.8 0.272   0.937 0.271  0.271   195.  196.  198. <tibble [3… <tibbl…
-#> 2  22.4  18.9 0.371   1.35  0.0338 0.0338  201.  202.  204. <tibble [3… <tibbl…
+#> # A tibble: 2 x 20
+#>    RMSE   MAE RMSLE    r2m    r2c   AIC  AICc   BIC Predictions Results
+#>   <dbl> <dbl> <dbl>  <dbl>  <dbl> <dbl> <dbl> <dbl> <list>      <list> 
+#> 1  16.4  13.8 0.474 0.271  0.271   195.  196.  198. <tibble [3… <tibbl…
+#> 2  22.4  18.9 0.618 0.0338 0.0338  201.  202.  204. <tibble [3… <tibbl…
 #> # … with 10 more variables: Coefficients <list>, Folds <int>, `Fold
 #> #   Columns` <int>, `Convergence Warnings` <int>, `Singular Fit
 #> #   Messages` <int>, `Other Warnings` <int>, `Warnings and Messages` <list>,
@@ -386,11 +385,11 @@ CV4 <- cross_validate(data,
 
 # Show results
 CV4
-#> # A tibble: 2 x 22
-#>    RMSE   MAE NRMSE RMSEIQR    r2m   r2c   AIC  AICc   BIC Predictions Results
-#>   <dbl> <dbl> <dbl>   <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <list>      <list> 
-#> 1  7.95  6.41 0.129   0.438 0.290  0.811  176.  178.  180. <tibble [3… <tibbl…
-#> 2 17.5  16.2  0.288   1.08  0.0366 0.526  194.  196.  198. <tibble [3… <tibbl…
+#> # A tibble: 2 x 21
+#>    RMSE   MAE RMSLE    r2m   r2c   AIC  AICc   BIC Predictions Results
+#>   <dbl> <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <list>      <list> 
+#> 1  7.95  6.41 0.226 0.290  0.811  176.  178.  180. <tibble [3… <tibbl…
+#> 2 17.5  16.2  0.480 0.0366 0.526  194.  196.  198. <tibble [3… <tibbl…
 #> # … with 11 more variables: Coefficients <list>, Folds <int>, `Fold
 #> #   Columns` <int>, `Convergence Warnings` <int>, `Singular Fit
 #> #   Messages` <int>, `Other Warnings` <int>, `Warnings and Messages` <list>,
@@ -457,7 +456,7 @@ CV5
 
 # The binomial output now has a nested 'Results' tibble
 # Let's see a subset of the columns
-CV5$Results[[1]] %>% select(1:8) %>%  kable()
+CV5$Results[[1]] %>% select(1:8) %>% kable()
 ```
 
 | Fold Column | Balanced Accuracy |        F1 | Sensitivity | Specificity | Pos Pred Value | Neg Pred Value |       AUC |
@@ -753,6 +752,14 @@ ev$`Class Level Results`
 #> #   Support <int>, `Confusion Matrix` <list>
 ```
 
+Plot the confusion matrix.
+
+``` r
+plot_confusion_matrix(ev$`Confusion Matrix`[[1]])
+```
+
+<img src="man/figures/README-unnamed-chunk-22-1.png" width="644" />
+
 ## Baseline evaluations
 
 Create baseline evaluations of a test set.
@@ -786,34 +793,34 @@ Create the baseline evaluations:
 baseline(test_data = test_set, train_data = train_set,
          n = 100, dependent_col = "score", family = "gaussian")
 #> $summarized_metrics
-#> # A tibble: 9 x 6
-#>   Measure   RMSE    MAE  NRMSE RMSEIQR `Training Rows`
-#>   <chr>    <dbl>  <dbl>  <dbl>   <dbl>           <dbl>
-#> 1 Mean     19.7  15.8   0.290   0.949             9.63
-#> 2 Median   19.2  15.5   0.282   0.925             9   
-#> 3 SD        1.05  0.759 0.0154  0.0504            3.22
-#> 4 IQR       1.16  0.264 0.0171  0.0560            5   
-#> 5 Max      24.1  19.4   0.355   1.16             15   
-#> 6 Min      18.9  15.5   0.278   0.912             5   
-#> 7 NAs       0     0     0       0                 0   
-#> 8 INFs      0     0     0       0                 0   
-#> 9 All_rows 19.1  15.5   0.282   0.923            18   
+#> # A tibble: 9 x 5
+#>   Measure   RMSE    MAE  RMSLE `Training Rows`
+#>   <chr>    <dbl>  <dbl>  <dbl>           <dbl>
+#> 1 Mean     19.7  15.8   0.557             9.63
+#> 2 Median   19.2  15.5   0.548             9   
+#> 3 SD        1.05  0.759 0.0234            3.22
+#> 4 IQR       1.16  0.264 0.0143            5   
+#> 5 Max      24.1  19.4   0.640            15   
+#> 6 Min      18.9  15.5   0.541             5   
+#> 7 NAs       0     0     0                 0   
+#> 8 INFs      0     0     0                 0   
+#> 9 All_rows 19.1  15.5   0.543            18   
 #> 
 #> $random_evaluations
-#> # A tibble: 100 x 10
-#>     RMSE   MAE NRMSE RMSEIQR Predictions Coefficients `Training Rows` Family
-#>    <dbl> <dbl> <dbl>   <dbl> <list>      <list>                 <int> <chr> 
-#>  1  20.0  16.3 0.294   0.964 <tibble [1… <tibble [1 …               8 gauss…
-#>  2  19.0  15.5 0.279   0.914 <tibble [1… <tibble [1 …              15 gauss…
-#>  3  20.2  15.7 0.296   0.971 <tibble [1… <tibble [1 …               7 gauss…
-#>  4  20.0  15.7 0.295   0.966 <tibble [1… <tibble [1 …              11 gauss…
-#>  5  19.3  15.6 0.284   0.931 <tibble [1… <tibble [1 …               8 gauss…
-#>  6  20.4  15.9 0.300   0.985 <tibble [1… <tibble [1 …               5 gauss…
-#>  7  19.0  15.5 0.279   0.915 <tibble [1… <tibble [1 …              13 gauss…
-#>  8  19.4  15.5 0.285   0.933 <tibble [1… <tibble [1 …              10 gauss…
-#>  9  20.7  16.2 0.305   1.000 <tibble [1… <tibble [1 …               8 gauss…
-#> 10  20.8  17.1 0.306   1.00  <tibble [1… <tibble [1 …               5 gauss…
-#> # … with 90 more rows, and 2 more variables: Dependent <chr>, Fixed <chr>
+#> # A tibble: 100 x 9
+#>     RMSE   MAE RMSLE Predictions Coefficients `Training Rows` Family Dependent
+#>    <dbl> <dbl> <dbl> <list>      <list>                 <int> <chr>  <chr>    
+#>  1  20.0  16.3 0.605 <tibble [1… <tibble [1 …               8 gauss… score    
+#>  2  19.0  15.5 0.549 <tibble [1… <tibble [1 …              15 gauss… score    
+#>  3  20.2  15.7 0.544 <tibble [1… <tibble [1 …               7 gauss… score    
+#>  4  20.0  15.7 0.543 <tibble [1… <tibble [1 …              11 gauss… score    
+#>  5  19.3  15.6 0.582 <tibble [1… <tibble [1 …               8 gauss… score    
+#>  6  20.4  15.9 0.546 <tibble [1… <tibble [1 …               5 gauss… score    
+#>  7  19.0  15.5 0.548 <tibble [1… <tibble [1 …              13 gauss… score    
+#>  8  19.4  15.5 0.541 <tibble [1… <tibble [1 …              10 gauss… score    
+#>  9  20.7  16.2 0.550 <tibble [1… <tibble [1 …               8 gauss… score    
+#> 10  20.8  17.1 0.627 <tibble [1… <tibble [1 …               5 gauss… score    
+#> # … with 90 more rows, and 1 more variable: Fixed <chr>
 ```
 
 ### Binomial
@@ -881,21 +888,25 @@ multiclass_baseline <- baseline(
 
 # Summarized metrics
 multiclass_baseline$summarized_metrics
-#> # A tibble: 12 x 13
+#> # A tibble: 16 x 13
 #>    Measure `Overall Accura… `Balanced Accur…       F1 Sensitivity Specificity
 #>    <chr>              <dbl>            <dbl>    <dbl>       <dbl>       <dbl>
-#>  1 Mean              0.250            0.501    0.283       0.252       0.750 
-#>  2 Median            0.231            0.494    0.280       0.243       0.746 
-#>  3 SD                0.0841           0.0567   0.0737      0.0853      0.0284
-#>  4 IQR               0.115            0.0795   0.0920      0.121       0.0385
-#>  5 Max               0.538            0.786    0.667       1           1     
-#>  6 Min               0.0769           0.262    0.111       0           0.474 
-#>  7 NAs              NA                0       61           0           0     
-#>  8 INFs             NA                0        0           0           0     
-#>  9 All_cl…           0.192            0.5    NaN           0.25        0.75  
-#> 10 All_cl…           0.269            0.5    NaN           0.25        0.75  
-#> 11 All_cl…           0.269            0.5    NaN           0.25        0.75  
-#> 12 All_cl…           0.269            0.5    NaN           0.25        0.75  
+#>  1 Mean              0.250            0.501    0.295       0.252       0.750 
+#>  2 Median            0.231            0.494    0.303       0.243       0.746 
+#>  3 SD                0.0841           0.0567   0.0751      0.0853      0.0284
+#>  4 IQR               0.115            0.0795   0.0795      0.121       0.0385
+#>  5 Max               0.538            0.695    0.540       0.543       0.847 
+#>  6 Min               0.0769           0.382    0.154       0.0714      0.690 
+#>  7 NAs               0                0       51           0           0     
+#>  8 INFs              0                0        0           0           0     
+#>  9 CL_Max           NA                0.786    0.667       1           1     
+#> 10 CL_Min           NA                0.262    0.111       0           0.474 
+#> 11 CL_NAs           NA                0       61           0           0     
+#> 12 CL_INFs          NA                0        0           0           0     
+#> 13 All_cl…           0.192            0.5    NaN           0.25        0.75  
+#> 14 All_cl…           0.269            0.5    NaN           0.25        0.75  
+#> 15 All_cl…           0.269            0.5    NaN           0.25        0.75  
+#> 16 All_cl…           0.269            0.5    NaN           0.25        0.75  
 #> # … with 7 more variables: `Pos Pred Value` <dbl>, `Neg Pred Value` <dbl>,
 #> #   Kappa <dbl>, MCC <dbl>, `Detection Rate` <dbl>, `Detection
 #> #   Prevalence` <dbl>, Prevalence <dbl>
@@ -943,43 +954,6 @@ multiclass_baseline$random_evaluations
 #> #   Prevalence` <dbl>, Prevalence <dbl>, Predictions <list>, `Confusion
 #> #   Matrix` <list>, `Class Level Results` <list>, Family <chr>, Dependent <chr>
 ```
-
-## Plot results
-
-There are currently a small set of plots for quick visualization of the
-results. It is supposed to be easy to extract the needed information to
-create your own plots. If you lack access to any information or have
-other requests or ideas, feel free to open an issue.
-
-### Gaussian
-
-``` r
-cv_plot(CV1, type = "RMSE") +
-  theme_bw()
-```
-
-<img src="man/figures/README-unnamed-chunk-26-1.png" width="644" />
-
-``` r
-cv_plot(CV1, type = "r2") +
-  theme_bw()
-```
-
-<img src="man/figures/README-unnamed-chunk-26-2.png" width="644" />
-
-``` r
-cv_plot(CV1, type = "IC") +
-  theme_bw()
-```
-
-<img src="man/figures/README-unnamed-chunk-26-3.png" width="644" />
-
-``` r
-cv_plot(CV1, type = "coefficients") +
-  theme_bw()
-```
-
-<img src="man/figures/README-unnamed-chunk-26-4.png" width="644" />
 
 ## Generate model formulas
 

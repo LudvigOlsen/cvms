@@ -43,37 +43,51 @@ rvers <- substring(dep, 7, nchar(dep)-1)
 ## Overview {#overview}
 
 R package: Cross-validate one or multiple regression or classification models and get relevant evaluation metrics in a tidy format. Validate the best model on a test set and compare it to a baseline evaluation. 
-Perform hyperparameter tuning with (sampled) grid search. Evaluate predictions from an external model. Currently supports regression (`'gaussian'`), binary classification (`'binomial'`), and (some functions only) multiclass classification (`'multinomial'`).
+Perform hyperparameter tuning with grid search. Evaluate predictions from an external model. Currently supports regression (`'gaussian'`), binary classification (`'binomial'`), and (some functions only) multiclass classification (`'multinomial'`).
 
-Main functions:  
+### Main functions
 
-* `cross_validate()`  
-* `cross_validate_fn()`  
-* `validate()`  
-* `validate_fn()`  
-* `evaluate()`
-* `baseline()`  
-* `combine_predictors()`  
-* `select_metrics()`  
-* `reconstruct_formulas()`   
+| Function              | Description                                                        |
+|:----------------------|:-------------------------------------------------------------------|
+|`cross_validate()`     |Cross-validate linear models with `lm()`/`lmer()`/`glm()`/`glmer()` |
+|`cross_validate_fn()`  |Cross-validate custom model function                                |
+|`validate()`           |Validate linear models with (`lm`/`lmer`/`glm`/`glmer`)             |
+|`validate_fn()`        |Validate custom model function                                      |
+|`evaluate()`           |Evaluate predictions on a large set of metrics                      |
+|`baseline()`           |Perform baseline evaluations of a dataset                           |
+
+
+### Utilities
+
+| Function              | Description                                                        |
+|:----------------------|:-------------------------------------------------------------------|
+|`confusion_matrix()`   |Create a confusion matrix from predictions and targets |
+|`evaluate_residuals()` |Evaluate residuals from a regression task |
+|`most_challenging()`   |Find the observations that were the most challenging to predict |
+|`select_metrics()`     |Select the metric columns from the output |
+|`gaussian_metrics()`<br />`binomial_metrics()`<br />`multinomial_metrics()` |Create list of metrics for the common `metrics` argument |
+|`summarize_metrics()`  |Summarize numeric columns with a set of descriptors |
+|`multiclass_probability_tibble()` |Generate a multiclass probability tibble |
+|`combine_predictors()` |Generate model formulas from a list of predictors |
+|`reconstruct_formulas()` |Extract formulas from output tibble |
+|`simplify_formula()` |Remove inline functions with more from a formula object |
+|`example_model_functions()`<br />`example_predict_functions()`<br />`example_preprocess_functions()` |Example functions for `cross_validate_fn()`|
+|`plot_confusion_matrix()` |Plot a confusion matrix |
+|`font()` |Set font settings for plotting functions (currently only `plot_confusion_matrix()`) |
+
+
+### Datasets
+
+* `participant.scores`
+* `wines`
+* `musicians`, `predicted.musicians`
+* `precomputed.formulas`, `compatible.formula.terms`
 
 ## Table of Contents {#toc}
 
 ```{r toc, echo=FALSE}
 cvms:::render_toc("README.Rmd")
 ```
-
-
-### The difference between `cross_validate()` and `cross_validate_fn()` {#diff-cv-fn}
-
-Originally, `cvms` only provided the option to cross-validate Gaussian and binomial regression models, fitting
-the models internally with the `lm()`, `lmer()`, `glm()`, and `glmer()` functions.
-The `cross_validate()` function has thus been designed specifically to work with those functions.
-
-To allow cross-validation of custom model functions like support-vector machines, neural networks, etc., 
-the `cross_validate_fn()` function has been added. You provide a model function 
-and a predict function, and it does the rest (see examples below). Additionally, you can provide
-a preprocess function and a list or data frame with hyperparameter values to test.
 
 ## Important News {#news}
 
@@ -90,16 +104,6 @@ Note: Check NEWS.md for the full list of changes.
 * `cross_validate_fn()` and `validate_fn()` now take the `preprocess_fn`, `preprocess_once`, and `hyperparameters` arguments. The `predict_type` argument has been removed.
 
 * `cross_validate_fn()` and `validate_fn()` are added. (Cross-)validate custom model functions.
-
-* In `evaluate()`, when `type` is `multinomial`, the output is now a single tibble. The `Class Level Results` are included as a nested tibble.
-
-* Adds `'multinomial'` family to `baseline()` and `evaluate()`.
-
-* `evaluate()` is added. Evaluate your model's predictions with the same metrics as used in `cross_validate()`.
-
-* `Binomial` AUC calculation has changed. Now explicitly sets the direction in `pROC::roc`. (27th of May 2019)
-
-* Argument `positive` now defaults to `2`. If a dependent variable has the values 0 and 1, 1 is now the default positive class, as that's the second smallest value. If the dependent variable is of type `character`, it's in alphabetical order.
 
 
 ## Installation  {#installation}
@@ -187,7 +191,7 @@ CV1$Coefficients[[1]] %>% kable()
 
 # Additional information about the model
 # and the training process
-CV1 %>% select(13:21) %>% kable()
+CV1 %>% select(12:20) %>% kable()
 
 ```
 
@@ -211,6 +215,7 @@ CV2 %>% select(10:14) %>% kable()
 
 # Confusion matrix
 CV2$`Confusion Matrix`[[1]] %>% kable()
+
 ```
 
 
@@ -282,7 +287,7 @@ CV5
 
 # The binomial output now has a nested 'Results' tibble
 # Let's see a subset of the columns
-CV5$Results[[1]] %>% select(1:8) %>%  kable()
+CV5$Results[[1]] %>% select(1:8) %>% kable()
 ```
 
 ## Cross-validating custom model functions {#cv-custom}
@@ -470,6 +475,12 @@ The class level results (i.e., the one-vs-all evaluations) are also included, an
 
 ```{r}
 ev$`Class Level Results`
+```
+
+Plot the confusion matrix.
+
+```{r}
+plot_confusion_matrix(ev$`Confusion Matrix`[[1]])
 ```
 
 

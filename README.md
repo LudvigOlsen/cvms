@@ -38,10 +38,10 @@ multiclass classification
 | Function              | Description                                                         |
 | :-------------------- | :------------------------------------------------------------------ |
 | `cross_validate()`    | Cross-validate linear models with `lm()`/`lmer()`/`glm()`/`glmer()` |
-| `cross_validate_fn()` | Cross-validate custom model function                                |
+| `cross_validate_fn()` | Cross-validate a custom model function                              |
 | `validate()`          | Validate linear models with (`lm`/`lmer`/`glm`/`glmer`)             |
-| `validate_fn()`       | Validate custom model function                                      |
-| `evaluate()`          | Evaluate predictions on a large set of metrics                      |
+| `validate_fn()`       | Validate a custom model function                                    |
+| `evaluate()`          | Evaluate predictions with a large set of metrics                    |
 | `baseline()`          | Perform baseline evaluations of a dataset                           |
 
 ### Utilities

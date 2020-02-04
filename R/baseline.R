@@ -401,10 +401,10 @@
 #' @importFrom stats runif rnorm terms IQR median predict sd
 baseline <- function(test_data,
                      dependent_col,
+                     family,
                      train_data = NULL,
                      # how many times to randomly sample probabilities (bootstrapping?)
                      n = 100,
-                     family = "binomial",
                      metrics = list(),
                      # Binomial
                      positive = 2,

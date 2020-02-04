@@ -7,9 +7,9 @@
 baseline(
   test_data,
   dependent_col,
+  family,
   train_data = NULL,
   n = 100,
-  family = "binomial",
   metrics = list(),
   positive = 2,
   cutoff = 0.5,
@@ -26,6 +26,10 @@ baseline(
 
 \item{dependent_col}{Name of dependent variable in the supplied test and training sets.}
 
+\item{family}{Name of family. (Character)
+
+ Currently supports \code{"gaussian"}, \code{"binomial"} and \code{"multinomial"}.}
+
 \item{train_data}{Data Frame. Only used when \code{family == "gaussian"}.}
 
 \item{n}{Number of random samplings to perform.
@@ -33,10 +37,6 @@ baseline(
  For \code{gaussian}: The number of random samplings of train_data to fit baseline models on.
 
  For \code{binomial} and \code{multinomial}: The number of sets of random predictions to evaluate.}
-
-\item{family}{Name of family. (Character)
-
- Currently supports \code{"gaussian"}, \code{"binomial"} and \code{"multinomial"}.}
 
 \item{metrics}{List for enabling/disabling metrics.
 

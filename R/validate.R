@@ -176,9 +176,9 @@
 #' )
 validate <- function(train_data,
                      formulas,
+                     family,
                      test_data = NULL,
                      partitions_col = ".partitions",
-                     family = "gaussian",
                      control = NULL,
                      REML = FALSE,
                      cutoff = 0.5,

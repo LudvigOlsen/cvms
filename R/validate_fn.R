@@ -182,15 +182,15 @@
 #'   mutate(diagnosis = as.factor(diagnosis)) %>%
 #'   arrange(.folds)
 validate_fn <- function(train_data,
-                        test_data = NULL,
                         formulas,
+                        type,
                         model_fn,
                         predict_fn,
+                        test_data = NULL,
                         preprocess_fn = NULL,
                         preprocess_once = FALSE,
                         hyperparameters = NULL,
                         partitions_col = ".partitions",
-                        type = "gaussian",
                         cutoff = 0.5,
                         positive = 2,
                         metrics = list(),

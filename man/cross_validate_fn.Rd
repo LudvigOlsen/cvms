@@ -7,13 +7,13 @@
 cross_validate_fn(
   data,
   formulas,
+  type,
   model_fn,
   predict_fn,
   preprocess_fn = NULL,
   preprocess_once = FALSE,
   hyperparameters = NULL,
   fold_cols = ".folds",
-  type = "gaussian",
   cutoff = 0.5,
   positive = 2,
   metrics = list(),
@@ -38,6 +38,14 @@ cross_validate_fn(
  Can contain random effects.
 
  E.g. \code{c("y~x+(1|r)", "y~z+(1|r)")}.}
+
+\item{type}{Type of evaluation to perform:
+
+ \code{"gaussian"} for regression (like linear regression).
+
+ \code{"binomial"} for binary classification.
+
+ \code{"multinomial"} for multiclass classification.}
 
 \item{model_fn}{Model function that returns a fitted model object.
  Will usually wrap an existing model function like \code{\link[e1071:svm]{e1071::svm}}
@@ -167,14 +175,6 @@ cross_validate_fn(
 \item{fold_cols}{Name(s) of grouping factor(s) for identifying folds. (Character)
 
  Include names of multiple grouping factors for repeated cross-validation.}
-
-\item{type}{Type of evaluation to perform:
-
- \code{"gaussian"} for regression (like linear regression).
-
- \code{"binomial"} for binary classification.
-
- \code{"multinomial"} for multiclass classification.}
 
 \item{cutoff}{Threshold for predicted classes. (Numeric)
 

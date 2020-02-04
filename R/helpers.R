@@ -137,31 +137,6 @@ contains_na <- function(v) {
 #   Model specifics                                                         ####
 
 
-##  .................. #< 3d80585a9338eab08428b980fddb1188 ># ..................
-##  Check model specifics                                                   ####
-
-
-check_model_specifics <- function(passed_model_specifics, required_named_arguments) {
-  # Check that model_specifics contains all named arguments
-
-  # Check arguments ####
-  assert_collection <- checkmate::makeAssertCollection()
-  checkmate::assert_list(x = passed_model_specifics,
-                         names = "unique",
-                         add = assert_collection)
-  checkmate::assert_character(x = required_named_arguments,
-                              add = assert_collection)
-  checkmate::reportAssertions(assert_collection)
-  checkmate::assert_names(x = names(passed_model_specifics),
-                          must.include = required_named_arguments,
-                          add = assert_collection)
-  checkmate::reportAssertions(assert_collection)
-  # End of argument checks ####
-
-  invisible(NULL)
-}
-
-
 ##  .................. #< 6937cf08013702a27f0b30b8be2ffb3c ># ..................
 ##  Check argument in model specifics                                       ####
 

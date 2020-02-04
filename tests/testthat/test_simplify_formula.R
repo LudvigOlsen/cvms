@@ -189,25 +189,23 @@ test_that("correct outputs with simplify_formula()", {
   # Testing side effects
   expect_error(
     xpectr::strip_msg(simplify_formula(formula = df, data = df, string_out = TRUE)),
-    xpectr::strip(paste0("2 assertions failed:\n * Variable 'formula': Must be a formu",
-           "la, not data.frame.\n * 'formula' did not contain '~'. This ",
-           "use case is not currently supported.")),
+    xpectr::strip(paste0("1 assertions failed:\n * Variable 'formula': Must be a formu",
+           "la, not data.frame.")),
     fixed = TRUE)
 
   # Testing simplify_formula(formula = NA, data = df, stri...
   # Testing side effects
   expect_error(
     xpectr::strip_msg(simplify_formula(formula = NA, data = df, string_out = TRUE)),
-    xpectr::strip("missing value where TRUE/FALSE needed"),
+    xpectr::strip("1 assertions failed:\n * Variable 'formula': Must be a formula, not logical"),
     fixed = TRUE)
 
   # Testing simplify_formula(formula = 3, data = df, strin...
   # Testing side effects
   expect_error(
     xpectr::strip_msg(simplify_formula(formula = 3, data = df, string_out = TRUE)),
-    xpectr::strip(paste0("2 assertions failed:\n * Variable 'formula': Must be a formu",
-           "la, not double.\n * 'formula' did not contain '~'. This use ",
-           "case is not currently supported.")),
+    xpectr::strip(paste0("1 assertions failed:\n * Variable 'formula': Must be a formu",
+                         "la, not double.")),
     fixed = TRUE)
 
   # Testing simplify_formula(formula = "y ~ a * b + (1|c)"...
@@ -480,7 +478,8 @@ test_that("correct outputs with simplify_formula()", {
   # Testing side effects
   expect_error(
     xpectr::strip_msg(simplify_formula(formula = NULL, data = df, string_out = TRUE)),
-    xpectr::strip("subscript out of bounds"),
+    xpectr::strip(paste0("1 assertions failed:\n * Variable 'formula': Must be a formu",
+                         "la, not NULL.")),
     fixed = TRUE)
 
   # Testing simplify_formula(formula = "y ~ a * b + (1|c)"...

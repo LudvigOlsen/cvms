@@ -7,9 +7,9 @@
 validate(
   train_data,
   formulas,
+  family,
   test_data = NULL,
   partitions_col = ".partitions",
-  family = "gaussian",
   control = NULL,
   REML = FALSE,
   cutoff = 0.5,
@@ -40,6 +40,10 @@ validate(
 
  E.g. \code{c("y~x+(1|r)", "y~z+(1|r)")}.}
 
+\item{family}{Name of family. (Character)
+
+ Currently supports \code{"gaussian"} and \code{"binomial"}.}
+
 \item{test_data}{Data Frame. If specifying \code{partitions_col}, this can be \code{NULL}.}
 
 \item{partitions_col}{Name of grouping factor for identifying partitions. (Character)
@@ -48,10 +52,6 @@ validate(
  rows with the value \code{2} are used as test set.
 
  N.B. \strong{Only used if \code{test_data} is \code{NULL}}.}
-
-\item{family}{Name of family. (Character)
-
- Currently supports \code{"gaussian"} and \code{"binomial"}.}
 
 \item{control}{Construct control structures for mixed model fitting
  (i.e. \code{\link[lme4]{lmer}} and \code{\link[lme4]{glmer}}).

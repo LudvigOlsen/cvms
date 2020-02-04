@@ -311,16 +311,24 @@
 #' @importFrom stats binomial gaussian glm lm
 #' @importFrom rlang .data
 #' @importFrom lifecycle deprecated deprecate_warn deprecate_stop
-cross_validate <- function(data, formulas, fold_cols = ".folds", family = "gaussian",
-                           control = NULL, REML = FALSE,
-                           cutoff = 0.5, positive = 2,
-                           metrics = list(),
-                           preprocessing = NULL,
-                           rm_nc = FALSE,
-                           parallel = FALSE, verbose = FALSE,
-                           link = deprecated(),
-                           models = deprecated(),
-                           model_verbose = deprecated()) {
+cross_validate <- function(
+  data,
+  formulas,
+  family,
+  fold_cols = ".folds",
+  control = NULL,
+  REML = FALSE,
+  cutoff = 0.5,
+  positive = 2,
+  metrics = list(),
+  preprocessing = NULL,
+  rm_nc = FALSE,
+  parallel = FALSE,
+  verbose = FALSE,
+  link = deprecated(),
+  models = deprecated(),
+  model_verbose = deprecated()) {
+
   if (!rlang::is_missing(link)) {
     deprecate_stop("1.0.0", "cvms::cross_validate(link = )")
   }

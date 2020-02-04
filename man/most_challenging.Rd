@@ -7,10 +7,10 @@
 \usage{
 most_challenging(
   data,
+  type,
   obs_id_col = "Observation",
   target_col = "Target",
   prediction_col = ifelse(type == "gaussian", "Prediction", "Predicted Class"),
-  type = "binomial",
   threshold = 0.15,
   threshold_is = "percentage"
 )
@@ -20,6 +20,14 @@ most_challenging(
 
  Can be grouped by \code{\link[dplyr:group_by]{dplyr::group_by()}}.}
 
+\item{type}{Type of task used to get the predictions:
+
+ \code{"gaussian"} for regression (like linear regression).
+
+ \code{"binomial"} for binary classification.
+
+ \code{"multinomial"} for multiclass classification.}
+
 \item{obs_id_col}{Name of column with observation IDs. This will be used to aggregate
 the performance of each observation.}
 
@@ -28,14 +36,6 @@ the performance of each observation.}
 \item{prediction_col}{Name of column with the predictions.
 
  When evaluating a classification task, the column should contain the predicted classes.}
-
-\item{type}{Type of task used to get the predictions:
-
- \code{"gaussian"} for regression (like linear regression).
-
- \code{"binomial"} for binary classification.
-
- \code{"multinomial"} for multiclass classification.}
 
 \item{threshold}{Threshold to filter observations by. Depends on \code{type} and \code{threshold_is}.
 

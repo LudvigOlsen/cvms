@@ -69,6 +69,11 @@ prepare_train_test <- function(data, fold_info, fold_cols, model_specifics) {
         }))
       },
       error = function(e) {
+
+        if (grepl("Must be a formula, not 'NULL'",e)){
+          e <- paste0(e, " Possibly caused by 'preprocessing_once' being TRUE?")
+        }
+
         stop(paste("",
           "-------------------------------------", # TODO just calculate the number of hyphens?
           paste0(model_specifics[["caller"]], ": Error:"),

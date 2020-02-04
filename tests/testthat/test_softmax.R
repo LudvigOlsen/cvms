@@ -50,7 +50,6 @@ test_that("softmax_vector() works", {
 
 })
 
-
 test_that("softmax() works", {
 
   df <- data.frame(

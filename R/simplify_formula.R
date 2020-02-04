@@ -60,6 +60,7 @@ simplify_formula <- function(formula, data = NULL, string_out = FALSE) {
   )
   checkmate::assert_formula(x = formula, add = assert_collection)
   checkmate::assert_flag(x = string_out, add = assert_collection)
+  checkmate::reportAssertions(assert_collection)
   if (as.character(formula)[[1]] != "~"){
     assert_collection$push("'formula' did not contain '~'. This use case is not currently supported.")
   }

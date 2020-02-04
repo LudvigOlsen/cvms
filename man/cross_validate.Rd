@@ -7,8 +7,8 @@
 cross_validate(
   data,
   formulas,
+  family,
   fold_cols = ".folds",
-  family = "gaussian",
   control = NULL,
   REML = FALSE,
   cutoff = 0.5,
@@ -37,13 +37,13 @@ cross_validate(
 
  E.g. \code{c("y~x+(1|r)", "y~z+(1|r)")}.}
 
-\item{fold_cols}{Name(s) of grouping factor(s) for identifying folds. (Character)
-
- Include names of multiple grouping factors for repeated cross-validation.}
-
 \item{family}{Name of family. (Character)
 
  Currently supports \code{"gaussian"} and \code{"binomial"}.}
+
+\item{fold_cols}{Name(s) of grouping factor(s) for identifying folds. (Character)
+
+ Include names of multiple grouping factors for repeated cross-validation.}
 
 \item{control}{Construct control structures for mixed model fitting
  (i.e. \code{\link[lme4]{lmer}} and \code{\link[lme4]{glmer}}).

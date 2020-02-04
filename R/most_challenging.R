@@ -111,6 +111,7 @@
 #'                  threshold_is = "score")
 #' }
 most_challenging <- function(data,
+                             type,
                              obs_id_col = "Observation",
                              target_col = "Target",
                              prediction_col = ifelse(
@@ -118,7 +119,6 @@ most_challenging <- function(data,
                                "Prediction",
                                "Predicted Class"
                              ),
-                             type = "binomial",
                              threshold = 0.15,
                              threshold_is = "percentage") {
 

@@ -8,7 +8,7 @@ evaluate(
   data,
   target_col,
   prediction_cols,
-  type = "gaussian",
+  type,
   id_col = NULL,
   id_method = "mean",
   apply_softmax = FALSE,

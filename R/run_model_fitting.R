@@ -68,6 +68,27 @@ run_model_fitting <- function(model_fitting_fn, model_specifics, train_data,
   warnings <- fitted_model_process[[1]][["warnings"]]
   messages <- fitted_model_process[[1]][["messages"]]
 
+  # Check that model is not NULL
+  if (is.null(model)){
+    stop(
+      paste(
+        "",
+        "--------------------------------------------------",
+        paste0(caller, ": Boundary (Singular) Fit Message:"),
+        "In model:",
+        model_formula,
+        "For fold column:",
+        fold_column,
+        "In fold:",
+        rel_fold,
+        "Hyperparameters:",
+        paste_hparams(extract_hparams(model_specifics)),
+        "'model_fn' returned 'NULL'. Must return a fitted model object.",
+        sep = "\n"
+      )
+    )
+  }
+
   # Init flags
   threw_singular_message <- FALSE
   threw_unknown_message <- FALSE

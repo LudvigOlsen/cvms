@@ -6,15 +6,15 @@
 \usage{
 validate_fn(
   train_data,
-  test_data = NULL,
   formulas,
+  type,
   model_fn,
   predict_fn,
+  test_data = NULL,
   preprocess_fn = NULL,
   preprocess_once = FALSE,
   hyperparameters = NULL,
   partitions_col = ".partitions",
-  type = "gaussian",
   cutoff = 0.5,
   positive = 2,
   metrics = list(),
@@ -30,8 +30,6 @@ validate_fn(
  \code{\link[groupdata2:partition]{groupdata2::partition()}}.
  See \code{partitions_col}.}
 
-\item{test_data}{Data Frame. If specifying \code{partitions_col}, this can be \code{NULL}.}
-
 \item{formulas}{Model formulas as strings. (Character)
 
  Will be converted to \code{\link[stats:formula]{formula}} objects
@@ -42,6 +40,14 @@ validate_fn(
  Can contain random effects.
 
  E.g. \code{c("y~x+(1|r)", "y~z+(1|r)")}.}
+
+\item{type}{Type of evaluation to perform:
+
+ \code{"gaussian"} for regression (like linear regression).
+
+ \code{"binomial"} for binary classification.
+
+ \code{"multinomial"} for multiclass classification.}
 
 \item{model_fn}{Model function that returns a fitted model object.
  Will usually wrap an existing model function like \code{\link[e1071:svm]{e1071::svm}}
@@ -92,6 +98,8 @@ validate_fn(
   0.375 \tab 0.371 \tab 0.254\cr
   ... \tab ... \tab ...}
  }}
+
+\item{test_data}{Data Frame. If specifying \code{partitions_col}, this can be \code{NULL}.}
 
 \item{preprocess_fn}{Function for preprocessing the training and test sets.
 
@@ -174,14 +182,6 @@ validate_fn(
  rows with the value \code{2} are used as test set.
 
  N.B. \strong{Only used if \code{test_data} is \code{NULL}}.}
-
-\item{type}{Type of evaluation to perform:
-
- \code{"gaussian"} for regression (like linear regression).
-
- \code{"binomial"} for binary classification.
-
- \code{"multinomial"} for multiclass classification.}
 
 \item{cutoff}{Threshold for predicted classes. (Numeric)
 

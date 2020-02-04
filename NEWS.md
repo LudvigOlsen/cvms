@@ -9,6 +9,8 @@
 
 * In `cross_validate()` and `validate()`, the `link` argument is removed. Consider using `cross_validate_fn()` or `validate_fn()` instead, where you have full control over the prediction type fed to the evaluation.
 
+* In functions with `family`/`type` argument, this argument no longer has a default, forcing the user to specify the family/type of the task. This also means that arguments have been reordered. In general, it is safer to name arguments when passing values to them.
+
 * `multinomial` `AUC` is calculated with `pROC::multiclass.roc()` instead of in the one-vs-all evaluations. This removes `AUC`, `Lower CI`, and `Upper CI` from the `Class Level Results` and removes `Lower CI` and `Upper CI` from the main output tibble. Also removes option to enable "Weighted AUC", "Weighted Lower CI", and "Weighted Upper CI".
 
 * `multinomial` `AUC` is disabled by default, as it can take a long time to calculate for a large set of classes.

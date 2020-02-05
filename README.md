@@ -37,7 +37,9 @@ R package for model evaluation and comparison.
 
 Currently supports regression (`'gaussian'`), binary classification
 (`'binomial'`), and (some functions only) multiclass classification
-(`'multinomial'`).
+(`'multinomial'`). Many of the functions allow **parallelization**,
+e.g. through the `doParallel`
+package.
 
 ### Main functions
 
@@ -122,6 +124,8 @@ Currently supports regression (`'gaussian'`), binary classification
       - [Cross-validating custom model functions](#cv-custom)
           - [SVM](#cv-custom-svm)
           - [Naive Bayes](#cv-custom-naive)
+      - [Extracting the most challenging
+        observations](#extracting-the-most-challenging-observations)
       - [Evaluating predictions](#evaluate)
           - [Multinomial evaluation](#evaluate-multinomial)
       - [Baseline evaluations](#baseline)
@@ -681,6 +685,86 @@ CV7
 #> #   Family <chr>, Dependent <chr>
 ```
 
+## Extracting the most challenging observations
+
+If we wish to investigate why some observations are harder to predict
+than others, we should start by identifying the most challenging
+observations. This can be done with `most_challenging()`.
+
+Let’s first extract the predictions from some of the cross-validation
+results.
+
+``` r
+glm_predictions <- dplyr::bind_rows(CV5$Predictions, .id = "Model")
+svm_predictions <- dplyr::bind_rows(CV6$Predictions, .id = "Model")
+nb_predictions <- dplyr::bind_rows(CV7$Predictions, .id = "Model")
+predictions <- dplyr::bind_rows(glm_predictions, svm_predictions, nb_predictions, .id = "Architecture")
+
+predictions
+#> # A tibble: 360 x 8
+#>    Architecture Model `Fold Column`  Fold Observation Target Prediction
+#>    <chr>        <chr> <chr>         <int>       <int>  <dbl>      <dbl>
+#>  1 1            1     .folds_1          1          10      0      0.721
+#>  2 1            1     .folds_1          1          11      0      0.422
+#>  3 1            1     .folds_1          1          12      0      0.242
+#>  4 1            1     .folds_1          1          28      1      0.884
+#>  5 1            1     .folds_1          1          29      1      0.734
+#>  6 1            1     .folds_1          1          30      1      0.563
+#>  7 1            1     .folds_1          2           4      0      0.831
+#>  8 1            1     .folds_1          2           5      0      0.620
+#>  9 1            1     .folds_1          2           6      0      0.202
+#> 10 1            1     .folds_1          2          13      1      0.928
+#> # … with 350 more rows, and 1 more variable: `Predicted Class` <chr>
+```
+
+Now, let’s find the overall most difficult to predict observations.
+`most_challenging()` calculates the accuracy for each prediction. We can
+then extract the observations with the ~20% lowest accuracies. Note that
+`most_challenging()` works with grouped data frames as well.
+
+``` r
+challenging <- most_challenging(data = predictions, 
+                                type = "binomial", 
+                                threshold = 0.20, 
+                                threshold_is = "percentage")
+challenging
+#> # A tibble: 7 x 5
+#>   Observation Correct Incorrect Accuracy   `<=`
+#>         <int>   <int>     <int>    <dbl>  <dbl>
+#> 1           4       0        12   0      0.0833
+#> 2           5       0        12   0      0.0833
+#> 3           7       0        12   0      0.0833
+#> 4          10       0        12   0      0.0833
+#> 5           1       1        11   0.0833 0.0833
+#> 6          20       1        11   0.0833 0.0833
+#> 7          21       1        11   0.0833 0.0833
+```
+
+We can then extract the difficult observations from the dataset. First,
+we add an index to the dataset. Then, we perform a right-join, to only
+get the rows that are in the `challenging` data frame.
+
+``` r
+# Index with values 1:30
+data[["Observation"]] <- seq_len(nrow(data))
+
+# Add information to the challenging observations
+challenging <- data %>% 
+  dplyr::right_join(challenging, by = "Observation")
+
+challenging %>% kable()
+```
+
+| participant | age | diagnosis | score | session | .folds\_1 | .folds\_2 | .folds\_3 | .folds\_4 | Observation | Correct | Incorrect |  Accuracy |       \<= |
+| :---------- | --: | --------: | ----: | ------: | :-------- | :-------- | :-------- | :-------- | ----------: | ------: | --------: | --------: | --------: |
+| 2           |  23 |         0 |    24 |       1 | 2         | 3         | 1         | 2         |           4 |       0 |        12 | 0.0000000 | 0.0833333 |
+| 2           |  23 |         0 |    40 |       2 | 2         | 3         | 1         | 2         |           5 |       0 |        12 | 0.0000000 | 0.0833333 |
+| 4           |  21 |         0 |    35 |       1 | 3         | 2         | 4         | 4         |           7 |       0 |        12 | 0.0000000 | 0.0833333 |
+| 9           |  34 |         0 |    33 |       1 | 1         | 1         | 2         | 3         |          10 |       0 |        12 | 0.0000000 | 0.0833333 |
+| 10          |  32 |         0 |    29 |       1 | 4         | 4         | 3         | 1         |           1 |       1 |        11 | 0.0833333 | 0.0833333 |
+| 5           |  32 |         1 |    54 |       2 | 4         | 2         | 4         | 2         |          20 |       1 |        11 | 0.0833333 | 0.0833333 |
+| 5           |  32 |         1 |    62 |       3 | 4         | 2         | 4         | 2         |          21 |       1 |        11 | 0.0833333 | 0.0833333 |
+
 ## Evaluating predictions
 
 We can also evaluate predictions from a model trained outside `cvms`.
@@ -920,7 +1004,7 @@ plot_metric_density(data = random_evaluations,
                     metric = "F1", xlim = c(0, 1))
 ```
 
-<img src="man/figures/README-unnamed-chunk-25-1.png" width="644" />
+<img src="man/figures/README-unnamed-chunk-28-1.png" width="644" />
 
 ### Multinomial baseline
 
@@ -1079,7 +1163,7 @@ plot_metric_density(data = gaussian_baseline$random_evaluations,
                     metric = "RMSE")
 ```
 
-<img src="man/figures/README-unnamed-chunk-30-1.png" width="644" />
+<img src="man/figures/README-unnamed-chunk-33-1.png" width="644" />
 
 In this instance, the `All_rows` row might have been enough, as the
 subsets mainly add higher `RMSE` scores.

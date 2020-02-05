@@ -50,7 +50,7 @@ R package for model evaluation and comparison.
 * **Evaluate** predictions from an external model. 
 * Extract the observations that were the **most challenging** to predict.
 
-Currently supports regression (`'gaussian'`), binary classification (`'binomial'`), and (some functions only) multiclass classification (`'multinomial'`).
+Currently supports regression (`'gaussian'`), binary classification (`'binomial'`), and (some functions only) multiclass classification (`'multinomial'`). Many of the functions allow **parallelization**, e.g. through the `doParallel` package.
 
 ### Main functions
 
@@ -450,6 +450,44 @@ CV7 <- cross_validate_fn(data,
                          fold_cols = '.folds_1')
 
 CV7
+```
+
+## Extracting the most challenging observations
+
+If we wish to investigate why some observations are harder to predict than others, we should start by identifying the most challenging observations. This can be done with `most_challenging()`. 
+
+Let's first extract the predictions from some of the cross-validation results.
+
+```{r}
+glm_predictions <- dplyr::bind_rows(CV5$Predictions, .id = "Model")
+svm_predictions <- dplyr::bind_rows(CV6$Predictions, .id = "Model")
+nb_predictions <- dplyr::bind_rows(CV7$Predictions, .id = "Model")
+predictions <- dplyr::bind_rows(glm_predictions, svm_predictions, nb_predictions, .id = "Architecture")
+
+predictions
+```
+
+Now, let's find the overall most difficult to predict observations. `most_challenging()` calculates the accuracy for each prediction. We can then extract the observations with the ~20% lowest accuracies. Note that `most_challenging()` works with grouped data frames as well.
+
+```{r}
+challenging <- most_challenging(data = predictions, 
+                                type = "binomial", 
+                                threshold = 0.20, 
+                                threshold_is = "percentage")
+challenging
+```
+
+We can then extract the difficult observations from the dataset. First, we add an index to the dataset. Then, we perform a right-join, to only get the rows that are in the `challenging` data frame.
+
+```{r}
+# Index with values 1:30
+data[["Observation"]] <- seq_len(nrow(data))
+
+# Add information to the challenging observations
+challenging <- data %>% 
+  dplyr::right_join(challenging, by = "Observation")
+
+challenging %>% kable()
 ```
 
 

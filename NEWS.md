@@ -33,7 +33,7 @@ It can be unclear whether the IC metrics (computed on the `lm()`/`lmer()` model 
 
 * In multinomial `baseline()`, the aggregation approach is changed. The summarized results now properly describe the random evaluations tibble, except for the four new measures `CL_Max`, `CL_Min`, `CL_NAs`, and `CL_INFs`, which describe the class level results. Previously, `NAs` were removed before aggregating the one-vs-all evaluations, meaning that some metric summaries could become inflated if small classes had `NA`s. It was also non-transparent that the `NA`s and `INF`s were counted in the class level results instead of being a count of random evaluations with `NA`s or `INF`s.
 
-* `cv_plot()` is removed. It wasn't very useful and have never been developed properly. We aim to provide multiple specialized plotting functions instead.
+* `cv_plot()` is removed. It wasn't very useful and has never been developed properly. We aim to provide multiple specialized plotting functions instead.
 
 ## Additions
 
@@ -54,6 +54,8 @@ It can be unclear whether the IC metrics (computed on the `lm()`/`lmer()` model 
 * `most_challenging()` is added. Finds the data points that were the most difficult to predict.
 
 * `plot_confusion_matrix()` is added. Creates a ggplot representing a given confusion matrix.
+
+* `plot_metric_density()` is added. Creates a ggplot density plot for a metric column. 
 
 * `font()` is added. Utility for setting font settings (size, color, etc.) in plotting functions. 
 
@@ -109,6 +111,8 @@ Warnings are counted in `Other Warnings`.
 * `caret`, `mltools`, and `ModelMetrics` are no longer dependencies. The confusion matrix metrics have instead been implemented in `cvms` (see `confusion_matrix()`).
 
 * `select_metrics()` now works with a wider range of inputs as it no longer depends on a `Family` column.
+
+* The `Fixed` column in some of the output tibbles have been moved to make it clearer which model was evaluated.
 
 # cvms 0.3.2
 

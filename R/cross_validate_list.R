@@ -290,8 +290,8 @@ cross_validate_list <- function(data,
       Predictions = predictions_and_targets,
       model_was_null = model_was_null,
       Preprocess = preprocess_params
-    ) %>%
-    dplyr::arrange(.data$model, .data$abs_fold) # TODO: delete once we know it is working?
+    ) # %>%
+    # dplyr::arrange(.data$model, .data$abs_fold) # TODO: delete once we know it is working?
 
   # Evaluate predictions
   cross_validations <- plyr::llply(seq_len(n_models),
@@ -537,7 +537,7 @@ cross_validate_list <- function(data,
     # Reorder rows by original formula order
     dplyr::right_join(original_formula_order,
       by = names(original_formula_order)
-    )
+    ) %>% position_first("Fixed")
 
   # If asked to remove non-converged models from output
   if (isTRUE(rm_nc)) {

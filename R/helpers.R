@@ -722,7 +722,8 @@ base_deselect <- function(data, cols) {
 
 # Col should be col name
 position_first <- function(data, col) {
-  if (is.numeric(col)) stop("col must be name")
+  if (!checkmate::test_string(x = col))
+    stop("col must be name")
 
   base_select(data = data, cols = c(col, setdiff(names(data), col)))
 }

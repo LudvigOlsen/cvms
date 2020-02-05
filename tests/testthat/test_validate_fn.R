@@ -145,12 +145,12 @@ test_that("binomial glm model works with validate_fn()", {
   expect_equal(
     colnames(Vbinomlist_list),
     c(
-      "Balanced Accuracy", "F1", "Sensitivity", "Specificity", "Pos Pred Value",
+      "Fixed", "Balanced Accuracy", "F1", "Sensitivity", "Specificity", "Pos Pred Value",
       "Neg Pred Value", "AUC", "Lower CI", "Upper CI", "Kappa", "MCC",
       "Detection Rate", "Detection Prevalence", "Prevalence", "AIC",
       "AICc", "BIC", "Predictions", "ROC", "Confusion Matrix", "Coefficients",
       "Preprocess", "Convergence Warnings", "Other Warnings",
-      "Warnings and Messages", "Family", "HParams", "Model", "Dependent", "Fixed"
+      "Warnings and Messages", "Family", "HParams", "Model", "Dependent"
     )
   )
 

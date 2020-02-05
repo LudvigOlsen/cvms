@@ -80,6 +80,9 @@ select_metrics <- function(results, include_definitions = TRUE,
   metric_cols <- add_additional_colnames(metric_cols, additional_includes)
   if (isTRUE(include_definitions)) {
     metric_cols <- add_additional_colnames(metric_cols, model_formula_cols)
+    if ("Fixed" %in% metric_cols){
+      metric_cols <- c("Fixed", metric_cols[metric_cols != "Fixed"])
+    }
   }
   metric_cols <- dplyr::intersect(metric_cols, colnames(results))
 

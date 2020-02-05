@@ -152,17 +152,17 @@ test_that("select_metrics() works with output from cross-validation", {
   # Testing column names
   expect_equal(
     names(gaussian_metrics),
-    c("RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD", "RMSLE", "MALE", "RAE", "RSE", "RRSE", "MAPE", "MSE", "TAE", "TSE", "r2m", "r2c", "AIC", "AICc", "BIC", "Dependent", "Fixed", "Random"),
+    c("Fixed", "RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD", "RMSLE", "MALE", "RAE", "RSE", "RRSE", "MAPE", "MSE", "TAE", "TSE", "r2m", "r2c", "AIC", "AICc", "BIC", "Dependent", "Random"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
     unlist(lapply(gaussian_metrics, class), use.names = FALSE),
-    c("numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "character", "character", "character"),
+    c("character", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "character", "character"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     unlist(lapply(gaussian_metrics, typeof), use.names = FALSE),
-    c("double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "character", "character", "character"),
+    c("character", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "character", "character"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
@@ -290,29 +290,29 @@ test_that("select_metrics() works with output from cross-validation", {
   # Testing column names
   expect_equal(
     names(binomial_metrics),
-    c("Balanced Accuracy", "Accuracy", "F1", "Sensitivity", "Specificity",
+    c("Fixed", "Balanced Accuracy", "Accuracy", "F1", "Sensitivity", "Specificity",
       "Pos Pred Value", "Neg Pred Value", "AUC", "Lower CI", "Upper CI",
       "Kappa", "MCC", "Detection Rate", "Detection Prevalence", "Prevalence",
       "False Neg Rate", "False Pos Rate", "False Discovery Rate",
       "False Omission Rate", "Threat Score", "AIC", "AICc", "BIC",
-      "Dependent", "Fixed", "Random"),
+      "Dependent", "Random"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
     unlist(lapply(binomial_metrics, class), use.names = FALSE),
-    c("numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
+    c("character", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "numeric", "numeric", "numeric", "numeric", "character",
-      "character", "character"),
+      "character"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     unlist(lapply(binomial_metrics, typeof), use.names = FALSE),
-    c("double", "double", "double", "double", "double", "double", "double",
+    c("character", "double", "double", "double", "double", "double", "double", "double",
       "double", "double", "double", "double", "double", "double", "double",
       "double", "double", "double", "double", "double", "double", "double",
-      "double", "double", "character", "character", "character"),
+      "double", "double", "character", "character"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
@@ -504,7 +504,7 @@ test_that("select_metrics() works with output from cross-validation", {
   # Testing column names
   expect_equal(
     names(multinomial_metrics),
-    c("Overall Accuracy", "Balanced Accuracy", "Weighted Balanced Accuracy",
+    c("Fixed", "Overall Accuracy", "Balanced Accuracy", "Weighted Balanced Accuracy",
       "Accuracy", "Weighted Accuracy", "F1", "Weighted F1", "Sensitivity",
       "Weighted Sensitivity", "Specificity", "Weighted Specificity",
       "Pos Pred Value", "Weighted Pos Pred Value", "Neg Pred Value",
@@ -515,25 +515,25 @@ test_that("select_metrics() works with output from cross-validation", {
       "False Pos Rate", "Weighted False Pos Rate", "False Discovery Rate",
       "Weighted False Discovery Rate", "False Omission Rate",
       "Weighted False Omission Rate", "Threat Score", "Weighted Threat Score",
-      "AIC", "AICc", "BIC", "Dependent", "Fixed", "Random"),
+      "AIC", "AICc", "BIC", "Dependent", "Random"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
     xpectr::smpl(unlist(lapply(multinomial_metrics, class), use.names = FALSE), n = 30),
-    c("numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
+    c("numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
-      "numeric", "numeric", "numeric", "numeric", "character", "character"),
+      "numeric", "numeric", "numeric", "numeric", "character"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::smpl(unlist(lapply(multinomial_metrics, typeof), use.names = FALSE), n = 30),
-    c("double", "double", "double", "double", "double", "double", "double",
+    c("double", "double", "double", "double", "double", "double", "double", "double",
       "double", "double", "double", "double", "double", "double", "double",
       "double", "double", "double", "double", "double", "double", "double",
       "double", "double", "double", "double", "double", "double", "double",
-      "character", "character"),
+      "character"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
@@ -680,17 +680,17 @@ test_that("select_metrics() works with output from baseline", {
   # Testing column names
   expect_equal(
     names(gaussian_metrics),
-    c("RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD", "RMSLE", "MALE", "RAE", "RSE", "RRSE", "MAPE", "MSE", "TAE", "TSE", "r2m", "r2c", "AIC", "AICc", "BIC", "Dependent", "Fixed"),
+    c("Fixed", "RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD", "RMSLE", "MALE", "RAE", "RSE", "RRSE", "MAPE", "MSE", "TAE", "TSE", "r2m", "r2c", "AIC", "AICc", "BIC", "Dependent"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
     unlist(lapply(gaussian_metrics, class), use.names = FALSE),
-    c("numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "character", "character"),
+    c("character", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "character"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     unlist(lapply(gaussian_metrics, typeof), use.names = FALSE),
-    c("double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "character", "character"),
+    c("character", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "character"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(

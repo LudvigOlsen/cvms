@@ -1308,25 +1308,23 @@ test_that("preprocessing works with binomial models in cross_validate()", {
   expect_equal(
     colnames(CVbinomlist_standardize),
     c(
-      "Balanced Accuracy", "F1", "Sensitivity", "Specificity", "Pos Pred Value",
+      "Fixed", "Balanced Accuracy", "F1", "Sensitivity", "Specificity", "Pos Pred Value",
       "Neg Pred Value", "AUC", "Lower CI", "Upper CI", "Kappa", "MCC",
       "Detection Rate", "Detection Prevalence", "Prevalence", "Predictions",
       "ROC", "Confusion Matrix", "Results", "Coefficients", "Preprocess",
       "Folds", "Fold Columns", "Convergence Warnings", "Singular Fit Messages",
-      "Other Warnings", "Warnings and Messages", "Family", "Dependent",
-      "Fixed"
+      "Other Warnings", "Warnings and Messages", "Family", "Dependent"
     )
   )
   expect_equal(
     colnames(CVbinomlist_no_preprocessing),
     c(
-      "Balanced Accuracy", "F1", "Sensitivity", "Specificity", "Pos Pred Value",
+      "Fixed", "Balanced Accuracy", "F1", "Sensitivity", "Specificity", "Pos Pred Value",
       "Neg Pred Value", "AUC", "Lower CI", "Upper CI", "Kappa", "MCC",
       "Detection Rate", "Detection Prevalence", "Prevalence", "Predictions",
       "ROC", "Confusion Matrix", "Results", "Coefficients",
       "Folds", "Fold Columns", "Convergence Warnings", "Singular Fit Messages",
-      "Other Warnings", "Warnings and Messages", "Family", "Dependent",
-      "Fixed"
+      "Other Warnings", "Warnings and Messages", "Family", "Dependent"
     )
   )
 
@@ -1774,25 +1772,25 @@ test_that("preprocessing works with binomial mixed models in cross_validate()", 
   expect_equal(
     colnames(CVbinomlist_standardize),
     c(
-      "Balanced Accuracy", "F1", "Sensitivity", "Specificity", "Pos Pred Value",
+      "Fixed", "Balanced Accuracy", "F1", "Sensitivity", "Specificity", "Pos Pred Value",
       "Neg Pred Value", "AUC", "Lower CI", "Upper CI", "Kappa", "MCC",
       "Detection Rate", "Detection Prevalence", "Prevalence", "Predictions",
       "ROC", "Confusion Matrix", "Results", "Coefficients", "Preprocess",
       "Folds", "Fold Columns", "Convergence Warnings", "Singular Fit Messages",
       "Other Warnings", "Warnings and Messages", "Family", "Dependent",
-      "Fixed", "Random"
+      "Random"
     )
   )
   expect_equal(
     colnames(CVbinomlist_no_preprocessing),
     c(
-      "Balanced Accuracy", "F1", "Sensitivity", "Specificity", "Pos Pred Value",
+      "Fixed", "Balanced Accuracy", "F1", "Sensitivity", "Specificity", "Pos Pred Value",
       "Neg Pred Value", "AUC", "Lower CI", "Upper CI", "Kappa", "MCC",
       "Detection Rate", "Detection Prevalence", "Prevalence", "Predictions",
       "ROC", "Confusion Matrix", "Results", "Coefficients",
       "Folds", "Fold Columns", "Convergence Warnings", "Singular Fit Messages",
       "Other Warnings", "Warnings and Messages", "Family", "Dependent",
-      "Fixed", "Random"
+      "Random"
     )
   )
 
@@ -2171,13 +2169,13 @@ Please use the `verbose` argument instead.",
       )
     )),
     structure(list(
-      RMSE = numeric(0), MAE = numeric(0), RMSLE = numeric(0), r2m = numeric(0),
+      Fixed = character(0), RMSE = numeric(0), MAE = numeric(0), RMSLE = numeric(0), r2m = numeric(0),
       r2c = numeric(0), AIC = numeric(0), AICc = numeric(0), BIC = numeric(0),
       Predictions = logical(0), Results = list(), Coefficients = list(),
       Folds = integer(0), `Fold Columns` = integer(0), `Convergence Warnings` = integer(0),
       `Singular Fit Messages` = integer(0), `Other Warnings` = integer(0),
       `Warnings and Messages` = list(), Family = character(0),
-      Dependent = character(0), Fixed = character(0),
+      Dependent = character(0),
       Random = character(0)
     ), class = c("tbl_df", "tbl", "data.frame"), row.names = c(NA, 0L))
   )
@@ -2292,13 +2290,13 @@ test_that("binomial models with metrics list work with cross_validate()", {
   expect_equal(
     colnames(CVbinomlist),
     c(
-      "Balanced Accuracy", "Accuracy", "F1", "Sensitivity", "Specificity",
+      "Fixed", "Balanced Accuracy", "Accuracy", "F1", "Sensitivity", "Specificity",
       "Pos Pred Value", "Neg Pred Value", "Lower CI", "Upper CI", "Kappa",
       "MCC", "Detection Rate", "Detection Prevalence", "AICc", "Predictions",
       "ROC", "Confusion Matrix", "Results", "Coefficients", "Folds",
       "Fold Columns", "Convergence Warnings", "Singular Fit Messages",
       "Other Warnings", "Warnings and Messages", "Family",
-      "Dependent", "Fixed"
+      "Dependent"
     )
   )
 
@@ -2368,10 +2366,10 @@ test_that("gaussian models with metrics list work with cross_validate()", {
   expect_equal(
     colnames(CVed),
     c(
-      "MAE", "RMSLE", "r2m", "r2c", "AIC", "AICc", "BIC", "Predictions", "Results",
+      "Fixed", "MAE", "RMSLE", "r2m", "r2c", "AIC", "AICc", "BIC", "Predictions", "Results",
       "Coefficients", "Folds", "Fold Columns", "Convergence Warnings",
       "Singular Fit Messages", "Other Warnings", "Warnings and Messages",
-      "Family", "Dependent", "Fixed"
+      "Family", "Dependent"
     )
   )
   expect_equal(

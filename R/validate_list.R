@@ -377,7 +377,8 @@ validate_list <- function(train_data,
   # Reorder data frame
   new_col_order <- c(metrics, intersect(info_cols, colnames(output)))
   output <- output %>%
-    base_select(cols = new_col_order)
+    base_select(cols = new_col_order) %>%
+    position_first("Fixed")
 
   # Remove singular_fit_messages if not cross_validate
   if (!isTRUE(is_validate)) {

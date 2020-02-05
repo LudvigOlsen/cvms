@@ -177,7 +177,8 @@ plot_confusion_matrix(cm[["Confusion Matrix"]][[1]],
 }
 \seealso{
 Other plotting functions: 
-\code{\link{font}()}
+\code{\link{font}()},
+\code{\link{plot_metric_density}()}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

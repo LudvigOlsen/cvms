@@ -143,12 +143,12 @@ test_that("binomial model with metrics list work with validate()", {
   expect_equal(
     colnames(Vbinom),
     c(
-      "Balanced Accuracy", "Accuracy", "F1", "Sensitivity", "Specificity",
+      "Fixed", "Balanced Accuracy", "Accuracy", "F1", "Sensitivity", "Specificity",
       "Pos Pred Value", "Neg Pred Value", "AUC", "Upper CI", "Kappa",
       "MCC", "Detection Rate", "Detection Prevalence", "Prevalence",
       "Predictions", "ROC", "Confusion Matrix", "Coefficients", "Convergence Warnings",
       "Singular Fit Messages", "Other Warnings", "Warnings and Messages",
-      "Family", "Model", "Dependent", "Fixed"
+      "Family", "Model", "Dependent"
     )
   )
 })
@@ -420,10 +420,10 @@ test_that("gaussian model with metrics list works with validate()", {
   expect_equal(
     colnames(Vgauss),
     c(
-      "MAE", "RMSLE", "r2m", "r2c", "AIC", "AICc", "BIC", "Predictions", "Coefficients",
+      "Fixed", "MAE", "RMSLE", "r2m", "r2c", "AIC", "AICc", "BIC", "Predictions", "Coefficients",
       "Convergence Warnings", "Singular Fit Messages", "Other Warnings",
       "Warnings and Messages", "Family", "Model", "Dependent",
-      "Fixed", "Random"
+      "Random"
     )
   )
 })

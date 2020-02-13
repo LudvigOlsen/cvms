@@ -121,15 +121,6 @@ evaluate_predictions_binomial <- function(data,
       roc_curves_list <- NULL
     }
 
-
-    # # TODO: Should probably rename "extra_metrics" to something more meaningful
-    # # Currently calculates the regular accuracy
-    # extra_metrics <- binomial_eval_extra_metrics(data = data,
-    #                                              targets_col = targets_col,
-    #                                              predicted_class_col = predicted_class_col,
-    #                                              unique_fold_cols = unique_fold_cols,
-    #                                              fold_info_cols = fold_info_cols)
-
     # Combine the different metrics and nested tibbles
     results <- binomial_eval_collect(
       unique_fold_cols = unique_fold_cols,

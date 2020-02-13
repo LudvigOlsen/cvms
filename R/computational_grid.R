@@ -64,8 +64,6 @@ create_computation_grid <- function(data, hparams, formulas,
     hparams_grid <- create_hparams_grid(hparams, n = n_hparam_combinations)
     hparam_combination <- hparams_grid[["hparam_combination"]]
   } else {
-
-    # TODO add tests of provided df grids
     hparams_grid <- tibble::tibble("hparams" = nest_rowwise(hparams))
     hparams_grid[["hparam_combination"]] <- seq_len(nrow(hparams_grid))
     hparam_combination <- hparams_grid[["hparam_combination"]]

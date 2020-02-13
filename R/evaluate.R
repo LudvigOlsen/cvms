@@ -515,7 +515,7 @@ run_evaluate <- function(data,
   checkmate::reportAssertions(assert_collection) # before names check
   checkmate::assert_names(
     x = colnames(data),
-    must.include = c(target_col, prediction_cols),
+    must.include = c(target_col, prediction_cols, id_col),
     what = "colnames",
     add = assert_collection
   )
@@ -542,6 +542,7 @@ run_evaluate <- function(data,
   # List
   checkmate::assert_list(
     x = models, null.ok = TRUE,
+    min.len = 1, names = "unnamed",
     add = assert_collection
   )
   checkmate::assert_list(
@@ -574,42 +575,23 @@ run_evaluate <- function(data,
     upper = 1,
     add = assert_collection
   )
-  if (is.numeric(positive)) {
-    # TODO make meaningful combined assert (numeric or string)
-    checkmate::assert_choice(
+
+  checkmate::assert(
+    checkmate::check_choice(
       x = positive,
-      choices = c(1, 2),
-      add = assert_collection
-    )
-  } else {
-    checkmate::assert_string(
+      choices = c(1, 2)
+    ),
+    checkmate::check_string(
       x = positive,
-      min.chars = 1,
-      add = assert_collection
+      min.chars = 1
     )
-  }
+  )
 
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
 
   # Convert families to the internally used
   family <- type
-
-  # Check the passed arguments TODO Add more checks
-  check_args_evaluate(
-    data = data,
-    target_col = target_col,
-    prediction_cols = prediction_cols,
-    id_col = id_col,
-    models = models,
-    type = type,
-    apply_softmax = apply_softmax,
-    cutoff = cutoff,
-    positive = positive,
-    parallel = parallel,
-    include_predictions = include_predictions,
-    metrics = metrics
-  )
 
   # Create basic model_specifics object
   model_specifics <- list(
@@ -1036,111 +1018,6 @@ internal_evaluate <- function(data,
   new_col_order <- c(metrics, intersect(info_cols, colnames(output)))
   base_select(output, cols = new_col_order)
 }
-
-check_args_evaluate <- function(data,
-                                target_col,
-                                prediction_cols,
-                                id_col,
-                                models,
-                                type,
-                                apply_softmax,
-                                cutoff,
-                                positive,
-                                parallel,
-                                include_predictions,
-                                metrics) {
-
-  # TODO Add more checks !!
-
-  # Check columns
-  # target_col
-  if (!is.character(target_col)) {
-    stop("'target_col' must be name of the dependent column in 'data'.")
-  }
-  if (target_col %ni% colnames(data)) {
-    stop(paste0("the 'target_col', ", target_col, ", was not found in 'data'"))
-  }
-
-  # prediction_cols
-  if (!is.character(prediction_cols)) {
-    stop("'prediction_cols' must be name(s) of the prediction column(s) in 'data'.")
-  }
-  if (length(setdiff(prediction_cols, colnames(data))) > 0) {
-    stop("not all names in 'prediction_cols' was found in 'data'.")
-  }
-
-  # id_col
-  if (!is.null(id_col)) {
-    if (!is.character(id_col)) {
-      stop("'id_col' must be either a column name or NULL.")
-    }
-    # if (type == "gaussian") {
-    #   warning(paste0("'id_col' is ignored when type is '", type, "'."))
-    # }
-    if (id_col %ni% colnames(data)) {
-      stop(paste0("the 'id_col', ", id_col, ", was not found in 'data'."))
-    }
-  }
-
-  # softmax
-  if (!is_logical_scalar_not_na(apply_softmax)) {
-    stop("'apply_softmax' must be logical scalar (TRUE/FALSE).")
-  }
-
-  # parallel
-  if (!is_logical_scalar_not_na(parallel)) {
-    stop("'parallel' must be a logical scalar (TRUE/FALSE).")
-  }
-
-  # parallel
-  if (!is_logical_scalar_not_na(include_predictions)) {
-    stop("'include_predictions' must be a logical scalar (TRUE/FALSE).")
-  }
-
-  # metrics
-  if (!(is.list(metrics) || metrics == "all")) {
-    stop("'metrics' must be either a list or the string 'all'.")
-  }
-
-  if (is.list(metrics) && length(metrics) > 0) {
-    if (!rlang::is_named(metrics)) {
-      stop("when 'metrics' is a non-empty list, it must be a named list.")
-    }
-  }
-
-  # models
-  if (!is.null(models)) {
-    if (!is.list(models)) {
-      stop("'models' must be provided as an unnamed list with fitted model object(s) or be set to NULL.")
-    }
-    if (length(models) == 0) {
-      stop(paste0(
-        "'models' must be either NULL or an unnamed list with fitted model object(s). ",
-        "'models' had length 0."
-      ))
-    }
-    if (!is.null(names(models))) {
-      if (length(intersect(names(models), c(
-        "coefficients", "residuals", "effects", "call",
-        "terms", "formula", "contrasts", "converged", "xlevels"
-      ))) > 0) {
-        stop(paste0(
-          "'models' must be provided as an unnamed list with fitted model object(s). ",
-          "Did you pass the model object without putting it in a list?"
-        ))
-      }
-      stop("'models' must be provided as an *unnamed* list with fitted model objects.")
-    }
-  }
-
-  if (type != "gaussian" && length(models) > 0) {
-    stop("Currently, 'models' can only be passed when 'type' is 'gaussian'.")
-  }
-
-
-  # TODO add for rest of args
-}
-
 
 create_tmp_fold_cols <- function(data) {
   # Create fold columns

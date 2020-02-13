@@ -43,7 +43,6 @@ softmax <- function(data, cols = NULL, axis = "r") {
   data_to_leave <- data[, setdiff(colnames(data), cols)]
 
   # Test that the probability columns are numeric
-  # TODO use checkmate to do the check?
   if (!checkmate::test_data_frame(x = data_to_process, types = c("numeric"))) {
     stop("softmax() only works on numeric columns.")
   }

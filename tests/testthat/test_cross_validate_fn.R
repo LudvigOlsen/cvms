@@ -3294,7 +3294,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
                           cat_col = "diagnosis",
                           id_col = "participant"
   )
-
+  # ####
   # xpectr::gxs_function(fn = cross_validate_fn,
   #                      args_values = list(
   #                        "data" = list(dat, participant.scores, NA, 1),
@@ -3441,6 +3441,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
   #                        "rm_nc" = list(FALSE, TRUE),
   #                        "verbose" = list(FALSE)
   #                      ), indentation = 2, tolerance = "1e-5")
+  # ####
 
 
   ## Testing 'cross_validate_fn'                                              ####
@@ -4481,8 +4482,10 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
           dplyr::bind_cols(dplyr::bind_rows(means, sds))
       list(train = train_data, test = test_data, parameters = tidy_parameters)
   }, preprocess_once = FALSE, hyperparameters = NA, fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'hyperparameters': Must be",
-                         " of type 'list' (or 'NULL'), not 'logical'.")),
+    xpectr::strip(paste0("Assertion failed. One of the following must apply:\n * check",
+                         "mate::check_data_frame(hyperparameters): Must be of type 'da",
+                         "ta.frame', not 'logical'\n * checkmate::check_list(hyperpara",
+                         "meters): Must be of type 'list' (or 'NULL'), not 'logical'")),
     fixed = TRUE)
 
   # Testing cross_validate_fn(data = dat, formulas = "scor...
@@ -4511,8 +4514,10 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
           dplyr::bind_cols(dplyr::bind_rows(means, sds))
       list(train = train_data, test = test_data, parameters = tidy_parameters)
   }, preprocess_once = FALSE, hyperparameters = 1, fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'hyperparameters': Must be",
-                         " of type 'list' (or 'NULL'), not 'double'.")),
+    xpectr::strip(paste0("Assertion failed. One of the following must apply:\n * check",
+                         "mate::check_data_frame(hyperparameters): Must be of type 'da",
+                         "ta.frame', not 'double'\n * checkmate::check_list(hyperparam",
+                         "eters): Must be of type 'list' (or 'NULL'), not 'double'")),
     fixed = TRUE)
 
   # Testing cross_validate_fn(data = dat, formulas = "scor...
@@ -5175,7 +5180,10 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
           dplyr::bind_cols(dplyr::bind_rows(means, sds))
       list(train = train_data, test = test_data, parameters = tidy_parameters)
   }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = NA, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip("1 assertions failed:\n * Variable 'positive': May not be NA."),
+    xpectr::strip(paste0("Assertion failed. One of the following must apply:\n * check",
+                         "mate::check_choice(positive): Must be element of set {'1','2",
+                         "'}, but is 'NA'\n * checkmate::check_string(positive): May n",
+                         "ot be NA")),
     fixed = TRUE)
 
   # Testing cross_validate_fn(data = dat, formulas = "scor...
@@ -5204,8 +5212,10 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
           dplyr::bind_cols(dplyr::bind_rows(means, sds))
       list(train = train_data, test = test_data, parameters = tidy_parameters)
   }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = NULL, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'positive': Must be of typ",
-                         "e 'string', not 'NULL'.")),
+    xpectr::strip(paste0("Assertion failed. One of the following must apply:\n * check",
+                         "mate::check_choice(positive): Must be a subset of {'1','2'},",
+                         " not 'NULL'\n * checkmate::check_string(positive): Must be o",
+                         "f type 'string', not 'NULL'")),
     fixed = TRUE)
 
   # Testing cross_validate_fn(data = dat, formulas = "scor...

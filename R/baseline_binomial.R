@@ -19,6 +19,7 @@ create_binomial_baseline_evaluations <- function(test_data,
   } else {
     assert_collection$push("'positive' must be either a string or a whole number.")
   }
+  checkmate::assert_flag(x = na.rm, add = assert_collection)
   checkmate::assert_number(x = cutoff, add = assert_collection)
   if (!is_between_(cutoff, 0, 1)){
     assert_collection$push("'cutoff' must be between 0.0 and 1.0.")
@@ -44,11 +45,6 @@ create_binomial_baseline_evaluations <- function(test_data,
     else {
       stop("The dependent column must maximally contain 2 levels.")
     }
-  }
-
-  # Check na.rm
-  if (!is_logical_scalar_not_na(na.rm)) {
-    stop("'na.rm' must be logical scalar (TRUE/FALSE).")
   }
 
   # Create all 0 and all 1 probabilities

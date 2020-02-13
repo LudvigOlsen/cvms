@@ -242,20 +242,17 @@ call_confusion_matrix <- function(targets,
     x = c_levels, null.ok = TRUE,
     any.missing = FALSE, add = assert_collection
   )
-  if (is.numeric(positive)) {
-    # TODO make meaningful combined assert (numeric or string)
-    checkmate::assert_choice(
+
+  checkmate::assert(
+    checkmate::check_choice(
       x = positive,
-      choices = c(1, 2),
-      add = assert_collection
-    )
-  } else {
-    checkmate::assert_string(
+      choices = c(1, 2)
+    ),
+    checkmate::check_string(
       x = positive,
-      min.chars = 1,
-      add = assert_collection
+      min.chars = 1
     )
-  }
+  )
 
   # Is checked later - can both be list and character
   # TODO Would be nicer to check here though!

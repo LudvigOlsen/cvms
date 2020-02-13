@@ -2794,22 +2794,24 @@ test_that("baseline() throws expected errors", {
     )
   )
 
-  expect_error(create_multinomial_baseline_evaluations(data.frame(),
+  expect_error(xpectr::strip_msg(create_multinomial_baseline_evaluations(data.frame(),
     dependent_col = "",
     na.rm = NULL,
     random_generator_fn = runif,
     parallel_ = FALSE
-  ),
-  "'na.rm' must be logical scalar (TRUE/FALSE).",
+  )),
+  xpectr::strip(paste0("1 assertions failed:\n * Variable 'na.rm': Must be of type ",
+         "'logical flag', not 'NULL'.")),
   fixed = TRUE
   )
 
-  expect_error(create_gaussian_baseline_evaluations(as.data.frame(matrix(1, 11, 1)),
+  expect_error(xpectr::strip_msg(create_gaussian_baseline_evaluations(as.data.frame(matrix(1, 11, 1)),
     data.frame(),
     dependent_col = "",
     na.rm = NULL
-  ),
-  "'na.rm' must be logical scalar (TRUE/FALSE).",
+  )),
+  xpectr::strip(paste0("1 assertions failed:\n * Variable 'na.rm': Must be of type ",
+                       "'logical flag', not 'NULL'.")),
   fixed = TRUE
   )
 

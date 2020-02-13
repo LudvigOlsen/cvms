@@ -12,19 +12,19 @@ create_gaussian_baseline_evaluations <- function(train_data,
                                                  parallel_ = FALSE) {
 
 
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_flag(x = na.rm, add = assert_collection)
+
   # Minimum requirement
   # Is there a better heuristic including n_samplings?
   # We want at least 3 rows in a sampled training set. (This is arbitrary)
-  stopifnot(
-    nrow(train_data) > 10,
-    min_training_rows >= 3,
-    min_training_rows_left_out >= 2
-  )
+  checkmate::assert_data_frame(x = train_data, min.rows = 11, add = assert_collection)
+  checkmate::assert_number(x = min_training_rows, lower = 3, add = assert_collection)
+  checkmate::assert_number(x = min_training_rows_left_out, lower = 2, add = assert_collection)
 
-  # Check na.rm
-  if (!is_logical_scalar_not_na(na.rm)) {
-    stop("'na.rm' must be logical scalar (TRUE/FALSE).")
-  }
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
 
   if (!is.null(random_effects)) {
     model_formula <- formula(paste0(dependent_col, " ~ 1 + ", random_effects))

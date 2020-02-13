@@ -6,10 +6,11 @@ create_multinomial_baseline_evaluations <- function(test_data,
                                                     random_generator_fn = runif,
                                                     parallel_ = FALSE) {
 
-  # Check na.rm
-  if (!is_logical_scalar_not_na(na.rm)) {
-    stop("'na.rm' must be logical scalar (TRUE/FALSE).")
-  }
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_flag(x = na.rm, add = assert_collection)
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
 
   # get metric names
   metric_names <- set_metrics("multinomial", metrics_list = metrics)

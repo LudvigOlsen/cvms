@@ -52,20 +52,18 @@ cross_validate_list <- function(data,
     upper = 1,
     add = assert_collection
   )
-  if (is.numeric(positive)) {
-    # TODO make meaningful combined assert (numeric or string)
-    checkmate::assert_choice(
+
+  checkmate::assert(
+    checkmate::check_choice(
       x = positive,
-      choices = c(1, 2),
-      add = assert_collection
-    )
-  } else {
-    checkmate::assert_string(
+      choices = c(1, 2)
+    ),
+    checkmate::check_string(
       x = positive,
-      min.chars = 1,
-      add = assert_collection
+      min.chars = 1
     )
-  }
+  )
+
   checkmate::assert_list(
     x = metrics,
     types = "logical",
@@ -73,21 +71,20 @@ cross_validate_list <- function(data,
     names = "named",
     add = assert_collection
   )
-  if (checkmate::test_data_frame(hyperparameters)) {
-    checkmate::assert_data_frame(
+
+  checkmate::assert(
+    checkmate::check_data_frame(
       x = hyperparameters, col.names = "named",
-      min.rows = 1, min.cols = 1,
-      add = assert_collection
-    )
-  } else {
-    checkmate::assert_list(
+      min.rows = 1, min.cols = 1
+    ),
+    checkmate::check_list(
       x = hyperparameters,
       null.ok = TRUE,
       any.missing = FALSE,
-      names = "named",
-      add = assert_collection
+      names = "named"
     )
-  }
+  )
+
   checkmate::assert_list(
     x = info_cols,
     any.missing = FALSE,
@@ -290,8 +287,7 @@ cross_validate_list <- function(data,
       Predictions = predictions_and_targets,
       model_was_null = model_was_null,
       Preprocess = preprocess_params
-    ) # %>%
-    # dplyr::arrange(.data$model, .data$abs_fold) # TODO: delete once we know it is working?
+    )
 
   # Evaluate predictions
   cross_validations <- plyr::llply(seq_len(n_models),

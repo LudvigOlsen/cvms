@@ -83,7 +83,6 @@ extract_y <- function(formula) {
 
 # Check if there are random effects
 # returns TRUE or FALSE
-# TODO This doesn't work with inline functions
 rand_effects <- function(formula) {
   checkmate::assert_formula(x = formula)
   length(lme4::findbars(as.formula(formula))) > 0
@@ -351,19 +350,6 @@ create_fold_and_fold_column_map <- function(data, fold_info_cols) {
 #   __________________ #< 0b7162d59e8eca41362f7f09292860c9 ># __________________
 #   R version                                                               ####
 
-
-##  .................. #< b8c098648c2d4dd138bb1d0ccf39d40a ># ..................
-##  Check R version                                                         ####
-
-# TODO use getRversion() instead
-# Extracts the major and minor version numbers.
-check_R_version <- function() {
-  major <- as.integer(R.Version()$major)
-  minor <- as.numeric(strsplit(R.Version()$minor, ".", fixed = TRUE)[[1]][[1]])
-  list("major" = major, "minor" = minor)
-}
-
-
 ##  .................. #< 52bf2e9f3679f411f75cb7daee2c2e20 ># ..................
 ##  Skip test if R is too old                                               ####
 
@@ -375,7 +361,7 @@ check_R_version <- function() {
 # unit tests, but that would take a long time to convert,
 # and most likely the code works the same on v3.5
 skip_test_if_old_R_version <- function(min_R_version = "3.6") {
-  if (check_R_version()[["minor"]] < strsplit(min_R_version, ".", fixed = TRUE)[[1]][[2]]) {
+  if (getRversion()$minor < strsplit(min_R_version, ".", fixed = TRUE)[[1]][[2]]) {
     testthat::skip(message = paste0("Skipping test as R version is < ", min_R_version, "."))
   }
 }
@@ -449,15 +435,6 @@ arg_is_number_ <- function(n) {
 }
 
 
-#   __________________ #< ee1f70b53ee325e4f985c28ad01c7775 ># __________________
-#   Is logical scalar and not NA                                            ####
-
-# TODO just use checkmate::test_flag
-is_logical_scalar_not_na <- function(arg) {
-  rlang::is_scalar_logical(arg) && !is.na(arg)
-}
-
-
 #   __________________ #< b60c9996af128a33785d5e44a03d9942 ># __________________
 #   Is between                                                              ####
 
@@ -488,7 +465,7 @@ tidyr_new_interface <- function() {
 ##  Legacy nest function                                                    ####
 
 
-# As the upcoming tidyr v1.0.0 has breaking changes
+# As tidyr v1.0.0 has breaking changes
 # to nest (and unnest!), we make sure it's compatible for now
 # TODO replace nest_legacy with the new nest syntax within the
 # code, once people have moved to that.
@@ -700,7 +677,6 @@ base_rename <- function(data, before, after,
 
 
 # Cols should be col names
-# TODO just use subset() instead
 base_select <- function(data, cols) {
   subset(data, select = cols)
 }

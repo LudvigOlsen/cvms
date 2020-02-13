@@ -128,24 +128,22 @@ combine_predictors <- function(dependent,
   )
 
   arg_max__max_interaction_size <- ifelse(max_interaction_size <= 1, 256, 8)
-  if (is.list(fixed_effects)) { # TODO should be in one assertion!
-    checkmate::assert_list(
+
+  checkmate::assert(
+    checkmate::check_list(
       x = fixed_effects,
       types = c("character", "list"),
       any.missing = FALSE,
       min.len = 2,
-      max.len = arg_max__max_interaction_size,
-      add = assert_collection
-    )
-  } else {
-    checkmate::assert_character(
+      max.len = arg_max__max_interaction_size
+    ),
+    checkmate::check_character(
       x = fixed_effects,
       any.missing = FALSE,
       min.len = 2,
-      max.len = arg_max__max_interaction_size,
-      add = assert_collection
+      max.len = arg_max__max_interaction_size
     )
-  }
+  )
 
   checkmate::assert_number(
     x = max_fixed_effects,

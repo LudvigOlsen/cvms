@@ -57,15 +57,23 @@ test_that("predictors are properly combined with combine_predictors()", {
   expect_equal(length(formulas_7), 165)
   expect_equal(nchar(paste0(formulas_7, collapse = " ; ")), 4273)
 
-  expect_error(combine_predictors(dep, NULL, random_effects = NULL),
-    "1 assertions failed:\n * Variable 'fixed_effects': Must be of type 'character', not 'NULL'.",
-    fixed = TRUE
-  )
+  expect_error(xpectr::strip_msg(combine_predictors(dep, NULL, random_effects = NULL)),
+               xpectr::strip(
+                 paste0(
+                   "Assertion failed. One of the following must apply:\n * chec",
+                   "kmate::check_list(fixed_effects): Must be of type 'list', no",
+                   "t\n * 'NULL'\n * checkmate::check_character(fixed_effects): ",
+                   "Must be of type\n * 'character', not 'NULL'"
+                 )
+               ),
+               fixed = TRUE)
 
-  expect_error(combine_predictors(NULL, fx, random_effects = NULL),
-    "1 assertions failed:\n * Variable 'dependent': Must be of type 'string', not 'NULL'.",
-    fixed = TRUE
-  )
+  expect_error(
+    xpectr::strip_msg(combine_predictors(NULL, fx, random_effects = NULL)),
+    xpectr::strip(
+      "1 assertions failed Variable dependent Must be of type string not NULL"
+    ),
+    fixed = TRUE)
 
   formulas_8 <- combine_predictors("y", as.character(1:4),
     random_effects = NULL,
@@ -331,18 +339,15 @@ test_that("the expected errors are thrown by combine_predictors()", {
   ),
   fixed = T
   )
-  expect_error(combine_predictors(
+  expect_error(xpectr::strip_msg(combine_predictors(
     dependent = "Price",
     fixed_effects = c(
       "Mileage", "Cylinder",
       "Doors", "Cruise"
     ),
     max_fixed_effects = -10
-  ),
-  paste0(
-    "1 assertions failed:\n * Variable 'max_fixed_effects': Elem",
-    "ent 1 is not >= 2."
-  ),
+  )),
+  xpectr::strip("1 assertions failed:\n * Variable 'max_fixed_effects': Element 1 is not >= 2."),
   fixed = T
   )
   expect_error(combine_predictors(
@@ -396,38 +401,55 @@ test_that("the expected errors are thrown by combine_predictors()", {
   ),
   fixed = T
   )
-  expect_error(combine_predictors(
+
+  expect_error(xpectr::strip_msg(combine_predictors(
     dependent = "Price",
     fixed_effects = NULL
+  )),
+  xpectr::strip(
+    paste0(
+      "Assertion failed. One of the following must apply:\n * chec",
+      "kmate::check_list(fixed_effects): Must be of type 'list', no",
+      "t 'NULL'\n * checkmate::check_character(fixed_effects): Must",
+      " be of type 'character', not 'NULL'"
+    )
   ),
-  paste0(
-    "1 assertions failed:\n * Variable 'fixed_effects': Must be ",
-    "of type 'character', not 'NULL'."
-  ),
-  fixed = T
-  )
-  expect_error(combine_predictors(
+  fixed = T)
+
+  expect_error(xpectr::strip_msg(combine_predictors(
     dependent = "Price",
     fixed_effects = "lol"
-  ),
-  paste0(
-    "1 assertions failed:\n * Variable 'fixed_effects': Must hav",
-    "e length >= 2, but has length 1."
-  ),
-  fixed = T
-  )
-  expect_error(combine_predictors(
+  )),
+  xpectr::strip(
+    paste0(
+      "Assertion failed. One of the following must apply:\n * chec",
+      "kmate::check_list(fixed_effects): Must be of type 'list', no",
+      "t\n * 'character'\n * checkmate::check_character(fixed_effec",
+      "ts): Must have length >= 2,\n * but has length 1"
+    )
+  ), fixed = T)
+
+  expect_error(xpectr::strip_msg(combine_predictors(
     dependent = "Price",
     fixed_effects = c("a", "b", "c", "d", "e", "f", "g", "h", "i")
-  ),
-  "1 assertions failed:\n * Variable 'fixed_effects': Must have length <= 8, but has length 9.",
+  )),
+  xpectr::strip(
+    paste0("Assertion failed. One of the following must apply:\n * chec",
+         "kmate::check_list(fixed_effects): Must be of type 'list', no",
+         "t\n * 'character'\n * checkmate::check_character(fixed_effec",
+         "ts): Must have length <= 8,\n * but has length 9")),
   fixed = T
   )
-  expect_error(combine_predictors(
+
+  expect_error(xpectr::strip_msg(combine_predictors(
     dependent = "Price",
     fixed_effects = c(1, 2, 3)
-  ),
-  "1 assertions failed:\n * Variable 'fixed_effects': Must be of type 'character', not 'double'.",
+  )),
+  xpectr::strip(
+    paste0("Assertion failed. One of the following must apply:\n * chec",
+         "kmate::check_list(fixed_effects): Must be of type 'list', no",
+         "t\n * 'double'\n * checkmate::check_character(fixed_effects)",
+         ": Must be of type\n * 'character', not 'double'")),
   fixed = T
   )
   expect_error(

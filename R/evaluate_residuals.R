@@ -58,6 +58,19 @@
 #'
 #'  The \strong{Name} column refers to the name used in the package.
 #'  This is the name in the output and when enabling/disabling in \code{metrics}.
+#' @examples
+#' # Attach packages
+#' library(cvms)
+#'
+#' data <- data.frame(
+#'   "targets" = rnorm(100, 14.7, 3.6),
+#'   "predictions" = rnorm(100, 13.2, 4.6)
+#' )
+#'
+#' evaluate_residuals(data = data,
+#'                    predictions_col = "predictions",
+#'                    targets_col = "targets"
+#' )
 evaluate_residuals <- function(data,
                                predictions_col,
                                targets_col,

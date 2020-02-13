@@ -313,7 +313,7 @@ test_that("the expected errors are thrown by combine_predictors()", {
   ),
   paste0(
     "1 assertions failed:\n * Variable 'max_interaction_size': E",
-    "lement 0 is not >= 0."
+    "lement 1 is not >= 0."
   ),
   fixed = T
   )
@@ -341,7 +341,7 @@ test_that("the expected errors are thrown by combine_predictors()", {
   ),
   paste0(
     "1 assertions failed:\n * Variable 'max_fixed_effects': Elem",
-    "ent 0 is not >= 2."
+    "ent 1 is not >= 2."
   ),
   fixed = T
   )

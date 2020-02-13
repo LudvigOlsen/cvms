@@ -114,6 +114,8 @@ Warnings are counted in `Other Warnings`.
 
 * The `Fixed` column in some of the output tibbles have been moved to make it clearer which model was evaluated.
 
+* Better handling of inline functions in formulas.
+
 # cvms 0.3.2
 
 * Fixes bug in `evaluate()`, when used on a grouped data frame. The row order in the output was not guaranteed to fit the grouping keys. 

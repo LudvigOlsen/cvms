@@ -233,7 +233,7 @@ cross_validate_list <- function(data,
     "fold_column" = "fold_column"
   )
 
-  # cross_validate all the models using ldply()
+  # cross_validate all the models
   validated_folds <- plyr::llply(seq_len(nrow(computation_grid)),
     .parallel = parallel_,
     .fun = function(r) {

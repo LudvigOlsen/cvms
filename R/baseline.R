@@ -461,20 +461,15 @@ baseline <- function(test_data,
     positive = TRUE,
     add = assert_collection
   )
-  # TODO make check that have both assertions
-  # E.g. with check_* and then push manually
-  if (!is.character(positive)) {
-    checkmate::assert_choice(
+
+  # positive
+  checkmate::assert(
+    checkmate::check_choice(
       x = positive,
-      choices = c(1, 2),
-      add = assert_collection
-    )
-  } else {
-    checkmate::assert_string(
-      x = positive,
-      add = assert_collection
-    )
-  }
+      choices = c(1, 2)
+    ),
+    checkmate::check_string(x = positive)
+  )
 
   checkmate::assert_number(
     x = cutoff,
@@ -503,16 +498,14 @@ baseline <- function(test_data,
     add = assert_collection
   )
 
-  # Multi
-  # TODO Find way to have "either or" assertions in the collection
-  if (is.character(metrics)) {
-    checkmate::assert_string(x = metrics, fixed = "all", add = assert_collection)
-  } else {
-    checkmate::assert_list(
+  # Not added to collection, but probably doesn't matter much
+  checkmate::assert(
+    checkmate::check_string(x = metrics, fixed = "all"),
+    checkmate::check_list(
       x = metrics, any.missing = FALSE,
       types = c("logical", "character")
     )
-  }
+  )
 
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####

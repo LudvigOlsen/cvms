@@ -249,7 +249,7 @@ basics_model_fn <- function(train_data, formula, hyperparameters) {
   family_ <- hyperparameters[["family"]]
 
   # Check for random effects
-  contains_random_effects <- rand_effects(as.character(formula))
+  contains_random_effects <- rand_effects(formula)
 
   # Identify model function
   if (family_ == "gaussian") {

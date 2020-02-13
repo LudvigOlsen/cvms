@@ -265,7 +265,6 @@ test_that("binomial models work with cross_validate()", {
     formulas = c("diagnosis~score + (1|session)", "diagnosis~age"),
     fold_cols = ".folds",
     family = "binomial",
-    REML = FALSE,
     verbose = FALSE,
     positive = 1
   )
@@ -477,7 +476,6 @@ test_that("gaussian mixed models with cross_validate()", {
 test_that("binomial models work with control specified in cross_validate()", {
   testthat::skip("mac and ubuntu give different warnings")
   # TODO fix such that travis get same results
-  # skip_test_if_old_R_version()
 
   skip("testing different optimizers is too difficult given platform differences")
 
@@ -676,8 +674,6 @@ test_that("gaussian models work with control specified in cross_validate()", {
 
 test_that("model using dot in formula ( y ~ . ) works with cross_validate()", {
 
-  # skip_test_if_old_R_version()
-
   # We wish to test if using the dot "y~." method in the model formula
   # correctly leaves out .folds column.
 
@@ -709,6 +705,50 @@ test_that("model using dot in formula ( y ~ . ) works with cross_validate()", {
   ),
   regexp = NA
   )
+})
+
+test_that("model using inline functions in formulas works with cross_validate()", {
+
+  # Load data and fold it
+  xpectr::set_test_seed(1)
+  dat <- groupdata2::fold(participant.scores,
+                          k = 4,
+                          cat_col = "diagnosis",
+                          id_col = "participant"
+  )
+
+  # Expect no warnings
+  # https://stackoverflow.com/questions/22003306/is-there-something-in-testthat-like-expect-no-warnings
+  expect_warning(cv1 <- cross_validate(dat,
+                                formulas = c("diagnosis~log(score)",
+                                             "diagnosis~log(score) + (1|session)"),
+                                fold_cols = ".folds", family = "binomial",
+                                REML = FALSE, verbose = FALSE
+  ),
+  regexp = NA
+  )
+
+
+  # Testing values
+  expect_equal(cv1$Fixed, c("log(score)", "log(score)"), fixed = TRUE)
+  expect_equal(cv1$Random, c(NA, "(1|session)"), fixed = TRUE)
+  expect_equal(cv1$F1, c(0.78947, 0.85714), tolerance = 1e-4)
+
+
+  # Expect no warnings
+  expect_warning(cv2 <- cross_validate(
+    dat,
+    formulas = c("score~log(age)", "score~log(age)+(1|session)"),
+    fold_cols = ".folds", family = "gaussian",
+    REML = FALSE, verbose = FALSE
+  ),
+  regexp = NA
+  )
+
+  # Testing values
+  expect_equal(cv2$Fixed, c("log(age)", "log(age)"), fixed = TRUE)
+  expect_equal(cv2$Random, c(NA, "(1|session)"), fixed = TRUE)
+  expect_equal(cv2$RMSE, c(20.67139, 15.19049), tolerance = 1e-4)
 })
 
 test_that("binomial models work with repeated cross_validate()", {
@@ -2125,7 +2165,7 @@ test_that("the expected errors are thrown by cross_validate()", {
   fixed = TRUE
   ))
 
-  # NOTE!!: The two below will only throw warnings once per session
+  # **** NOTE!! ****: The two below will only throw warnings once per session
   # So test_this() won't necessarily see them, while the overall testing should!
   expect_warning(cross_validate(dat,
     models = "diagnosis~score",

@@ -50,6 +50,13 @@ simplify_formula <- function(formula, data = NULL, string_out = FALSE) {
     formula <- tryCatch(as.formula(formula), error = function(e){
       stop(paste0("Could not convert 'formula' to a formula object. Got error:\n  ", e))
     })
+    envir <- globalenv()
+  } else if (rlang::is_formula(formula)) {
+    # If formula has a special environment,
+    # we wish to keep that
+    # Errors will be messaged later, so we just ignore them for now
+    envir <- tryCatch(attributes(terms(formula, data = data))$.Environment,
+                      error = function(e){return(NULL)})
   }
 
   # Check arguments ####
@@ -101,7 +108,7 @@ simplify_formula <- function(formula, data = NULL, string_out = FALSE) {
   # Create simplified formula
   form <- paste0(paste0(y, collapse = " + "), " ~ ", paste0(x, collapse = " + "))
   if (!isTRUE(string_out))
-    form <- as.formula(form)
+    form <- as.formula(form, env = envir)
   form
 }
 

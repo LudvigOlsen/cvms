@@ -65,6 +65,20 @@ Tbl (tibble) with the calculated metrics.
 \details{
 The metric formulas are listed in the \emph{Metrics} vignette.
 }
+\examples{
+# Attach packages
+library(cvms)
+
+data <- data.frame(
+  "targets" = rnorm(100, 14.7, 3.6),
+  "predictions" = rnorm(100, 13.2, 4.6)
+)
+
+evaluate_residuals(data = data,
+                   predictions_col = "predictions",
+                   targets_col = "targets"
+)
+}
 \seealso{
 Other evaluation functions: 
 \code{\link{binomial_metrics}()},

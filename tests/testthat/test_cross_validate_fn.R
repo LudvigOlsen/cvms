@@ -3834,7 +3834,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
           dplyr::bind_cols(dplyr::bind_rows(means, sds))
       list(train = train_data, test = test_data, parameters = tidy_parameters)
   }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = -2, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip("1 assertions failed:\n * Variable 'cutoff': Element 0 is not >= 0."),
+    xpectr::strip("1 assertions failed:\n * Variable 'cutoff': Element 1 is not >= 0."),
     fixed = TRUE)
 
   # Testing cross_validate_fn(data = dat, formulas = "scor...

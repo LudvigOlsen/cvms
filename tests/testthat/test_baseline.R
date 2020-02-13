@@ -2597,68 +2597,74 @@ test_that("baseline() throws expected errors", {
   )
 
   # positive
-  expect_error(baseline(
+  expect_error(xpectr::strip_msg(baseline(
     test_data = participant.scores,
     dependent_col = "diagnosis",
     n = 10,
     family = "binomial",
     positive = NULL
-  ),
-  paste0(
-    "1 assertions failed:\n * Variable 'positive': Must be a sub",
-    "set of {'1','2'}, not 'NULL'."
-  ),
+  )),
+  xpectr::strip(paste0("Assertion failed. One of the following must apply:\n * chec",
+         "kmate::check_choice(positive): Must be a subset of {'1','2'}",
+         ", not 'NULL'\n * checkmate::check_string(positive): Must be ",
+         "of type 'string', not 'NULL"))
+  ,
   fixed = T
   )
-  expect_error(baseline(
+  expect_error(xpectr::strip_msg(baseline(
     test_data = participant.scores,
     dependent_col = "diagnosis",
     n = 10,
     family = "binomial",
     positive = NA
-  ),
-  paste0(
-    "1 assertions failed:\n * Variable 'positive': Must be eleme",
-    "nt of set {'1','2'}, but is 'NA'."
-  ),
+  )),
+  xpectr::strip(paste0("Assertion failed. One of the following must apply:\n * chec",
+         "kmate::check_choice(positive): Must be element of set {'1','",
+         "2'}, but is 'NA'\n * checkmate::check_string(positive): May ",
+         "not be NA")),
   fixed = T
   )
-  expect_error(baseline(
+  expect_error(xpectr::strip_msg(baseline(
     test_data = participant.scores,
     dependent_col = "diagnosis",
     n = 10,
     family = "binomial",
     positive = 3
-  ),
-  paste0(
-    "1 assertions failed:\n * Variable 'positive': Must be eleme",
-    "nt of set {'1','2'}, but is '3'."
-  ),
+  )),
+  xpectr::strip(paste0("Assertion failed. One of the following must apply:\n * chec",
+         "kmate::check_choice(positive): Must be element of set {'1','",
+         "2'}, but is '3'\n * checkmate::check_string(positive): Must ",
+         "be of type 'string', not 'double'")),
   fixed = T
   )
-  expect_error(baseline(
+
+  expect_error(xpectr::strip_msg(baseline(
     test_data = participant.scores,
     dependent_col = "diagnosis",
     n = 10,
     family = "binomial",
     positive = -1
-  ),
-  paste0(
-    "1 assertions failed:\n * Variable 'positive': Must be eleme",
-    "nt of set {'1','2'}, but is '-1'."
-  ),
+  )),
+  xpectr::strip(paste0("Assertion failed. One of the following must apply:\n * chec",
+         "kmate::check_choice(positive): Must be element of set {'1','",
+         "2'}, but is '-1'\n * checkmate::check_string(positive): Must",
+         " be of type 'string', not 'double'")),
   fixed = T
   )
-  expect_error(baseline(
+  expect_error(xpectr::strip_msg(baseline(
     test_data = participant.scores,
     dependent_col = "diagnosis",
     n = 10,
     family = "binomial",
     positive = c("0", "1")
-  ),
-  "1 assertions failed:\n * Variable 'positive': Must have length 1.",
+  )),
+  xpectr::strip(paste0("Assertion failed. One of the following must apply:\n * chec",
+         "kmate::check_choice(positive): Must be element of set {'1','",
+         "2'}, but is not atomic scalar\n * checkmate::check_string(po",
+         "sitive): Must have length 1")),
   fixed = T
   )
+
   expect_error(
     xpectr::strip_msg(baseline(
     test_data = participant.scores,
@@ -2668,9 +2674,10 @@ test_that("baseline() throws expected errors", {
     positive = c(0, 1)
   )),
   xpectr::strip(paste0(
-    "1 assertions failed:\n * Variable 'positive': Must be eleme",
-    "nt of set {'1','2'}, but is not atomic scalar."
-  )),
+    "Assertion failed. One of the following must apply:\n * chec",
+    "kmate::check_choice(positive): Must be element of set {'1','",
+    "2'}, but is not atomic scalar\n * checkmate::check_string(po",
+    "sitive): Must be of type 'string', not 'double'")),
   fixed = T
   )
 

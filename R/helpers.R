@@ -85,7 +85,8 @@ extract_y <- function(formula) {
 # returns TRUE or FALSE
 # TODO This doesn't work with inline functions
 rand_effects <- function(formula) {
-  any(grepl("\\(\\d", formula, perl = TRUE))
+  checkmate::assert_formula(x = formula)
+  length(lme4::findbars(as.formula(formula))) > 0
 }
 
 

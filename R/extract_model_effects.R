@@ -36,7 +36,7 @@ extract_model_effects <- function(model_list) {
       tidyr::separate(
         .data$Predictors,
         into = c("Fixed", "Random"),
-        sep = "\\(",
+        sep = "\\+\\(",
         extra = "merge"
       ) %>%
 

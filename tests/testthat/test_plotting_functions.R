@@ -72,7 +72,7 @@ test_that("plot_confusion_matrix() returns expected plots", {
   )
   expect_error(
     xpectr::strip_msg(plot_confusion_matrix(cm[["Confusion Matrix"]][[1]], darkness = -.1)),
-    xpectr::strip("1 assertions failed:\n * Variable 'darkness': Element 0 is not >= 0."),
+    xpectr::strip("1 assertions failed:\n * Variable 'darkness': Element 1 is not >= 0."),
     fixed = TRUE
   )
 })

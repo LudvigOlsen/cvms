@@ -332,7 +332,11 @@ call_confusion_matrix <- function(targets,
       dplyr::bind_cols(cfm[["Confusion Matrix"]][[1]])
   }
 
-  cfm
+  # Reorder metrics
+  new_order <- c(setdiff(colnames(cfm), metrics),
+                 intersect(metrics, colnames(cfm)))
+  cfm %>%
+    base_select(cols = new_order)
 }
 
 

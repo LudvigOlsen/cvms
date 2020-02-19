@@ -936,7 +936,8 @@ Create the baseline evaluations:
 
 ``` r
 binomial_baseline <- baseline(test_data = test_set, n = 300, 
-         dependent_col = "diagnosis", family = "binomial")
+                              dependent_col = "diagnosis", 
+                              family = "binomial")
 
 binomial_baseline$summarized_metrics
 #> # A tibble: 10 x 15
@@ -992,7 +993,7 @@ binomial_baseline$random_evaluations
 #> #   Dependent <chr>
 ```
 
-We can plot the distribution of `F1` scores from the random evaluations:
+We can plot the distribution of `F1` scores from the random evaluations.
 
 ``` r
 # First, remove the NAs from the F1 column
@@ -1000,7 +1001,7 @@ random_evaluations <- binomial_baseline$random_evaluations
 random_evaluations <- random_evaluations[!is.na(random_evaluations$F1),]
 
 # Create density plot for F1
-plot_metric_density(data = random_evaluations, 
+plot_metric_density(baseline = random_evaluations, 
                     metric = "F1", xlim = c(0, 1))
 ```
 
@@ -1159,7 +1160,7 @@ gaussian_baseline$random_evaluations
 Plot the density plot for `RMSE`:
 
 ``` r
-plot_metric_density(data = gaussian_baseline$random_evaluations,
+plot_metric_density(baseline = gaussian_baseline$random_evaluations,
                     metric = "RMSE")
 ```
 

@@ -7,7 +7,7 @@
 select_metrics(results, include_definitions = TRUE, additional_includes = NULL)
 }
 \arguments{
-\item{results}{Results tibble from \code{\link{cross_validate}()} or \code{\link{validate}()}.}
+\item{results}{Results tibble. E.g. from \code{\link{cross_validate}()} or \code{\link{evaluate}()}.}
 
 \item{include_definitions}{Whether to include the \code{Dependent},
 \code{Fixed} and (possibly) \code{Random} columns. (Logical)}
@@ -15,7 +15,7 @@ select_metrics(results, include_definitions = TRUE, additional_includes = NULL)
 \item{additional_includes}{Names of additional columns to select. (Character)}
 }
 \value{
-The results tibble with only metric and model definition columns.
+The results tibble with only the metric and model definition columns.
 }
 \description{
 \Sexpr[results=rd, stage=render]{lifecycle::badge("maturing")}

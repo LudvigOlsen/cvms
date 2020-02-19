@@ -5,18 +5,29 @@
 \title{Density plot for a metric}
 \usage{
 plot_metric_density(
-  data,
-  metric = "Overall Accuracy",
-  fill = "pink",
-  alpha = 0.4,
+  results = NULL,
+  baseline = NULL,
+  metric = "",
+  fill = c("darkblue", "lightblue"),
+  alpha = 0.6,
   theme_fn = ggplot2::theme_light,
   xlim = NULL
 )
 }
 \arguments{
-\item{metric}{Name of the metric column in \code{data} to plot. (Character)}
+\item{results}{Data frame with a metric column to create density plot for.
 
-\item{fill}{Color of the plotted distribution.}
+ To only plot the baseline, set to \code{NULL}.}
+
+\item{baseline}{Data frame with the random evaluations from \code{\link[cvms:baseline]{baseline()}}.
+ Should contain a column for the \code{metric}.
+
+ To only plot the results, set to \code{NULL}.}
+
+\item{metric}{Name of the metric column in \code{results} to plot. (Character)}
+
+\item{fill}{Colors of the plotted distributions.
+The first color is for the \code{baseline}, the second for the \code{results}.}
 
 \item{alpha}{Transparency of the distribution (0 - 1).}
 
@@ -25,8 +36,6 @@ plot_metric_density(
 \item{xlim}{Limits for the x-axis. Can be set to NULL.
 
  E.g. \code{c(0, 1)}.}
-
-\item{Data}{frame with a metric column to create density plot for.}
 }
 \value{
 ggplot2 object.

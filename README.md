@@ -993,7 +993,7 @@ binomial_baseline$random_evaluations
 #> #   Dependent <chr>
 ```
 
-We can plot the distribution of `F1` scores from the random evaluations.
+We can plot the distribution of `F1` scores from the random evaluations:
 
 ``` r
 # First, remove the NAs from the F1 column

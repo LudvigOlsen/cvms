@@ -18,6 +18,8 @@ test_that("plot_confusion_matrix() returns expected plots", {
 
   expect_equal(cm[["Confusion Matrix"]][[1]]$N, c(4L, 2L, 2L, 4L))
 
+  # cm[["Confusion Matrix"]][[1]]$N[[3]] <- 0
+
   p1 <- plot_confusion_matrix(cm[["Confusion Matrix"]][[1]])
   expect_equal(p1$data$Target, structure(c(1L, 1L, 2L, 2L), .Label = c("0", "1"), class = "factor"))
   expect_equal(p1$data$Prediction, structure(c(1L, 2L, 1L, 2L), .Label = c("0", "1"), class = "factor"))
@@ -33,16 +35,17 @@ test_that("plot_confusion_matrix() returns expected plots", {
   expect_equal(p1$data$Prediction_Percentage_text, c("66.7%", "33.3%", "33.3%", "66.7%"))
 
 
-  expect_equal(length(p1$layers), 5)
+  expect_equal(length(p1$layers), 9)
   expect_equal(
     sapply(p1$layers, function(x) class(x$geom)[1]),
-    c("GeomTile", "GeomText", "GeomText", "GeomText", "GeomText")
+    c("GeomTile", "GeomText", "GeomText", "GeomText", "GeomText",
+      "GeomImage", "GeomImage", "GeomImage", "GeomImage")
   )
   expect_equal(
     p1$labels,
     list(
       x = "Target", y = "Prediction",
-      fill = "N", label = "N"
+      fill = "N", label = "N", image = "down_icon"
     )
   )
 
@@ -136,16 +139,17 @@ test_that("plot_confusion_matrix() with multiclass conf mat returns expected plo
     "71.2%"
   ))
 
-  expect_equal(length(p1$layers), 5)
+  expect_equal(length(p1$layers), 9)
   expect_equal(
     sapply(p1$layers, function(x) class(x$geom)[1]),
-    c("GeomTile", "GeomText", "GeomText", "GeomText", "GeomText")
+    c("GeomTile", "GeomText", "GeomText", "GeomText", "GeomText",
+      "GeomImage", "GeomImage", "GeomImage", "GeomImage")
   )
   expect_equal(
     p1$labels,
     list(
       x = "Target", y = "Prediction",
-      fill = "N", label = "N"
+      fill = "N", label = "N", image = "down_icon"
     )
   )
 
@@ -167,6 +171,58 @@ test_that("plot_confusion_matrix() with multiclass conf mat returns expected plo
   )
 
   expect_true(!p1$guides$fill[[1]])
+
+  # Set zero
+
+  conf_mat[["N"]][[3]] <- 0
+
+  p2 <- plot_confusion_matrix(conf_mat)
+
+  expect_equal(length(p2$layers), 10)
+  expect_equal(
+    sapply(p2$layers, function(x) class(x$geom)[1]),
+    c("GeomTile", "GeomImage", "GeomText", "GeomText", "GeomText", "GeomText",
+      "GeomImage", "GeomImage", "GeomImage", "GeomImage")
+  )
+  expect_equal(
+    p2$labels,
+    list(
+      x = "Target", y = "Prediction",
+      fill = "N", label = "N",
+      image = "image_skewed_lines"
+    )
+  )
+
+  # With 0 and 5 classes
+  xpectr::set_test_seed(99)
+  targets <- sample(rep(1:5, 20),size = 20)
+  predictions <- sample(rep(1:5, 20),size = 20)
+
+  # Create confusion matrix with default metrics
+  cm <- confusion_matrix(targets, predictions)[["Confusion Matrix"]][[1]]
+
+  # Testing values
+  expect_equal(
+    cm$N,
+    c(0, 0, 1, 2, 0, 0, 0, 2, 1, 1, 3, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 2, 1))
+
+  p3 <- plot_confusion_matrix(cm)
+
+  expect_equal(length(p3$layers), 10)
+  expect_equal(
+    sapply(p3$layers, function(x) class(x$geom)[1]),
+    c("GeomTile", "GeomImage", "GeomText", "GeomText", "GeomText", "GeomText",
+      "GeomImage", "GeomImage", "GeomImage", "GeomImage")
+  )
+  expect_equal(
+    p3$labels,
+    list(
+      x = "Target", y = "Prediction",
+      fill = "N", label = "N",
+      image = "image_skewed_lines"
+    )
+  )
+
 })
 
 test_that("font() gets updated correctly", {

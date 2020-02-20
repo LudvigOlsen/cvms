@@ -13,6 +13,7 @@ plot_confusion_matrix(
   add_normalized = TRUE,
   add_row_percentages = TRUE,
   add_col_percentages = TRUE,
+  add_arrows = TRUE,
   counts_on_top = FALSE,
   palette = "Greens",
   theme_fn = ggplot2::theme_light,
@@ -23,6 +24,9 @@ plot_confusion_matrix(
   font_normalized = font(),
   font_row_percentages = font(),
   font_col_percentages = font(),
+  arrow_size = 0.05/sqrt(nrow(conf_matrix)),
+  arrow_nudge_from_text = 0.065,
+  arrow_icons = NULL,
   tile_border_color = NA,
   tile_border_size = 0.1,
   tile_border_linetype = "solid",
@@ -30,7 +34,8 @@ plot_confusion_matrix(
 )
 }
 \arguments{
-\item{conf_matrix}{Confusion matrix tibble with each combination of targets and predictions along with their counts.
+\item{conf_matrix}{Confusion matrix tibble with each combination of
+targets and predictions along with their counts.
 
  E.g. for a binary classification:
 
@@ -67,6 +72,8 @@ add to the middle of the tiles. (Logical)}
 
  By default, the row percentage is placed at the bottom of the tile.}
 
+\item{add_arrows}{Add the arrows to the row and col percentages. (Logical)}
+
 \item{counts_on_top}{Switch the counts and normalized counts,
 such that the counts are on top. (Logical)}
 
@@ -97,6 +104,24 @@ Can be provided with \code{\link[cvms:font]{font()}}.}
 
 \item{font_col_percentages}{List of font settings for the column percentages.
 Can be provided with \code{\link[cvms:font]{font()}}.}
+
+\item{arrow_size}{Size of arrow icons. (Numeric)
+
+ Passed to \code{\link[ggimage:geom_icon]{ggimage::geom_icon()}}.}
+
+\item{arrow_nudge_from_text}{Distance from the percentage text to the arrow. (Numeric)}
+
+\item{arrow_icons}{Named list of icon names. Find icons at https://ionicons.com/
+
+ Icons are inserted with \code{\link[ggimage:geom_icon]{ggimage::geom_icon()}}.
+
+ Should contain the following elements: \code{"up"}, \code{"down"}, \code{"left"}, \code{"right"}.
+
+ The default is:
+
+ \code{
+ arrow_icons = list("up" = "caret-up-sharp", "down" = "caret-down-sharp",
+ "left" = "caret-back-sharp", "right" = "caret-forward-sharp")}}
 
 \item{tile_border_color}{Color of the tile borders. Passed as \emph{\code{colour}} to
 \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.}
@@ -160,13 +185,6 @@ cm <- confusion_matrix(targets, predictions)
 cm[["Confusion Matrix"]]
 
 plot_confusion_matrix(cm[["Confusion Matrix"]][[1]])
-
-# Add prefix to row and column percentages
-
-plot_confusion_matrix(cm[["Confusion Matrix"]][[1]],
-  font_row_percentages = font(prefix = "\U2195 "),
-  font_col_percentages = font(prefix = "\U2195 ")
-)
 
 # Counts only
 plot_confusion_matrix(cm[["Confusion Matrix"]][[1]],

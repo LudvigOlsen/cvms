@@ -14,7 +14,8 @@
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
 #' @family plotting functions
-#' @param conf_matrix Confusion matrix tibble with each combination of targets and predictions along with their counts.
+#' @param conf_matrix Confusion matrix tibble with each combination of
+#' targets and predictions along with their counts.
 #'
 #'  E.g. for a binary classification:
 #'
@@ -43,6 +44,7 @@
 #'  i.e. how big a part of its column the tile makes up. (Logical)
 #'
 #'  By default, the row percentage is placed at the bottom of the tile.
+#' @param add_arrows Add the arrows to the row and col percentages. (Logical)
 #' @param counts_on_top Switch the counts and normalized counts,
 #'  such that the counts are on top. (Logical)
 #' @param rotate_y_text Whether to rotate the y-axis text to
@@ -55,6 +57,21 @@
 #'  Can be provided with \code{\link[cvms:font]{font()}}.
 #' @param font_col_percentages List of font settings for the column percentages.
 #'  Can be provided with \code{\link[cvms:font]{font()}}.
+#' @param arrow_size Size of arrow icons. (Numeric)
+#'
+#'  Passed to \code{\link[ggimage:geom_icon]{ggimage::geom_icon()}}.
+#' @param arrow_nudge_from_text Distance from the percentage text to the arrow. (Numeric)
+#' @param arrow_icons Named list of icon names. Find icons at https://ionicons.com/
+#'
+#'  Icons are inserted with \code{\link[ggimage:geom_icon]{ggimage::geom_icon()}}.
+#'
+#'  Should contain the following elements: \code{"up"}, \code{"down"}, \code{"left"}, \code{"right"}.
+#'
+#'  The default is:
+#'
+#'  \code{
+#'  arrow_icons = list("up" = "caret-up-sharp", "down" = "caret-down-sharp",
+#'  "left" = "caret-back-sharp", "right" = "caret-forward-sharp")}
 #' @param digits Number of digits to round to (percentages only).
 #'  Set to a negative number for no rounding.
 #'
@@ -116,13 +133,6 @@
 #'
 #' plot_confusion_matrix(cm[["Confusion Matrix"]][[1]])
 #'
-#' # Add prefix to row and column percentages
-#'
-#' plot_confusion_matrix(cm[["Confusion Matrix"]][[1]],
-#'   font_row_percentages = font(prefix = "\U2195 "),
-#'   font_col_percentages = font(prefix = "\U2195 ")
-#' )
-#'
 #' # Counts only
 #' plot_confusion_matrix(cm[["Confusion Matrix"]][[1]],
 #'   add_normalized = FALSE,
@@ -137,6 +147,7 @@ plot_confusion_matrix <- function(conf_matrix,
                                   add_normalized = TRUE,
                                   add_row_percentages = TRUE,
                                   add_col_percentages = TRUE,
+                                  add_arrows = TRUE,
                                   counts_on_top = FALSE,
                                   palette = "Greens",
                                   theme_fn = ggplot2::theme_light,
@@ -147,6 +158,9 @@ plot_confusion_matrix <- function(conf_matrix,
                                   font_normalized = font(),
                                   font_row_percentages = font(),
                                   font_col_percentages = font(),
+                                  arrow_size = 0.05/sqrt(nrow(conf_matrix)),
+                                  arrow_nudge_from_text = 0.065,
+                                  arrow_icons = NULL,
                                   tile_border_color = NA,
                                   tile_border_size = 0.1,
                                   tile_border_linetype = "solid",
@@ -175,6 +189,7 @@ plot_confusion_matrix <- function(conf_matrix,
   checkmate::assert_flag(x = add_normalized, add = assert_collection)
   checkmate::assert_flag(x = add_row_percentages, add = assert_collection)
   checkmate::assert_flag(x = add_col_percentages, add = assert_collection)
+  checkmate::assert_flag(x = add_arrows, add = assert_collection)
   checkmate::assert_flag(x = counts_on_top, add = assert_collection)
   checkmate::assert_flag(x = place_x_axis_above, add = assert_collection)
   checkmate::assert_flag(x = rotate_y_text, add = assert_collection)
@@ -185,6 +200,8 @@ plot_confusion_matrix <- function(conf_matrix,
   # Number
   checkmate::assert_number(x = darkness, lower = 0, upper = 1, add = assert_collection)
   checkmate::assert_number(x = tile_border_size, lower = 0, add = assert_collection)
+  checkmate::assert_number(x = arrow_size, lower = 0, add = assert_collection)
+  checkmate::assert_number(x = arrow_nudge_from_text, lower = 0, add = assert_collection)
   checkmate::assert_count(x = digits, add = assert_collection)
 
   # List
@@ -192,6 +209,8 @@ plot_confusion_matrix <- function(conf_matrix,
   checkmate::assert_list(x = font_normalized, names = "named", add = assert_collection)
   checkmate::assert_list(x = font_row_percentages, names = "named", add = assert_collection)
   checkmate::assert_list(x = font_col_percentages, names = "named", add = assert_collection)
+  checkmate::assert_list(x = arrow_icons, names = "named", null.ok = TRUE,
+                         add = assert_collection)
 
   checkmate::reportAssertions(assert_collection)
 
@@ -222,6 +241,19 @@ plot_confusion_matrix <- function(conf_matrix,
     subset.of = available_font_settings,
     add = assert_collection
   )
+
+  if (!is.null(arrow_icons)){
+    checkmate::assert_names(
+      x = names(arrow_icons),
+      must.include = c("up", "down", "left", "right"),
+      add = assert_collection
+    )
+  } else {
+    arrow_icons <- list("up" = "caret-up-sharp",
+                        "down" = "caret-down-sharp",
+                        "left" = "caret-back-sharp",
+                        "right" = "caret-forward-sharp")
+  }
 
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
@@ -269,7 +301,7 @@ plot_confusion_matrix <- function(conf_matrix,
     "digits" = digits, "alpha" = 0.85
   ), initial_vals = list(
     "nudge_x" = function(x) {
-      x + 0.43
+      x + 0.41
     },
     "angle" = function(x) {
       x + 90
@@ -283,7 +315,7 @@ plot_confusion_matrix <- function(conf_matrix,
     "digits" = digits, "alpha" = 0.85
   ), initial_vals = list(
     "nudge_y" = function(x) {
-      x - 0.43
+      x - 0.41
     }
   ))
 
@@ -300,6 +332,14 @@ plot_confusion_matrix <- function(conf_matrix,
   # Prepare text versions of the numerics
   cm[["N_text"]] <- preprocess_numeric(cm[["N"]], font_counts)
   cm[["Normalized_text"]] <- preprocess_numeric(cm[["Normalized"]], font_normalized)
+
+  # Add icons depending on where the tile will be in the image
+  cm <- set_arrows(cm, place_x_axis_above = place_x_axis_above, icons = arrow_icons)
+
+  # Add image path for skewed lines for when there's an N=0
+  cm[["image_skewed_lines"]] <- ifelse(cm[["N"]] == 0,
+                                 system.file("man/figures/skewed_lines.svg", package="cvms"),
+                                 system.file("man/figures/empty_square.svg", package="cvms"))
 
   # Calculate column percentages
   if (isTRUE(add_col_percentages)) {
@@ -378,6 +418,12 @@ plot_confusion_matrix <- function(conf_matrix,
       hjust = ifelse(isTRUE(rotate_y_text), 0.5, 1),
       vjust = ifelse(isTRUE(rotate_y_text), 0.5, 0)
     ))
+
+  if (any(cm[["N"]] == 0)){
+    pl <- pl + ggimage::geom_image(
+      ggplot2::aes(image=image_skewed_lines),
+      by = "height", size = 0.90/sqrt(nrow(cm)))
+  }
 
 
   ##### Add numbers to plot ####
@@ -462,6 +508,47 @@ plot_confusion_matrix <- function(conf_matrix,
         lineheight = font_col_percentages[["lineheight"]]
       )
   }
+
+  #### Add arrow icons ####
+
+  if (isTRUE(add_col_percentages) && isTRUE(add_arrows)){
+    pl <- pl +
+      ggimage::geom_icon(
+        ggplot2::aes(image = down_icon),
+        by = "height",
+        size = arrow_size,
+        nudge_x = font_col_percentages[["nudge_x"]],
+        nudge_y = font_col_percentages[["nudge_y"]] - arrow_nudge_from_text
+      ) +
+      ggimage::geom_icon(
+        ggplot2::aes(image = up_icon),
+        by = "height",
+        size = arrow_size,
+        nudge_x = font_col_percentages[["nudge_x"]],
+        nudge_y = font_col_percentages[["nudge_y"]] +
+          arrow_nudge_from_text - (arrow_size/2)
+      )
+  }
+
+  if (isTRUE(add_row_percentages) && isTRUE(add_arrows)){
+    pl <- pl +
+      ggimage::geom_icon(
+        ggplot2::aes(image = right_icon),
+        by = "height",
+        size = arrow_size,
+        nudge_x = font_row_percentages[["nudge_x"]] +
+          arrow_nudge_from_text - (arrow_size / 2),
+        nudge_y = font_row_percentages[["nudge_y"]]
+      ) +
+      ggimage::geom_icon(
+        ggplot2::aes(image = left_icon),
+        by = "height",
+        size = arrow_size,
+        nudge_x = font_row_percentages[["nudge_x"]] - arrow_nudge_from_text,
+        nudge_y = font_row_percentages[["nudge_y"]]
+      )
+  }
+
 
   pl
 }

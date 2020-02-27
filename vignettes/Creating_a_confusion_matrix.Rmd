@@ -13,11 +13,6 @@ abstract: |
   &nbsp;  
   
 output: 
-  rmarkdown::pdf_document:
-    highlight: tango
-    number_sections: yes
-    toc: yes
-    toc_depth: 4
   rmarkdown::html_vignette:
     css: 
     - !expr system.file("rmarkdown/templates/html_vignette/resources/vignette.css", package = "rmarkdown")
@@ -26,6 +21,11 @@ output:
     fig_height: 4
     toc: yes
     number_sections: no
+  rmarkdown::pdf_document:
+    highlight: tango
+    number_sections: yes
+    toc: yes
+    toc_depth: 4
 vignette: >
   %\VignetteIndexEntry{Introduction_to_cvms}
   %\VignetteEncoding{UTF-8}
@@ -42,16 +42,26 @@ knitr::opts_chunk$set(
 )
 ```
 
-<!-- # Introduction -->
+# Introduction
 
-<!-- When solving a classification task, a confusion matrix is useful for investigating the model's performance.  -->
+When inspecting a classification model's performance, a confusion matrix tells you the distribution of the predictions and targets. 
 
-<!-- For a binary classification task, the confusion matrix has four counts: -->
+If we have two classes (1, 2), we will have these 4 possible combinations of predictions and targets:
 
-<!-- True Positive (TP): For the positive class,  -->
+| Target | Prediction | Called |
+|:-------|:-----------|:-------|
+|0|0| True Negative  |
+|0|1| False Negative |
+|1|0| False Positive |
+|1|1| True Positive  |
 
-<!--  A confusion matrix is basically a table that tells you the distribution of class predictions. That is, for all the observations with class *x*, how often did the model predict *x*? And similarly,  -->
+For each combination, we can count how many times the model made that prediction for an observation with that target. This is often more useful than the various metrics, as it reveals any class imbalances and tells us which classes the model tend to *confuse*. 
 
+An accuracy of 90% may, for instance, seem very high- Without the context though, this is impossible to judge. It may be, that the test set is so highly imbalanced that simply predicting the majority class yields such an accuracy. When looking at the confusion matrix, we discover many of such problems and gain a much better intuition about our model's performance.
+
+In this vignette, we will learn three approaches to making and plotting a confusion matrix. First, we will manually create it with the `table()` function. Then, we will use the `evaluate()` function from `cvms`. This is our recommended approach in most use cases. Finally, we will use the `confusion_matrix()` function from `cvms`. All approaches result in a data frame with the counts for each combination. We will plot these with `plot_confusion_matrix()` from `cvms` and make a few tweaks to the plot.
+
+Let's begin!
 
 ## Attach packages and set seed for reproducibility
 

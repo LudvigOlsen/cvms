@@ -24,7 +24,7 @@ plot_confusion_matrix(
   font_normalized = font(),
   font_row_percentages = font(),
   font_col_percentages = font(),
-  arrow_size = 0.05/sqrt(nrow(conf_matrix)),
+  arrow_size = 0.048/sqrt(nrow(conf_matrix)),
   arrow_nudge_from_text = 0.065,
   arrow_icons = NULL,
   tile_border_color = NA,
@@ -147,7 +147,7 @@ A ggplot2 object representing a confusion matrix. Color intensity depends on the
 
  In the "correct" diagonal (upper left to bottom right),
  the column percentages are the class-level sensitivity scores,
- while the row percentages are the class-level positive prediction values.
+ while the row percentages are the class-level positive predictive values.
 }
 \description{
 \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}

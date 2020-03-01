@@ -93,6 +93,8 @@ These are based on the fitted model objects and will only work for some types of
 
 * Adds `Observation` column in the nested predictions tibble in `cross_validate()`, `cross_validate_fn()`, `validate()`, and `validate_fn()`. These indices can be used to identify which observations are difficult to predict.
 
+* Adds vignette: `Creating a confusion matrix with cvms`
+
 ## Other changes
 
 * The `metrics` argument now allows setting a boolean for `"all"` inside the list to enable or disable all the metrics. For instance, the following would disable all the metrics except `RMSE`: `metrics = list("all" = FALSE, "RMSE" = TRUE)`.

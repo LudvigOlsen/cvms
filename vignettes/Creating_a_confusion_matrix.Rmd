@@ -36,7 +36,7 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.path = "man/figures/vignette_intro-",
+  fig.path = "man/figures/vignette_conf_mat-",
   dpi = 92,
   fig.retina = 2
 )
@@ -46,7 +46,7 @@ knitr::opts_chunk$set(
 
 When inspecting a classification model's performance, a confusion matrix tells you the distribution of the predictions and targets. 
 
-If we have two classes (1, 2), we will have these 4 possible combinations of predictions and targets:
+If we have two classes (0, 1), we will have these 4 possible combinations of predictions and targets:
 
 | Target | Prediction | Called |
 |:-------|:-----------|:-------|

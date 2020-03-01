@@ -104,7 +104,7 @@
 #'
 #'  In the "correct" diagonal (upper left to bottom right),
 #'  the column percentages are the class-level sensitivity scores,
-#'  while the row percentages are the class-level positive prediction values.
+#'  while the row percentages are the class-level positive predictive values.
 #' @examples
 #' # Attach cvms
 #' library(cvms)

@@ -199,8 +199,8 @@
 #'
 #'  \strong{Balanced Accuracy}, \strong{F1},
 #'  \strong{Sensitivity}, \strong{Specificity},
-#'  \strong{Positive Prediction Value},
-#'  \strong{Negative Prediction Value},
+#'  \strong{Positive Predictive Value},
+#'  \strong{Negative Predictive Value},
 #'  \strong{Kappa},
 #'  \strong{Detection Rate},
 #'  \strong{Detection Prevalence},

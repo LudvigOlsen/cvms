@@ -40,7 +40,7 @@ rvers <- substring(dep, 7, nchar(dep)-1)
 [![DOI](https://zenodo.org/badge/71063931.svg)](https://zenodo.org/badge/latestdoi/71063931)
 
 
-## Overview {#overview}
+## Overview
 
 R package for model evaluation and comparison.
 
@@ -110,13 +110,13 @@ Currently supports regression (`'gaussian'`), binary classification (`'binomial'
 |`precomputed.formulas` |Fixed effect combinations for model formulas with/without two- and three-way interactions |
 |`compatible.formula.terms` |162,660 pairs of compatible terms for building model formulas with up to 15 fixed effects |
 
-## Table of Contents {#toc}
+## Table of Contents
 
 ```{r toc, echo=FALSE}
 cvms:::render_toc("README.Rmd")
 ```
 
-## Important News {#news}
+## Important News
 
 >
 > Check `NEWS.md` for the full list of changes.
@@ -137,7 +137,7 @@ cvms:::render_toc("README.Rmd")
 * `cross_validate_fn()` and `validate_fn()` are added. (Cross-)validate custom model functions.
 
 
-## Installation  {#installation}
+## Installation
 
 CRAN:
 
@@ -151,9 +151,9 @@ Development version:
 >
 > devtools::install_github("LudvigOlsen/cvms")  
 
-# Examples {#examples}
+# Examples
 
-## Attach packages {#packages}
+## Attach packages
 
 ```{r warning=FALSE, message=FALSE}
 library(cvms)
@@ -163,7 +163,7 @@ library(dplyr) # %>% arrange()
 library(ggplot2)
 ```
 
-## Load data {#load-data}
+## Load data
 
 The dataset `participant.scores` comes with `cvms`.
 
@@ -171,7 +171,7 @@ The dataset `participant.scores` comes with `cvms`.
 data <- participant.scores
 ```
 
-## Fold data {#fold}
+## Fold data
 
 Create a grouping factor for subsetting of folds using `groupdata2::fold()`. Order the dataset by the folds:
 
@@ -189,9 +189,9 @@ data <- fold(data, k = 4,
 data %>% head(15) %>% kable()
 ```
 
-## Cross-validate a single model {#cv-single}
+## Cross-validate a single model
 
-### Gaussian {#cv-single-gaussian}
+### Gaussian
 
 ```{r warning=FALSE, message=FALSE}
 CV1 <- cross_validate(data, 
@@ -226,7 +226,7 @@ CV1 %>% select(13:20) %>% kable()
 
 ```
 
-### Binomial {#cv-single-binomial}
+### Binomial
 
 ```{r}
 CV2 <- cross_validate(data, 
@@ -253,16 +253,16 @@ plot_confusion_matrix(CV2$`Confusion Matrix`[[1]])
 ```
 
 
-## Cross-validate multiple models {#cv-multi}
+## Cross-validate multiple models
 
-### Create model formulas {#cv-multi-formulas}
+### Create model formulas
 
 ```{r}
 model_formulas <- c("score~diagnosis", "score~age")
 mixed_model_formulas <- c("score~diagnosis+(1|session)", "score~age+(1|session)")
 ```
 
-### Cross-validate fixed effects models {#cv-multi-fixed}
+### Cross-validate fixed effects models
 
 ```{r}
 CV3 <- cross_validate(data, 
@@ -275,7 +275,7 @@ CV3 <- cross_validate(data,
 CV3
 ```
 
-### Cross-validate mixed effects models {#cv-multi-mixed}
+### Cross-validate mixed effects models
 
 ```{r}
 CV4 <- cross_validate(data, 
@@ -288,7 +288,7 @@ CV4 <- cross_validate(data,
 CV4
 ```
 
-## Repeated cross-validation {#cv-repeated}
+## Repeated cross-validation
 
 Instead of only dividing our data into folds once, we can do it multiple times and average the results. As the models can be ranked differently with different splits, this is generally preferable.
 
@@ -326,13 +326,13 @@ CV5
 CV5$Results[[1]] %>% select(1:8) %>% kable()
 ```
 
-## Cross-validating custom model functions {#cv-custom}
+## Cross-validating custom model functions
 
 `cross_validate_fn()` allows us to cross-validate a custom model function, like a support vector machine or a neural network. It works with regression (`gaussian`), binary classification (`binomial`), and multiclass classification (`multinomial`). 
 
 It is required to pass a model function and a predict function. Further, it is possible to pass a preprocessing function and a list of hyperparameter values to test. You can check the requirements for these functions at `?cross_validate_fn`.
 
-### SVM {#cv-custom-svm}
+### SVM
 
 Let's cross-validate a support-vector machine using the `svm()` function from the `e1071` package.
 First, we will create a model function. You can do anything you want inside it, as long as it takes the arguments `train_data`, `formula`, and `hyperparameters` and returns a fitted model object.
@@ -404,7 +404,7 @@ CV6 <- cross_validate_fn(data = data,
 CV6
 ```
 
-### Naive Bayes {#cv-custom-naive}
+### Naive Bayes
 
 Let's try with a Naive Bayes classifier as well. First, we will define the model function:
 
@@ -491,11 +491,11 @@ challenging %>% kable()
 ```
 
 
-## Evaluating predictions {#evaluate}
+## Evaluating predictions
 
 We can also evaluate predictions from a model trained outside `cvms`. This works with regression (`gaussian`), binary classification (`binomial`), and multiclass classification (`multinomial`). The following is an example of multinomial evaluation.
 
-### Multinomial evaluation {#evaluate-multinomial}
+### Multinomial evaluation
 
 We start by creating a dataset with 3 predictors and a target column. Partition it with `groupdata2::partition()` to create a training set and a validation set. `multiclass_probability_tibble()` is a simple helper function for generating random tibbles.
 
@@ -567,7 +567,7 @@ ev$`Class Level Results`
 ```
 
 
-## Baseline evaluations {#baseline}
+## Baseline evaluations
 
 While it's common to find the chance-level baseline analytically (in classification tasks), it's often possible to get a better evaluation than that by chance. Hence, it is useful to check the range of our metrics when randomly guessing the probabilities. 
 
@@ -590,7 +590,7 @@ test_set <- partitions[[2]]
 ```
 
 
-### Binomial baseline {#baseline-binomial}
+### Binomial baseline
 
 Approach: `n` random sets of predictions are evaluated against the dependent variable in the test set. We also evaluate a set of all `0`s and a set of all `1`s.
 
@@ -626,7 +626,7 @@ plot_metric_density(baseline = random_evaluations,
 ```
 
 
-### Multinomial baseline {#baseline-multinomial}
+### Multinomial baseline
 
 Approach: Creates one-vs-all (binomial) baseline evaluations for `n` sets of random predictions against the dependent variable, along with sets of `all class x,y,z,...` predictions.
 
@@ -657,7 +657,7 @@ multiclass_baseline$random_evaluations
 
 ```
 
-### Gaussian baseline {#baseline-gaussian}
+### Gaussian baseline
 
 Approach: The baseline model `(y ~ 1)`, where `1` is simply the intercept (i.e. mean of `y`), is fitted on `n` random subsets of the training set and evaluated on the test set. We also perform an evaluation of the model fitted on the entire training set.
 
@@ -690,7 +690,7 @@ plot_metric_density(baseline = gaussian_baseline$random_evaluations,
 
 In this instance, the `All_rows` row might have been enough, as the subsets mainly add higher `RMSE` scores.
 
-## Generate model formulas {#generate-formulas}
+## Generate model formulas
 
 Instead of manually typing all possible model formulas for a set of fixed effects (including the possible interactions), `combine_predictors()` can do it for you (with some constraints). 
 

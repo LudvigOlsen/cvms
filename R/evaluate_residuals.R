@@ -213,7 +213,8 @@ residual_metrics <- function(predictions, targets, na.rm = TRUE, return_nas = FA
     rse <- tse / sum(square_targets_centered)
     # root relative squared error
     rrse <- sqrt(rse)
-    # absolute percentage error
+    # absolute percentage errors
+    # Note: Wiki has percentage error be ((y-p)/y) but we have ((p-y)/y)
     ape <- abs(residuals__ / targets)
     # mean absolute percentage error
     mape <- mean(ape)

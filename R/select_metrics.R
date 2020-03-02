@@ -39,11 +39,8 @@ select_metrics <- function(results, include_definitions = TRUE,
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
 
-  if ("Random" %in% colnames(results)) {
-    model_formula_cols <- c("Dependent", "Fixed", "Random")
-  } else {
-    model_formula_cols <- c("Dependent", "Fixed")
-  }
+  model_formula_cols <- c("Dependent", "Fixed", "Random", "HParams")
+  model_formula_cols <- intersect(model_formula_cols, colnames(results))
 
   # TODO What about "Convergence Warnings"? People should be aware of this!
 

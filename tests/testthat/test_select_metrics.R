@@ -152,22 +152,22 @@ test_that("select_metrics() works with output from cross-validation", {
   # Testing column names
   expect_equal(
     names(gaussian_metrics),
-    c("Fixed", "RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD", "RMSLE", "MALE", "RAE", "RSE", "RRSE", "MAPE", "MSE", "TAE", "TSE", "r2m", "r2c", "AIC", "AICc", "BIC", "Dependent", "Random"),
+    c("Fixed", "RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD", "RMSLE", "MALE", "RAE", "RSE", "RRSE", "MAPE", "MSE", "TAE", "TSE", "r2m", "r2c", "AIC", "AICc", "BIC", "Dependent", "Random", "HParams"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
     unlist(lapply(gaussian_metrics, class), use.names = FALSE),
-    c("character", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "character", "character"),
+    c("character", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "character", "character", "list"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     unlist(lapply(gaussian_metrics, typeof), use.names = FALSE),
-    c("character", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "character", "character"),
+    c("character", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "character", "character", "list"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
     dim(gaussian_metrics),
-    c(1L, 22L))
+    c(1L, 23L))
   # Testing group keys
   expect_equal(
     colnames(dplyr::group_keys(gaussian_metrics)),
@@ -515,30 +515,31 @@ test_that("select_metrics() works with output from cross-validation", {
       "False Pos Rate", "Weighted False Pos Rate", "False Discovery Rate",
       "Weighted False Discovery Rate", "False Omission Rate",
       "Weighted False Omission Rate", "Threat Score", "Weighted Threat Score",
-      "AIC", "AICc", "BIC", "Dependent", "Random"),
+      "AIC", "AICc", "BIC", "Dependent", "Random", "HParams"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
     xpectr::smpl(unlist(lapply(multinomial_metrics, class), use.names = FALSE), n = 30),
-    c("numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
-      "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
-      "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
-      "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
-      "numeric", "numeric", "numeric", "numeric", "character"),
+    c("numeric", "numeric", "numeric", "numeric", "numeric",
+      "numeric", "numeric", "numeric", "numeric", "numeric",
+      "numeric", "numeric", "numeric", "numeric", "numeric",
+      "numeric", "numeric", "numeric", "numeric", "numeric",
+      "numeric", "numeric", "numeric", "numeric", "numeric",
+      "numeric", "numeric", "character", "character", "list"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::smpl(unlist(lapply(multinomial_metrics, typeof), use.names = FALSE), n = 30),
-    c("double", "double", "double", "double", "double", "double", "double", "double",
+    c("double", "double", "double", "double", "double", "double",
       "double", "double", "double", "double", "double", "double", "double",
       "double", "double", "double", "double", "double", "double", "double",
       "double", "double", "double", "double", "double", "double", "double",
-      "character"),
+      "character", "character", "list"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
     dim(multinomial_metrics),
-    c(1L, 42L))
+    c(1L, 43L))
   # Testing group keys
   expect_equal(
     colnames(dplyr::group_keys(multinomial_metrics)),

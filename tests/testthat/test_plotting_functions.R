@@ -45,7 +45,7 @@ test_that("plot_confusion_matrix() returns expected plots", {
     p1$labels,
     list(
       x = "Target", y = "Prediction",
-      fill = "N", label = "N", image = "down_icon"
+      fill = "N", label = "N", image = ".data$down_icon"
     )
   )
 
@@ -149,7 +149,7 @@ test_that("plot_confusion_matrix() with multiclass conf mat returns expected plo
     p1$labels,
     list(
       x = "Target", y = "Prediction",
-      fill = "N", label = "N", image = "down_icon"
+      fill = "N", label = "N", image = ".data$down_icon"
     )
   )
 
@@ -189,7 +189,7 @@ test_that("plot_confusion_matrix() with multiclass conf mat returns expected plo
     list(
       x = "Target", y = "Prediction",
       fill = "N", label = "N",
-      image = "image_skewed_lines"
+      image = ".data$image_skewed_lines"
     )
   )
 
@@ -219,7 +219,7 @@ test_that("plot_confusion_matrix() with multiclass conf mat returns expected plo
     list(
       x = "Target", y = "Prediction",
       fill = "N", label = "N",
-      image = "image_skewed_lines"
+      image = ".data$image_skewed_lines"
     )
   )
 

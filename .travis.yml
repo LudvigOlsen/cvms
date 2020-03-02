@@ -17,3 +17,11 @@ matrix:
     name: release osx
   - r: oldrel
 
+addons:
+  apt:
+    update: true
+    sources:
+      - sourceline: 'ppa:opencpu/imagemagick'
+  packages:
+    - libmagick++-dev
+

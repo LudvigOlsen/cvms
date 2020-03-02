@@ -217,7 +217,7 @@ most_challenging_classification <- function(data,
       !!!rlang::syms(colnames(grouping_keys)),
       .data$Accuracy
     ) %>%
-    dplyr::rename(`<=` = Threshold)
+    dplyr::rename(`<=` = .data$Threshold)
 }
 
 
@@ -275,7 +275,7 @@ most_challenging_gaussian <- function(data,
       !!!rlang::syms(colnames(grouping_keys)),
       dplyr::desc(.data$RMSE), dplyr::desc(.data$MAE)
     ) %>%
-    dplyr::rename(`>=` = Threshold)
+    dplyr::rename(`>=` = .data$Threshold)
 }
 
 # TODO add tests

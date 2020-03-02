@@ -421,7 +421,7 @@ plot_confusion_matrix <- function(conf_matrix,
 
   if (any(cm[["N"]] == 0)){
     pl <- pl + ggimage::geom_image(
-      ggplot2::aes(image=image_skewed_lines),
+      ggplot2::aes(image=.data$image_skewed_lines),
       by = "height", size = 0.90/sqrt(nrow(cm)))
   }
 
@@ -514,14 +514,14 @@ plot_confusion_matrix <- function(conf_matrix,
   if (isTRUE(add_col_percentages) && isTRUE(add_arrows)){
     pl <- pl +
       ggimage::geom_icon(
-        ggplot2::aes(image = down_icon),
+        ggplot2::aes(image = .data$down_icon),
         by = "height",
         size = arrow_size,
         nudge_x = font_col_percentages[["nudge_x"]],
         nudge_y = font_col_percentages[["nudge_y"]] - arrow_nudge_from_text
       ) +
       ggimage::geom_icon(
-        ggplot2::aes(image = up_icon),
+        ggplot2::aes(image = .data$up_icon),
         by = "height",
         size = arrow_size,
         nudge_x = font_col_percentages[["nudge_x"]],
@@ -533,7 +533,7 @@ plot_confusion_matrix <- function(conf_matrix,
   if (isTRUE(add_row_percentages) && isTRUE(add_arrows)){
     pl <- pl +
       ggimage::geom_icon(
-        ggplot2::aes(image = right_icon),
+        ggplot2::aes(image = .data$right_icon),
         by = "height",
         size = arrow_size,
         nudge_x = font_row_percentages[["nudge_x"]] +
@@ -541,7 +541,7 @@ plot_confusion_matrix <- function(conf_matrix,
         nudge_y = font_row_percentages[["nudge_y"]]
       ) +
       ggimage::geom_icon(
-        ggplot2::aes(image = left_icon),
+        ggplot2::aes(image = .data$left_icon),
         by = "height",
         size = arrow_size,
         nudge_x = font_row_percentages[["nudge_x"]] - arrow_nudge_from_text,

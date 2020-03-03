@@ -56,7 +56,8 @@ test_that("softmax() works", {
     "l1" = c(2, 57, 76, 23, 65, 0.3, 65.3),
     "l2" = c(5, 2, 45,-10,-42, 23, 56.2),
     "l3" = c(42, 12.6, 21, 43.2, 1, 0, 98),
-    "c1" = c("a", "b", "c", "d", "e", "f", "g")
+    "c1" = factor(c("a", "b", "c", "d", "e", "f", "g"),
+                  levels = c("a", "b", "c", "d", "e", "f", "g"))
   )
 
   vector_softmax <- function(...){
@@ -69,15 +70,15 @@ test_that("softmax() works", {
     dplyr::mutate(l1 = vector_softmax(l1),
                   l2 = vector_softmax(l2),
                   l3 = vector_softmax(l3))
-  expect_equal(as.data.frame(softmax(df, cols = c("l1", "l2", "l3"), axis = "c")),
-               as.data.frame(df_colwise_softmaxed))
+  expect_equal(as.data.frame(softmax(df, cols = c("l1", "l2", "l3"), axis = "c"), stringsAsFactors=TRUE),
+               as.data.frame(df_colwise_softmaxed), stringsAsFactors=TRUE)
 
   df_rowwise_softmaxed <- plyr::ldply(seq_len(nrow(df)), function(r){
     vector_softmax(unlist(df[r,c("l1","l2","l3")], recursive = TRUE, use.names = TRUE))
   }) %>% dplyr::as_tibble() %>%
     dplyr::mutate(c1 = df$c1)
-  expect_equal(as.data.frame(softmax(df, cols = c("l1", "l2", "l3"), axis = "r")),
-               as.data.frame(df_rowwise_softmaxed))
+  expect_equal(as.data.frame(softmax(df, cols = c("l1", "l2", "l3"), axis = "r"), stringsAsFactors=TRUE),
+               as.data.frame(df_rowwise_softmaxed), stringsAsFactors=TRUE)
 
   ## Test with gxs_function
 

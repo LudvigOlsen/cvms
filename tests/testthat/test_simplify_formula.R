@@ -258,18 +258,14 @@ test_that("correct outputs with simplify_formula()", {
   # Testing side effects
   expect_error(
     xpectr::strip_msg(simplify_formula(formula = "a * b + (1|c) ~ ", data = df, string_out = TRUE)),
-    xpectr::strip(paste0("Could not convert 'formula' to a formula object. Got error:",
-           "\n  Error in parse(text = x, keep.source = FALSE): <text>:2:0",
-           ": unexpected end of input\n1: a * b + (1|c) ~ \n   ^\n")),
+    xpectr::strip(paste0("Could not convert 'formula' to a formula object. Got error:")),
     fixed = TRUE)
 
   # Testing simplify_formula(formula = "a * b", data = df,...
   # Testing side effects
   expect_error(
     xpectr::strip_msg(simplify_formula(formula = "a * b", data = df, string_out = TRUE)),
-    xpectr::strip(paste0("Could not convert 'formula' to a formula object. Got error:",
-           "\n  Error in eval(parse(text = x, keep.source = FALSE)[[1L]])",
-           ": object 'a' not found\n")),
+    xpectr::strip(paste0("Could not convert 'formula' to a formula object. Got error:")),
     fixed = TRUE)
 
   # Testing simplify_formula(formula = "y ~ 1", data = df,...

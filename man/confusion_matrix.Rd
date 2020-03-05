@@ -123,10 +123,12 @@ Tbl (tibble) with:
  Calculates associated metrics.
 
  Multiclass results are based on one-vs-all evaluations.
- Both regular averaging and weighted averaging are available. Also calculates the overall accuracy.
+ Both regular averaging and weighted averaging are available. Also calculates the \code{Overall Accuracy}.
 
- \strong{Note}: Used in \code{\link[cvms:evaluate]{evaluate()}}.
- In most contexts, that is the function you want.
+ \strong{Note}: In most cases you should use \code{\link[cvms:evaluate]{evaluate()}} instead. It has additional metrics and
+ works in \code{magrittr} pipes (e.g. \code{\%>\%}) and with \code{\link[dplyr:group_by]{dplyr::group_by()}}.
+ \code{confusion_matrix()} is more lightweight and may be preferred in programming when you don't need the extra stuff
+ in \code{\link[cvms:evaluate]{evaluate()}}.
 }
 \details{
 The following formulas are used for calculating the metrics:

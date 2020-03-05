@@ -29,6 +29,10 @@
 #'
 #'  As created with the various evaluation functions in \code{cvms}, like
 #'  \code{\link[cvms:evaluate]{evaluate()}}.
+#'
+#'  \strong{Note}: If you supply the results from \code{\link[cvms:evaluate]{evaluate()}}
+#'  or \code{\link[cvms:confusion_matrix]{confusion_matrix()}} directly,
+#'  the confusion matrix tibble is extracted automatically, if possible.
 #' @param targets_col Name of column with target levels.
 #' @param predictions_col Name of column with prediction levels.
 #' @param counts_col Name of column with a count for each combination
@@ -45,6 +49,7 @@
 #'
 #'  By default, the row percentage is placed at the bottom of the tile.
 #' @param add_arrows Add the arrows to the row and col percentages. (Logical)
+#' @param add_zero_shading Add image of skewed lines to zero-tiles. (Logical)
 #' @param counts_on_top Switch the counts and normalized counts,
 #'  such that the counts are on top. (Logical)
 #' @param rotate_y_text Whether to rotate the y-axis text to
@@ -61,17 +66,6 @@
 #'
 #'  Passed to \code{\link[ggimage:geom_icon]{ggimage::geom_icon()}}.
 #' @param arrow_nudge_from_text Distance from the percentage text to the arrow. (Numeric)
-#' @param arrow_icons Named list of icon names. Find icons at https://ionicons.com/
-#'
-#'  Icons are inserted with \code{\link[ggimage:geom_icon]{ggimage::geom_icon()}}.
-#'
-#'  Should contain the following elements: \code{"up"}, \code{"down"}, \code{"left"}, \code{"right"}.
-#'
-#'  The default is:
-#'
-#'  \code{
-#'  arrow_icons = list("up" = "caret-up-sharp", "down" = "caret-down-sharp",
-#'  "left" = "caret-back-sharp", "right" = "caret-forward-sharp")}
 #' @param digits Number of digits to round to (percentages only).
 #'  Set to a negative number for no rounding.
 #'
@@ -79,6 +73,10 @@
 #'  \code{font_counts}, \code{font_normalized}, \code{font_row_percentages} and \code{font_col_percentages} arguments.
 #' @param palette Color scheme. Passed directly to \code{palette} in
 #'  \code{\link[ggplot2:scale_fill_distiller]{ggplot2::scale_fill_distiller}}.
+#'
+#'  Try these palettes: \code{"Greens"}, \code{"Oranges"},
+#'  \code{"Greys"}, \code{"Purples"}, \code{"Reds"},
+#'  as well as the default \code{"Blues"}.
 #' @param tile_border_color Color of the tile borders. Passed as \emph{\code{colour}} to
 #' \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.
 #' @param tile_border_size Size of the tile borders. Passed as \emph{\code{size}} to
@@ -95,50 +93,96 @@
 #' @details
 #'  Inspired by Antoine Sachet's answer at https://stackoverflow.com/a/53612391/11832955
 #' @return
-#'  A ggplot2 object representing a confusion matrix. Color intensity depends on the counts.
+#'  A \code{ggplot2} object representing a confusion matrix. Color intensity depends on the counts.
 #'
 #'  By default, each tile has the normalized count
 #'  (overall percentage) and count in the middle, the
 #'  column percentage at the bottom, and the
 #'  row percentage to the right and rotated 90 degrees.
 #'
-#'  In the "correct" diagonal (upper left to bottom right),
+#'  In the "correct" diagonal (upper left to bottom right, by default),
 #'  the column percentages are the class-level sensitivity scores,
 #'  while the row percentages are the class-level positive predictive values.
 #' @examples
 #' # Attach cvms
 #' library(cvms)
+#' library(ggplot2)
 #'
 #' # Two classes
 #'
-#' # Create targets and predictions
-#' targets <- c(0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1)
-#' predictions <- c(1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0)
+#' # Create targets and predictions data frame
+#' data <- data.frame(
+#'   "target" = c("A", "B", "A", "B", "A", "B", "A", "B", "A", "B", "A", "B"),
+#'   "prediction" = c("B", "B", "A", "A", "A", "B", "B", "B", "A", "B", "A", "A"),
+#'   stringsAsFactors = FALSE
+#' )
 #'
-#' # Create confusion matrix with default metrics
-#' cm <- confusion_matrix(targets, predictions)
-#' cm[["Confusion Matrix"]]
+#' # Evaluate predictions and create confusion matrix
+#' eval <- evaluate(
+#'   data = data,
+#'   target_col = "target",
+#'   prediction_cols = "prediction",
+#'   type = "binomial"
+#' )
 #'
-#' plot_confusion_matrix(cm[["Confusion Matrix"]][[1]])
+#' # Inspect confusion matrix tibble
+#' eval[["Confusion Matrix"]][[1]]
+#'
+#' # Plot confusion matrix
+#' # Supply confusion matrix tibble directly
+#' plot_confusion_matrix(eval[["Confusion Matrix"]][[1]])
+#' # Plot first confusion matrix in evaluate() output
+#' plot_confusion_matrix(eval)
 #'
 #' # Three (or more) classes
 #'
-#' # Create targets and predictions
-#' targets <- c(0, 1, 2, 1, 0, 1, 2, 1, 0, 1, 2, 1, 0)
-#' predictions <- c(2, 1, 0, 2, 0, 1, 1, 2, 0, 1, 2, 0, 2)
+#' # Create targets and predictions data frame
+#' data <- data.frame(
+#'   "target" = c("A", "B", "C", "B", "A", "B",
+#'                "C", "B", "A", "B", "C", "B", "A"),
+#'   "prediction" = c("C", "B", "A", "C", "A", "B", "B",
+#'                    "C", "A", "B", "C", "A", "C"),
+#'   stringsAsFactors = FALSE
+#' )
 #'
-#' # Create confusion matrix with default metrics
-#' cm <- confusion_matrix(targets, predictions)
-#' cm[["Confusion Matrix"]]
+#' # Evaluate predictions and create confusion matrix
+#' eval <- evaluate(
+#'   data = data,
+#'   target_col = "target",
+#'   prediction_cols = "prediction",
+#'   type = "multinomial"
+#' )
 #'
-#' plot_confusion_matrix(cm[["Confusion Matrix"]][[1]])
+#' # Inspect confusion matrix tibble
+#' eval[["Confusion Matrix"]][[1]]
+#'
+#' # Plot confusion matrix
+#' # Supply confusion matrix tibble directly
+#' plot_confusion_matrix(eval[["Confusion Matrix"]][[1]])
+#' # Plot first confusion matrix in evaluate() output
+#' plot_confusion_matrix(eval)
 #'
 #' # Counts only
-#' plot_confusion_matrix(cm[["Confusion Matrix"]][[1]],
+#' plot_confusion_matrix(
+#'   eval[["Confusion Matrix"]][[1]],
 #'   add_normalized = FALSE,
 #'   add_row_percentages = FALSE,
 #'   add_col_percentages = FALSE
 #' )
+#'
+#' # Change color palette to green
+#' # Change theme to \code{theme_light}.
+#' plot_confusion_matrix(
+#'   eval[["Confusion Matrix"]][[1]],
+#'   palette = "Greens",
+#'   theme_fn = ggplot2::theme_light
+#' )
+#'
+#' # The output is a ggplot2 object
+#' # that you can add layers to
+#' # Here we change the axis labels
+#' plot_confusion_matrix(eval[["Confusion Matrix"]][[1]]) +
+#'   ggplot2::labs(x = "True", y = "Guess")
 plot_confusion_matrix <- function(conf_matrix,
                                   targets_col = "Target",
                                   predictions_col = "Prediction",
@@ -148,9 +192,10 @@ plot_confusion_matrix <- function(conf_matrix,
                                   add_row_percentages = TRUE,
                                   add_col_percentages = TRUE,
                                   add_arrows = TRUE,
+                                  add_zero_shading = TRUE,
                                   counts_on_top = FALSE,
-                                  palette = "Greens",
-                                  theme_fn = ggplot2::theme_light,
+                                  palette = "Blues",
+                                  theme_fn = ggplot2::theme_minimal,
                                   place_x_axis_above = TRUE,
                                   rotate_y_text = TRUE,
                                   digits = 1,
@@ -160,11 +205,20 @@ plot_confusion_matrix <- function(conf_matrix,
                                   font_col_percentages = font(),
                                   arrow_size = 0.048/sqrt(nrow(conf_matrix)),
                                   arrow_nudge_from_text = 0.065,
-                                  arrow_icons = NULL,
                                   tile_border_color = NA,
                                   tile_border_size = 0.1,
                                   tile_border_linetype = "solid",
                                   darkness = 0.8) {
+
+  if (length(intersect(class(conf_matrix), c("cfm_results", "eval_results"))) > 0 &&
+      "Confusion Matrix" %in% colnames(conf_matrix) &&
+      nrow(conf_matrix) > 0){
+    if (nrow(conf_matrix) > 1){
+      warning(paste0("'conf_matrix' has more than one row. Extracting first confu",
+                     "sion matrix with 'conf_matrix[['Confusion Matrix']][[1]]'."))
+    }
+    conf_matrix <- conf_matrix[["Confusion Matrix"]][[1]]
+  }
 
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
@@ -189,7 +243,7 @@ plot_confusion_matrix <- function(conf_matrix,
   checkmate::assert_flag(x = add_normalized, add = assert_collection)
   checkmate::assert_flag(x = add_row_percentages, add = assert_collection)
   checkmate::assert_flag(x = add_col_percentages, add = assert_collection)
-  checkmate::assert_flag(x = add_arrows, add = assert_collection)
+  checkmate::assert_flag(x = add_zero_shading, add = assert_collection)
   checkmate::assert_flag(x = counts_on_top, add = assert_collection)
   checkmate::assert_flag(x = place_x_axis_above, add = assert_collection)
   checkmate::assert_flag(x = rotate_y_text, add = assert_collection)
@@ -209,8 +263,6 @@ plot_confusion_matrix <- function(conf_matrix,
   checkmate::assert_list(x = font_normalized, names = "named", add = assert_collection)
   checkmate::assert_list(x = font_row_percentages, names = "named", add = assert_collection)
   checkmate::assert_list(x = font_col_percentages, names = "named", add = assert_collection)
-  checkmate::assert_list(x = arrow_icons, names = "named", null.ok = TRUE,
-                         add = assert_collection)
 
   checkmate::reportAssertions(assert_collection)
 
@@ -241,19 +293,6 @@ plot_confusion_matrix <- function(conf_matrix,
     subset.of = available_font_settings,
     add = assert_collection
   )
-
-  if (!is.null(arrow_icons)){
-    checkmate::assert_names(
-      x = names(arrow_icons),
-      must.include = c("up", "down", "left", "right"),
-      add = assert_collection
-    )
-  } else {
-    arrow_icons <- list("up" = "caret-up-sharp",
-                        "down" = "caret-down-sharp",
-                        "left" = "caret-back-sharp",
-                        "right" = "caret-forward-sharp")
-  }
 
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
@@ -319,6 +358,12 @@ plot_confusion_matrix <- function(conf_matrix,
     }
   ))
 
+  # Arrow icons # TODO should be svg images within the package instead!
+  arrow_icons <- list("up" = "caret-up-sharp",
+                      "down" = "caret-down-sharp",
+                      "left" = "caret-back-sharp",
+                      "right" = "caret-forward-sharp")
+
   #### Prepare dataset ####
 
   # Extract needed columns
@@ -334,12 +379,15 @@ plot_confusion_matrix <- function(conf_matrix,
   cm[["Normalized_text"]] <- preprocess_numeric(cm[["Normalized"]], font_normalized)
 
   # Add icons depending on where the tile will be in the image
-  cm <- set_arrows(cm, place_x_axis_above = place_x_axis_above, icons = arrow_icons)
+  cm <- set_arrows(cm, place_x_axis_above = place_x_axis_above,
+                   icons = arrow_icons)
 
-  # Add image path for skewed lines for when there's an N=0
-  cm[["image_skewed_lines"]] <- ifelse(cm[["N"]] == 0,
-                                       get_figure_path("skewed_lines.svg"),
-                                       get_figure_path("empty_square.svg"))
+  if (isTRUE(add_zero_shading)){
+    # Add image path for skewed lines for when there's an N=0
+    cm[["image_skewed_lines"]] <- ifelse(cm[["N"]] == 0,
+                                         get_figure_path("skewed_lines.svg"),
+                                         get_figure_path("empty_square.svg"))
+  }
 
   # Calculate column percentages
   if (isTRUE(add_col_percentages)) {
@@ -412,14 +460,20 @@ plot_confusion_matrix <- function(conf_matrix,
     ) +
     # Remove the guide
     ggplot2::guides(fill = F) +
-    # Rotate y-axis text
-    ggplot2::theme(axis.text.y = ggplot2::element_text(
-      angle = ifelse(isTRUE(rotate_y_text), 90, 0),
-      hjust = ifelse(isTRUE(rotate_y_text), 0.5, 1),
-      vjust = ifelse(isTRUE(rotate_y_text), 0.5, 0)
-    ))
+    ggplot2::theme(
+      # Rotate y-axis text
+      axis.text.y = ggplot2::element_text(
+        angle = ifelse(isTRUE(rotate_y_text), 90, 0),
+        hjust = ifelse(isTRUE(rotate_y_text), 0.5, 1),
+        vjust = ifelse(isTRUE(rotate_y_text), 0.5, 0)
+      ),
+      # Add margin to axis labels
+      axis.title.y = ggplot2::element_text(margin = ggplot2::margin(0, 6, 0, 0)),
+      axis.title.x.top = ggplot2::element_text(margin = ggplot2::margin(0, 0, 6, 0)),
+      axis.title.x.bottom = ggplot2::element_text(margin = ggplot2::margin(6, 0, 0, 0))
+    )
 
-  if (any(cm[["N"]] == 0)){
+  if (isTRUE(add_zero_shading) && any(cm[["N"]] == 0)){
     pl <- pl + ggimage::geom_image(
       ggplot2::aes(image=.data$image_skewed_lines),
       by = "height", size = 0.90/sqrt(nrow(cm)))

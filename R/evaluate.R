@@ -37,7 +37,7 @@
 #'  }
 #'  \subsection{Classes}{
 #'
-#'  A single column with the predicted classes. E.g.:
+#'  A single column of type \code{character} with the predicted classes. E.g.:
 #'
 #'  \tabular{rrrrr}{
 #'   \strong{prediction} \tab \strong{target}\cr
@@ -49,8 +49,10 @@
 #'  }
 #'  }
 #'  \subsection{Binomial}{
-#'  When \code{type} is \code{"binomial"}, the predictions should be passed as
-#'  one column with the probability of class being
+#'  When \code{type} is \code{"binomial"}, the predictions can be passed in one of two formats.
+#'
+#'  \subsection{Probabilities (Preferable)}{
+#'  One column with the probability of class being
 #'  the second class alphabetically
 #'  (1 if classes are 0 and 1). E.g.:
 #'
@@ -60,6 +62,23 @@
 #'   0.368 \tab 1\cr
 #'   0.375 \tab 0\cr
 #'   ... \tab ...}
+#'  }
+#'
+#'  \subsection{Classes}{
+#'
+#'  A single column of type \code{character} with the predicted classes. E.g.:
+#'
+#'  \tabular{rrrrr}{
+#'   \strong{prediction} \tab \strong{target}\cr
+#'   class_0 \tab class_1\cr
+#'   class_1 \tab class_1\cr
+#'   class_1 \tab class_0\cr
+#'   ... \tab ...}
+#'  }
+#'
+#'  Note: The prediction column will be converted to the probability \code{0.0}
+#'  for the first class alphabetically and \code{1.0} for
+#'  the second class alphabetically.
 #'  }
 #'  \subsection{Gaussian}{
 #'  When \code{type} is \code{"gaussian"}, the predictions should be passed as
@@ -78,8 +97,8 @@
 #'  not their indices.
 #' @param prediction_cols Name(s) of column(s) with the predictions.
 #'
-#'  When evaluating a classification task,
-#'  the column(s) should contain the predicted probabilities.
+#'  Columns can be either numeric or character depending on which format is chosen.
+#'  See \code{data} for the possible formats.
 #' @param id_col Name of ID column to aggregate predictions by.
 #'
 #'  N.B. Current methods assume that the target class/value is constant within the IDs.
@@ -444,7 +463,7 @@ evaluate <- function(data,
     dplyr::as_tibble() %>% # removes grouping
     dplyr::group_by_at(colnames(dplyr::group_keys(data)))
 
-  run_evaluate(
+  eval <- run_evaluate(
     data = data,
     target_col = target_col,
     prediction_cols = prediction_cols,
@@ -460,6 +479,10 @@ evaluate <- function(data,
     parallel = parallel,
     caller = "evaluate()"
   )
+
+  # Set extra class
+  class(eval) <- c("eval_results", class(eval))
+  eval
 }
 
 run_evaluate <- function(data,
@@ -617,6 +640,21 @@ run_evaluate <- function(data,
   # One-hot encode predicted classes, if multinomial
   # and prediction_cols is one column with classes
   if (type == "multinomial" && length(prediction_cols) == 1) {
+    if (!is.character(data[[target_col]]) ||
+        !is.character(data[[prediction_cols]])){
+      assert_collection$push(paste0(
+        "When 'type' is 'multinomial' and 'prediction_cols' has length",
+        " 1, both 'data[[target_col]]' and 'data[[prediction_cols]]' must",
+        " have type character."))
+    }
+    if (isTRUE(apply_softmax)) {
+      assert_collection$push(paste0(
+        "When passing 'prediction_cols' as single column with multiple classes, ",
+        "'apply_softmax' should be 'FALSE'."
+      ))
+    }
+    checkmate::reportAssertions(assert_collection)
+
     # Extract the categorical levels in both target and prediction cols
     c_levels <- union(data[[target_col]], data[[prediction_cols]])
     data <- one_hot_encode(data, prediction_cols,
@@ -624,12 +662,41 @@ run_evaluate <- function(data,
       use_epsilon = FALSE
     )
     prediction_cols <- sort(c_levels)
+  }
 
-    if (isTRUE(apply_softmax)) {
-      stop(paste0(
-        "When passing 'prediction_cols' as single column with multiple classes, ",
-        "'apply_softmax' should be FALSE."
-      ))
+  if (type == "binomial"){
+
+    if (!(is.numeric(data[[prediction_cols]]) ||
+          is.character(data[[prediction_cols]]))){
+      assert_collection$push(
+        paste0("When 'type' is 'binomial', 'data[[prediction_cols]]' mus",
+               "t be either numeric or character."))
+    }
+
+    if (is.numeric(data[[prediction_cols]]) && (
+        max(data[[prediction_cols]]) > 1 ||
+        min(data[[prediction_cols]]) < 0)) {
+      assert_collection$push(
+        paste0(
+          "When 'type' is 'binomial' and 'data[[prediction_cols]]' ",
+          "is numeric, the values in 'data[[prediction_cols]]' must be b",
+          "etween 0 and 1."
+        ))
+    }
+    checkmate::reportAssertions(assert_collection)
+
+    if (is.character(data[[prediction_cols]])){
+      c_levels <- sort(union(data[[target_col]], data[[prediction_cols]]))
+      if (length(c_levels) != 2){
+        assert_collection$push(paste0("When 'type' is 'binomial' and 'data[[prediction_cols]]' ",
+                                      "has type character, the target and prediction columns must h",
+                                      "ave exactly 2 unique values combined. ",
+                                      "Did you mean to use type='multinomial'?"))
+        checkmate::reportAssertions(assert_collection)
+      }
+      # Replace with probabilities (1.0 or 0.0)
+      data[[prediction_cols]] <- ifelse(data[[prediction_cols]] == c_levels[[2]],
+                                        1.0, 0.0)
     }
   }
 

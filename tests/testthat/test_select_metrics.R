@@ -1026,7 +1026,7 @@ test_that("select_metrics() works with output from evaluate", {
     metrics = "all"
   )
   evl_multinom <- evaluate(
-    musicians %>% dplyr::mutate(Pred = sample(Class)),
+    musicians %>% dplyr::mutate(Class = as.character(Class), Pred = sample(Class)),
     target_col = "Class",
     prediction_cols = "Pred",
     type = "multinomial",
@@ -1044,7 +1044,7 @@ test_that("select_metrics() works with output from evaluate", {
   # Testing class
   expect_equal(
     class(gaussian_metrics),
-    c("tbl_df", "tbl", "data.frame"),
+    c("eval_results", "tbl_df", "tbl", "data.frame"),
     fixed = TRUE)
   # Testing column values
   expect_equal(
@@ -1134,7 +1134,7 @@ test_that("select_metrics() works with output from evaluate", {
   # Testing class
   expect_equal(
     class(binomial_metrics),
-    c("tbl_df", "tbl", "data.frame"),
+    c("eval_results", "tbl_df", "tbl", "data.frame"),
     fixed = TRUE)
   # Testing column values
   expect_equal(
@@ -1248,7 +1248,7 @@ test_that("select_metrics() works with output from evaluate", {
   # Testing class
   expect_equal(
     class(multinomial_metrics),
-    c("tbl_df", "tbl", "data.frame"),
+    c("eval_results", "tbl_df", "tbl", "data.frame"),
     fixed = TRUE)
   # Testing column values
   expect_equal(
@@ -1546,7 +1546,7 @@ test_that("select_metrics() works with confusion matrix", {
   # Testing class
   expect_equal(
     class(binomial_metrics),
-    c("tbl_df", "tbl", "data.frame"),
+    c("cfm_results", "cfm_binomial", "tbl_df", "tbl", "data.frame"),
     fixed = TRUE)
   # Testing column values
   expect_equal(
@@ -1648,7 +1648,7 @@ test_that("select_metrics() works with confusion matrix", {
   # Testing class
   expect_equal(
     class(multinomial_metrics),
-    c("tbl_df", "tbl", "data.frame"),
+    c("cfm_results", "cfm_multinomial", "tbl_df", "tbl", "data.frame"),
     fixed = TRUE)
   # Testing column values
   expect_equal(

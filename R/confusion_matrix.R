@@ -7,10 +7,12 @@
 #'  Calculates associated metrics.
 #'
 #'  Multiclass results are based on one-vs-all evaluations.
-#'  Both regular averaging and weighted averaging are available. Also calculates the overall accuracy.
+#'  Both regular averaging and weighted averaging are available. Also calculates the \code{Overall Accuracy}.
 #'
-#'  \strong{Note}: Used in \code{\link[cvms:evaluate]{evaluate()}}.
-#'  In most contexts, that is the function you want.
+#'  \strong{Note}: In most cases you should use \code{\link[cvms:evaluate]{evaluate()}} instead. It has additional metrics and
+#'  works in \code{magrittr} pipes (e.g. \code{\%>\%}) and with \code{\link[dplyr:group_by]{dplyr::group_by()}}.
+#'  \code{confusion_matrix()} is more lightweight and may be preferred in programming when you don't need the extra stuff
+#'  in \code{\link[cvms:evaluate]{evaluate()}}.
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
 #' @family evaluation functions
@@ -335,8 +337,12 @@ call_confusion_matrix <- function(targets,
   # Reorder metrics
   new_order <- c(setdiff(colnames(cfm), metrics),
                  intersect(metrics, colnames(cfm)))
-  cfm %>%
+  cfm <- cfm %>%
     base_select(cols = new_order)
+
+  # Set extra classes
+  class(cfm) <- c("cfm_results", class(cfm))
+  cfm
 }
 
 
@@ -384,6 +390,10 @@ create_binomial_confusion_matrix <- function(targets,
     "Table" = list(conf_mat)
   ) %>%
     dplyr::bind_cols(computed_metrics)
+
+  # Set extra classes
+  class(overall) <- c("cfm_binomial", class(overall))
+  overall
 }
 
 
@@ -500,6 +510,8 @@ create_multinomial_confusion_matrix <- function(targets,
       ))
   }
 
+  # Set extra classes
+  class(overall) <- c("cfm_multinomial", class(overall))
   overall
 }
 

@@ -101,6 +101,11 @@ These are based on the fitted model objects and will only work for some types of
 
 * `multinomial` evaluation results now contain the `Results` tibble with the results for each fold column. The main metrics are now averages of these fold column results. Previously, they were not aggregated by fold column first. In the unit tests, this has not altered the results, but it is a more correct approach.
 
+* The prediction column(s) in `evaluate()` must be either numeric or character, depending on the format chosen.
+
+* In `binomial` `evaluate()`, it's now possible to pass predicted classes instead of probabilities. Probabilities
+still carry more information though. Both the prediction and target columns must have type character in this format.
+
 * Changes the required arguments in the `predict_fn` function passed to `cross_validate_fn()`.
 
 * Changes the required arguments in the `model_fn` function passed to `cross_validate_fn()`.

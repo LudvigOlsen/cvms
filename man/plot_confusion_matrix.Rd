@@ -14,9 +14,10 @@ plot_confusion_matrix(
   add_row_percentages = TRUE,
   add_col_percentages = TRUE,
   add_arrows = TRUE,
+  add_zero_shading = TRUE,
   counts_on_top = FALSE,
-  palette = "Greens",
-  theme_fn = ggplot2::theme_light,
+  palette = "Blues",
+  theme_fn = ggplot2::theme_minimal,
   place_x_axis_above = TRUE,
   rotate_y_text = TRUE,
   digits = 1,
@@ -26,7 +27,6 @@ plot_confusion_matrix(
   font_col_percentages = font(),
   arrow_size = 0.048/sqrt(nrow(conf_matrix)),
   arrow_nudge_from_text = 0.065,
-  arrow_icons = NULL,
   tile_border_color = NA,
   tile_border_size = 0.1,
   tile_border_linetype = "solid",
@@ -48,7 +48,11 @@ targets and predictions along with their counts.
  }
 
  As created with the various evaluation functions in \code{cvms}, like
- \code{\link[cvms:evaluate]{evaluate()}}.}
+ \code{\link[cvms:evaluate]{evaluate()}}.
+
+ \strong{Note}: If you supply the results from \code{\link[cvms:evaluate]{evaluate()}}
+ or \code{\link[cvms:confusion_matrix]{confusion_matrix()}} directly,
+ the confusion matrix tibble is extracted automatically, if possible.}
 
 \item{targets_col}{Name of column with target levels.}
 
@@ -74,11 +78,17 @@ add to the middle of the tiles. (Logical)}
 
 \item{add_arrows}{Add the arrows to the row and col percentages. (Logical)}
 
+\item{add_zero_shading}{Add image of skewed lines to zero-tiles. (Logical)}
+
 \item{counts_on_top}{Switch the counts and normalized counts,
 such that the counts are on top. (Logical)}
 
 \item{palette}{Color scheme. Passed directly to \code{palette} in
-\code{\link[ggplot2:scale_fill_distiller]{ggplot2::scale_fill_distiller}}.}
+ \code{\link[ggplot2:scale_fill_distiller]{ggplot2::scale_fill_distiller}}.
+
+ Try these palettes: \code{"Greens"}, \code{"Oranges"},
+ \code{"Greys"}, \code{"Purples"}, \code{"Reds"},
+ as well as the default \code{"Blues"}.}
 
 \item{theme_fn}{The ggplot2 theme function to apply.}
 
@@ -111,18 +121,6 @@ Can be provided with \code{\link[cvms:font]{font()}}.}
 
 \item{arrow_nudge_from_text}{Distance from the percentage text to the arrow. (Numeric)}
 
-\item{arrow_icons}{Named list of icon names. Find icons at https://ionicons.com/
-
- Icons are inserted with \code{\link[ggimage:geom_icon]{ggimage::geom_icon()}}.
-
- Should contain the following elements: \code{"up"}, \code{"down"}, \code{"left"}, \code{"right"}.
-
- The default is:
-
- \code{
- arrow_icons = list("up" = "caret-up-sharp", "down" = "caret-down-sharp",
- "left" = "caret-back-sharp", "right" = "caret-forward-sharp")}}
-
 \item{tile_border_color}{Color of the tile borders. Passed as \emph{\code{colour}} to
 \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.}
 
@@ -138,14 +136,14 @@ Can be provided with \code{\link[cvms:font]{font()}}.}
  \code{\link[ggplot2:scale_fill_distiller]{ggplot2::scale_fill_distiller}}.}
 }
 \value{
-A ggplot2 object representing a confusion matrix. Color intensity depends on the counts.
+A \code{ggplot2} object representing a confusion matrix. Color intensity depends on the counts.
 
  By default, each tile has the normalized count
  (overall percentage) and count in the middle, the
  column percentage at the bottom, and the
  row percentage to the right and rotated 90 degrees.
 
- In the "correct" diagonal (upper left to bottom right),
+ In the "correct" diagonal (upper left to bottom right, by default),
  the column percentages are the class-level sensitivity scores,
  while the row percentages are the class-level positive predictive values.
 }
@@ -161,37 +159,83 @@ Inspired by Antoine Sachet's answer at https://stackoverflow.com/a/53612391/1183
 \examples{
 # Attach cvms
 library(cvms)
+library(ggplot2)
 
 # Two classes
 
-# Create targets and predictions
-targets <- c(0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1)
-predictions <- c(1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0)
+# Create targets and predictions data frame
+data <- data.frame(
+  "target" = c("A", "B", "A", "B", "A", "B", "A", "B", "A", "B", "A", "B"),
+  "prediction" = c("B", "B", "A", "A", "A", "B", "B", "B", "A", "B", "A", "A"),
+  stringsAsFactors = FALSE
+)
 
-# Create confusion matrix with default metrics
-cm <- confusion_matrix(targets, predictions)
-cm[["Confusion Matrix"]]
+# Evaluate predictions and create confusion matrix
+eval <- evaluate(
+  data = data,
+  target_col = "target",
+  prediction_cols = "prediction",
+  type = "binomial"
+)
 
-plot_confusion_matrix(cm[["Confusion Matrix"]][[1]])
+# Inspect confusion matrix tibble
+eval[["Confusion Matrix"]][[1]]
+
+# Plot confusion matrix
+# Supply confusion matrix tibble directly
+plot_confusion_matrix(eval[["Confusion Matrix"]][[1]])
+# Plot first confusion matrix in evaluate() output
+plot_confusion_matrix(eval)
 
 # Three (or more) classes
 
-# Create targets and predictions
-targets <- c(0, 1, 2, 1, 0, 1, 2, 1, 0, 1, 2, 1, 0)
-predictions <- c(2, 1, 0, 2, 0, 1, 1, 2, 0, 1, 2, 0, 2)
+# Create targets and predictions data frame
+data <- data.frame(
+  "target" = c("A", "B", "C", "B", "A", "B",
+               "C", "B", "A", "B", "C", "B", "A"),
+  "prediction" = c("C", "B", "A", "C", "A", "B", "B",
+                   "C", "A", "B", "C", "A", "C"),
+  stringsAsFactors = FALSE
+)
 
-# Create confusion matrix with default metrics
-cm <- confusion_matrix(targets, predictions)
-cm[["Confusion Matrix"]]
+# Evaluate predictions and create confusion matrix
+eval <- evaluate(
+  data = data,
+  target_col = "target",
+  prediction_cols = "prediction",
+  type = "multinomial"
+)
 
-plot_confusion_matrix(cm[["Confusion Matrix"]][[1]])
+# Inspect confusion matrix tibble
+eval[["Confusion Matrix"]][[1]]
+
+# Plot confusion matrix
+# Supply confusion matrix tibble directly
+plot_confusion_matrix(eval[["Confusion Matrix"]][[1]])
+# Plot first confusion matrix in evaluate() output
+plot_confusion_matrix(eval)
 
 # Counts only
-plot_confusion_matrix(cm[["Confusion Matrix"]][[1]],
+plot_confusion_matrix(
+  eval[["Confusion Matrix"]][[1]],
   add_normalized = FALSE,
   add_row_percentages = FALSE,
   add_col_percentages = FALSE
 )
+
+# Change color palette to green
+# Change theme to \code{theme_light}.
+plot_confusion_matrix(
+  eval[["Confusion Matrix"]][[1]],
+  palette = "Greens",
+  theme_fn = ggplot2::theme_light
+)
+
+# The output is a ggplot2 object
+# that you can add layers to
+# Here we change the axis labels
+plot_confusion_matrix(eval[["Confusion Matrix"]][[1]]) +
+  ggplot2::labs(x = "True", y = "Guess")
 }
 \seealso{
 Other plotting functions: 

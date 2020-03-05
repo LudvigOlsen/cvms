@@ -43,7 +43,7 @@ evaluate(
  }
  \subsection{Classes}{
 
- A single column with the predicted classes. E.g.:
+ A single column of type \code{character} with the predicted classes. E.g.:
 
  \tabular{rrrrr}{
   \strong{prediction} \tab \strong{target}\cr
@@ -55,8 +55,10 @@ evaluate(
  }
  }
  \subsection{Binomial}{
- When \code{type} is \code{"binomial"}, the predictions should be passed as
- one column with the probability of class being
+ When \code{type} is \code{"binomial"}, the predictions can be passed in one of two formats.
+
+ \subsection{Probabilities (Preferable)}{
+ One column with the probability of class being
  the second class alphabetically
  (1 if classes are 0 and 1). E.g.:
 
@@ -66,6 +68,23 @@ evaluate(
   0.368 \tab 1\cr
   0.375 \tab 0\cr
   ... \tab ...}
+ }
+
+ \subsection{Classes}{
+
+ A single column of type \code{character} with the predicted classes. E.g.:
+
+ \tabular{rrrrr}{
+  \strong{prediction} \tab \strong{target}\cr
+  class_0 \tab class_1\cr
+  class_1 \tab class_1\cr
+  class_1 \tab class_0\cr
+  ... \tab ...}
+ }
+
+ Note: The prediction column will be converted to the probability \code{0.0}
+ for the first class alphabetically and \code{1.0} for
+ the second class alphabetically.
  }
  \subsection{Gaussian}{
  When \code{type} is \code{"gaussian"}, the predictions should be passed as
@@ -86,8 +105,8 @@ evaluate(
 
 \item{prediction_cols}{Name(s) of column(s) with the predictions.
 
- When evaluating a classification task,
- the column(s) should contain the predicted probabilities.}
+ Columns can be either numeric or character depending on which format is chosen.
+ See \code{data} for the possible formats.}
 
 \item{type}{Type of evaluation to perform:
 

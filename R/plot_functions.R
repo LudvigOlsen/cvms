@@ -31,7 +31,7 @@ plot_metric_density <- function(results = NULL,
                                 metric = "",
                                 fill = c("darkblue", "lightblue"), # TODO find good default colors
                                 alpha = 0.6,
-                                theme_fn = ggplot2::theme_light,
+                                theme_fn = ggplot2::theme_minimal,
                                 xlim = NULL) {
 
   # Check arguments ####

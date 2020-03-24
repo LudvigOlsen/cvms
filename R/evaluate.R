@@ -640,6 +640,7 @@ run_evaluate <- function(data,
   # One-hot encode predicted classes, if multinomial
   # and prediction_cols is one column with classes
   if (type == "multinomial" && length(prediction_cols) == 1) {
+
     if (!is.character(data[[target_col]]) ||
         !is.character(data[[prediction_cols]])){
       assert_collection$push(paste0(
@@ -661,6 +662,7 @@ run_evaluate <- function(data,
       c_levels = c_levels,
       use_epsilon = FALSE
     )
+
     prediction_cols <- sort(c_levels)
   }
 
@@ -887,9 +889,7 @@ run_internal_evaluate_wrapper <- function(
   evaluations <- plyr::llply(seq_along(unique_group_levels),
     .parallel = parallel, function(gr_ind) {
       gr <- unique_group_levels[[gr_ind]]
-
       data_for_current_group <- data[data[[groups_col]] == gr, ]
-
 
       # Assign current model
       if (is.null(models)) {
@@ -1033,7 +1033,6 @@ internal_evaluate <- function(data,
   } else {
     group_info <- NULL
   }
-
 
   # Evaluate the predictions
   prediction_evaluation <- internal_evaluate_predictions(

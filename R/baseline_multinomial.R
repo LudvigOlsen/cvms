@@ -117,6 +117,7 @@ create_multinomial_baseline_evaluations <- function(test_data,
       Dependent = dependent_col
     )
 
+
   # Evaluate all or nothing predictions
   evaluations_all_or_nothing <- plyr::ldply(seq_len(num_classes),
     .parallel = parallel_,
@@ -162,7 +163,8 @@ create_multinomial_baseline_evaluations <- function(test_data,
   # Pull Class Level Results
   evaluations_random_class_level_results <- evaluations_random[["Class Level Results"]]
 
-  evaluations_all_or_nothing_results <- base_deselect(evaluations_all_or_nothing,
+  evaluations_all_or_nothing_results <- base_deselect(
+    evaluations_all_or_nothing,
     cols = "Class Level Results"
   )
 
@@ -317,7 +319,8 @@ create_multinomial_baseline_evaluations <- function(test_data,
       summarized_metrics_class_level %>%
         dplyr::group_nest(.key = "Results", keep = FALSE),
       by = "Class"
-    )
+    ) %>%
+    dplyr::mutate(Class = unname(.data$Class))
 
   # TODO Rename to something meaningful.
   # Note, overall accuracy is not an average, so average metrics are not that meaningful!

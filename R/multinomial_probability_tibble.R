@@ -81,7 +81,8 @@ multiclass_probability_tibble <- function(num_classes,
   probability_matrix <- matrix(random_numbers,
     ncol = num_classes
   ) %>%
-    dplyr::as_tibble(.name_repair = ~ paste0(class_name, 1:num_classes))
+    dplyr::as_tibble(.name_repair = "minimal")
+  colnames(probability_matrix) <- paste0(class_name, 1:num_classes)
 
   # Apply the softmax function if requested
   if (isTRUE(apply_softmax)) {

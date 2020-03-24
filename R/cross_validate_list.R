@@ -479,7 +479,7 @@ cross_validate_list <- function(data,
   # Extract the first row for each model in the computation grid
   grid_first_rows <- computation_grid %>%
     dplyr::group_by(.data$model) %>%
-    dplyr::filter(dplyr::row_number() == 1) %>%
+    dplyr::slice(1) %>%
     dplyr::arrange(.data$model)
 
   # Extract hparams from grid
@@ -502,8 +502,8 @@ cross_validate_list <- function(data,
     dplyr::mutate(Formula = formulas)
 
   # Get model effects for the current output rows
-  mixed_effects <- original_formula_order %>%
-    dplyr::right_join(tibble::tibble("Formula" = model_formulas),
+  mixed_effects <- tibble::tibble("Formula" = model_formulas) %>%
+    dplyr::left_join(original_formula_order,
       by = "Formula"
     ) %>%
     base_deselect(cols = "Formula")
@@ -526,14 +526,15 @@ cross_validate_list <- function(data,
   }
 
   # Reorder data frame
+  # Reorder rows by original formula order
   # This also removes unwanted columns
   new_col_order <- c(metrics, intersect(info_cols, colnames(output)))
-  output <- output %>%
+  output <-
+    original_formula_order %>%
+    dplyr::left_join(output,
+                     by = names(original_formula_order)) %>%
     base_select(cols = new_col_order) %>%
-    # Reorder rows by original formula order
-    dplyr::right_join(original_formula_order,
-      by = names(original_formula_order)
-    ) %>% position_first("Fixed")
+    position_first("Fixed")
 
   # If asked to remove non-converged models from output
   if (isTRUE(rm_nc)) {
@@ -541,7 +542,7 @@ cross_validate_list <- function(data,
   }
 
   # and return it
-  return(output)
+  output
 }
 
 

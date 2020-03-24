@@ -78,15 +78,19 @@ create_gaussian_baseline_evaluations <- function(train_data,
       "split_factor" = factor(rep(1:n_samplings, each = n_train_targets))
     ) %>%
     dplyr::group_by(.data$split_factor) %>%
-    dplyr::mutate(indices = 1:dplyr::n())
+    dplyr::mutate(indices = 1:dplyr::n()) %>%
+    dplyr::ungroup()
 
   # Find the boundaries for sampling a threshold
   # such that at least min_training_rows are included
   # and at least min_training_rows_left_out are not included
+
   sampling_boundaries <- train_set_inclusion_vals %>%
-    dplyr::arrange(.data$split_factor, dplyr::desc(.data$inclusion_probability)) %>%
-    dplyr::filter(dplyr::row_number() == min_training_rows |
-      dplyr::row_number() == n_train_targets - min_training_rows_left_out + 1) %>%
+    dplyr::arrange(.data$split_factor,
+                   dplyr::desc(.data$inclusion_probability)) %>%
+    dplyr::group_by(.data$split_factor) %>%
+    dplyr::slice(min_training_rows,
+                 n_train_targets - min_training_rows_left_out + 1) %>%
     dplyr::mutate(
       to_add = c(-0.001, 0.001),
       limits = .data$inclusion_probability + .data$to_add,
@@ -94,14 +98,14 @@ create_gaussian_baseline_evaluations <- function(train_data,
     ) %>%
     base_select(cols = c("split_factor", "min_max", "limits")) %>%
     tidyr::spread(key = "min_max", value = "limits") %>%
-    dplyr::mutate(inclusion_probability_threshold = runif(1, min = .data$min_, max = .data$max_)) %>%
-    dplyr::ungroup() %>%
+    dplyr::mutate(
+      inclusion_probability_threshold = runif(
+        1, min = .data$min_, max = .data$max_)) %>%
     base_deselect(cols = c("max_", "min_"))
 
   # Filter rows to get training set indices
   # for the n_samplings evaluations
   train_sets_indices <- train_set_inclusion_vals %>%
-    dplyr::ungroup() %>%
     dplyr::inner_join(sampling_boundaries, by = "split_factor")
   train_sets_indices <- train_sets_indices[
     train_sets_indices[["inclusion_probability"]] >

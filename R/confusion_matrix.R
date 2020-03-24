@@ -381,9 +381,9 @@ create_binomial_confusion_matrix <- function(targets,
   computed_metrics <- plyr::llply(metrics_to_compute, function(m) {
     metric_fns[[m]](label_counts)
   }) %>%
+    setNames(metrics_to_compute) %>%
     dplyr::bind_cols() %>%
     dplyr::as_tibble()
-  colnames(computed_metrics) <- metrics_to_compute
 
   overall <- tibble::tibble(
     "Confusion Matrix" = list(tidy_conf_mat),

@@ -60,24 +60,27 @@ get_nested_model_coefficients <- function(model,
           # Else, return default NA coefficient tibble
         } else {
           return(
-            get_nested_model_coefficients(model = NULL, include_fold_columns = include_fold_columns)
+            get_nested_model_coefficients(model = NULL, include_fold_columns = include_fold_columns)[[1]]
           )
         }
       } else {
         warning(e)
         # Return default NA coefficient tibble
         return(
-          get_nested_model_coefficients(model = NULL, include_fold_columns = include_fold_columns)
+          get_nested_model_coefficients(model = NULL, include_fold_columns = include_fold_columns)[[1]]
         )
       }
     },
     warning = function(w) {
       warning(w)
       return(
-        get_nested_model_coefficients(model = NULL, include_fold_columns = include_fold_columns)
+        get_nested_model_coefficients(model = NULL, include_fold_columns = include_fold_columns)[[1]]
       )
     }
   )
+
+  # Remove names
+  coefs_tidy[["estimate"]] <- unname(coefs_tidy[["estimate"]])
 
   # Add fold info
   if (isTRUE(include_fold_columns)) {

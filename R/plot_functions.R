@@ -100,5 +100,10 @@ plot_metric_density <- function(results = NULL,
     ggplot2::scale_fill_manual(values = fill) +
     ggplot2::coord_cartesian(xlim = xlim) +
     theme_fn() +
-    ggplot2::labs(y = "Density")
+    ggplot2::labs(y = "Density") +
+    ggplot2::theme(
+      # Add margin to axis labels
+      axis.title.y = ggplot2::element_text(margin = ggplot2::margin(0, 6, 0, 0)),
+      axis.title.x.bottom = ggplot2::element_text(margin = ggplot2::margin(6, 0, 0, 0))
+    )
 }

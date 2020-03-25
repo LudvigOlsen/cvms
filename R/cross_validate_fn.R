@@ -243,13 +243,10 @@
 #'
 #'  ----------------------------------------------------------------
 #'
-#'  Average \strong{RMSE}, \strong{MAE}, \strong{NRMSE}, \strong{RMSEIQR},
-#'  \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
-#'  and \strong{BIC} of all the iterations*,
-#'  \emph{\strong{omitting potential NAs} from non-converged iterations}. Some metrics will
-#'  return \code{NA} if they can't be extracted from the fitted model objects.
+#'  Average \strong{RMSE}, \strong{MAE}, \strong{RMSLE} of all the iterations*,
+#'  \emph{\strong{omitting potential NAs} from non-converged iterations}.
 #'
-#'  N.B. The Information Criteria metrics (AIC, AICc, and BIC) are also averages.
+#'  See the additional metrics (disabled by default) at \code{\link[cvms:gaussian_metrics]{?gaussian_metrics}}.
 #'
 #'  A nested tibble with the \strong{predictions} and targets.
 #'
@@ -358,10 +355,16 @@
 #'  and \code{0} represents all the other classes together.
 #'  }
 #' @examples
+#' \donttest{
 #' # Attach packages
 #' library(cvms)
 #' library(groupdata2) # fold()
 #' library(dplyr) # %>% arrange() mutate()
+#'
+#' # Note: More examples of custom functions can be found at:
+#' # model_fn: example_model_functions()
+#' # predict_fn: example_predict_functions()
+#' # preprocess_fn: example_preprocess_functions()
 #'
 #' # Data is part of cvms
 #' data <- participant.scores
@@ -370,7 +373,8 @@
 #' set.seed(7)
 #'
 #' # Fold data
-#' data <- fold(data,
+#' data <- fold(
+#'   data,
 #'   k = 4,
 #'   cat_col = "diagnosis",
 #'   id_col = "participant"
@@ -388,120 +392,179 @@
 #'   "diagnosis ~ score",
 #'   "diagnosis ~ age"
 #' )
-#' \donttest{
-#' # Gaussian
 #'
-#' # Create model function with args 'train_data' and 'formula'
-#' # that returns a fitted model object
-#' lm_model_fn <- function(train_data, formula) {
+#' #
+#' # Gaussian
+#' #
+#'
+#' # Create model function that returns a fitted model object
+#' lm_model_fn <- function(train_data, formula, hyperparameters) {
 #'   lm(formula = formula, data = train_data)
 #' }
 #'
+#' # Create predict function that returns the predictions
+#' lm_predict_fn <- function(test_data, model, formula, hyperparameters) {
+#'   stats::predict(
+#'     object = model,
+#'     newdata = test_data,
+#'     type = "response",
+#'     allow.new.levels = TRUE
+#'   )
+#' }
+#'
 #' # Cross-validate the model function
-#' cross_validate_fn(data,
-#'   model_fn = lm_model_fn,
+#' cross_validate_fn(
+#'   data,
 #'   formulas = formulas_gaussian,
 #'   type = "gaussian",
+#'   model_fn = lm_model_fn,
+#'   predict_fn = lm_predict_fn,
 #'   fold_cols = ".folds"
 #' )
 #'
+#' #
 #' # Binomial
+#' #
 #'
-#' # Create model function with args 'train_data' and 'formula'
-#' # that returns a fitted model object
-#' glm_model_fn <- function(train_data, formula) {
+#' # Create model function that returns a fitted model object
+#' glm_model_fn <- function(train_data, formula, hyperparameters) {
 #'   glm(formula = formula, data = train_data, family = "binomial")
 #' }
 #'
+#' # Create predict function that returns the predictions
+#' glm_predict_fn <- function(test_data, model, formula, hyperparameters) {
+#'   stats::predict(
+#'     object = model,
+#'     newdata = test_data,
+#'     type = "response",
+#'     allow.new.levels = TRUE
+#'   )
+#' }
+#'
 #' # Cross-validate the model function
-#' cross_validate_fn(data,
-#'   model_fn = glm_model_fn,
+#' cross_validate_fn(
+#'   data,
 #'   formulas = formulas_binomial,
 #'   type = "binomial",
+#'   model_fn = glm_model_fn,
+#'   predict_fn = glm_predict_fn,
 #'   fold_cols = ".folds"
 #' )
 #'
+#' #
 #' # Support Vector Machine (svm)
+#' # with hyperparameter tuning
+#' #
 #'
-#' # Create model function with args 'train_data' and 'formula'
-#' # that returns a fitted model object
-#' svm_model_fn <- function(train_data, formula) {
+#' # Create model function that returns a fitted model object
+#' # We use the hyperparameters arg to pass in the kernel and cost values
+#' svm_model_fn <- function(train_data, formula, hyperparameters) {
+#'
+#'   # Expected hyperparameters:
+#'   #  - kernel
+#'   #  - cost
+#'   if (!"kernel" %in% names(hyperparameters))
+#'     stop("'hyperparameters' must include 'kernel'")
+#'   if (!"cost" %in% names(hyperparameters))
+#'     stop("'hyperparameters' must include 'cost'")
+#'
 #'   e1071::svm(
 #'     formula = formula,
 #'     data = train_data,
-#'     kernel = "linear",
-#'     type = "C-classification"
+#'     kernel = hyperparameters[["kernel"]],
+#'     cost = hyperparameters[["cost"]],
+#'     scale = FALSE,
+#'     type = "C-classification",
+#'     probability = TRUE
 #'   )
 #' }
 #'
+#' # Create predict function that returns the predictions
+#' svm_predict_fn <- function(test_data, model, formula, hyperparameters) {
+#'   predictions <- stats::predict(
+#'     object = model,
+#'     newdata = test_data,
+#'     allow.new.levels = TRUE,
+#'     probability = TRUE
+#'   )
+#'
+#'   # Extract probabilities
+#'   probabilities <- dplyr::as_tibble(
+#'     attr(predictions, "probabilities")
+#'   )
+#'
+#'   # Return second column
+#'   probabilities[[2]]
+#' }
+#'
+#' # Specify hyperparameters to try
+#' # The optional ".n" samples 4 combinations
+#' svm_hparams <- list(
+#'   ".n" = 4,
+#'   "kernel" = c("linear", "radial"),
+#'   "cost" = c(1, 5, 10)
+#' )
+#'
 #' # Cross-validate the model function
-#' cross_validate_fn(data,
+#' cv <- cross_validate_fn(
+#'   data,
+#'   formulas = formulas_binomial,
+#'   type = "binomial",
 #'   model_fn = svm_model_fn,
-#'   formulas = formulas_binomial,
-#'   type = "binomial",
+#'   predict_fn = svm_predict_fn,
+#'   hyperparameters = svm_hparams,
 #'   fold_cols = ".folds"
 #' )
 #'
-#' # Naive Bayes
+#' cv
 #'
-#' # Create model function with args 'train_data' and 'formula'
-#' # that returns a fitted model object
-#' nb_model_fn <- function(train_data, formula) {
-#'   e1071::naiveBayes(
-#'     formula = formula,
-#'     data = train_data
-#'   )
-#' }
+#' # The `HParams` column has the nested hyperparameter values
+#' cv %>%
+#'   select(Dependent, Fixed, HParams, `Balanced Accuracy`, F1, AUC, MCC) %>%
+#'   tidyr::unnest(cols = "HParams") %>%
+#'   arrange(desc(`Balanced Accuracy`), desc(F1))
 #'
-#' # Create predict function with args 'test_data', 'model', and 'formula'
-#' # that returns predictions in right format (here, a one-column matrix)
-#' # Note the type = "raw" and that we pick the probabilities for class 1 with [,2]
-#' nb_predict_fn <- function(test_data, model, formula = NULL) {
-#'   stats::predict(
-#'     object = model, newdata = test_data,
-#'     type = "raw", allow.new.levels = TRUE
-#'   )[, 2]
-#' }
 #'
-#' # Cross-validate the model function
-#' cross_validate_fn(data,
-#'   model_fn = nb_model_fn,
-#'   formulas = formulas_binomial,
-#'   type = "binomial",
-#'   predict_fn = nb_predict_fn,
-#'   fold_cols = ".folds"
-#' )
-#' }
+#' #
 #' # Use parallelization
-#' \donttest{
+#' # The below examples show the speed gains when running in parallel
+#' #
+#'
 #' # Attach doParallel and register four cores
 #' # Uncomment:
 #' # library(doParallel)
 #' # registerDoParallel(4)
 #'
-#' # Create list of 20 model formulas
-#' formulas <- rep(c(
-#'   "score~diagnosis",
-#'   "score~age"
-#' ), 10)
+#' # Specify hyperparameters such that we will
+#' # cross-validate 20 models
+#' hparams <- list(
+#'   "kernel" = c("linear", "radial"),
+#'   "cost" = 1:5
+#' )
 #'
-#' # Cross-validate a list of 20 model formulas in parallel
+#' # Cross-validate a list of 20 models in parallel
 #' system.time({
-#'   cross_validate_fn(data,
-#'     model_fn = lm_model_fn,
-#'     formulas = formulas,
+#'   cross_validate_fn(
+#'     data,
+#'     formulas = formulas_gaussian,
 #'     type = "gaussian",
+#'     model_fn = svm_model_fn,
+#'     predict_fn = svm_predict_fn,
+#'     hyperparameters = hparams,
 #'     fold_cols = ".folds",
 #'     parallel = TRUE
 #'   )
 #' })
 #'
-#' # Cross-validate a list of 20 model formulas sequentially
+#' # Cross-validate a list of 20 models sequentially
 #' system.time({
-#'   cross_validate_fn(data,
-#'     model_fn = lm_model_fn,
-#'     formulas = formulas,
+#'   cross_validate_fn(
+#'     data,
+#'     formulas = formulas_gaussian,
 #'     type = "gaussian",
+#'     model_fn = svm_model_fn,
+#'     predict_fn = svm_predict_fn,
+#'     hyperparameters = hparams,
 #'     fold_cols = ".folds",
 #'     parallel = FALSE
 #'   )

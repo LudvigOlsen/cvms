@@ -105,15 +105,13 @@ preprocess_numeric <- function(vec, settings) {
 
 # Finds path of figure in either /man/figures/ or /help/figures/
 # The latter being used in built packages
-get_figure_path <- function(fig_name){
-
-  package_path <- system.file(package="cvms")
-  for (sub in c("man","help")){
+get_figure_path <- function(fig_name, pgk_name = "cvms") {
+  package_path <- system.file(package = pgk_name)
+  for (sub in c("man", "help")) {
     fig_path <- paste0(package_path, "/", sub, "/figures/", fig_name)
     if (file.exists(fig_path))
       return(fig_path)
   }
   warning("Could not find figure.")
   invisible()
-
 }

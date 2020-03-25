@@ -370,6 +370,7 @@ test_that("gaussian model with validate()", {
       test_data = NULL,
       partitions_col = ".partitions",
       family = "gaussian",
+      metrics = list("r2m" = TRUE, "r2c" = TRUE),
       REML = FALSE,
       verbose = FALSE
     )
@@ -420,7 +421,7 @@ test_that("gaussian model with metrics list works with validate()", {
   expect_equal(
     colnames(Vgauss),
     c(
-      "Fixed", "MAE", "RMSLE", "r2m", "r2c", "AIC", "AICc", "BIC", "Predictions", "Coefficients",
+      "Fixed", "MAE", "RMSLE", "r2m", "AIC", "AICc", "BIC", "Predictions", "Coefficients",
       "Convergence Warnings", "Singular Fit Messages", "Other Warnings",
       "Warnings and Messages", "Family", "Model", "Dependent",
       "Random"

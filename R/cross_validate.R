@@ -62,11 +62,12 @@
 #'   E.g. \code{list("RMSE" = FALSE)} would remove RMSE from the results,
 #'   and \code{list("Accuracy" = TRUE)} would add the regular accuracy metric
 #'   to the classification results.
-#'   Default values (TRUE/FALSE) will be used for the remaining available metrics.
+#'   Default values (\code{TRUE}/\code{FALSE}) will be used for the remaining available metrics.
 #'
 #'   You can enable/disable all metrics at once by including
 #'   \code{"all" = TRUE/FALSE} in the list. This is done prior to enabling/disabling
-#'   individual metrics, why f.i. \code{list("all" = FALSE, "RMSE" = TRUE)} would return only the RMSE metric.
+#'   individual metrics, why f.i. \code{list("all" = FALSE, "RMSE" = TRUE)}
+#'   would return only the \code{RMSE} metric.
 #'
 #'   The list can be created with
 #'   \code{\link[cvms:gaussian_metrics]{gaussian_metrics()}} or
@@ -167,11 +168,13 @@
 #'
 #'  ----------------------------------------------------------------
 #'
-#'  Average \strong{RMSE}, \strong{MAE}, \strong{NRMSE}, \strong{RMSEIQR},
-#'  \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
+#'  Average \strong{RMSE}, \strong{MAE}, \strong{RMSLE},
+#'  \strong{AIC}, \strong{AICc},
 #'  and \strong{BIC} of all the iterations*,
 #'  \emph{\strong{omitting potential NAs} from non-converged iterations}.
 #'  Note that the Information Criteria metrics (AIC, AICc, and BIC) are also averages.
+#'
+#'  See the additional metrics (disabled by default) at \code{\link[cvms:gaussian_metrics]{?gaussian_metrics}}.
 #'
 #'  A nested tibble with the \strong{predictions} and targets.
 #'
@@ -216,7 +219,7 @@
 #'  Note, that the \strong{predictions are not necessarily of the specified \code{positive} class}, but of
 #'  the model's positive class (second level of dependent variable, alphabetically).
 #'
-#'  A nested tibble with the sensativities and specificities from the \strong{ROC} curve(s).
+#'  The \code{\link[pROC:roc]{pROC::roc}} \strong{ROC} curve object(s).
 #'
 #'  A nested tibble with the \strong{confusion matrix}/matrices.
 #'  The \code{Pos_} columns tells you whether a row is a
@@ -229,6 +232,7 @@
 #'
 #'  }
 #' @examples
+#' \donttest{
 #' # Attach packages
 #' library(cvms)
 #' library(groupdata2) # fold()
@@ -241,7 +245,8 @@
 #' set.seed(7)
 #'
 #' # Fold data
-#' data <- fold(data,
+#' data <- fold(
+#'   data,
 #'   k = 4,
 #'   cat_col = "diagnosis",
 #'   id_col = "participant"
@@ -249,16 +254,17 @@
 #'   arrange(.folds)
 #'
 #' # Cross-validate a single model
-#' \donttest{
 #' # Gaussian
-#' cross_validate(data,
+#' cross_validate(
+#'   data,
 #'   formulas = "score~diagnosis",
 #'   family = "gaussian",
 #'   REML = FALSE
 #' )
 #'
 #' # Binomial
-#' cross_validate(data,
+#' cross_validate(
+#'   data,
 #'   formulas = "diagnosis~score",
 #'   family = "binomial"
 #' )
@@ -270,14 +276,14 @@
 #'   "score~age+(1|session)"
 #' )
 #'
-#' cross_validate(data,
+#' cross_validate(
+#'   data,
 #'   formulas = formulas,
 #'   family = "gaussian",
 #'   REML = FALSE
 #' )
-#' }
+#'
 #' # Use parallelization
-#' \donttest{
 #' # Attach doParallel and register four cores
 #' # Uncomment:
 #' # library(doParallel)
@@ -291,7 +297,8 @@
 #'
 #' # Cross-validate a list of 20 model formulas in parallel
 #' system.time({
-#'   cross_validate(data,
+#'   cross_validate(
+#'     data,
 #'     formulas = formulas,
 #'     family = "gaussian",
 #'     parallel = TRUE
@@ -300,7 +307,8 @@
 #'
 #' # Cross-validate a list of 20 model formulas sequentially
 #' system.time({
-#'   cross_validate(data,
+#'   cross_validate(
+#'     data,
 #'     formulas = formulas,
 #'     family = "gaussian",
 #'     parallel = FALSE

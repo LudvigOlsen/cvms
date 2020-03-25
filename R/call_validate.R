@@ -208,7 +208,7 @@ basics_update_metrics <- function(metrics, family) {
   if (family == "gaussian") {
     metric_names <- names(metrics)
     if (is.list(metrics) &&
-      length(setdiff(c("AIC", "AICc", "BIC", "r2m", "r2c"), metric_names)) > 1) {
+      length(setdiff(c("AIC", "AICc", "BIC"), metric_names)) > 1) {
       if ("AIC" %ni% metric_names) {
         metrics[["AIC"]] <- TRUE
       }
@@ -217,12 +217,6 @@ basics_update_metrics <- function(metrics, family) {
       }
       if ("BIC" %ni% metric_names) {
         metrics[["BIC"]] <- TRUE
-      }
-      if ("r2m" %ni% metric_names) {
-        metrics[["r2m"]] <- TRUE
-      }
-      if ("r2c" %ni% metric_names) {
-        metrics[["r2c"]] <- TRUE
       }
     }
   }

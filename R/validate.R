@@ -11,20 +11,23 @@
 #'  Train linear or logistic regression models on a full training set and validate it by
 #'  predicting the test/validation set.
 #'  Returns results in a tibble for easy reporting, along with the trained models.
+#'
+#'  See \code{\link[cvms:validate_fn]{validate_fn()}} for use
+#'  with custom model functions.
 #' @inheritParams cross_validate
-#' @param train_data Data Frame.
+#' @param train_data Data frame.
 #'
 #'  Can contain a grouping factor for identifying partitions - as made with
 #'  \code{\link[groupdata2:partition]{groupdata2::partition()}}.
 #'  See \code{partitions_col}.
-#' @param test_data Data Frame. If specifying \code{partitions_col}, this can be \code{NULL}.
+#' @param test_data Data frame. If specifying \code{partitions_col}, this can be \code{NULL}.
 #' @param partitions_col Name of grouping factor for identifying partitions. (Character)
 #'
 #'  Rows with the value \code{1} in \code{partitions_col} are used as training set and
 #'  rows with the value \code{2} are used as test set.
 #'
 #'  N.B. \strong{Only used if \code{test_data} is \code{NULL}}.
-#' @param err_nc Raise error if model does not converge. (Logical)
+#' @param err_nc Raise error if a model does not converge. (Logical)
 #' @param parallel Whether to validate the list of models in parallel. (Logical)
 #'
 #'  Remember to register a parallel backend first.
@@ -64,9 +67,10 @@
 #'
 #'  ----------------------------------------------------------------
 #'
-#'  \strong{RMSE}, \strong{MAE}, \strong{NRMSE}, \strong{RMSEIQR},
-#'  \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
+#'  \strong{RMSE}, \strong{MAE}, \strong{RMSLE}, \strong{AIC}, \strong{AICc},
 #'  and \strong{BIC}.
+#'
+#'  See the additional metrics (disabled by default) at \code{\link[cvms:gaussian_metrics]{?gaussian_metrics}}.
 #'
 #'  A nested tibble with the \strong{predictions} and targets.
 #'  }
@@ -101,10 +105,16 @@
 #'
 #'  Also includes:
 #'
-#'  A tibble with \strong{predictions}, predicted classes (depends on \code{cutoff}),
-#'  and the targets.
+#'  A nested tibble with \strong{predictions}, predicted classes (depends on \code{cutoff}), and the targets.
+#'  Note, that the \strong{predictions are not necessarily of the specified \code{positive} class}, but of
+#'  the model's positive class (second level of dependent variable, alphabetically).
 #'
-#'  A tibble with the sensativities and specificities from the \strong{ROC} curve.
+#'  The \code{\link[pROC:roc]{pROC::roc}} \strong{ROC} curve object(s).
+#'
+#'  A nested tibble with the \strong{confusion matrix}/matrices.
+#'  The \code{Pos_} columns tells you whether a row is a
+#'  True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
+#'  depending on which level is the "positive" class. I.e. the level you wish to predict.
 #'
 #'  }
 #'
@@ -112,6 +122,7 @@
 #' @export
 #' @family validation functions
 #' @examples
+#' \donttest{
 #' # Attach packages
 #' library(cvms)
 #' library(groupdata2) # partition()
@@ -126,7 +137,8 @@
 #' # Partition data
 #' # Keep as single data frame
 #' # We could also have fed validate() separate train and test sets.
-#' data_partitioned <- partition(data,
+#' data_partitioned <- partition(
+#'   data,
 #'   p = 0.7,
 #'   cat_col = "diagnosis",
 #'   id_col = "participant",
@@ -137,7 +149,8 @@
 #' # Validate a model
 #'
 #' # Gaussian
-#' validate(data_partitioned,
+#' validate(
+#'   data_partitioned,
 #'   formulas = "score~diagnosis",
 #'   partitions_col = ".partitions",
 #'   family = "gaussian",
@@ -156,7 +169,8 @@
 #' # Partition data to list of data frames
 #' # The first data frame will be train (70% of the data)
 #' # The second will be test (30% of the data)
-#' data_partitioned <- partition(data,
+#' data_partitioned <- partition(
+#'   data,
 #'   p = 0.7,
 #'   cat_col = "diagnosis",
 #'   id_col = "participant",
@@ -168,12 +182,14 @@
 #' # Validate a model
 #'
 #' # Gaussian
-#' validate(train_data,
+#' validate(
+#'   train_data,
 #'   test_data = test_data,
 #'   formulas = "score~diagnosis",
 #'   family = "gaussian",
 #'   REML = FALSE
 #' )
+#' }
 validate <- function(train_data,
                      formulas,
                      family,

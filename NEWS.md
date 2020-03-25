@@ -26,6 +26,8 @@
 * In `evaluate()`, `apply_softmax` now defaults to `FALSE`. 
 Throws error if probabilities do not add up 1 row-wise (tolerance of 5 decimals) when `type` is `multinomial`.
 
+* In `cross_validate` and `validate()`, the `r2m`, and `r2c` metrics are now disabled by default in `gaussian`. The r-squared metrics are non-predictive and should not be used for model selection. They can be enabled with `metrics = list("r2m" = TRUE, "r2c" = TRUE)`.
+
 * In `cross_validate_fn()`, the `AIC`, `AICc`, `BIC`, `r2m`, and `r2c` metrics are now disabled by default in `gaussian`. Only some model types will allow the computation of those metrics, and it is preferable that the user actively makes a choice to include them.
 
 * In `baseline()`, the `AIC`, `AICc`, `BIC`, `r2m`, and `r2c` metrics are now disabled by default in `gaussian`.

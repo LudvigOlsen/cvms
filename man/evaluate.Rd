@@ -192,7 +192,9 @@ when \code{data} is grouped with \code{\link[dplyr]{group_by}}.}
 
  Tibble containing the following metrics by default:
 
- Average \strong{RMSE}, \strong{MAE}, \strong{NRMSE}, \strong{RMSEIQR}.
+ Average \strong{RMSE}, \strong{MAE}, \strong{RMSLE}.
+
+ See the additional metrics (disabled by default) at \code{\link[cvms:gaussian_metrics]{?gaussian_metrics}}.
 
  Also includes:
 

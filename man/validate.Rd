@@ -26,7 +26,7 @@ validate(
 )
 }
 \arguments{
-\item{train_data}{Data Frame.
+\item{train_data}{Data frame.
 
  Can contain a grouping factor for identifying partitions - as made with
  \code{\link[groupdata2:partition]{groupdata2::partition()}}.
@@ -44,7 +44,7 @@ validate(
 
  Currently supports \code{"gaussian"} and \code{"binomial"}.}
 
-\item{test_data}{Data Frame. If specifying \code{partitions_col}, this can be \code{NULL}.}
+\item{test_data}{Data frame. If specifying \code{partitions_col}, this can be \code{NULL}.}
 
 \item{partitions_col}{Name of grouping factor for identifying partitions. (Character)
 
@@ -83,11 +83,12 @@ validate(
   E.g. \code{list("RMSE" = FALSE)} would remove RMSE from the results,
   and \code{list("Accuracy" = TRUE)} would add the regular accuracy metric
   to the classification results.
-  Default values (TRUE/FALSE) will be used for the remaining available metrics.
+  Default values (\code{TRUE}/\code{FALSE}) will be used for the remaining available metrics.
 
   You can enable/disable all metrics at once by including
   \code{"all" = TRUE/FALSE} in the list. This is done prior to enabling/disabling
-  individual metrics, why f.i. \code{list("all" = FALSE, "RMSE" = TRUE)} would return only the RMSE metric.
+  individual metrics, why f.i. \code{list("all" = FALSE, "RMSE" = TRUE)}
+  would return only the \code{RMSE} metric.
 
   The list can be created with
   \code{\link[cvms:gaussian_metrics]{gaussian_metrics()}} or
@@ -115,7 +116,7 @@ validate(
  N.B. The preprocessings should not affect the results
  to a noticeable degree, although \code{"range"} might due to the truncation.}
 
-\item{err_nc}{Raise error if model does not converge. (Logical)}
+\item{err_nc}{Raise error if a model does not converge. (Logical)}
 
 \item{rm_nc}{Remove non-converged models from output. (Logical)}
 
@@ -163,9 +164,10 @@ Tbl (tibble) with the results and model objects.
 
  ----------------------------------------------------------------
 
- \strong{RMSE}, \strong{MAE}, \strong{NRMSE}, \strong{RMSEIQR},
- \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
+ \strong{RMSE}, \strong{MAE}, \strong{RMSLE}, \strong{AIC}, \strong{AICc},
  and \strong{BIC}.
+
+ See the additional metrics (disabled by default) at \code{\link[cvms:gaussian_metrics]{?gaussian_metrics}}.
 
  A nested tibble with the \strong{predictions} and targets.
  }
@@ -200,10 +202,16 @@ Tbl (tibble) with the results and model objects.
 
  Also includes:
 
- A tibble with \strong{predictions}, predicted classes (depends on \code{cutoff}),
- and the targets.
+ A nested tibble with \strong{predictions}, predicted classes (depends on \code{cutoff}), and the targets.
+ Note, that the \strong{predictions are not necessarily of the specified \code{positive} class}, but of
+ the model's positive class (second level of dependent variable, alphabetically).
 
- A tibble with the sensativities and specificities from the \strong{ROC} curve.
+ The \code{\link[pROC:roc]{pROC::roc}} \strong{ROC} curve object(s).
+
+ A nested tibble with the \strong{confusion matrix}/matrices.
+ The \code{Pos_} columns tells you whether a row is a
+ True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
+ depending on which level is the "positive" class. I.e. the level you wish to predict.
 
  }
 }
@@ -213,6 +221,9 @@ Tbl (tibble) with the results and model objects.
  Train linear or logistic regression models on a full training set and validate it by
  predicting the test/validation set.
  Returns results in a tibble for easy reporting, along with the trained models.
+
+ See \code{\link[cvms:validate_fn]{validate_fn()}} for use
+ with custom model functions.
 }
 \details{
 Packages used:
@@ -248,6 +259,7 @@ Packages used:
  }
 }
 \examples{
+\donttest{
 # Attach packages
 library(cvms)
 library(groupdata2) # partition()
@@ -262,7 +274,8 @@ set.seed(7)
 # Partition data
 # Keep as single data frame
 # We could also have fed validate() separate train and test sets.
-data_partitioned <- partition(data,
+data_partitioned <- partition(
+  data,
   p = 0.7,
   cat_col = "diagnosis",
   id_col = "participant",
@@ -273,7 +286,8 @@ data_partitioned <- partition(data,
 # Validate a model
 
 # Gaussian
-validate(data_partitioned,
+validate(
+  data_partitioned,
   formulas = "score~diagnosis",
   partitions_col = ".partitions",
   family = "gaussian",
@@ -292,7 +306,8 @@ validate(data_partitioned,
 # Partition data to list of data frames
 # The first data frame will be train (70\% of the data)
 # The second will be test (30\% of the data)
-data_partitioned <- partition(data,
+data_partitioned <- partition(
+  data,
   p = 0.7,
   cat_col = "diagnosis",
   id_col = "participant",
@@ -304,12 +319,14 @@ test_data <- data_partitioned[[2]]
 # Validate a model
 
 # Gaussian
-validate(train_data,
+validate(
+  train_data,
   test_data = test_data,
   formulas = "score~diagnosis",
   family = "gaussian",
   REML = FALSE
 )
+}
 }
 \seealso{
 Other validation functions: 

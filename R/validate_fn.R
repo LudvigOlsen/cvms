@@ -60,10 +60,9 @@
 #'
 #'  ----------------------------------------------------------------
 #'
-#'  \strong{RMSE}, \strong{MAE}, \strong{r2m}, \strong{NRMSE}, \strong{RMSEIQR},
-#'  \strong{r2c}, \strong{AIC}, \strong{AICc},
-#'  and \strong{BIC}. Some metrics may return \code{NA} if they can't be
-#'  extracted from the fitted model objects.
+#'  \strong{RMSE}, \strong{MAE}, \strong{RMSLE}.
+#'
+#'  See the additional metrics (disabled by default) at \code{\link[cvms:gaussian_metrics]{?gaussian_metrics}}.
 #'
 #'  A nested tibble with the \strong{predictions} and targets.
 #'  }
@@ -102,7 +101,7 @@
 #'  Note, that the \strong{predictions are not necessarily of the specified \code{positive} class}, but of
 #'  the model's positive class (second level of dependent variable, alphabetically).
 #'
-#'   A list of \strong{ROC} curve objects.
+#'  A list of \strong{ROC} curve objects.
 #'
 #'  A nested tibble with the \strong{confusion matrix}.
 #'  The \code{Pos_} columns tells you whether a row is a
@@ -162,10 +161,16 @@
 #'
 #'  }
 #' @examples
+#' \donttest{
 #' # Attach packages
 #' library(cvms)
 #' library(groupdata2) # fold()
 #' library(dplyr) # %>% arrange() mutate()
+#'
+#' # Note: More examples of custom functions can be found at:
+#' # model_fn: example_model_functions()
+#' # predict_fn: example_predict_functions()
+#' # preprocess_fn: example_preprocess_functions()
 #'
 #' # Data is part of cvms
 #' data <- participant.scores
@@ -174,13 +179,149 @@
 #' set.seed(7)
 #'
 #' # Fold data
-#' data <- fold(data,
-#'   k = 4,
+#' data <- partition(
+#'   data,
+#'   p = 0.8,
 #'   cat_col = "diagnosis",
-#'   id_col = "participant"
+#'   id_col = "participant",
+#'   list_out = FALSE
 #' ) %>%
 #'   mutate(diagnosis = as.factor(diagnosis)) %>%
-#'   arrange(.folds)
+#'   arrange(.partitions)
+#'
+#' # Formulas to validate
+#'
+#' formula_gaussian <- "score ~ diagnosis"
+#' formula_binomial <- "diagnosis ~ score"
+#'
+#' #
+#' # Gaussian
+#' #
+#'
+#' # Create model function that returns a fitted model object
+#' lm_model_fn <- function(train_data, formula, hyperparameters) {
+#'   lm(formula = formula, data = train_data)
+#' }
+#'
+#' # Create predict function that returns the predictions
+#' lm_predict_fn <- function(test_data, model, formula, hyperparameters) {
+#'   stats::predict(
+#'     object = model,
+#'     newdata = test_data,
+#'     type = "response",
+#'     allow.new.levels = TRUE
+#'   )
+#' }
+#'
+#' # Validate the model function
+#' v <- validate_fn(
+#'   data,
+#'   formulas = formula_gaussian,
+#'   type = "gaussian",
+#'   model_fn = lm_model_fn,
+#'   predict_fn = lm_predict_fn,
+#'   partitions_col = ".partitions"
+#' )
+#'
+#' v
+#'
+#' # Extract model object
+#' v$Model[[1]]
+#'
+#' #
+#' # Binomial
+#' #
+#'
+#' # Create model function that returns a fitted model object
+#' glm_model_fn <- function(train_data, formula, hyperparameters) {
+#'   glm(formula = formula, data = train_data, family = "binomial")
+#' }
+#'
+#' # Create predict function that returns the predictions
+#' glm_predict_fn <- function(test_data, model, formula, hyperparameters) {
+#'   stats::predict(
+#'     object = model,
+#'     newdata = test_data,
+#'     type = "response",
+#'     allow.new.levels = TRUE
+#'   )
+#' }
+#'
+#' # Validate the model function
+#' validate_fn(
+#'   data,
+#'   formulas = formula_binomial,
+#'   type = "binomial",
+#'   model_fn = glm_model_fn,
+#'   predict_fn = glm_predict_fn,
+#'   partitions_col = ".partitions"
+#' )
+#'
+#' #
+#' # Support Vector Machine (svm)
+#' # with known hyperparameters
+#' #
+#'
+#' # Create model function that returns a fitted model object
+#' # We use the hyperparameters arg to pass in the kernel and cost values
+#' # These will usually have been found with cross_validate_fn()
+#' svm_model_fn <- function(train_data, formula, hyperparameters) {
+#'
+#'   # Expected hyperparameters:
+#'   #  - kernel
+#'   #  - cost
+#'   if (!"kernel" %in% names(hyperparameters))
+#'     stop("'hyperparameters' must include 'kernel'")
+#'   if (!"cost" %in% names(hyperparameters))
+#'     stop("'hyperparameters' must include 'cost'")
+#'
+#'   e1071::svm(
+#'     formula = formula,
+#'     data = train_data,
+#'     kernel = hyperparameters[["kernel"]],
+#'     cost = hyperparameters[["cost"]],
+#'     scale = FALSE,
+#'     type = "C-classification",
+#'     probability = TRUE
+#'   )
+#' }
+#'
+#' # Create predict function that returns the predictions
+#' svm_predict_fn <- function(test_data, model, formula, hyperparameters) {
+#'   predictions <- stats::predict(
+#'     object = model,
+#'     newdata = test_data,
+#'     allow.new.levels = TRUE,
+#'     probability = TRUE
+#'   )
+#'
+#'   # Extract probabilities
+#'   probabilities <- dplyr::as_tibble(
+#'     attr(predictions, "probabilities")
+#'   )
+#'
+#'   # Return second column
+#'   probabilities[[2]]
+#' }
+#'
+#' # Specify hyperparameters to use
+#' # We found these in the examples in ?cross_validate_fn()
+#' svm_hparams <- list(
+#'   "kernel" = "linear",
+#'   "cost" = 10
+#' )
+#'
+#' # Validate the model function
+#' validate_fn(
+#'   data,
+#'   formulas = formula_binomial,
+#'   type = "binomial",
+#'   model_fn = svm_model_fn,
+#'   predict_fn = svm_predict_fn,
+#'   hyperparameters = svm_hparams,
+#'   partitions_col = ".partitions"
+#' )
+#' }
 validate_fn <- function(train_data,
                         formulas,
                         type,

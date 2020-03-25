@@ -157,7 +157,7 @@ test_that("select_metrics() works with output from cross-validation", {
   # Testing column classes
   expect_equal(
     xpectr::element_classes(gaussian_metrics),
-    c("character", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "character", "character", "vctrs_list_of"),
+    c("character", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "character", "character", ifelse(is_tibble_v2(),"list","vctrs_list_of")),
     fixed = TRUE)
   # Testing column types
   expect_equal(
@@ -525,7 +525,7 @@ test_that("select_metrics() works with output from cross-validation", {
       "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "numeric", "numeric", "numeric", "numeric",
-      "numeric", "numeric", "character", "character", "vctrs_list_of"),
+      "numeric", "numeric", "character", "character", ifelse(is_tibble_v2(),"list", "vctrs_list_of")),
     fixed = TRUE)
   # Testing column types
   expect_equal(

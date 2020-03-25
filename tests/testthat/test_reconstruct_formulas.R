@@ -45,8 +45,6 @@ test_that("formulas with random effects are properly reconstructed from cross_va
   xpectr::suppress_mw({
     cv_results <- cross_validate(data, formulas = model_formulas, family = "gaussian")
   })
-  cv_results <- cv_results[order(cv_results$RMSE), ]
-  cv_results$Random
 
   expect_equal(reconstruct_formulas(cv_results), c(
     "score ~ age + (1|participant) + (1|diagnosis)",

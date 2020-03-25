@@ -3539,7 +3539,8 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_classes(output_12059),
     c("character", "numeric", "numeric", "numeric", "numeric", "list",
       "list", "list", "list", "integer", "integer", "integer", "integer",
-      "list", "character", "vctrs_list_of", "character", "character"),
+      "list", "character", ifelse(is_tibble_v2(), "list", "vctrs_list_of"),
+      "character", "character"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
@@ -3650,7 +3651,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_classes(output_11765),
     c("character", "numeric", "numeric", "numeric", "numeric", "list",
       "list", "list", "list", "integer", "integer", "integer", "integer",
-      "list", "character", "vctrs_list_of", "character", "character"),
+      "list", "character", ifelse(is_tibble_v2(),"list","vctrs_list_of"), "character", "character"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
@@ -3790,7 +3791,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_classes(output_13841),
     c("character", "numeric", "numeric", "numeric", "numeric", "list",
       "list", "list", "list", "integer", "integer", "integer", "integer",
-      "list", "character", "vctrs_list_of", "character", "character"),
+      "list", "character", ifelse(is_tibble_v2(),"list","vctrs_list_of"), "character", "character"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
@@ -4016,35 +4017,37 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
                          "ata.frame', not 'NULL'.")),
     fixed = TRUE)
 
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: fold_cols
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = c(".folds", ".folds_2"), type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE),
-  remove_numbers = TRUE),
-    xpectr::strip("Cant subset columns that dont exist31mx39m The column folds2 doesnt exist", remove_numbers = TRUE),
-    fixed = TRUE)
+  if (!is_tibble_v2()){
+    # Testing cross_validate_fn(data = dat, formulas = "scor...
+    # Changed from baseline: fold_cols
+    xpectr::set_test_seed(42)
+    # Testing side effects
+    expect_error(
+      xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+        if (!"REML" %in% names(hyperparameters))
+            stop("'hyperparameters' must include 'REML'")
+        lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+    }, predict_fn = function(test_data, model, formula, hyperparameters) {
+        stats::predict(object = model, newdata = test_data, type = "response",
+            allow.new.levels = TRUE)
+    }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+        formula <- simplify_formula(formula, train_data)
+        recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+            recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+            recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+            recipes::prep(training = train_data)
+        train_data <- recipes::bake(recipe_object, train_data)
+        test_data <- recipes::bake(recipe_object, test_data)
+        means <- recipe_object$steps[[1]]$means
+        sds <- recipe_object$steps[[2]]$sds
+        tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+            dplyr::bind_cols(dplyr::bind_rows(means, sds))
+        list(train = train_data, test = test_data, parameters = tidy_parameters)
+    }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = c(".folds", ".folds_2"), type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE),
+    remove_numbers = TRUE),
+      xpectr::strip("Cant subset columns that dont exist31mx39m The column folds2 doesnt exist", remove_numbers = TRUE),
+      fixed = TRUE)
+  }
 
   # Testing cross_validate_fn(data = dat, formulas = "scor...
   # Changed from baseline: fold_cols
@@ -4438,7 +4441,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_classes(output_14935),
     c("character", "numeric", "numeric", "numeric", "numeric", "list",
       "list", "list", "list", "integer", "integer", "integer", "integer",
-      "list", "character", "vctrs_list_of", "character", "character"),
+      "list", "character", ifelse(is_tibble_v2(),"list","vctrs_list_of"), "character", "character"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
@@ -4638,7 +4641,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_classes(output_17942),
     c("character", "numeric", "numeric", "numeric", "list", "list",
       "list", "list", "integer", "integer", "integer", "integer",
-      "list", "character", "vctrs_list_of", "character", "character"),
+      "list", "character", ifelse(is_tibble_v2(),"list","vctrs_list_of"), "character", "character"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
@@ -4888,7 +4891,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_classes(output_17829),
     c("character", "numeric", "numeric", "numeric", "numeric", "list",
       "list", "list", "list", "integer", "integer", "integer", "integer",
-      "list", "character", "vctrs_list_of", "character", "character"),
+      "list", "character", ifelse(is_tibble_v2(),"list","vctrs_list_of"), "character", "character"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
@@ -5025,7 +5028,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_classes(output_15297),
     c("character", "numeric", "numeric", "numeric", "numeric", "list",
       "list", "list", "list", "integer", "integer", "integer", "integer",
-      "list", "character", "vctrs_list_of", "character", "character"),
+      "list", "character", ifelse(is_tibble_v2(),"list","vctrs_list_of"), "character", "character"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
@@ -5136,7 +5139,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_classes(output_17893),
     c("character", "numeric", "numeric", "numeric", "numeric", "list",
       "list", "list", "list", "integer", "integer", "integer", "integer",
-      "list", "character", "vctrs_list_of", "character", "character"),
+      "list", "character", ifelse(is_tibble_v2(),"list","vctrs_list_of"), "character", "character"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
@@ -5341,7 +5344,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_classes(output_16927),
     c("character", "numeric", "numeric", "numeric", "numeric", "list",
       "list", "list", "list", "integer", "integer", "integer", "integer",
-      "list", "character", "vctrs_list_of", "character", "character"),
+      "list", "character", ifelse(is_tibble_v2(),"list","vctrs_list_of"), "character", "character"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
@@ -5627,7 +5630,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_classes(output_16620),
     c("character", "numeric", "numeric", "numeric", "numeric", "list",
       "list", "list", "integer", "integer", "integer", "integer",
-      "list", "character", "vctrs_list_of", "character", "character"),
+      "list", "character", ifelse(is_tibble_v2(),"list","vctrs_list_of"), "character", "character"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
@@ -5799,7 +5802,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_classes(output_12936),
     c("character", "numeric", "numeric", "numeric", "numeric", "list",
       "list", "list", "list", "integer", "integer", "integer", "integer",
-      "list", "character", "vctrs_list_of", "character", "character"),
+      "list", "character", ifelse(is_tibble_v2(),"list","vctrs_list_of"), "character", "character"),
     fixed = TRUE)
   # Testing column types
   expect_equal(

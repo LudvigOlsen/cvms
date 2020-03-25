@@ -635,32 +635,36 @@ test_that("verbose reports the correct model functions in validate()", {
     id_col = "participant"
   )
 
-  # Test the list of verbose messages
-  # glm()
-  expect_equal(
-    evaluate_promise(validate(dat[[1]], dat[[2]],
-      formulas = c("diagnosis~score"),
-      family = "binomial",
-      REML = FALSE, verbose = TRUE,
-      positive = 1
-    ))$messages,
-    c("Will validate 1 models.\n",
-      "\n--------------------------\nvalidate(): Message:\nIn model:\ndiagnosis~score\nFor fold column:\n.partitions\nIn fold:\n2\nHyperparameters:\nREML : FALSE, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), restart_edge = FALSE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, \n    relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list(), tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE)), model_verbose : TRUE, family : binomial, is_special_fn : TRUE\ncross_validate(): Used glm() to fit the model.'\n"
+  if (!is_tibble_v2()){
+    # Test the list of verbose messages
+    # glm()
+    expect_equal(
+      evaluate_promise(validate(dat[[1]], dat[[2]],
+        formulas = c("diagnosis~score"),
+        family = "binomial",
+        REML = FALSE, verbose = TRUE,
+        positive = 1
+      ))$messages,
+      c("Will validate 1 models.\n",
+        "\n--------------------------\nvalidate(): Message:\nIn model:\ndiagnosis~score\nFor fold column:\n.partitions\nIn fold:\n2\nHyperparameters:\nREML : FALSE, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), restart_edge = FALSE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, \n    relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list(), tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE)), model_verbose : TRUE, family : binomial, is_special_fn : TRUE\ncross_validate(): Used glm() to fit the model.'\n"
+      )
     )
-  )
+  }
 
-  # glmer
-  expect_equal(
-    evaluate_promise(validate(dat[[1]], dat[[2]],
-      formulas = c("diagnosis~score+(1|session)"),
-      family = "binomial",
-      REML = FALSE, verbose = TRUE,
-      positive = 1
-    ))$messages,
-    c("Will validate 1 models.\n",
-      "\n--------------------------\nvalidate(): Message:\nIn model:\ndiagnosis~score+(1|session)\nFor fold column:\n.partitions\nIn fold:\n2\nHyperparameters:\nREML : FALSE, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), restart_edge = FALSE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, \n    relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list(), tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE)), model_verbose : TRUE, family : binomial, is_special_fn : TRUE\ncross_validate(): Used lme4::glmer() to fit the model.'\n"
+  if (!is_tibble_v2()){
+    # glmer
+    expect_equal(
+      evaluate_promise(validate(dat[[1]], dat[[2]],
+        formulas = c("diagnosis~score+(1|session)"),
+        family = "binomial",
+        REML = FALSE, verbose = TRUE,
+        positive = 1
+      ))$messages,
+      c("Will validate 1 models.\n",
+        "\n--------------------------\nvalidate(): Message:\nIn model:\ndiagnosis~score+(1|session)\nFor fold column:\n.partitions\nIn fold:\n2\nHyperparameters:\nREML : FALSE, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), restart_edge = FALSE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, \n    relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list(), tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE)), model_verbose : TRUE, family : binomial, is_special_fn : TRUE\ncross_validate(): Used lme4::glmer() to fit the model.'\n"
+      )
     )
-  )
+  }
 
   # lm
   expect_equal(

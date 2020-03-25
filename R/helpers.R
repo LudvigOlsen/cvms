@@ -889,3 +889,14 @@ set_arrows <- function(cm, place_x_axis_above, icons,
 rcmd_import_handler <- function() {
   lifecycle::deprecate_soft()
 }
+
+get_pkg_version <- function(pkg_name){
+  vs <- unlist(packageVersion(pkg_name))
+  list("major" = vs[[1]],
+       "minor" = vs[[2]],
+       "patch" = vs[[3]])
+}
+
+is_tibble_v2 <- function(){
+  get_pkg_version("tibble")$major == 2
+}

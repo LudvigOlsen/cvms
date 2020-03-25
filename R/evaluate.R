@@ -460,6 +460,7 @@ evaluate <- function(data,
       id_col
     )
   ) %>%
+    as.data.frame() %>%
     dplyr::as_tibble() %>% # removes grouping
     dplyr::group_by_at(colnames(dplyr::group_keys(data)))
 

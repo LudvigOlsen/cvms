@@ -2945,7 +2945,7 @@ test_that("probability nesting works in multinomial evaluate", {
   # group_nest adds an attribute
   attr(package_nested_probs, "ptype") <- NULL
 
-  expect_true(identical(manually_nested_probs, package_nested_probs))
+  expect_true(identical(manually_nested_probs, as.list(package_nested_probs)))
 
   unnested <- package_nested_probs %>%
     dplyr::bind_rows()
@@ -3331,8 +3331,8 @@ test_that("evaluate() treats dfs and tbls the same", {
   # There is a "attr(*, ".internal.selfref")=<externalptr> " attribute added to the
   # predictions list with the data.table.
   expect_identical(
-    mn_eval_1_tbl$Predictions[[1]]$Prediction,
-    mn_eval_1_dt$Predictions[[1]]$Prediction
+    as.list(mn_eval_1_tbl$Predictions[[1]]$Prediction),
+    as.list(mn_eval_1_dt$Predictions[[1]]$Prediction)
   )
   mn_eval_1_dt$Predictions <- NULL
   mn_eval_1_tbl$Predictions <- NULL

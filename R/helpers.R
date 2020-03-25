@@ -668,7 +668,7 @@ base_rename <- function(data, before, after,
     data[[after]] <- NULL
   }
   colnames(data)[names(data) == before] <- after
-  return(data)
+  data
 }
 
 

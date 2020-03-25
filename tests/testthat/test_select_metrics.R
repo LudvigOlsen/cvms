@@ -156,12 +156,12 @@ test_that("select_metrics() works with output from cross-validation", {
     fixed = TRUE)
   # Testing column classes
   expect_equal(
-    unlist(lapply(gaussian_metrics, class), use.names = FALSE),
-    c("character", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "character", "character", "list"),
+    xpectr::element_classes(gaussian_metrics),
+    c("character", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "character", "character", "vctrs_list_of"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
-    unlist(lapply(gaussian_metrics, typeof), use.names = FALSE),
+    xpectr::element_types(gaussian_metrics),
     c("character", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "character", "character", "list"),
     fixed = TRUE)
   # Testing dimensions
@@ -299,7 +299,7 @@ test_that("select_metrics() works with output from cross-validation", {
     fixed = TRUE)
   # Testing column classes
   expect_equal(
-    unlist(lapply(binomial_metrics, class), use.names = FALSE),
+    xpectr::element_classes(binomial_metrics),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
@@ -308,7 +308,7 @@ test_that("select_metrics() works with output from cross-validation", {
     fixed = TRUE)
   # Testing column types
   expect_equal(
-    unlist(lapply(binomial_metrics, typeof), use.names = FALSE),
+    xpectr::element_types(binomial_metrics),
     c("character", "double", "double", "double", "double", "double", "double", "double",
       "double", "double", "double", "double", "double", "double", "double",
       "double", "double", "double", "double", "double", "double", "double",
@@ -519,17 +519,17 @@ test_that("select_metrics() works with output from cross-validation", {
     fixed = TRUE)
   # Testing column classes
   expect_equal(
-    xpectr::smpl(unlist(lapply(multinomial_metrics, class), use.names = FALSE), n = 30),
+    xpectr::smpl(xpectr::element_classes(multinomial_metrics), n = 30),
     c("numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "numeric", "numeric", "numeric", "numeric",
-      "numeric", "numeric", "character", "character", "list"),
+      "numeric", "numeric", "character", "character", "vctrs_list_of"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
-    xpectr::smpl(unlist(lapply(multinomial_metrics, typeof), use.names = FALSE), n = 30),
+    xpectr::smpl(xpectr::element_types(multinomial_metrics), n = 30),
     c("double", "double", "double", "double", "double", "double",
       "double", "double", "double", "double", "double", "double", "double",
       "double", "double", "double", "double", "double", "double", "double",
@@ -685,12 +685,12 @@ test_that("select_metrics() works with output from baseline", {
     fixed = TRUE)
   # Testing column classes
   expect_equal(
-    unlist(lapply(gaussian_metrics, class), use.names = FALSE),
+    xpectr::element_classes(gaussian_metrics),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "character"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
-    unlist(lapply(gaussian_metrics, typeof), use.names = FALSE),
+    xpectr::element_types(gaussian_metrics),
     c("character", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "character"),
     fixed = TRUE)
   # Testing dimensions
@@ -803,12 +803,12 @@ test_that("select_metrics() works with output from baseline", {
     fixed = TRUE)
   # Testing column classes
   expect_equal(
-    unlist(lapply(binomial_metrics, class), use.names = FALSE),
+    xpectr::element_classes(binomial_metrics),
     c("numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "character"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
-    unlist(lapply(binomial_metrics, typeof), use.names = FALSE),
+    xpectr::element_types(binomial_metrics),
     c("double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "character"),
     fixed = TRUE)
   # Testing dimensions
@@ -985,12 +985,12 @@ test_that("select_metrics() works with output from baseline", {
     fixed = TRUE)
   # Testing column classes
   expect_equal(
-    xpectr::smpl(unlist(lapply(multinomial_metrics, class), use.names = FALSE), n = 30),
+    xpectr::smpl(xpectr::element_classes(multinomial_metrics), n = 30),
     c("numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "character"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
-    xpectr::smpl(unlist(lapply(multinomial_metrics, typeof), use.names = FALSE), n = 30),
+    xpectr::smpl(xpectr::element_types(multinomial_metrics), n = 30),
     c("double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "character"),
     fixed = TRUE)
   # Testing dimensions
@@ -1110,12 +1110,12 @@ test_that("select_metrics() works with output from evaluate", {
     fixed = TRUE)
   # Testing column classes
   expect_equal(
-    unlist(lapply(gaussian_metrics, class), use.names = FALSE),
+    xpectr::element_classes(gaussian_metrics),
     c("numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
-    unlist(lapply(gaussian_metrics, typeof), use.names = FALSE),
+    xpectr::element_types(gaussian_metrics),
     c("double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double"),
     fixed = TRUE)
   # Testing dimensions
@@ -1224,12 +1224,12 @@ test_that("select_metrics() works with output from evaluate", {
     fixed = TRUE)
   # Testing column classes
   expect_equal(
-    unlist(lapply(binomial_metrics, class), use.names = FALSE),
+    xpectr::element_classes(binomial_metrics),
     c("numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
-    unlist(lapply(binomial_metrics, typeof), use.names = FALSE),
+    xpectr::element_types(binomial_metrics),
     c("double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double"),
     fixed = TRUE)
   # Testing dimensions
@@ -1402,12 +1402,12 @@ test_that("select_metrics() works with output from evaluate", {
     fixed = TRUE)
   # Testing column classes
   expect_equal(
-    xpectr::smpl(unlist(lapply(multinomial_metrics, class), use.names = FALSE), n = 30),
+    xpectr::smpl(xpectr::element_classes(multinomial_metrics), n = 30),
     c("numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
-    xpectr::smpl(unlist(lapply(multinomial_metrics, typeof), use.names = FALSE), n = 30),
+    xpectr::smpl(xpectr::element_types(multinomial_metrics), n = 30),
     c("double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double"),
     fixed = TRUE)
   # Testing dimensions
@@ -1505,12 +1505,12 @@ test_that("select_metrics() works with output from evaluate_residuals", {
     fixed = TRUE)
   # Testing column classes
   expect_equal(
-    unlist(lapply(gaussian_metrics, class), use.names = FALSE),
+    xpectr::element_classes(gaussian_metrics),
     c("numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
-    unlist(lapply(gaussian_metrics, typeof), use.names = FALSE),
+    xpectr::element_types(gaussian_metrics),
     c("double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double"),
     fixed = TRUE)
   # Testing dimensions
@@ -1624,12 +1624,12 @@ test_that("select_metrics() works with confusion matrix", {
     fixed = TRUE)
   # Testing column classes
   expect_equal(
-    unlist(lapply(binomial_metrics, class), use.names = FALSE),
+    xpectr::element_classes(binomial_metrics),
     c("numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
-    unlist(lapply(binomial_metrics, typeof), use.names = FALSE),
+    xpectr::element_types(binomial_metrics),
     c("double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double"),
     fixed = TRUE)
   # Testing dimensions
@@ -1798,12 +1798,12 @@ test_that("select_metrics() works with confusion matrix", {
     fixed = TRUE)
   # Testing column classes
   expect_equal(
-    xpectr::smpl(unlist(lapply(multinomial_metrics, class), use.names = FALSE), n = 30),
+    xpectr::smpl(xpectr::element_classes(multinomial_metrics), n = 30),
     c("numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
-    xpectr::smpl(unlist(lapply(multinomial_metrics, typeof), use.names = FALSE), n = 30),
+    xpectr::smpl(xpectr::element_types(multinomial_metrics), n = 30),
     c("double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double"),
     fixed = TRUE)
   # Testing dimensions

@@ -312,7 +312,8 @@ exceeds_threshold <- function(data,
     thresholds <- data %>%
       dplyr::group_by_at(colnames(grouping_keys)) %>%
       dplyr::summarise(Threshold = stats::quantile(
-        !!as.name(metric_name), probs = probs))
+        !!as.name(metric_name), probs = probs)) %>%
+      dplyr::mutate(Threshold = unname(.data$Threshold))
     # Add thresholds to data
     if (ncol(grouping_keys) > 0){
       data <- data %>%

@@ -4,7 +4,8 @@
 \name{precomputed.formulas}
 \alias{precomputed.formulas}
 \title{Precomputed formulas}
-\format{A data frame with 259,358 rows and 5 variables:
+\format{
+A data frame with 259,358 rows and 5 variables:
 \describe{
   \item{formula_}{combination of fixed effects, separated by "\code{+}" and "\code{*}"}
   \item{max_interaction_size}{maximum interaction size in the formula, up to \code{3}}
@@ -13,7 +14,8 @@
   \item{min_num_fixed_effects}{minimum number of fixed effects required to use the formula,
   i.e. the index in the alphabet of the last of the alphabetically ordered effects (letters) in the formula,
   so \code{4} for the formula: \code{"A + B + D"}  }
-}}
+}
+}
 \description{
 Fixed effect combinations for model formulas with/without two- and three-way interactions.
 Up to eight fixed effects in total with up to five fixed effects per formula.

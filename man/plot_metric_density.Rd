@@ -10,7 +10,7 @@ plot_metric_density(
   metric = "",
   fill = c("darkblue", "lightblue"),
   alpha = 0.6,
-  theme_fn = ggplot2::theme_light,
+  theme_fn = ggplot2::theme_minimal,
   xlim = NULL
 )
 }

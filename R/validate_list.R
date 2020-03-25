@@ -366,8 +366,8 @@ validate_list <- function(train_data,
     dplyr::mutate(Family = model_specifics[["family"]])
 
   # Order by original formulas
-  output <- validations %>%
-    dplyr::right_join(tibble::tibble("Formula" = formulas), by = "Formula") %>%
+  output <- tibble::tibble("Formula" = formulas) %>%
+    dplyr::left_join(validations, by = "Formula") %>%
     base_deselect(cols = "Formula")
 
   if (is.null(hyperparameters)) {

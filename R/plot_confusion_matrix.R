@@ -110,6 +110,7 @@
 #'
 #' # Two classes
 #'
+#' \donttest{
 #' # Create targets and predictions data frame
 #' data <- data.frame(
 #'   "target" = c("A", "B", "A", "B", "A", "B", "A", "B", "A", "B", "A", "B"),
@@ -183,6 +184,7 @@
 #' # Here we change the axis labels
 #' plot_confusion_matrix(eval[["Confusion Matrix"]][[1]]) +
 #'   ggplot2::labs(x = "True", y = "Guess")
+#' }
 plot_confusion_matrix <- function(conf_matrix,
                                   targets_col = "Target",
                                   predictions_col = "Prediction",

@@ -4,7 +4,8 @@
 \name{musicians}
 \alias{musicians}
 \title{Musician groups}
-\format{A data frame with 60 rows and 9 variables:
+\format{
+A data frame with 60 rows and 9 variables:
 \describe{
   \item{ID}{Musician identifier, 60 levels}
   \item{Age}{Age of the musician. Between 17 and 66 years.}
@@ -15,7 +16,8 @@
   \item{Guitar}{Whether the musician plays guitar. \code{0} = No, \code{1} = Yes.}
   \item{Keys}{Whether the musician plays keys. \code{0} = No, \code{1} = Yes.}
   \item{Vocals}{Whether the musician sings. \code{0} = No, \code{1} = Yes.}
-}}
+}
+}
 \description{
 Made-up data on 60 musicians in 4 groups for multiclass classification.
 }

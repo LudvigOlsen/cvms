@@ -4,7 +4,8 @@
 \name{predicted.musicians}
 \alias{predicted.musicians}
 \title{Predicted musician groups}
-\format{A data frame with 540 rows and 10 variables:
+\format{
+A data frame with 540 rows and 10 variables:
 \describe{
   \item{Classifier}{The applied classifier.
   One of \code{"nnet_multinom"}, \code{"randomForest"}, and \code{"e1071_svm"}.}
@@ -19,7 +20,8 @@
   \item{C}{The probability of class \code{"C"}.}
   \item{D}{The probability of class \code{"D"}.}
   \item{Predicted Class}{The predicted class. The argmax of the four probability columns.}
-}}
+}
+}
 \description{
 Predictions by 3 classifiers of the 4 classes in the
 \code{\link[cvms:musicians]{musicians}} dataset.

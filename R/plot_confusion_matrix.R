@@ -361,10 +361,10 @@ plot_confusion_matrix <- function(conf_matrix,
   ))
 
   # Arrow icons # TODO should be svg images within the package instead!
-  arrow_icons <- list("up" = "caret-up-sharp",
-                      "down" = "caret-down-sharp",
-                      "left" = "caret-back-sharp",
-                      "right" = "caret-forward-sharp")
+  arrow_icons <- list("up" = get_figure_path("caret_up_sharp.svg"),
+                      "down" = get_figure_path("caret_down_sharp.svg"),
+                      "left" = get_figure_path("caret_back_sharp.svg"),
+                      "right" = get_figure_path("caret_forward_sharp.svg"))
 
   #### Prepare dataset ####
 
@@ -569,14 +569,14 @@ plot_confusion_matrix <- function(conf_matrix,
 
   if (isTRUE(add_col_percentages) && isTRUE(add_arrows)){
     pl <- pl +
-      ggimage::geom_icon(
+      ggimage::geom_image(
         ggplot2::aes(image = .data$down_icon),
         by = "height",
         size = arrow_size,
         nudge_x = font_col_percentages[["nudge_x"]],
         nudge_y = font_col_percentages[["nudge_y"]] - arrow_nudge_from_text
       ) +
-      ggimage::geom_icon(
+      ggimage::geom_image(
         ggplot2::aes(image = .data$up_icon),
         by = "height",
         size = arrow_size,
@@ -588,7 +588,7 @@ plot_confusion_matrix <- function(conf_matrix,
 
   if (isTRUE(add_row_percentages) && isTRUE(add_arrows)){
     pl <- pl +
-      ggimage::geom_icon(
+      ggimage::geom_image(
         ggplot2::aes(image = .data$right_icon),
         by = "height",
         size = arrow_size,
@@ -596,7 +596,7 @@ plot_confusion_matrix <- function(conf_matrix,
           arrow_nudge_from_text - (arrow_size / 2),
         nudge_y = font_row_percentages[["nudge_y"]]
       ) +
-      ggimage::geom_icon(
+      ggimage::geom_image(
         ggplot2::aes(image = .data$left_icon),
         by = "height",
         size = arrow_size,

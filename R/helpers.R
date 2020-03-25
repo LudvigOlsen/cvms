@@ -849,7 +849,8 @@ aapply <- function(fun, formula, ..., fixed = list()) {
 #   Set arrow icons for plot_confusion_matrix                               ####
 
 
-set_arrows <- function(cm, place_x_axis_above, icons){
+set_arrows <- function(cm, place_x_axis_above, icons,
+                       empty_path = get_figure_path("empty_square.svg")){
 
   # Get the extreme levels
   max_prediction_level <- max(as.character(levels(cm[["Prediction"]])))
@@ -864,16 +865,16 @@ set_arrows <- function(cm, place_x_axis_above, icons){
   cm[["down_icon"]] <- icons[["down"]]
 
   # Remove arrows where Prediction is extreme level
-  cm[cm[["Prediction"]] == max_prediction_level, "up_icon"] <- ""
-  cm[cm[["Prediction"]] == min_prediction_level, "down_icon"] <- ""
+  cm[cm[["Prediction"]] == max_prediction_level, "up_icon"] <- empty_path
+  cm[cm[["Prediction"]] == min_prediction_level, "down_icon"] <- empty_path
 
   # Remove arrows where Target is extreme level
   if (isTRUE(place_x_axis_above)){
-    cm[cm[["Target"]] == max_target_level, "left_icon"] <- ""
-    cm[cm[["Target"]] == min_target_level, "right_icon"] <- ""
+    cm[cm[["Target"]] == max_target_level, "left_icon"] <- empty_path
+    cm[cm[["Target"]] == min_target_level, "right_icon"] <- empty_path
   } else {
-    cm[cm[["Target"]] == max_target_level, "right_icon"] <- ""
-    cm[cm[["Target"]] == min_target_level, "left_icon"] <- ""
+    cm[cm[["Target"]] == max_target_level, "right_icon"] <- empty_path
+    cm[cm[["Target"]] == min_target_level, "left_icon"] <- empty_path
   }
 
   cm

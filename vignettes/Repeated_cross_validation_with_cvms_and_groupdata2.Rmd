@@ -100,7 +100,7 @@ CV
 
 # The output now has a nested 'Results' tibble
 # Let's see a subset of the columns
-CV$Results[[1]] %>% select(1:9) %>% head(10) %>%  kable()
+CV$Results[[1]] %>% select(1:7) %>% head(10) %>%  kable()
 ```
 
 
@@ -124,5 +124,5 @@ ggplot(CV_coeffs, aes(x=term, y=p.value, color=term)) +
   geom_jitter() +
   scale_y_log10(breaks = c(0,0.001,0.01,0.05,0.1,0.2),
                 labels = c("0","<=0.001","0.01","0.05","0.1",">=0.2")) +
-  theme_light()
+  theme_minimal()
 ```

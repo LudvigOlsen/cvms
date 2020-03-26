@@ -249,10 +249,11 @@ combine_predictors <- function(dependent,
       dplyr::distinct()
   }
 
-  formulas <- formulas %>%
-    dplyr::mutate(n_efxs = stringr::str_count(.data$formula_, "\\+|\\*")) %>%
-    dplyr::arrange(.data$n_efxs, .data$formula_) %>%
-    dplyr::pull(.data$formula_)
+  formulas[["n_efxs"]] <- stringr::str_count(formulas[["formula_"]], "\\+|\\*")
+  formulas <- formulas[
+    order(formulas$n_efxs,
+          formulas$formula_,
+          method = "radix"),][["formula_"]]
 
   if (is.null(random_effects)) {
     return(paste0(dependent, " ~ ", formulas))

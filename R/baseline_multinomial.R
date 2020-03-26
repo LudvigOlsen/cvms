@@ -184,8 +184,10 @@ create_multinomial_baseline_evaluations <- function(test_data,
     dplyr::mutate(
       Family = "multinomial",
       Dependent = dependent_col
-    ) %>%
-    dplyr::arrange(.data$All_class)
+    )
+  evaluations_all_or_nothing_results <- evaluations_all_or_nothing_results[
+    order(evaluations_all_or_nothing_results$All_class,
+          method = "radix"), ]
 
   # Gather the evaluations in the correct form
 

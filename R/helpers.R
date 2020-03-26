@@ -894,9 +894,13 @@ get_pkg_version <- function(pkg_name){
   vs <- unlist(packageVersion(pkg_name))
   list("major" = vs[[1]],
        "minor" = vs[[2]],
-       "patch" = vs[[3]])
+       "patch" = vs[[3]],
+       "dev" = ifelse(length(vs) > 3, vs[[4]], integer(0)))
 }
 
 is_tibble_v2 <- function(){
-  get_pkg_version("tibble")$major == 2
+  # TODO Once tibble 3.0.0 is out, remove the dev check
+  get_pkg_version("tibble")$major == 2 &&
+    is.na(get_pkg_version("tibble")$dev)
+
 }

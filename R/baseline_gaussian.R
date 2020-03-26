@@ -85,9 +85,11 @@ create_gaussian_baseline_evaluations <- function(train_data,
   # such that at least min_training_rows are included
   # and at least min_training_rows_left_out are not included
 
-  sampling_boundaries <- train_set_inclusion_vals %>%
-    dplyr::arrange(.data$split_factor,
-                   dplyr::desc(.data$inclusion_probability)) %>%
+  sampling_boundaries <- train_set_inclusion_vals
+  sampling_boundaries <- sampling_boundaries[order(sampling_boundaries$split_factor,
+                            -sampling_boundaries$inclusion_probability,
+                            method = "radix"), ]
+  sampling_boundaries <- sampling_boundaries %>%
     dplyr::group_by(.data$split_factor) %>%
     dplyr::slice(min_training_rows,
                  n_train_targets - min_training_rows_left_out + 1) %>%
@@ -230,9 +232,15 @@ subtract_inf_count_from_na_count <- function(summarized_metrics) {
   NAs_row_number <- which(summarized_metrics$Measure == "NAs")
   INFs_row_number <- which(summarized_metrics$Measure == "INFs")
 
-  # Subtract the INF counts from the NA counts
-  summarized_metrics[NAs_row_number, -1] <- summarized_metrics[NAs_row_number, -1] -
-    summarized_metrics[INFs_row_number, -1]
+  measure_col <- summarized_metrics[,"Measure"]
+  summarized_metrics[["Measure"]] <- NULL
 
+  # Subtract the INF counts from the NA counts
+  summarized_metrics[NAs_row_number,] <- summarized_metrics[NAs_row_number,] -
+    summarized_metrics[INFs_row_number,]
+
+  summarized_metrics <- summarized_metrics %>%
+    tibble::add_column(Measure = measure_col[["Measure"]],
+                       .before = colnames(summarized_metrics)[[1]])
   summarized_metrics
 }

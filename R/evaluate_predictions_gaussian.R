@@ -75,8 +75,10 @@ evaluate_predictions_gaussian <- function(data,
   # And nest fold results in avg results
   if (!is.null(results_per_fold)) {
     results_per_fold <- results_per_fold %>%
-      dplyr::ungroup() %>%
-      dplyr::arrange(!!as.name(fold_info_cols[["abs_fold"]]))
+      dplyr::ungroup()
+    results_per_fold <- results_per_fold[
+      order(results_per_fold[[fold_info_cols[["abs_fold"]]]],
+            method = "radix"), ]
 
     # Remove abs_fold
     results_per_fold[[fold_info_cols[["abs_fold"]]]] <- NULL

@@ -479,8 +479,10 @@ cross_validate_list <- function(data,
   # Extract the first row for each model in the computation grid
   grid_first_rows <- computation_grid %>%
     dplyr::group_by(.data$model) %>%
-    dplyr::slice(1) %>%
-    dplyr::arrange(.data$model)
+    dplyr::slice(1)
+  grid_first_rows <- grid_first_rows[
+    order(grid_first_rows$model,
+          method = "radix"), ]
 
   # Extract hparams from grid
   hparams <- grid_first_rows[["hparams"]]

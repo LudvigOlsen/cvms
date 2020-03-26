@@ -102,16 +102,13 @@ preprocess_numeric <- function(vec, settings) {
   paste0(settings[["prefix"]], vec, settings[["suffix"]])
 }
 
-
-# Finds path of figure in either /man/figures/ or /help/figures/
-# The latter being used in built packages
-get_figure_path <- function(fig_name, pgk_name = "cvms") {
-  package_path <- system.file(package = pgk_name)
-  for (sub in c("man", "help")) {
-    fig_path <- paste0(package_path, "/", sub, "/figures/", fig_name)
-    if (file.exists(fig_path))
-      return(fig_path)
-  }
+# Get figure path from either /inst/images/ or /images/
+# Stuff in /inst/ is put in root folder on build
+get_figure_path <- function(fig_name, inst_dir = "images", pgk_name = "cvms") {
+  dir_path <- system.file(inst_dir, package = pgk_name)
+  fig_path <- paste0(dir_path, "/", fig_name)
+  if (file.exists(fig_path))
+    return(fig_path)
   warning("Could not find figure.")
   invisible()
 }

@@ -1,0 +1,170 @@
+---
+title: "The available metrics in cvms"
+author: 
+  - "Ludvig Renbo Olsen"
+date: "`r Sys.Date()`"
+abstract: |
+  This vignette lists the available metrics in `cvms`, along with their formulas.
+  &nbsp;  
+  &nbsp;  
+  Contact the author at r-pkgs@ludvigolsen.dk
+  &nbsp;  
+  &nbsp;  
+  
+output: 
+  rmarkdown::html_vignette:
+    css: 
+    - !expr system.file("rmarkdown/templates/html_vignette/resources/vignette.css", package = "rmarkdown")
+    - styles.css
+    fig_width: 6
+    fig_height: 4
+    toc: yes
+    number_sections: no
+  rmarkdown::pdf_document:
+    highlight: tango
+    number_sections: yes
+    toc: yes
+    toc_depth: 4
+vignette: >
+  %\VignetteIndexEntry{AvailableMetrics}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/vignette_metrics-",
+  dpi = 92,
+  fig.retina = 2
+)
+```
+
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(cvms)
+library(ggplot2)
+library(knitr)
+```
+
+## Introduction
+
+`cvms` has a large set of metrics for model evaluation. In this document, we list the metrics and their formulas. 
+
+Some of the metrics in the package are computed with external packages. These are listed at the bottom.
+
+Some of the metrics are disabled by default to avoid cluttering the output tibble. These can be enabled in the `metrics` argument. This argument takes a list of named booleans, like `list("Accuracy" = FALSE, "Weighted F1" = TRUE)`. This can be generated with the helper functions `gaussian_metrics()`, `binomial_metrics()`, and `multinomial_metrics()`. If, for instance, we only wish to calculate the `RMSE` metric for our regression model, we can use either `list("all" = FALSE, "RMSE" = TRUE)` or `gaussian_metrics(all = FALSE, rmse = TRUE)`.
+
+  
+## Gaussian Metrics 
+
+The metrics used to evaluate regression tasks (like linear regression):
+
+| Symbol  | Denotes  | Formula |
+|:--------|:---------|:--------|
+|$y$| Targets | |
+|$\hat{y}$| Predictions | |
+|$\bar{y}$| Average target | |
+|$n$| Number of observations | |
+|${\scriptstyle \operatorname{IQR}(x)}$| Interquartile Range |${\scriptstyle \operatorname{quantile}(x, 3/4) - \operatorname{quantile}(x, 1/4)}$|
+|$\lvert x \rvert$| Absolute value of $x$| |
+
+| Metric name  | Abbreviation  | Formula                                                                          |
+|:--------------------------|:--------|:--------------------------------------------------------------------------|
+|Root Mean Square Error     |RMSE     |$\sqrt{\frac{\sum_{i=1}^{n}(\hat{y}_{i}-y_{i})^2}{n}}$|
+|Mean Absolute Error        |MAE      |$\frac{\sum_{i=1}^{n}\lvert\hat{y}_{i}-y_{i}\rvert}{n}$|
+|Root Mean Square Log Error |RMSLE    |$\sqrt{\frac{\sum_{i=1}^{n}(\ln{(\hat{y}_{i}+1)}-\ln{(y_{i}+1))^2}}{n}}$|
+|Mean Absolute Log Error    |MALE     |$\frac{\sum_{i=1}^{n}\lvert\ln{(\hat{y}_{i}+1)}-\ln{(y_{i}+1)\rvert}}{n}$|
+|Relative Absolute Error|RAE|$\frac{\sum_{i=1}^{n}\lvert\hat{y}_{i}-y_{i}\rvert}{\sum_{i=1}^{n}\lvert y_{i}-\bar{y}\rvert}$|
+|Relative Squared Error |RSE|$\frac{\sum_{i=1}^{n}(\hat{y}_{i}-y_{i})^2}{\sum_{i=1}^{n}(y_{i} - \bar{y})^2}$|
+|Root Relative Squared Error|RRSE|${\scriptstyle \sqrt{RSE} }$|
+|Mean Absolute Percentage Error|MAPE|$\frac{1}{n}\sum_{i=1}^{n} \lvert \frac{\hat{y}_{i}-y_{i}}{y_{i}} \rvert$|
+|Normalized RMSE</br>(by target range) |NRMSE(RNG) |$\frac{RMSE}{\max{y}-\min{y}}$|
+|Normalized RMSE</br>(by target IQR)   |NRMSE(IQR) |$\frac{RMSE}{\operatorname{IQR}(y)}$|
+|Normalized RMSE</br>(by target STD)   |NRMSE(STD) |$\frac{RMSE}{\sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(y_i-\bar{y})^2}}$|
+|Normalized RMSE</br>(by target mean)  |NRMSE(AVG) |$\frac{RMSE}{\bar{y}}$|
+|Mean Square Error|MSE|$\frac{\sum_{i=1}^{n}(\hat{y}_{i}-y_{i})^2}{n}$|
+|Total Absolute Error|TAE|${\scriptstyle \sum_{i=1}^{n}\lvert\hat{y}_{i}-y_{i}\rvert}$|
+|Total Squared Error|TSE|${\scriptstyle \sum_{i=1}^{n}(\hat{y}_{i}-y_{i})^2}$|
+
+## Binomial Metrics
+
+The metrics used to evaluate binary classification tasks:
+
+Based on a confusion matrix, we first count the True Positives (TP), True Negatives (TN), False Positives (FP), and False Negatives (FN). Below, `1` is the positive class.
+
+```{r echo=FALSE}
+tb <- table(c(0,1),c(0,1))
+tb[[1]] <- "TN"
+tb[[2]] <- "FP"
+tb[[3]] <- "FN"
+tb[[4]] <- "TP"
+names(dimnames(tb)) <- c("Prediction", "Target")
+tb
+```
+
+With these counts, we can calculate the following metrics. Note, that the `Kappa` metric normalizes the counts to percentages.
+
+| Metric name(s)  | Abbreviation  | Formula                                                          |
+|:--------------------------|:------- |:-------------------------------------------------------------|
+|Accuracy                   |         |$\frac{TP + TN}{TP + TN + FP + FN}$|
+|Balanced Accuracy          |         |$\frac{Sensitivity + Specificity}{2}$|
+|Sensitivity,</br>Recall,</br>True Positive Rate | |$\frac{TP}{TP + FN}$|
+|Specificity,</br>True Negative Rate | |$\frac{TN}{TN + FP}$|
+|Positive Predictive Value, </br>Precision |Pos Pred Value |$\frac{TP}{TP + FP}$|
+|Negative Predictive Value |Neg Pred Value |$\frac{TN}{TN + FN}$|
+|F1 score | |$2 \cdot \frac{Pos Pred Value \cdot Sensitivity}{Pos Pred Value + Sensitivity}$|
+|Matthews Correlation Coefficient | MCC |$\frac{TP  \cdot TN - FP  \cdot FN}{\sqrt{(TP + FP)(TP + FN)(TN + FP) (TN + FN)}}$</br><font size="1.5">Note: When the denominator is 0, we set it to 1 to avoid `NaN`.</font>|
+|Detection Rate||$\frac{TP}{TP + FN + TN + FP}$|
+|Detection Prevalence||$\frac{TP + FP}{TP + FN + TN + FP}$|
+|Prevalence||$\frac{TP + FN}{TP + FN + TN + FP}$|
+|Threat Score||$\frac{FP}{TP + FN + FP}$|
+|False Negative Rate||${\scriptstyle 1 - Sensitivity}$|
+|False Positive Rate||${\scriptstyle 1 - Specificity}$|
+|False Discovery Rate||${\scriptstyle 1 - Pos Pred Value}$|
+|False Omission Rate||${\scriptstyle 1 - Neg Pred Value}$|
+|Kappa||<font size="1.5">For Kappa, the counts (`TP`, `TN`, `FP`, `FN`) are normalized to percentages (summing to 1). Then:</font></br> ${\scriptstyle p_{observed} = TP + TN}$ </br> ${\scriptstyle p_{expected} = (TN + FP)(TN + FN) + (FN + TP)(FP + TP)}$ </br> $Kappa = \frac{p_{observed} - p_{expected}}{1 - p_{expected}}$|
+
+## Multinomial Metrics
+
+We have four types of metrics for the multiclass classification evaluation:
+
+**Overall** metrics simply look at whether a prediction is correct or not. Currently, `cvms` only has the `Overall Accuracy`.
+
+The **Macro**/**Average** metrics are based on *one-vs-all* evaluations of each class. In a *one-vs-all* evaluation, we set all predictions and targets for the current class to `1` and all others to `0` ( ${\scriptstyle y_{o,c} = 1 \text{ if } y_{o} = c \text{ else } 0}$ and ${\scriptstyle \hat{y}_{o,c} = 1 \text{ if } \hat{y} _{o} = c \text{ else } 0}$ ) and perform a binomial evaluation. Once done for all classes, we average the results. Note that this is sometimes referred to as one-vs-rest, as it is the current class against the rest of the classes.
+
+<!-- Note that the space between \hat{y} and _{o} has to be there for the rendering to work -->
+
+With a few exceptions (`AUC` and `MCC`), the metrics in the multinomial outputs that share their name with the *binomial metrics* are macro metrics. `AUC` and `MCC` instead have specific **multiclass variants**.
+
+The **Weighted** metrics are averages, similar to the macro metrics, but weighted by the `Support` for each class.
+
+| Metric name     | Abbreviation  | Formula                                          |
+|:----------------|:--------------|:-------------------------------------------------|
+|Overall Accuracy |               |$\frac{Correct}{Correct + Incorrect}$|
+|Macro Metric     |               |${\scriptstyle \frac{1}{\lvert C \rvert}\sum_{c}^{C} metric_{c}}$|
+|Support          |               |${\scriptstyle support_c = \lvert \{ o \in O : o=c \} \rvert \quad \forall c \in C}$</br><font size="1.5">I.e., a count of the class in the target column.</br> $C$: the set of classes; $O$: the observations.</br> $\lvert x \rvert$ denotes length of $x$.</font> |
+|Weighted metric |                |$\frac{\sum_{c}^{C} metric_{c} \cdot support_{c}}{\sum_{c}^{C} support_{c}}$|
+|Multiclass MCC|MCC |${\scriptstyle \frac{N \operatorname{Tr}(C)-\sum_{k l} \tilde{\mathcal{C}}_{k} \hat{\mathcal{C}}_{l}}{\sqrt{N^{2}-\sum_{k l} \tilde{\mathcal{C}}_{k}\left(\hat{\mathcal{C}}^{\mathrm{T}}\right)_{l}} \sqrt{N^{2}-\sum_{k l}\left(\tilde{C}^{\mathrm{T}}\right)_{k} \hat{C}_{l}}} }$ </br><font size="1.5"> $N$: number of samples</br> $C$: a $K \times K$ confusion matrix</br> $Tr(C)$: Number of correct predictions</br> $\tilde{\mathcal{C}}_{k}$: $k$th row of $C$ ; $\hat{C}_{l}$: $l$th column of $C$</br> $C^{T}$: $C$ transposed</br> Note: When the computation is `NaN`, we return `0`.</br>Code was ported from <a href="https://github.com/scikit-learn/scikit-learn/blob/95d4f0841/sklearn/metrics/_classification.py#L821" target="_blank">scikit-learn</a>.</br>Gorodkin, J. (2004). Comparing two K-category assignments by a K-category correlation coefficient. Computational biology and chemistry, 28(5-6), 367-374.</font>|
+
+
+## External metrics
+
+These metrics are calculated by other packages:
+
+| Metric name       | Abbreviation  | Package::Function | Used in             |
+|:------------------|:--------------|:------------------|---------------------|
+|Aikake Information Criterion | AIC | stats::AIC        | Shared              |
+|Corrected Aikake Information Criterion | AICc | MuMIn::AICc | Shared         |
+|Bayesian Information Criterion | BIC | stats::BIC      | Shared              |
+|Aikake Information Criterion | AIC | stats::AIC        | Shared              |
+|Marginal R-squared | r2m | MuMIn::r.squaredGLMM        | Gaussian            |
+|Conditional R-squared | r2c | MuMIn::r.squaredGLMM     | Gaussian            |
+|ROC curve          | ROC           | pROC::roc         | Binomial            |
+|Area Under the Curve  | AUC        | pROC::roc         | Binomial            |
+|Multiclass ROC curve  | ROC     | pROC::multiclass.roc | Multinomial         |
+|Multiclass Area Under the Curve | AUC | pROC::multiclass.roc | Multinomial   |
+
+</br>

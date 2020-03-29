@@ -119,7 +119,7 @@ Pass a list of hyperparameters and every combination of these will be cross-vali
 
 * Adds vignette: `Creating a confusion matrix with cvms`
 
-* Adds vignette: `Available metrics in cvms`
+* Adds vignette: `The available metrics in cvms`
 
 
 ## Other changes

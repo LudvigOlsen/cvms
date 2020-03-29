@@ -32,7 +32,7 @@
 #'
 #'   Also accepts the string \code{"all"}.
 #' @details
-#'  The metric formulas are listed in the \emph{Metrics} vignette.
+#'  The metric formulas are listed in \emph{The Available Metrics} vignette.
 #' @return
 #'  Tbl (tibble) with the calculated metrics.
 #'

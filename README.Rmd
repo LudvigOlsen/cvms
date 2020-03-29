@@ -222,13 +222,13 @@ CV1$Coefficients[[1]] %>% kable()
 
 # Additional information about the model
 # and the training process
-CV1 %>% select(13:20) %>% kable()
+CV1 %>% select(14:21) %>% kable()
 
 ```
 
 ### Binomial
 
-```{r}
+```{r fig.width = 4.25, fig.height = 4.25, fig.align='center'}
 CV2 <- cross_validate(data, 
                       formulas = "diagnosis~score",
                       fold_cols = '.folds',
@@ -241,8 +241,8 @@ CV2
 # We won't repeat the parts too similar to those in Gaussian
 
 # Metrics
-CV2 %>% select(1:10) %>% kable()
-CV2 %>% select(11:15) %>% kable()
+CV2 %>% select(1:9) %>% kable(digits = 5)
+CV2 %>% select(10:15) %>% kable()
 
 # Confusion matrix
 CV2$`Confusion Matrix`[[1]] %>% kable()
@@ -615,7 +615,7 @@ binomial_baseline$random_evaluations
 
 We can plot the distribution of `F1` scores from the random evaluations:
 
-```{r}
+```{r fig.width = 5.5, fig.height = 4.5, fig.align='center'}
 # First, remove the NAs from the F1 column
 random_evaluations <- binomial_baseline$random_evaluations
 random_evaluations <- random_evaluations[!is.na(random_evaluations$F1),]
@@ -652,7 +652,7 @@ multiclass_baseline$summarized_class_level_results %>%
 
 # Random evaluations
 # Note, that the class level results for each repetition
-# is available as well
+# are available as well
 multiclass_baseline$random_evaluations
 
 ```
@@ -683,7 +683,7 @@ gaussian_baseline$random_evaluations
 
 Plot the density plot for `RMSE`:
 
-```{r}
+```{r fig.width = 5.5, fig.height = 3.5, fig.align='center'}
 plot_metric_density(baseline = gaussian_baseline$random_evaluations,
                     metric = "RMSE")
 ```

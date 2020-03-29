@@ -4,7 +4,7 @@
 #' @description
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
 #'
-#'  Creates a ggplot2 object with a density plot for one of the columns in the passed data frame.
+#'  Creates a ggplot2 object with a density plot for one of the columns in the passed data frame(s).
 #'
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export

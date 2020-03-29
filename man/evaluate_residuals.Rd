@@ -64,7 +64,7 @@ Tbl (tibble) with the calculated metrics.
  In most contexts, that is the function you want.
 }
 \details{
-The metric formulas are listed in the \emph{Metrics} vignette.
+The metric formulas are listed in \emph{The Available Metrics} vignette.
 }
 \examples{
 # Attach packages

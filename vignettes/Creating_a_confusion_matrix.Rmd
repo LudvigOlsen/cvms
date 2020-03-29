@@ -4,8 +4,8 @@ author:
   - "Ludvig Renbo Olsen"
 date: "`r Sys.Date()`"
 abstract: |
-  In this vignette, we learn how to create a confusion matrix from a set of classification
-  predictions and plot it.
+  In this vignette, we learn how to create and plot a confusion matrix from a set of classification
+  predictions. The functions of interest are `evaluate()` and `plot_confusion_matrix()`.
   &nbsp;  
   &nbsp;  
   Contact the author at r-pkgs@ludvigolsen.dk
@@ -202,6 +202,9 @@ You can find the available *sequential* palettes at `?scale_fill_distiller`.
 ```{r}
 plot_confusion_matrix(conf_mat$`Confusion Matrix`[[1]],
                       palette = "Oranges")
+
+plot_confusion_matrix(conf_mat$`Confusion Matrix`[[1]],
+                      palette = "Greens")
 ```
 
 Finally, let's try tweaking the font settings for the counts. For this, we use the `font()` helper function. 

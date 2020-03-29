@@ -316,7 +316,8 @@ create_multinomial_baseline_evaluations <- function(test_data,
     dplyr::group_by(.data$Class)
 
   # Nest the summarized class level results
-  nested_class_level <- tibble::tibble("Class" = unlist(dplyr::group_keys(summarized_metrics_class_level))) %>%
+  nested_class_level <- tibble::tibble("Class" = unlist(dplyr::group_keys(summarized_metrics_class_level),
+                                                        use.names = FALSE)) %>%
     dplyr::left_join(
       summarized_metrics_class_level %>%
         dplyr::group_nest(.key = "Results", keep = FALSE),
@@ -397,9 +398,10 @@ summarize_measure <- function(data, measure_name, FUN, na.rm = FALSE) {
 }
 
 set_all_or_nothing_metrics <- function(metrics) {
-  # Don't calculate AUC in the all_or_nothing_evaluations
+  # Don't calculate MCC and AUC in the all_or_nothing_evaluations
   # as it will be done along with Overall Acc.
   all_or_nothing_metrics <- metrics
+  all_or_nothing_metrics[["MCC"]] <- FALSE
   all_or_nothing_metrics[["AUC"]] <- FALSE
   all_or_nothing_metrics[["Lower CI"]] <- FALSE
   all_or_nothing_metrics[["Upper CI"]] <- FALSE

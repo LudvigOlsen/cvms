@@ -2353,7 +2353,7 @@ test_that("verbose reports the correct model functions in cross_validate()", {
     id_col = "participant"
   )
 
-  if (!is_tibble_v2()){
+  if (!is_tibble_v2() && is_newer_lme4()){
 
     # Test the list of verbose messages
     # glm()

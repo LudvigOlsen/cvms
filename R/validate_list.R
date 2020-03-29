@@ -128,8 +128,8 @@ validate_list <- function(train_data,
 
     # Add identifier for each observation so we can find which
     # ones are hard to predict
-    test_data[[tmp_observation_id_col]] <- seq_len(nrow(test_data))
-    train_data[[tmp_observation_id_col]] <- -1
+    test_data[[tmp_observation_id_col]] <- as.integer(seq_len(nrow(test_data)))
+    train_data[[tmp_observation_id_col]] <- as.integer(-1)
 
     data <- train_data %>%
       dplyr::bind_rows(test_data, .id = partitions_col) %>%
@@ -152,13 +152,13 @@ validate_list <- function(train_data,
         as.integer(as.character(.data$.partitions))
       )) %>%
       dplyr::group_by(.data$.partitions) %>%
-      dplyr::mutate(.___observations___ = seq_len(dplyr::n())) %>%
+      dplyr::mutate(.___observations___ = as.integer(seq_len(dplyr::n()))) %>%
       base_rename(
         before = ".___observations___",
         after = tmp_observation_id_col
       )
     # Set observation ids in training set to -1
-    data[data[[".partitions"]] == levels(data[[".partitions"]])[[1]], ][[tmp_observation_id_col]] <- -1
+    data[data[[".partitions"]] == levels(data[[".partitions"]])[[1]], ][[tmp_observation_id_col]] <- as.integer(-1)
   }
 
   # Get evaluation type
@@ -296,7 +296,6 @@ validate_list <- function(train_data,
       predictions_and_targets <- validated_folds[["predictions_and_targets"]]
       nested_predictions_and_targets <- predictions_and_targets %>%
         dplyr::group_nest() %>%
-        # legacy_nest(seq_len(ncol(predictions_and_targets))) %>%
         dplyr::pull(.data$data)
 
       # Temporary fold info

@@ -1698,11 +1698,11 @@ test_that("multinomial nnet models work with cross_validate_fn()", {
     )
   )
   expect_equal(
-    as.numeric(CVmultinomlist$Results[[1]]$ROC[[1]][[1]]$auc), # TODO Seem to be different than before?
+    as.numeric(CVmultinomlist$Results[[1]]$ROC[[1]]$auc),
     0.338771310993533
   )
   expect_equal(
-    CVmultinomlist$Results[[1]]$ROC[[1]][[1]]$rocs$`class_1/class_2`[[1]]$sensitivities,
+    CVmultinomlist$Results[[1]]$ROC[[1]]$rocs$`class_1/class_2`[[1]]$sensitivities,
     c(
       1, 0.944444444444444, 0.888888888888889, 0.833333333333333,
       0.833333333333333, 0.777777777777778, 0.722222222222222, 0.666666666666667,
@@ -1715,7 +1715,7 @@ test_that("multinomial nnet models work with cross_validate_fn()", {
     )
   )
   expect_equal(
-    CVmultinomlist$Results[[1]]$ROC[[1]][[1]]$rocs$`class_1/class_2`[[2]]$sensitivities,
+    CVmultinomlist$Results[[1]]$ROC[[1]]$rocs$`class_1/class_2`[[2]]$sensitivities,
     c(
       1, 0.928571428571429, 0.857142857142857, 0.785714285714286,
       0.785714285714286, 0.714285714285714, 0.714285714285714, 0.642857142857143,
@@ -1728,7 +1728,7 @@ test_that("multinomial nnet models work with cross_validate_fn()", {
     )
   )
   expect_equal(
-    CVmultinomlist$Results[[1]]$ROC[[1]][[1]]$rocs$`class_2/class_3`[[1]]$sensitivities,
+    CVmultinomlist$Results[[1]]$ROC[[1]]$rocs$`class_2/class_3`[[1]]$sensitivities,
     c(
       1, 0.944444444444444, 0.888888888888889, 0.888888888888889,
       0.833333333333333, 0.777777777777778, 0.722222222222222, 0.666666666666667,
@@ -1742,7 +1742,7 @@ test_that("multinomial nnet models work with cross_validate_fn()", {
     )
   )
   expect_equal(
-    CVmultinomlist$Results[[1]]$ROC[[1]][[1]]$rocs$`class_2/class_3`[[2]]$sensitivities,
+    CVmultinomlist$Results[[1]]$ROC[[1]]$rocs$`class_2/class_3`[[2]]$sensitivities,
     c(
       1, 0.944444444444444, 0.944444444444444, 0.888888888888889,
       0.888888888888889, 0.888888888888889, 0.833333333333333, 0.777777777777778,
@@ -2958,9 +2958,9 @@ test_that("multinomial random predictions work with cross_validate_fn()", {
   )
 
   # ROC
-  expect_is(CVmultinomlist$Results[[1]]$ROC[[1]][[1]], "mv.multiclass.roc") # TODO fix here or in code?
+  expect_is(CVmultinomlist$Results[[1]]$ROC[[1]], "mv.multiclass.roc") # TODO fix here or in code?
   expect_equal(
-    CVmultinomlist$Results[[1]]$ROC[[1]][[1]]$rocs$`class_1/class_2`[[1]]$sensitivities,
+    CVmultinomlist$Results[[1]]$ROC[[1]]$rocs$`class_1/class_2`[[1]]$sensitivities,
     c(
       1, 0.944444444444444, 0.944444444444444, 0.888888888888889,
       0.888888888888889, 0.888888888888889, 0.833333333333333, 0.777777777777778,
@@ -2973,7 +2973,7 @@ test_that("multinomial random predictions work with cross_validate_fn()", {
     )
   )
   expect_equal(
-    CVmultinomlist$Results[[1]]$ROC[[1]][[1]]$rocs$`class_1/class_2`[[2]]$sensitivities,
+    CVmultinomlist$Results[[1]]$ROC[[1]]$rocs$`class_1/class_2`[[2]]$sensitivities,
     c(
       1, 0.928571428571429, 0.857142857142857, 0.785714285714286,
       0.785714285714286, 0.785714285714286, 0.785714285714286, 0.785714285714286,
@@ -2986,7 +2986,7 @@ test_that("multinomial random predictions work with cross_validate_fn()", {
     )
   )
   expect_equal(
-    CVmultinomlist$Results[[1]]$ROC[[1]][[1]]$rocs$`class_1/class_2`[[1]]$specificities,
+    CVmultinomlist$Results[[1]]$ROC[[1]]$rocs$`class_1/class_2`[[1]]$specificities,
     c(
       0, 0, 0.0714285714285714, 0.0714285714285714, 0.142857142857143,
       0.214285714285714, 0.214285714285714, 0.214285714285714, 0.214285714285714,
@@ -2999,7 +2999,7 @@ test_that("multinomial random predictions work with cross_validate_fn()", {
     )
   )
   expect_equal(
-    CVmultinomlist$Results[[1]]$ROC[[1]][[1]]$rocs$`class_1/class_2`[[2]]$specificities,
+    CVmultinomlist$Results[[1]]$ROC[[1]]$rocs$`class_1/class_2`[[2]]$specificities,
     c(
       0, 0, 0, 0, 0.0555555555555556, 0.111111111111111, 0.166666666666667,
       0.222222222222222, 0.277777777777778, 0.333333333333333, 0.388888888888889,
@@ -3011,7 +3011,7 @@ test_that("multinomial random predictions work with cross_validate_fn()", {
     )
   )
   expect_equal(
-    CVmultinomlist$Results[[1]]$ROC[[1]][[1]]$rocs$`class_2/class_3`[[1]]$sensitivities,
+    CVmultinomlist$Results[[1]]$ROC[[1]]$rocs$`class_2/class_3`[[1]]$sensitivities,
     c(
       1, 1, 0.944444444444444, 0.944444444444444, 0.944444444444444,
       0.888888888888889, 0.888888888888889, 0.833333333333333, 0.833333333333333,
@@ -3025,7 +3025,7 @@ test_that("multinomial random predictions work with cross_validate_fn()", {
     )
   )
   expect_equal(
-    CVmultinomlist$Results[[1]]$ROC[[1]][[1]]$rocs$`class_2/class_3`[[2]]$sensitivities,
+    CVmultinomlist$Results[[1]]$ROC[[1]]$rocs$`class_2/class_3`[[2]]$sensitivities,
     c(
       1, 0.944444444444444, 0.944444444444444, 0.944444444444444,
       0.888888888888889, 0.888888888888889, 0.888888888888889, 0.888888888888889,
@@ -3040,7 +3040,7 @@ test_that("multinomial random predictions work with cross_validate_fn()", {
     )
   )
   expect_equal(
-    CVmultinomlist$Results[[1]]$ROC[[1]][[1]]$rocs$`class_2/class_3`[[1]]$specificities,
+    CVmultinomlist$Results[[1]]$ROC[[1]]$rocs$`class_2/class_3`[[1]]$specificities,
     c(
       0, 0.0555555555555556, 0.0555555555555556, 0.111111111111111,
       0.166666666666667, 0.166666666666667, 0.222222222222222, 0.222222222222222,
@@ -3054,7 +3054,7 @@ test_that("multinomial random predictions work with cross_validate_fn()", {
     )
   )
   expect_equal(
-    CVmultinomlist$Results[[1]]$ROC[[1]][[1]]$rocs$`class_2/class_3`[[2]]$specificities,
+    CVmultinomlist$Results[[1]]$ROC[[1]]$rocs$`class_2/class_3`[[2]]$specificities,
     c(
       0, 0, 0.0555555555555556, 0.111111111111111, 0.111111111111111,
       0.166666666666667, 0.222222222222222, 0.277777777777778, 0.333333333333333,
@@ -3531,7 +3531,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_classes(output_12059),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", ifelse(is_tibble_v2(), "list", "vctrs_list_of"),
+      "integer", "integer", "list", "character", "list",
       "character", "character"),
     fixed = TRUE)
   # Testing column types
@@ -4130,7 +4130,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_classes(output_13861),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", ifelse(is_tibble_v2(), "list", "vctrs_list_of"),
+      "integer", "integer", "list", "character", "list",
       "character", "character"),
     fixed = TRUE)
   # Testing column types
@@ -4317,7 +4317,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_classes(output_18696),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", ifelse(is_tibble_v2(), "list", "vctrs_list_of"),
+      "integer", "integer", "list", "character", "list",
       "character", "character"),
     fixed = TRUE)
   # Testing column types
@@ -4647,7 +4647,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_classes(output_11079),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "list", "list", "list", "integer", "integer", "integer",
-      "integer", "list", "character", ifelse(is_tibble_v2(), "list", "vctrs_list_of"), "character",
+      "integer", "list", "character", "list", "character",
       "character"),
     fixed = TRUE)
   # Testing column types
@@ -4837,7 +4837,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_classes(output_18209),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", ifelse(is_tibble_v2(), "list", "vctrs_list_of"),
+      "integer", "integer", "list", "character", "list",
       "character", "character"),
     fixed = TRUE)
   # Testing column types
@@ -4963,37 +4963,37 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::strip(c("simpleError", "error", "condition")),
     fixed = TRUE)
 
-  # Testing cross_validate_fn(data = dat, formulas = "sc...
-  # Changed from baseline: fold_cols = c(".folds...
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  # Assigning side effects
-  side_effects_15297 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = c(".folds", ".folds_2"), type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
-  expect_equal(
-    xpectr::strip(side_effects_15297[['error']]), # TODO Do I need to strip numbers here?
-    xpectr::strip("Can't subset columns that don't exist.\n\033[31mx\033[39m The column `.folds_2` doesn't exist."),
-    fixed = TRUE)
   if (!is_tibble_v2()){
+    # Testing cross_validate_fn(data = dat, formulas = "sc...
+    # Changed from baseline: fold_cols = c(".folds...
+    xpectr::set_test_seed(42)
+    # Testing side effects
+    # Assigning side effects
+    side_effects_15297 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+        if (!"REML" %in% names(hyperparameters))
+            stop("'hyperparameters' must include 'REML'")
+        lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+    }, predict_fn = function(test_data, model, formula, hyperparameters) {
+        stats::predict(object = model, newdata = test_data, type = "response",
+            allow.new.levels = TRUE)
+    }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+        formula <- simplify_formula(formula, train_data)
+        recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+            recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+            recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+            recipes::prep(training = train_data)
+        train_data <- recipes::bake(recipe_object, train_data)
+        test_data <- recipes::bake(recipe_object, test_data)
+        means <- recipe_object$steps[[1]]$means
+        sds <- recipe_object$steps[[2]]$sds
+        tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+            dplyr::bind_cols(dplyr::bind_rows(means, sds))
+        list(train = train_data, test = test_data, parameters = tidy_parameters)
+    }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = c(".folds", ".folds_2"), type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+    expect_equal(
+      xpectr::strip(side_effects_15297[['error']]), # TODO Do I need to strip numbers here?
+      xpectr::strip("Can't subset columns that don't exist.\n\033[31mx\033[39m The column `.folds_2` doesn't exist."),
+      fixed = TRUE)
     expect_equal(
       xpectr::strip(side_effects_15297[['error_class']]),
       xpectr::strip(c("vctrs_error_subscript_oob", "vctrs_error_subscript",
@@ -5381,7 +5381,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_classes(output_12447),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", ifelse(is_tibble_v2(), "list", "vctrs_list_of"),
+      "integer", "integer", "list", "character", "list",
       "character", "character"),
     fixed = TRUE)
   # Testing column types
@@ -5537,7 +5537,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_classes(output_10994),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", ifelse(is_tibble_v2(), "list", "vctrs_list_of"),
+      "integer", "integer", "list", "character", "list",
       "character", "character"),
     fixed = TRUE)
   # Testing column types
@@ -5763,7 +5763,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_classes(output_14068),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", ifelse(is_tibble_v2(), "list", "vctrs_list_of"),
+      "integer", "integer", "list", "character", "list",
       "character", "character"),
     fixed = TRUE)
   # Testing column types
@@ -5884,7 +5884,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_classes(output_19128),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", ifelse(is_tibble_v2(), "list", "vctrs_list_of"),
+      "integer", "integer", "list", "character", "list",
       "character", "character"),
     fixed = TRUE)
   # Testing column types
@@ -6075,7 +6075,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_classes(output_13323),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", ifelse(is_tibble_v2(), "list", "vctrs_list_of"),
+      "integer", "integer", "list", "character", "list",
       "character", "character"),
     fixed = TRUE)
   # Testing column types
@@ -6231,7 +6231,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_classes(output_12580),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", ifelse(is_tibble_v2(), "list", "vctrs_list_of"),
+      "integer", "integer", "list", "character", "list",
       "character", "character"),
     fixed = TRUE)
   # Testing column types
@@ -6324,8 +6324,5 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
 
   ## Finished testing 'cross_validate_fn'                                     ####
   #
-
-
-
 
 })

@@ -633,7 +633,7 @@ test_that("verbose reports the correct model functions in validate()", {
     id_col = "participant"
   )
 
-  if (!is_tibble_v2()){
+  if (!is_tibble_v2() && is_newer_lme4()){
     # Test the list of verbose messages
     # glm()
     expect_equal(
@@ -649,7 +649,7 @@ test_that("verbose reports the correct model functions in validate()", {
     )
   }
 
-  if (!is_tibble_v2()){
+  if (!is_tibble_v2() && is_newer_lme4()){
     # glmer
     expect_equal(
       evaluate_promise(validate(dat[[1]], dat[[2]],

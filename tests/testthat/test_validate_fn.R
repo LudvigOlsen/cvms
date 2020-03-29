@@ -111,6 +111,11 @@ test_that("binomial glm model works with validate_fn()", {
     positive = 2
   ))
 
+  # For when all.equal.list below fails
+  # plyr::llply(colnames(Vbinomlist_list), function(cl){
+  #   expect_equal(Vbinomlist_list[[cl]], Vbinomlist_not_list[[cl]])
+  # })
+
   expect_true(all.equal.list(
     Vbinomlist_list,
     Vbinomlist_not_list

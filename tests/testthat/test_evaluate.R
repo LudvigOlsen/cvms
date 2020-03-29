@@ -3273,7 +3273,7 @@ test_that("evaluate() treats dfs and tbls the same", {
   expect_identical(mn_eval_1_tbl, mn_eval_1_df)
 
   # TODO Find out why the group_nest attribute is only added to DT ?
-  attr(mn_eval_1_dt$Predictions[[1]]$Prediction, "ptype") <- NULL
+  # attr(mn_eval_1_dt$Predictions[[1]]$Prediction, "ptype") <- NULL
 
   # There is a "attr(*, ".internal.selfref")=<externalptr> " attribute added to the
   # predictions list with the data.table.

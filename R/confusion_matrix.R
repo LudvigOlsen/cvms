@@ -261,28 +261,67 @@ call_confusion_matrix <- function(targets,
     )
   )
 
-  # Is checked later - can both be list and character
-  # TODO Would be nicer to check here though!
-  # checkmate::assert_list(
-  #   x = metrics,
-  #   types = "logical",
-  #   any.missing = FALSE,
-  #   names = "named",
-  #   add = assert_collection
-  # )
+  checkmate::reportAssertions(assert_collection)
+  if (length(targets) != length(predictions)){
+    assert_collection$push("'targets' and 'predictions' must have same length.")
+  }
+
+  checkmate::assert(
+    checkmate::check_list(
+      x = metrics,
+      types = "logical",
+      any.missing = FALSE,
+      names = "named"
+    ),
+    checkmate::check_character(
+      x = metrics,
+      any.missing = FALSE,
+    )
+  )
+
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
 
+  # Not all of these are necessarily used in confusion_matrix()
+  # but we don't want to throw an error for the their presence
+  allowed_metrics <- c(
+    set_metrics(family = "binomial", metrics_list = "all", include_model_object_metrics = TRUE),
+    set_metrics(family = "multinomial", metrics_list = "all", include_model_object_metrics = TRUE)
+  )
+
+  if (checkmate::test_character(metrics) &&
+      !checkmate::test_string(metrics, fixed = "all")) {
+    non_allowed_metrics <- setdiff(metrics, allowed_metrics)
+    if (length(non_allowed_metrics) > 0){
+      assert_collection$push(
+        paste0("'metrics' contained unknown metric name: ",
+               paste0(non_allowed_metrics, collapse = ", "),"."))
+      checkmate::reportAssertions(assert_collection)
+    }
+  }
+
+  predictions_chr <- as.character(predictions)
+  targets_chr <- as.character(targets)
+  unique_levels_in_data <- sort(unique(c(predictions_chr, targets_chr)))
+
   if (is.null(c_levels)) {
-    c_levels <- sort(unique(targets))
+    c_levels <- unique_levels_in_data
   } else {
-    c_levels <- sort(c_levels)
+    c_levels <- as.character(sort(c_levels))
+  }
+
+  if (length(setdiff(unique_levels_in_data,
+                     as.character(c_levels))) > 0){
+    assert_collection$push("'c_levels' does not contain all the levels in 'predictions' and 'targets'.")
+    checkmate::reportAssertions(assert_collection)
   }
 
   if (length(c_levels) == 2) {
 
     # If not already a list of metric names
-    if (typeof(metrics) != "character" || (length(metrics) == 1 && metrics == "all")) {
+    if (typeof(metrics) != "character" ||
+        (length(metrics) == 1 &&
+         metrics == "all")) {
       metrics <- set_metrics(
         family = "binomial", metrics_list = metrics,
         include_model_object_metrics = FALSE
@@ -290,8 +329,8 @@ call_confusion_matrix <- function(targets,
     }
 
     cfm <- create_binomial_confusion_matrix(
-      targets = targets,
-      predictions = predictions,
+      targets = targets_chr,
+      predictions = predictions_chr,
       metrics = metrics,
       positive = positive,
       c_levels = c_levels
@@ -312,8 +351,8 @@ call_confusion_matrix <- function(targets,
     }
 
     cfm <- create_multinomial_confusion_matrix(
-      targets = targets,
-      predictions = predictions,
+      targets = targets_chr,
+      predictions = predictions_chr,
       metrics = metrics,
       c_levels = c_levels,
       do_one_vs_all = do_one_vs_all,
@@ -351,20 +390,16 @@ call_confusion_matrix <- function(targets,
 }
 
 
-create_binomial_confusion_matrix <- function(targets,
-                                             predictions,
+create_binomial_confusion_matrix <- function(targets_chr,
+                                             predictions_chr,
                                              metrics,
-                                             positive = 2,
-                                             c_levels = NULL) {
-  if (is.null(c_levels)) {
-    c_levels <- sort(unique(targets))
-  } else {
-    c_levels <- sort(c_levels)
-  }
+                                             positive,
+                                             c_levels
+                                             ) {
 
   conf_mat <- create_confusion_matrix(
-    targets = factor(targets, levels = c_levels),
-    predictions = factor(predictions, levels = c_levels)
+    targets = factor(targets_chr, levels = c_levels),
+    predictions = factor(predictions_chr, levels = c_levels)
   )
 
   tidy_conf_mat <- tidy_confusion_matrix(conf_mat, c_levels = c_levels)
@@ -398,7 +433,7 @@ create_binomial_confusion_matrix <- function(targets,
     "Table" = list(conf_mat)
   ) %>%
     dplyr::bind_cols(computed_metrics) %>%
-    dplyr::mutate(`Positive Class` = positive_level)
+    dplyr::mutate(`Positive Class` = as.character(positive_level))
 
   # Set extra classes
   class(overall) <- c("cfm_binomial", class(overall))
@@ -409,15 +444,10 @@ create_binomial_confusion_matrix <- function(targets,
 create_multinomial_confusion_matrix <- function(targets,
                                                 predictions,
                                                 metrics,
-                                                c_levels = NULL,
+                                                c_levels,
                                                 do_one_vs_all = TRUE,
                                                 na.rm = FALSE,
                                                 parallel = FALSE) {
-  if (is.null(c_levels)) {
-    c_levels <- sort(unique(targets))
-  } else {
-    c_levels <- sort(c_levels)
-  }
 
   conf_mat <- create_confusion_matrix(
     targets = factor(targets, levels = c_levels),
@@ -471,19 +501,19 @@ create_multinomial_confusion_matrix <- function(targets,
 
         # Create temporary columns with
         # one-vs-all targets and predictions
-        binomial_tmp_targets <- ifelse(targets == cl, 1, 0)
-        binomial_tmp_predictions <- ifelse(predictions == cl, 1, 0)
+        binomial_tmp_targets <- ifelse(targets == cl, "1", "0")
+        binomial_tmp_predictions <- ifelse(predictions == cl, "1", "0")
 
         create_binomial_confusion_matrix(
           targets = binomial_tmp_targets,
           predictions = binomial_tmp_predictions,
           metrics = metrics_to_compute,
-          positive = 2,
-          c_levels = c(0, 1)
+          positive = "1",
+          c_levels = c("0", "1")
         ) %>%
           tibble::add_column(
             "Class" = as.character(cl),
-            "Support" = sum(binomial_tmp_targets),
+            "Support" = sum(targets == cl),
             .before = "Confusion Matrix"
           )
       }
@@ -491,6 +521,7 @@ create_multinomial_confusion_matrix <- function(targets,
       dplyr::as_tibble()
 
     support <- one_vs_all_evaluations[["Support"]]
+    one_vs_all_evaluations[["Positive Class"]] <- NULL
 
     metric_columns <- one_vs_all_evaluations %>%
       base_deselect(cols = c("Class", "Confusion Matrix", "Table", "Support"))
@@ -584,6 +615,10 @@ create_confusion_matrix <- function(targets, predictions) {
   if (!all(levels(targets) %in% levels(predictions)) ||
     !all(levels(predictions) %in% levels(targets))) {
     stop("'targets' and 'predictions' must have the same levels. Consider setting levels explicitly in the factors.")
+  }
+
+  if (length(targets) != length(predictions)){
+    stop("'targets' and 'predictions' must have same length.")
   }
 
   Prediction <- predictions

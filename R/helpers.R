@@ -899,8 +899,16 @@ get_pkg_version <- function(pkg_name){
 }
 
 is_tibble_v2 <- function(){
-  # TODO Once tibble 3.0.0 is out, remove the dev check
-  get_pkg_version("tibble")$major == 2 &&
-    is.na(get_pkg_version("tibble")$dev)
+  get_pkg_version("tibble")$major == 2
+}
 
+# Currently, lme4 v 1.1.22+ is the newer versions
+# This can be updated later
+is_newer_lme4 <- function(){
+  v <- get_pkg_version("lme4")
+  if (v$major < 1) out <- FALSE
+  else if (v$minor < 1) out <- FALSE
+  else if (v$patch < 22) out <- FALSE
+  else out <- TRUE
+  out
 }

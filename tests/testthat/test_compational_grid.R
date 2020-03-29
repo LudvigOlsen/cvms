@@ -260,7 +260,7 @@ test_that("the grid order is as expected with create_computation_grid()", {
   expect_equal(
     xpectr::element_classes(grid_1),
     c("character", "integer", "integer", "factor", "integer", "integer",
-      "integer", ifelse(is_tibble_v2(),"list","vctrs_list_of")),
+      "integer", "list"),
     fixed = TRUE)
   # Testing column types
   expect_equal(

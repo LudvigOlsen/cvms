@@ -228,6 +228,10 @@ create_gaussian_baseline_evaluations <- function(train_data,
 # Remove the INFs from the NAs count
 subtract_inf_count_from_na_count <- function(summarized_metrics) {
 
+  if ("tbl_df" %ni% class(summarized_metrics)){
+    summarized_metrics <- dplyr::as_tibble(summarized_metrics)
+  }
+
   # Find the row indices of the NA and INF counts
   NAs_row_number <- which(summarized_metrics$Measure == "NAs")
   INFs_row_number <- which(summarized_metrics$Measure == "INFs")

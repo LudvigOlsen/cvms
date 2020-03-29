@@ -168,11 +168,12 @@
 #'
 #'  ----------------------------------------------------------------
 #'
-#'  Average \strong{RMSE}, \strong{MAE}, \strong{RMSLE},
+#'  Average \strong{RMSE}, \strong{MAE}, \strong{NRMSE(IQR)},
+#'  \strong{RRSE}, \strong{RAE}, \strong{RMSLE},
 #'  \strong{AIC}, \strong{AICc},
 #'  and \strong{BIC} of all the iterations*,
 #'  \emph{\strong{omitting potential NAs} from non-converged iterations}.
-#'  Note that the Information Criteria metrics (AIC, AICc, and BIC) are also averages.
+#'  Note that the Information Criterion metrics (AIC, AICc, and BIC) are also averages.
 #'
 #'  See the additional metrics (disabled by default) at \code{\link[cvms:gaussian_metrics]{?gaussian_metrics}}.
 #'

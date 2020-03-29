@@ -76,7 +76,7 @@
 #'
 #'  \code{MCC = ((TP * TN) - (FP * FN)) / sqrt((TP + FP) * (TP + FN) * (TN + FP) * (TN + FN))}
 #'
-#'  Note for MCC: Formula is for the binary case. When the denominator is 0, we set it to 1 to avoid \code{NaN}.
+#'  Note for MCC: Formula is for the \emph{binary} case. When the denominator is 0, we set it to 1 to avoid \code{NaN}.
 #'  See the \code{metrics} vignette for multiclass version.
 #'
 #'  \code{Detection Rate = TP / (TP + FN + TN + FP)}
@@ -107,6 +107,8 @@
 #'  Nested \strong{confusion matrix} (tidied version)
 #'
 #'  Nested confusion matrix (\strong{table})
+#'
+#'  The \strong{Positive Class}.
 #'
 #'  Multiclass only: Nested \strong{Class Level Results} with the two-class metrics,
 #'  the nested confusion matrices, and the \strong{Support} metric, which is a
@@ -143,7 +145,8 @@
 #'
 #'  \subsection{Three classes or more}{
 #'
-#'  Every metric mentioned above has a weighted average version (disabled by default; weighted by the \strong{Support}).
+#'  The metrics mentioned above (excluding \code{MCC})
+#'  has a weighted average version (disabled by default; weighted by the \strong{Support}).
 #'
 #'  In order to enable a weighted metric, prefix the metric name with \code{"Weighted "} when specifying \code{metrics}.
 #'
@@ -153,6 +156,7 @@
 #'   \strong{Metric} \tab \strong{Name} \tab \strong{Default} \cr
 #'   Overall Accuracy \tab "Overall Accuracy" \tab Enabled \cr
 #'   Weighted * \tab "Weighted *" \tab Disabled \cr
+#'   Multiclass MCC \tab "MCC" \tab Enabled \cr
 #'  }
 #'  }
 #' @examples
@@ -365,8 +369,11 @@ create_binomial_confusion_matrix <- function(targets,
 
   tidy_conf_mat <- tidy_confusion_matrix(conf_mat, c_levels = c_levels)
 
-  label_counts <- confusion_label_counts(tidy_conf_mat,
-    positive = positive,
+  positive_level <- extract_positive_level(positive = positive, c_levels = c_levels)
+
+  label_counts <- confusion_label_counts(
+    tidy_conf_mat,
+    pos_level = positive_level,
     c_levels = c_levels
   )
 
@@ -390,7 +397,8 @@ create_binomial_confusion_matrix <- function(targets,
     "Confusion Matrix" = list(tidy_conf_mat),
     "Table" = list(conf_mat)
   ) %>%
-    dplyr::bind_cols(computed_metrics)
+    dplyr::bind_cols(computed_metrics) %>%
+    dplyr::mutate(`Positive Class` = positive_level)
 
   # Set extra classes
   class(overall) <- c("cfm_binomial", class(overall))
@@ -612,10 +620,7 @@ tidy_confusion_matrix <- function(conf_mat, c_levels = NULL) {
   conf_mat_df
 }
 
-confusion_label_counts <- function(tidy_conf_mat, positive = 2, c_levels = NULL) {
-  if (nrow(tidy_conf_mat) != 4) {
-    stop("'confusion_label_counts' only works with 2x2 confusion matrices.")
-  }
+extract_positive_level <- function(positive = 2, c_levels = NULL){
 
   if (is.null(c_levels)) {
     if (is.character(positive)) {
@@ -642,6 +647,14 @@ confusion_label_counts <- function(tidy_conf_mat, positive = 2, c_levels = NULL)
     }
 
     pos_level <- c_levels[[positive]]
+  }
+
+  pos_level
+}
+
+confusion_label_counts <- function(tidy_conf_mat, pos_level, c_levels = NULL) {
+  if (nrow(tidy_conf_mat) != 4) {
+    stop("'confusion_label_counts' only works with 2x2 confusion matrices.")
   }
 
   pos_labels <- paste0("Pos_", pos_level)

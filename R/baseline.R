@@ -129,7 +129,8 @@
 #'
 #'  The \strong{Summarized Results} tibble contains:
 #'
-#'  Average \strong{RMSE}, \strong{MAE}, \strong{RMSLE}.
+#'  Average \strong{RMSE}, \strong{MAE}, \strong{NRMSE(IQR)},
+#'  \strong{RRSE}, \strong{RAE}, \strong{RMSLE}.
 #'
 #'  See the additional metrics (disabled by default) at \code{\link[cvms:gaussian_metrics]{?gaussian_metrics}}.
 #'
@@ -228,8 +229,9 @@
 #'  Based on the generated test set predictions,
 #'  one-vs-all (binomial) evaluations are performed and aggregated
 #'  to get the same metrics as in the \code{binomial} results
-#'  (excluding \code{AUC}, \code{Lower CI} and \code{Upper CI}),
-#'  with the addition of \strong{Overall Accuracy} in the summarized results.
+#'  (excluding \code{MCC}, \code{AUC}, \code{Lower CI} and \code{Upper CI}),
+#'  with the addition of \strong{Overall Accuracy} and \emph{multiclass}
+#'  \strong{MCC} in the summarized results.
 #'  It is possible to enable multiclass \strong{AUC} as well, which has been
 #'  disabled by default as it is slow to calculate when there's a large set of classes.
 #'

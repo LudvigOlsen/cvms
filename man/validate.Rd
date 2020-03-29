@@ -164,7 +164,8 @@ Tbl (tibble) with the results and model objects.
 
  ----------------------------------------------------------------
 
- \strong{RMSE}, \strong{MAE}, \strong{RMSLE}, \strong{AIC}, \strong{AICc},
+ \strong{RMSE}, \strong{MAE}, \strong{NRMSE(IQR)},
+ \strong{RRSE}, \strong{RAE}, \strong{RMSLE}, \strong{AIC}, \strong{AICc},
  and \strong{BIC}.
 
  See the additional metrics (disabled by default) at \code{\link[cvms:gaussian_metrics]{?gaussian_metrics}}.

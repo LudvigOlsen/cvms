@@ -43,14 +43,14 @@
 #'   Mean Absolute Error \tab "MAE" \tab Enabled \cr
 #'   Root Mean Square Error \tab "RMSE" \tab Enabled \cr
 #'   Normalized RMSE (by target range) \tab "NRMSE(RNG)" \tab Disabled \cr
-#'   Normalized RMSE (by target IQR) \tab "NRMSE(IQR)" \tab Disabled \cr
+#'   Normalized RMSE (by target IQR) \tab "NRMSE(IQR)" \tab Enabled \cr
 #'   Normalized RMSE (by target STD) \tab "NRMSE(STD)" \tab Disabled \cr
 #'   Normalized RMSE (by target mean) \tab "NRMSE(AVG)" \tab Disabled \cr
+#'   Relative Squared Error \tab "RSE" \tab Disabled \cr
+#'   Root Relative Squared Error \tab "RRSE" \tab Enabled \cr
+#'   Relative Absolute Error \tab "RAE" \tab Enabled \cr
 #'   Root Mean Squared Log Error \tab "RMSLE" \tab Enabled \cr
 #'   Mean Absolute Log Error \tab "MALE" \tab Disabled \cr
-#'   Relative Absolute Error \tab "RAE" \tab Disabled \cr
-#'   Relative Squared Error \tab "RSE" \tab Disabled \cr
-#'   Root Relative Squared Error \tab "RRSE" \tab Disabled \cr
 #'   Mean Absolute Percentage Error \tab "MAPE" \tab Disabled \cr
 #'   Mean Squared Error \tab "MSE" \tab Disabled \cr
 #'   Total Absolute Error \tab "TAE" \tab Disabled \cr

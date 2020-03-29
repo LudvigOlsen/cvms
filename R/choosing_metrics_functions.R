@@ -22,24 +22,65 @@
 #'  Specifying other metrics will overwrite this, why you can
 #'  use (\code{all = FALSE, rmse = TRUE}) to get only the \code{RMSE} metric.
 #' @param rmse \code{RMSE}. (Default: TRUE)
+#'
+#'  Root Mean Square Error.
 #' @param mae \code{MAE}. (Default: TRUE)
-#' @param nrmse \code{NRMSE}. (Default: FALSE)
-#' @param rmseiqr \code{RMSEIQR}. (Default: FALSE)
-#' @param rmsestd \code{RMSESTD}. (Default: FALSE)
+#'
+#'  Mean Absolute Error.
+#' @param nrmse_rng \code{NRMSE(RNG)}. (Default: FALSE)
+#'
+#'  Normalized Root Mean Square Error (by target range).
+#' @param nrmse_iqr \code{NRMSE(IQR)}. (Default: TRUE)
+#'
+#'  Normalized Root Mean Square Error (by target interquartile range).
+#' @param nrmse_std \code{NRMSE(STD)}. (Default: FALSE)
+#'
+#'  Normalized Root Mean Square Error (by target standard deviation).
+#' @param nrmse_avg \code{NRMSE(AVG)}. (Default: FALSE)
+#'
+#'  Normalized Root Mean Square Error (by target mean).
 #' @param rmsle \code{RMSLE}. (Default: TRUE)
+#'
+#'  Root Mean Square Log Error.
 #' @param male \code{MALE}. (Default: FALSE)
-#' @param rae \code{RAE}. (Default: FALSE)
+#'
+#'  Mean Absolute Log Error.
+#' @param rae \code{RAE}. (Default: TRUE)
+#'
+#'  Relative Absolute Error.
 #' @param rse \code{RSE}. (Default: FALSE)
-#' @param rrse \code{RRSE}. (Default: FALSE)
+#'
+#'  Relative Squared Error.
+#' @param rrse \code{RRSE}. (Default: TRUE)
+#'
+#'  Root Relative Squared Error.
 #' @param mape \code{MAPE}. (Default: FALSE)
+#'
+#'  Mean Absolute Percentage Error.
 #' @param mse \code{MSE}. (Default: FALSE)
+#'
+#'  Mean Square Error.
 #' @param tae \code{TAE}. (Default: FALSE)
+#'
+#'  Total Absolute Error
 #' @param tse \code{TSE}. (Default: FALSE)
+#'
+#'  Total Squared Error.
 #' @param r2m \code{r2m}. (Default: FALSE)
+#'
+#'  Marginal R-squared.
 #' @param r2c \code{r2c}. (Default: FALSE)
+#'
+#'  Conditional R-squared.
 #' @param aic \code{AIC}. (Default: FALSE)
+#'
+#'  Akaike Information Criterion.
 #' @param aicc \code{AICc}. (Default: FALSE)
+#'
+#'  Corrected Akaike Information Criterion.
 #' @param bic \code{BIC}. (Default: FALSE)
+#'
+#'  Bayesian Information Criterion.
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
 #' @family evaluation functions
@@ -60,14 +101,15 @@
 gaussian_metrics <- function(all = NULL,
                              rmse = NULL,
                              mae = NULL,
-                             nrmse = NULL,
-                             rmseiqr = NULL,
-                             rmsestd = NULL,
-                             rmsle = NULL,
-                             male = NULL,
+                             nrmse_rng = NULL,
+                             nrmse_iqr = NULL,
+                             nrmse_std = NULL,
+                             nrmse_avg = NULL,
                              rae = NULL,
                              rse = NULL,
                              rrse = NULL,
+                             rmsle = NULL,
+                             male = NULL,
                              mape = NULL,
                              mse = NULL,
                              tae = NULL,
@@ -80,8 +122,8 @@ gaussian_metrics <- function(all = NULL,
   # Check arguments ####
   aapply(
     checkmate::assert_flag,
-    . ~ all + rmse + mae + nrmse + rmseiqr + rmsestd + rmsle + male + rae +
-      rse + rrse + mape + mse + tae + tse + r2m + r2c + aic + aicc + bic,
+    . ~ all + rmse + mae + nrmse_rng + nrmse_iqr + nrmse_std + nrmse_avg + rmsle + male +
+      rae + rse + rrse + mape + mse + tae + tse + r2m + r2c + aic + aicc + bic,
     null.ok = TRUE
   )
   # End of argument checks ####
@@ -90,9 +132,10 @@ gaussian_metrics <- function(all = NULL,
     "all" = all,
     "RMSE" = rmse,
     "MAE" = mae,
-    "NRMSE" = nrmse,
-    "RMSEIQR" = rmseiqr,
-    "RMSESTD" = rmsestd,
+    "NRMSE(RNG)" = nrmse_rng,
+    "NRMSE(IQR)" = nrmse_iqr,
+    "NRMSE(STD)" = nrmse_std,
+    "NRMSE(AVG)" = nrmse_avg,
     "RMSLE" = rmsle,
     "MALE" = male,
     "RAE" = rae,
@@ -264,7 +307,9 @@ binomial_metrics <- function(all = NULL,
 #' @param w_neg_pred_value \code{Weighted Neg Pred Value} (Default: FALSE)
 #' @param auc \code{AUC} (Default: FALSE)
 #' @param w_kappa \code{Weighted Kappa} (Default: FALSE)
-#' @param w_mcc \code{Weighted MCC} (Default: FALSE)
+#' @param mcc \code{MCC} (Default: TRUE)
+#'
+#'  Multiclass Matthews Correlation Coefficient.
 #' @param w_detection_rate \code{Weighted Detection Rate} (Default: FALSE)
 #' @param w_detection_prevalence \code{Weighted Detection Prevalence} (Default: FALSE)
 #' @param w_prevalence \code{Weighted Prevalence} (Default: FALSE)
@@ -310,7 +355,6 @@ multinomial_metrics <- function(all = NULL,
                                 kappa = NULL,
                                 w_kappa = NULL,
                                 mcc = NULL,
-                                w_mcc = NULL,
                                 detection_rate = NULL,
                                 w_detection_rate = NULL,
                                 detection_prevalence = NULL,
@@ -337,7 +381,7 @@ multinomial_metrics <- function(all = NULL,
       w_balanced_accuracy + accuracy + w_accuracy + f1 + w_f1 +
       sensitivity + w_sensitivity + specificity + w_specificity +
       pos_pred_value + w_pos_pred_value + neg_pred_value +
-      w_neg_pred_value + auc + kappa + w_kappa + mcc + w_mcc +
+      w_neg_pred_value + auc + kappa + w_kappa + mcc +
       detection_rate + w_detection_rate + detection_prevalence +
       w_detection_prevalence + prevalence + w_prevalence + false_neg_rate +
       w_false_neg_rate + false_pos_rate + w_false_pos_rate +
@@ -369,7 +413,6 @@ multinomial_metrics <- function(all = NULL,
     "Kappa" = kappa,
     "Weighted Kappa" = w_kappa,
     "MCC" = mcc,
-    "Weighted MCC" = w_mcc,
     "Detection Rate" = detection_rate,
     "Weighted Detection Rate" = w_detection_rate,
     "Detection Prevalence" = detection_prevalence,

@@ -8,14 +8,15 @@ gaussian_metrics(
   all = NULL,
   rmse = NULL,
   mae = NULL,
-  nrmse = NULL,
-  rmseiqr = NULL,
-  rmsestd = NULL,
-  rmsle = NULL,
-  male = NULL,
+  nrmse_rng = NULL,
+  nrmse_iqr = NULL,
+  nrmse_std = NULL,
+  nrmse_avg = NULL,
   rae = NULL,
   rse = NULL,
   rrse = NULL,
+  rmsle = NULL,
+  male = NULL,
   mape = NULL,
   mse = NULL,
   tae = NULL,
@@ -33,43 +34,85 @@ gaussian_metrics(
  Specifying other metrics will overwrite this, why you can
  use (\code{all = FALSE, rmse = TRUE}) to get only the \code{RMSE} metric.}
 
-\item{rmse}{\code{RMSE}. (Default: TRUE)}
+\item{rmse}{\code{RMSE}. (Default: TRUE)
 
-\item{mae}{\code{MAE}. (Default: TRUE)}
+ Root Mean Square Error.}
 
-\item{nrmse}{\code{NRMSE}. (Default: FALSE)}
+\item{mae}{\code{MAE}. (Default: TRUE)
 
-\item{rmseiqr}{\code{RMSEIQR}. (Default: FALSE)}
+ Mean Absolute Error.}
 
-\item{rmsestd}{\code{RMSESTD}. (Default: FALSE)}
+\item{nrmse_rng}{\code{NRMSE(RNG)}. (Default: FALSE)
 
-\item{rmsle}{\code{RMSLE}. (Default: TRUE)}
+ Normalized Root Mean Square Error (by target range).}
 
-\item{male}{\code{MALE}. (Default: FALSE)}
+\item{nrmse_iqr}{\code{NRMSE(IQR)}. (Default: TRUE)
 
-\item{rae}{\code{RAE}. (Default: FALSE)}
+ Normalized Root Mean Square Error (by target interquartile range).}
 
-\item{rse}{\code{RSE}. (Default: FALSE)}
+\item{nrmse_std}{\code{NRMSE(STD)}. (Default: FALSE)
 
-\item{rrse}{\code{RRSE}. (Default: FALSE)}
+ Normalized Root Mean Square Error (by target standard deviation).}
 
-\item{mape}{\code{MAPE}. (Default: FALSE)}
+\item{nrmse_avg}{\code{NRMSE(AVG)}. (Default: FALSE)
 
-\item{mse}{\code{MSE}. (Default: FALSE)}
+ Normalized Root Mean Square Error (by target mean).}
 
-\item{tae}{\code{TAE}. (Default: FALSE)}
+\item{rae}{\code{RAE}. (Default: TRUE)
 
-\item{tse}{\code{TSE}. (Default: FALSE)}
+ Relative Absolute Error.}
 
-\item{r2m}{\code{r2m}. (Default: FALSE)}
+\item{rse}{\code{RSE}. (Default: FALSE)
 
-\item{r2c}{\code{r2c}. (Default: FALSE)}
+ Relative Squared Error.}
 
-\item{aic}{\code{AIC}. (Default: FALSE)}
+\item{rrse}{\code{RRSE}. (Default: TRUE)
 
-\item{aicc}{\code{AICc}. (Default: FALSE)}
+ Root Relative Squared Error.}
 
-\item{bic}{\code{BIC}. (Default: FALSE)}
+\item{rmsle}{\code{RMSLE}. (Default: TRUE)
+
+ Root Mean Square Log Error.}
+
+\item{male}{\code{MALE}. (Default: FALSE)
+
+ Mean Absolute Log Error.}
+
+\item{mape}{\code{MAPE}. (Default: FALSE)
+
+ Mean Absolute Percentage Error.}
+
+\item{mse}{\code{MSE}. (Default: FALSE)
+
+ Mean Square Error.}
+
+\item{tae}{\code{TAE}. (Default: FALSE)
+
+ Total Absolute Error}
+
+\item{tse}{\code{TSE}. (Default: FALSE)
+
+ Total Squared Error.}
+
+\item{r2m}{\code{r2m}. (Default: FALSE)
+
+ Marginal R-squared.}
+
+\item{r2c}{\code{r2c}. (Default: FALSE)
+
+ Conditional R-squared.}
+
+\item{aic}{\code{AIC}. (Default: FALSE)
+
+ Akaike Information Criterion.}
+
+\item{aicc}{\code{AICc}. (Default: FALSE)
+
+ Corrected Akaike Information Criterion.}
+
+\item{bic}{\code{BIC}. (Default: FALSE)
+
+ Bayesian Information Criterion.}
 }
 \description{
 \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}

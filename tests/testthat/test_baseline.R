@@ -935,14 +935,14 @@ test_that("multinomial evaluations are correct in baseline()", {
         0.73776455026455, 0.427744708994709, 0, 0,
         0.845238095238095, 0.349206349206349, 0, 0, 0.5, 0.5, 0.5
       ),
-      tolerance = 1e-3
+      tolerance = 1e-5
     )
     expect_equal(multinom_baseline_summ$`Weighted Accuracy`,
       c(
         0.61312, 0.616, 0.0844143852932925, 0.1224, 0.7536, 0.4976, 0, 0, NA, NA,
         NA, NA, 0.5616, 0.5392, 0.5616
       ),
-      tolerance = 1e-3
+      tolerance = 1e-5
     )
     expect_equal(multinom_baseline_summ$F1,
       c(
@@ -950,7 +950,7 @@ test_that("multinomial evaluations are correct in baseline()", {
         0.638304093567251, 0.237745098039216, 0, 0,
         0.75, 0.125, 0, 0, NA, NA, NA
       ),
-      tolerance = 1e-3
+      tolerance = 1e-5
     )
     expect_equal(multinom_baseline_summ$Sensitivity,
       c(
@@ -959,7 +959,7 @@ test_that("multinomial evaluations are correct in baseline()", {
         0.857142857142857, 0.111111111111111, 0, 0, 0.333333333333333,
         0.333333333333333, 0.333333333333333
       ),
-      tolerance = 1e-3
+      tolerance = 1e-5
     )
     expect_equal(multinom_baseline_summ$`Pos Pred Value`,
       c(
@@ -967,7 +967,7 @@ test_that("multinomial evaluations are correct in baseline()", {
         0.644444444444444, 0.24537037037037, 0, 0,
         0.714285714285714, 0.111111111111111, 0, 0, NaN, NaN, NaN
       ),
-      tolerance = 1e-3
+      tolerance = 1e-5
     )
     expect_equal(multinom_baseline_summ$`Neg Pred Value`,
       c(
@@ -975,7 +975,7 @@ test_that("multinomial evaluations are correct in baseline()", {
         0.824780701754386, 0.620098039215686, 0, 0,
         0.9375, 0.538461538461539, 0, 0, NaN, NaN, NaN
       ),
-      tolerance = 1e-3
+      tolerance = 1e-5
     )
     expect_equal(multinom_baseline_summ$AUC,
       c(
@@ -983,7 +983,7 @@ test_that("multinomial evaluations are correct in baseline()", {
         0.766901822457378, 0.397119341563786, 0, 0,
         NA, NA, NA, NA, 0.5, 0.5, 0.5
       ),
-      tolerance = 1e-3
+      tolerance = 1e-5
     )
     expect_equal(multinom_baseline_summ$Kappa,
       c(
@@ -991,15 +991,13 @@ test_that("multinomial evaluations are correct in baseline()", {
         0.462128481918942, -0.1375345264999, 0, 0,
         0.635036496350365, -0.277372262773723, 0, 0, 0, 0, 0
       ),
-      tolerance = 1e-3
+      tolerance = 1e-5
     )
     expect_equal(multinom_baseline_summ$MCC,
-      c(
-        0.133674933533998, 0.136462790386259, 0.191009426580045, 0.254454158754327,
-        0.47105139539729, -0.139292933974385, 0, 0,
-        0.645881334621692, -0.282109088685337, 0, 0, 0, 0, 0
-      ),
-      tolerance = 1e-3
+                 c(0.135653399205696, 0.136605182450698, 0.190316058026005, 0.255168588966898,
+                 0.469598884822668, -0.137349796341982, 0, 0, NA, NA, NA, NA,
+                 0, 0, 0),
+      tolerance = 1e-5
     )
     expect_equal(multinom_baseline_summ$`Detection Rate`,
       c(
@@ -1007,7 +1005,7 @@ test_that("multinomial evaluations are correct in baseline()", {
         0.213333333333333, 0.08, 0, 0,
         0.24, 0.04, 0, 0, 0.12, 0.0933333333333333, 0.12
       ),
-      tolerance = 1e-3
+      tolerance = 1e-5
     )
     expect_equal(multinom_baseline_summ$`Detection Prevalence`,
       c(
@@ -1034,7 +1032,7 @@ test_that("multinomial evaluations are correct in baseline()", {
       colnames(multinom_baseline_class),
       c(
         "Class", "Measure", "Balanced Accuracy", "Accuracy", "F1", "Sensitivity",
-        "Pos Pred Value", "Neg Pred Value", "Kappa", "MCC", "Detection Rate",
+        "Pos Pred Value", "Neg Pred Value", "Kappa", "Detection Rate",
         "Detection Prevalence", "Prevalence"
       )
     )
@@ -1053,7 +1051,6 @@ test_that("multinomial evaluations are correct in baseline()", {
     expect_equal(sum(multinom_baseline_class$`Pos Pred Value`, na.rm = T), 7.107812, tolerance = 1e-4)
     expect_equal(sum(multinom_baseline_class$`Neg Pred Value`, na.rm = T), 11.06547, tolerance = 1e-4)
     expect_equal(sum(multinom_baseline_class$Kappa), 3.139021, tolerance = 1e-4)
-    expect_equal(sum(multinom_baseline_class$MCC), 3.177878, tolerance = 1e-4)
     expect_equal(sum(multinom_baseline_class$`Detection Rate`), 3.067856, tolerance = 1e-4)
     expect_equal(sum(multinom_baseline_class$`Detection Prevalence`), 7.413783, tolerance = 1e-4)
     expect_equal(sum(multinom_baseline_class$Prevalence), 6)
@@ -1150,12 +1147,11 @@ test_that("multinomial evaluations are correct in baseline()", {
       ),
       tolerance = 1e-4
     )
-    expect_equal(multinom_baseline_random_eval_summ$MCC,
-      c(
-        0.33636907, 0.03852788, 0.47105140, -0.07476737,
-        0.28186601, -0.13929293, 0.16523890, 0.11083071,
-        -0.01516919, 0.16209487
-      ),
+    expect_equal(
+      multinom_baseline_random_eval_summ$MCC,
+      c(0.339040525810531, 0.0486630968728153, 0.469598884822668, -0.0726394381146181,
+      0.281551008833778, -0.137349796341982, 0.164251207729469, 0.108959157171927,
+      -0.0175562702416747, 0.172015615514047),
       tolerance = 1e-4
     )
     expect_equal(multinom_baseline_random_eval_summ$`Detection Rate`,
@@ -1472,7 +1468,7 @@ test_that("multinomial evaluations are correct in baseline()", {
       c(
         "Repetition", "Class", "Balanced Accuracy", "Accuracy", "F1",
         "Sensitivity", "Pos Pred Value", "Neg Pred Value",
-        "Kappa", "MCC", "Detection Rate", "Detection Prevalence",
+        "Kappa", "Detection Rate", "Detection Prevalence",
         "Prevalence", "Support", "Confusion Matrix", "Family",
         "Dependent"
       )
@@ -1539,10 +1535,6 @@ test_that("multinomial evaluations are correct in baseline()", {
     )
     expect_equal(sum(multinom_baseline_random_eval_class$Kappa),
       3.961655,
-      tolerance = 1e-4
-    )
-    expect_equal(sum(multinom_baseline_random_eval_class$MCC),
-      4.010248,
       tolerance = 1e-4
     )
     expect_equal(sum(multinom_baseline_random_eval_class$`Detection Rate`),
@@ -1616,7 +1608,7 @@ test_that("multinomial evaluations are correct in baseline()", {
         "Weighted Sensitivity", "Specificity", "Weighted Specificity",
         "Pos Pred Value", "Weighted Pos Pred Value", "Neg Pred Value",
         "Weighted Neg Pred Value", "AUC", "Kappa", "Weighted Kappa",
-        "MCC", "Weighted MCC", "Detection Rate", "Weighted Detection Rate",
+        "MCC", "Detection Rate", "Weighted Detection Rate",
         "Detection Prevalence", "Weighted Detection Prevalence", "Prevalence",
         "Weighted Prevalence", "False Neg Rate", "Weighted False Neg Rate",
         "False Pos Rate", "Weighted False Pos Rate", "False Discovery Rate",
@@ -1705,12 +1697,11 @@ test_that("multinomial evaluations are correct in baseline()", {
       ),
       tolerance = 1e-3
     )
-    expect_equal(multinom_baseline_summ$MCC,
-      c(
-        0.124977459958719, 0.10188338719613, 0.207768661322695, 0.336587028842194,
-        0.47105139539729, -0.139292933974385, 0, 0,
-        0.645881334621692, -0.282109088685337, 0, 0, 0, 0, 0
-      ),
+    expect_equal(
+      multinom_baseline_summ$MCC,
+      c(0.125850827588575, 0.106457152301142, 0.208258245757672, 0.337236969494147,
+      0.469598884822668, -0.137349796341982, 0, 0, NA, NA, NA, NA,
+      0, 0, 0),
       tolerance = 1e-3
     )
     expect_equal(multinom_baseline_summ$`Detection Rate`,
@@ -1845,14 +1836,6 @@ test_that("multinomial evaluations are correct in baseline()", {
       ),
       tolerance = 1e-3
     )
-    expect_equal(multinom_baseline_summ$`Weighted MCC`,
-      c(
-        0.123497552340401, 0.105015789011414, 0.209393261094827, 0.354532034124476,
-        0.457065000259338, -0.127867641597509, 0, 0, NA,
-        NA, NA, NA, 0, 0, 0
-      ),
-      tolerance = 1e-3
-    )
     expect_equal(multinom_baseline_summ$`Weighted Detection Rate`,
       c(
         0.14016, 0.1344, 0.0476443117742763, 0.0836, 0.2112, 0.0832,
@@ -1931,7 +1914,7 @@ test_that("multinomial evaluations are correct in baseline()", {
       c(
         "Class", "Measure", "Balanced Accuracy", "Accuracy", "F1", "Sensitivity",
         "Specificity", "Pos Pred Value", "Neg Pred Value",
-        "Kappa", "MCC", "Detection Rate", "Detection Prevalence",
+        "Kappa", "Detection Rate", "Detection Prevalence",
         "Prevalence", "False Neg Rate", "False Pos Rate",
         "False Discovery Rate", "False Omission Rate", "Threat Score"
       )
@@ -1952,7 +1935,6 @@ test_that("multinomial evaluations are correct in baseline()", {
     expect_equal(sum(multinom_baseline_class$`Pos Pred Value`, na.rm = T), 7.221436, tolerance = 1e-4)
     expect_equal(sum(multinom_baseline_class$`Neg Pred Value`, na.rm = T), 11.1646, tolerance = 1e-4)
     expect_equal(sum(multinom_baseline_class$Kappa), 3.323803, tolerance = 1e-4)
-    expect_equal(sum(multinom_baseline_class$MCC), 3.37519, tolerance = 1e-4)
     expect_equal(sum(multinom_baseline_class$`Detection Rate`), 3.121808, tolerance = 1e-4)
     expect_equal(sum(multinom_baseline_class$`Detection Prevalence`), 7.440557, tolerance = 1e-4)
     expect_equal(sum(multinom_baseline_class$Prevalence), 6)
@@ -1973,7 +1955,7 @@ test_that("multinomial evaluations are correct in baseline()", {
         "Weighted Sensitivity", "Specificity", "Weighted Specificity",
         "Pos Pred Value", "Weighted Pos Pred Value", "Neg Pred Value",
         "Weighted Neg Pred Value", "AUC", "Kappa", "Weighted Kappa",
-        "MCC", "Weighted MCC", "Detection Rate", "Weighted Detection Rate",
+        "MCC", "Detection Rate", "Weighted Detection Rate",
         "Detection Prevalence", "Weighted Detection Prevalence", "Prevalence",
         "Weighted Prevalence", "False Neg Rate", "Weighted False Neg Rate",
         "False Pos Rate", "Weighted False Pos Rate", "False Discovery Rate",
@@ -2144,19 +2126,9 @@ test_that("multinomial evaluations are correct in baseline()", {
     )
 
     expect_equal(multinom_baseline_random_eval_summ$MCC,
-      c(
-        -0.0809305652988624, 0.264080089416882, -0.0123678721676094,
-        0.33636907200676, 0.0385278775986594, 0.47105139539729, -0.0747673723899526,
-        0.281866012204808, -0.139292933974385, 0.1652388967936
-      ),
-      tolerance = 1e-4
-    )
-    expect_equal(multinom_baseline_random_eval_summ$`Weighted MCC`,
-      c(
-        -0.088039931157692, 0.268098949160318, -0.0353321151649286,
-        0.346770661259364, 0.0387005359367389, 0.457065000259338, -0.0836583340509621,
-        0.287907356673257, -0.127867641597509, 0.17133104208609
-      ),
+                 c(-0.0871673257375417, 0.269468324571013, -0.0169082125603865,
+                 0.339040525810531, 0.0486630968728153, 0.469598884822668, -0.0726394381146181,
+                 0.281551008833778, -0.137349796341982, 0.164251207729469),
       tolerance = 1e-4
     )
 
@@ -2420,7 +2392,7 @@ test_that("multinomial evaluations are correct in baseline()", {
       c(
         "Repetition", "Class", "Balanced Accuracy", "Accuracy", "F1",
         "Sensitivity", "Specificity", "Pos Pred Value", "Neg Pred Value",
-        "Kappa", "MCC", "Detection Rate", "Detection Prevalence", "Prevalence",
+        "Kappa", "Detection Rate", "Detection Prevalence", "Prevalence",
         "False Neg Rate", "False Pos Rate", "False Discovery Rate", "False Omission Rate",
         "Threat Score", "Support", "Confusion Matrix", "Family", "Dependent"
       )
@@ -2491,10 +2463,6 @@ test_that("multinomial evaluations are correct in baseline()", {
     )
     expect_equal(sum(multinom_baseline_random_eval_class$Kappa),
       3.675317,
-      tolerance = 1e-4
-    )
-    expect_equal(sum(multinom_baseline_random_eval_class$MCC),
-      3.749324,
       tolerance = 1e-4
     )
     expect_equal(sum(multinom_baseline_random_eval_class$`Detection Rate`),

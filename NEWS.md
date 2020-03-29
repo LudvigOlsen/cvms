@@ -3,13 +3,24 @@
 
 ## Breaking changes
 
+### Changed arguments 
+
 * In `cross_validate()` and `validate()`, the `models` argument is renamed to `formulas`. This is a more meaningful name that was recently introduced in `cross_validate_fn()`. For now, the `models` argument is deprecated, will be used instead of `formulas` if specified, and will throw a warning.
 
 * In `cross_validate()` and `validate()`, the `model_verbose` argument is renamed to `verbose`. This is a more meaningful name that was recently introduced in `cross_validate_fn()`. For now, the `model_verbose` argument is deprecated, will be used instead of `verbose` if specified, and will throw a warning.
 
 * In `cross_validate()` and `validate()`, the `link` argument is removed. Consider using `cross_validate_fn()` or `validate_fn()` instead, where you have full control over the prediction type fed to the evaluation.
 
+* In `cross_validate_fn()`, the `predict_type` argument is removed. You now have to pass a predict function as that is safer and more transparent.
+
 * In functions with `family`/`type` argument, this argument no longer has a default, forcing the user to specify the family/type of the task. This also means that arguments have been reordered. In general, it is safer to name arguments when passing values to them.
+
+* In `evaluate()`, `apply_softmax` now defaults to `FALSE`. 
+Throws error if probabilities do not add up 1 row-wise (tolerance of 5 decimals) when `type` is `multinomial`.
+
+### Changed metrics
+
+* `multinomial` `MCC` is now the proper multiclass generalization. Previous versions used `macro MCC`. Removes `MCC` from the class level results. Removes the option to enable `Weighted MCC`.
 
 * `multinomial` `AUC` is calculated with `pROC::multiclass.roc()` instead of in the one-vs-all evaluations. This removes `AUC`, `Lower CI`, and `Upper CI` from the `Class Level Results` and removes `Lower CI` and `Upper CI` from the main output tibble. Also removes option to enable "Weighted AUC", "Weighted Lower CI", and "Weighted Upper CI".
 
@@ -17,14 +28,7 @@
 
 * `ROC` columns now return the `ROC` objects instead of the extracted `sensitivities` and `specificities`, both of which can be extracted from the objects.
 
-* In `cross_validate_fn()`, the `predict_type` argument is removed. You now have to pass a predict function as that is safer and more transparent.
-
-* `validate()` now returns a tibble with the model objects nested in the `Model` column. Previously, it returned a list with the results and models. This allows for easier use in `magrittr` pipelines (`%>%`).
-
 * In `evaluate()`, it's no longer possible to pass model objects. It now only evaluates the predictions. This removes the the `AIC`, `AICc`, `BIC`, `r2m`, and `r2c` metrics.
-
-* In `evaluate()`, `apply_softmax` now defaults to `FALSE`. 
-Throws error if probabilities do not add up 1 row-wise (tolerance of 5 decimals) when `type` is `multinomial`.
 
 * In `cross_validate` and `validate()`, the `r2m`, and `r2c` metrics are now disabled by default in `gaussian`. The r-squared metrics are non-predictive and should not be used for model selection. They can be enabled with `metrics = list("r2m" = TRUE, "r2c" = TRUE)`.
 
@@ -33,11 +37,18 @@ Throws error if probabilities do not add up 1 row-wise (tolerance of 5 decimals)
 * In `baseline()`, the `AIC`, `AICc`, `BIC`, `r2m`, and `r2c` metrics are now disabled by default in `gaussian`.
 It can be unclear whether the IC metrics (computed on the `lm()`/`lmer()` model objects) can be compared to those calculated for a given other model function. To avoid such confusion, it is preferable that the user actively makes a choice to include the metrics. The r-squared metrics will only be non-zero when random effects are passed. Given that we shouldn't use the r-squared metrics for model selection, it makes sense to not have them enabled by default.
 
+### Changes in functionality
+
+* `validate()` now returns a tibble with the model objects nested in the `Model` column. Previously, it returned a list with the results and models. This allows for easier use in `magrittr` pipelines (`%>%`).
+
 * In multinomial `baseline()`, the aggregation approach is changed. The summarized results now properly describe the random evaluations tibble, except for the four new measures `CL_Max`, `CL_Min`, `CL_NAs`, and `CL_INFs`, which describe the class level results. Previously, `NAs` were removed before aggregating the one-vs-all evaluations, meaning that some metric summaries could become inflated if small classes had `NA`s. It was also non-transparent that the `NA`s and `INF`s were counted in the class level results instead of being a count of random evaluations with `NA`s or `INF`s.
 
-* `cv_plot()` is removed. It wasn't very useful and has never been developed properly. We aim to provide multiple specialized plotting functions instead.
+* `cv_plot()` is removed. It wasn't very useful and has never been developed properly. We aim to provide specialized plotting functions instead.
+
 
 ## Additions
+
+### New functions
 
 * `validate_fn()` is added. Validate your custom model function on a test set.
 
@@ -68,12 +79,24 @@ useful when passing a formula to `recipes::recipe()`, which doesn't allow the in
 * `gaussian_metrics()`, `binomial_metrics()`, and `multinomial_metrics()` are added. Can be used
 to select metrics for the `metrics` argument in many `cvms` functions.
 
+### New datasets
+
 * `wines` dataset is added. Contains a list of wine varieties in an approximately Zipfian distribution.
 
 * `musicians` dataset is added. This has been **generated** for multiclass classification examples.
 
 * `predicted.musicians` dataset is added. This contains cross-validated predictions of the `musicians`
 dataset by three algorithms. Can be used to demonstrate working with predictions from repeated 5-fold stratified cross-validation.
+
+### New metrics
+
+* Adds `NRMSE(RNG)`, `NRMSE(IQR)`, `NRMSE(STD)`, `NRMSE(AVG)` metrics to `gaussian` evaluations. The `RMSE` is normalized by either target range (RNG), target interquartile range (IQR), target standard deviation (STD), or target mean (AVG). Only `NRMSE(IQR)` is enabled by default.
+
+* Adds `RMSLE`, `RAE`, `RSE`, `RRSE`, `MALE`, `MAPE`, `MSE`, `TAE` and `TSE` metrics to `gaussian` evaluations. `RMSLE`, `RAE`, and `RRSE` are enabled by default.
+
+* Adds Information Criterion metrics (`AIC`, `AICc`, `BIC`) to the `binomial` and `multinomial` output of some functions (disabled by default). These are based on the fitted model objects and will only work for some types of models.
+
+### New function arguments
 
 * Adds optional `hyperparameter` argument to `cross_validate_fn()`. 
 Pass a list of hyperparameters and every combination of these will be cross-validated. 
@@ -84,18 +107,18 @@ Pass a list of hyperparameters and every combination of these will be cross-vali
 
 * Adds `preprocess_once` argument to `cross_validate_fn()`. When preprocessing does not depend on the current formula or hyperparameters, we might as well perform it on each train/test split once, instead of for every model.
 
-* Adds Information Criteria metrics (`AIC`, `AICc`, `BIC`) to the `binomial` and `multinomial` output of some functions (disabled by default). 
-These are based on the fitted model objects and will only work for some types of models.
-
-* Adds `NRMSE` and `RMSEIQR` metrics to Gaussian evaluations. `NRMSE` is the RMSE divided by the range (max - min) of the target values. `RMSEIQR` is the RMSE divided by the IQR of the target values.
-
 * Adds `metrics` argument to `baseline()`. Enable the non-default metrics you want a baseline evaluation for.
 
 * Adds `preprocessing` argument to `cross_validate()` and `validate()`. Currently allows "standardize", "scale", "center", and "range". Results will likely not be affected noticeably by the preprocessing.
 
 * Adds `Observation` column in the nested predictions tibble in `cross_validate()`, `cross_validate_fn()`, `validate()`, and `validate_fn()`. These indices can be used to identify which observations are difficult to predict.
 
+### New vignettes
+
 * Adds vignette: `Creating a confusion matrix with cvms`
+
+* Adds vignette: `Available metrics in cvms`
+
 
 ## Other changes
 
@@ -128,7 +151,6 @@ Warnings are counted in `Other Warnings`.
 # cvms 0.3.2
 
 * Fixes bug in `evaluate()`, when used on a grouped data frame. The row order in the output was not guaranteed to fit the grouping keys. 
-
 
 # cvms 0.3.1
 

@@ -25,7 +25,6 @@ multinomial_metrics(
   kappa = NULL,
   w_kappa = NULL,
   mcc = NULL,
-  w_mcc = NULL,
   detection_rate = NULL,
   w_detection_rate = NULL,
   detection_prevalence = NULL,
@@ -89,9 +88,9 @@ multinomial_metrics(
 
 \item{w_kappa}{\code{Weighted Kappa} (Default: FALSE)}
 
-\item{mcc}{\code{MCC} (Default: TRUE)}
+\item{mcc}{\code{MCC} (Default: TRUE)
 
-\item{w_mcc}{\code{Weighted MCC} (Default: FALSE)}
+ Multiclass Matthews Correlation Coefficient.}
 
 \item{detection_rate}{\code{Detection Rate} (Default: TRUE)}
 

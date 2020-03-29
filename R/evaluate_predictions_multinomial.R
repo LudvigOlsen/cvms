@@ -34,11 +34,9 @@ evaluate_predictions_multinomial <- function(data,
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
 
-  predicted_probabilities <- tryCatch(
-    {
-      dplyr::bind_rows(data[[predictions_col]])
-    },
-    error = function(e) {
+  predicted_probabilities <- tryCatch({
+    dplyr::bind_rows(data[[predictions_col]])
+    }, error = function(e) {
       stop("Could not bind the specified predictions_col: ", predictions_col, ".")
     }
   )
@@ -120,56 +118,50 @@ evaluate_predictions_multinomial <- function(data,
       }
     )
 
-    # Calculate overall accuracy per fold column
-    overall_metrics <- data %>%
-      dplyr::group_by(!!as.name(fold_info_cols[["fold_column"]])) %>%
-      dplyr::summarise(`Overall Accuracy` = mean(.data$predicted_class == !!as.name(targets_col)))
+    # Compute multiclass metrics and create confusion matrix
+    overall_metrics <- plyr::ldply(unique_fold_cols, function(fcol) {
 
-    if ("AUC" %in% metrics) {
+      # Extract current fold column
+      fcol_data <- data[data[[fold_info_cols[["fold_column"]]]] == fcol, ]
 
-      # Compute multiclass ROC curves and AUC scores
-      multiclass_ROC_AUC <- plyr::llply(unique_fold_cols, function(fcol) {
+      # Create multiclass confusion matrix
+      # Also calculates MCC and Overall Accuracy
+      fcol_confusion_matrix <- tryCatch(
+        {
+          confusion_matrix(
+            targets = fcol_data[[targets_col]],
+            predictions = fcol_data[["predicted_class"]],
+            c_levels = classes,
+            metrics = metrics,
+            do_one_vs_all = FALSE
+          )
+        },
+        error = function(e) {
+          stop(paste0("Confusion matrix error: ", e))
+        }
+      )
 
-        # Extract current fold column
-        fcol_data <- data[data[[fold_info_cols[["fold_column"]]]] == fcol, ]
+      if ("AUC" %in% metrics){
 
         # Extract and prepare probabilities
         fcol_probabilities <- as.data.frame(
           dplyr::bind_rows(fcol_data[[predictions_col]])
         )
 
-        # Extract targets
-        fcol_targets <- fcol_data[[targets_col]]
-
         # Calculate multiclass ROC
         roc <- pROC::multiclass.roc(
-          response = fcol_targets,
+          response = fcol_data[[targets_col]],
           predictor = fcol_probabilities,
           levels = cat_levels_in_targets_col
         )
-        list(
-          "ROC" = list(roc),
-          "AUC" = as.numeric(pROC::auc(roc))
-        )
-      })
+        fcol_confusion_matrix[["ROC"]] <- list(roc)
+        fcol_confusion_matrix[["AUC"]] <- as.numeric(pROC::auc(roc))
+      }
 
-      roc_curves <- multiclass_ROC_AUC %c% "ROC"
-      auc_scores <- unlist(multiclass_ROC_AUC %c% "AUC")
-
-      # Add the AUC scores to the overall metrics
-      overall_metrics <- overall_metrics %>%
-        dplyr::mutate(
-          AUC = auc_scores,
-          ROC = roc_curves
-        )
-    }
-
-    # Rename the fold column
-    overall_metrics <- overall_metrics %>%
-      base_rename(
-        before = fold_info_cols[["fold_column"]],
-        after = "Fold Column"
-      )
+      fcol_confusion_matrix %>%
+        tibble::add_column(`Fold Column` = fcol,
+                           .before = colnames(fcol_confusion_matrix)[[1]])
+    }) %>% dplyr::as_tibble()
 
     # Nest predictions and targets
     # Will be NA if any model_was_null is TRUE and
@@ -200,7 +192,7 @@ evaluate_predictions_multinomial <- function(data,
     support <- create_support_object(data[[targets_col]])
 
     # Find the metrics to calculate in one-vs-all
-    one_vs_all_metrics <- setdiff(metrics, c("AUC", "Lower CI", "Upper CI"))
+    one_vs_all_metrics <- setdiff(metrics, c("AUC", "Lower CI", "Upper CI", "MCC"))
     one_vs_all_metrics <- unique(gsub("Weighted ", "", one_vs_all_metrics))
 
     # Perform one vs all evaluations
@@ -330,11 +322,14 @@ evaluate_predictions_multinomial <- function(data,
       by = "Fold Column"
     )
 
-    overall_results <- base_deselect(fold_column_results,
-      cols = c("Fold Column", "ROC")
-    )
+    # Remove non-numeric columns and unwanted metrics
+    overall_results <- base_select(
+      fold_column_results, cols = c(
+        "NAs_removed",
+        intersect(colnames(fold_column_results), metrics))
+      )
 
-    # Average results
+    # Average results # TODO Is this necessary?
     overall_results <- plyr::ldply(na.rm_values, function(nr) { # TODO Document this behavior
       overall_results[overall_results[["NAs_removed"]] == nr, ] %>%
         dplyr::group_by(!!as.name("NAs_removed")) %>% # Ensures NAs_removed is kept and not summarized
@@ -349,55 +344,36 @@ evaluate_predictions_multinomial <- function(data,
       )
     }
 
-    # If we don't want the Overall Accuracy metric, remove it
-    if ("Overall Accuracy" %ni% metrics) {
-      overall_results <- base_deselect(overall_results,
-        cols = "Overall Accuracy"
-      )
-      fold_column_results <- base_deselect(fold_column_results,
-        cols = "Overall Accuracy"
-      )
-    }
-
-    # Add total counts confusion matrix
-    # Try to fit a confusion matrix with the predictions and targets
-    overall_confusion_matrix <- tryCatch(
-      {
-        confusion_matrix(
-          targets = data[[targets_col]],
-          predictions = data[["predicted_class"]],
-          c_levels = classes,
-          metrics = metrics,
-          do_one_vs_all = FALSE
-        )
-      },
-      error = function(e) {
-        stop(paste0("Confusion matrix error: ", e))
-      }
-    )
+    overall_confusion_matrix <- fold_column_results %>%
+      base_select(cols = c("Fold Column", "Confusion Matrix")) %>%
+      legacy_unnest(`Confusion Matrix`)
 
     # Add group info
     if (!is.null(group_info)) {
-      overall_confusion_matrix[["Confusion Matrix"]][[1]] <- group_info %>%
-        dplyr::slice(rep(1, nrow(overall_confusion_matrix[["Confusion Matrix"]][[1]]))) %>%
-        dplyr::bind_cols(overall_confusion_matrix[["Confusion Matrix"]][[1]])
+      overall_confusion_matrix <- group_info %>%
+        dplyr::slice(rep(1, nrow(overall_confusion_matrix))) %>%
+        dplyr::bind_cols(overall_confusion_matrix)
     }
 
     # Nest the confusion matrix
-    nested_multiclass_confusion_matrix <- nest_multiclass_confusion_matrices(
-      list(overall_confusion_matrix),
-      include_fold_columns = include_fold_columns
-    )[["confusion_matrices"]]
+    nested_mc_confusion_matrix <- overall_confusion_matrix
+    if (!isTRUE(include_fold_columns))
+      nested_mc_confusion_matrix[["Fold Column"]] <- NULL
+    nested_mc_confusion_matrix <- nested_mc_confusion_matrix %>%
+      dplyr::group_nest(.key = "Confusion Matrix") %>%
+      dplyr::pull(.data$`Confusion Matrix`)
 
     # Add confusion matrix to overall results
     overall_results[["Confusion Matrix"]] <- repeat_list_if(
-      nested_multiclass_confusion_matrix, 2,
+      nested_mc_confusion_matrix, 2,
       condition = both_keep_and_remove_NAs
     )
 
+    # Fold column results
     fcr_all_cols <- colnames(fold_column_results)
     fcr_prediction_metrics <- intersect(metrics, fcr_all_cols)
-    fcr_non_metric_cols <- setdiff(fcr_all_cols, c(fcr_prediction_metrics, "Fold Column"))
+    fcr_non_metric_cols <- setdiff(fcr_all_cols, c(fcr_prediction_metrics, "Fold Column",
+                                                   "Confusion Matrix", "Table"))
     fcr_new_order <- c("Fold Column", fcr_prediction_metrics, fcr_non_metric_cols)
 
     # Add the nested fold column results
@@ -405,7 +381,8 @@ evaluate_predictions_multinomial <- function(data,
       dplyr::left_join(
         fold_column_results %>%
           base_select(cols = fcr_new_order) %>%
-          dplyr::group_nest(!!as.name("NAs_removed"), .key = "Results") %>%
+          dplyr::group_nest(!!as.name("NAs_removed"),
+                            .key = "Results") %>%
           tibble::as_tibble(),
         by = "NAs_removed"
       )
@@ -435,10 +412,8 @@ evaluate_predictions_multinomial <- function(data,
     }
   }
 
-  return(results)
+  results
 }
-
-
 
 
 argmax_row <- function(...) {

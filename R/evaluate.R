@@ -973,7 +973,7 @@ run_internal_evaluate_wrapper <- function(
     results[["NAs_removed"]] <- NULL
   }
 
-  return(results)
+  results
 }
 
 internal_evaluate <- function(data,
@@ -1079,8 +1079,10 @@ internal_evaluate <- function(data,
   # Extract ROC from Results col
   if (type == "multinomial") {
     ROCs <- output[["Results"]] %c% "ROC" %>%
-      unlist(recursive = FALSE) %>%
-      unlist(recursive = FALSE) # TODO Remove for repeated cv?
+      unlist(recursive = FALSE)
+    if ("mv.multiclass.roc" %ni% class(ROCs[[1]])){
+      ROCs <- unlist(ROCs, recursive = FALSE)
+    }
     output[["ROC"]] <- ROCs
   }
 

@@ -54,7 +54,7 @@ test_that("multinomial evaluations are correct in evaluate()", {
   expect_equal(mn_eval_1$`Neg Pred Value`, 0.7991667, tolerance = 1e-4)
   expect_equal(mn_eval_1$AUC, 0.49375)
   expect_equal(mn_eval_1$Kappa, 0.008653846, tolerance = 1e-4)
-  expect_equal(mn_eval_1$MCC, 0.0125, tolerance = 1e-4)
+  expect_equal(mn_eval_1$MCC, 0.0, tolerance = 1e-4)
   expect_equal(mn_eval_1$`Detection Rate`, 0.04, tolerance = 1e-4)
   expect_equal(mn_eval_1$`Detection Prevalence`, 0.2, tolerance = 1e-4)
   expect_equal(mn_eval_1$Prevalence, 0.2, tolerance = 1e-4)
@@ -133,10 +133,6 @@ test_that("multinomial evaluations are correct in evaluate()", {
   )
   expect_equal(mn_eval_1$`Class Level Results`[[1]]$Kappa,
     c(-3.172066e-16, -2.500000e-01, 2.307692e-01, -3.172066e-16, 6.250000e-02),
-    tolerance = 1e-4
-  )
-  expect_equal(mn_eval_1$`Class Level Results`[[1]]$MCC,
-    c(0.0000, -0.2500, 0.2500, 0.0000, 0.0625),
     tolerance = 1e-4
   )
   expect_equal(mn_eval_1$`Class Level Results`[[1]]$`Detection Rate`,
@@ -258,8 +254,7 @@ test_that("multinomial evaluations are correct in evaluate()", {
   expect_equal(mn_eval_2$AUC, 0.528125, tolerance = 1e-4)
   expect_equal(mn_eval_2$Kappa, 0.06428773, tolerance = 1e-4)
   expect_equal(mn_eval_2$`Weighted Kappa`, 0.04481687, tolerance = 1e-4)
-  expect_equal(mn_eval_2$MCC, 0.07240413, tolerance = 1e-4)
-  expect_equal(mn_eval_2$`Weighted MCC`, 0.05207999, tolerance = 1e-4)
+  expect_equal(mn_eval_2$MCC, 0.0526315789473684, tolerance = 1e-4)
   expect_equal(mn_eval_2$`Detection Rate`, 0.04705882, tolerance = 1e-4)
   expect_equal(mn_eval_2$`Weighted Detection Rate`, 0.0449827, tolerance = 1e-4)
   expect_equal(mn_eval_2$`Detection Prevalence`, 0.2, tolerance = 1e-4)
@@ -317,10 +312,6 @@ test_that("multinomial evaluations are correct in evaluate()", {
   )
   expect_equal(mn_eval_2$`Class Level Results`[[1]]$Kappa,
     c(0.1052632, -0.3076923, 0.2093023, 0.1052632, 0.2093023),
-    tolerance = 1e-4
-  )
-  expect_equal(mn_eval_2$`Class Level Results`[[1]]$MCC,
-    c(0.1069901, -0.3076923, 0.2278664, 0.1069901, 0.2278664),
     tolerance = 1e-4
   )
   expect_equal(mn_eval_2$`Class Level Results`[[1]]$`Detection Rate`,
@@ -462,8 +453,7 @@ test_that("multinomial evaluations are correct in evaluate()", {
   expect_equal(mn_id_eval_1$AUC, 0.6, tolerance = 1e-4)
   expect_equal(mn_id_eval_1$Kappa, 0.03714286, tolerance = 1e-4)
   expect_equal(mn_id_eval_1$`Weighted Kappa`, -0.003174603, tolerance = 1e-4)
-  expect_equal(mn_id_eval_1$MCC, 0.05714286, tolerance = 1e-4)
-  expect_equal(mn_id_eval_1$`Weighted MCC`, 0.007936508, tolerance = 1e-4)
+  expect_equal(mn_id_eval_1$MCC, 0.0484122918275927, tolerance = 1e-4)
   expect_equal(mn_id_eval_1$`Detection Rate`, 0.04444444, tolerance = 1e-4)
   expect_equal(mn_id_eval_1$`Weighted Detection Rate`, 0.03703704, tolerance = 1e-4)
   expect_equal(mn_id_eval_1$`Detection Prevalence`, 0.2, tolerance = 1e-4)
@@ -500,10 +490,6 @@ test_that("multinomial evaluations are correct in evaluate()", {
   )
   expect_equal(mn_id_eval_1$`Class Level Results`[[1]]$Kappa,
     c(0.3571429, -0.2857143, -0.2857143, 0.4000000, 0.0000000),
-    tolerance = 1e-4
-  )
-  expect_equal(mn_id_eval_1$`Class Level Results`[[1]]$MCC,
-    c(0.3571429, -0.2857143, -0.2857143, 0.5000000, 0.0000000),
     tolerance = 1e-4
   )
   expect_equal(mn_id_eval_1$`Class Level Results`[[1]]$`Detection Rate`,
@@ -649,7 +635,7 @@ test_that("multinomial evaluations are correct in evaluate()", {
     c(
       "fold_", "Class", "Balanced Accuracy", "F1", "Sensitivity",
       "Specificity", "Pos Pred Value", "Neg Pred Value",
-      "Kappa", "MCC", "Detection Rate", "Detection Prevalence",
+      "Kappa", "Detection Rate", "Detection Prevalence",
       "Prevalence", "Support", "Confusion Matrix"
     )
   )
@@ -693,7 +679,7 @@ test_that("multinomial evaluations are correct in evaluate()", {
   expect_equal(mb_eval$`Neg Pred Value`, 0.825555555555556, tolerance = 1e-4)
   expect_equal(mb_eval$AUC, 0.49, tolerance = 1e-4)
   expect_equal(mb_eval$Kappa, 0.1133333, tolerance = 1e-4)
-  expect_equal(mb_eval$MCC, 0.11849, tolerance = 1e-4)
+  expect_equal(mb_eval$MCC, 0.130327042490215, tolerance = 1e-4)
   expect_equal(mb_eval$`Detection Rate`, 0.06, tolerance = 1e-4)
   expect_equal(mb_eval$`Detection Prevalence`, 0.2, tolerance = 1e-4)
   expect_equal(mb_eval$Prevalence, 0.2, tolerance = 1e-4)
@@ -755,13 +741,6 @@ test_that("multinomial evaluations are correct in evaluate()", {
   expect_equal(mb_eval$`Class Level Results`[[1]]$Kappa,
     c(
       -0.0666666666666667, -3.17206578464331e-16, 0.166666666666666,
-      0.466666666666667, 0
-    ),
-    tolerance = 1e-4
-  )
-  expect_equal(mb_eval$`Class Level Results`[[1]]$MCC,
-    c(
-      -0.0666666666666667, 0, 0.192450089729875,
       0.466666666666667, 0
     ),
     tolerance = 1e-4
@@ -844,7 +823,7 @@ test_that("multinomial evaluations with one predicted class column is correctly 
   expect_equal(mn_eval_1$`Neg Pred Value`, 0.7991667, tolerance = 1e-4)
   expect_equal(mn_eval_1$AUC, 0.5)
   expect_equal(mn_eval_1$Kappa, 0.008653846, tolerance = 1e-4)
-  expect_equal(mn_eval_1$MCC, 0.0125, tolerance = 1e-4)
+  expect_equal(mn_eval_1$MCC, 0.0, tolerance = 1e-4)
   expect_equal(mn_eval_1$`Detection Rate`, 0.04, tolerance = 1e-4)
   expect_equal(mn_eval_1$`Detection Prevalence`, 0.2, tolerance = 1e-4)
   expect_equal(mn_eval_1$Prevalence, 0.2, tolerance = 1e-4)
@@ -923,10 +902,6 @@ test_that("multinomial evaluations with one predicted class column is correctly 
   )
   expect_equal(mn_eval_1$`Class Level Results`[[1]]$Kappa,
     c(-3.172066e-16, -2.500000e-01, 2.307692e-01, -3.172066e-16, 6.250000e-02),
-    tolerance = 1e-4
-  )
-  expect_equal(mn_eval_1$`Class Level Results`[[1]]$MCC,
-    c(0.0000, -0.2500, 0.2500, 0.0000, 0.0625),
     tolerance = 1e-4
   )
   expect_equal(mn_eval_1$`Class Level Results`[[1]]$`Detection Rate`,
@@ -1049,8 +1024,7 @@ test_that("multinomial evaluations with one predicted class column is correctly 
     expect_equal(mn_eval_2$AUC, 0.5416667, tolerance = 1e-4)
     expect_equal(mn_eval_2$Kappa, 0.06428773, tolerance = 1e-4)
     expect_equal(mn_eval_2$`Weighted Kappa`, 0.04481687, tolerance = 1e-4)
-    expect_equal(mn_eval_2$MCC, 0.07240413, tolerance = 1e-4)
-    expect_equal(mn_eval_2$`Weighted MCC`, 0.05207999, tolerance = 1e-4)
+    expect_equal(mn_eval_2$MCC, 0.0526315789473684, tolerance = 1e-4)
     expect_equal(mn_eval_2$`Detection Rate`, 0.04705882, tolerance = 1e-4)
     expect_equal(mn_eval_2$`Weighted Detection Rate`, 0.0449827, tolerance = 1e-4)
     expect_equal(mn_eval_2$`Detection Prevalence`, 0.2, tolerance = 1e-4)
@@ -1099,10 +1073,6 @@ test_that("multinomial evaluations with one predicted class column is correctly 
     )
     expect_equal(mn_eval_2$`Class Level Results`[[1]]$Kappa,
       c(0.1052632, -0.3076923, 0.2093023, 0.1052632, 0.2093023),
-      tolerance = 1e-4
-    )
-    expect_equal(mn_eval_2$`Class Level Results`[[1]]$MCC,
-      c(0.1069901, -0.3076923, 0.2278664, 0.1069901, 0.2278664),
       tolerance = 1e-4
     )
     expect_equal(mn_eval_2$`Class Level Results`[[1]]$`Detection Rate`,
@@ -1226,8 +1196,7 @@ test_that("multinomial evaluations with one predicted class column is correctly 
     expect_equal(mn_id_eval_1$AUC, 0.575, tolerance = 1e-4)
     expect_equal(mn_id_eval_1$Kappa, 0.043636, tolerance = 1e-4)
     expect_equal(mn_id_eval_1$`Weighted Kappa`, 0.00404, tolerance = 1e-4)
-    expect_equal(mn_id_eval_1$MCC, 0.06220355, tolerance = 1e-4)
-    expect_equal(mn_id_eval_1$`Weighted MCC`, 0.0135595, tolerance = 1e-4)
+    expect_equal(mn_id_eval_1$MCC, 0.0510310363079829, tolerance = 1e-4)
     expect_equal(mn_id_eval_1$`Detection Rate`, 0.04444444, tolerance = 1e-4)
     expect_equal(mn_id_eval_1$`Weighted Detection Rate`, 0.03703704, tolerance = 1e-4)
     expect_equal(mn_id_eval_1$`Detection Prevalence`, 0.2, tolerance = 1e-4)
@@ -1267,10 +1236,6 @@ test_that("multinomial evaluations with one predicted class column is correctly 
     )
     expect_equal(mn_id_eval_1$`Class Level Results`[[1]]$Kappa,
       c(0.181818181818182, -0.363636363636363, 0, 0.4, 0),
-      tolerance = 1e-4
-    )
-    expect_equal(mn_id_eval_1$`Class Level Results`[[1]]$MCC,
-      c(0.1889822, -0.377964, 0, 0.5, 0),
       tolerance = 1e-4
     )
     expect_equal(mn_id_eval_1$`Class Level Results`[[1]]$`Detection Rate`,
@@ -1415,7 +1380,7 @@ test_that("multinomial evaluations with one predicted class column is correctly 
     c(
       "fold_", "Class", "Balanced Accuracy", "F1", "Sensitivity",
       "Specificity", "Pos Pred Value", "Neg Pred Value",
-      "Kappa", "MCC", "Detection Rate", "Detection Prevalence",
+      "Kappa", "Detection Rate", "Detection Prevalence",
       "Prevalence", "Support", "Confusion Matrix"
     )
   )
@@ -1453,7 +1418,7 @@ test_that("multinomial evaluations with one predicted class column is correctly 
   expect_equal(mb_eval$`Neg Pred Value`, 0.825555555555556, tolerance = 1e-4)
   expect_equal(mb_eval$AUC, 0.5666667, tolerance = 1e-4)
   expect_equal(mb_eval$Kappa, 0.1133333, tolerance = 1e-4)
-  expect_equal(mb_eval$MCC, 0.11849, tolerance = 1e-4)
+  expect_equal(mb_eval$MCC, 0.1303270, tolerance = 1e-4)
   expect_equal(mb_eval$`Detection Rate`, 0.06, tolerance = 1e-4)
   expect_equal(mb_eval$`Detection Prevalence`, 0.2, tolerance = 1e-4)
   expect_equal(mb_eval$Prevalence, 0.2, tolerance = 1e-4)
@@ -1519,13 +1484,6 @@ test_that("multinomial evaluations with one predicted class column is correctly 
     ),
     tolerance = 1e-4
   )
-  expect_equal(mb_eval$`Class Level Results`[[1]]$MCC,
-    c(
-      -0.0666666666666667, 0, 0.192450089729875,
-      0.466666666666667, 0
-    ),
-    tolerance = 1e-4
-  )
   expect_equal(mb_eval$`Class Level Results`[[1]]$`Detection Rate`,
     c(0.05, 0.05, 0.05, 0.15, 0),
     tolerance = 1e-4
@@ -1571,7 +1529,7 @@ test_that("multinomial evaluations with one predicted class column is correctly 
   expect_equal(mb_eval$`Neg Pred Value`, 0.8266667, tolerance = 1e-4)
   expect_equal(mb_eval$AUC, 0.56875, tolerance = 1e-4)
   expect_equal(mb_eval$Kappa, 0.1133333, tolerance = 1e-4)
-  expect_equal(mb_eval$MCC, 0.11849, tolerance = 1e-4)
+  expect_equal(mb_eval$MCC, 0.130327042490215, tolerance = 1e-4)
   expect_equal(mb_eval$`Detection Rate`, 0.06, tolerance = 1e-4)
   expect_equal(mb_eval$`Detection Prevalence`, 0.2, tolerance = 1e-4)
   expect_equal(mb_eval$Prevalence, 0.2, tolerance = 1e-4)
@@ -1633,13 +1591,6 @@ test_that("multinomial evaluations with one predicted class column is correctly 
   expect_equal(mb_eval$`Class Level Results`[[1]]$Kappa,
     c(
       -0.0666666666666667, -3.17206578464331e-16, 0.166666666666666,
-      0.466666666666667, 0
-    ),
-    tolerance = 1e-4
-  )
-  expect_equal(mb_eval$`Class Level Results`[[1]]$MCC,
-    c(
-      -0.0666666666666667, 0, 0.192450089729875,
       0.466666666666667, 0
     ),
     tolerance = 1e-4
@@ -2181,11 +2132,9 @@ test_that("specific multinomial predictions yield correct results in evaluate()"
     tolerance = 1e-5
   )
   expect_equal(evals$MCC,
-    c(
-      0.33636907200676, 0.0385278775986594, 0.47105139539729, -0.0747673723899526,
-      0.281866012204808, -0.139292933974385, 0.1652388967936, 0.110830712271453,
-      -0.0151691930693147, 0.162094868501065
-    ),
+     c(0.339040525810531, 0.0486630968728153, 0.469598884822668, -0.0726394381146181,
+     0.281551008833778, -0.137349796341982, 0.164251207729469, 0.108959157171927,
+     -0.0175562702416747, 0.172015615514047),
     tolerance = 1e-5
   )
   expect_equal(evals$`Detection Rate`,
@@ -2988,9 +2937,9 @@ test_that("gaussian evaluations are correct in evaluate()", {
   expect_equal(
     colnames(e1),
     c(
-      "RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD",
+      "RMSE", "MAE", "NRMSE(RNG)","NRMSE(IQR)","NRMSE(STD)","NRMSE(AVG)",
+      "RSE", "RRSE", "RAE",
       "RMSLE", "MALE",
-      "RAE", "RSE", "RRSE",
       "MAPE", "MSE", "TAE", "TSE",
       "Predictions"
     )
@@ -2998,9 +2947,10 @@ test_that("gaussian evaluations are correct in evaluate()", {
 
   expect_equal(e1$RMSE, 16.16881, tolerance = 1e-4)
   expect_equal(e1$MAE, 13.47778, tolerance = 1e-4)
-  expect_equal(e1$NRMSE, 0.2277298, tolerance = 1e-4)
-  expect_equal(e1$RMSEIQR, 0.5774577, tolerance = 1e-4)
-  expect_equal(e1$RMSESTD, 0.8380279, tolerance = 1e-4)
+  expect_equal(e1$`NRMSE(RNG)`, 0.2277298, tolerance = 1e-4)
+  expect_equal(e1$`NRMSE(IQR)`, 0.5774577, tolerance = 1e-4)
+  expect_equal(e1$`NRMSE(STD)`, 0.8380279, tolerance = 1e-4)
+  expect_equal(e1$`NRMSE(AVG)`, 0.417080334230652, tolerance = 1e-4)
   expect_equal(e1$RMSLE, 0.4677011, tolerance = 1e-4)
   expect_equal(e1$MALE, 0.3768815, tolerance = 1e-4)
   expect_equal(e1$RAE, 0.8666762, tolerance = 1e-4)
@@ -3024,14 +2974,16 @@ test_that("gaussian evaluations are correct in evaluate()", {
 
   expect_equal(
     colnames(e2),
-    c(
-      "RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD",
-      "RMSLE", "MALE", "RAE", "RSE", "RRSE",
-      "MAPE", "MSE", "TAE", "TSE", "Predictions"
-    )
+    c("RMSE", "MAE", "NRMSE(RNG)", "NRMSE(IQR)", "NRMSE(STD)", "NRMSE(AVG)",
+    "RSE", "RRSE", "RAE", "RMSLE", "MALE", "MAPE", "MSE", "TAE",
+    "TSE", "Predictions")
   )
   expect_equal(e2$RMSE, 16.16881, tolerance = 1e-4)
   expect_equal(e2$MAE, 13.47778, tolerance = 1e-4)
+  expect_equal(e2$`NRMSE(RNG)`, 0.227729778737206, tolerance = 1e-4)
+  expect_equal(e2$`NRMSE(IQR)`, 0.577457653226487, tolerance = 1e-4)
+  expect_equal(e2$`NRMSE(STD)`, 0.838027891023239, tolerance = 1e-4)
+  expect_equal(e2$`NRMSE(AVG)`, 0.417080334230652, tolerance = 1e-4)
   expect_equal(e2$RMSLE, 0.4677011, tolerance = 1e-4)
   expect_equal(e2$MALE, 0.3768815, tolerance = 1e-4)
   expect_equal(e2$Predictions[[1]][["Target"]], eval_data$score)
@@ -3056,12 +3008,9 @@ test_that("gaussian evaluations are correct in evaluate()", {
 
   expect_equal(
     colnames(e3),
-    c(
-      "RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD",
-      "RMSLE", "MALE", "RAE", "RSE", "RRSE",
-      "MAPE", "MSE", "TAE", "TSE",
-      "Predictions"
-    )
+    c("RMSE", "MAE", "NRMSE(RNG)", "NRMSE(IQR)", "NRMSE(STD)", "NRMSE(AVG)",
+    "RSE", "RRSE", "RAE", "RMSLE", "MALE", "MAPE", "MSE", "TAE",
+    "TSE", "Predictions")
   )
 
   eval_data_3 <- dplyr::bind_rows(
@@ -3083,11 +3032,9 @@ test_that("gaussian evaluations are correct in evaluate()", {
 
   expect_equal(
     colnames(e4),
-    c(
-      "fold_", "RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD",
-      "RMSLE", "MALE", "RAE", "RSE", "RRSE", "MAPE", "MSE", "TAE", "TSE",
-      "Predictions"
-    )
+    c("fold_", "RMSE", "MAE", "NRMSE(RNG)", "NRMSE(IQR)", "NRMSE(STD)",
+    "NRMSE(AVG)", "RSE", "RRSE", "RAE", "RMSLE", "MALE", "MAPE",
+    "MSE", "TAE", "TSE", "Predictions")
   )
 
   e1_e3 <- dplyr::bind_rows(e1, e3) %>%
@@ -3106,9 +3053,10 @@ test_that("gaussian evaluations are correct in evaluate()", {
   expect_equal(e4$fold_, factor(c(1, 2)))
   expect_equal(e4$RMSE, c(16.16881, 16.12762), tolerance = 1e-4)
   expect_equal(e4$MAE, c(13.47778, 13.28942), tolerance = 1e-4)
-  expect_equal(e4$NRMSE, c(0.227729778737206, 0.227149512023389), tolerance = 1e-4)
-  expect_equal(e4$RMSEIQR, c(0.577457653226487, 0.575986262630736), tolerance = 1e-4)
-  expect_equal(e4$RMSESTD, c(0.838027891023239, 0.835892554603436), tolerance = 1e-4)
+  expect_equal(e4$`NRMSE(RNG)`, c(0.227729778737206, 0.227149512023389), tolerance = 1e-4)
+  expect_equal(e4$`NRMSE(IQR)`, c(0.577457653226487, 0.575986262630736), tolerance = 1e-4)
+  expect_equal(e4$`NRMSE(STD)`, c(0.838027891023239, 0.835892554603436), tolerance = 1e-4)
+  expect_equal(e4$`NRMSE(AVG)`, c(0.417080334230652, 0.416017592957711), tolerance = 1e-4)
   expect_equal(e4$RMSLE, c(0.4677011, 0.4666284), tolerance = 1e-4)
   expect_equal(e4$MALE, c(0.3768815, 0.3723774), tolerance = 1e-4)
   expect_equal(e4$RAE, c(0.866676193198057, 0.8545638890023), tolerance = 1e-4)
@@ -3190,14 +3138,14 @@ test_that("gaussian evaluations are correct in evaluate()", {
   expect_equal(e5$fold_, c(1, 2))
   expect_equal(e5$RMSE, c(6.949820, 6.917232), tolerance = 1e-4)
   expect_equal(e5$MAE, c(6.0, 5.935604), tolerance = 1e-4)
-  expect_equal(e5$NRMSE, c(0.302166093111201, 0.300749209434143), tolerance = 1e-4)
-  expect_equal(e5$RMSEIQR, c(0.661887632529297, 0.658783982570027), tolerance = 1e-4)
-  expect_equal(e5$RMSESTD, c(0.943424157020128, 0.939000357265295), tolerance = 1e-4)
+  expect_equal(e5$`NRMSE(RNG)`, c(0.302166093111201, 0.300749209434143), tolerance = 1e-4)
+  expect_equal(e5$`NRMSE(IQR)`, c(0.661887632529297, 0.658783982570027), tolerance = 1e-4)
+  expect_equal(e5$`NRMSE(STD)`, c(0.943424157020128, 0.939000357265295), tolerance = 1e-4)
+  expect_equal(e5$`NRMSE(AVG)`, c(0.244711976815409, 0.243564500598073), tolerance = 1e-4)
   expect_equal(e5$RMSLE, c(0.234168121096768, 0.23292937565111), tolerance = 1e-4)
   expect_equal(e5$MALE, c(0.206142303617716, 0.203966962001996), tolerance = 1e-4)
   expect_equal(e5$RAE, c(1, 0.989267385645221), tolerance = 1e-4)
   expect_equal(e5$RSE, c(0.994456378602646, 0.98979328422339)^2, tolerance = 1e-4)
-  expect_equal(e5$RRSE, c(0.994456378602646, 0.98979328422339), tolerance = 1e-4)
   expect_equal(e5$RRSE, c(0.994456378602646, 0.98979328422339), tolerance = 1e-4)
   expect_equal(e5$MAPE, c(0.222585143343264, 0.220163297924543), tolerance = 1e-4)
   expect_equal(e5$MSE, c(48.3, 47.8480960099135), tolerance = 1e-4)
@@ -3262,10 +3210,9 @@ test_that("gaussian evaluations are correct in evaluate()", {
 
   expect_equal(
     colnames(e6),
-    c(
-      "fold_", "RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD",
-      "RMSLE", "MALE", "RAE", "RSE", "RRSE", "MAPE", "MSE", "TAE", "TSE"
-    )
+    c("fold_", "RMSE", "MAE", "NRMSE(RNG)", "NRMSE(IQR)", "NRMSE(STD)",
+    "NRMSE(AVG)", "RSE", "RRSE", "RAE", "RMSLE", "MALE", "MAPE",
+    "MSE", "TAE", "TSE")
   )
 })
 
@@ -3650,3 +3597,4 @@ test_that("evaluate() is agnostic about the order of the input data", {
 
   expect_equal(eval_1[, 2:15], eval_groups[, 1:14])
 })
+

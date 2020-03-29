@@ -38,23 +38,23 @@ test_that("binomial glm model works with cross_validate_fn()", {
     positive = 1
   )
 
-  expect_equal(CVbinomlist$AUC, c(0.7615741, 0.1666667), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Lower CI`, c(0.58511535, 0.01748744), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Upper CI`, c(0.9380328, 0.3158459), tolerance = 1e-3)
-  expect_equal(CVbinomlist$Kappa, c(0.4927536, -0.3636364), tolerance = 1e-3)
-  expect_equal(CVbinomlist$Sensitivity, c(0.5833333, 0.0000000), tolerance = 1e-3)
-  expect_equal(CVbinomlist$Specificity, c(0.8888889, 0.6666667), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Pos Pred Value`, c(0.7777778, 0.0000000), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Neg Pred Value`, c(0.7619048, 0.5), tolerance = 1e-3)
-  expect_equal(CVbinomlist$F1, c(0.6666667, NA), tolerance = 1e-3)
-  expect_equal(CVbinomlist$Prevalence, c(0.4, 0.4), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Detection Rate`, c(0.2333333, 0.0000000), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Detection Prevalence`, c(0.3, 0.2), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Balanced Accuracy`, c(0.7361111, 0.3333333), tolerance = 1e-3)
-  expect_equal(CVbinomlist$MCC, c(0.5048268, -0.4082483), tolerance = 1e-3)
-  expect_equal(CVbinomlist$AIC, c(27.30328, 33.25823), tolerance = 1e-3)
-  expect_equal(CVbinomlist$AICc, c(27.92233, 33.87728), tolerance = 1e-3)
-  expect_equal(CVbinomlist$BIC, c(29.52586, 35.48081), tolerance = 1e-3)
+  expect_equal(CVbinomlist$AUC, c(0.7615741, 0.1666667), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Lower CI`, c(0.58511535, 0.01748744), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Upper CI`, c(0.9380328, 0.3158459), tolerance = 1e-5)
+  expect_equal(CVbinomlist$Kappa, c(0.4927536, -0.3636364), tolerance = 1e-5)
+  expect_equal(CVbinomlist$Sensitivity, c(0.5833333, 0.0000000), tolerance = 1e-5)
+  expect_equal(CVbinomlist$Specificity, c(0.8888889, 0.6666667), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Pos Pred Value`, c(0.7777778, 0.0000000), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Neg Pred Value`, c(0.7619048, 0.5), tolerance = 1e-5)
+  expect_equal(CVbinomlist$F1, c(0.6666667, NA), tolerance = 1e-5)
+  expect_equal(CVbinomlist$Prevalence, c(0.4, 0.4), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Detection Rate`, c(0.2333333, 0.0000000), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Detection Prevalence`, c(0.3, 0.2), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Balanced Accuracy`, c(0.7361111, 0.3333333), tolerance = 1e-5)
+  expect_equal(CVbinomlist$MCC, c(0.5048268, -0.4082483), tolerance = 1e-5)
+  expect_equal(CVbinomlist$AIC, c(27.30328, 33.25823), tolerance = 1e-5)
+  expect_equal(CVbinomlist$AICc, c(27.92233, 33.87728), tolerance = 1e-5)
+  expect_equal(CVbinomlist$BIC, c(29.52586, 35.48081), tolerance = 1e-5)
   expect_equal(CVbinomlist$Folds, c(4, 4))
   expect_equal(CVbinomlist$`Fold Columns`, c(1, 1))
   expect_equal(CVbinomlist$`Convergence Warnings`, c(0, 0))
@@ -363,22 +363,23 @@ test_that("gaussian lm model works with cross_validate_fn()", {
     type = "gaussian"
   )
 
-  expect_equal(CVed$RMSE, 17.16817, tolerance = 1e-3)
-  expect_equal(CVed$MAE, 14.26914, tolerance = 1e-3)
-  expect_equal(CVed$NRMSE, 0.316612, tolerance = 1e-3)
-  expect_equal(CVed$RMSEIQR, 0.9073991, tolerance = 1e-3)
-  expect_equal(CVed$RMSESTD, 0.9081804, tolerance = 1e-3)
-  expect_equal(CVed$RAE, 0.9859855, tolerance = 1e-3)
-  expect_equal(CVed$RRSE, 0.9805019, tolerance = 1e-3)
-  expect_equal(CVed$MAPE, 0.4886251, tolerance = 1e-3)
-  expect_equal(CVed$MSE, 299.26, tolerance = 1e-3)
-  expect_equal(CVed$TAE, 105.1333, tolerance = 1e-3)
-  expect_equal(CVed$TSE, 2156.193, tolerance = 1e-3)
-  expect_equal(CVed$r2m, 0.2640793, tolerance = 1e-3)
-  expect_equal(CVed$r2c, 0.2640793, tolerance = 1e-3)
-  expect_equal(CVed$AIC, 194.6904, tolerance = 1e-3)
-  expect_equal(CVed$AICc, 195.9963, tolerance = 1e-3)
-  expect_equal(CVed$BIC, 198.0243, tolerance = 1e-3)
+  expect_equal(CVed$RMSE, 17.16817, tolerance = 1e-5)
+  expect_equal(CVed$MAE, 14.26914, tolerance = 1e-5)
+  expect_equal(CVed$`NRMSE(RNG)`, 0.316612, tolerance = 1e-5)
+  expect_equal(CVed$`NRMSE(IQR)`, 0.9073991, tolerance = 1e-5)
+  expect_equal(CVed$`NRMSE(STD)`, 0.9081804, tolerance = 1e-5)
+  expect_equal(CVed$`NRMSE(AVG)`, 0.4335854, tolerance = 1e-5)
+  expect_equal(CVed$RAE, 0.9859855, tolerance = 1e-5)
+  expect_equal(CVed$RRSE, 0.9805019, tolerance = 1e-5)
+  expect_equal(CVed$MAPE, 0.4886251, tolerance = 1e-5)
+  expect_equal(CVed$MSE, 299.26, tolerance = 1e-5)
+  expect_equal(CVed$TAE, 105.1333, tolerance = 1e-5)
+  expect_equal(CVed$TSE, 2156.193, tolerance = 1e-5)
+  expect_equal(CVed$r2m, 0.2640793, tolerance = 1e-5)
+  expect_equal(CVed$r2c, 0.2640793, tolerance = 1e-5)
+  expect_equal(CVed$AIC, 194.6904, tolerance = 1e-5)
+  expect_equal(CVed$AICc, 195.9963, tolerance = 1e-5)
+  expect_equal(CVed$BIC, 198.0243, tolerance = 1e-5)
   expect_equal(CVed$Folds, 4)
   expect_equal(CVed$`Fold Columns`, 1)
   expect_equal(CVed$`Convergence Warnings`, 0)
@@ -397,11 +398,11 @@ test_that("gaussian lm model works with cross_validate_fn()", {
 
   expect_equal(
     colnames(CVed),
-    c(
-      "Fixed", "RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD", "RMSLE", "MALE", "RAE", "RSE", "RRSE",
-      "MAPE", "MSE", "TAE", "TSE", "r2m", "r2c", "AIC", "AICc", "BIC", "Predictions",
-      "Results", "Coefficients", "Folds", "Fold Columns", "Convergence Warnings",
-      "Other Warnings", "Warnings and Messages", "Family", "Dependent"
+    c("Fixed", "RMSE", "MAE", "NRMSE(RNG)", "NRMSE(IQR)", "NRMSE(STD)",
+    "NRMSE(AVG)", "RSE", "RRSE", "RAE", "RMSLE", "MALE", "MAPE",
+    "MSE", "TAE", "TSE", "r2m", "r2c", "AIC", "AICc", "BIC", "Predictions",
+    "Results", "Coefficients", "Folds", "Fold Columns", "Convergence Warnings",
+    "Other Warnings", "Warnings and Messages", "Family", "Dependent"
     )
   )
 
@@ -592,23 +593,23 @@ test_that("binomial glm model with preprocess_fn works with cross_validate_fn()"
   )
 
 
-  expect_equal(CVbinomlist_prep_once$AUC, c(0.744598765432099, 0.256944444444444), tolerance = 1e-3)
-  expect_equal(CVbinomlist_prep_once$`Lower CI`, c(0.557694303281996, 0.088133274673661), tolerance = 1e-3)
-  expect_equal(CVbinomlist_prep_once$`Upper CI`, c(0.931503227582202, 0.430603742698332), tolerance = 1e-3)
-  expect_equal(CVbinomlist_prep_once$Kappa, c(0.47135955831608, -0.212121212121212), tolerance = 1e-3)
-  expect_equal(CVbinomlist_prep_once$Sensitivity, c(0.87037037037037, 0.722222222222222), tolerance = 1e-3)
-  expect_equal(CVbinomlist_prep_once$Specificity, c(0.583333333333333, 0.0833333333333333), tolerance = 1e-3)
-  expect_equal(CVbinomlist_prep_once$`Pos Pred Value`, c(0.757936507936508, 0.541666666666667), tolerance = 1e-3)
-  expect_equal(CVbinomlist_prep_once$`Neg Pred Value`, c(0.751851851851852, 0.166666666666667), tolerance = 1e-3)
-  expect_equal(CVbinomlist_prep_once$F1, c(0.810166441745389, 0.619047619047619), tolerance = 1e-3)
-  expect_equal(CVbinomlist_prep_once$Prevalence, c(0.6, 0.6), tolerance = 1e-3)
-  expect_equal(CVbinomlist_prep_once$`Detection Rate`, c(0.522222222222222, 0.433333333333333), tolerance = 1e-3)
-  expect_equal(CVbinomlist_prep_once$`Detection Prevalence`, c(0.688888888888889, 0.8), tolerance = 1e-3)
-  expect_equal(CVbinomlist_prep_once$`Balanced Accuracy`, c(0.726851851851852, 0.402777777777778), tolerance = 1e-3)
-  expect_equal(CVbinomlist_prep_once$MCC, c(0.480888760816756, -0.23814483610392), tolerance = 1e-3)
-  expect_equal(CVbinomlist_prep_once$AIC, c(27.1161243598453, 33.3259599731777), tolerance = 1e-3)
-  expect_equal(CVbinomlist_prep_once$AICc, c(27.7351719788929, 33.9450075922254), tolerance = 1e-3)
-  expect_equal(CVbinomlist_prep_once$BIC, c(29.3387006279166, 35.5485362412491), tolerance = 1e-3)
+  expect_equal(CVbinomlist_prep_once$AUC, c(0.744598765432099, 0.256944444444444), tolerance = 1e-5)
+  expect_equal(CVbinomlist_prep_once$`Lower CI`, c(0.557694303281996, 0.088133274673661), tolerance = 1e-5)
+  expect_equal(CVbinomlist_prep_once$`Upper CI`, c(0.931503227582202, 0.430603742698332), tolerance = 1e-5)
+  expect_equal(CVbinomlist_prep_once$Kappa, c(0.47135955831608, -0.212121212121212), tolerance = 1e-5)
+  expect_equal(CVbinomlist_prep_once$Sensitivity, c(0.87037037037037, 0.722222222222222), tolerance = 1e-5)
+  expect_equal(CVbinomlist_prep_once$Specificity, c(0.583333333333333, 0.0833333333333333), tolerance = 1e-5)
+  expect_equal(CVbinomlist_prep_once$`Pos Pred Value`, c(0.757936507936508, 0.541666666666667), tolerance = 1e-5)
+  expect_equal(CVbinomlist_prep_once$`Neg Pred Value`, c(0.751851851851852, 0.166666666666667), tolerance = 1e-5)
+  expect_equal(CVbinomlist_prep_once$F1, c(0.810166441745389, 0.619047619047619), tolerance = 1e-5)
+  expect_equal(CVbinomlist_prep_once$Prevalence, c(0.6, 0.6), tolerance = 1e-5)
+  expect_equal(CVbinomlist_prep_once$`Detection Rate`, c(0.522222222222222, 0.433333333333333), tolerance = 1e-5)
+  expect_equal(CVbinomlist_prep_once$`Detection Prevalence`, c(0.688888888888889, 0.8), tolerance = 1e-5)
+  expect_equal(CVbinomlist_prep_once$`Balanced Accuracy`, c(0.726851851851852, 0.402777777777778), tolerance = 1e-5)
+  expect_equal(CVbinomlist_prep_once$MCC, c(0.480888760816756, -0.23814483610392), tolerance = 1e-5)
+  expect_equal(CVbinomlist_prep_once$AIC, c(27.1161243598453, 33.3259599731777), tolerance = 1e-5)
+  expect_equal(CVbinomlist_prep_once$AICc, c(27.7351719788929, 33.9450075922254), tolerance = 1e-5)
+  expect_equal(CVbinomlist_prep_once$BIC, c(29.3387006279166, 35.5485362412491), tolerance = 1e-5)
   expect_equal(CVbinomlist_prep_once$Folds, c(12, 12))
   expect_equal(CVbinomlist_prep_once$`Fold Columns`, c(3, 3))
   expect_equal(CVbinomlist_prep_once$`Convergence Warnings`, c(0, 0))
@@ -710,20 +711,20 @@ test_that("binomial svm models from e1071 work with cross_validate_fn()", {
     positive = 1
   )
 
-  expect_equal(CVbinomlist$AUC, c(0.733796296296296, 0.479166666666667), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Lower CI`, c(0.528997365284296, 0.241598686439125), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Upper CI`, c(0.938595227308296, 0.716734646894208), tolerance = 1e-3)
-  expect_equal(CVbinomlist$Kappa, c(0.393939393939394, -0.0869565217391305), tolerance = 1e-3)
-  expect_equal(CVbinomlist$Sensitivity, c(0.416666666666667, 0.25), tolerance = 1e-3)
-  expect_equal(CVbinomlist$Specificity, c(0.944444444444444, 0.666666666666667), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Pos Pred Value`, c(0.833333333333333, 0.333333333333333), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Neg Pred Value`, c(0.708333333333333, 0.571428571428571), tolerance = 1e-3)
-  expect_equal(CVbinomlist$F1, c(0.555555555555556, 0.285714285714286), tolerance = 1e-3)
-  expect_equal(CVbinomlist$Prevalence, c(0.4, 0.4), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Detection Rate`, c(0.166666666666667, 0.1), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Detection Prevalence`, c(0.2, 0.3), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Balanced Accuracy`, c(0.680555555555556, 0.458333333333333), tolerance = 1e-3)
-  expect_equal(CVbinomlist$MCC, c(0.442268981335852, -0.0890870806374748), tolerance = 1e-3)
+  expect_equal(CVbinomlist$AUC, c(0.733796296296296, 0.479166666666667), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Lower CI`, c(0.528997365284296, 0.241598686439125), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Upper CI`, c(0.938595227308296, 0.716734646894208), tolerance = 1e-5)
+  expect_equal(CVbinomlist$Kappa, c(0.393939393939394, -0.0869565217391305), tolerance = 1e-5)
+  expect_equal(CVbinomlist$Sensitivity, c(0.416666666666667, 0.25), tolerance = 1e-5)
+  expect_equal(CVbinomlist$Specificity, c(0.944444444444444, 0.666666666666667), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Pos Pred Value`, c(0.833333333333333, 0.333333333333333), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Neg Pred Value`, c(0.708333333333333, 0.571428571428571), tolerance = 1e-5)
+  expect_equal(CVbinomlist$F1, c(0.555555555555556, 0.285714285714286), tolerance = 1e-5)
+  expect_equal(CVbinomlist$Prevalence, c(0.4, 0.4), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Detection Rate`, c(0.166666666666667, 0.1), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Detection Prevalence`, c(0.2, 0.3), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Balanced Accuracy`, c(0.680555555555556, 0.458333333333333), tolerance = 1e-5)
+  expect_equal(CVbinomlist$MCC, c(0.442268981335852, -0.0890870806374748), tolerance = 1e-5)
   expect_equal(CVbinomlist$Folds, c(4, 4))
   expect_equal(CVbinomlist$`Fold Columns`, c(1, 1))
   expect_equal(CVbinomlist$`Convergence Warnings`, c(0, 0))
@@ -816,15 +817,17 @@ test_that("gaussian svm models from e1071 work with cross_validate_fn()", {
 
   expect_equal(
     colnames(CVed),
-    c(
-      "Fixed", "RMSE", "MAE", "RMSLE", "Predictions", "Results", "Coefficients", "Folds",
-      "Fold Columns", "Convergence Warnings", "Other Warnings", "Warnings and Messages",
-      "Family", "Dependent"
-    )
+    c("Fixed", "RMSE", "MAE", "NRMSE(IQR)", "RRSE", "RAE", "RMSLE",
+    "Predictions", "Results", "Coefficients", "Folds", "Fold Columns",
+    "Convergence Warnings", "Other Warnings", "Warnings and Messages",
+    "Family", "Dependent")
   )
-  expect_equal(CVed$RMSE, 18.01026, tolerance = 1e-3)
-  expect_equal(CVed$MAE, 15.27778, tolerance = 1e-3)
-  expect_equal(CVed$RMSLE, 0.4828787, tolerance = 1e-3)
+  expect_equal(CVed$RMSE, 18.01026, tolerance = 1e-5)
+  expect_equal(CVed$MAE, 15.27778, tolerance = 1e-5)
+  expect_equal(CVed$`NRMSE(IQR)`, 0.949782, tolerance = 1e-5)
+  expect_equal(CVed$RRSE, 1.02155, tolerance = 1e-5)
+  expect_equal(CVed$RAE, 1.0538027, tolerance = 1e-5)
+  expect_equal(CVed$RMSLE, 0.4828787, tolerance = 1e-5)
   expect_equal(CVed$Folds, 4)
   expect_equal(CVed$`Fold Columns`, 1)
   expect_equal(CVed$`Convergence Warnings`, 0)
@@ -983,7 +986,7 @@ test_that("gaussian svm models with hparams and preprocessing work with cross_va
       19.724604489995, 19.3906795721289,
       18.3020558729458
     ),
-    tolerance = 1e-3
+    tolerance = 1e-5
   )
   expect_equal(CVed$MAE,
     c(
@@ -991,7 +994,7 @@ test_that("gaussian svm models with hparams and preprocessing work with cross_va
       16.0889298392363, 15.8807791330459,
       15.3388888924368
     ),
-    tolerance = 1e-3
+    tolerance = 1e-5
   )
   expect_equal(CVed$Folds, rep(4, 5))
   expect_equal(CVed$`Fold Columns`, rep(1, 5))
@@ -1180,20 +1183,20 @@ test_that("binomial naiveBayes models from e1071 work with cross_validate_fn()",
     positive = 1
   )
 
-  expect_equal(CVbinomlist$AUC, c(0.743055555555555, 0.125), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Lower CI`, c(0.555996282730279, 0), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Upper CI`, c(0.930114828380832, 0.264544385449311), tolerance = 1e-3)
-  expect_equal(CVbinomlist$Kappa, c(0.492753623188406, -0.666666666666667), tolerance = 1e-3)
-  expect_equal(CVbinomlist$Sensitivity, c(0.583333333333333, 0), tolerance = 1e-3)
-  expect_equal(CVbinomlist$Specificity, c(0.888888888888889, 0.333333333333333), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Pos Pred Value`, c(0.777777777777778, 0), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Neg Pred Value`, c(0.761904761904762, 0.333333333333333), tolerance = 1e-3)
-  expect_equal(CVbinomlist$F1, c(0.6666667, NA), tolerance = 1e-3)
-  expect_equal(CVbinomlist$Prevalence, c(0.4, 0.4), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Detection Rate`, c(0.2333333, 0.0000000), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Detection Prevalence`, c(0.3, 0.4), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Balanced Accuracy`, c(0.736111111111111, 0.166666666666667), tolerance = 1e-3)
-  expect_equal(CVbinomlist$MCC, c(0.504826790279024, -0.666666666666667), tolerance = 1e-3)
+  expect_equal(CVbinomlist$AUC, c(0.743055555555555, 0.125), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Lower CI`, c(0.555996282730279, 0), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Upper CI`, c(0.930114828380832, 0.264544385449311), tolerance = 1e-5)
+  expect_equal(CVbinomlist$Kappa, c(0.492753623188406, -0.666666666666667), tolerance = 1e-5)
+  expect_equal(CVbinomlist$Sensitivity, c(0.583333333333333, 0), tolerance = 1e-5)
+  expect_equal(CVbinomlist$Specificity, c(0.888888888888889, 0.333333333333333), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Pos Pred Value`, c(0.777777777777778, 0), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Neg Pred Value`, c(0.761904761904762, 0.333333333333333), tolerance = 1e-5)
+  expect_equal(CVbinomlist$F1, c(0.6666667, NA), tolerance = 1e-5)
+  expect_equal(CVbinomlist$Prevalence, c(0.4, 0.4), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Detection Rate`, c(0.2333333, 0.0000000), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Detection Prevalence`, c(0.3, 0.4), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Balanced Accuracy`, c(0.736111111111111, 0.166666666666667), tolerance = 1e-5)
+  expect_equal(CVbinomlist$MCC, c(0.504826790279024, -0.666666666666667), tolerance = 1e-5)
   expect_equal(CVbinomlist$Folds, c(4, 4))
   expect_equal(CVbinomlist$`Fold Columns`, c(1, 1))
   expect_equal(CVbinomlist$`Convergence Warnings`, c(0, 0))
@@ -1263,20 +1266,20 @@ test_that("binomial nnet models work with cross_validate_fn()", {
     positive = 1
   )
 
-  expect_equal(CVbinomlist$AUC, c(0.611111111111111, 0.25), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Lower CI`, c(0.390732639152796, 0.0356744348642742), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Upper CI`, c(0.831489583069426, 0.464325565135726), tolerance = 1e-3)
-  expect_equal(CVbinomlist$Kappa, c(0.202898550724638, -0.206896551724138), tolerance = 1e-3)
-  expect_equal(CVbinomlist$Sensitivity, c(0.416666666666667, 0.75), tolerance = 1e-3)
-  expect_equal(CVbinomlist$Specificity, c(0.777777777777778, 0), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Pos Pred Value`, c(0.555555555555556, 0.333333333333333), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Neg Pred Value`, c(0.666666666666667, 0.0), tolerance = 1e-3)
-  expect_equal(CVbinomlist$F1, c(0.476190476190476, 0.461538461538462), tolerance = 1e-3)
-  expect_equal(CVbinomlist$Prevalence, c(0.4, 0.4), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Detection Rate`, c(0.1666667, 0.3000000), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Detection Prevalence`, c(0.3, 0.9), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Balanced Accuracy`, c(0.597222222222222, 0.375), tolerance = 1e-3)
-  expect_equal(CVbinomlist$MCC, c(0.207869854820775, -0.408248290463863), tolerance = 1e-3)
+  expect_equal(CVbinomlist$AUC, c(0.611111111111111, 0.25), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Lower CI`, c(0.390732639152796, 0.0356744348642742), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Upper CI`, c(0.831489583069426, 0.464325565135726), tolerance = 1e-5)
+  expect_equal(CVbinomlist$Kappa, c(0.202898550724638, -0.206896551724138), tolerance = 1e-5)
+  expect_equal(CVbinomlist$Sensitivity, c(0.416666666666667, 0.75), tolerance = 1e-5)
+  expect_equal(CVbinomlist$Specificity, c(0.777777777777778, 0), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Pos Pred Value`, c(0.555555555555556, 0.333333333333333), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Neg Pred Value`, c(0.666666666666667, 0.0), tolerance = 1e-5)
+  expect_equal(CVbinomlist$F1, c(0.476190476190476, 0.461538461538462), tolerance = 1e-5)
+  expect_equal(CVbinomlist$Prevalence, c(0.4, 0.4), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Detection Rate`, c(0.1666667, 0.3000000), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Detection Prevalence`, c(0.3, 0.9), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Balanced Accuracy`, c(0.597222222222222, 0.375), tolerance = 1e-5)
+  expect_equal(CVbinomlist$MCC, c(0.207869854820775, -0.408248290463863), tolerance = 1e-5)
   expect_equal(CVbinomlist$Folds, c(4, 4))
   expect_equal(CVbinomlist$`Fold Columns`, c(1, 1))
   expect_equal(CVbinomlist$`Convergence Warnings`, c(0, 0))
@@ -1297,7 +1300,7 @@ test_that("binomial nnet models work with cross_validate_fn()", {
   )
   expect_equal(nrow(CVbinomlist$Predictions[[1]]), 30)
   expect_equal(CVbinomlist$ROC[[1]]$.folds$direction, "<")
-  expect_equal(as.numeric(CVbinomlist$ROC[[1]]$.folds$auc), 0.6111, tolerance = 1e-3)
+  expect_equal(as.numeric(CVbinomlist$ROC[[1]]$.folds$auc), 0.6111111, tolerance = 1e-5)
   expect_equal(CVbinomlist$ROC[[1]]$.folds$thresholds,
     c(
       -Inf, 8.48402440378548e-07, 9.16581800969544e-05, 0.000182091056054732,
@@ -1394,8 +1397,8 @@ test_that("gaussian nnet models work with cross_validate_fn()", {
     type = "gaussian"
   )
 
-  expect_equal(CVed$RMSE, 16.5414, tolerance = 1e-3)
-  expect_equal(CVed$MAE, 13.76884, tolerance = 1e-3)
+  expect_equal(CVed$RMSE, 16.5414, tolerance = 1e-5)
+  expect_equal(CVed$MAE, 13.76884, tolerance = 1e-5)
   expect_equal(CVed$Folds, 4)
   expect_equal(CVed$`Fold Columns`, 1)
   expect_equal(CVed$`Convergence Warnings`, 0)
@@ -1488,18 +1491,18 @@ test_that("multinomial nnet models work with cross_validate_fn()", {
     metrics = "all"
   )
 
-  expect_equal(CVmultinomlist$AUC, c(0.338771310993533, 0.382495590828924), tolerance = 1e-3)
-  expect_equal(CVmultinomlist$Kappa, c(-0.234940592679204, -0.0826903354960317), tolerance = 1e-3)
-  expect_equal(CVmultinomlist$Sensitivity, c(0.177248677248677, 0.283068783068783), tolerance = 1e-3)
-  expect_equal(CVmultinomlist$Specificity, c(0.585648148148148, 0.642361111111111), tolerance = 1e-3)
-  expect_equal(CVmultinomlist$`Pos Pred Value`, c(0.182234432234432, 0.254255548373195), tolerance = 1e-3)
-  expect_equal(CVmultinomlist$`Neg Pred Value`, c(0.582223196827659, 0.646699553676298), tolerance = 1e-3)
-  expect_equal(CVmultinomlist$F1, c(0.179096139880454, 0.259451659451659), tolerance = 1e-3)
-  expect_equal(CVmultinomlist$Prevalence, c(0.333333333333333, 0.333333333333333), tolerance = 1e-3)
-  expect_equal(CVmultinomlist$`Detection Rate`, c(0.06, 0.1), tolerance = 1e-3)
-  expect_equal(CVmultinomlist$`Detection Prevalence`, c(0.33333, 0.3333), tolerance = 1e-3)
-  expect_equal(CVmultinomlist$`Balanced Accuracy`, c(0.381448412698413, 0.462714947089947), tolerance = 1e-3)
-  expect_equal(CVmultinomlist$MCC, c(-0.236236444573951, -0.0854444055482041), tolerance = 1e-3)
+  expect_equal(CVmultinomlist$AUC, c(0.338771310993533, 0.382495590828924), tolerance = 1e-5)
+  expect_equal(CVmultinomlist$Kappa, c(-0.234940592679204, -0.0826903354960317), tolerance = 1e-5)
+  expect_equal(CVmultinomlist$Sensitivity, c(0.177248677248677, 0.283068783068783), tolerance = 1e-5)
+  expect_equal(CVmultinomlist$Specificity, c(0.585648148148148, 0.642361111111111), tolerance = 1e-5)
+  expect_equal(CVmultinomlist$`Pos Pred Value`, c(0.182234432234432, 0.254255548373195), tolerance = 1e-5)
+  expect_equal(CVmultinomlist$`Neg Pred Value`, c(0.582223196827659, 0.646699553676298), tolerance = 1e-5)
+  expect_equal(CVmultinomlist$F1, c(0.179096139880454, 0.259451659451659), tolerance = 1e-5)
+  expect_equal(CVmultinomlist$Prevalence, c(0.333333333333333, 0.333333333333333), tolerance = 1e-5)
+  expect_equal(CVmultinomlist$`Detection Rate`, c(0.06, 0.1), tolerance = 1e-5)
+  expect_equal(CVmultinomlist$`Detection Prevalence`, c(0.3333333, 0.333333), tolerance = 1e-5)
+  expect_equal(CVmultinomlist$`Balanced Accuracy`, c(0.381448412698413, 0.462714947089947), tolerance = 1e-5)
+  expect_equal(CVmultinomlist$MCC, c(-0.241950698231126, -0.0777714613817967), tolerance = 1e-5)
   expect_equal(CVmultinomlist$Folds, c(4, 4))
   expect_equal(CVmultinomlist$`Fold Columns`, c(1, 1))
   expect_equal(CVmultinomlist$`Convergence Warnings`, c(0, 0))
@@ -1525,7 +1528,7 @@ test_that("multinomial nnet models work with cross_validate_fn()", {
       "Weighted Sensitivity", "Specificity", "Weighted Specificity",
       "Pos Pred Value", "Weighted Pos Pred Value", "Neg Pred Value",
       "Weighted Neg Pred Value", "AUC", "Kappa", "Weighted Kappa",
-      "MCC", "Weighted MCC", "Detection Rate", "Weighted Detection Rate",
+      "MCC", "Detection Rate", "Weighted Detection Rate",
       "Detection Prevalence", "Weighted Detection Prevalence", "Prevalence",
       "Weighted Prevalence", "False Neg Rate", "Weighted False Neg Rate",
       "False Pos Rate", "Weighted False Pos Rate", "False Discovery Rate",
@@ -1603,14 +1606,6 @@ test_that("multinomial nnet models work with cross_validate_fn()", {
   expect_equal(
     class_level_results[[2]]$Kappa,
     c(-0.112412177985948, -0.186291739894552, 0.0506329113924052)
-  )
-  expect_equal(
-    class_level_results[[1]]$MCC,
-    c(-0.166542870566493, -0.384959426774726, -0.157207036380633)
-  )
-  expect_equal(
-    class_level_results[[2]]$MCC,
-    c(-0.123237455089644, -0.186471812823331, 0.0533760512683624)
   )
   expect_equal(
     class_level_results[[1]]$`Detection Rate`,
@@ -1693,7 +1688,7 @@ test_that("multinomial nnet models work with cross_validate_fn()", {
       "Weighted Sensitivity", "Specificity", "Weighted Specificity",
       "Pos Pred Value", "Weighted Pos Pred Value", "Neg Pred Value",
       "Weighted Neg Pred Value", "AUC", "Kappa", "Weighted Kappa",
-      "MCC", "Weighted MCC", "Detection Rate", "Weighted Detection Rate",
+      "MCC", "Detection Rate", "Weighted Detection Rate",
       "Detection Prevalence", "Weighted Detection Prevalence", "Prevalence",
       "Weighted Prevalence", "False Neg Rate", "Weighted False Neg Rate",
       "False Pos Rate", "Weighted False Pos Rate", "False Discovery Rate",
@@ -1703,7 +1698,7 @@ test_that("multinomial nnet models work with cross_validate_fn()", {
     )
   )
   expect_equal(
-    as.numeric(CVmultinomlist$Results[[1]]$ROC[[1]][[1]]$auc),
+    as.numeric(CVmultinomlist$Results[[1]]$ROC[[1]][[1]]$auc), # TODO Seem to be different than before?
     0.338771310993533
   )
   expect_equal(
@@ -1853,20 +1848,20 @@ test_that("binomial randomForest models work with cross_validate_fn()", {
   # Skip on windows. Appveyour works but winbuilder gives different results
   skip_on_os(os = "windows")
 
-  expect_equal(CVbinomlist$AUC, c(0.648148148148148, 0.166666666666667), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Lower CI`, c(0.446244646035729, 0.00877666333061852), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Upper CI`, c(0.850051650260568, 0.324556670002715), tolerance = 1e-3)
-  expect_equal(CVbinomlist$Kappa, c(0.054054054054054, -0.538461538461538), tolerance = 1e-3)
-  expect_equal(CVbinomlist$Sensitivity, c(0.5, 0.25), tolerance = 1e-3)
-  expect_equal(CVbinomlist$Specificity, c(0.555555555555556, 0.166666666666667), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Pos Pred Value`, c(0.428571428571429, 0.166666666666667), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Neg Pred Value`, c(0.625, 0.25), tolerance = 1e-3)
-  expect_equal(CVbinomlist$F1, c(0.461538461538462, 0.2), tolerance = 1e-3)
-  expect_equal(CVbinomlist$Prevalence, c(0.4, 0.4), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Detection Rate`, c(0.2, 0.1), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Detection Prevalence`, c(0.466666666666667, 0.6), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Balanced Accuracy`, c(0.527777777777778, 0.208333333333333), tolerance = 1e-3)
-  expect_equal(CVbinomlist$MCC, c(0.0545544725589981, -0.583333333333333), tolerance = 1e-3)
+  expect_equal(CVbinomlist$AUC, c(0.648148148148148, 0.166666666666667), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Lower CI`, c(0.446244646035729, 0.00877666333061852), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Upper CI`, c(0.850051650260568, 0.324556670002715), tolerance = 1e-5)
+  expect_equal(CVbinomlist$Kappa, c(0.054054054054054, -0.538461538461538), tolerance = 1e-5)
+  expect_equal(CVbinomlist$Sensitivity, c(0.5, 0.25), tolerance = 1e-5)
+  expect_equal(CVbinomlist$Specificity, c(0.555555555555556, 0.166666666666667), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Pos Pred Value`, c(0.428571428571429, 0.166666666666667), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Neg Pred Value`, c(0.625, 0.25), tolerance = 1e-5)
+  expect_equal(CVbinomlist$F1, c(0.461538461538462, 0.2), tolerance = 1e-5)
+  expect_equal(CVbinomlist$Prevalence, c(0.4, 0.4), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Detection Rate`, c(0.2, 0.1), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Detection Prevalence`, c(0.466666666666667, 0.6), tolerance = 1e-5)
+  expect_equal(CVbinomlist$`Balanced Accuracy`, c(0.527777777777778, 0.208333333333333), tolerance = 1e-5)
+  expect_equal(CVbinomlist$MCC, c(0.0545544725589981, -0.583333333333333), tolerance = 1e-5)
 })
 
 test_that("multinomial randomForest models work with cross_validate_fn()", {
@@ -1999,10 +1994,10 @@ test_that("multinomial randomForest models work with cross_validate_fn()", {
   expect_equal(CVmultinomlist$`Detection Rate`, c(0.0933333333333333, 0.0733333333333333), tolerance = 1e-5)
   expect_equal(CVmultinomlist$`Detection Prevalence`, c(0.333333, 0.333333), tolerance = 1e-5)
   expect_equal(CVmultinomlist$`Balanced Accuracy`, c(0.455853174603175, 0.407159391534392), tolerance = 1e-5)
-  expect_equal(CVmultinomlist$`Overall Accuracy`, c(0.28, 0.22), tolerance = 1e-3)
-  expect_equal(CVmultinomlist$Accuracy, c(0.52, 0.48), tolerance = 1e-3)
-  expect_equal(CVmultinomlist$`Weighted Accuracy`, c(0.5152, 0.4752), tolerance = 1e-3)
-  expect_equal(CVmultinomlist$MCC, c(-0.0887876370194492, -0.189838214745842), tolerance = 1e-3)
+  expect_equal(CVmultinomlist$`Overall Accuracy`, c(0.28, 0.22), tolerance = 1e-5)
+  expect_equal(CVmultinomlist$Accuracy, c(0.52, 0.48), tolerance = 1e-5)
+  expect_equal(CVmultinomlist$`Weighted Accuracy`, c(0.5152, 0.4752), tolerance = 1e-5)
+  expect_equal(CVmultinomlist$MCC, c(-0.0913229553926603, -0.186939898098708), tolerance = 1e-5)
 
   expect_equal(
     colnames(CVmultinomlist),
@@ -2047,7 +2042,7 @@ test_that("multinomial randomForest models work with cross_validate_fn()", {
     colnames(class_level_results[[1]]),
     c(
       "Class", "Balanced Accuracy", "Accuracy", "Sensitivity", "Specificity",
-      "Pos Pred Value", "Neg Pred Value", "Kappa", "MCC", "Detection Rate",
+      "Pos Pred Value", "Neg Pred Value", "Kappa", "Detection Rate",
       "Detection Prevalence", "Prevalence",
       "Support", "Results", "Confusion Matrix"
     )
@@ -2087,13 +2082,13 @@ test_that("gaussian randomForest models work with cross_validate_fn()", {
     type = "gaussian"
   )
 
-  expect_equal(CVed$RMSE, 16.56476, tolerance = 1e-3)
-  expect_equal(CVed$MAE, 13.77846, tolerance = 1e-3)
-  expect_equal(CVed$r2m, NaN, tolerance = 1e-3)
-  expect_equal(CVed$r2c, NaN, tolerance = 1e-3)
-  expect_equal(CVed$AIC, NaN, tolerance = 1e-3)
-  expect_equal(CVed$AICc, NaN, tolerance = 1e-3)
-  expect_equal(CVed$BIC, NaN, tolerance = 1e-3)
+  expect_equal(CVed$RMSE, 16.56476, tolerance = 1e-5)
+  expect_equal(CVed$MAE, 13.77846, tolerance = 1e-5)
+  expect_equal(CVed$r2m, NaN, tolerance = 1e-5)
+  expect_equal(CVed$r2c, NaN, tolerance = 1e-5)
+  expect_equal(CVed$AIC, NaN, tolerance = 1e-5)
+  expect_equal(CVed$AICc, NaN, tolerance = 1e-5)
+  expect_equal(CVed$BIC, NaN, tolerance = 1e-5)
   expect_equal(CVed$Folds, 4)
   expect_equal(CVed$`Fold Columns`, 1)
   expect_equal(CVed$`Convergence Warnings`, 0)
@@ -2236,20 +2231,20 @@ test_that("binomial keras models work with cross_validate_fn()", {
   #     predict_fn = keras_predict_fn
   #   )
   #
-  #   expect_equal(CVbinomlist$AUC, 0.5833333, tolerance=1e-3)
-  #   expect_equal(CVbinomlist$`Lower CI`, 0.3624639, tolerance=1e-3)
-  #   expect_equal(CVbinomlist$`Upper CI`, 0.8042027, tolerance=1e-3)
-  #   expect_equal(CVbinomlist$Kappa, 0.1666667, tolerance=1e-3)
-  #   expect_equal(CVbinomlist$Sensitivity, 0.6666667, tolerance=1e-3)
-  #   expect_equal(CVbinomlist$Specificity, 0.5, tolerance=1e-3)
-  #   expect_equal(CVbinomlist$`Pos Pred Value`, 0.6666667, tolerance=1e-3)
-  #   expect_equal(CVbinomlist$`Neg Pred Value`, 0.5, tolerance=1e-3)
-  #   expect_equal(CVbinomlist$F1, 0.6666667, tolerance=1e-3)
-  #   expect_equal(CVbinomlist$Prevalence, 0.6, tolerance=1e-3)
-  #   expect_equal(CVbinomlist$`Detection Rate`, 0.4, tolerance=1e-3)
-  #   expect_equal(CVbinomlist$`Detection Prevalence`, 0.6, tolerance=1e-3)
-  #   expect_equal(CVbinomlist$`Balanced Accuracy`, 0.5833333, tolerance=1e-3)
-  #   expect_equal(CVbinomlist$MCC, 0.1666667, tolerance=1e-3)
+  #   expect_equal(CVbinomlist$AUC, 0.5833333, tolerance=1e-5)
+  #   expect_equal(CVbinomlist$`Lower CI`, 0.3624639, tolerance=1e-5)
+  #   expect_equal(CVbinomlist$`Upper CI`, 0.8042027, tolerance=1e-5)
+  #   expect_equal(CVbinomlist$Kappa, 0.1666667, tolerance=1e-5)
+  #   expect_equal(CVbinomlist$Sensitivity, 0.6666667, tolerance=1e-5)
+  #   expect_equal(CVbinomlist$Specificity, 0.5, tolerance=1e-5)
+  #   expect_equal(CVbinomlist$`Pos Pred Value`, 0.6666667, tolerance=1e-5)
+  #   expect_equal(CVbinomlist$`Neg Pred Value`, 0.5, tolerance=1e-5)
+  #   expect_equal(CVbinomlist$F1, 0.6666667, tolerance=1e-5)
+  #   expect_equal(CVbinomlist$Prevalence, 0.6, tolerance=1e-5)
+  #   expect_equal(CVbinomlist$`Detection Rate`, 0.4, tolerance=1e-5)
+  #   expect_equal(CVbinomlist$`Detection Prevalence`, 0.6, tolerance=1e-5)
+  #   expect_equal(CVbinomlist$`Balanced Accuracy`, 0.5833333, tolerance=1e-5)
+  #   expect_equal(CVbinomlist$MCC, 0.1666667, tolerance=1e-5)
   #   expect_equal(CVbinomlist$Folds, 4)
   #   expect_equal(CVbinomlist$`Fold Columns`, 1)
   #   expect_equal(CVbinomlist$`Convergence Warnings`, 0)
@@ -2301,20 +2296,20 @@ test_that("binomial tidymodels work with cross_validate_fn()", {
   # # rf <- tidyrf_model_fn(train_data = dat, formula = as.formula("diagnosis~score"))
   # # tidyrf_predict_fn(model = rf, test_data = dat)
   #
-  # expect_equal(CVbinomlist$AUC, c(0.659722222222222, 0.208333333333333), tolerance=1e-3)
-  # # expect_equal(CVbinomlist$`Lower CI`, c(0.367800267130833, 0.161076004187493), tolerance=1e-3)
-  # # expect_equal(CVbinomlist$`Upper CI`, c(0.743310843980278, 0.505590662479174), tolerance=1e-3)
-  # # expect_equal(CVbinomlist$Kappa, c(0.10958904109589, -0.296296296296296), tolerance=1e-3)
-  # # expect_equal(CVbinomlist$Sensitivity, c(0.5,0.5), tolerance=1e-3)
-  # # expect_equal(CVbinomlist$Specificity, c(0.611111111111111, 0.166666666666667), tolerance=1e-3)
-  # # expect_equal(CVbinomlist$`Pos Pred Value`, c(0.461538461538462, 0.285714285714286), tolerance=1e-3)
-  # # expect_equal(CVbinomlist$`Neg Pred Value`, c(0.647058823529412, 0.333333333333333), tolerance=1e-3)
-  # # expect_equal(CVbinomlist$F1, c(0.48, 0.363636363636364), tolerance=1e-3)
-  # # expect_equal(CVbinomlist$Prevalence, c(0.4,0.4), tolerance=1e-3)
-  # # expect_equal(CVbinomlist$`Detection Rate`, c(0.2, 0.2), tolerance=1e-3)
-  # # expect_equal(CVbinomlist$`Detection Prevalence`, c(0.433333333333333, 0.7), tolerance=1e-3)
-  # # expect_equal(CVbinomlist$`Balanced Accuracy`, c(0.555555555555556, 0.333333333333333), tolerance=1e-3)
-  # # expect_equal(CVbinomlist$MCC, c(0.109847007276218, -0.356348322549899), tolerance=1e-3)
+  # expect_equal(CVbinomlist$AUC, c(0.659722222222222, 0.208333333333333), tolerance=1e-5)
+  # # expect_equal(CVbinomlist$`Lower CI`, c(0.367800267130833, 0.161076004187493), tolerance=1e-5)
+  # # expect_equal(CVbinomlist$`Upper CI`, c(0.743310843980278, 0.505590662479174), tolerance=1e-5)
+  # # expect_equal(CVbinomlist$Kappa, c(0.10958904109589, -0.296296296296296), tolerance=1e-5)
+  # # expect_equal(CVbinomlist$Sensitivity, c(0.5,0.5), tolerance=1e-5)
+  # # expect_equal(CVbinomlist$Specificity, c(0.611111111111111, 0.166666666666667), tolerance=1e-5)
+  # # expect_equal(CVbinomlist$`Pos Pred Value`, c(0.461538461538462, 0.285714285714286), tolerance=1e-5)
+  # # expect_equal(CVbinomlist$`Neg Pred Value`, c(0.647058823529412, 0.333333333333333), tolerance=1e-5)
+  # # expect_equal(CVbinomlist$F1, c(0.48, 0.363636363636364), tolerance=1e-5)
+  # # expect_equal(CVbinomlist$Prevalence, c(0.4,0.4), tolerance=1e-5)
+  # # expect_equal(CVbinomlist$`Detection Rate`, c(0.2, 0.2), tolerance=1e-5)
+  # # expect_equal(CVbinomlist$`Detection Prevalence`, c(0.433333333333333, 0.7), tolerance=1e-5)
+  # # expect_equal(CVbinomlist$`Balanced Accuracy`, c(0.555555555555556, 0.333333333333333), tolerance=1e-5)
+  # # expect_equal(CVbinomlist$MCC, c(0.109847007276218, -0.356348322549899), tolerance=1e-5)
   # expect_equal(CVbinomlist$Folds, c(4,4))
   # expect_equal(CVbinomlist$`Fold Columns`, c(1,1))
   # expect_equal(CVbinomlist$`Convergence Warnings`, c(0,0))
@@ -2363,10 +2358,10 @@ test_that("binomial glm model with metrics list works with cross_validate_fn()",
     positive = 1
   )
 
-  expect_equal(CVbinomlist$Accuracy, c(0.766666666666667, 0.4), tolerance = 1e-3)
-  expect_equal(CVbinomlist$AIC, c(27.303279438339, 33.2582292059047), tolerance = 1e-3)
-  expect_equal(CVbinomlist$AICc, c(27.9223270573866, 33.8772768249523), tolerance = 1e-3)
-  expect_equal(CVbinomlist$BIC, c(29.5258557064103, 35.4808054739761), tolerance = 1e-3)
+  expect_equal(CVbinomlist$Accuracy, c(0.766666666666667, 0.4), tolerance = 1e-5)
+  expect_equal(CVbinomlist$AIC, c(27.303279438339, 33.2582292059047), tolerance = 1e-5)
+  expect_equal(CVbinomlist$AICc, c(27.9223270573866, 33.8772768249523), tolerance = 1e-5)
+  expect_equal(CVbinomlist$BIC, c(29.5258557064103, 35.4808054739761), tolerance = 1e-5)
   expect_equal(
     colnames(CVbinomlist),
     c(
@@ -2414,11 +2409,10 @@ test_that("gaussian lm model with metrics list works with cross_validate_fn()", 
 
   expect_equal(
     colnames(CVed),
-    c(
-      "Fixed", "MAE", "RMSLE", "r2c", "AIC", "AICc", "BIC", "Predictions", "Results",
-      "Coefficients", "Folds", "Fold Columns", "Convergence Warnings",
-      "Other Warnings", "Warnings and Messages", "Family", "Dependent"
-    )
+    c("Fixed", "MAE", "NRMSE(IQR)", "RRSE", "RAE", "RMSLE", "r2c",
+    "AIC", "AICc", "BIC", "Predictions", "Results", "Coefficients",
+    "Folds", "Fold Columns", "Convergence Warnings", "Other Warnings",
+    "Warnings and Messages", "Family", "Dependent")
   )
 })
 
@@ -2465,10 +2459,10 @@ test_that("multinomial nnet model with metrics list works with cross_validate_fn
     )
   )
 
-  expect_equal(CVmultinomlist$`Overall Accuracy`, c(0.18, 0.3), tolerance = 1e-3)
-  expect_equal(CVmultinomlist$Accuracy, c(0.453333333333333, 0.533333333333333), tolerance = 1e-3)
-  expect_equal(CVmultinomlist$`Balanced Accuracy`, c(0.381448412698413, 0.462714947089947), tolerance = 1e-3)
-  expect_equal(CVmultinomlist$`Weighted Accuracy`, c(0.4464, 0.5264), tolerance = 1e-3)
+  expect_equal(CVmultinomlist$`Overall Accuracy`, c(0.18, 0.3), tolerance = 1e-5)
+  expect_equal(CVmultinomlist$Accuracy, c(0.453333333333333, 0.533333333333333), tolerance = 1e-5)
+  expect_equal(CVmultinomlist$`Balanced Accuracy`, c(0.381448412698413, 0.462714947089947), tolerance = 1e-5)
+  expect_equal(CVmultinomlist$`Weighted Accuracy`, c(0.4464, 0.5264), tolerance = 1e-5)
   expect_equal(
     colnames(CVmultinomlist),
     c(
@@ -2512,7 +2506,7 @@ test_that("multinomial nnet model with metrics list works with cross_validate_fn
     colnames(class_level_results[[1]]),
     c(
       "Class", "Balanced Accuracy", "Accuracy", "Sensitivity", "Specificity",
-      "Pos Pred Value", "Neg Pred Value", "Kappa", "MCC", "Detection Rate",
+      "Pos Pred Value", "Neg Pred Value", "Kappa", "Detection Rate",
       "Detection Prevalence", "Prevalence", "Support", "Results", "Confusion Matrix"
     )
   )
@@ -2554,20 +2548,20 @@ test_that("binomial random predictions work with cross_validate_fn()", {
     positive = 1
   )
 
-  expect_equal(CVrandom$AUC, c(0.638888888888889, 0.699074074074074), tolerance = 1e-3)
-  expect_equal(CVrandom$`Lower CI`, c(0.434338960822277, 0.477736689228572), tolerance = 1e-3)
-  expect_equal(CVrandom$`Upper CI`, c(0.843438816955501, 0.920411458919576), tolerance = 1e-3)
-  expect_equal(CVrandom$Kappa, c(0.268292682926829, 0.246575342465753), tolerance = 1e-3)
-  expect_equal(CVrandom$Sensitivity, c(0.916666666666667, 0.583333333333333), tolerance = 1e-3)
-  expect_equal(CVrandom$Specificity, c(0.388888888888889, 0.666666666666667), tolerance = 1e-3)
-  expect_equal(CVrandom$`Pos Pred Value`, c(0.5, 0.538461538461539), tolerance = 1e-3)
-  expect_equal(CVrandom$`Neg Pred Value`, c(0.875, 0.705882352941176), tolerance = 1e-3)
-  expect_equal(CVrandom$F1, c(0.647058823529412, 0.56), tolerance = 1e-3)
-  expect_equal(CVrandom$Prevalence, c(0.4, 0.4), tolerance = 1e-3)
-  expect_equal(CVrandom$`Detection Rate`, c(0.366666666666667, 0.233333333333333), tolerance = 1e-3)
-  expect_equal(CVrandom$`Detection Prevalence`, c(0.733333333333333, 0.433333333333333), tolerance = 1e-3)
-  expect_equal(CVrandom$`Balanced Accuracy`, c(0.652777777777778, 0.625), tolerance = 1e-3)
-  expect_equal(CVrandom$MCC, c(0.338501600193165, 0.24715576637149), tolerance = 1e-3)
+  expect_equal(CVrandom$AUC, c(0.638888888888889, 0.699074074074074), tolerance = 1e-5)
+  expect_equal(CVrandom$`Lower CI`, c(0.434338960822277, 0.477736689228572), tolerance = 1e-5)
+  expect_equal(CVrandom$`Upper CI`, c(0.843438816955501, 0.920411458919576), tolerance = 1e-5)
+  expect_equal(CVrandom$Kappa, c(0.268292682926829, 0.246575342465753), tolerance = 1e-5)
+  expect_equal(CVrandom$Sensitivity, c(0.916666666666667, 0.583333333333333), tolerance = 1e-5)
+  expect_equal(CVrandom$Specificity, c(0.388888888888889, 0.666666666666667), tolerance = 1e-5)
+  expect_equal(CVrandom$`Pos Pred Value`, c(0.5, 0.538461538461539), tolerance = 1e-5)
+  expect_equal(CVrandom$`Neg Pred Value`, c(0.875, 0.705882352941176), tolerance = 1e-5)
+  expect_equal(CVrandom$F1, c(0.647058823529412, 0.56), tolerance = 1e-5)
+  expect_equal(CVrandom$Prevalence, c(0.4, 0.4), tolerance = 1e-5)
+  expect_equal(CVrandom$`Detection Rate`, c(0.366666666666667, 0.233333333333333), tolerance = 1e-5)
+  expect_equal(CVrandom$`Detection Prevalence`, c(0.733333333333333, 0.433333333333333), tolerance = 1e-5)
+  expect_equal(CVrandom$`Balanced Accuracy`, c(0.652777777777778, 0.625), tolerance = 1e-5)
+  expect_equal(CVrandom$MCC, c(0.338501600193165, 0.24715576637149), tolerance = 1e-5)
   expect_equal(CVrandom$Folds, c(4, 4))
   expect_equal(CVrandom$`Fold Columns`, c(1, 1))
   expect_equal(CVrandom$`Convergence Warnings`, c(0, 0))
@@ -2724,13 +2718,13 @@ test_that("gaussian random predictions work with cross_validate_fn()", {
     type = "gaussian"
   )
 
-  expect_equal(CVed$RMSE, 28.12423, tolerance = 1e-3)
-  expect_equal(CVed$MAE, 24.58774, tolerance = 1e-3)
-  expect_equal(CVed$r2m, 0.2640793, tolerance = 1e-3)
-  expect_equal(CVed$r2c, 0.2640793, tolerance = 1e-3)
-  expect_equal(CVed$AIC, 194.6904, tolerance = 1e-3)
-  expect_equal(CVed$AICc, 195.9963, tolerance = 1e-3)
-  expect_equal(CVed$BIC, 198.0243, tolerance = 1e-3)
+  expect_equal(CVed$RMSE, 28.12423, tolerance = 1e-5)
+  expect_equal(CVed$MAE, 24.58774, tolerance = 1e-5)
+  expect_equal(CVed$r2m, 0.2640793, tolerance = 1e-5)
+  expect_equal(CVed$r2c, 0.2640793, tolerance = 1e-5)
+  expect_equal(CVed$AIC, 194.6904, tolerance = 1e-5)
+  expect_equal(CVed$AICc, 195.9963, tolerance = 1e-5)
+  expect_equal(CVed$BIC, 198.0243, tolerance = 1e-5)
   expect_equal(CVed$Folds, 4)
   expect_equal(CVed$`Fold Columns`, 1)
   expect_equal(CVed$`Convergence Warnings`, 0)
@@ -2804,17 +2798,17 @@ test_that("multinomial random predictions work with cross_validate_fn()", {
     )
   )
 
-  expect_equal(CVmultinomlist$Kappa, c(0.0944809694238845, -0.13019211491683), tolerance = 1e-3)
-  expect_equal(CVmultinomlist$Sensitivity, c(0.391534391534392, 0.238095238095238), tolerance = 1e-3)
-  expect_equal(CVmultinomlist$Specificity, c(0.701388888888889, 0.623842592592593), tolerance = 1e-3)
-  expect_equal(CVmultinomlist$`Pos Pred Value`, c(0.395833333333333, 0.249404761904762), tolerance = 1e-3)
-  expect_equal(CVmultinomlist$`Neg Pred Value`, c(0.700367647058823, 0.620697167755991), tolerance = 1e-3)
-  expect_equal(CVmultinomlist$F1, c(0.39281045751634, 0.240196078431373), tolerance = 1e-3)
-  expect_equal(CVmultinomlist$Prevalence, c(0.333333333333333, 0.333333333333333), tolerance = 1e-3)
-  expect_equal(CVmultinomlist$`Detection Rate`, c(0.133333333333333, 0.08), tolerance = 1e-3)
+  expect_equal(CVmultinomlist$Kappa, c(0.0944809694238845, -0.13019211491683), tolerance = 1e-5)
+  expect_equal(CVmultinomlist$Sensitivity, c(0.391534391534392, 0.238095238095238), tolerance = 1e-5)
+  expect_equal(CVmultinomlist$Specificity, c(0.701388888888889, 0.623842592592593), tolerance = 1e-5)
+  expect_equal(CVmultinomlist$`Pos Pred Value`, c(0.395833333333333, 0.249404761904762), tolerance = 1e-5)
+  expect_equal(CVmultinomlist$`Neg Pred Value`, c(0.700367647058823, 0.620697167755991), tolerance = 1e-5)
+  expect_equal(CVmultinomlist$F1, c(0.39281045751634, 0.240196078431373), tolerance = 1e-5)
+  expect_equal(CVmultinomlist$Prevalence, c(0.333333333333333, 0.333333333333333), tolerance = 1e-5)
+  expect_equal(CVmultinomlist$`Detection Rate`, c(0.133333333333333, 0.08), tolerance = 1e-5)
   expect_equal(CVmultinomlist$`Detection Prevalence`, c(0.33333, 0.3333), tolerance = 1e-3)
-  expect_equal(CVmultinomlist$`Balanced Accuracy`, c(0.54646164021164, 0.430968915343915), tolerance = 1e-3)
-  expect_equal(CVmultinomlist$MCC, c(0.0945581926843755, -0.133599525021722), tolerance = 1e-3)
+  expect_equal(CVmultinomlist$`Balanced Accuracy`, c(0.54646164021164, 0.430968915343915), tolerance = 1e-5)
+  expect_equal(CVmultinomlist$MCC, c(0.0987954675442327, -0.133172303210133), tolerance = 1e-5)
   expect_equal(CVmultinomlist$Folds, c(4, 4))
   expect_equal(CVmultinomlist$`Fold Columns`, c(1, 1))
   expect_equal(CVmultinomlist$`Convergence Warnings`, c(0, 0))
@@ -2900,14 +2894,6 @@ test_that("multinomial random predictions work with cross_validate_fn()", {
     c(-0.0456273764258555, 0.110320284697509, 0.21875)
   )
   expect_equal(
-    class_level_results[[2]]$MCC,
-    c(-0.236402714422325, -0.096511004023931, -0.0678848566189098)
-  )
-  expect_equal(
-    class_level_results[[1]]$MCC,
-    c(-0.0458349248514106, 0.110759502904537, 0.21875)
-  )
-  expect_equal(
     class_level_results[[2]]$`Detection Rate`,
     c(0.06, 0.08, 0.10)
   )
@@ -2972,7 +2958,7 @@ test_that("multinomial random predictions work with cross_validate_fn()", {
   )
 
   # ROC
-  expect_is(CVmultinomlist$Results[[1]]$ROC[[1]][[1]], "mv.multiclass.roc")
+  expect_is(CVmultinomlist$Results[[1]]$ROC[[1]][[1]], "mv.multiclass.roc") # TODO fix here or in code?
   expect_equal(
     CVmultinomlist$Results[[1]]$ROC[[1]][[1]]$rocs$`class_1/class_2`[[1]]$sensitivities,
     c(
@@ -3129,13 +3115,13 @@ test_that("gaussian results are returned in correct order from cross_validate_fn
     type = "gaussian"
   )
 
-  expect_equal(CVed$RMSE, c(24.7354111109333, 104.248387787132), tolerance = 1e-3)
-  expect_equal(CVed$MAE, c(20.4910080229165, 101.812209742364), tolerance = 1e-3)
-  expect_equal(CVed$r2m, c(0.264079271789992, 0.012016907605709), tolerance = 1e-3)
-  expect_equal(CVed$r2c, c(0.264079271789992, 0.012016907605709), tolerance = 1e-3)
-  expect_equal(CVed$AIC, c(194.690399609051, 201.738710942015), tolerance = 1e-3)
-  expect_equal(CVed$AICc, c(195.996281961992, 203.044593294956), tolerance = 1e-3)
-  expect_equal(CVed$BIC, c(198.024264011158, 205.072575344122), tolerance = 1e-3)
+  expect_equal(CVed$RMSE, c(24.7354111109333, 104.248387787132), tolerance = 1e-5)
+  expect_equal(CVed$MAE, c(20.4910080229165, 101.812209742364), tolerance = 1e-5)
+  expect_equal(CVed$r2m, c(0.264079271789992, 0.012016907605709), tolerance = 1e-5)
+  expect_equal(CVed$r2c, c(0.264079271789992, 0.012016907605709), tolerance = 1e-5)
+  expect_equal(CVed$AIC, c(194.690399609051, 201.738710942015), tolerance = 1e-5)
+  expect_equal(CVed$AICc, c(195.996281961992, 203.044593294956), tolerance = 1e-5)
+  expect_equal(CVed$BIC, c(198.024264011158, 205.072575344122), tolerance = 1e-5)
   expect_equal(CVed$Fixed, c("diagnosis", "age"))
 
   xpectr::set_test_seed(1)
@@ -3149,13 +3135,13 @@ test_that("gaussian results are returned in correct order from cross_validate_fn
     type = "gaussian"
   )
 
-  expect_equal(CVed$RMSE, c(104.248387787132, 24.7354111109333), tolerance = 1e-3)
-  expect_equal(CVed$MAE, c(101.812209742364, 20.4910080229165), tolerance = 1e-3)
-  expect_equal(CVed$r2m, c(0.012016907605709, 0.264079271789992), tolerance = 1e-3)
-  expect_equal(CVed$r2c, c(0.012016907605709, 0.264079271789992), tolerance = 1e-3)
-  expect_equal(CVed$AIC, c(201.738710942015, 194.690399609051), tolerance = 1e-3)
-  expect_equal(CVed$AICc, c(203.044593294956, 195.996281961992), tolerance = 1e-3)
-  expect_equal(CVed$BIC, c(205.072575344122, 198.024264011158), tolerance = 1e-3)
+  expect_equal(CVed$RMSE, c(104.248387787132, 24.7354111109333), tolerance = 1e-5)
+  expect_equal(CVed$MAE, c(101.812209742364, 20.4910080229165), tolerance = 1e-5)
+  expect_equal(CVed$r2m, c(0.012016907605709, 0.264079271789992), tolerance = 1e-5)
+  expect_equal(CVed$r2c, c(0.012016907605709, 0.264079271789992), tolerance = 1e-5)
+  expect_equal(CVed$AIC, c(201.738710942015, 194.690399609051), tolerance = 1e-5)
+  expect_equal(CVed$AICc, c(203.044593294956, 195.996281961992), tolerance = 1e-5)
+  expect_equal(CVed$BIC, c(205.072575344122, 198.024264011158), tolerance = 1e-5)
   expect_equal(CVed$Fixed, c("age", "diagnosis"))
 })
 
@@ -3192,10 +3178,10 @@ test_that("binomial results are returned in correct order from cross_validate_fn
     type = "binomial"
   )
 
-  expect_equal(CVbinom$`Balanced Accuracy`, c(0.5, 0.5), tolerance = 1e-3)
-  expect_equal(CVbinom$`Pos Pred Value`, c(0.6, NaN), tolerance = 1e-3)
-  expect_equal(CVbinom$`Neg Pred Value`, c(NaN, 0.4), tolerance = 1e-3)
-  expect_equal(CVbinom$AIC, c(27.30328, 33.25823), tolerance = 1e-3)
+  expect_equal(CVbinom$`Balanced Accuracy`, c(0.5, 0.5), tolerance = 1e-5)
+  expect_equal(CVbinom$`Pos Pred Value`, c(0.6, NaN), tolerance = 1e-5)
+  expect_equal(CVbinom$`Neg Pred Value`, c(NaN, 0.4), tolerance = 1e-5)
+  expect_equal(CVbinom$AIC, c(27.30328, 33.25823), tolerance = 1e-5)
   expect_equal(CVbinom$Fixed, c("score", "age"))
   expect_equal(
     dplyr::bind_rows(CVbinom$Predictions)$`Predicted Class`,
@@ -3213,10 +3199,10 @@ test_that("binomial results are returned in correct order from cross_validate_fn
     type = "binomial"
   )
 
-  expect_equal(CVbinom$`Balanced Accuracy`, c(0.5, 0.5), tolerance = 1e-3)
-  expect_equal(CVbinom$`Pos Pred Value`, c(NaN, 0.6), tolerance = 1e-3)
-  expect_equal(CVbinom$`Neg Pred Value`, c(0.4, NaN), tolerance = 1e-3)
-  expect_equal(CVbinom$AIC, c(33.25823, 27.30328), tolerance = 1e-3)
+  expect_equal(CVbinom$`Balanced Accuracy`, c(0.5, 0.5), tolerance = 1e-5)
+  expect_equal(CVbinom$`Pos Pred Value`, c(NaN, 0.6), tolerance = 1e-5)
+  expect_equal(CVbinom$`Neg Pred Value`, c(0.4, NaN), tolerance = 1e-5)
+  expect_equal(CVbinom$AIC, c(33.25823, 27.30328), tolerance = 1e-5)
   expect_equal(CVbinom$Fixed, c("age", "score"))
   expect_equal(
     dplyr::bind_rows(CVbinom$Predictions)$`Predicted Class`,
@@ -3437,18 +3423,16 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
   #                        "type" = list("gaussian", "binomial", "multinomial", "xx"),
   #                        "cutoff" = list(0.5, 0.1, 2, 0, -2, NA),
   #                        "positive" = list(2,1,"c",NA),
-  #                        "metrics" = list(gaussian_metrics(rmseiqr = TRUE), binomial_metrics()),
+  #                        "metrics" = list(gaussian_metrics(nrmse_iqr = TRUE), binomial_metrics()),
   #                        "rm_nc" = list(FALSE, TRUE),
   #                        "verbose" = list(FALSE)
   #                      ), indentation = 2, tolerance = "1e-5")
-  # ####
-
 
   ## Testing 'cross_validate_fn'                                              ####
   ## Initially generated by xpectr
   # Testing different combinations of argument values
 
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
   xpectr::set_test_seed(42)
   # Assigning output
   output_12059 <- cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
@@ -3471,7 +3455,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
           dplyr::bind_cols(dplyr::bind_rows(means, sds))
       list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE)
   # Testing class
   expect_equal(
     class(output_12059),
@@ -3484,15 +3468,23 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     fixed = TRUE)
   expect_equal(
     output_12059[["RMSE"]],
-    9.61076,
+    9.61075,
     tolerance = 1e-5)
   expect_equal(
     output_12059[["MAE"]],
-    7.15391,
+    7.15392,
     tolerance = 1e-5)
   expect_equal(
-    output_12059[["RMSEIQR"]],
+    output_12059[["NRMSE(IQR)"]],
     0.38694,
+    tolerance = 1e-5)
+  expect_equal(
+    output_12059[["RRSE"]],
+    0.51802,
+    tolerance = 1e-5)
+  expect_equal(
+    output_12059[["RAE"]],
+    0.47155,
     tolerance = 1e-5)
   expect_equal(
     output_12059[["RMSLE"]],
@@ -3529,153 +3521,43 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
   # Testing column names
   expect_equal(
     names(output_12059),
-    c("Fixed", "RMSE", "MAE", "RMSEIQR", "RMSLE", "Predictions", "Results",
-      "Coefficients", "Preprocess", "Folds", "Fold Columns", "Convergence Warnings",
-      "Other Warnings", "Warnings and Messages", "Family", "HParams",
-      "Dependent", "Random"),
+    c("Fixed", "RMSE", "MAE", "NRMSE(IQR)", "RRSE", "RAE", "RMSLE",
+      "Predictions", "Results", "Coefficients", "Preprocess", "Folds",
+      "Fold Columns", "Convergence Warnings", "Other Warnings", "Warnings and Messages",
+      "Family", "HParams", "Dependent", "Random"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_12059),
-    c("character", "numeric", "numeric", "numeric", "numeric", "list",
-      "list", "list", "list", "integer", "integer", "integer", "integer",
-      "list", "character", ifelse(is_tibble_v2(), "list", "vctrs_list_of"),
+    c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
+      "numeric", "list", "list", "list", "list", "integer", "integer",
+      "integer", "integer", "list", "character", ifelse(is_tibble_v2(), "list", "vctrs_list_of"),
       "character", "character"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::element_types(output_12059),
-    c("character", "double", "double", "double", "double", "list", "list",
-      "list", "list", "integer", "integer", "integer", "integer",
-      "list", "character", "list", "character", "character"),
+    c("character", "double", "double", "double", "double", "double",
+      "double", "list", "list", "list", "list", "integer", "integer",
+      "integer", "integer", "list", "character", "list", "character",
+      "character"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
     dim(output_12059),
-    c(1L, 18L))
+    c(1L, 20L))
   # Testing group keys
   expect_equal(
     colnames(dplyr::group_keys(output_12059)),
     character(0),
     fixed = TRUE)
 
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: cutoff
-  xpectr::set_test_seed(42)
-  # Assigning output
-  output_11765 <- cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.1, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)
-  # Testing class
-  expect_equal(
-    class(output_11765),
-    c("tbl_df", "tbl", "data.frame"),
-    fixed = TRUE)
-  # Testing column values
-  expect_equal(
-    output_11765[["Fixed"]],
-    "diagnosis",
-    fixed = TRUE)
-  expect_equal(
-    output_11765[["RMSE"]],
-    9.61076,
-    tolerance = 1e-5)
-  expect_equal(
-    output_11765[["MAE"]],
-    7.15391,
-    tolerance = 1e-5)
-  expect_equal(
-    output_11765[["RMSEIQR"]],
-    0.38694,
-    tolerance = 1e-5)
-  expect_equal(
-    output_11765[["RMSLE"]],
-    0.2666,
-    tolerance = 1e-5)
-  expect_equal(
-    output_11765[["Folds"]],
-    3,
-    tolerance = 1e-5)
-  expect_equal(
-    output_11765[["Fold Columns"]],
-    1,
-    tolerance = 1e-5)
-  expect_equal(
-    output_11765[["Convergence Warnings"]],
-    0,
-    tolerance = 1e-5)
-  expect_equal(
-    output_11765[["Other Warnings"]],
-    0,
-    tolerance = 1e-5)
-  expect_equal(
-    output_11765[["Family"]],
-    "gaussian",
-    fixed = TRUE)
-  expect_equal(
-    output_11765[["Dependent"]],
-    "score",
-    fixed = TRUE)
-  expect_equal(
-    output_11765[["Random"]],
-    "(1|session)",
-    fixed = TRUE)
-  # Testing column names
-  expect_equal(
-    names(output_11765),
-    c("Fixed", "RMSE", "MAE", "RMSEIQR", "RMSLE", "Predictions", "Results",
-      "Coefficients", "Preprocess", "Folds", "Fold Columns", "Convergence Warnings",
-      "Other Warnings", "Warnings and Messages", "Family", "HParams",
-      "Dependent", "Random"),
-    fixed = TRUE)
-  # Testing column classes
-  expect_equal(
-    xpectr::element_classes(output_11765),
-    c("character", "numeric", "numeric", "numeric", "numeric", "list",
-      "list", "list", "list", "integer", "integer", "integer", "integer",
-      "list", "character", ifelse(is_tibble_v2(),"list","vctrs_list_of"), "character", "character"),
-    fixed = TRUE)
-  # Testing column types
-  expect_equal(
-    xpectr::element_types(output_11765),
-    c("character", "double", "double", "double", "double", "list", "list",
-      "list", "list", "integer", "integer", "integer", "integer",
-      "list", "character", "list", "character", "character"),
-    fixed = TRUE)
-  # Testing dimensions
-  expect_equal(
-    dim(output_11765),
-    c(1L, 18L))
-  # Testing group keys
-  expect_equal(
-    colnames(dplyr::group_keys(output_11765)),
-    character(0),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: cutoff
+  # Testing cross_validate_fn(data = participant.scores,...
+  # Changed from baseline: data = participant.sc...
   xpectr::set_test_seed(42)
   # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+  # Assigning side effects
+  side_effects_11765 <- xpectr::capture_side_effects(cross_validate_fn(data = participant.scores, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
@@ -3695,244 +3577,22 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
           dplyr::bind_cols(dplyr::bind_rows(means, sds))
       list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 2, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip("1 assertions failed:\n * Variable 'cutoff': Element 1 is not <= 1."),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: cutoff
-  xpectr::set_test_seed(42)
-  # Assigning output
-  output_13841 <- cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)
-  # Testing class
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
   expect_equal(
-    class(output_13841),
-    c("tbl_df", "tbl", "data.frame"),
-    fixed = TRUE)
-  # Testing column values
-  expect_equal(
-    output_13841[["Fixed"]],
-    "diagnosis",
-    fixed = TRUE)
-  expect_equal(
-    output_13841[["RMSE"]],
-    9.61076,
-    tolerance = 1e-5)
-  expect_equal(
-    output_13841[["MAE"]],
-    7.15391,
-    tolerance = 1e-5)
-  expect_equal(
-    output_13841[["RMSEIQR"]],
-    0.38694,
-    tolerance = 1e-5)
-  expect_equal(
-    output_13841[["RMSLE"]],
-    0.2666,
-    tolerance = 1e-5)
-  expect_equal(
-    output_13841[["Folds"]],
-    3,
-    tolerance = 1e-5)
-  expect_equal(
-    output_13841[["Fold Columns"]],
-    1,
-    tolerance = 1e-5)
-  expect_equal(
-    output_13841[["Convergence Warnings"]],
-    0,
-    tolerance = 1e-5)
-  expect_equal(
-    output_13841[["Other Warnings"]],
-    0,
-    tolerance = 1e-5)
-  expect_equal(
-    output_13841[["Family"]],
-    "gaussian",
-    fixed = TRUE)
-  expect_equal(
-    output_13841[["Dependent"]],
-    "score",
-    fixed = TRUE)
-  expect_equal(
-    output_13841[["Random"]],
-    "(1|session)",
-    fixed = TRUE)
-  # Testing column names
-  expect_equal(
-    names(output_13841),
-    c("Fixed", "RMSE", "MAE", "RMSEIQR", "RMSLE", "Predictions", "Results",
-      "Coefficients", "Preprocess", "Folds", "Fold Columns", "Convergence Warnings",
-      "Other Warnings", "Warnings and Messages", "Family", "HParams",
-      "Dependent", "Random"),
-    fixed = TRUE)
-  # Testing column classes
-  expect_equal(
-    xpectr::element_classes(output_13841),
-    c("character", "numeric", "numeric", "numeric", "numeric", "list",
-      "list", "list", "list", "integer", "integer", "integer", "integer",
-      "list", "character", ifelse(is_tibble_v2(),"list","vctrs_list_of"), "character", "character"),
-    fixed = TRUE)
-  # Testing column types
-  expect_equal(
-    xpectr::element_types(output_13841),
-    c("character", "double", "double", "double", "double", "list", "list",
-      "list", "list", "integer", "integer", "integer", "integer",
-      "list", "character", "list", "character", "character"),
-    fixed = TRUE)
-  # Testing dimensions
-  expect_equal(
-    dim(output_13841),
-    c(1L, 18L))
-  # Testing group keys
-  expect_equal(
-    colnames(dplyr::group_keys(output_13841)),
-    character(0),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: cutoff
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = -2, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip("1 assertions failed:\n * Variable 'cutoff': Element 1 is not >= 0."),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: cutoff
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = NA, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip("1 assertions failed:\n * Variable 'cutoff': May not be NA."),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: cutoff
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = NULL, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'cutoff': Must be of type ",
-                         "'number', not 'NULL'.")),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = participant.scores, f...
-  # Changed from baseline: data
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = participant.scores, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
+    xpectr::strip(side_effects_11765[['error']]),
     xpectr::strip("'.folds' not found in 'data'."),
     fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_11765[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
 
-  # Testing cross_validate_fn(data = NA, formulas = "score...
-  # Changed from baseline: data
+  # Testing cross_validate_fn(data = NA, formulas = "sco...
+  # Changed from baseline: data = NA
   xpectr::set_test_seed(42)
   # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = NA, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+  # Assigning side effects
+  side_effects_16870 <- xpectr::capture_side_effects(cross_validate_fn(data = NA, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
@@ -3952,17 +3612,22 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
           dplyr::bind_cols(dplyr::bind_rows(means, sds))
       list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'data': Must be of type 'd",
-                         "ata.frame', not 'logical'.")),
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_16870[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'data': Must be of type 'data.frame', not 'logical'."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_16870[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
     fixed = TRUE)
 
-  # Testing cross_validate_fn(data = 1, formulas = "score ...
-  # Changed from baseline: data
+  # Testing cross_validate_fn(data = 1, formulas = "scor...
+  # Changed from baseline: data = 1
   xpectr::set_test_seed(42)
   # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = 1, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+  # Assigning side effects
+  side_effects_13841 <- xpectr::capture_side_effects(cross_validate_fn(data = 1, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
@@ -3982,17 +3647,22 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
           dplyr::bind_cols(dplyr::bind_rows(means, sds))
       list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'data': Must be of type 'd",
-                         "ata.frame', not 'double'.")),
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_13841[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'data': Must be of type 'data.frame', not 'double'."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_13841[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
     fixed = TRUE)
 
-  # Testing cross_validate_fn(data = NULL, formulas = "sco...
-  # Changed from baseline: data
+  # Testing cross_validate_fn(data = NULL, formulas = "s...
+  # Changed from baseline: data = NULL
   xpectr::set_test_seed(42)
   # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = NULL, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+  # Assigning side effects
+  side_effects_17698 <- xpectr::capture_side_effects(cross_validate_fn(data = NULL, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
@@ -4012,49 +3682,22 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
           dplyr::bind_cols(dplyr::bind_rows(means, sds))
       list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'data': Must be of type 'd",
-                         "ata.frame', not 'NULL'.")),
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_17698[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'data': Must be of type 'data.frame', not 'NULL'."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_17698[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
     fixed = TRUE)
 
-  if (!is_tibble_v2()){
-    # Testing cross_validate_fn(data = dat, formulas = "scor...
-    # Changed from baseline: fold_cols
-    xpectr::set_test_seed(42)
-    # Testing side effects
-    expect_error(
-      xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-        if (!"REML" %in% names(hyperparameters))
-            stop("'hyperparameters' must include 'REML'")
-        lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-    }, predict_fn = function(test_data, model, formula, hyperparameters) {
-        stats::predict(object = model, newdata = test_data, type = "response",
-            allow.new.levels = TRUE)
-    }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-        formula <- simplify_formula(formula, train_data)
-        recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-            recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-            recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-            recipes::prep(training = train_data)
-        train_data <- recipes::bake(recipe_object, train_data)
-        test_data <- recipes::bake(recipe_object, test_data)
-        means <- recipe_object$steps[[1]]$means
-        sds <- recipe_object$steps[[2]]$sds
-        tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-            dplyr::bind_cols(dplyr::bind_rows(means, sds))
-        list(train = train_data, test = test_data, parameters = tidy_parameters)
-    }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = c(".folds", ".folds_2"), type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE),
-    remove_numbers = TRUE),
-      xpectr::strip("Cant subset columns that dont exist31mx39m The column folds2 doesnt exist", remove_numbers = TRUE),
-      fixed = TRUE)
-  }
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: fold_cols
+  # Testing cross_validate_fn(data = dat, formulas = as....
+  # Changed from baseline: formulas = as.formula...
   xpectr::set_test_seed(42)
   # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+  # Assigning side effects
+  side_effects_14976 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = as.formula("score ~ diagnosis"), model_fn = function(train_data, formula, hyperparameters) {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
@@ -4074,137 +3717,22 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
           dplyr::bind_cols(dplyr::bind_rows(means, sds))
       list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = NA, type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'fold_cols': Contains miss",
-                         "ing values (element 1).")),
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_14976[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'formulas': Must be of type 'character', not 'formula'."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_14976[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
     fixed = TRUE)
 
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: fold_cols
+  # Testing cross_validate_fn(data = dat, formulas = fun...
+  # Changed from baseline: formulas = function(x...
   xpectr::set_test_seed(42)
   # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = 1, type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'fold_cols': Must be of ty",
-                         "pe 'character', not 'double'.")),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: fold_cols
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = list(".folds"), type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'fold_cols': Must be of ty",
-                         "pe 'character', not 'list'.")),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: fold_cols
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = NULL, type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'fold_cols': Must be of ty",
-                         "pe 'character', not 'NULL'.")),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = as.fo...
-  # Changed from baseline: formulas
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = as.formula("score ~ diagnosis"), model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'formulas': Must be of typ",
-                         "e 'character', not 'formula'.")),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = funct...
-  # Changed from baseline: formulas
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = function(x, y, z) {
+  # Assigning side effects
+  side_effects_17176 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = function(x, y, z) {
       x + y + z
   }, model_fn = function(train_data, formula, hyperparameters) {
       if (!"REML" %in% names(hyperparameters))
@@ -4226,17 +3754,22 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
           dplyr::bind_cols(dplyr::bind_rows(means, sds))
       list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'formulas': Must be of typ",
-                         "e 'character', not 'closure'.")),
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_17176[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'formulas': Must be of type 'character', not 'closure'."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_17176[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
     fixed = TRUE)
 
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: formulas
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: formulas = "score + d...
   xpectr::set_test_seed(42)
   # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score + diagnosis", model_fn = function(train_data, formula, hyperparameters) {
+  # Assigning side effects
+  side_effects_19919 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score + diagnosis", model_fn = function(train_data, formula, hyperparameters) {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
@@ -4256,16 +3789,22 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
           dplyr::bind_cols(dplyr::bind_rows(means, sds))
       list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_19919[['error']]),
     xpectr::strip("The model formula does not contain a dependent variable."),
     fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_19919[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
 
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: formulas
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: formulas = "score dia...
   xpectr::set_test_seed(42)
   # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score  diagnosis", model_fn = function(train_data, formula, hyperparameters) {
+  # Assigning side effects
+  side_effects_13800 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score  diagnosis", model_fn = function(train_data, formula, hyperparameters) {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
@@ -4285,16 +3824,22 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
           dplyr::bind_cols(dplyr::bind_rows(means, sds))
       list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_13800[['error']]),
     xpectr::strip("The model formula does not contain a dependent variable."),
     fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_13800[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
 
-  # Testing cross_validate_fn(data = dat, formulas = NA, m...
-  # Changed from baseline: formulas
+  # Testing cross_validate_fn(data = dat, formulas = NA,...
+  # Changed from baseline: formulas = NA
   xpectr::set_test_seed(42)
   # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = NA, model_fn = function(train_data, formula, hyperparameters) {
+  # Assigning side effects
+  side_effects_17774 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = NA, model_fn = function(train_data, formula, hyperparameters) {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
@@ -4314,17 +3859,22 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
           dplyr::bind_cols(dplyr::bind_rows(means, sds))
       list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'formulas': Contains missi",
-                         "ng values (element 1).")),
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_17774[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'formulas': Contains missing values (element 1)."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_17774[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
     fixed = TRUE)
 
-  # Testing cross_validate_fn(data = dat, formulas = NULL,...
-  # Changed from baseline: formulas
+  # Testing cross_validate_fn(data = dat, formulas = NUL...
+  # Changed from baseline: formulas = NULL
   xpectr::set_test_seed(42)
   # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = NULL, model_fn = function(train_data, formula, hyperparameters) {
+  # Assigning side effects
+  side_effects_19347 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = NULL, model_fn = function(train_data, formula, hyperparameters) {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
@@ -4344,19 +3894,150 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
           dplyr::bind_cols(dplyr::bind_rows(means, sds))
       list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'formulas': Must be of typ",
-                         "e 'character', not 'NULL'.")),
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_19347[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'formulas': Must be of type 'character', not 'NULL'."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_19347[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
     fixed = TRUE)
 
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: hyperparameters
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: model_fn = function(f...
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_12121 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(formula, hyperparameters, xx) {
+      lme4::lmer(formula = formula, data = NULL, REML = FALSE)
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_12121[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'model_fn': Must have formal arguments: train_data."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_12121[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: model_fn = NA
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_16516 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = NA, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_16516[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'model_fn': Must be a function, not 'logical'."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_16516[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: model_fn = 1
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_11255 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = 1, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_11255[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'model_fn': Must be a function, not 'double'."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_11255[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: model_fn = function(t...
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_12672 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      NULL
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_12672[['error']]),
+    xpectr::strip("\n--------------------------------------------------\ncross_validate_fn(): Boundary (Singular) Fit Message:\nIn model:\nscore ~ diagnosis + (1|session)\nFor fold column:\n.folds\nIn fold:\n1\nHyperparameters:\nREML : FALSE\n'model_fn' returned 'NULL'. Must return a fitted model object."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_12672[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: model_fn = function(t...
   xpectr::set_test_seed(42)
   # Assigning output
-  output_14935 <- cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  output_13861 <- cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters, xx) {
+      lme4::lmer(formula = formula, data = train_data, REML = FALSE)
   }, predict_fn = function(test_data, model, formula, hyperparameters) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
@@ -4373,103 +4054,109 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
           dplyr::bind_cols(dplyr::bind_rows(means, sds))
       list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = TRUE, something = 10), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE)
   # Testing class
   expect_equal(
-    class(output_14935),
+    class(output_13861),
     c("tbl_df", "tbl", "data.frame"),
     fixed = TRUE)
   # Testing column values
   expect_equal(
-    output_14935[["Fixed"]],
+    output_13861[["Fixed"]],
     "diagnosis",
     fixed = TRUE)
   expect_equal(
-    output_14935[["RMSE"]],
-    9.59512,
+    output_13861[["RMSE"]],
+    9.61075,
     tolerance = 1e-5)
   expect_equal(
-    output_14935[["MAE"]],
-    7.20096,
+    output_13861[["MAE"]],
+    7.15392,
     tolerance = 1e-5)
   expect_equal(
-    output_14935[["RMSEIQR"]],
-    0.3862,
+    output_13861[["NRMSE(IQR)"]],
+    0.38694,
     tolerance = 1e-5)
   expect_equal(
-    output_14935[["RMSLE"]],
-    0.26603,
+    output_13861[["RRSE"]],
+    0.51802,
     tolerance = 1e-5)
   expect_equal(
-    output_14935[["Folds"]],
+    output_13861[["RAE"]],
+    0.47155,
+    tolerance = 1e-5)
+  expect_equal(
+    output_13861[["RMSLE"]],
+    0.2666,
+    tolerance = 1e-5)
+  expect_equal(
+    output_13861[["Folds"]],
     3,
     tolerance = 1e-5)
   expect_equal(
-    output_14935[["Fold Columns"]],
+    output_13861[["Fold Columns"]],
     1,
     tolerance = 1e-5)
   expect_equal(
-    output_14935[["Convergence Warnings"]],
+    output_13861[["Convergence Warnings"]],
     0,
     tolerance = 1e-5)
   expect_equal(
-    output_14935[["Other Warnings"]],
+    output_13861[["Other Warnings"]],
     0,
     tolerance = 1e-5)
   expect_equal(
-    output_14935[["Family"]],
+    output_13861[["Family"]],
     "gaussian",
     fixed = TRUE)
   expect_equal(
-    output_14935[["Dependent"]],
+    output_13861[["Dependent"]],
     "score",
     fixed = TRUE)
   expect_equal(
-    output_14935[["Random"]],
+    output_13861[["Random"]],
     "(1|session)",
     fixed = TRUE)
   # Testing column names
   expect_equal(
-    names(output_14935),
-    c("Fixed", "RMSE", "MAE", "RMSEIQR", "RMSLE", "Predictions", "Results",
-      "Coefficients", "Preprocess", "Folds", "Fold Columns", "Convergence Warnings",
-      "Other Warnings", "Warnings and Messages", "Family", "HParams",
-      "Dependent", "Random"),
+    names(output_13861),
+    c("Fixed", "RMSE", "MAE", "NRMSE(IQR)", "RRSE", "RAE", "RMSLE",
+      "Predictions", "Results", "Coefficients", "Preprocess", "Folds",
+      "Fold Columns", "Convergence Warnings", "Other Warnings", "Warnings and Messages",
+      "Family", "HParams", "Dependent", "Random"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
-    xpectr::element_classes(output_14935),
-    c("character", "numeric", "numeric", "numeric", "numeric", "list",
-      "list", "list", "list", "integer", "integer", "integer", "integer",
-      "list", "character", ifelse(is_tibble_v2(),"list","vctrs_list_of"), "character", "character"),
+    xpectr::element_classes(output_13861),
+    c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
+      "numeric", "list", "list", "list", "list", "integer", "integer",
+      "integer", "integer", "list", "character", ifelse(is_tibble_v2(), "list", "vctrs_list_of"),
+      "character", "character"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
-    xpectr::element_types(output_14935),
-    c("character", "double", "double", "double", "double", "list", "list",
-      "list", "list", "integer", "integer", "integer", "integer",
-      "list", "character", "list", "character", "character"),
+    xpectr::element_types(output_13861),
+    c("character", "double", "double", "double", "double", "double",
+      "double", "list", "list", "list", "list", "integer", "integer",
+      "integer", "integer", "list", "character", "list", "character",
+      "character"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
-    dim(output_14935),
-    c(1L, 18L))
+    dim(output_13861),
+    c(1L, 20L))
   # Testing group keys
   expect_equal(
-    colnames(dplyr::group_keys(output_14935)),
+    colnames(dplyr::group_keys(output_13861)),
     character(0),
     fixed = TRUE)
 
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: hyperparameters
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: model_fn = NULL
   xpectr::set_test_seed(42)
   # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  # Assigning side effects
+  side_effects_10133 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = NULL, predict_fn = function(test_data, model, formula, hyperparameters) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -4485,23 +4172,26 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
           dplyr::bind_cols(dplyr::bind_rows(means, sds))
       list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = NA, fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("Assertion failed. One of the following must apply:\n * check",
-                         "mate::check_data_frame(hyperparameters): Must be of type 'da",
-                         "ta.frame', not 'logical'\n * checkmate::check_list(hyperpara",
-                         "meters): Must be of type 'list' (or 'NULL'), not 'logical'")),
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_10133[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'model_fn': Must be a function, not 'NULL'."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_10133[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
     fixed = TRUE)
 
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: hyperparameters
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: predict_fn = function...
   xpectr::set_test_seed(42)
   # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+  # Assigning side effects
+  side_effects_13823 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -4517,47 +4207,1779 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
           dplyr::bind_cols(dplyr::bind_rows(means, sds))
       list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = 1, fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("Assertion failed. One of the following must apply:\n * check",
-                         "mate::check_data_frame(hyperparameters): Must be of type 'da",
-                         "ta.frame', not 'double'\n * checkmate::check_list(hyperparam",
-                         "eters): Must be of type 'list' (or 'NULL'), not 'double'")),
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_13823[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'predict_fn': Must have formal arguments: hyperparameters."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_13823[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
     fixed = TRUE)
 
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: hyperparameters
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = NULL, fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip("'hyperparameters' must include 'REML'"),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: metrics
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: predict_fn = function...
   xpectr::set_test_seed(42)
   # Assigning output
-  output_17942 <- cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+  output_18696 <- cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters, xx) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE)
+  # Testing class
+  expect_equal(
+    class(output_18696),
+    c("tbl_df", "tbl", "data.frame"),
+    fixed = TRUE)
+  # Testing column values
+  expect_equal(
+    output_18696[["Fixed"]],
+    "diagnosis",
+    fixed = TRUE)
+  expect_equal(
+    output_18696[["RMSE"]],
+    9.61075,
+    tolerance = 1e-5)
+  expect_equal(
+    output_18696[["MAE"]],
+    7.15392,
+    tolerance = 1e-5)
+  expect_equal(
+    output_18696[["NRMSE(IQR)"]],
+    0.38694,
+    tolerance = 1e-5)
+  expect_equal(
+    output_18696[["RRSE"]],
+    0.51802,
+    tolerance = 1e-5)
+  expect_equal(
+    output_18696[["RAE"]],
+    0.47155,
+    tolerance = 1e-5)
+  expect_equal(
+    output_18696[["RMSLE"]],
+    0.2666,
+    tolerance = 1e-5)
+  expect_equal(
+    output_18696[["Folds"]],
+    3,
+    tolerance = 1e-5)
+  expect_equal(
+    output_18696[["Fold Columns"]],
+    1,
+    tolerance = 1e-5)
+  expect_equal(
+    output_18696[["Convergence Warnings"]],
+    0,
+    tolerance = 1e-5)
+  expect_equal(
+    output_18696[["Other Warnings"]],
+    0,
+    tolerance = 1e-5)
+  expect_equal(
+    output_18696[["Family"]],
+    "gaussian",
+    fixed = TRUE)
+  expect_equal(
+    output_18696[["Dependent"]],
+    "score",
+    fixed = TRUE)
+  expect_equal(
+    output_18696[["Random"]],
+    "(1|session)",
+    fixed = TRUE)
+  # Testing column names
+  expect_equal(
+    names(output_18696),
+    c("Fixed", "RMSE", "MAE", "NRMSE(IQR)", "RRSE", "RAE", "RMSLE",
+      "Predictions", "Results", "Coefficients", "Preprocess", "Folds",
+      "Fold Columns", "Convergence Warnings", "Other Warnings", "Warnings and Messages",
+      "Family", "HParams", "Dependent", "Random"),
+    fixed = TRUE)
+  # Testing column classes
+  expect_equal(
+    xpectr::element_classes(output_18696),
+    c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
+      "numeric", "list", "list", "list", "list", "integer", "integer",
+      "integer", "integer", "list", "character", ifelse(is_tibble_v2(), "list", "vctrs_list_of"),
+      "character", "character"),
+    fixed = TRUE)
+  # Testing column types
+  expect_equal(
+    xpectr::element_types(output_18696),
+    c("character", "double", "double", "double", "double", "double",
+      "double", "list", "list", "list", "list", "integer", "integer",
+      "integer", "integer", "list", "character", "list", "character",
+      "character"),
+    fixed = TRUE)
+  # Testing dimensions
+  expect_equal(
+    dim(output_18696),
+    c(1L, 20L))
+  # Testing group keys
+  expect_equal(
+    colnames(dplyr::group_keys(output_18696)),
+    character(0),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: predict_fn = function...
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_13403 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      NULL
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_13403[['error']]),
+    xpectr::strip("\n-------------------------------------\ncross_validate_fn(): Error:\nIn formula:\nscore ~ diagnosis + (1|session)\nFor fold column:\n.folds\nIn fold:\n1\nError in run_predict_fn(test_data = test_data, model = model, model_formula = model_formula, : cross_validate_fn(): predictions were NULL.\n"),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_13403[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: predict_fn = NA
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_14820 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = NA, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_14820[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'predict_fn': Must be a function, not 'logical'."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_14820[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: predict_fn = 1
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_15995 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = 1, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_15995[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'predict_fn': Must be a function, not 'double'."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_15995[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: predict_fn = NULL
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_14935 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = NULL, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_14935[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'predict_fn': Must be a function, not 'NULL'."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_14935[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: preprocess_fn = funct...
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_11862 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula) {
+      list(train = train_data, test = test_data, parameters = NULL)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_11862[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'preprocess_fn': Must have formal arguments: hyperparameters."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_11862[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: preprocess_fn = funct...
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_18273 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters, xx) {
+      list(train = train_data, test = test_data, parameters = NULL)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_18273[['error']]),
+    xpectr::strip("\n-------------------------------------\ncross_validate_fn(): Error:\nCould not extract the preprocessing parameters properly from the output of 'preprocess_fn'.\nError in doTryCatch(return(expr), name, parentenv, handler): the returned preprocessing parameters object was not a data frame.\n"),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_18273[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: preprocess_fn = NA
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_16684 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = NA, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_16684[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'preprocess_fn': Must be a function (or 'NULL'), not 'logical'."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_16684[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: preprocess_fn = 1
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_17942 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = 1, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_17942[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'preprocess_fn': Must be a function (or 'NULL'), not 'double'."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_17942[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: preprocess_fn = NULL
+  xpectr::set_test_seed(42)
+  # Assigning output
+  output_11079 <- cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = NULL, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE)
+  # Testing class
+  expect_equal(
+    class(output_11079),
+    c("tbl_df", "tbl", "data.frame"),
+    fixed = TRUE)
+  # Testing column values
+  expect_equal(
+    output_11079[["Fixed"]],
+    "diagnosis",
+    fixed = TRUE)
+  expect_equal(
+    output_11079[["RMSE"]],
+    9.61075,
+    tolerance = 1e-5)
+  expect_equal(
+    output_11079[["MAE"]],
+    7.15392,
+    tolerance = 1e-5)
+  expect_equal(
+    output_11079[["NRMSE(IQR)"]],
+    0.38694,
+    tolerance = 1e-5)
+  expect_equal(
+    output_11079[["RRSE"]],
+    0.51802,
+    tolerance = 1e-5)
+  expect_equal(
+    output_11079[["RAE"]],
+    0.47155,
+    tolerance = 1e-5)
+  expect_equal(
+    output_11079[["RMSLE"]],
+    0.2666,
+    tolerance = 1e-5)
+  expect_equal(
+    output_11079[["Folds"]],
+    3,
+    tolerance = 1e-5)
+  expect_equal(
+    output_11079[["Fold Columns"]],
+    1,
+    tolerance = 1e-5)
+  expect_equal(
+    output_11079[["Convergence Warnings"]],
+    0,
+    tolerance = 1e-5)
+  expect_equal(
+    output_11079[["Other Warnings"]],
+    0,
+    tolerance = 1e-5)
+  expect_equal(
+    output_11079[["Family"]],
+    "gaussian",
+    fixed = TRUE)
+  expect_equal(
+    output_11079[["Dependent"]],
+    "score",
+    fixed = TRUE)
+  expect_equal(
+    output_11079[["Random"]],
+    "(1|session)",
+    fixed = TRUE)
+  # Testing column names
+  expect_equal(
+    names(output_11079),
+    c("Fixed", "RMSE", "MAE", "NRMSE(IQR)", "RRSE", "RAE", "RMSLE",
+      "Predictions", "Results", "Coefficients", "Folds", "Fold Columns",
+      "Convergence Warnings", "Other Warnings", "Warnings and Messages",
+      "Family", "HParams", "Dependent", "Random"),
+    fixed = TRUE)
+  # Testing column classes
+  expect_equal(
+    xpectr::element_classes(output_11079),
+    c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
+      "numeric", "list", "list", "list", "integer", "integer", "integer",
+      "integer", "list", "character", ifelse(is_tibble_v2(), "list", "vctrs_list_of"), "character",
+      "character"),
+    fixed = TRUE)
+  # Testing column types
+  expect_equal(
+    xpectr::element_types(output_11079),
+    c("character", "double", "double", "double", "double", "double",
+      "double", "list", "list", "list", "integer", "integer", "integer",
+      "integer", "list", "character", "list", "character", "character"),
+    fixed = TRUE)
+  # Testing dimensions
+  expect_equal(
+    dim(output_11079),
+    c(1L, 19L))
+  # Testing group keys
+  expect_equal(
+    colnames(dplyr::group_keys(output_11079)),
+    character(0),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: preprocess_once = TRUE
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_17237 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = TRUE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  # expect_equal(
+  #   xpectr::strip(side_effects_17237[['error']]), # NOTE: deleted part of msg below manually
+  #   xpectr::strip("1 assertions failed:\n * Variable 'formula': Must be a formula, not 'NULL'.\n Possibly caused by 'preprocessing_once' being TRUE?"),
+  #   fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_17237[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: preprocess_once = NULL
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_14112 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = NULL, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_14112[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'preprocess_once': Must be of type 'logical flag', not 'NULL'."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_14112[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: hyperparameters = lis...
+  xpectr::set_test_seed(42)
+  # Assigning output
+  output_18209 <- cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = TRUE, something = 10), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE)
+  # Testing class
+  expect_equal(
+    class(output_18209),
+    c("tbl_df", "tbl", "data.frame"),
+    fixed = TRUE)
+  # Testing column values
+  expect_equal(
+    output_18209[["Fixed"]],
+    "diagnosis",
+    fixed = TRUE)
+  expect_equal(
+    output_18209[["RMSE"]],
+    9.59511,
+    tolerance = 1e-5)
+  expect_equal(
+    output_18209[["MAE"]],
+    7.20095,
+    tolerance = 1e-5)
+  expect_equal(
+    output_18209[["NRMSE(IQR)"]],
+    0.3862,
+    tolerance = 1e-5)
+  expect_equal(
+    output_18209[["RRSE"]],
+    0.51736,
+    tolerance = 1e-5)
+  expect_equal(
+    output_18209[["RAE"]],
+    0.47467,
+    tolerance = 1e-5)
+  expect_equal(
+    output_18209[["RMSLE"]],
+    0.26603,
+    tolerance = 1e-5)
+  expect_equal(
+    output_18209[["Folds"]],
+    3,
+    tolerance = 1e-5)
+  expect_equal(
+    output_18209[["Fold Columns"]],
+    1,
+    tolerance = 1e-5)
+  expect_equal(
+    output_18209[["Convergence Warnings"]],
+    0,
+    tolerance = 1e-5)
+  expect_equal(
+    output_18209[["Other Warnings"]],
+    0,
+    tolerance = 1e-5)
+  expect_equal(
+    output_18209[["Family"]],
+    "gaussian",
+    fixed = TRUE)
+  expect_equal(
+    output_18209[["Dependent"]],
+    "score",
+    fixed = TRUE)
+  expect_equal(
+    output_18209[["Random"]],
+    "(1|session)",
+    fixed = TRUE)
+  # Testing column names
+  expect_equal(
+    names(output_18209),
+    c("Fixed", "RMSE", "MAE", "NRMSE(IQR)", "RRSE", "RAE", "RMSLE",
+      "Predictions", "Results", "Coefficients", "Preprocess", "Folds",
+      "Fold Columns", "Convergence Warnings", "Other Warnings", "Warnings and Messages",
+      "Family", "HParams", "Dependent", "Random"),
+    fixed = TRUE)
+  # Testing column classes
+  expect_equal(
+    xpectr::element_classes(output_18209),
+    c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
+      "numeric", "list", "list", "list", "list", "integer", "integer",
+      "integer", "integer", "list", "character", ifelse(is_tibble_v2(), "list", "vctrs_list_of"),
+      "character", "character"),
+    fixed = TRUE)
+  # Testing column types
+  expect_equal(
+    xpectr::element_types(output_18209),
+    c("character", "double", "double", "double", "double", "double",
+      "double", "list", "list", "list", "list", "integer", "integer",
+      "integer", "integer", "list", "character", "list", "character",
+      "character"),
+    fixed = TRUE)
+  # Testing dimensions
+  expect_equal(
+    dim(output_18209),
+    c(1L, 20L))
+  # Testing group keys
+  expect_equal(
+    colnames(dplyr::group_keys(output_18209)),
+    character(0),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: hyperparameters = NA
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_16470 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = NA, fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_16470[['error']]),
+    xpectr::strip("Assertion failed. One of the following must apply:\n * checkmate::check_data_frame(hyperparameters): Must be of type 'data.frame', not 'logical'\n * checkmate::check_list(hyperparameters): Must be of type 'list' (or 'NULL'), not 'logical'"),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_16470[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: hyperparameters = 1
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_17829 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = 1, fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_17829[['error']]),
+    xpectr::strip("Assertion failed. One of the following must apply:\n * checkmate::check_data_frame(hyperparameters): Must be of type 'data.frame', not 'double'\n * checkmate::check_list(hyperparameters): Must be of type 'list' (or 'NULL'), not 'double'"),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_17829[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: hyperparameters = NULL
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_15530 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = NULL, fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_15530[['error']]),
+    xpectr::strip("'hyperparameters' must include 'REML'"),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_15530[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: fold_cols = c(".folds...
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_15297 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = c(".folds", ".folds_2"), type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_15297[['error']]), # TODO Do I need to strip numbers here?
+    xpectr::strip("Can't subset columns that don't exist.\n\033[31mx\033[39m The column `.folds_2` doesn't exist."),
+    fixed = TRUE)
+  if (!is_tibble_v2()){
+    expect_equal(
+      xpectr::strip(side_effects_15297[['error_class']]),
+      xpectr::strip(c("vctrs_error_subscript_oob", "vctrs_error_subscript",
+        "rlang_error", "error", "condition")),
+      fixed = TRUE)
+  }
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: fold_cols = NA
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_17893 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = NA, type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_17893[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'fold_cols': Contains missing values (element 1)."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_17893[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: fold_cols = 1
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_10233 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = 1, type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_10233[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'fold_cols': Must be of type 'character', not 'double'."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_10233[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: fold_cols = list(".fo...
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_14772 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = list(".folds"), type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_14772[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'fold_cols': Must be of type 'character', not 'list'."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_14772[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: fold_cols = NULL
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_17323 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = NULL, type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_17323[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'fold_cols': Must be of type 'character', not 'NULL'."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_17323[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: type = "binomial"
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_16927 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "binomial", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_16927[['error']]),
+    xpectr::strip("'metrics_list' contained unknown metric names: NRMSE(IQR)."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_16927[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: type = "multinomial"
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_14776 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "multinomial", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_14776[['error']]),
+    xpectr::strip("'metrics_list' contained unknown metric names: NRMSE(IQR)."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_14776[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: type = "xx"
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_18612 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "xx", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_18612[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'family': Must be element of set {'gaussian','binomial','multinomial'}, but is 'xx'."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_18612[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: type = NULL
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_14380 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = NULL, cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_14380[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'family': Must be a subset of {'gaussian','binomial','multinomial'}, not 'NULL'."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_14380[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: cutoff = 0.1
+  xpectr::set_test_seed(42)
+  # Assigning output
+  output_12447 <- cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.1, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE)
+  # Testing class
+  expect_equal(
+    class(output_12447),
+    c("tbl_df", "tbl", "data.frame"),
+    fixed = TRUE)
+  # Testing column values
+  expect_equal(
+    output_12447[["Fixed"]],
+    "diagnosis",
+    fixed = TRUE)
+  expect_equal(
+    output_12447[["RMSE"]],
+    9.61075,
+    tolerance = 1e-5)
+  expect_equal(
+    output_12447[["MAE"]],
+    7.15392,
+    tolerance = 1e-5)
+  expect_equal(
+    output_12447[["NRMSE(IQR)"]],
+    0.38694,
+    tolerance = 1e-5)
+  expect_equal(
+    output_12447[["RRSE"]],
+    0.51802,
+    tolerance = 1e-5)
+  expect_equal(
+    output_12447[["RAE"]],
+    0.47155,
+    tolerance = 1e-5)
+  expect_equal(
+    output_12447[["RMSLE"]],
+    0.2666,
+    tolerance = 1e-5)
+  expect_equal(
+    output_12447[["Folds"]],
+    3,
+    tolerance = 1e-5)
+  expect_equal(
+    output_12447[["Fold Columns"]],
+    1,
+    tolerance = 1e-5)
+  expect_equal(
+    output_12447[["Convergence Warnings"]],
+    0,
+    tolerance = 1e-5)
+  expect_equal(
+    output_12447[["Other Warnings"]],
+    0,
+    tolerance = 1e-5)
+  expect_equal(
+    output_12447[["Family"]],
+    "gaussian",
+    fixed = TRUE)
+  expect_equal(
+    output_12447[["Dependent"]],
+    "score",
+    fixed = TRUE)
+  expect_equal(
+    output_12447[["Random"]],
+    "(1|session)",
+    fixed = TRUE)
+  # Testing column names
+  expect_equal(
+    names(output_12447),
+    c("Fixed", "RMSE", "MAE", "NRMSE(IQR)", "RRSE", "RAE", "RMSLE",
+      "Predictions", "Results", "Coefficients", "Preprocess", "Folds",
+      "Fold Columns", "Convergence Warnings", "Other Warnings", "Warnings and Messages",
+      "Family", "HParams", "Dependent", "Random"),
+    fixed = TRUE)
+  # Testing column classes
+  expect_equal(
+    xpectr::element_classes(output_12447),
+    c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
+      "numeric", "list", "list", "list", "list", "integer", "integer",
+      "integer", "integer", "list", "character", ifelse(is_tibble_v2(), "list", "vctrs_list_of"),
+      "character", "character"),
+    fixed = TRUE)
+  # Testing column types
+  expect_equal(
+    xpectr::element_types(output_12447),
+    c("character", "double", "double", "double", "double", "double",
+      "double", "list", "list", "list", "list", "integer", "integer",
+      "integer", "integer", "list", "character", "list", "character",
+      "character"),
+    fixed = TRUE)
+  # Testing dimensions
+  expect_equal(
+    dim(output_12447),
+    c(1L, 20L))
+  # Testing group keys
+  expect_equal(
+    colnames(dplyr::group_keys(output_12447)),
+    character(0),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: cutoff = 2
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_10706 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 2, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_10706[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'cutoff': Element 1 is not <= 1."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_10706[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: cutoff = 0
+  xpectr::set_test_seed(42)
+  # Assigning output
+  output_10994 <- cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE)
+  # Testing class
+  expect_equal(
+    class(output_10994),
+    c("tbl_df", "tbl", "data.frame"),
+    fixed = TRUE)
+  # Testing column values
+  expect_equal(
+    output_10994[["Fixed"]],
+    "diagnosis",
+    fixed = TRUE)
+  expect_equal(
+    output_10994[["RMSE"]],
+    9.61075,
+    tolerance = 1e-5)
+  expect_equal(
+    output_10994[["MAE"]],
+    7.15392,
+    tolerance = 1e-5)
+  expect_equal(
+    output_10994[["NRMSE(IQR)"]],
+    0.38694,
+    tolerance = 1e-5)
+  expect_equal(
+    output_10994[["RRSE"]],
+    0.51802,
+    tolerance = 1e-5)
+  expect_equal(
+    output_10994[["RAE"]],
+    0.47155,
+    tolerance = 1e-5)
+  expect_equal(
+    output_10994[["RMSLE"]],
+    0.2666,
+    tolerance = 1e-5)
+  expect_equal(
+    output_10994[["Folds"]],
+    3,
+    tolerance = 1e-5)
+  expect_equal(
+    output_10994[["Fold Columns"]],
+    1,
+    tolerance = 1e-5)
+  expect_equal(
+    output_10994[["Convergence Warnings"]],
+    0,
+    tolerance = 1e-5)
+  expect_equal(
+    output_10994[["Other Warnings"]],
+    0,
+    tolerance = 1e-5)
+  expect_equal(
+    output_10994[["Family"]],
+    "gaussian",
+    fixed = TRUE)
+  expect_equal(
+    output_10994[["Dependent"]],
+    "score",
+    fixed = TRUE)
+  expect_equal(
+    output_10994[["Random"]],
+    "(1|session)",
+    fixed = TRUE)
+  # Testing column names
+  expect_equal(
+    names(output_10994),
+    c("Fixed", "RMSE", "MAE", "NRMSE(IQR)", "RRSE", "RAE", "RMSLE",
+      "Predictions", "Results", "Coefficients", "Preprocess", "Folds",
+      "Fold Columns", "Convergence Warnings", "Other Warnings", "Warnings and Messages",
+      "Family", "HParams", "Dependent", "Random"),
+    fixed = TRUE)
+  # Testing column classes
+  expect_equal(
+    xpectr::element_classes(output_10994),
+    c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
+      "numeric", "list", "list", "list", "list", "integer", "integer",
+      "integer", "integer", "list", "character", ifelse(is_tibble_v2(), "list", "vctrs_list_of"),
+      "character", "character"),
+    fixed = TRUE)
+  # Testing column types
+  expect_equal(
+    xpectr::element_types(output_10994),
+    c("character", "double", "double", "double", "double", "double",
+      "double", "list", "list", "list", "list", "integer", "integer",
+      "integer", "integer", "list", "character", "list", "character",
+      "character"),
+    fixed = TRUE)
+  # Testing dimensions
+  expect_equal(
+    dim(output_10994),
+    c(1L, 20L))
+  # Testing group keys
+  expect_equal(
+    colnames(dplyr::group_keys(output_10994)),
+    character(0),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: cutoff = -2
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_13162 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = -2, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_13162[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'cutoff': Element 1 is not >= 0."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_13162[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: cutoff = NA
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_15186 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = NA, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_15186[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'cutoff': May not be NA."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_15186[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: cutoff = NULL
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_16620 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = NULL, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_16620[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'cutoff': Must be of type 'number', not 'NULL'."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_16620[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: positive = 1
+  xpectr::set_test_seed(42)
+  # Assigning output
+  output_14068 <- cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 1, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE)
+  # Testing class
+  expect_equal(
+    class(output_14068),
+    c("tbl_df", "tbl", "data.frame"),
+    fixed = TRUE)
+  # Testing column values
+  expect_equal(
+    output_14068[["Fixed"]],
+    "diagnosis",
+    fixed = TRUE)
+  expect_equal(
+    output_14068[["RMSE"]],
+    9.61075,
+    tolerance = 1e-5)
+  expect_equal(
+    output_14068[["MAE"]],
+    7.15392,
+    tolerance = 1e-5)
+  expect_equal(
+    output_14068[["NRMSE(IQR)"]],
+    0.38694,
+    tolerance = 1e-5)
+  expect_equal(
+    output_14068[["RRSE"]],
+    0.51802,
+    tolerance = 1e-5)
+  expect_equal(
+    output_14068[["RAE"]],
+    0.47155,
+    tolerance = 1e-5)
+  expect_equal(
+    output_14068[["RMSLE"]],
+    0.2666,
+    tolerance = 1e-5)
+  expect_equal(
+    output_14068[["Folds"]],
+    3,
+    tolerance = 1e-5)
+  expect_equal(
+    output_14068[["Fold Columns"]],
+    1,
+    tolerance = 1e-5)
+  expect_equal(
+    output_14068[["Convergence Warnings"]],
+    0,
+    tolerance = 1e-5)
+  expect_equal(
+    output_14068[["Other Warnings"]],
+    0,
+    tolerance = 1e-5)
+  expect_equal(
+    output_14068[["Family"]],
+    "gaussian",
+    fixed = TRUE)
+  expect_equal(
+    output_14068[["Dependent"]],
+    "score",
+    fixed = TRUE)
+  expect_equal(
+    output_14068[["Random"]],
+    "(1|session)",
+    fixed = TRUE)
+  # Testing column names
+  expect_equal(
+    names(output_14068),
+    c("Fixed", "RMSE", "MAE", "NRMSE(IQR)", "RRSE", "RAE", "RMSLE",
+      "Predictions", "Results", "Coefficients", "Preprocess", "Folds",
+      "Fold Columns", "Convergence Warnings", "Other Warnings", "Warnings and Messages",
+      "Family", "HParams", "Dependent", "Random"),
+    fixed = TRUE)
+  # Testing column classes
+  expect_equal(
+    xpectr::element_classes(output_14068),
+    c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
+      "numeric", "list", "list", "list", "list", "integer", "integer",
+      "integer", "integer", "list", "character", ifelse(is_tibble_v2(), "list", "vctrs_list_of"),
+      "character", "character"),
+    fixed = TRUE)
+  # Testing column types
+  expect_equal(
+    xpectr::element_types(output_14068),
+    c("character", "double", "double", "double", "double", "double",
+      "double", "list", "list", "list", "list", "integer", "integer",
+      "integer", "integer", "list", "character", "list", "character",
+      "character"),
+    fixed = TRUE)
+  # Testing dimensions
+  expect_equal(
+    dim(output_14068),
+    c(1L, 20L))
+  # Testing group keys
+  expect_equal(
+    colnames(dplyr::group_keys(output_14068)),
+    character(0),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: positive = "c"
+  xpectr::set_test_seed(42)
+  # Assigning output
+  output_19128 <- cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = "c", metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE)
+  # Testing class
+  expect_equal(
+    class(output_19128),
+    c("tbl_df", "tbl", "data.frame"),
+    fixed = TRUE)
+  # Testing column values
+  expect_equal(
+    output_19128[["Fixed"]],
+    "diagnosis",
+    fixed = TRUE)
+  expect_equal(
+    output_19128[["RMSE"]],
+    9.61075,
+    tolerance = 1e-5)
+  expect_equal(
+    output_19128[["MAE"]],
+    7.15392,
+    tolerance = 1e-5)
+  expect_equal(
+    output_19128[["NRMSE(IQR)"]],
+    0.38694,
+    tolerance = 1e-5)
+  expect_equal(
+    output_19128[["RRSE"]],
+    0.51802,
+    tolerance = 1e-5)
+  expect_equal(
+    output_19128[["RAE"]],
+    0.47155,
+    tolerance = 1e-5)
+  expect_equal(
+    output_19128[["RMSLE"]],
+    0.2666,
+    tolerance = 1e-5)
+  expect_equal(
+    output_19128[["Folds"]],
+    3,
+    tolerance = 1e-5)
+  expect_equal(
+    output_19128[["Fold Columns"]],
+    1,
+    tolerance = 1e-5)
+  expect_equal(
+    output_19128[["Convergence Warnings"]],
+    0,
+    tolerance = 1e-5)
+  expect_equal(
+    output_19128[["Other Warnings"]],
+    0,
+    tolerance = 1e-5)
+  expect_equal(
+    output_19128[["Family"]],
+    "gaussian",
+    fixed = TRUE)
+  expect_equal(
+    output_19128[["Dependent"]],
+    "score",
+    fixed = TRUE)
+  expect_equal(
+    output_19128[["Random"]],
+    "(1|session)",
+    fixed = TRUE)
+  # Testing column names
+  expect_equal(
+    names(output_19128),
+    c("Fixed", "RMSE", "MAE", "NRMSE(IQR)", "RRSE", "RAE", "RMSLE",
+      "Predictions", "Results", "Coefficients", "Preprocess", "Folds",
+      "Fold Columns", "Convergence Warnings", "Other Warnings", "Warnings and Messages",
+      "Family", "HParams", "Dependent", "Random"),
+    fixed = TRUE)
+  # Testing column classes
+  expect_equal(
+    xpectr::element_classes(output_19128),
+    c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
+      "numeric", "list", "list", "list", "list", "integer", "integer",
+      "integer", "integer", "list", "character", ifelse(is_tibble_v2(), "list", "vctrs_list_of"),
+      "character", "character"),
+    fixed = TRUE)
+  # Testing column types
+  expect_equal(
+    xpectr::element_types(output_19128),
+    c("character", "double", "double", "double", "double", "double",
+      "double", "list", "list", "list", "list", "integer", "integer",
+      "integer", "integer", "list", "character", "list", "character",
+      "character"),
+    fixed = TRUE)
+  # Testing dimensions
+  expect_equal(
+    dim(output_19128),
+    c(1L, 20L))
+  # Testing group keys
+  expect_equal(
+    colnames(dplyr::group_keys(output_19128)),
+    character(0),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: positive = NA
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_12936 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = NA, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_12936[['error']]),
+    xpectr::strip("Assertion failed. One of the following must apply:\n * checkmate::check_choice(positive): Must be element of set {'1','2'}, but is 'NA'\n * checkmate::check_string(positive): May not be NA"),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_12936[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: positive = NULL
+  xpectr::set_test_seed(42)
+  # Testing side effects
+  # Assigning side effects
+  side_effects_14590 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = NULL, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_14590[['error']]),
+    xpectr::strip("Assertion failed. One of the following must apply:\n * checkmate::check_choice(positive): Must be a subset of {'1','2'}, not 'NULL'\n * checkmate::check_string(positive): Must be of type 'string', not 'NULL'"),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_14590[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: metrics = binomial_me...
+  xpectr::set_test_seed(42)
+  # Assigning output
+  output_13323 <- cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
@@ -4580,367 +6002,106 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
   }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = binomial_metrics(), rm_nc = FALSE, verbose = FALSE)
   # Testing class
   expect_equal(
-    class(output_17942),
+    class(output_13323),
     c("tbl_df", "tbl", "data.frame"),
     fixed = TRUE)
   # Testing column values
   expect_equal(
-    output_17942[["Fixed"]],
+    output_13323[["Fixed"]],
     "diagnosis",
     fixed = TRUE)
   expect_equal(
-    output_17942[["RMSE"]],
-    9.61076,
+    output_13323[["RMSE"]],
+    9.61075,
     tolerance = 1e-5)
   expect_equal(
-    output_17942[["MAE"]],
-    7.15391,
+    output_13323[["MAE"]],
+    7.15392,
     tolerance = 1e-5)
   expect_equal(
-    output_17942[["RMSLE"]],
-    0.2666,
-    tolerance = 1e-5)
-  expect_equal(
-    output_17942[["Folds"]],
-    3,
-    tolerance = 1e-5)
-  expect_equal(
-    output_17942[["Fold Columns"]],
-    1,
-    tolerance = 1e-5)
-  expect_equal(
-    output_17942[["Convergence Warnings"]],
-    0,
-    tolerance = 1e-5)
-  expect_equal(
-    output_17942[["Other Warnings"]],
-    0,
-    tolerance = 1e-5)
-  expect_equal(
-    output_17942[["Family"]],
-    "gaussian",
-    fixed = TRUE)
-  expect_equal(
-    output_17942[["Dependent"]],
-    "score",
-    fixed = TRUE)
-  expect_equal(
-    output_17942[["Random"]],
-    "(1|session)",
-    fixed = TRUE)
-  # Testing column names
-  expect_equal(
-    names(output_17942),
-    c("Fixed", "RMSE", "MAE", "RMSLE", "Predictions", "Results", "Coefficients",
-      "Preprocess", "Folds", "Fold Columns", "Convergence Warnings",
-      "Other Warnings", "Warnings and Messages", "Family", "HParams",
-      "Dependent", "Random"),
-    fixed = TRUE)
-  # Testing column classes
-  expect_equal(
-    xpectr::element_classes(output_17942),
-    c("character", "numeric", "numeric", "numeric", "list", "list",
-      "list", "list", "integer", "integer", "integer", "integer",
-      "list", "character", ifelse(is_tibble_v2(),"list","vctrs_list_of"), "character", "character"),
-    fixed = TRUE)
-  # Testing column types
-  expect_equal(
-    xpectr::element_types(output_17942),
-    c("character", "double", "double", "double", "list", "list", "list",
-      "list", "integer", "integer", "integer", "integer", "list",
-      "character", "list", "character", "character"),
-    fixed = TRUE)
-  # Testing dimensions
-  expect_equal(
-    dim(output_17942),
-    c(1L, 17L))
-  # Testing group keys
-  expect_equal(
-    colnames(dplyr::group_keys(output_17942)),
-    character(0),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: metrics
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = NULL, rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'metrics': Must be of type",
-                         " 'list', not 'NULL'.")),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: model_fn
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(formula, hyperparameters, xx) {
-      lme4::lmer(formula = formula, data = NULL, REML = FALSE)
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'model_fn': Must have form",
-                         "al arguments: train_data.")),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: model_fn
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = NA, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'model_fn': Must be a func",
-                         "tion, not 'logical'.")),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: model_fn
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = 1, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'model_fn': Must be a func",
-                         "tion, not 'double'.")),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: model_fn
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      NULL
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("\n--------------------------------------------------\ncross_",
-                         "validate_fn(): Boundary (Singular) Fit Message:\nIn model:\n",
-                         "score ~ diagnosis + (1|session)\nFor fold column:\n.folds\nI",
-                         "n fold:\n1\nHyperparameters:\nREML : FALSE\n'model_fn' retur",
-                         "ned 'NULL'. Must return a fitted model object.")),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: model_fn
-  xpectr::set_test_seed(42)
-  # Assigning output
-  output_17829 <- cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters, xx) {
-      lme4::lmer(formula = formula, data = train_data, REML = FALSE)
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)
-  # Testing class
-  expect_equal(
-    class(output_17829),
-    c("tbl_df", "tbl", "data.frame"),
-    fixed = TRUE)
-  # Testing column values
-  expect_equal(
-    output_17829[["Fixed"]],
-    "diagnosis",
-    fixed = TRUE)
-  expect_equal(
-    output_17829[["RMSE"]],
-    9.61076,
-    tolerance = 1e-5)
-  expect_equal(
-    output_17829[["MAE"]],
-    7.15391,
-    tolerance = 1e-5)
-  expect_equal(
-    output_17829[["RMSEIQR"]],
+    output_13323[["NRMSE(IQR)"]],
     0.38694,
     tolerance = 1e-5)
   expect_equal(
-    output_17829[["RMSLE"]],
+    output_13323[["RRSE"]],
+    0.51802,
+    tolerance = 1e-5)
+  expect_equal(
+    output_13323[["RAE"]],
+    0.47155,
+    tolerance = 1e-5)
+  expect_equal(
+    output_13323[["RMSLE"]],
     0.2666,
     tolerance = 1e-5)
   expect_equal(
-    output_17829[["Folds"]],
+    output_13323[["Folds"]],
     3,
     tolerance = 1e-5)
   expect_equal(
-    output_17829[["Fold Columns"]],
+    output_13323[["Fold Columns"]],
     1,
     tolerance = 1e-5)
   expect_equal(
-    output_17829[["Convergence Warnings"]],
+    output_13323[["Convergence Warnings"]],
     0,
     tolerance = 1e-5)
   expect_equal(
-    output_17829[["Other Warnings"]],
+    output_13323[["Other Warnings"]],
     0,
     tolerance = 1e-5)
   expect_equal(
-    output_17829[["Family"]],
+    output_13323[["Family"]],
     "gaussian",
     fixed = TRUE)
   expect_equal(
-    output_17829[["Dependent"]],
+    output_13323[["Dependent"]],
     "score",
     fixed = TRUE)
   expect_equal(
-    output_17829[["Random"]],
+    output_13323[["Random"]],
     "(1|session)",
     fixed = TRUE)
   # Testing column names
   expect_equal(
-    names(output_17829),
-    c("Fixed", "RMSE", "MAE", "RMSEIQR", "RMSLE", "Predictions", "Results",
-      "Coefficients", "Preprocess", "Folds", "Fold Columns", "Convergence Warnings",
-      "Other Warnings", "Warnings and Messages", "Family", "HParams",
-      "Dependent", "Random"),
+    names(output_13323),
+    c("Fixed", "RMSE", "MAE", "NRMSE(IQR)", "RRSE", "RAE", "RMSLE",
+      "Predictions", "Results", "Coefficients", "Preprocess", "Folds",
+      "Fold Columns", "Convergence Warnings", "Other Warnings", "Warnings and Messages",
+      "Family", "HParams", "Dependent", "Random"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
-    xpectr::element_classes(output_17829),
-    c("character", "numeric", "numeric", "numeric", "numeric", "list",
-      "list", "list", "list", "integer", "integer", "integer", "integer",
-      "list", "character", ifelse(is_tibble_v2(),"list","vctrs_list_of"), "character", "character"),
+    xpectr::element_classes(output_13323),
+    c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
+      "numeric", "list", "list", "list", "list", "integer", "integer",
+      "integer", "integer", "list", "character", ifelse(is_tibble_v2(), "list", "vctrs_list_of"),
+      "character", "character"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
-    xpectr::element_types(output_17829),
-    c("character", "double", "double", "double", "double", "list", "list",
-      "list", "list", "integer", "integer", "integer", "integer",
-      "list", "character", "list", "character", "character"),
+    xpectr::element_types(output_13323),
+    c("character", "double", "double", "double", "double", "double",
+      "double", "list", "list", "list", "list", "integer", "integer",
+      "integer", "integer", "list", "character", "list", "character",
+      "character"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
-    dim(output_17829),
-    c(1L, 18L))
+    dim(output_13323),
+    c(1L, 20L))
   # Testing group keys
   expect_equal(
-    colnames(dplyr::group_keys(output_17829)),
+    colnames(dplyr::group_keys(output_13323)),
     character(0),
     fixed = TRUE)
 
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: model_fn
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: metrics = NULL
   xpectr::set_test_seed(42)
   # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = NULL, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'model_fn': Must be a func",
-                         "tion, not 'NULL'.")),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: positive
-  xpectr::set_test_seed(42)
-  # Assigning output
-  output_15297 <- cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+  # Assigning side effects
+  side_effects_16508 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
@@ -4960,98 +6121,143 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
           dplyr::bind_cols(dplyr::bind_rows(means, sds))
       list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 1, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = NULL, rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_16508[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'metrics': Must be of type 'list', not 'NULL'."),
+    fixed = TRUE)
+  expect_equal(
+    xpectr::strip(side_effects_16508[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
+    fixed = TRUE)
+
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: rm_nc = TRUE
+  xpectr::set_test_seed(42)
+  # Assigning output
+  output_12580 <- cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+      if (!"REML" %in% names(hyperparameters))
+          stop("'hyperparameters' must include 'REML'")
+      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
+  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+      stats::predict(object = model, newdata = test_data, type = "response",
+          allow.new.levels = TRUE)
+  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
+      formula <- simplify_formula(formula, train_data)
+      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
+          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
+          recipes::prep(training = train_data)
+      train_data <- recipes::bake(recipe_object, train_data)
+      test_data <- recipes::bake(recipe_object, test_data)
+      means <- recipe_object$steps[[1]]$means
+      sds <- recipe_object$steps[[2]]$sds
+      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
+          dplyr::bind_cols(dplyr::bind_rows(means, sds))
+      list(train = train_data, test = test_data, parameters = tidy_parameters)
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = TRUE, verbose = FALSE)
   # Testing class
   expect_equal(
-    class(output_15297),
+    class(output_12580),
     c("tbl_df", "tbl", "data.frame"),
     fixed = TRUE)
   # Testing column values
   expect_equal(
-    output_15297[["Fixed"]],
+    output_12580[["Fixed"]],
     "diagnosis",
     fixed = TRUE)
   expect_equal(
-    output_15297[["RMSE"]],
-    9.61076,
+    output_12580[["RMSE"]],
+    9.61075,
     tolerance = 1e-5)
   expect_equal(
-    output_15297[["MAE"]],
-    7.15391,
+    output_12580[["MAE"]],
+    7.15392,
     tolerance = 1e-5)
   expect_equal(
-    output_15297[["RMSEIQR"]],
+    output_12580[["NRMSE(IQR)"]],
     0.38694,
     tolerance = 1e-5)
   expect_equal(
-    output_15297[["RMSLE"]],
+    output_12580[["RRSE"]],
+    0.51802,
+    tolerance = 1e-5)
+  expect_equal(
+    output_12580[["RAE"]],
+    0.47155,
+    tolerance = 1e-5)
+  expect_equal(
+    output_12580[["RMSLE"]],
     0.2666,
     tolerance = 1e-5)
   expect_equal(
-    output_15297[["Folds"]],
+    output_12580[["Folds"]],
     3,
     tolerance = 1e-5)
   expect_equal(
-    output_15297[["Fold Columns"]],
+    output_12580[["Fold Columns"]],
     1,
     tolerance = 1e-5)
   expect_equal(
-    output_15297[["Convergence Warnings"]],
+    output_12580[["Convergence Warnings"]],
     0,
     tolerance = 1e-5)
   expect_equal(
-    output_15297[["Other Warnings"]],
+    output_12580[["Other Warnings"]],
     0,
     tolerance = 1e-5)
   expect_equal(
-    output_15297[["Family"]],
+    output_12580[["Family"]],
     "gaussian",
     fixed = TRUE)
   expect_equal(
-    output_15297[["Dependent"]],
+    output_12580[["Dependent"]],
     "score",
     fixed = TRUE)
   expect_equal(
-    output_15297[["Random"]],
+    output_12580[["Random"]],
     "(1|session)",
     fixed = TRUE)
   # Testing column names
   expect_equal(
-    names(output_15297),
-    c("Fixed", "RMSE", "MAE", "RMSEIQR", "RMSLE", "Predictions", "Results",
-      "Coefficients", "Preprocess", "Folds", "Fold Columns", "Convergence Warnings",
-      "Other Warnings", "Warnings and Messages", "Family", "HParams",
-      "Dependent", "Random"),
+    names(output_12580),
+    c("Fixed", "RMSE", "MAE", "NRMSE(IQR)", "RRSE", "RAE", "RMSLE",
+      "Predictions", "Results", "Coefficients", "Preprocess", "Folds",
+      "Fold Columns", "Convergence Warnings", "Other Warnings", "Warnings and Messages",
+      "Family", "HParams", "Dependent", "Random"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
-    xpectr::element_classes(output_15297),
-    c("character", "numeric", "numeric", "numeric", "numeric", "list",
-      "list", "list", "list", "integer", "integer", "integer", "integer",
-      "list", "character", ifelse(is_tibble_v2(),"list","vctrs_list_of"), "character", "character"),
+    xpectr::element_classes(output_12580),
+    c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
+      "numeric", "list", "list", "list", "list", "integer", "integer",
+      "integer", "integer", "list", "character", ifelse(is_tibble_v2(), "list", "vctrs_list_of"),
+      "character", "character"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
-    xpectr::element_types(output_15297),
-    c("character", "double", "double", "double", "double", "list", "list",
-      "list", "list", "integer", "integer", "integer", "integer",
-      "list", "character", "list", "character", "character"),
+    xpectr::element_types(output_12580),
+    c("character", "double", "double", "double", "double", "double",
+      "double", "list", "list", "list", "list", "integer", "integer",
+      "integer", "integer", "list", "character", "list", "character",
+      "character"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
-    dim(output_15297),
-    c(1L, 18L))
+    dim(output_12580),
+    c(1L, 20L))
   # Testing group keys
   expect_equal(
-    colnames(dplyr::group_keys(output_15297)),
+    colnames(dplyr::group_keys(output_12580)),
     character(0),
     fixed = TRUE)
 
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: positive
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: rm_nc = NULL
   xpectr::set_test_seed(42)
-  # Assigning output
-  output_17893 <- cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+  # Testing side effects
+  # Assigning side effects
+  side_effects_14785 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
@@ -5071,99 +6277,22 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
           dplyr::bind_cols(dplyr::bind_rows(means, sds))
       list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = "c", metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)
-  # Testing class
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = NULL, verbose = FALSE), reset_seed = TRUE)
   expect_equal(
-    class(output_17893),
-    c("tbl_df", "tbl", "data.frame"),
-    fixed = TRUE)
-  # Testing column values
-  expect_equal(
-    output_17893[["Fixed"]],
-    "diagnosis",
+    xpectr::strip(side_effects_14785[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'rm_nc': Must be of type 'logical flag', not 'NULL'."),
     fixed = TRUE)
   expect_equal(
-    output_17893[["RMSE"]],
-    9.61076,
-    tolerance = 1e-5)
-  expect_equal(
-    output_17893[["MAE"]],
-    7.15391,
-    tolerance = 1e-5)
-  expect_equal(
-    output_17893[["RMSEIQR"]],
-    0.38694,
-    tolerance = 1e-5)
-  expect_equal(
-    output_17893[["RMSLE"]],
-    0.2666,
-    tolerance = 1e-5)
-  expect_equal(
-    output_17893[["Folds"]],
-    3,
-    tolerance = 1e-5)
-  expect_equal(
-    output_17893[["Fold Columns"]],
-    1,
-    tolerance = 1e-5)
-  expect_equal(
-    output_17893[["Convergence Warnings"]],
-    0,
-    tolerance = 1e-5)
-  expect_equal(
-    output_17893[["Other Warnings"]],
-    0,
-    tolerance = 1e-5)
-  expect_equal(
-    output_17893[["Family"]],
-    "gaussian",
-    fixed = TRUE)
-  expect_equal(
-    output_17893[["Dependent"]],
-    "score",
-    fixed = TRUE)
-  expect_equal(
-    output_17893[["Random"]],
-    "(1|session)",
-    fixed = TRUE)
-  # Testing column names
-  expect_equal(
-    names(output_17893),
-    c("Fixed", "RMSE", "MAE", "RMSEIQR", "RMSLE", "Predictions", "Results",
-      "Coefficients", "Preprocess", "Folds", "Fold Columns", "Convergence Warnings",
-      "Other Warnings", "Warnings and Messages", "Family", "HParams",
-      "Dependent", "Random"),
-    fixed = TRUE)
-  # Testing column classes
-  expect_equal(
-    xpectr::element_classes(output_17893),
-    c("character", "numeric", "numeric", "numeric", "numeric", "list",
-      "list", "list", "list", "integer", "integer", "integer", "integer",
-      "list", "character", ifelse(is_tibble_v2(),"list","vctrs_list_of"), "character", "character"),
-    fixed = TRUE)
-  # Testing column types
-  expect_equal(
-    xpectr::element_types(output_17893),
-    c("character", "double", "double", "double", "double", "list", "list",
-      "list", "list", "integer", "integer", "integer", "integer",
-      "list", "character", "list", "character", "character"),
-    fixed = TRUE)
-  # Testing dimensions
-  expect_equal(
-    dim(output_17893),
-    c(1L, 18L))
-  # Testing group keys
-  expect_equal(
-    colnames(dplyr::group_keys(output_17893)),
-    character(0),
+    xpectr::strip(side_effects_14785[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
     fixed = TRUE)
 
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: positive
+  # Testing cross_validate_fn(data = dat, formulas = "sc...
+  # Changed from baseline: verbose = NULL
   xpectr::set_test_seed(42)
   # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
+  # Assigning side effects
+  side_effects_17663 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
@@ -5183,822 +6312,20 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
           dplyr::bind_cols(dplyr::bind_rows(means, sds))
       list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = NA, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("Assertion failed. One of the following must apply:\n * check",
-                         "mate::check_choice(positive): Must be element of set {'1','2",
-                         "'}, but is 'NA'\n * checkmate::check_string(positive): May n",
-                         "ot be NA")),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: positive
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = NULL, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("Assertion failed. One of the following must apply:\n * check",
-                         "mate::check_choice(positive): Must be a subset of {'1','2'},",
-                         " not 'NULL'\n * checkmate::check_string(positive): Must be o",
-                         "f type 'string', not 'NULL'")),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: predict_fn
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'predict_fn': Must have fo",
-                         "rmal arguments: hyperparameters.")),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: predict_fn
-  xpectr::set_test_seed(42)
-  # Assigning output
-  output_16927 <- cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters, xx) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)
-  # Testing class
+  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = NULL), reset_seed = TRUE)
   expect_equal(
-    class(output_16927),
-    c("tbl_df", "tbl", "data.frame"),
-    fixed = TRUE)
-  # Testing column values
-  expect_equal(
-    output_16927[["Fixed"]],
-    "diagnosis",
+    xpectr::strip(side_effects_17663[['error']]),
+    xpectr::strip("1 assertions failed:\n * Variable 'verbose': Must be of type 'logical flag', not 'NULL'."),
     fixed = TRUE)
   expect_equal(
-    output_16927[["RMSE"]],
-    9.61076,
-    tolerance = 1e-5)
-  expect_equal(
-    output_16927[["MAE"]],
-    7.15391,
-    tolerance = 1e-5)
-  expect_equal(
-    output_16927[["RMSEIQR"]],
-    0.38694,
-    tolerance = 1e-5)
-  expect_equal(
-    output_16927[["RMSLE"]],
-    0.2666,
-    tolerance = 1e-5)
-  expect_equal(
-    output_16927[["Folds"]],
-    3,
-    tolerance = 1e-5)
-  expect_equal(
-    output_16927[["Fold Columns"]],
-    1,
-    tolerance = 1e-5)
-  expect_equal(
-    output_16927[["Convergence Warnings"]],
-    0,
-    tolerance = 1e-5)
-  expect_equal(
-    output_16927[["Other Warnings"]],
-    0,
-    tolerance = 1e-5)
-  expect_equal(
-    output_16927[["Family"]],
-    "gaussian",
-    fixed = TRUE)
-  expect_equal(
-    output_16927[["Dependent"]],
-    "score",
-    fixed = TRUE)
-  expect_equal(
-    output_16927[["Random"]],
-    "(1|session)",
-    fixed = TRUE)
-  # Testing column names
-  expect_equal(
-    names(output_16927),
-    c("Fixed", "RMSE", "MAE", "RMSEIQR", "RMSLE", "Predictions", "Results",
-      "Coefficients", "Preprocess", "Folds", "Fold Columns", "Convergence Warnings",
-      "Other Warnings", "Warnings and Messages", "Family", "HParams",
-      "Dependent", "Random"),
-    fixed = TRUE)
-  # Testing column classes
-  expect_equal(
-    xpectr::element_classes(output_16927),
-    c("character", "numeric", "numeric", "numeric", "numeric", "list",
-      "list", "list", "list", "integer", "integer", "integer", "integer",
-      "list", "character", ifelse(is_tibble_v2(),"list","vctrs_list_of"), "character", "character"),
-    fixed = TRUE)
-  # Testing column types
-  expect_equal(
-    xpectr::element_types(output_16927),
-    c("character", "double", "double", "double", "double", "list", "list",
-      "list", "list", "integer", "integer", "integer", "integer",
-      "list", "character", "list", "character", "character"),
-    fixed = TRUE)
-  # Testing dimensions
-  expect_equal(
-    dim(output_16927),
-    c(1L, 18L))
-  # Testing group keys
-  expect_equal(
-    colnames(dplyr::group_keys(output_16927)),
-    character(0),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: predict_fn
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      NULL
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("\n-------------------------------------\ncross_validate_fn()",
-                         ": Error:\nIn formula:\nscore ~ diagnosis + (1|session)\nFor ",
-                         "fold column:\n.folds\nIn fold:\n1\nError in run_predict_fn(t",
-                         "est_data = test_data, model = model, model_formula = model_f",
-                         "ormula, : cross_validate_fn(): predictions were NULL.\n")),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: predict_fn
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = NA, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'predict_fn': Must be a fu",
-                         "nction, not 'logical'.")),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: predict_fn
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = 1, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'predict_fn': Must be a fu",
-                         "nction, not 'double'.")),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: predict_fn
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = NULL, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'predict_fn': Must be a fu",
-                         "nction, not 'NULL'.")),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: preprocess_fn
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula) {
-      list(train = train_data, test = test_data, parameters = NULL)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'preprocess_fn': Must have",
-                         " formal arguments: hyperparameters.")),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: preprocess_fn
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters, xx) {
-      list(train = train_data, test = test_data, parameters = NULL)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("\n-------------------------------------\ncross_validate_fn()",
-                         ": Error:\nCould not extract the preprocessing parameters pro",
-                         "perly from the output of 'preprocess_fn'.\nError in doTryCat",
-                         "ch(return(expr), name, parentenv, handler): the returned pre",
-                         "processing parameters object was not a data frame.\n")),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: preprocess_fn
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = NA, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'preprocess_fn': Must be a",
-                         " function (or 'NULL'), not 'logical'.")),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: preprocess_fn
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = 1, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'preprocess_fn': Must be a",
-                         " function (or 'NULL'), not 'double'.")),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: preprocess_fn
-  xpectr::set_test_seed(42)
-  # Assigning output
-  output_16620 <- cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = NULL, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)
-  # Testing class
-  expect_equal(
-    class(output_16620),
-    c("tbl_df", "tbl", "data.frame"),
-    fixed = TRUE)
-  # Testing column values
-  expect_equal(
-    output_16620[["Fixed"]],
-    "diagnosis",
-    fixed = TRUE)
-  expect_equal(
-    output_16620[["RMSE"]],
-    9.61076,
-    tolerance = 1e-5)
-  expect_equal(
-    output_16620[["MAE"]],
-    7.15391,
-    tolerance = 1e-5)
-  expect_equal(
-    output_16620[["RMSEIQR"]],
-    0.38694,
-    tolerance = 1e-5)
-  expect_equal(
-    output_16620[["RMSLE"]],
-    0.2666,
-    tolerance = 1e-5)
-  expect_equal(
-    output_16620[["Folds"]],
-    3,
-    tolerance = 1e-5)
-  expect_equal(
-    output_16620[["Fold Columns"]],
-    1,
-    tolerance = 1e-5)
-  expect_equal(
-    output_16620[["Convergence Warnings"]],
-    0,
-    tolerance = 1e-5)
-  expect_equal(
-    output_16620[["Other Warnings"]],
-    0,
-    tolerance = 1e-5)
-  expect_equal(
-    output_16620[["Family"]],
-    "gaussian",
-    fixed = TRUE)
-  expect_equal(
-    output_16620[["Dependent"]],
-    "score",
-    fixed = TRUE)
-  expect_equal(
-    output_16620[["Random"]],
-    "(1|session)",
-    fixed = TRUE)
-  # Testing column names
-  expect_equal(
-    names(output_16620),
-    c("Fixed", "RMSE", "MAE", "RMSEIQR", "RMSLE", "Predictions", "Results",
-      "Coefficients", "Folds", "Fold Columns", "Convergence Warnings",
-      "Other Warnings", "Warnings and Messages", "Family", "HParams",
-      "Dependent", "Random"),
-    fixed = TRUE)
-  # Testing column classes
-  expect_equal(
-    xpectr::element_classes(output_16620),
-    c("character", "numeric", "numeric", "numeric", "numeric", "list",
-      "list", "list", "integer", "integer", "integer", "integer",
-      "list", "character", ifelse(is_tibble_v2(),"list","vctrs_list_of"), "character", "character"),
-    fixed = TRUE)
-  # Testing column types
-  expect_equal(
-    xpectr::element_types(output_16620),
-    c("character", "double", "double", "double", "double", "list", "list",
-      "list", "integer", "integer", "integer", "integer", "list",
-      "character", "list", "character", "character"),
-    fixed = TRUE)
-  # Testing dimensions
-  expect_equal(
-    dim(output_16620),
-    c(1L, 17L))
-  # Testing group keys
-  expect_equal(
-    colnames(dplyr::group_keys(output_16620)),
-    character(0),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: preprocess_once
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = TRUE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("* Variable 'formula': Must be a formula, ",
-                         "not 'NULL'.\n Possibly caused by 'preprocessing_once' being ",
-                         "TRUE?")),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: preprocess_once
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = NULL, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'preprocess_once': Must be",
-                         " of type 'logical flag', not 'NULL'.")),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: rm_nc
-  xpectr::set_test_seed(42)
-  # Assigning output
-  output_12936 <- cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = TRUE, verbose = FALSE)
-  # Testing class
-  expect_equal(
-    class(output_12936),
-    c("tbl_df", "tbl", "data.frame"),
-    fixed = TRUE)
-  # Testing column values
-  expect_equal(
-    output_12936[["Fixed"]],
-    "diagnosis",
-    fixed = TRUE)
-  expect_equal(
-    output_12936[["RMSE"]],
-    9.61076,
-    tolerance = 1e-5)
-  expect_equal(
-    output_12936[["MAE"]],
-    7.15391,
-    tolerance = 1e-5)
-  expect_equal(
-    output_12936[["RMSEIQR"]],
-    0.38694,
-    tolerance = 1e-5)
-  expect_equal(
-    output_12936[["RMSLE"]],
-    0.2666,
-    tolerance = 1e-5)
-  expect_equal(
-    output_12936[["Folds"]],
-    3,
-    tolerance = 1e-5)
-  expect_equal(
-    output_12936[["Fold Columns"]],
-    1,
-    tolerance = 1e-5)
-  expect_equal(
-    output_12936[["Convergence Warnings"]],
-    0,
-    tolerance = 1e-5)
-  expect_equal(
-    output_12936[["Other Warnings"]],
-    0,
-    tolerance = 1e-5)
-  expect_equal(
-    output_12936[["Family"]],
-    "gaussian",
-    fixed = TRUE)
-  expect_equal(
-    output_12936[["Dependent"]],
-    "score",
-    fixed = TRUE)
-  expect_equal(
-    output_12936[["Random"]],
-    "(1|session)",
-    fixed = TRUE)
-  # Testing column names
-  expect_equal(
-    names(output_12936),
-    c("Fixed", "RMSE", "MAE", "RMSEIQR", "RMSLE", "Predictions", "Results",
-      "Coefficients", "Preprocess", "Folds", "Fold Columns", "Convergence Warnings",
-      "Other Warnings", "Warnings and Messages", "Family", "HParams",
-      "Dependent", "Random"),
-    fixed = TRUE)
-  # Testing column classes
-  expect_equal(
-    xpectr::element_classes(output_12936),
-    c("character", "numeric", "numeric", "numeric", "numeric", "list",
-      "list", "list", "list", "integer", "integer", "integer", "integer",
-      "list", "character", ifelse(is_tibble_v2(),"list","vctrs_list_of"), "character", "character"),
-    fixed = TRUE)
-  # Testing column types
-  expect_equal(
-    xpectr::element_types(output_12936),
-    c("character", "double", "double", "double", "double", "list", "list",
-      "list", "list", "integer", "integer", "integer", "integer",
-      "list", "character", "list", "character", "character"),
-    fixed = TRUE)
-  # Testing dimensions
-  expect_equal(
-    dim(output_12936),
-    c(1L, 18L))
-  # Testing group keys
-  expect_equal(
-    colnames(dplyr::group_keys(output_12936)),
-    character(0),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: rm_nc
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = NULL, verbose = FALSE)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'rm_nc': Must be of type '",
-                         "logical flag', not 'NULL'.")),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: type
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "binomial", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip("'metrics_list' contained unknown metric names: RMSEIQR."),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: type
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "multinomial", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip("'metrics_list' contained unknown metric names: RMSEIQR."),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: type
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "xx", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'family': Must be element ",
-                         "of set {'gaussian','binomial','multinomial'}, but is 'xx'.")),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: type
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = NULL, cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = FALSE)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'family': Must be a subset",
-                         " of {'gaussian','binomial','multinomial'}, not 'NULL'.")),
-    fixed = TRUE)
-
-  # Testing cross_validate_fn(data = dat, formulas = "scor...
-  # Changed from baseline: verbose
-  xpectr::set_test_seed(42)
-  # Testing side effects
-  expect_error(
-    xpectr::strip_msg(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
-      if (!"REML" %in% names(hyperparameters))
-          stop("'hyperparameters' must include 'REML'")
-      lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
-      stats::predict(object = model, newdata = test_data, type = "response",
-          allow.new.levels = TRUE)
-  }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
-      formula <- simplify_formula(formula, train_data)
-      recipe_object <- recipes::recipe(formula = formula, data = train_data) %>%
-          recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-          recipes::prep(training = train_data)
-      train_data <- recipes::bake(recipe_object, train_data)
-      test_data <- recipes::bake(recipe_object, test_data)
-      means <- recipe_object$steps[[1]]$means
-      sds <- recipe_object$steps[[2]]$sds
-      tidy_parameters <- tibble::tibble(Measure = c("Mean", "SD")) %>%
-          dplyr::bind_cols(dplyr::bind_rows(means, sds))
-      list(train = train_data, test = test_data, parameters = tidy_parameters)
-  }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(rmseiqr = TRUE), rm_nc = FALSE, verbose = NULL)),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'verbose': Must be of type",
-                         " 'logical flag', not 'NULL'.")),
+    xpectr::strip(side_effects_17663[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
     fixed = TRUE)
 
   ## Finished testing 'cross_validate_fn'                                     ####
+  #
+
+
+
 
 })

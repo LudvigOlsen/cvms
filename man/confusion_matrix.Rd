@@ -151,7 +151,8 @@ The following formulas are used for calculating the metrics:
 
  \code{MCC = ((TP * TN) - (FP * FN)) / sqrt((TP + FP) * (TP + FN) * (TN + FP) * (TN + FN))}
 
- Note for MCC: When the denominator is 0, we set it to 1 to avoid \code{NaN}.
+ Note for MCC: Formula is for the binary case. When the denominator is 0, we set it to 1 to avoid \code{NaN}.
+ See the \code{metrics} vignette for multiclass version.
 
  \code{Detection Rate = TP / (TP + FN + TN + FP)}
 

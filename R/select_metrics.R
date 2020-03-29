@@ -46,8 +46,9 @@ select_metrics <- function(results, include_definitions = TRUE,
 
   metric_cols <- c(
     # Gaussian
-    "RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD", # TODO Order the new metrics meaningfully!
-    "RMSLE", "MALE", "RAE", "RSE", "RRSE",
+    "RMSE", "MAE",
+    "NRMSE(RNG)", "NRMSE(IQR)", "NRMSE(STD)", "NRMSE(AVG)",         # TODO Order the new metrics meaningfully!
+    "RSE", "RRSE", "RAE", "RMSLE", "MALE",
     "MAPE", "MSE", "TAE", "TSE",
     "r2m", "r2c",
     # Multi- and binomial
@@ -61,7 +62,7 @@ select_metrics <- function(results, include_definitions = TRUE,
     "Neg Pred Value", "Weighted Neg Pred Value",
     "AUC", "Lower CI", "Upper CI",
     "Kappa", "Weighted Kappa",
-    "MCC", "Weighted MCC",
+    "MCC",
     "Detection Rate", "Weighted Detection Rate",
     "Detection Prevalence", "Weighted Detection Prevalence",
     "Prevalence", "Weighted Prevalence",

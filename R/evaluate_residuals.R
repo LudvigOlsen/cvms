@@ -42,9 +42,10 @@
 #'   \strong{Metric} \tab \strong{Name} \tab \strong{Default} \cr
 #'   Mean Absolute Error \tab "MAE" \tab Enabled \cr
 #'   Root Mean Square Error \tab "RMSE" \tab Enabled \cr
-#'   Normalized RMSE (by target range) \tab "NRMSE" \tab Disabled \cr
-#'   Normalized RMSE (by target IQR) \tab "RMSEIQR" \tab Disabled \cr
-#'   Normalized RMSE (by target STD) \tab "RMSESTD" \tab Disabled \cr
+#'   Normalized RMSE (by target range) \tab "NRMSE(RNG)" \tab Disabled \cr
+#'   Normalized RMSE (by target IQR) \tab "NRMSE(IQR)" \tab Disabled \cr
+#'   Normalized RMSE (by target STD) \tab "NRMSE(STD)" \tab Disabled \cr
+#'   Normalized RMSE (by target mean) \tab "NRMSE(AVG)" \tab Disabled \cr
 #'   Root Mean Squared Log Error \tab "RMSLE" \tab Enabled \cr
 #'   Mean Absolute Log Error \tab "MALE" \tab Disabled \cr
 #'   Relative Absolute Error \tab "RAE" \tab Disabled \cr
@@ -152,9 +153,10 @@ residual_metrics <- function(predictions, targets, na.rm = TRUE, return_nas = FA
   if (isTRUE(return_nas)) {
     rmse <- NA
     mae <- NA
-    nrmse <- NA
-    rmseiqr <- NA
-    rmsestd <- NA
+    nrmse_rng <- NA
+    nrmse_iqr <- NA
+    nrmse_std <- NA
+    nrmse_avg <- NA
     rmsle <- NA
     male <- NA
     rae <- NA
@@ -203,9 +205,10 @@ residual_metrics <- function(predictions, targets, na.rm = TRUE, return_nas = FA
     rmse <- sqrt(mse)
 
     # Normalized RMSE scores https://en.wikipedia.org/wiki/Root-mean-square_deviation
-    rmseiqr <- rmse / targets_iqr
-    nrmse <- rmse / targets_range
-    rmsestd <- rmse / targets_std
+    nrmse_iqr <- rmse / targets_iqr
+    nrmse_rng <- rmse / targets_range
+    nrmse_std <- rmse / targets_std
+    nrmse_avg <- rmse / targets_mean
 
     # relative absolute error
     rae <- tae / sum(abs_targets_centered)
@@ -248,9 +251,10 @@ residual_metrics <- function(predictions, targets, na.rm = TRUE, return_nas = FA
   tibble::tibble(
     "RMSE" = rmse,
     "MAE" = mae,
-    "NRMSE" = nrmse,
-    "RMSEIQR" = rmseiqr,
-    "RMSESTD" = rmsestd,
+    "NRMSE(RNG)" = nrmse_rng,
+    "NRMSE(IQR)" = nrmse_iqr,
+    "NRMSE(STD)" = nrmse_std,
+    "NRMSE(AVG)" = nrmse_avg,
     "RMSLE" = rmsle,
     "MALE" = male,
     "RAE" = rae,

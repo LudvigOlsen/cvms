@@ -76,7 +76,8 @@
 #'
 #'  \code{MCC = ((TP * TN) - (FP * FN)) / sqrt((TP + FP) * (TP + FN) * (TN + FP) * (TN + FN))}
 #'
-#'  Note for MCC: When the denominator is 0, we set it to 1 to avoid \code{NaN}.
+#'  Note for MCC: Formula is for the binary case. When the denominator is 0, we set it to 1 to avoid \code{NaN}.
+#'  See the \code{metrics} vignette for multiclass version.
 #'
 #'  \code{Detection Rate = TP / (TP + FN + TN + FP)}
 #'
@@ -429,14 +430,23 @@ create_multinomial_confusion_matrix <- function(targets,
     )
   }
 
+  if ("MCC" %in% metrics) {
+    overall[["MCC"]] <- multiclass_mcc(
+      conf_mat
+    )
+  }
+
   if (isTRUE(do_one_vs_all)) {
 
     # If a metric is only included in its weighted version
     # we still need to calculate it in the one-vs-all evaluations
     metrics_to_compute <- unique(gsub("Weighted ", "", metrics))
+    metrics_to_compute <- metrics_to_compute[metrics_to_compute != "MCC"]
 
     # Get metric functions
     metric_fns <- confusion_matrix_metric_fns()
+    # Remove binary MCC
+    metric_fns[["MCC"]] <- NULL
 
     # Extract the metrics we want weighted averages for
     metrics_for_weighted_avg <- gsub("Weighted ", "", metrics[grep("Weighted ", metrics)])
@@ -810,6 +820,24 @@ mcc <- function(label_counts) {
   }
   num / denom
 }
+
+multiclass_mcc <- function(conf_mat_table){
+  # Ported from sklearn:
+  # https://github.com/scikit-learn/scikit-learn/blob/95d4f0841/sklearn/metrics/_classification.py
+  cm <- as.matrix(conf_mat_table)
+  t_sum <- rowSums(t(cm))
+  p_sum <- rowSums(cm)
+  n_correct <- sum(diag(cm))
+  n_samples <- sum(cm)
+  # %*% is base matrix multiplication
+  cov_ytyp <- n_correct * n_samples - (t_sum %*% p_sum)
+  cov_ypyp <- n_samples^2 - (p_sum %*% p_sum)
+  cov_ytyt <- n_samples^2 - (t_sum %*% t_sum)
+  mcc <- sum(cov_ytyp / sqrt(cov_ytyt * cov_ypyp))
+  if (is.na(mcc)) mcc <- 0
+  mcc
+}
+
 
 overall_accuracy <- function(targets, predictions, na.rm = FALSE) {
   if (length(targets) != length(predictions)) {

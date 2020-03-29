@@ -64,7 +64,7 @@ test_that("metrics are correctly set in set_metrics()", {
       "Weighted Sensitivity", "Specificity", "Weighted Specificity",
       "Pos Pred Value", "Weighted Pos Pred Value", "Neg Pred Value",
       "Weighted Neg Pred Value", "AUC", "Kappa", "Weighted Kappa",
-      "MCC", "Weighted MCC", "Detection Rate", "Weighted Detection Rate",
+      "MCC", "Detection Rate", "Weighted Detection Rate",
       "Detection Prevalence", "Weighted Detection Prevalence", "Prevalence",
       "Weighted Prevalence", "False Neg Rate", "Weighted False Neg Rate",
       "False Pos Rate", "Weighted False Pos Rate", "False Discovery Rate",
@@ -86,7 +86,7 @@ test_that("metrics are correctly set in set_metrics()", {
       "Sensitivity", "Weighted Sensitivity", "Specificity", "Weighted Specificity",
       "Pos Pred Value", "Weighted Pos Pred Value", "Neg Pred Value",
       "Weighted Neg Pred Value", "AUC", "Kappa", "Weighted Kappa",
-      "MCC", "Weighted MCC", "Detection Rate", "Weighted Detection Rate",
+      "MCC", "Detection Rate", "Weighted Detection Rate",
       "Detection Prevalence", "Weighted Detection Prevalence", "Prevalence",
       "Weighted Prevalence", "False Neg Rate", "Weighted False Neg Rate",
       "False Pos Rate", "Weighted False Pos Rate", "False Discovery Rate",
@@ -235,8 +235,9 @@ test_that("metrics are correctly set in set_metrics()", {
   expect_equal(
     all_1,
     c(
-      "RMSE", "MAE", "NRMSE", "RMSEIQR", "RMSESTD", "RMSLE", "MALE",
-      "RAE", "RSE", "RRSE", "MAPE", "MSE", "TAE", "TSE"
+      "RMSE", "MAE", "NRMSE(RNG)", "NRMSE(IQR)", "NRMSE(STD)",
+      "NRMSE(AVG)", "RSE", "RRSE", "RAE",  "RMSLE", "MALE",
+      "MAPE", "MSE", "TAE", "TSE"
     )
   )
 
@@ -248,8 +249,9 @@ test_that("metrics are correctly set in set_metrics()", {
       )
     ),
     c(
-      "MAE", "NRMSE", "RMSEIQR", "RMSESTD", "MALE", "RAE", "RSE",
-      "RRSE", "MAPE", "MSE", "TAE", "TSE"
+      "MAE", "NRMSE(RNG)", "NRMSE(IQR)", "NRMSE(STD)",
+      "NRMSE(AVG)", "RSE", "RRSE", "RAE", "MALE",
+      "MAPE", "MSE", "TAE", "TSE"
     )
   )
 })

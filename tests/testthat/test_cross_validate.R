@@ -1472,7 +1472,7 @@ test_that("preprocessing works with binomial models in cross_validate()", {
       "Detection Rate", "Detection Prevalence", "Prevalence", "Predictions",
       "ROC", "Confusion Matrix", "Results", "Coefficients", "Preprocess",
       "Folds", "Fold Columns", "Convergence Warnings", "Singular Fit Messages",
-      "Other Warnings", "Warnings and Messages", "Family", "Dependent"
+      "Other Warnings", "Warnings and Messages", "Positive Class", "Family", "Dependent"
     )
   )
   expect_equal(
@@ -1483,7 +1483,7 @@ test_that("preprocessing works with binomial models in cross_validate()", {
       "Detection Rate", "Detection Prevalence", "Prevalence", "Predictions",
       "ROC", "Confusion Matrix", "Results", "Coefficients",
       "Folds", "Fold Columns", "Convergence Warnings", "Singular Fit Messages",
-      "Other Warnings", "Warnings and Messages", "Family", "Dependent"
+      "Other Warnings", "Warnings and Messages", "Positive Class", "Family", "Dependent"
     )
   )
 
@@ -1936,8 +1936,8 @@ test_that("preprocessing works with binomial mixed models in cross_validate()", 
       "Detection Rate", "Detection Prevalence", "Prevalence", "Predictions",
       "ROC", "Confusion Matrix", "Results", "Coefficients", "Preprocess",
       "Folds", "Fold Columns", "Convergence Warnings", "Singular Fit Messages",
-      "Other Warnings", "Warnings and Messages", "Family", "Dependent",
-      "Random"
+      "Other Warnings", "Warnings and Messages",  "Positive Class","Family",
+      "Dependent", "Random"
     )
   )
   expect_equal(
@@ -1948,8 +1948,8 @@ test_that("preprocessing works with binomial mixed models in cross_validate()", 
       "Detection Rate", "Detection Prevalence", "Prevalence", "Predictions",
       "ROC", "Confusion Matrix", "Results", "Coefficients",
       "Folds", "Fold Columns", "Convergence Warnings", "Singular Fit Messages",
-      "Other Warnings", "Warnings and Messages", "Family", "Dependent",
-      "Random"
+      "Other Warnings", "Warnings and Messages", "Positive Class",
+      "Family", "Dependent", "Random"
     )
   )
 
@@ -2454,7 +2454,7 @@ test_that("binomial models with metrics list work with cross_validate()", {
       "MCC", "Detection Rate", "Detection Prevalence", "AICc", "Predictions",
       "ROC", "Confusion Matrix", "Results", "Coefficients", "Folds",
       "Fold Columns", "Convergence Warnings", "Singular Fit Messages",
-      "Other Warnings", "Warnings and Messages", "Family",
+      "Other Warnings", "Warnings and Messages", "Positive Class", "Family",
       "Dependent"
     )
   )

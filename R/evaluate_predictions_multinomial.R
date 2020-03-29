@@ -240,10 +240,8 @@ evaluate_predictions_multinomial <- function(data,
       dplyr::left_join(support, by = "Class") %>%
       dplyr::as_tibble()
 
-    # Remove Predictions column if it exists
-    if ("Predictions" %in% colnames(one_vs_all_evaluations)) {
-      one_vs_all_evaluations[["Predictions"]] <- NULL
-    }
+    one_vs_all_evaluations[["Predictions"]] <- NULL
+    one_vs_all_evaluations[["Positive Class"]] <- NULL
 
     # Move Support column
     one_vs_all_evaluations <- reposition_column(one_vs_all_evaluations,

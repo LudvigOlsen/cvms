@@ -155,7 +155,8 @@ test_that("binomial glm model works with validate_fn()", {
       "Detection Rate", "Detection Prevalence", "Prevalence", "AIC",
       "AICc", "BIC", "Predictions", "ROC", "Confusion Matrix", "Coefficients",
       "Preprocess", "Convergence Warnings", "Other Warnings",
-      "Warnings and Messages", "Family", "HParams", "Model", "Dependent"
+      "Warnings and Messages", "Positive Class", "Family",
+      "HParams", "Model", "Dependent"
     )
   )
 
@@ -163,6 +164,7 @@ test_that("binomial glm model works with validate_fn()", {
   expect_equal(Vbinomlist_list$Family, rep("binomial", 8))
   expect_equal(Vbinomlist_list$Dependent, rep("diagnosis", 8))
   expect_equal(Vbinomlist_list$Fixed, rep(c("score", "age"), each = 4))
+  expect_equal(Vbinomlist_list$`Positive Class`, rep("1", 8))
 
   models <- dplyr::as_tibble(t(sapply(Vbinomlist_list$Model, FUN = summary)))
   expect_equal(

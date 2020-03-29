@@ -144,7 +144,7 @@ evaluate_predictions_binomial <- function(data,
     )
   }
 
-  return(results)
+  results
 }
 
 
@@ -289,6 +289,7 @@ binomial_eval_collect <- function(unique_fold_cols,
   # Nest fold column results
   fold_col_results_nested <- fold_col_results
   fold_col_results_nested[["ROC"]] <- NULL
+  fold_col_results_nested[["Positive Class"]] <- NULL
   fold_col_results_nested <- dplyr::group_nest(
     fold_col_results_nested,
     .key = "fold_col_results"
@@ -297,6 +298,8 @@ binomial_eval_collect <- function(unique_fold_cols,
   # Average fold column results for reporting
   average_metrics <- fold_col_results
   average_metrics[["Fold Column"]] <- NULL
+  average_metrics[["ROC"]] <- NULL
+  average_metrics[["Positive Class"]] <- NULL
   average_metrics <- dplyr::summarise_all(
     average_metrics, list(~ mean(., na.rm = na.rm))
   )
@@ -325,6 +328,9 @@ binomial_eval_collect <- function(unique_fold_cols,
 
   # Add confusion matrix
   results[["Confusion Matrix"]] <- nested_confusion_matrices$confusion_matrices
+
+  # Add positive class (Same for all folds)
+  results[["Positive Class"]] <- fold_col_results[["Positive Class"]][[1]]
 
   results
 }
@@ -363,7 +369,8 @@ binomial_classification_NA_results_tibble <- function(metrics, include_predictio
     "Prevalence" = NA,
     "Predictions" = NA,
     "Results" = list(NA),
-    "ROC" = NA
+    "ROC" = NA,
+    "Positive Class" = NA
   )
 
   if (!isTRUE(include_predictions)) {
@@ -401,7 +408,7 @@ binomial_classification_results_tibble <- function(roc_curve,
 
   eval_tibble <- eval_tibble[, c(
     intersect(metrics, colnames(eval_tibble)),
-    "Predictions", "ROC"
+    "Predictions", "ROC", "Positive Class"
   )]
 
   if (!isTRUE(include_predictions)) {

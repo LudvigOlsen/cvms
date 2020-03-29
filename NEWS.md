@@ -96,6 +96,8 @@ dataset by three algorithms. Can be used to demonstrate working with predictions
 
 * Adds Information Criterion metrics (`AIC`, `AICc`, `BIC`) to the `binomial` and `multinomial` output of some functions (disabled by default). These are based on the fitted model objects and will only work for some types of models.
 
+* Adds `Positive Class` column to `binomial` evaluations.
+
 ### New function arguments
 
 * Adds optional `hyperparameter` argument to `cross_validate_fn()`. 

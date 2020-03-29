@@ -51,6 +51,7 @@ set_info_cols <- function(family, info_cols_list = NULL) {
       "Singular Fit Messages" = FALSE,
       "Other Warnings" = TRUE,
       "Warnings and Messages" = TRUE,
+      "Positive Class" = TRUE,
       "Family" = TRUE,
       "HParams" = TRUE,
       "Model" = FALSE,

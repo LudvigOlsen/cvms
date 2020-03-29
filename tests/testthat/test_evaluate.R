@@ -2512,6 +2512,8 @@ test_that("binomial evaluation works in evaluate()", {
     tolerance = 1e-4
   )
 
+  expect_equal(bn_eval_1_inv$`Positive Class`, "cl_2")
+
   expect_true(!identical(bn_eval_1$ROC[[1]], bn_eval_1_inv$ROC[[1]]))
 
   expect_equal(
@@ -2617,6 +2619,7 @@ test_that("binomial evaluation works in evaluate()", {
     0.5,
     tolerance = 1e-4
   )
+  expect_equal(bn_eval_2$`Positive Class`, "cl_1")
 
   # not including predictions
   bn_eval_2_no_preds <- evaluate(
@@ -2630,6 +2633,7 @@ test_that("binomial evaluation works in evaluate()", {
     include_predictions = FALSE
   )
 
+  expect_equal(bn_eval_2_no_preds$`Positive Class`, "cl_1")
   expect_equal(
     colnames(bn_eval_2_no_preds),
     c(
@@ -2637,7 +2641,7 @@ test_that("binomial evaluation works in evaluate()", {
       "Specificity", "Pos Pred Value", "Neg Pred Value", "AUC",
       "Lower CI", "Upper CI", "Kappa", "MCC",
       "Detection Rate", "Detection Prevalence", "Prevalence",
-      "ROC", "Confusion Matrix"
+      "ROC", "Confusion Matrix", "Positive Class"
     )
   )
   expect_identical(bn_eval_2_no_preds, bn_eval_2 %>% dplyr::select(-dplyr::one_of("Predictions")))
@@ -2668,7 +2672,7 @@ test_that("binomial evaluation works in evaluate()", {
       "Specificity", "Pos Pred Value", "Neg Pred Value", "AUC",
       "Lower CI", "Upper CI", "Kappa", "MCC",
       "Detection Rate", "Detection Prevalence", "Prevalence",
-      "Predictions", "ROC", "Confusion Matrix"
+      "Predictions", "ROC", "Confusion Matrix", "Positive Class"
     )
   )
   expect_equal(bn_eval_3$`Balanced Accuracy`, 0.6)
@@ -2685,6 +2689,7 @@ test_that("binomial evaluation works in evaluate()", {
   expect_equal(bn_eval_3$`Detection Rate`, 0.4, tolerance = 1e-4)
   expect_equal(bn_eval_3$`Detection Prevalence`, 0.7, tolerance = 1e-4)
   expect_equal(bn_eval_3$Prevalence, 0.5, tolerance = 1e-4)
+  expect_equal(bn_eval_3$`Positive Class`, "cl_2")
   expect_equal(length(bn_eval_3$Predictions), 1, tolerance = 1e-4)
   expect_equal(bn_eval_3$Predictions[[1]]$Target,
     c(
@@ -2734,7 +2739,7 @@ test_that("binomial evaluation works in evaluate()", {
       "Specificity", "Pos Pred Value", "Neg Pred Value", "AUC",
       "Lower CI", "Upper CI", "Kappa", "MCC",
       "Detection Rate", "Detection Prevalence", "Prevalence",
-      "ROC", "Confusion Matrix"
+      "ROC", "Confusion Matrix", "Positive Class"
     )
   )
 
@@ -2759,7 +2764,7 @@ test_that("binomial evaluation works in evaluate()", {
       "Specificity", "Pos Pred Value", "Neg Pred Value", "AUC",
       "Lower CI", "Upper CI", "Kappa", "MCC",
       "Detection Rate", "Detection Prevalence", "Prevalence",
-      "Predictions", "ROC", "Confusion Matrix"
+      "Predictions", "ROC", "Confusion Matrix", "Positive Class"
     )
   )
   expect_equal(bn_eval_4$`Balanced Accuracy`, 0.5)
@@ -2776,6 +2781,7 @@ test_that("binomial evaluation works in evaluate()", {
   expect_equal(bn_eval_4$`Detection Rate`, 0.4, tolerance = 1e-4)
   expect_equal(bn_eval_4$`Detection Prevalence`, 0.8, tolerance = 1e-4)
   expect_equal(bn_eval_4$Prevalence, 0.5, tolerance = 1e-4)
+  expect_equal(bn_eval_4$`Positive Class`, "cl_2")
   expect_equal(length(bn_eval_4$Predictions), 1, tolerance = 1e-4)
   expect_equal(bn_eval_4$Predictions[[1]]$Target,
     c(

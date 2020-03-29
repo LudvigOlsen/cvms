@@ -148,7 +148,7 @@ test_that("binomial model with metrics list work with validate()", {
       "MCC", "Detection Rate", "Detection Prevalence", "Prevalence",
       "Predictions", "ROC", "Confusion Matrix", "Coefficients", "Convergence Warnings",
       "Singular Fit Messages", "Other Warnings", "Warnings and Messages",
-      "Family", "Model", "Dependent"
+      "Positive Class", "Family", "Model", "Dependent"
     )
   )
 })
@@ -169,7 +169,10 @@ test_that("binomial mixed model work with validate()", {
   )
 
   # Making sure the partitioning is not the error
-  expect_equal(dat$.partitions, factor(c(2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 2, 2, 2)))
+  expect_equal(
+    dat$.partitions,
+    factor(c(2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+             1, 1, 1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 2, 2, 2)))
 
   Vbinom <-
     validate(

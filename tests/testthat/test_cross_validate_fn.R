@@ -89,7 +89,8 @@ test_that("binomial glm model works with cross_validate_fn()", {
       "Detection Rate", "Detection Prevalence", "Prevalence", "AIC",
       "AICc", "BIC", "Predictions", "ROC", "Confusion Matrix", "Results",
       "Coefficients", "Folds", "Fold Columns", "Convergence Warnings",
-      "Other Warnings", "Warnings and Messages", "Family", "Dependent"
+      "Other Warnings", "Warnings and Messages", "Positive Class",
+      "Family", "Dependent"
     )
   )
 
@@ -2370,7 +2371,7 @@ test_that("binomial glm model with metrics list works with cross_validate_fn()",
       "Detection Prevalence", "Prevalence", "AIC", "AICc", "BIC", "Predictions",
       "ROC", "Confusion Matrix", "Results", "Coefficients", "Folds",
       "Fold Columns", "Convergence Warnings", "Other Warnings", "Warnings and Messages",
-      "Family", "Dependent"
+      "Positive Class", "Family", "Dependent"
     )
   )
 })

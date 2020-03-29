@@ -3557,7 +3557,6 @@ test_that("evaluate() works with wines dataset", {
   expect_equal(all_x_baseline_results$Prevalence, mn_evaluations$Prevalence, tolerance = 1e-4)
 })
 
-
 test_that("evaluate() is agnostic about the order of the input data", {
   dat <- data.frame(
     "target" = c(2, 1, 2, 1, 2, 1, 1, 1, 2, 2, 2, 1, 2, 1, 1, 2, 2, 2, 1, 1, 1, 1, 1),
@@ -3603,4 +3602,137 @@ test_that("evaluate() is agnostic about the order of the input data", {
 
   expect_equal(eval_1[, 2:15], eval_groups[, 1:14])
 })
+
+test_that("evaluate() and confusion_matrix() has same metric values", {
+
+  # Binomial
+  xpectr::set_test_seed(42)
+  df_binom <- tibble::tibble(
+    "target" = as.character(sample(0:1, 50, replace = TRUE)),
+    "prediction" = as.character(sample(0:1, 50, replace = TRUE))
+  )
+
+  eval_binom <- evaluate(
+    df_binom, target_col = "target",
+    prediction_cols = "prediction",
+    type = "binomial",
+    positive = "0",
+    metrics = "all")
+
+  cfm_binom <- confusion_matrix(df_binom$target,
+                                df_binom$prediction,
+                                positive = "0",
+                                metrics = "all")
+
+  # same order of metrics
+  shared_cols <- intersect(colnames(eval_binom), colnames(cfm_binom))
+  eval_binom_shared <- eval_binom %>%
+    base_deselect(cols = c(
+      "Confusion Matrix", "Positive Class",
+      setdiff(colnames(eval_binom), shared_cols)
+    ))
+  cfm_binom_shared <- cfm_binom %>%
+    base_deselect(cols = c(
+      "Confusion Matrix", "Positive Class",
+      setdiff(colnames(cfm_binom), shared_cols)
+    ))
+  expect_equal(colnames(eval_binom_shared),
+               colnames(cfm_binom_shared))
+  expect_equal(eval_binom_shared, cfm_binom_shared)
+  expect_equal(eval_binom$`Confusion Matrix`,
+               cfm_binom$`Confusion Matrix`)
+  expect_equal(eval_binom$`Positive Class`,
+               cfm_binom$`Positive Class`)
+  expect_equal(eval_binom$`Positive Class`, "0")
+
+
+  # Multinomial
+  xpectr::set_test_seed(42)
+  df_multinom <- tibble::tibble(
+    "target" = as.character(sample(0:3, 50, replace = TRUE)),
+    "prediction" = as.character(sample(0:3, 50, replace = TRUE))
+  )
+
+  eval_multinom <- evaluate(
+    df_multinom, target_col = "target",
+    prediction_cols = "prediction",
+    type = "multinomial",
+    metrics = "all")
+
+  cfm_multinom <- confusion_matrix(df_multinom$target,
+                                df_multinom$prediction,
+                                metrics = "all")
+
+  # same order of metrics
+  shared_cols <- intersect(colnames(eval_multinom), colnames(cfm_multinom))
+  eval_multinom_shared <- eval_multinom %>%
+    base_deselect(cols = c(
+      "Confusion Matrix", "Class Level Results",
+      setdiff(colnames(eval_multinom), shared_cols)
+    ))
+  cfm_multinom_shared <- cfm_multinom %>%
+    base_deselect(cols = c(
+      "Confusion Matrix", "Class Level Results",
+      setdiff(colnames(cfm_multinom), shared_cols)
+    ))
+  expect_equal(colnames(eval_multinom_shared),
+               colnames(cfm_multinom_shared))
+  expect_equal(eval_multinom_shared, cfm_multinom_shared)
+
+  expect_equal(eval_multinom$`Confusion Matrix`,
+               cfm_multinom$`Confusion Matrix`)
+
+  # class level results
+  clr_eval_multinom <- eval_multinom$`Class Level Results`[[1]]
+  clr_cfm_multinom <- cfm_multinom$`Class Level Results`[[1]]
+  clr_eval_multinom_cfm <- clr_eval_multinom$`Confusion Matrix`
+  clr_eval_multinom$`Confusion Matrix` <- NULL
+  clr_cfm_multinom_cfm <- clr_cfm_multinom$`Confusion Matrix`
+  clr_cfm_multinom$`Confusion Matrix` <- NULL
+  shared_cols <- intersect(colnames(clr_eval_multinom), colnames(clr_cfm_multinom))
+  expect_equal(clr_eval_multinom[, shared_cols],
+               clr_cfm_multinom[, shared_cols])
+  clr_eval_multinom_cfm <- lapply(clr_eval_multinom_cfm, function(x){base_deselect(x, "Class")})
+  expect_equal(clr_eval_multinom_cfm, clr_cfm_multinom_cfm)
+
+})
+
+test_that("evaluate() and evaluate_residuals() has same metric values", {
+
+  xpectr::set_test_seed(42)
+  df <- tibble::tibble(
+    "target" = runif(50),
+    "prediction" = runif(50)
+  )
+
+  eval <- evaluate(
+    df, target_col = "target",
+    prediction_cols = "prediction",
+    type = "gaussian",
+    metrics = "all")
+
+  resid_eval <- evaluate_residuals(
+    df, predictions_col = "prediction",
+    targets_col = "target",
+    metrics = "all")
+
+  # same order of metrics
+  shared_cols <- intersect(colnames(eval), colnames(resid_eval))
+  eval_shared <- eval %>%
+    base_deselect(cols = c(
+      setdiff(colnames(eval), shared_cols)
+    ))
+  resid_eval_shared <- resid_eval %>%
+    base_deselect(cols = c(
+      setdiff(colnames(resid_eval), shared_cols)
+    ))
+  expect_equal(colnames(eval_shared), colnames(resid_eval_shared))
+  expect_equal(eval_shared, resid_eval_shared)
+
+
+})
+
+# TODO Check that evaluate and (cross_)validate* all have the same metric value
+# for the same data
+
 

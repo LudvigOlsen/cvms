@@ -668,7 +668,9 @@ test_that("evaluate_residuals() have expected output", {
   df <- data.frame("t" = runif(20), "p" = runif(20), "grp" = rep(1:5, 4))
 
   ungrouped_res <- evaluate_residuals(
-    df, "p", "t",
+    data = df,
+    targets_col = "t",
+    predictions_col = "p",
     metrics = "all"
   )
 
@@ -696,7 +698,8 @@ test_that("evaluate_residuals() have expected output", {
 
   grouped_res <- evaluate_residuals(
     df %>% dplyr::group_by(grp),
-    "p", "t",
+    targets_col = "t",
+    predictions_col = "p",
     metrics = "all"
   )
 
@@ -827,7 +830,8 @@ test_that("call_evaluate_residuals() creates NA results correcly", {
 
   expect_equal(
     call_evaluate_residuals(
-      df, "p", "t",
+      data = df, targets_col = "t",
+      predictions_col = "p",
       metrics = c("RMSE", "MAE", "TSE", "NRMSE(RNG)", "NRMSE(IQR)"),
       return_nas = TRUE
     ),
@@ -836,8 +840,9 @@ test_that("call_evaluate_residuals() creates NA results correcly", {
 
   expect_equal(
     call_evaluate_residuals(
-      df %>% dplyr::group_by(grp),
-      "p", "t",
+      data = df %>% dplyr::group_by(grp),
+      targets_col = "t",
+      predictions_col = "p",
       metrics = c("RMSE", "MAE", "TSE", "NRMSE(RNG)", "NRMSE(IQR)"),
       return_nas = TRUE
     ),

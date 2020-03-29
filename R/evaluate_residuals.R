@@ -69,12 +69,12 @@
 #' )
 #'
 #' evaluate_residuals(data = data,
-#'                    predictions_col = "predictions",
 #'                    targets_col = "targets"
+#'                    predictions_col = "predictions",
 #' )
 evaluate_residuals <- function(data,
-                               predictions_col,
                                targets_col,
+                               predictions_col,
                                metrics = list()) {
   if (checkmate::test_string(x = metrics, pattern = "^all$")) {
     metrics <- list("all" = TRUE)
@@ -108,16 +108,16 @@ evaluate_residuals <- function(data,
 
   call_evaluate_residuals(
     data = data,
-    predictions_col = predictions_col,
     targets_col = targets_col,
+    predictions_col = predictions_col,
     metrics = metrics,
     return_nas = FALSE
   )
 }
 
 call_evaluate_residuals <- function(data,
-                                    predictions_col,
                                     targets_col,
+                                    predictions_col,
                                     metrics,
                                     return_nas = FALSE) {
 

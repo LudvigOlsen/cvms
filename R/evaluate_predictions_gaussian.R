@@ -52,8 +52,8 @@ evaluate_predictions_gaussian <- function(data,
   # Calculate residual errors
   results_per_fold <- call_evaluate_residuals(
     data = data,
-    predictions_col = predictions_col,
     targets_col = targets_col,
+    predictions_col = predictions_col,
     metrics = metrics,
     return_nas = any(data[[model_was_null_col]])
   )

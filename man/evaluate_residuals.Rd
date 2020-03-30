@@ -4,14 +4,14 @@
 \alias{evaluate_residuals}
 \title{Evaluate residuals from a regression task}
 \usage{
-evaluate_residuals(data, predictions_col, targets_col, metrics = list())
+evaluate_residuals(data, targets_col, predictions_col, metrics = list())
 }
 \arguments{
 \item{data}{Data frame with predictions and targets.}
 
-\item{predictions_col}{Name of column with the predicted values in \code{data}.}
-
 \item{targets_col}{Name of the column with the true values in \code{data}.}
+
+\item{predictions_col}{Name of column with the predicted values in \code{data}.}
 
 \item{metrics}{List for enabling/disabling metrics.
 
@@ -76,8 +76,8 @@ data <- data.frame(
 )
 
 evaluate_residuals(data = data,
-                   predictions_col = "predictions",
                    targets_col = "targets"
+                   predictions_col = "predictions",
 )
 }
 \seealso{

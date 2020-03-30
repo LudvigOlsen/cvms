@@ -11,6 +11,7 @@ evaluate_predictions_multinomial <- function(data,
                                              ),
                                              fold_and_fold_col = NULL,
                                              group_info = NULL,
+                                             stds_col = NULL,
                                              model_specifics,
                                              metrics,
                                              include_fold_columns,
@@ -22,6 +23,7 @@ evaluate_predictions_multinomial <- function(data,
   assert_collection <- checkmate::makeAssertCollection()
   checkmate::assert_data_frame(x = data, min.cols = 2, add = assert_collection)
   checkmate::assert_string(x = predictions_col, add = assert_collection)
+  checkmate::assert_string(x = stds_col, null.ok = TRUE, add = assert_collection)
   if (model_specifics[["positive"]] != 2) {
     assert_collection$push("'positive' must be 2 for multinomial evaluation.")
   }
@@ -177,6 +179,7 @@ evaluate_predictions_multinomial <- function(data,
       type = "multinomial",
       id_col = id_col,
       id_method = id_method,
+      stds_col = stds_col,
       fold_info_cols = fold_info_cols,
       group_info = group_info,
       include_fold_columns = include_fold_columns,

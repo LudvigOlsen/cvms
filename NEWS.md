@@ -115,11 +115,15 @@ Pass a list of hyperparameters and every combination of these will be cross-vali
 
 * Adds `Observation` column in the nested predictions tibble in `cross_validate()`, `cross_validate_fn()`, `validate()`, and `validate_fn()`. These indices can be used to identify which observations are difficult to predict.
 
+* Adds `SD` column in the nested predictions tibble in `evaluate()` when performing ID aggregated evaluation with `id_method = 'mean'`. This is the standard deviation of the predictions for the ID.
+
 ### New vignettes
 
 * Adds vignette: `Creating a confusion matrix with cvms`
 
 * Adds vignette: `The available metrics in cvms`
+
+* Adds vignette: `Evaluate by ID/group`
 
 
 ## Other changes

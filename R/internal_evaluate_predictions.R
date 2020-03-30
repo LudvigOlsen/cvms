@@ -16,6 +16,7 @@ internal_evaluate_predictions <- function(data,
                                           metrics,
                                           id_col = NULL,
                                           id_method = NULL,
+                                          stds_col = NULL,
                                           include_fold_columns = TRUE,
                                           include_predictions = TRUE,
                                           na.rm = dplyr::case_when(
@@ -23,6 +24,7 @@ internal_evaluate_predictions <- function(data,
                                             type == "binomial" ~ FALSE,
                                             type == "multinomial" ~ FALSE
                                           )) {
+
   if (type == "gaussian") {
     eval_pred_fn <- evaluate_predictions_gaussian
   } else if (type == "binomial") {
@@ -41,6 +43,7 @@ internal_evaluate_predictions <- function(data,
     fold_info_cols = fold_info_cols,
     fold_and_fold_col = fold_and_fold_col,
     group_info = group_info,
+    stds_col = stds_col,
     model_specifics = model_specifics,
     metrics = metrics,
     include_fold_columns = include_fold_columns,

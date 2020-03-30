@@ -8,6 +8,7 @@ nest_predictions <- function(data,
                              type,
                              id_col,
                              id_method,
+                             stds_col,
                              fold_info_cols,
                              group_info,
                              include_fold_columns,
@@ -23,6 +24,7 @@ nest_predictions <- function(data,
       targets_col = targets_col,
       id_col = id_col,
       id_method = id_method,
+      stds_col = stds_col,
       fold_info_cols = fold_info_cols,
       group_info = group_info,
       include_fold_columns = include_fold_columns
@@ -46,6 +48,7 @@ nesting_predictions <- function(data,
                                 targets_col,
                                 id_col,
                                 id_method,
+                                stds_col,
                                 fold_info_cols,
                                 group_info,
                                 include_fold_columns) {
@@ -55,6 +58,9 @@ nesting_predictions <- function(data,
     "Target" = data[[targets_col]],
     "Prediction" = data[[predictions_col]]
   )
+
+  if (!is.null(stds_col))
+    predictions_for_nesting[["SD"]] <- data[[stds_col]]
 
   if (!is.null(group_info)) {
     predictions_for_nesting <- group_info %>%
@@ -81,6 +87,8 @@ nesting_predictions <- function(data,
 
     predictions_for_nesting[[id_col]] <- data[[id_col]]
     predictions_for_nesting[["id_method"]] <- id_method
+
+    # TODO Add standard deviation of prediction when id_method is mean
   }
 
   if (!isTRUE(include_fold_columns)) {

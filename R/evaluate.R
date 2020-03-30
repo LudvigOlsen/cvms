@@ -752,6 +752,7 @@ run_evaluate <- function(data,
 
   # Create temporary prediction column name
   local_tmp_predictions_col_var <- create_tmp_name(data, "tmp_predictions_col")
+  local_tmp_std_col_var <- create_tmp_name(data, "tmp_std_col")
 
   if (!is.null(id_col)) {
 
@@ -774,7 +775,8 @@ run_evaluate <- function(data,
       id_method = id_method,
       groups_col = local_tmp_grouping_factor_var,
       apply_softmax = FALSE,
-      new_prediction_col_name = local_tmp_predictions_col_var
+      new_prediction_col_name = local_tmp_predictions_col_var,
+      new_std_col_name = local_tmp_std_col_var
     ) %>%
       dplyr::ungroup() %>%
       dplyr::left_join(grouping_keys_with_indices, by = ".group")
@@ -782,7 +784,6 @@ run_evaluate <- function(data,
     if (family == "multinomial") {
       prediction_cols <- local_tmp_predictions_col_var
     }
-    # TODO Test that prediction_cols is correct for the other families?
 
     # Run ID level evaluation
     evaluations <- run_internal_evaluate_wrapper(
@@ -796,6 +797,7 @@ run_evaluate <- function(data,
       fold_and_fold_col = fold_and_fold_col,
       groups_col = local_tmp_grouping_factor_var,
       grouping_keys = grouping_keys,
+      stds_col = local_tmp_std_col_var,
       models = models,
       model_specifics = model_specifics,
       metrics = metrics,
@@ -864,6 +866,7 @@ run_internal_evaluate_wrapper <- function(
                                           grouping_keys,
                                           id_col = NULL,
                                           id_method = NULL,
+                                          stds_col = NULL,
                                           fold_info_cols = NULL,
                                           fold_and_fold_col = NULL,
                                           model_specifics,
@@ -915,6 +918,7 @@ run_internal_evaluate_wrapper <- function(
         fold_info_cols = fold_info_cols,
         fold_and_fold_col = fold_and_fold_col,
         grouping_key_names = colnames(grouping_keys),
+        stds_col = stds_col,
         model_specifics = model_specifics,
         metrics = metrics,
         info_cols = info_cols,
@@ -991,6 +995,7 @@ internal_evaluate <- function(data,
                               ),
                               fold_and_fold_col = NULL,
                               grouping_key_names = NULL,
+                              stds_col = NULL,
                               models = NULL,
                               id_col = NULL,
                               id_method = NULL,
@@ -1052,6 +1057,7 @@ internal_evaluate <- function(data,
     fold_info_cols = fold_info_cols,
     fold_and_fold_col = fold_and_fold_col,
     group_info = group_info,
+    stds_col = stds_col,
     model_specifics = model_specifics,
     metrics = metrics,
     include_fold_columns = include_fold_columns,

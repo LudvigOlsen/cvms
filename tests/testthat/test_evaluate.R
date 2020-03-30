@@ -3160,11 +3160,11 @@ test_that("gaussian evaluations are correct in evaluate()", {
 
   expect_equal(length(e5$Predictions), 2, tolerance = 1e-4)
   expect_equal(colnames(e5$Predictions[[1]]),
-    c("fold_", "Target", "Prediction", "participant", "id_method"),
+    c("fold_", "Target", "Prediction", "SD", "participant", "id_method"),
     tolerance = 1e-4
   )
   expect_equal(colnames(e5$Predictions[[2]]),
-    c("fold_", "Target", "Prediction", "participant", "id_method"),
+    c("fold_", "Target", "Prediction", "SD", "participant", "id_method"),
     tolerance = 1e-4
   )
   expect_equal(e5$Predictions[[1]]$Target,
@@ -3185,6 +3185,16 @@ test_that("gaussian evaluations are correct in evaluate()", {
       28.76490, 28.94889, 29.00000, 27.49233, 27.62521
     ),
     tolerance = 1e-4
+  )
+  expect_equal(e5$Predictions[[1]]$SD,
+               c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+               tolerance = 1e-4
+  )
+  expect_equal(e5$Predictions[[2]]$Prediction,
+               c(28.8671200127504, 27.2776815597939, 28.9284492376348, 27.6047707591776,
+               29.4906337990756, 28.7649046379429, 28.9488923125963, 29, 27.4923338468894,
+               27.6252138341391),
+               tolerance = 1e-4
   )
   expect_equal(e5$Predictions[[1]]$participant,
     factor(1:10),

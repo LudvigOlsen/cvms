@@ -9,7 +9,8 @@ prepare_id_level_evaluation <- function(data,
                                         groups_col,
                                         cutoff = NULL,
                                         apply_softmax = length(prediction_cols) > 1,
-                                        new_prediction_col_name = "prediction") {
+                                        new_prediction_col_name = "prediction",
+                                        new_std_col_name = "std") {
 
   # Prepare data for id evaluation
 
@@ -53,10 +54,28 @@ prepare_id_level_evaluation <- function(data,
 
   if (id_method == "mean") {
     data_for_id_evaluation <- data %>%
-      dplyr::group_by(!!as.name(groups_col), !!as.name(id_col)) %>%
-      dplyr::summarise_at(dplyr::vars(prediction_cols), .funs = mean) %>%
+      dplyr::group_by(!!as.name(groups_col), !!as.name(id_col))
+
+    # Average prediction
+    data_for_id_evaluation_mean <- data_for_id_evaluation %>%
+      dplyr::summarise_at(dplyr::vars(prediction_cols), .funs = mean)
+
+    # Standard deviation
+    data_for_id_evaluation_std <- data_for_id_evaluation %>%
+      dplyr::summarise_at(dplyr::vars(prediction_cols), .funs = sd)
+    colnames(data_for_id_evaluation_std) <- ifelse(
+      colnames(data_for_id_evaluation_std) %in% prediction_cols,
+      paste0(colnames(data_for_id_evaluation_std), "_STD"),
+      colnames(data_for_id_evaluation_std)
+    )
+
+    # Combine
+    data_for_id_evaluation <- data_for_id_evaluation_mean %>%
+      dplyr::left_join(data_for_id_evaluation_std,
+                       by = c(groups_col, id_col)) %>%
       dplyr::left_join(id_classes, by = c(id_col, groups_col)) %>%
       dplyr::ungroup()
+
   } else if (id_method == "majority") {
 
     ## By majority vote
@@ -148,8 +167,15 @@ prepare_id_level_evaluation <- function(data,
       target_col = target_col,
       prediction_cols = prediction_cols,
       apply_softmax = TRUE,
-      new_prediction_col_name = new_prediction_col_name
+      new_prediction_col_name = new_prediction_col_name,
+      new_std_col_name = new_std_col_name
     )
+  } else {
+    if (id_method == "mean"){
+      data_for_id_evaluation <- data_for_id_evaluation %>%
+        base_rename(before = paste0(prediction_cols, "_STD"),
+                    after = new_std_col_name)
+    }
   }
 
   data_for_id_evaluation
@@ -159,7 +185,8 @@ prepare_multinomial_evaluation <- function(data,
                                            target_col,
                                            prediction_cols,
                                            apply_softmax,
-                                           new_prediction_col_name) {
+                                           new_prediction_col_name,
+                                           new_std_col_name) {
 
   # Split data into probabilities and the rest
   col_split <- extract_and_remove_probability_cols(
@@ -167,6 +194,7 @@ prepare_multinomial_evaluation <- function(data,
     prediction_cols = prediction_cols
   )
   predicted_probabilities <- col_split[["predicted_probabilities"]]
+  standard_deviations <- col_split[["standard_deviations"]]
   data <- col_split[["data"]]
 
   if (isTRUE(apply_softmax)) {
@@ -175,6 +203,10 @@ prepare_multinomial_evaluation <- function(data,
 
   data[[new_prediction_col_name]] <- predicted_probabilities %>%
     nest_rowwise()
+  if (!is.null(standard_deviations)){
+    data[[new_std_col_name]] <- standard_deviations %>%
+      nest_rowwise()
+  }
 
   # TODO Do we need to do anything to the dependent column? E.g. make numeric or check against names in prediction_cols?
   # TODO What if the classes are numeric, then what will prediction_cols contain?
@@ -193,14 +225,29 @@ extract_and_remove_probability_cols <- function(data, prediction_cols) {
   data <- data %>%
     base_deselect(cols = prediction_cols)
 
+  # Split data into standard deviations and the rest
+  if (paste0(prediction_cols[[1]], "_STD") %in% colnames(data)){
+    standard_deviations <- data %>%
+      base_select(cols = paste0(prediction_cols, "_STD"))
+    data <- data %>%
+      base_deselect(cols = colnames(standard_deviations))
+    colnames(standard_deviations) <- prediction_cols
+  } else {
+    standard_deviations <- NULL
+  }
+
   # Test that the probability columns are numeric
   if (any(!sapply(predicted_probabilities, is.numeric))) {
     stop("the prediction columns must be numeric.")
   }
+  if (any(!sapply(standard_deviations, is.numeric))) {
+    stop("the standard deviation columns must be numeric.")
+  }
 
   list(
     "data" = data,
-    "predicted_probabilities" = predicted_probabilities
+    "predicted_probabilities" = predicted_probabilities,
+    "standard_deviations" = standard_deviations
   )
 }
 

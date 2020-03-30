@@ -11,6 +11,7 @@ evaluate_predictions_gaussian <- function(data,
                                           ),
                                           fold_and_fold_col = NULL,
                                           group_info = NULL,
+                                          stds_col = NULL,
                                           model_specifics,
                                           metrics,
                                           include_fold_columns,
@@ -34,12 +35,12 @@ evaluate_predictions_gaussian <- function(data,
     type = "gaussian",
     id_col = id_col,
     id_method = id_method,
+    stds_col = stds_col,
     fold_info_cols = fold_info_cols,
     group_info = group_info,
     include_fold_columns = include_fold_columns,
     include_predictions = include_predictions
   )
-
 
   # Group the data frame to prepare for calculating RMSE and MAE
   data <- data %>%

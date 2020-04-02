@@ -118,8 +118,9 @@
 #'
 #'  For each class, a \emph{one-vs-all} binomial evaluation is performed. This creates
 #'  a \strong{class level results} tibble containing the same metrics as the binomial results
-#'  described above (excluding \code{MCC}, \code{AUC}, \code{Lower CI} and \code{Upper CI}), along with the \strong{Support} metric, which is simply a
-#'  count of the class in the target column. These metrics are used to calculate the macro metrics
+#'  described above (excluding \code{MCC}, \code{AUC}, \code{Lower CI} and \code{Upper CI}),
+#'  along with a count of the class in the target column (\strong{\code{Support}}).
+#'  These metrics are used to calculate the macro metrics
 #'  in the output tibble. The nested class level results tibble is also included in the output tibble,
 #'  and would usually be reported along with the macro and overall metrics.
 #'

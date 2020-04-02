@@ -103,8 +103,9 @@
 #'
 #'  N.B. Current methods assume that the target class/value is constant within the IDs.
 #'
-#'  N.B. When aggregating by ID, some metrics (such as those from model objects) are excluded.
-#' @param id_method Method to use when aggregating predictions by ID. Either \code{"mean"} or \code{"majority"}.
+#'  N.B. When aggregating by ID, some metrics may be disabled.
+#' @param id_method Method to use when aggregating predictions by ID.
+#'  Either \code{"mean"} or \code{"majority"}.
 #'
 #'  When \code{type} is \code{gaussian}, only the \code{"mean"} method is available.
 #'
@@ -136,17 +137,18 @@
 #'
 #'  N.B. \strong{Binomial models only}.
 #' @param parallel Whether to run evaluations in parallel,
-#'  when \code{data} is grouped with \code{\link[dplyr]{group_by}}.
+#'  when \code{data} is grouped with \code{\link[dplyr:group_by]{group_by}}.
 #' @param metrics List for enabling/disabling metrics.
 #'
-#'   E.g. \code{list("RMSE" = FALSE)} would remove RMSE from the regression results,
-#'   and \code{list("Accuracy" = TRUE)} would add the regular accuracy metric
+#'   E.g. \code{list("RMSE" = FALSE)} would remove \code{RMSE} from the regression results,
+#'   and \code{list("Accuracy" = TRUE)} would add the regular \code{Accuracy} metric
 #'   to the classification results.
-#'   Default values (TRUE/FALSE) will be used for the remaining available metrics.
+#'   Default values (\code{TRUE}/\code{FALSE}) will be used for the remaining available metrics.
 #'
 #'   You can enable/disable all metrics at once by including
 #'   \code{"all" = TRUE/FALSE} in the list. This is done prior to enabling/disabling
-#'   individual metrics, why f.i. \code{list("all" = FALSE, "RMSE" = TRUE)} would return only the RMSE metric.
+#'   individual metrics, why f.i. \code{list("all" = FALSE, "RMSE" = TRUE)}
+#'   would return only the \code{RMSE} metric.
 #'
 #'   The list can be created with
 #'   \code{\link[cvms:gaussian_metrics]{gaussian_metrics()}},
@@ -170,7 +172,7 @@
 #'
 #'  \strong{Binomial} and \strong{Multinomial}:
 #'
-#'  ROC and related metrics:
+#'  \code{ROC} and \code{AUC}:
 #'
 #'  Binomial: \code{\link[pROC:roc]{pROC::roc}}
 #'
@@ -184,10 +186,11 @@
 #'
 #'  Tibble containing the following metrics by default:
 #'
-#'  Average \strong{RMSE}, \strong{MAE}, \strong{NRMSE(IQR)},
-#'  \strong{RRSE}, \strong{RAE}, \strong{RMSLE}.
+#'  Average \strong{\code{RMSE}}, \strong{\code{MAE}}, \strong{\code{NRMSE(IQR)}},
+#'  \strong{\code{RRSE}}, \strong{\code{RAE}}, \strong{\code{RMSLE}}.
 #'
-#'  See the additional metrics (disabled by default) at \code{\link[cvms:gaussian_metrics]{?gaussian_metrics}}.
+#'  See the additional metrics (disabled by default) at
+#'  \code{\link[cvms:gaussian_metrics]{?gaussian_metrics}}.
 #'
 #'  Also includes:
 #'
@@ -201,30 +204,30 @@
 #'  ----------------------------------------------------------------
 #'
 #'  Tibble with the following evaluation metrics, based on a
-#'  confusion matrix and a ROC curve fitted to the predictions:
+#'  \code{confusion matrix} and a \code{ROC} curve fitted to the predictions:
 #'
-#'  Confusion Matrix:
+#'  \code{Confusion Matrix}:
 #'
-#'  \strong{Balanced Accuracy},
-#'  \strong{F1},
-#'  \strong{Sensitivity},
-#'  \strong{Specificity},
-#'  \strong{Positive Predictive Value},
-#'  \strong{Negative Predictive Value},
-#'  \strong{Kappa},
-#'  \strong{Detection Rate},
-#'  \strong{Detection Prevalence},
-#'  \strong{Prevalence}, and
-#'  \strong{MCC} (Matthews correlation coefficient).
+#'  \strong{\code{Balanced Accuracy}},
+#'  \strong{\code{F1}},
+#'  \strong{\code{Sensitivity}},
+#'  \strong{\code{Specificity}},
+#'  \strong{\code{Positive Predictive Value}},
+#'  \strong{\code{Negative Predictive Value}},
+#'  \strong{\code{Kappa}},
+#'  \strong{\code{Detection Rate}},
+#'  \strong{\code{Detection Prevalence}},
+#'  \strong{\code{Prevalence}}, and
+#'  \strong{\code{MCC}} (Matthews correlation coefficient).
 #'
-#'  ROC:
+#'  \code{ROC}:
 #'
-#'  \strong{AUC}, \strong{Lower CI}, and \strong{Upper CI}
+#'  \strong{\code{AUC}}, \strong{\code{Lower CI}}, and \strong{\code{Upper CI}}
 #'
-#'  Note, that the ROC curve is only computed if AUC is enabled. See \code{metrics}.
+#'  Note, that the \code{ROC} curve is only computed if \code{AUC} is enabled. See \code{metrics}.
 #'
 #'  Other available metrics (disabled by default, see \code{metrics}):
-#'  \strong{Accuracy}.
+#'  \strong{\code{Accuracy}}.
 #'
 #'  Also includes:
 #'
@@ -234,8 +237,10 @@
 #'
 #'  A nested tibble with the \strong{confusion matrix}.
 #'  The \code{Pos_} columns tells you whether a row is a
-#'  True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
-#'  depending on which level is the "\code{positive}" class. I.e. the level you wish to predict.
+#'  True Positive (\code{TP}), True Negative (\code{TN}),
+#'  False Positive (\code{FP}), or False Negative (\code{FN}),
+#'  depending on which level is the "\code{positive}" class.
+#'  I.e. the level you wish to predict.
 #'  }
 #'
 #'  ----------------------------------------------------------------
@@ -246,31 +251,37 @@
 #'
 #'  For each class, a \emph{one-vs-all} binomial evaluation is performed. This creates
 #'  a \strong{Class Level Results} tibble containing the same metrics as the binomial results
-#'  described above (xcluding \code{MCC}, \code{AUC}, \code{Lower CI} and \code{Upper CI}),
-#'  along with the \strong{Support} metric, which is simply a
-#'  count of the class in the target column. These metrics are used to calculate the macro metrics
-#'  in the output tibble. The nested class level results tibble is also included in the output tibble,
-#'  and would usually be reported along with the macro and overall metrics.
+#'  described above (excluding \code{MCC}, \code{AUC}, \code{Lower CI} and \code{Upper CI}),
+#'  along with a count of the class in the target column (\strong{\code{Support}}).
+#'  The nested class level results tibble is also included in the output tibble,
+#'  and could be reported along with the macro and overall metrics.
 #'
 #'  The output tibble contains the macro and overall metrics.
 #'  The metrics that share their name with the metrics in the nested
 #'  class level results tibble are averages of those metrics
 #'  (note: does not remove \code{NA}s before averaging).
-#'  In addition to these, it also includes the \strong{Overall Accuracy} and
-#'  the multiclass \strong{MCC}.
+#'  In addition to these, it also includes the \strong{\code{Overall Accuracy}} and
+#'  the multiclass \strong{\code{MCC}}.
 #'
 #'  Other available metrics (disabled by default, see \code{metrics}):
-#'  \strong{Accuracy}, multiclass \strong{AUC},
-#'  \strong{Weighted Balanced Accuracy}, \strong{Weighted Accuracy},
-#'  \strong{Weighted F1}, \strong{Weighted Sensitivity}, \strong{Weighted Sensitivity},
-#'  \strong{Weighted Specificity}, \strong{Weighted Pos Pred Value},
-#'  \strong{Weighted Neg Pred Value}, \strong{Weighted Kappa},
-#'  \strong{Weighted Detection Rate}, \strong{Weighted Detection Prevalence}, and
-#'  \strong{Weighted Prevalence}.
+#'  \strong{\code{Accuracy}},
+#'  \emph{multiclass} \strong{\code{AUC}},
+#'  \strong{\code{Weighted Balanced Accuracy}},
+#'  \strong{\code{Weighted Accuracy}},
+#'  \strong{\code{Weighted F1}},
+#'  \strong{\code{Weighted Sensitivity}},
+#'  \strong{\code{Weighted Sensitivity}},
+#'  \strong{\code{Weighted Specificity}},
+#'  \strong{\code{Weighted Pos Pred Value}},
+#'  \strong{\code{Weighted Neg Pred Value}},
+#'  \strong{\code{Weighted Kappa}},
+#'  \strong{\code{Weighted Detection Rate}},
+#'  \strong{\code{Weighted Detection Prevalence}}, and
+#'  \strong{\code{Weighted Prevalence}}.
 #'
 #'  Note that the "Weighted" average metrics are weighted by the \code{Support}.
 #'
-#'  When having a large set of classes, we recommend keeping \code{AUC} disabled.
+#'  When having a large set of classes, consider keeping \code{AUC} disabled.
 #'
 #'  Also includes:
 #'
@@ -282,12 +293,12 @@
 #'
 #'  \subsection{Class Level Results}{
 #'
-#'  Besides the binomial evaluation metrics and the \code{Support} metric,
-#'  the nested class level results tibble also contains:
-#'
-#'  A nested tibble with the \strong{Confusion Matrix} from the one-vs-all evaluation.
+#'  Besides the binomial evaluation metrics and the \code{Support},
+#'  the nested class level results tibble also contains a
+#'  nested tibble with the \strong{Confusion Matrix} from the one-vs-all evaluation.
 #'  The \code{Pos_} columns tells you whether a row is a
-#'  True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
+#'  True Positive (\code{TP}), True Negative (\code{TN}),
+#'  False Positive (\code{FP}), or False Negative (\code{FN}),
 #'  depending on which level is the "positive" class. In our case, \code{1} is the current class
 #'  and \code{0} represents all the other classes together.
 #'  }

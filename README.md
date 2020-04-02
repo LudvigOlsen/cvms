@@ -43,14 +43,14 @@ package.
 
 ### Main functions
 
-| Function              | Description                                                         |
-| :-------------------- | :------------------------------------------------------------------ |
-| `cross_validate()`    | Cross-validate linear models with `lm()`/`lmer()`/`glm()`/`glmer()` |
-| `cross_validate_fn()` | Cross-validate a custom model function                              |
-| `validate()`          | Validate linear models with (`lm`/`lmer`/`glm`/`glmer`)             |
-| `validate_fn()`       | Validate a custom model function                                    |
-| `evaluate()`          | Evaluate predictions with a large set of metrics                    |
-| `baseline()`          | Perform baseline evaluations of a dataset                           |
+| Function                                                                                      | Description                                                         |
+| :-------------------------------------------------------------------------------------------- | :------------------------------------------------------------------ |
+| `cross_validate()`                                                                            | Cross-validate linear models with `lm()`/`lmer()`/`glm()`/`glmer()` |
+| `cross_validate_fn()`                                                                         | Cross-validate a custom model function                              |
+| `validate()`                                                                                  | Validate linear models with (`lm`/`lmer`/`glm`/`glmer`)             |
+| `validate_fn()`                                                                               | Validate a custom model function                                    |
+| `evaluate()`                                                                                  | Evaluate predictions with a large set of metrics                    |
+| `baseline()`</br>`baseline_gaussian()`</br>`baseline_binomial()`</br>`baseline_multinomial()` | Perform baseline evaluations of a dataset                           |
 
 ### Evaluation utilities
 
@@ -211,9 +211,10 @@ Create a grouping factor for subsetting of folds using
 set.seed(7)
 
 # Fold data 
-data <- fold(data, k = 4,
-             cat_col = 'diagnosis',
-             id_col = 'participant') %>% 
+data <- fold(
+  data, k = 4,
+  cat_col = 'diagnosis',
+  id_col = 'participant') %>% 
   arrange(.folds)
 
 # Show first 15 rows of data
@@ -243,11 +244,13 @@ data %>% head(15) %>% kable()
 ### Gaussian
 
 ``` r
-CV1 <- cross_validate(data, 
-                      formulas = "score~diagnosis",
-                      fold_cols = '.folds',
-                      family = 'gaussian',
-                      REML = FALSE)
+CV1 <- cross_validate(
+  data,
+  formulas = "score~diagnosis",
+  fold_cols = '.folds',
+  family = 'gaussian',
+  REML = FALSE
+)
 
 # Show results
 CV1
@@ -332,10 +335,12 @@ CV1 %>% select(14:21) %>% kable()
 ### Binomial
 
 ``` r
-CV2 <- cross_validate(data, 
-                      formulas = "diagnosis~score",
-                      fold_cols = '.folds',
-                      family = 'binomial')
+CV2 <- cross_validate(
+  data,
+  formulas = "diagnosis~score",
+  fold_cols = '.folds',
+  family = 'binomial'
+)
 
 # Show results
 CV2
@@ -398,17 +403,20 @@ plot_confusion_matrix(CV2$`Confusion Matrix`[[1]])
 
 ``` r
 model_formulas <- c("score~diagnosis", "score~age")
-mixed_model_formulas <- c("score~diagnosis+(1|session)", "score~age+(1|session)")
+mixed_model_formulas <- c("score~diagnosis+(1|session)", 
+                          "score~age+(1|session)")
 ```
 
 ### Cross-validate fixed effects models
 
 ``` r
-CV3 <- cross_validate(data, 
-                      formulas = model_formulas,
-                      fold_cols = '.folds',
-                      family = 'gaussian',
-                      REML = FALSE)
+CV3 <- cross_validate(
+  data,
+  formulas = model_formulas,
+  fold_cols = '.folds',
+  family = 'gaussian',
+  REML = FALSE
+)
 
 # Show results
 CV3
@@ -426,11 +434,13 @@ CV3
 ### Cross-validate mixed effects models
 
 ``` r
-CV4 <- cross_validate(data, 
-                      formulas = mixed_model_formulas,
-                      fold_cols = '.folds',
-                      family = 'gaussian',
-                      REML = FALSE)
+CV4 <- cross_validate(
+  data,
+  formulas = mixed_model_formulas,
+  fold_cols = '.folds',
+  family = 'gaussian',
+  REML = FALSE
+)
 
 # Show results
 CV4
@@ -463,11 +473,13 @@ will be renamed to `".folds_1"`.
 set.seed(2)
 
 # Fold data 
-data <- fold(data, k = 4,
-             cat_col = 'diagnosis',
-             id_col = 'participant',
-             num_fold_cols = 3,
-             handle_existing_fold_cols = "keep")
+data <- fold(
+  data, k = 4,
+  cat_col = 'diagnosis',
+  id_col = 'participant',
+  num_fold_cols = 3,
+  handle_existing_fold_cols = "keep"
+)
 
 # Show first 15 rows of data
 data %>% head(10) %>% kable()
@@ -490,11 +502,13 @@ Now, let’s cross-validate the four fold columns. We use `paste0()` to
 create the four column names:
 
 ``` r
-CV5 <- cross_validate(data, 
-                      formulas = c("diagnosis ~ score", 
-                                   "diagnosis ~ score + age"),
-                      fold_cols = paste0(".folds_", 1:4),
-                      family = 'binomial')
+CV5 <- cross_validate(
+  data,
+  formulas = c("diagnosis ~ score",
+               "diagnosis ~ score + age"),
+  fold_cols = paste0(".folds_", 1:4),
+  family = 'binomial'
+)
 
 # Show results
 CV5
@@ -554,11 +568,13 @@ svm_model_fn <- function(train_data, formula, hyperparameters){
   
   # Note that `formula` must be passed first
   # when calling svm(), otherwise it fails
-  e1071::svm(formula = formula,
-             data = train_data, 
-             kernel = "linear",
-             type = "C-classification",
-             probability = TRUE)
+  e1071::svm(
+    formula = formula,
+    data = train_data,
+    kernel = "linear",
+    type = "C-classification",
+    probability = TRUE
+  )
 }
 ```
 
@@ -585,14 +601,15 @@ svm_predict_fn <- function(test_data, model, formula, hyperparameters){
     object = model,
     newdata = test_data,
     allow.new.levels = TRUE,
-    probability = TRUE)
+    probability = TRUE
+  )
 
   # Extract the probabilities
   # Usually the predict function will just 
   # output the probabilities directly
   probabilities <- dplyr::as_tibble(
     attr(predictions, "probabilities")
-    )
+  )
 
   # Return second column
   # With probabilities of positive class
@@ -605,12 +622,14 @@ machine:
 
 ``` r
 # Cross-validate svm_model_fn
-CV6 <- cross_validate_fn(data = data,
-                         model_fn = svm_model_fn,
-                         predict_fn = svm_predict_fn,
-                         formulas = c("diagnosis~score", "diagnosis~age"),
-                         fold_cols = '.folds_1', 
-                         type = 'binomial')
+CV6 <- cross_validate_fn(
+  data = data,
+  model_fn = svm_model_fn,
+  predict_fn = svm_predict_fn,
+  formulas = c("diagnosis~score", "diagnosis~age"),
+  fold_cols = '.folds_1',
+  type = 'binomial'
+)
 #> Will cross-validate 2 models. This requires fitting 8 model instances.
 
 CV6
@@ -641,8 +660,10 @@ the model function:
 # hyperparameters : a named list of hyparameters
 
 nb_model_fn <- function(train_data, formula, hyperparameters){
-  e1071::naiveBayes(formula = formula, 
-                    data = train_data)
+  e1071::naiveBayes(
+    formula = formula,
+    data = train_data
+  )
 }
 ```
 
@@ -657,10 +678,11 @@ And the predict function:
 # hyperparameters : a named list of hyparameters
 
 nb_predict_fn <- function(test_data, model, formula, hyperparameters){
-  stats::predict(object = model, 
-                 newdata = test_data, 
-                 type = "raw", 
-                 allow.new.levels = TRUE)[,2]
+  stats::predict(
+    object = model,
+    newdata = test_data,
+    type = "raw",
+    allow.new.levels = TRUE)[, 2]
 }
 ```
 
@@ -668,12 +690,14 @@ With both functions specified, we are ready to cross-validate our naive
 Bayes classifier:
 
 ``` r
-CV7 <- cross_validate_fn(data,
-                         model_fn = nb_model_fn,
-                         predict_fn = nb_predict_fn,
-                         formulas = c("diagnosis~score", "diagnosis~age"),
-                         type = 'binomial',
-                         fold_cols = '.folds_1')
+CV7 <- cross_validate_fn(
+  data,
+  model_fn = nb_model_fn,
+  predict_fn = nb_predict_fn,
+  formulas = c("diagnosis~score", "diagnosis~age"),
+  type = 'binomial',
+  fold_cols = '.folds_1'
+)
 #> Will cross-validate 2 models. This requires fitting 8 model instances.
 
 CV7
@@ -704,7 +728,12 @@ results.
 glm_predictions <- dplyr::bind_rows(CV5$Predictions, .id = "Model")
 svm_predictions <- dplyr::bind_rows(CV6$Predictions, .id = "Model")
 nb_predictions <- dplyr::bind_rows(CV7$Predictions, .id = "Model")
-predictions <- dplyr::bind_rows(glm_predictions, svm_predictions, nb_predictions, .id = "Architecture")
+predictions <- dplyr::bind_rows(
+  glm_predictions, 
+  svm_predictions, 
+  nb_predictions, 
+  .id = "Architecture"
+)
 
 predictions
 #> # A tibble: 360 x 8
@@ -729,10 +758,13 @@ then extract the observations with the ~20% lowest accuracies. Note that
 `most_challenging()` works with grouped data frames as well.
 
 ``` r
-challenging <- most_challenging(data = predictions, 
-                                type = "binomial", 
-                                threshold = 0.20, 
-                                threshold_is = "percentage")
+challenging <- most_challenging(
+  data = predictions,
+  type = "binomial",
+  threshold = 0.20,
+  threshold_is = "percentage"
+)
+
 challenging
 #> # A tibble: 7 x 5
 #>   Observation Correct Incorrect Accuracy   `<=`
@@ -843,9 +875,10 @@ multiclass_model <- nnet::multinom(
 #> converged
 
 # Predict the targets in the test set
-predictions <- predict(multiclass_model, 
-                       multiclass_test_set,
-                       type = "probs") %>%
+predictions <- predict(
+  multiclass_model,
+  multiclass_test_set,
+  type = "probs") %>% 
   dplyr::as_tibble()
 
 # Add the targets
@@ -872,10 +905,12 @@ and summarize the results:
 
 ``` r
 # Evaluate predictions
-ev <- evaluate(data = predictions,
-               target_col = "target",
-               prediction_cols = class_names,
-               type = "multinomial")
+ev <- evaluate(
+  data = predictions,
+  target_col = "target",
+  prediction_cols = class_names,
+  type = "multinomial"
+)
 
 ev
 #> # A tibble: 1 x 15
@@ -916,6 +951,10 @@ metrics when randomly guessing the probabilities.
 Usually, we use `baseline()` on our test set at the start of our
 modeling process, so we know what level of performance we should beat.
 
+Note: Where `baseline()` works with all three families (`gaussian`,
+`binomial` and `multinomial`), each family also has a wrapper function
+(e.g. `baseline_gaussian()`) that is easier to use. We use those here.
+
 Start by partitioning the dataset:
 
 ``` r
@@ -923,11 +962,14 @@ Start by partitioning the dataset:
 set.seed(1)
 
 # Partition the dataset 
-partitions <- groupdata2::partition(participant.scores,
-                                    p = 0.7,
-                                    cat_col = 'diagnosis',
-                                    id_col = 'participant',
-                                    list_out = TRUE)
+partitions <- groupdata2::partition(
+  participant.scores,
+  p = 0.7,
+  cat_col = 'diagnosis',
+  id_col = 'participant',
+  list_out = TRUE
+)
+
 train_set <- partitions[[1]]
 test_set <- partitions[[2]]
 ```
@@ -941,9 +983,11 @@ and a set of all `1`s.
 Create the baseline evaluations:
 
 ``` r
-binomial_baseline <- baseline(test_data = test_set, n = 300, 
-                              dependent_col = "diagnosis", 
-                              family = "binomial")
+binomial_baseline <- baseline_binomial(
+  test_data = test_set, 
+  dependent_col = "diagnosis",
+  n = 300
+)
 
 binomial_baseline$summarized_metrics
 #> # A tibble: 10 x 15
@@ -1022,9 +1066,12 @@ sets of `all class x,y,z,...` predictions.
 Create the baseline evaluations:
 
 ``` r
-multiclass_baseline <- baseline(
-  test_data = multiclass_test_set, n = 300,
-  dependent_col = "class", family = "multinomial")
+
+multiclass_baseline <- baseline_multinomial(
+  test_data = multiclass_test_set, 
+  dependent_col = "class",
+  n = 300
+)
 
 # Summarized metrics
 multiclass_baseline$summarized_metrics
@@ -1053,11 +1100,11 @@ multiclass_baseline$summarized_metrics
 ```
 
 The `CL_` measures describe the `Class Level Results` (aka. one-vs-all
-evaluations). E.g. we have 65 `NA`s in the class-level `F1` results.
-When averaged to the random evaluations tibble, there are only 50 `NA`s.
-Similarly, one of the classes have a maximum `Balanced Accuracy` score
-of `0.778`, while the maximum `Balanced Accuracy` in the random
-evaluations is `0.646`.
+evaluations). E.g. we have 197 `NA`s in the class-level `F1` results.
+When averaged to the random evaluations tibble, there are only 155
+`NA`s. Similarly, one of the classes have a maximum `Balanced Accuracy`
+score of `0.902`, while the maximum `Balanced Accuracy` in the random
+evaluations is `0.688`.
 
 ``` r
 
@@ -1120,11 +1167,12 @@ predictors.
 Create the baseline evaluations:
 
 ``` r
-gaussian_baseline <- baseline(test_data = test_set, 
-                              train_data = train_set,
-                              n = 300, 
-                              dependent_col = "score", 
-                              family = "gaussian")
+gaussian_baseline <- baseline_gaussian(
+  test_data = test_set,
+  train_data = train_set,
+  dependent_col = "score",
+  n = 300
+)
 
 gaussian_baseline$summarized_metrics
 #> # A tibble: 9 x 8
@@ -1171,7 +1219,7 @@ plot_metric_density(baseline = gaussian_baseline$random_evaluations,
                     metric = "RMSE")
 ```
 
-<img src="man/figures/README-unnamed-chunk-33-1.png" width="506" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-33-1.png" width="552" style="display: block; margin: auto;" />
 
 In this instance, the `All_rows` row might have been enough, as the
 subsets mainly add higher `RMSE` scores.
@@ -1190,9 +1238,11 @@ the generated formulas.
 We can also append a random effects structure to the generated formulas.
 
 ``` r
-combine_predictors(dependent = "y",
-                   fixed_effects = c("a","b","c"),
-                   random_effects = "(1|d)")
+combine_predictors(
+  dependent = "y",
+  fixed_effects = c("a", "b", "c"),
+  random_effects = "(1|d)"
+)
 #>  [1] "y ~ a + (1|d)"                     "y ~ b + (1|d)"                    
 #>  [3] "y ~ c + (1|d)"                     "y ~ a * b + (1|d)"                
 #>  [5] "y ~ a * c + (1|d)"                 "y ~ a + b + (1|d)"                
@@ -1208,9 +1258,11 @@ If two or more fixed effects should not be in the same formula, like an
 effect and its log-transformed version, we can provide them as sublists.
 
 ``` r
-combine_predictors(dependent = "y",
-                   fixed_effects = list("a", list("b","log_b")),
-                   random_effects = "(1|d)")
+combine_predictors(
+  dependent = "y",
+  fixed_effects = list("a", list("b", "log_b")),
+  random_effects = "(1|d)"
+)
 #> [1] "y ~ a + (1|d)"         "y ~ b + (1|d)"         "y ~ log_b + (1|d)"    
 #> [4] "y ~ a * b + (1|d)"     "y ~ a * log_b + (1|d)" "y ~ a + b + (1|d)"    
 #> [7] "y ~ a + log_b + (1|d)"

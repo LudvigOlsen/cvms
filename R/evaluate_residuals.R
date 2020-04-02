@@ -9,8 +9,12 @@
 #'
 #'  Calculates a large set of error metrics from regression residuals.
 #'
-#'  \strong{Note}: Used in \code{\link[cvms:evaluate]{evaluate()}}.
-#'  In most contexts, that is the function you want.
+#'  \strong{Note}: In most cases you should use \code{\link[cvms:evaluate]{evaluate()}} instead.
+#'  It works in \code{magrittr} pipes (e.g. \code{\%>\%}) and with
+#'  \code{\link[dplyr:group_by]{dplyr::group_by()}}.
+#'  \code{evaluate_residuals()} is more lightweight and may be preferred in
+#'  programming when you don't need the extra stuff
+#'  in \code{\link[cvms:evaluate]{evaluate()}}.
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
 #' @family evaluation functions
@@ -68,9 +72,10 @@
 #'   "predictions" = rnorm(100, 13.2, 4.6)
 #' )
 #'
-#' evaluate_residuals(data = data,
-#'                    targets_col = "targets",
-#'                    predictions_col = "predictions",
+#' evaluate_residuals(
+#'   data = data,
+#'   targets_col = "targets",
+#'   predictions_col = "predictions"
 #' )
 evaluate_residuals <- function(data,
                                targets_col,

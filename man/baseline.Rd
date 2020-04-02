@@ -40,14 +40,15 @@ baseline(
 
 \item{metrics}{List for enabling/disabling metrics.
 
-  E.g. \code{list("RMSE" = FALSE)} would remove RMSE from the regression results,
-  and \code{list("Accuracy" = TRUE)} would add the regular accuracy metric
+  E.g. \code{list("RMSE" = FALSE)} would remove \code{RMSE} from the regression results,
+  and \code{list("Accuracy" = TRUE)} would add the regular \code{Accuracy} metric
   to the classification results.
-  Default values (TRUE/FALSE) will be used for the remaining available metrics.
+  Default values (\code{TRUE}/\code{FALSE}) will be used for the remaining available metrics.
 
   You can enable/disable all metrics at once by including
   \code{"all" = TRUE/FALSE} in the list. This is done prior to enabling/disabling
-  individual metrics, why f.i. \code{list("all" = FALSE, "RMSE" = TRUE)} would return only the RMSE metric.
+  individual metrics, why f.i. \code{list("all" = FALSE, "RMSE" = TRUE)}
+  would return only the \code{RMSE} metric.
 
   The list can be created with
   \code{\link[cvms:gaussian_metrics]{gaussian_metrics()}},

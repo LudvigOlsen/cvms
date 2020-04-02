@@ -69,7 +69,7 @@
 #' )
 #'
 #' evaluate_residuals(data = data,
-#'                    targets_col = "targets"
+#'                    targets_col = "targets",
 #'                    predictions_col = "predictions",
 #' )
 evaluate_residuals <- function(data,

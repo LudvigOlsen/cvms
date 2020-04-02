@@ -329,8 +329,8 @@ call_confusion_matrix <- function(targets,
     }
 
     cfm <- create_binomial_confusion_matrix(
-      targets = targets_chr,
-      predictions = predictions_chr,
+      targets_chr = targets_chr,
+      predictions_chr = predictions_chr,
       metrics = metrics,
       positive = positive,
       c_levels = c_levels
@@ -505,8 +505,8 @@ create_multinomial_confusion_matrix <- function(targets,
         binomial_tmp_predictions <- ifelse(predictions == cl, "1", "0")
 
         create_binomial_confusion_matrix(
-          targets = binomial_tmp_targets,
-          predictions = binomial_tmp_predictions,
+          targets_chr = binomial_tmp_targets,
+          predictions_chr = binomial_tmp_predictions,
           metrics = metrics_to_compute,
           positive = "1",
           c_levels = c("0", "1")

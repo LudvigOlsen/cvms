@@ -347,7 +347,7 @@ evaluate_predictions_multinomial <- function(data,
 
     overall_confusion_matrix <- fold_column_results %>%
       base_select(cols = c("Fold Column", "Confusion Matrix")) %>%
-      legacy_unnest(`Confusion Matrix`)
+      legacy_unnest(.data$`Confusion Matrix`)
 
     # Add group info
     if (!is.null(group_info)) {

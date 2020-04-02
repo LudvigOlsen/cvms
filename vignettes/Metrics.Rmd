@@ -42,12 +42,12 @@ knitr::opts_chunk$set(
 ```
 
 
-```{r echo=FALSE, warning=FALSE, message=FALSE}
-library(tidyverse)
-library(cvms)
-library(ggplot2)
-library(knitr)
-```
+# ```{r echo=FALSE, warning=FALSE, message=FALSE}
+# library(dplyr)
+# library(cvms)
+# library(ggplot2)
+# library(knitr)
+# ```
 
 ## Introduction
 

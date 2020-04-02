@@ -26,7 +26,7 @@ output:
     toc: yes
     toc_depth: 4
 vignette: >
-  %\VignetteIndexEntry{Confusion_Matrix_Intro}
+  %\VignetteIndexEntry{Evaluate_by_ID}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 ---
@@ -65,7 +65,7 @@ We will use the simple `participant.scores` dataset, as it has 3 rows per partic
 ```{r warning=FALSE, message=FALSE}
 library(cvms)
 library(knitr)  # kable()
-library(tidyverse)
+library(dplyr)
 set.seed(74)
 
 # Prepare dataset

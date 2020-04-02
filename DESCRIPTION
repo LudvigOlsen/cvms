@@ -53,7 +53,7 @@ Suggests:
     randomForest (>= 4.6-14),
     rmarkdown,
     testthat (>= 2.2.1),
-    xpectr (>= 0.2.0)
+    xpectr (>= 0.3.0)
 VignetteBuilder: 
     knitr
 RdMacros: 

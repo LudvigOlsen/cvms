@@ -79,6 +79,10 @@ useful when passing a formula to `recipes::recipe()`, which doesn't allow the in
 * `gaussian_metrics()`, `binomial_metrics()`, and `multinomial_metrics()` are added. Can be used
 to select metrics for the `metrics` argument in many `cvms` functions.
 
+* `baseline_gaussian()`, `baseline_binomial()`, `baseline_multinomial()` are added. Simple wrappers for
+`baseline()` that are easier to use and have simpler help files. `baseline()` has a lot of arguments that are 
+specific to a family, which can be a bit confusing.
+
 ### New datasets
 
 * `wines` dataset is added. Contains a list of wine varieties in an approximately Zipfian distribution.

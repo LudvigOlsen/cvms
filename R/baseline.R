@@ -10,25 +10,54 @@
 #'
 #'  Create a baseline evaluation of a test set.
 #'
-#'  When \code{family} is \code{gaussian}: fits baseline models (\code{y ~ 1}) on \code{n} random
-#'  subsets of \code{train_data} and evalutes each model on \code{test_data}. Also evaluates a
-#'  model fitted on all rows in \code{train_data}.
+#'  In modelling, a \code{baseline} is a result from certain circumstances that
+#'  is meaningful to compare the results from our models to. For instance, in
+#'  classification, we usually want our results to be better than \emph{random guessing}.
+#'  E.g. if we have three classes, we can expect an accuracy of \code{33.33\%}, as for every
+#'  observation we have \code{1/3} chance of guessing the correct class. So our model should achieve
+#'  a higher accuracy than \code{33.33\%} before it is more useful to us than guessing.
+#'
+#'  While this expected value is often fairly straightforward to find analytically, it
+#'  only represents what we can expect on average. In reality, it's possible to get far better
+#'  results than that by guessing.
+#'  \strong{\code{baseline()}} (\code{binomial}, \code{multinomial})
+#'  finds the range of likely values by evaluating multiple sets
+#'  of random predictions and summarizing them with a set of useful descriptors.
+#'  If random guessing frequently obtains an accuracy of \code{40\%}, perhaps our model
+#'  should have better performance than this, before we declare it better than guessing.
+#'
+#'  \subsection{\strong{How}}{
 #'
 #'  When \code{family} is \code{binomial}: evaluates \code{n} sets of random predictions
 #'  against the dependent variable, along with a set of all \code{0} predictions and
-#'  a set of all \code{1} predictions.
+#'  a set of all \code{1} predictions. See also \code{\link[cvms:baseline_binomial]{baseline_binomial()}}.
 #'
 #'  When \code{family} is \code{multinomial}: creates one-vs-all (binomial)
 #'  baseline evaluations for \code{n} sets of random predictions against the dependent variable,
 #'  along with sets of "all class x,y,z,..." predictions.
+#'  See also \code{\link[cvms:baseline_multinomial]{baseline_multinomial()}}.
+#'
+#'  When \code{family} is \code{gaussian}: fits baseline models (\code{y ~ 1}) on \code{n} random
+#'  subsets of \code{train_data} and evaluates each model on \code{test_data}. Also evaluates a
+#'  model fitted on all rows in \code{train_data}.
+#'  See also \code{\link[cvms:baseline_gaussian]{baseline_gaussian()}}.
+#'  }
+#'
+#'  \subsection{\strong{Wrapper functions}}{
+#'
+#'  Consider using one of the wrappers, as they are simpler to use and understand:
+#'  \strong{\code{\link[cvms:baseline_gaussian]{baseline_gaussian()}}},
+#'  \strong{\code{\link[cvms:baseline_multinomial]{baseline_multinomial()}}}, and
+#'  \strong{\code{\link[cvms:baseline_binomial]{baseline_binomial()}}}.
+#'  }
 #'
 #' @inheritParams evaluate
-#' @param test_data Data Frame.
-#' @param train_data Data Frame. Only used when \code{family == "gaussian"}.
+#' @param test_data Data frame.
+#' @param train_data Data frame. Only used when \code{family} is \code{"gaussian"}.
 #' @param dependent_col Name of dependent variable in the supplied test and training sets.
-#' @param n Number of random samplings to perform.
+#' @param n Number of random samplings to perform. (Default is \code{100})
 #'
-#'  For \code{gaussian}: The number of random samplings of train_data to fit baseline models on.
+#'  For \code{gaussian}: The number of random samplings of \code{train_data} to fit baseline models on.
 #'
 #'  For \code{binomial} and \code{multinomial}: The number of sets of random predictions to evaluate.
 #'
@@ -41,7 +70,7 @@
 #'  E.g. if we have the levels \code{"cat"} and \code{"dog"} and we want \code{"dog"} to be the positive class,
 #'  we can either provide \code{"dog"} or \code{2}, as alphabetically, \code{"dog"} comes after \code{"cat"}.
 #'
-#'  Used when calculating confusion matrix metrics and creating ROC curves.
+#'  Used when calculating confusion matrix metrics and creating \code{ROC} curves.
 #'
 #'  N.B. Only affects evaluation metrics, not the returned predictions.
 #'
@@ -61,7 +90,7 @@
 #'  as no other arguments are supplied.
 #'
 #'  To test the effect of using different functions,
-#'  see \code{\link[cvms:multiclass_probability_tibble]{multiclass_probability_tibble}}.
+#'  see \code{\link[cvms:multiclass_probability_tibble]{multiclass_probability_tibble()}}.
 #'
 #'  N.B. \strong{Multinomial only}
 #' @param min_training_rows Minimum number of rows in the random subsets of \code{train_data}.
@@ -80,14 +109,14 @@
 #' @param parallel Whether to run the \code{n} evaluations in parallel. (Logical)
 #'
 #'  Remember to register a parallel backend first.
-#'  E.g. with doParallel::registerDoParallel.
+#'  E.g. with \code{doParallel::registerDoParallel}.
 #' @details
 #'
 #'  Packages used:
 #'
 #'  \subsection{Models}{
 #'
-#'  Gaussian: \code{\link[stats:lm]{stats::lm}}
+#'  Gaussian: \code{\link[stats:lm]{stats::lm}}, \code{\link[lme4:lmer]{lme4::lmer}}
 #'  }
 #'  \subsection{Results}{
 #'  \strong{Gaussian}:
@@ -129,8 +158,8 @@
 #'
 #'  The \strong{Summarized Results} tibble contains:
 #'
-#'  Average \strong{RMSE}, \strong{MAE}, \strong{NRMSE(IQR)},
-#'  \strong{RRSE}, \strong{RAE}, \strong{RMSLE}.
+#'  Average \strong{\code{RMSE}}, \strong{\code{MAE}}, \strong{\code{NRMSE(IQR)}},
+#'  \strong{\code{RRSE}}, \strong{\code{RAE}}, \strong{\code{RMSLE}}.
 #'
 #'  See the additional metrics (disabled by default) at \code{\link[cvms:gaussian_metrics]{?gaussian_metrics}}.
 #'
@@ -170,25 +199,25 @@
 #'  ----------------------------------------------------------------
 #'
 #'  Based on the generated test set predictions,
-#'  a confusion matrix and ROC curve are used to get the following:
+#'  a confusion matrix and \code{ROC} curve are used to get the following:
 #'
-#'  ROC:
+#'  \code{ROC}:
 #'
-#'  \strong{AUC}, \strong{Lower CI}, and \strong{Upper CI}
+#'  \strong{\code{AUC}}, \strong{\code{Lower CI}}, and \strong{\code{Upper CI}}
 #'
-#'  Note, that the ROC curve is only computed when \code{AUC} is enabled.
+#'  Note, that the \code{ROC} curve is only computed when \code{AUC} is enabled.
 #'
-#'  Confusion Matrix:
+#'  \code{Confusion Matrix}:
 #'
-#'  \strong{Balanced Accuracy}, \strong{F1},
-#'  \strong{Sensitivity}, \strong{Specificity},
-#'  \strong{Positive Predictive Value},
-#'  \strong{Negative Predictive Value},
-#'  \strong{Kappa},
-#'  \strong{Detection Rate},
-#'  \strong{Detection Prevalence},
-#'  \strong{Prevalence}, and
-#'  \strong{MCC} (Matthews correlation coefficient).
+#'  \strong{\code{Balanced Accuracy}}, \strong{\code{F1}},
+#'  \strong{\code{Sensitivity}}, \strong{\code{Specificity}},
+#'  \strong{\code{Positive Predictive Value}},
+#'  \strong{\code{Negative Predictive Value}},
+#'  \strong{\code{Kappa}},
+#'  \strong{\code{Detection Rate}},
+#'  \strong{\code{Detection Prevalence}},
+#'  \strong{\code{Prevalence}}, and
+#'  \strong{\code{MCC}} (Matthews correlation coefficient).
 #'
 #'  ....................................................................
 #'
@@ -212,8 +241,9 @@
 #'
 #'  A nested tibble with the \strong{confusion matrix}.
 #'  The \code{Pos_} columns tells you whether a row is a
-#'  True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
-#'  depending on which level is the "positive" class. I.e. the level you wish to predict.
+#'  True Positive (\code{TP}), True Negative (\code{TN}), False Positive (\code{FP}),
+#'  or False Negative (\code{FN}), depending on which level is the "positive" class.
+#'  I.e. the level you wish to predict.
 #'
 #'  Specified \strong{family}.
 #'
@@ -246,7 +276,7 @@
 #'  \strong{How}: First, the one-vs-all binomial evaluations are aggregated by repetition,
 #'  then, these aggregations are summarized. Besides the
 #'  metrics from the binomial evaluations (see \emph{Binomial Results} above), it
-#'  also includes the \strong{Overall Accuracy} metric.
+#'  also includes \strong{\code{Overall Accuracy}} and \emph{multiclass} \strong{\code{MCC}}.
 #'
 #'  The \strong{Measure} column indicates the statistical descriptor used on the evaluations.
 #'  The \strong{Mean}, \strong{Median}, \strong{SD}, \strong{IQR}, \strong{Max}, \strong{Min},
@@ -302,6 +332,7 @@
 #'
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
+#' @family baseline functions
 #' @examples
 #' \donttest{
 #' # Attach packages
@@ -375,7 +406,7 @@
 #' (mb <- baseline(
 #'   test_data = multiclass_data,
 #'   dependent_col = "target",
-#'   n = 4, family = "multinomial",
+#'   n = 6, family = "multinomial",
 #'   parallel = TRUE
 #' ))
 #'
@@ -396,7 +427,7 @@
 #' baseline(
 #'   test_data = multiclass_data,
 #'   dependent_col = "target",
-#'   n = 4, family = "multinomial",
+#'   n = 6, family = "multinomial",
 #'   parallel = TRUE,
 #'   random_generator_fn = rcertain
 #' )

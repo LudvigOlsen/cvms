@@ -195,6 +195,8 @@ validate_fn(
 
  Used when calculating confusion matrix metrics and creating ROC curves.
 
+ The \code{Positive Class} column in the output can be used to verify this setting.
+
  N.B. Only affects evaluation metrics, not the model training or returned predictions.
 
  N.B. \strong{Binomial models only}.}

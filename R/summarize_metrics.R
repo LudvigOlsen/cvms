@@ -4,16 +4,16 @@
 #'
 #'  Summarizes all numeric columns. Counts the \code{NA}s and \code{Inf}s in the columns.
 #' @param data Data frame with numeric columns to summarize.
-#' @param cols Names of columns to summarize. Non-numeric columns are ignored.
-#' @param na.rm Whether to remove \code{NA}s before summarizing. (logical)
-#' @param inf.rm Whether to remove \code{Inf}s before summarizing. (logical)
-#' @return tibble where each row is a descriptor of the column.
+#' @param cols Names of columns to summarize. Non-numeric columns are ignored. (Character)
+#' @param na.rm Whether to remove \code{NA}s before summarizing. (Logical)
+#' @param inf.rm Whether to remove \code{Inf}s before summarizing. (Logical)
+#' @return Tibble where each row is a descriptor of the column.
 #'
 #'  The \strong{Measure} column contains the name of the descriptor.
 #'
-#'  The \strong{NAs} row is a count of \code{NA}s in the column.
+#'  The \strong{NAs} row is a count of the \code{NA}s in the column.
 #'
-#'  The \strong{INFs} row is a count of \code{Inf}s in the column.
+#'  The \strong{INFs} row is a count of the \code{Inf}s in the column.
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
 #' @examples

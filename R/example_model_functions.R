@@ -5,6 +5,13 @@
 #'  Examples of model functions that can be used in
 #'  \code{\link[cvms:cross_validate_fn]{cross_validate_fn()}}.
 #'  They can either be used directly or be starting points.
+#' @return A function with the following form:
+#'
+#'  \code{function(train_data, formula, hyperparameters) \{}
+#'
+#'  \verb{    }\code{# Return fitted model object}
+#'
+#'  \code{\}}
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
 #' @family example functions

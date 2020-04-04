@@ -4,18 +4,22 @@
 #' @description
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("maturing")}
 #'
-#'  In the results tibble from cross_validate and validate,
-#'  the model formulas have been split into the columns Dependent, Fixed and Random.
+#'  In the (cross-)validation results from functions like
+#'  \code{\link[cvms:cross_validate]{cross_validate()}},
+#'  the model formulas have been split into the columns
+#'  \code{Dependent}, \code{Fixed} and \code{Random}.
 #'  Quickly reconstruct the model formulas from these columns.
 #' @return
 #'  List of model formulas.
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
-#' @param results Data frame with results from \code{\link{cross_validate}()} or \code{\link{validate}()}. (tbl)
+#' @param results Data frame with results from
+#' \code{\link[cvms:cross_validate]{cross_validate()}}
+#'  or \code{\link[cvms:validate]{validate()}}. (tbl)
 #'
-#'  Must contain at least the columns "\code{Dependent}" and "\code{Fixed}". For random effects
-#'  the "\code{Random}" column should be included.
-#' @param topn Number of top rows to return. Simply applies head() to the results tibble.
+#'  Must contain at least the columns \code{"Dependent"} and \code{"Fixed"}. For random effects,
+#'  the \code{"Random"} column should be included.
+#' @param topn Number of top rows to return. Simply applies \code{head()} to the results tibble.
 reconstruct_formulas <- function(results, topn = NULL) {
 
   # Check arguments ####

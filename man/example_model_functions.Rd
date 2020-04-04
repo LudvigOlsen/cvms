@@ -22,6 +22,15 @@ example_model_functions(name)
   "naive_bayes" \tab \code{\link[e1071:naiveBayes]{e1071::naiveBayes()}} \tab \code{laplace} \cr
   }}
 }
+\value{
+A function with the following form:
+
+ \code{function(train_data, formula, hyperparameters) \{}
+
+ \verb{    }\code{# Return fitted model object}
+
+ \code{\}}
+}
 \description{
 \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
 

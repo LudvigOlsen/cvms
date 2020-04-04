@@ -20,6 +20,27 @@
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
 #' @family example functions
+#' @return A function with the following form:
+#'
+#'  \code{function(train_data, test_data, formula, hyperparameters) \{}
+#'
+#'  \verb{    }\code{# Preprocess train_data and test_data}
+#'
+#'  \verb{    }\code{# Return a list with the preprocessed datasets}
+#'
+#'  \verb{    }\code{# and optionally a data frame with preprocessing parameters}
+#'
+#'  \verb{    }\code{list(}
+#'
+#'  \verb{        }\code{"train" = train_data,}
+#'
+#'  \verb{        }\code{"test" = test_data,}
+#'
+#'  \verb{        }\code{"parameters" = tidy_parameters}
+#'
+#'  \verb{    }\code{)}
+#'
+#'  \code{\}}
 #' @param name Name of preprocessing function
 #'  as it appears in the following list:
 #'

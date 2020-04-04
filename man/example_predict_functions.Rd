@@ -31,6 +31,17 @@ example_predict_functions(name)
   "randomForest_multinomial" \tab \code{\link[randomForest:randomForest]{randomForest::randomForest()}} \tab \cr
  }}
 }
+\value{
+A function with the following form:
+
+ \code{function(test_data, model, formula, hyperparameters) \{}
+
+ \verb{    }\code{# Use model to predict test_data}
+
+ \verb{    }\code{# Return predictions}
+
+ \code{\}}
+}
 \description{
 \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
 

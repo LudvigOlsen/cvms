@@ -9,6 +9,15 @@
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
 #' @family example functions
+#' @return A function with the following form:
+#'
+#'  \code{function(test_data, model, formula, hyperparameters) \{}
+#'
+#'  \verb{    }\code{# Use model to predict test_data}
+#'
+#'  \verb{    }\code{# Return predictions}
+#'
+#'  \code{\}}
 #' @param name Name of model to get predict function for,
 #'  as it appears in the following table.
 #'

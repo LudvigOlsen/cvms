@@ -19,6 +19,29 @@ example_preprocess_functions(name)
   "warn" \tab Identity function that throws a warning and a message\cr
   }}
 }
+\value{
+A function with the following form:
+
+ \code{function(train_data, test_data, formula, hyperparameters) \{}
+
+ \verb{    }\code{# Preprocess train_data and test_data}
+
+ \verb{    }\code{# Return a list with the preprocessed datasets}
+
+ \verb{    }\code{# and optionally a data frame with preprocessing parameters}
+
+ \verb{    }\code{list(}
+
+ \verb{        }\code{"train" = train_data,}
+
+ \verb{        }\code{"test" = test_data,}
+
+ \verb{        }\code{"parameters" = tidy_parameters}
+
+ \verb{    }\code{)}
+
+ \code{\}}
+}
 \description{
 \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
 

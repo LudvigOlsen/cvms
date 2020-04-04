@@ -9,20 +9,20 @@ summarize_metrics(data, cols = NULL, na.rm = TRUE, inf.rm = TRUE)
 \arguments{
 \item{data}{Data frame with numeric columns to summarize.}
 
-\item{cols}{Names of columns to summarize. Non-numeric columns are ignored.}
+\item{cols}{Names of columns to summarize. Non-numeric columns are ignored. (Character)}
 
-\item{na.rm}{Whether to remove \code{NA}s before summarizing. (logical)}
+\item{na.rm}{Whether to remove \code{NA}s before summarizing. (Logical)}
 
-\item{inf.rm}{Whether to remove \code{Inf}s before summarizing. (logical)}
+\item{inf.rm}{Whether to remove \code{Inf}s before summarizing. (Logical)}
 }
 \value{
-tibble where each row is a descriptor of the column.
+Tibble where each row is a descriptor of the column.
 
  The \strong{Measure} column contains the name of the descriptor.
 
- The \strong{NAs} row is a count of \code{NA}s in the column.
+ The \strong{NAs} row is a count of the \code{NA}s in the column.
 
- The \strong{INFs} row is a count of \code{Inf}s in the column.
+ The \strong{INFs} row is a count of the \code{Inf}s in the column.
 }
 \description{
 \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}

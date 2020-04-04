@@ -78,7 +78,8 @@ multiclass_probability_tibble <- function(num_classes,
   )
 
   # Create the tibble
-  probability_matrix <- matrix(random_numbers,
+  probability_matrix <- matrix(
+    random_numbers,
     ncol = num_classes
   ) %>%
     dplyr::as_tibble(.name_repair = "minimal")

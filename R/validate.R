@@ -8,7 +8,7 @@
 #' @description
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("stable")}
 #'
-#'  Train linear or logistic regression models on a full training set and validate it by
+#'  Train linear or logistic regression models on the full training set and validate it by
 #'  predicting the test/validation set.
 #'  Returns results in a tibble for easy reporting, along with the trained models.
 #'
@@ -34,14 +34,13 @@
 #'  E.g. with \code{doParallel::registerDoParallel}.
 #' @param link,models,model_verbose Deprecated.
 #' @inherit cross_validate details
-#' @return Tbl (tibble) with the results and model objects.
+#' @return Tibble with the results and model objects.
 #'
 #'  \subsection{Shared across families}{
 #'
 #'  A nested tibble with \strong{coefficients} of the models from all iterations.
 #'
-#'  Count of \strong{convergence warnings}. Consider discarding models that did not converge on all
-#'  iterations. Note: you might still see results, but these should be taken with a grain of salt!
+#'  Count of \strong{convergence warnings}. Consider discarding models that did not converge.
 #'
 #'  Count of \strong{other warnings}. These are warnings without keywords such as "convergence".
 #'
@@ -59,6 +58,9 @@
 #'  Names of \strong{fixed} effects.
 #'
 #'  Names of \strong{random} effects, if any.
+#'
+#'  Nested tibble with \strong{preprocess}ing parameters, if any.
+#'
 #'  }
 #'
 #'  ----------------------------------------------------------------
@@ -67,9 +69,9 @@
 #'
 #'  ----------------------------------------------------------------
 #'
-#'  \strong{RMSE}, \strong{MAE}, \strong{NRMSE(IQR)},
-#'  \strong{RRSE}, \strong{RAE}, \strong{RMSLE}, \strong{AIC}, \strong{AICc},
-#'  and \strong{BIC}.
+#'  \strong{\code{RMSE}}, \strong{\code{MAE}}, \strong{\code{NRMSE(IQR)}},
+#'  \strong{\code{RRSE}}, \strong{\code{RAE}}, \strong{\code{RMSLE}},
+#'  \strong{\code{AIC}}, \strong{\code{AICc}}, and \strong{\code{BIC}}.
 #'
 #'  See the additional metrics (disabled by default) at \code{\link[cvms:gaussian_metrics]{?gaussian_metrics}}.
 #'
@@ -83,39 +85,44 @@
 #'  ----------------------------------------------------------------
 #'
 #'  Based on predictions of the test set,
-#'  a confusion matrix and ROC curve are used to get the following:
+#'  a confusion matrix and \code{ROC} curve are used to get the following:
 #'
-#'  ROC:
+#'  \code{ROC}:
 #'
-#'  \strong{AUC}, \strong{Lower CI}, and \strong{Upper CI}
+#'  \strong{\code{AUC}}, \strong{\code{Lower CI}}, and \strong{\code{Upper CI}}.
 #'
-#'  Confusion Matrix:
+#'  \code{Confusion Matrix}:
 #'
-#'  \strong{Balanced Accuracy}, \strong{F1},
-#'  \strong{Sensitivity}, \strong{Specificity},
-#'  \strong{Positive Predictive Value},
-#'  \strong{Negative Predictive Value},
-#'  \strong{Kappa},
-#'  \strong{Detection Rate},
-#'  \strong{Detection Prevalence},
-#'  \strong{Prevalence}, and
-#'  \strong{MCC} (Matthews correlation coefficient).
+#'  \strong{\code{Balanced Accuracy}},
+#'  \strong{\code{F1}},
+#'  \strong{\code{Sensitivity}},
+#'  \strong{\code{Specificity}},
+#'  \strong{\code{Positive Predictive Value}},
+#'  \strong{\code{Negative Predictive Value}},
+#'  \strong{\code{Kappa}},
+#'  \strong{\code{Detection Rate}},
+#'  \strong{\code{Detection Prevalence}},
+#'  \strong{\code{Prevalence}}, and
+#'  \strong{\code{MCC}} (Matthews correlation coefficient).
 #'
-#'  Other available metrics (disabled by default, see \code{metrics}):
-#'  \strong{Accuracy}, \strong{AIC}, \strong{AICc}, \strong{BIC}.
+#'  See the additional metrics (disabled by default) at
+#'  \code{\link[cvms:binomial_metrics]{?binomial_metrics}}.
 #'
 #'  Also includes:
 #'
 #'  A nested tibble with \strong{predictions}, predicted classes (depends on \code{cutoff}), and the targets.
-#'  Note, that the \strong{predictions are not necessarily of the specified \code{positive} class}, but of
-#'  the model's positive class (second level of dependent variable, alphabetically).
+#'  Note, that the predictions are \emph{not necessarily} of the \emph{specified} \code{positive} class, but of
+#'  the \emph{model's} positive class (second level of dependent variable, alphabetically).
 #'
-#'  The \code{\link[pROC:roc]{pROC::roc}} \strong{ROC} curve object(s).
+#'  The \code{\link[pROC:roc]{pROC::roc}} \strong{\code{ROC}} curve object(s).
 #'
 #'  A nested tibble with the \strong{confusion matrix}/matrices.
 #'  The \code{Pos_} columns tells you whether a row is a
-#'  True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
+#'  True Positive (\code{TP}), True Negative (\code{TN}),
+#'  False Positive (\code{FP}), or False Negative (\code{FN}),
 #'  depending on which level is the "positive" class. I.e. the level you wish to predict.
+#'
+#'  The name of the \strong{Positive Class}.
 #'
 #'  }
 #'

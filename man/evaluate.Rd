@@ -372,23 +372,19 @@ evaluate(
 
 # Multinomial
 
-# Create a tibble with predicted probabilities
+# Create a tibble with predicted probabilities and targets
 data_mc <- multiclass_probability_tibble(
   num_classes = 3, num_observations = 30,
   apply_softmax = TRUE, FUN = runif,
-  class_name = "class_"
+  class_name = "class_",
+  add_targets = TRUE
 )
 
-# Add targets
-class_names <- paste0("class_", c(1, 2, 3))
-data_mc[["target"]] <- sample(
-  x = class_names,
-  size = 30, replace = TRUE
-)
+class_names <- paste0("class_", 1:3)
 
 # Multinomial evaluation
 evaluate(
-  data = data_mc, target_col = "target",
+  data = data_mc, target_col = "Target",
   prediction_cols = class_names,
   type = "multinomial"
 )
@@ -417,20 +413,20 @@ evaluate(
 # Multinomial ID evaluation
 
 # Add IDs and new targets (must be constant within IDs)
-data_mc[["target"]] <- NULL
-data_mc[["id"]] <- rep(1:6, each = 5)
+data_mc[["Target"]] <- NULL
+data_mc[["ID"]] <- rep(1:6, each = 5)
 id_classes <- tibble::tibble(
-  "id" = 1:6,
-  target = sample(x = class_names, size = 6, replace = TRUE)
+  "ID" = 1:6,
+  "Target" = sample(x = class_names, size = 6, replace = TRUE)
 )
 data_mc <- data_mc \%>\%
-  dplyr::left_join(id_classes, by = "id")
+  dplyr::left_join(id_classes, by = "ID")
 
 # Perform ID evaluation
 evaluate(
-  data = data_mc, target_col = "target",
+  data = data_mc, target_col = "Target",
   prediction_cols = class_names,
-  id_col = "id",
+  id_col = "ID",
   id_method = "mean", # alternatively: "majority"
   type = "multinomial"
 )
@@ -446,7 +442,7 @@ data_for_nnet <- multiclass_probability_tibble(
   FUN = rnorm,
   class_name = "predictor_"
 ) \%>\%
-  dplyr::mutate(class = sample(
+  dplyr::mutate(Target = sample(
     class_names,
     size = 30,
     replace = TRUE
@@ -454,7 +450,7 @@ data_for_nnet <- multiclass_probability_tibble(
 
 # Train multinomial model using the nnet package
 mn_model <- nnet::multinom(
-  "class ~ predictor_1 + predictor_2 + predictor_3",
+  "Target ~ predictor_1 + predictor_2 + predictor_3",
   data = data_for_nnet
 )
 
@@ -466,11 +462,11 @@ predictions <- predict(mn_model, data_for_nnet,
   dplyr::as_tibble()
 
 # Add the targets
-predictions[["target"]] <- data_for_nnet[["class"]]
+predictions[["Target"]] <- data_for_nnet[["Target"]]
 
 # Evaluate predictions
 evaluate(
-  data = predictions, target_col = "target",
+  data = predictions, target_col = "Target",
   prediction_cols = class_names,
   type = "multinomial"
 )

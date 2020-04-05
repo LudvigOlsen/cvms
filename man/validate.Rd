@@ -40,9 +40,12 @@ validate(
 
  E.g. \code{c("y~x+(1|r)", "y~z+(1|r)")}.}
 
-\item{family}{Name of family. (Character)
+\item{family}{Name of the family. (Character)
 
- Currently supports \code{"gaussian"} and \code{"binomial"}.}
+ Currently supports \strong{\code{"gaussian"}} for linear regression
+ with \code{\link[stats:lm]{lm()}} / \code{\link[lme4:lmer]{lme4::lmer()}}
+ and \strong{\code{"binomial"}} for binary classification
+ with \code{\link[stats:glm]{glm()}} / \code{\link[lme4:glmer]{lme4::glmer()}}.}
 
 \item{test_data}{Data frame. If specifying \code{partitions_col}, this can be \code{NULL}.}
 
@@ -54,11 +57,11 @@ validate(
  N.B. \strong{Only used if \code{test_data} is \code{NULL}}.}
 
 \item{control}{Construct control structures for mixed model fitting
- (i.e. \code{\link[lme4]{lmer}} and \code{\link[lme4]{glmer}}).
+ (with \code{\link[lme4:lmer]{lme4::lmer()}} or \code{\link[lme4:glmer]{lme4::glmer()}}).
  See \code{\link[lme4:lmerControl]{lme4::lmerControl}} and
  \code{\link[lme4:glmerControl]{lme4::glmerControl}}.
 
- N.B. Ignored if fitting \code{\link[stats]{lm}} or \code{\link[stats]{glm}} models.}
+ N.B. Ignored if fitting \code{\link[stats:lm]{lm()}} or \code{\link[stats:glm]{glm()}} models.}
 
 \item{REML}{Restricted Maximum Likelihood. (Logical)}
 
@@ -74,20 +77,22 @@ validate(
 
  Used when calculating confusion matrix metrics and creating ROC curves.
 
+ The \code{Positive Class} column in the output can be used to verify this setting.
+
  N.B. Only affects evaluation metrics, not the model training or returned predictions.
 
  N.B. \strong{Binomial models only}.}
 
 \item{metrics}{List for enabling/disabling metrics.
 
-  E.g. \code{list("RMSE" = FALSE)} would remove RMSE from the results,
-  and \code{list("Accuracy" = TRUE)} would add the regular accuracy metric
+  E.g. \code{list("RMSE" = FALSE)} would remove \code{RMSE} from the results,
+  and \code{list("Accuracy" = TRUE)} would add the regular \code{Accuracy} metric
   to the classification results.
   Default values (\code{TRUE}/\code{FALSE}) will be used for the remaining available metrics.
 
   You can enable/disable all metrics at once by including
   \code{"all" = TRUE/FALSE} in the list. This is done prior to enabling/disabling
-  individual metrics, why f.i. \code{list("all" = FALSE, "RMSE" = TRUE)}
+  individual metrics, why \code{list("all" = FALSE, "RMSE" = TRUE)}
   would return only the \code{RMSE} metric.
 
   The list can be created with
@@ -103,8 +108,8 @@ validate(
  \tabular{rrr}{
   \strong{Name} \tab \strong{Description} \cr
   "standardize" \tab Centers and scales the numeric predictors.\cr
-  "range" \tab Normalizes the numeric predictors to the 0-1 range.
-  Values outside the min/max range in the test fold are truncated to 0/1.\cr
+  "range" \tab Normalizes the numeric predictors to the \code{0}-\code{1} range.
+  Values outside the min/max range in the test fold are truncated to \code{0}/\code{1}.\cr
   "scale" \tab Scales the numeric predictors to have a standard deviation of one.\cr
   "center" \tab Centers the numeric predictors to have a mean of zero.\cr
  }
@@ -131,14 +136,13 @@ like the number of model instances to fit and which model function was applied. 
 \item{link, models, model_verbose}{Deprecated.}
 }
 \value{
-Tbl (tibble) with the results and model objects.
+Tibble with the results and model objects.
 
  \subsection{Shared across families}{
 
  A nested tibble with \strong{coefficients} of the models from all iterations.
 
- Count of \strong{convergence warnings}. Consider discarding models that did not converge on all
- iterations. Note: you might still see results, but these should be taken with a grain of salt!
+ Count of \strong{convergence warnings}. Consider discarding models that did not converge.
 
  Count of \strong{other warnings}. These are warnings without keywords such as "convergence".
 
@@ -156,6 +160,9 @@ Tbl (tibble) with the results and model objects.
  Names of \strong{fixed} effects.
 
  Names of \strong{random} effects, if any.
+
+ Nested tibble with \strong{preprocess}ing parameters, if any.
+
  }
 
  ----------------------------------------------------------------
@@ -164,9 +171,9 @@ Tbl (tibble) with the results and model objects.
 
  ----------------------------------------------------------------
 
- \strong{RMSE}, \strong{MAE}, \strong{NRMSE(IQR)},
- \strong{RRSE}, \strong{RAE}, \strong{RMSLE}, \strong{AIC}, \strong{AICc},
- and \strong{BIC}.
+ \strong{\code{RMSE}}, \strong{\code{MAE}}, \strong{\code{NRMSE(IQR)}},
+ \strong{\code{RRSE}}, \strong{\code{RAE}}, \strong{\code{RMSLE}},
+ \strong{\code{AIC}}, \strong{\code{AICc}}, and \strong{\code{BIC}}.
 
  See the additional metrics (disabled by default) at \code{\link[cvms:gaussian_metrics]{?gaussian_metrics}}.
 
@@ -180,46 +187,51 @@ Tbl (tibble) with the results and model objects.
  ----------------------------------------------------------------
 
  Based on predictions of the test set,
- a confusion matrix and ROC curve are used to get the following:
+ a confusion matrix and \code{ROC} curve are used to get the following:
 
- ROC:
+ \code{ROC}:
 
- \strong{AUC}, \strong{Lower CI}, and \strong{Upper CI}
+ \strong{\code{AUC}}, \strong{\code{Lower CI}}, and \strong{\code{Upper CI}}.
 
- Confusion Matrix:
+ \code{Confusion Matrix}:
 
- \strong{Balanced Accuracy}, \strong{F1},
- \strong{Sensitivity}, \strong{Specificity},
- \strong{Positive Predictive Value},
- \strong{Negative Predictive Value},
- \strong{Kappa},
- \strong{Detection Rate},
- \strong{Detection Prevalence},
- \strong{Prevalence}, and
- \strong{MCC} (Matthews correlation coefficient).
+ \strong{\code{Balanced Accuracy}},
+ \strong{\code{F1}},
+ \strong{\code{Sensitivity}},
+ \strong{\code{Specificity}},
+ \strong{\code{Positive Predictive Value}},
+ \strong{\code{Negative Predictive Value}},
+ \strong{\code{Kappa}},
+ \strong{\code{Detection Rate}},
+ \strong{\code{Detection Prevalence}},
+ \strong{\code{Prevalence}}, and
+ \strong{\code{MCC}} (Matthews correlation coefficient).
 
- Other available metrics (disabled by default, see \code{metrics}):
- \strong{Accuracy}, \strong{AIC}, \strong{AICc}, \strong{BIC}.
+ See the additional metrics (disabled by default) at
+ \code{\link[cvms:binomial_metrics]{?binomial_metrics}}.
 
  Also includes:
 
  A nested tibble with \strong{predictions}, predicted classes (depends on \code{cutoff}), and the targets.
- Note, that the \strong{predictions are not necessarily of the specified \code{positive} class}, but of
- the model's positive class (second level of dependent variable, alphabetically).
+ Note, that the predictions are \emph{not necessarily} of the \emph{specified} \code{positive} class, but of
+ the \emph{model's} positive class (second level of dependent variable, alphabetically).
 
- The \code{\link[pROC:roc]{pROC::roc}} \strong{ROC} curve object(s).
+ The \code{\link[pROC:roc]{pROC::roc}} \strong{\code{ROC}} curve object(s).
 
  A nested tibble with the \strong{confusion matrix}/matrices.
  The \code{Pos_} columns tells you whether a row is a
- True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
+ True Positive (\code{TP}), True Negative (\code{TN}),
+ False Positive (\code{FP}), or False Negative (\code{FN}),
  depending on which level is the "positive" class. I.e. the level you wish to predict.
+
+ The name of the \strong{Positive Class}.
 
  }
 }
 \description{
 \Sexpr[results=rd, stage=render]{lifecycle::badge("stable")}
 
- Train linear or logistic regression models on a full training set and validate it by
+ Train linear or logistic regression models on the full training set and validate it by
  predicting the test/validation set.
  Returns results in a tibble for easy reporting, along with the trained models.
 
@@ -231,30 +243,30 @@ Packages used:
 
  \subsection{Models}{
 
- Gaussian: \link[stats:lm]{stats::lm}, \code{\link[lme4:lmer]{lme4::lmer}}
+ Gaussian: \code{\link[stats:lm]{stats::lm}}, \code{\link[lme4:lmer]{lme4::lmer}}
 
  Binomial: \code{\link[stats:glm]{stats::glm}}, \code{\link[lme4:glmer]{lme4::glmer}}
  }
  \subsection{Results}{
  \subsection{Shared}{
 
- AIC : \code{\link[stats:AIC]{stats::AIC}}
+ \code{AIC} : \code{\link[stats:AIC]{stats::AIC}}
 
- AICc : \code{\link[MuMIn:AICc]{MuMIn::AICc}}
+ \code{AICc} : \code{\link[MuMIn:AICc]{MuMIn::AICc}}
 
- BIC : \code{\link[stats:BIC]{stats::BIC}}
+ \code{BIC} : \code{\link[stats:BIC]{stats::BIC}}
 
  }
  \subsection{Gaussian}{
 
- r2m : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
+ \code{r2m} : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
 
- r2c : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
+ \code{r2c} : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
 
  }
  \subsection{Binomial}{
 
- ROC: \code{\link[pROC:roc]{pROC::roc}}
+ \code{ROC and AUC}: \code{\link[pROC:roc]{pROC::roc}}
 
  }
  }

@@ -6,14 +6,16 @@
 #'  When reporting results, we might not want all
 #'  the nested tibbles and process information columns.
 #'  This function selects the evaluation metrics and model formulas only.
+#'
+#'  If an expected column is not in the \code{results} tibble, it is simply ignored.
 #' @return
 #'  The results tibble with only the metric and model definition columns.
-#' @details The first element in the \code{Family} column is used to identify the relevant columns.
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
-#' @param results Results tibble. E.g. from \code{\link{cross_validate}()} or \code{\link{evaluate}()}.
+#' @param results Results tibble. E.g. from
+#'  \code{\link[cvms:cross_validate]{cross_validate()}} or \code{\link[cvms:evaluate]{evaluate()}}.
 #' @param include_definitions Whether to include the \code{Dependent},
-#'  \code{Fixed} and (possibly) \code{Random} columns. (Logical)
+#'  \code{Fixed} and (possibly) \code{Random} and \code{HParams} columns. (Logical)
 #' @param additional_includes Names of additional columns to select. (Character)
 select_metrics <- function(results, include_definitions = TRUE,
                            additional_includes = NULL) {

@@ -5,7 +5,7 @@
 ##  Softmax function                                                        ####
 
 
-# axis : "r" for rowwise, "c" for column-wise
+# axis : "r" for row-wise, "c" for column-wise
 softmax <- function(data, cols = NULL, axis = "r") {
 
   # Check arguments ####

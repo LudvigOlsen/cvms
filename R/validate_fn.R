@@ -1,11 +1,12 @@
 
-#' @title Validate custom model functions on a test set
+#' @title Validate a custom model function on a test set
 #' @description
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
 #'
 #'  Fit your model function on a training set and validate it by
-#'  predicting the test/validation set. Preprocess the train/test split.
+#'  predicting a test/validation set.
 #'  Validate different hyperparameter combinations and formulas at once.
+#'  Preprocess the train/test split.
 #'  Returns results and fitted models in a tibble for easy reporting and further analysis.
 #'
 #'  Compared to \code{\link[cvms:validate]{validate()}},
@@ -60,8 +61,8 @@
 #'
 #'  ----------------------------------------------------------------
 #'
-#'  \strong{RMSE}, \strong{MAE}, \strong{NRMSE(IQR)},
-#'  \strong{RRSE}, \strong{RAE}, \strong{RMSLE}.
+#'  \strong{\code{RMSE}}, \strong{\code{MAE}}, \strong{\code{NRMSE(IQR)}},
+#'  \strong{\code{RRSE}}, \strong{\code{RAE}}, and \strong{\code{RMSLE}}.
 #'
 #'  See the additional metrics (disabled by default) at \code{\link[cvms:gaussian_metrics]{?gaussian_metrics}}.
 #'
@@ -75,39 +76,44 @@
 #'  ----------------------------------------------------------------
 #'
 #'  Based on predictions of the test set,
-#'  a confusion matrix and a ROC curve are created to get the following:
+#'  a confusion matrix and a \code{ROC} curve are created to get the following:
 #'
-#'  ROC:
+#'  \code{ROC}:
 #'
-#'  \strong{AUC}, \strong{Lower CI}, and \strong{Upper CI}
+#'  \strong{\code{AUC}}, \strong{\code{Lower CI}}, and \strong{\code{Upper CI}}
 #'
-#'  Confusion Matrix:
+#'  \code{Confusion Matrix}:
 #'
-#'  \strong{Balanced Accuracy}, \strong{F1},
-#'  \strong{Sensitivity}, \strong{Specificity},
-#'  \strong{Positive Predictive Value},
-#'  \strong{Negative Predictive Value},
-#'  \strong{Kappa},
-#'  \strong{Detection Rate},
-#'  \strong{Detection Prevalence},
-#'  \strong{Prevalence}, and
-#'  \strong{MCC} (Matthews correlation coefficient).
+#'  \strong{\code{Balanced Accuracy}},
+#'  \strong{\code{F1}},
+#'  \strong{\code{Sensitivity}},
+#'  \strong{\code{Specificity}},
+#'  \strong{\code{Positive Predictive Value}},
+#'  \strong{\code{Negative Predictive Value}},
+#'  \strong{\code{Kappa}},
+#'  \strong{\code{Detection Rate}},
+#'  \strong{\code{Detection Prevalence}},
+#'  \strong{\code{Prevalence}}, and
+#'  \strong{\code{MCC}} (Matthews correlation coefficient).
 #'
-#'  Other available metrics (disabled by default, see \code{metrics}):
-#'  \strong{Accuracy}, \strong{AIC}, \strong{AICc}, \strong{BIC}.
+#'  See the additional metrics (disabled by default) at
+#'  \code{\link[cvms:binomial_metrics]{?binomial_metrics}}.
 #'
 #'  Also includes:
 #'
-#'  A nested tibble with the \strong{predictions}, predicted classes (depends on \code{cutoff}), and targets.
-#'  Note, that the \strong{predictions are not necessarily of the specified \code{positive} class}, but of
-#'  the model's positive class (second level of dependent variable, alphabetically).
+#'  A nested tibble with \strong{predictions}, predicted classes (depends on \code{cutoff}), and the targets.
+#'  Note, that the predictions are \emph{not necessarily} of the \emph{specified} \code{positive} class, but of
+#'  the \emph{model's} positive class (second level of dependent variable, alphabetically).
 #'
-#'  A list of \strong{ROC} curve objects.
+#'  The \code{\link[pROC:roc]{pROC::roc}} \strong{\code{ROC}} curve object(s).
 #'
-#'  A nested tibble with the \strong{confusion matrix}.
+#'  A nested tibble with the \strong{confusion matrix}/matrices.
 #'  The \code{Pos_} columns tells you whether a row is a
-#'  True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
+#'  True Positive (\code{TP}), True Negative (\code{TN}),
+#'  False Positive (\code{FP}), or False Negative (\code{FN}),
 #'  depending on which level is the "positive" class. I.e. the level you wish to predict.
+#'
+#'  The name of the \strong{Positive Class}.
 #'  }
 #'
 #'  ----------------------------------------------------------------
@@ -117,28 +123,35 @@
 #'  ----------------------------------------------------------------
 #'
 #'  For each class, a \emph{one-vs-all} binomial evaluation is performed. This creates
-#'  a \strong{class level results} tibble containing the same metrics as the binomial results
+#'  a \strong{Class Level Results} tibble containing the same metrics as the binomial results
 #'  described above (excluding \code{MCC}, \code{AUC}, \code{Lower CI} and \code{Upper CI}),
 #'  along with a count of the class in the target column (\strong{\code{Support}}).
-#'  These metrics are used to calculate the macro metrics
-#'  in the output tibble. The nested class level results tibble is also included in the output tibble,
-#'  and would usually be reported along with the macro and overall metrics.
+#'  These metrics are used to calculate the macro metrics. The nested class level results
+#'  tibble is also included in the output tibble,
+#'  and could be reported along with the macro and overall metrics.
 #'
 #'  The output tibble contains the macro and overall metrics.
 #'  The metrics that share their name with the metrics in the nested
 #'  class level results tibble are averages of those metrics
 #'  (note: does not remove \code{NA}s before averaging).
-#'  In addition to these, it also includes the \strong{Overall Accuracy} and
-#'  the multiclass \strong{MCC}.
+#'  In addition to these, it also includes the \strong{\code{Overall Accuracy}} and
+#'  the multiclass \strong{\code{MCC}}.
 #'
 #'  Other available metrics (disabled by default, see \code{metrics}):
-#'  \strong{Accuracy}, multiclass \strong{AUC},  \strong{AIC}, \strong{AICc}, \strong{BIC},
-#'  \strong{Weighted Balanced Accuracy}, \strong{Weighted Accuracy},
-#'  \strong{Weighted F1}, \strong{Weighted Sensitivity}, \strong{Weighted Sensitivity},
-#'  \strong{Weighted Specificity}, \strong{Weighted Pos Pred Value},
-#'  \strong{Weighted Neg Pred Value}, \strong{Weighted Kappa},
-#'  \strong{Weighted Detection Rate}, \strong{Weighted Detection Prevalence}, and
-#'  \strong{Weighted Prevalence}.
+#'  \strong{\code{Accuracy}},
+#'  \emph{multiclass} \strong{\code{AUC}},
+#'  \strong{\code{Weighted Balanced Accuracy}},
+#'  \strong{\code{Weighted Accuracy}},
+#'  \strong{\code{Weighted F1}},
+#'  \strong{\code{Weighted Sensitivity}},
+#'  \strong{\code{Weighted Sensitivity}},
+#'  \strong{\code{Weighted Specificity}},
+#'  \strong{\code{Weighted Pos Pred Value}},
+#'  \strong{\code{Weighted Neg Pred Value}},
+#'  \strong{\code{Weighted Kappa}},
+#'  \strong{\code{Weighted Detection Rate}},
+#'  \strong{\code{Weighted Detection Prevalence}}, and
+#'  \strong{\code{Weighted Prevalence}}.
 #'
 #'  Note that the "Weighted" average metrics are weighted by the \code{Support}.
 #'
@@ -146,18 +159,18 @@
 #'
 #'  A nested tibble with the \strong{predictions}, predicted classes, and targets.
 #'
-#'   A list of \strong{ROC} curve objects.
+#'  A list of \strong{ROC} curve objects when \code{AUC} is enabled.
 #'
 #'  A nested tibble with the multiclass \strong{Confusion Matrix}.
 #'
 #'  \strong{Class Level Results}
 #'
-#'  Besides the binomial evaluation metrics and the \code{Support} metric,
-#'  the nested class level results tibble also includes:
-#'
-#'  A nested tibble with the \strong{confusion matrix} from the one-vs-all evaluation.
+#'  Besides the binomial evaluation metrics and the \code{Support},
+#'  the nested class level results tibble also contains a
+#'  nested tibble with the \strong{Confusion Matrix} from the one-vs-all evaluation.
 #'  The \code{Pos_} columns tells you whether a row is a
-#'  True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
+#'  True Positive (\code{TP}), True Negative (\code{TN}),
+#'  False Positive (\code{FP}), or False Negative (\code{FN}),
 #'  depending on which level is the "positive" class. In our case, \code{1} is the current class
 #'  and \code{0} represents all the other classes together.
 #'

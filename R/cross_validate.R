@@ -50,12 +50,15 @@
 #'
 #'  N.B. \strong{Binomial models only}
 #' @param positive Level from dependent variable to predict.
-#'  Either as character or level index (\code{1} or \code{2} - alphabetically).
+#'  Either as character (\emph{preferable}) or level index (\code{1} or \code{2} - alphabetically).
 #'
 #'  E.g. if we have the levels \code{"cat"} and \code{"dog"} and we want \code{"dog"} to be the positive class,
 #'  we can either provide \code{"dog"} or \code{2}, as alphabetically, \code{"dog"} comes after \code{"cat"}.
 #'
-#'  Used when calculating confusion matrix metrics and creating ROC curves.
+#'  \strong{Note:} For \emph{reproducibility}, it's preferable to \strong{specify the name directly}, as
+#'  different \code{\link[base:locales]{locales}} may sort the levels differently.
+#'
+#'  Used when calculating confusion matrix metrics and creating \code{ROC} curves.
 #'
 #'  The \code{Positive Class} column in the output can be used to verify this setting.
 #'
@@ -267,7 +270,10 @@
 #' ) %>%
 #'   arrange(.folds)
 #'
+#' #
 #' # Cross-validate a single model
+#' #
+#'
 #' # Gaussian
 #' cross_validate(
 #'   data,
@@ -283,7 +289,9 @@
 #'   family = "binomial"
 #' )
 #'
+#' #
 #' # Cross-validate multiple models
+#' #
 #'
 #' formulas <- c(
 #'   "score~diagnosis+(1|session)",
@@ -297,7 +305,10 @@
 #'   REML = FALSE
 #' )
 #'
+#' #
 #' # Use parallelization
+#' #
+#'
 #' # Attach doParallel and register four cores
 #' # Uncomment:
 #' # library(doParallel)

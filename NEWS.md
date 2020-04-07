@@ -117,9 +117,12 @@ Pass a list of hyperparameters and every combination of these will be cross-vali
 
 * Adds `preprocessing` argument to `cross_validate()` and `validate()`. Currently allows "standardize", "scale", "center", and "range". Results will likely not be affected noticeably by the preprocessing.
 
+* Adds `add_targets` and `add_predicted_classes` arguments to `multiclass_probability_tibble()`.
+
 * Adds `Observation` column in the nested predictions tibble in `cross_validate()`, `cross_validate_fn()`, `validate()`, and `validate_fn()`. These indices can be used to identify which observations are difficult to predict.
 
 * Adds `SD` column in the nested predictions tibble in `evaluate()` when performing ID aggregated evaluation with `id_method = 'mean'`. This is the standard deviation of the predictions for the ID.
+
 
 ### New vignettes
 

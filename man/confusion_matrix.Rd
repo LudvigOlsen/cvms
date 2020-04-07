@@ -37,10 +37,13 @@ confusion_matrix(
   Also accepts the string \code{"all"}.}
 
 \item{positive}{Level from \code{targets} to predict.
- Either as character or level index (1 or 2 - alphabetically). (\strong{Two-class only})
+ Either as character (\emph{preferable}) or level index (1 or 2 - alphabetically). (\strong{Two-class only})
 
  E.g. if we have the levels \code{"cat"} and \code{"dog"} and we want \code{"dog"} to be the positive class,
- we can either provide \code{"dog"} or \code{2}, as alphabetically, \code{"dog"} comes after \code{"cat"}.}
+ we can either provide \code{"dog"} or \code{2}, as alphabetically, \code{"dog"} comes after \code{"cat"}.
+
+ \strong{Note:} For \emph{reproducibility}, it's preferable to \strong{specify the name directly}, as
+ different \code{\link[base:locales]{locales}} may sort the levels differently.}
 
 \item{c_levels}{Vector with categorical levels in the targets. Should have same type as \code{targets}.
  If \code{NULL}, they are inferred from \code{targets}.

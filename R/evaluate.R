@@ -126,12 +126,17 @@
 #'
 #' N.B. \strong{Binomial models only}.
 #' @param positive Level from dependent variable to predict.
-#'  Either as character or level index (1 or 2 - alphabetically).
+#'  Either as character (\emph{preferable}) or level index (1 or 2 - alphabetically).
 #'
 #'  E.g. if we have the levels \code{"cat"} and \code{"dog"} and we want \code{"dog"} to be the positive class,
 #'  we can either provide \code{"dog"} or \code{2}, as alphabetically, \code{"dog"} comes after \code{"cat"}.
 #'
-#'  Used when calculating confusion matrix metrics and creating ROC curves.
+#'  \strong{Note:} For \emph{reproducibility}, it's preferable to \strong{specify the name directly}, as
+#'  different \code{\link[base:locales]{locales}} may sort the levels differently.
+#'
+#'  Used when calculating confusion matrix metrics and creating \code{ROC} curves.
+#'
+#'  The \code{Positive Class} column in the output can be used to verify this setting.
 #'
 #'  N.B. Only affects the evaluation metrics.
 #'
@@ -253,7 +258,8 @@
 #'  a \strong{Class Level Results} tibble containing the same metrics as the binomial results
 #'  described above (excluding \code{MCC}, \code{AUC}, \code{Lower CI} and \code{Upper CI}),
 #'  along with a count of the class in the target column (\strong{\code{Support}}).
-#'  The nested class level results tibble is also included in the output tibble,
+#'  These metrics are used to calculate the macro metrics. The nested class level results
+#'  tibble is also included in the output tibble,
 #'  and could be reported along with the macro and overall metrics.
 #'
 #'  The output tibble contains the macro and overall metrics.
@@ -342,7 +348,9 @@
 #'   type = "binomial"
 #' )
 #'
+#' #
 #' # Multinomial
+#' #
 #'
 #' # Create a tibble with predicted probabilities and targets
 #' data_mc <- multiclass_probability_tibble(
@@ -361,7 +369,9 @@
 #'   type = "multinomial"
 #' )
 #'
+#' #
 #' # ID evaluation
+#' #
 #'
 #' # Gaussian ID evaluation
 #' # Note that 'age' is the same for all observations
@@ -403,7 +413,9 @@
 #'   type = "multinomial"
 #' )
 #'
+#' #
 #' # Training and evaluating a multinomial model with nnet
+#' #
 #'
 #' # Create a data frame with some predictors and a target column
 #' class_names <- paste0("class_", 1:4)
@@ -428,7 +440,9 @@
 #'
 #' # Predict the targets in the dataset
 #' # (we would usually use a test set instead)
-#' predictions <- predict(mn_model, data_for_nnet,
+#' predictions <- predict(
+#'   mn_model,
+#'   data_for_nnet,
 #'   type = "probs"
 #' ) %>%
 #'   dplyr::as_tibble()
@@ -438,7 +452,8 @@
 #'
 #' # Evaluate predictions
 #' evaluate(
-#'   data = predictions, target_col = "Target",
+#'   data = predictions,
+#'   target_col = "Target",
 #'   prediction_cols = class_names,
 #'   type = "multinomial"
 #' )

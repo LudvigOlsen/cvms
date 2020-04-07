@@ -19,8 +19,8 @@ multiclass_probability_tibble(
 
 \item{num_observations}{The number of observations. Also the number of rows in the tibble.}
 
-\item{apply_softmax}{Whether to apply the softmax function rowwise. This will transform the
-numbers to probabilities that sum to \code{1} rowwise.}
+\item{apply_softmax}{Whether to apply the softmax function row-wise. This will transform the
+numbers to probabilities that sum to \code{1} row-wise.}
 
 \item{FUN}{Function for generating random numbers.
 The first argument must be the number of random numbers to generate,
@@ -38,7 +38,7 @@ as no other arguments are supplied.}
 \Sexpr[results=rd, stage=render]{lifecycle::badge("maturing")}
 
  Generate a tibble with random numbers containing one column per specified class.
- When the softmax function is applied, the numbers become probabilities that sum to \code{1} rowwise.
+ When the softmax function is applied, the numbers become probabilities that sum to \code{1} row-wise.
  Optionally, add columns with targets and predicted classes.
 }
 \examples{

@@ -8,8 +8,8 @@
 #' @description
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("stable")}
 #'
-#'  Train linear or logistic regression models on the full training set and validate it by
-#'  predicting the test/validation set.
+#'  Train linear or logistic regression models on a training set and validate it by
+#'  predicting a test/validation set.
 #'  Returns results in a tibble for easy reporting, along with the trained models.
 #'
 #'  See \code{\link[cvms:validate_fn]{validate_fn()}} for use

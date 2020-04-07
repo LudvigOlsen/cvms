@@ -181,12 +181,15 @@ cross_validate_fn(
  N.B. \strong{Binomial models only}}
 
 \item{positive}{Level from dependent variable to predict.
- Either as character or level index (\code{1} or \code{2} - alphabetically).
+ Either as character (\emph{preferable}) or level index (\code{1} or \code{2} - alphabetically).
 
  E.g. if we have the levels \code{"cat"} and \code{"dog"} and we want \code{"dog"} to be the positive class,
  we can either provide \code{"dog"} or \code{2}, as alphabetically, \code{"dog"} comes after \code{"cat"}.
 
- Used when calculating confusion matrix metrics and creating ROC curves.
+ \strong{Note:} For \emph{reproducibility}, it's preferable to \strong{specify the name directly}, as
+ different \code{\link[base:locales]{locales}} may sort the levels differently.
+
+ Used when calculating confusion matrix metrics and creating \code{ROC} curves.
 
  The \code{Positive Class} column in the output can be used to verify this setting.
 
@@ -228,6 +231,7 @@ Tbl (tibble) with results for each model.
  N.B. The \strong{Fold} column in the nested tibbles contains the test fold in that train/test split.
 
  \subsection{Shared across families}{
+
  A nested tibble with \strong{coefficients} of the models from all iterations. The coefficients
  are extracted from the model object with \code{\link[broom:tidy]{broom::tidy()}} or
  \code{\link[stats:coef]{coef()}} (with some restrictions on the output).
@@ -263,8 +267,8 @@ Tbl (tibble) with results for each model.
 
  ----------------------------------------------------------------
 
- Average \strong{RMSE}, \strong{MAE}, \strong{NRMSE(IQR)},
- \strong{RRSE}, \strong{RAE}, \strong{RMSLE} of all the iterations*,
+ Average \strong{\code{RMSE}}, \strong{\code{MAE}}, \strong{\code{NRMSE(IQR)}},
+ \strong{\code{RRSE}}, \strong{\code{RAE}}, \strong{\code{RMSLE}} of all the iterations*,
  \emph{\strong{omitting potential NAs} from non-converged iterations}.
 
  See the additional metrics (disabled by default) at \code{\link[cvms:gaussian_metrics]{?gaussian_metrics}}.
@@ -285,41 +289,46 @@ Tbl (tibble) with results for each model.
  ----------------------------------------------------------------
 
  Based on the \strong{collected} predictions from the test folds*,
- a confusion matrix and a ROC curve are created to get the following:
+ a confusion matrix and a \code{ROC} curve are created to get the following:
 
- ROC:
+ \code{ROC}:
 
- \strong{AUC}, \strong{Lower CI}, and \strong{Upper CI}
+ \strong{\code{AUC}}, \strong{\code{Lower CI}}, and \strong{\code{Upper CI}}
 
- Confusion Matrix:
+ \code{Confusion Matrix}:
 
- \strong{Balanced Accuracy}, \strong{F1},
- \strong{Sensitivity}, \strong{Specificity},
- \strong{Positive Predictive Value},
- \strong{Negative Predictive Value},
- \strong{Kappa},
- \strong{Detection Rate},
- \strong{Detection Prevalence},
- \strong{Prevalence}, and
- \strong{MCC} (Matthews correlation coefficient).
+ \strong{\code{Balanced Accuracy}},
+ \strong{\code{F1}},
+ \strong{\code{Sensitivity}},
+ \strong{\code{Specificity}},
+ \strong{\code{Positive Predictive Value}},
+ \strong{\code{Negative Predictive Value}},
+ \strong{\code{Kappa}},
+ \strong{\code{Detection Rate}},
+ \strong{\code{Detection Prevalence}},
+ \strong{\code{Prevalence}}, and
+ \strong{\code{MCC}} (Matthews correlation coefficient).
 
- Other available metrics (disabled by default, see \code{metrics}):
- \strong{Accuracy}, \strong{AIC}, \strong{AICc}, \strong{BIC}.
+ See the additional metrics (disabled by default) at
+ \code{\link[cvms:binomial_metrics]{?binomial_metrics}}.
 
  Also includes:
 
- A nested tibble with the \strong{predictions}, predicted classes (depends on \code{cutoff}), and targets.
- Note, that the \strong{predictions are not necessarily of the specified \code{positive} class}, but of
- the model's positive class (second level of dependent variable, alphabetically).
+ A nested tibble with \strong{predictions}, predicted classes (depends on \code{cutoff}), and the targets.
+ Note, that the predictions are \emph{not necessarily} of the \emph{specified} \code{positive} class, but of
+ the \emph{model's} positive class (second level of dependent variable, alphabetically).
 
- A list of \strong{ROC} curve objects.
+ The \code{\link[pROC:roc]{pROC::roc}} \strong{\code{ROC}} curve object(s).
 
  A nested tibble with the \strong{confusion matrix}/matrices.
  The \code{Pos_} columns tells you whether a row is a
- True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
+ True Positive (\code{TP}), True Negative (\code{TN}),
+ False Positive (\code{FP}), or False Negative (\code{FN}),
  depending on which level is the "positive" class. I.e. the level you wish to predict.
 
  A nested tibble with the \strong{results} from all fold columns.
+
+ The name of the \strong{Positive Class}.
 
  * In \emph{repeated cross-validation}, an evaluation is made per fold column (repetition) and averaged.
 
@@ -332,27 +341,35 @@ Tbl (tibble) with results for each model.
  ----------------------------------------------------------------
 
  For each class, a \emph{one-vs-all} binomial evaluation is performed. This creates
- a \strong{class level results} tibble containing the same metrics as the binomial results
+ a \strong{Class Level Results} tibble containing the same metrics as the binomial results
  described above (excluding \code{MCC}, \code{AUC}, \code{Lower CI} and \code{Upper CI}),
- along with a count of the class in the target column (\strong{\code{Support}}). These metrics are used to calculate the macro metrics
- in the output tibble. The nested class level results tibble is also included in the output tibble,
- and would usually be reported along with the macro and overall metrics.
+ along with a count of the class in the target column (\strong{\code{Support}}).
+ These metrics are used to calculate the macro metrics. The nested class level results
+ tibble is also included in the output tibble,
+ and could be reported along with the macro and overall metrics.
 
  The output tibble contains the macro and overall metrics.
  The metrics that share their name with the metrics in the nested
  class level results tibble are averages of those metrics
  (note: does not remove \code{NA}s before averaging).
- In addition to these, it also includes the \strong{Overall Accuracy} and
- the multiclass \strong{MCC}.
+ In addition to these, it also includes the \strong{\code{Overall Accuracy}} and
+ the multiclass \strong{\code{MCC}}.
 
  Other available metrics (disabled by default, see \code{metrics}):
- \strong{Accuracy}, multiclass \strong{AUC}, \strong{AIC}, \strong{AICc}, \strong{BIC},
- \strong{Weighted Balanced Accuracy}, \strong{Weighted Accuracy},
- \strong{Weighted F1}, \strong{Weighted Sensitivity}, \strong{Weighted Sensitivity},
- \strong{Weighted Specificity}, \strong{Weighted Pos Pred Value},
- \strong{Weighted Neg Pred Value}, \strong{Weighted Kappa},
- \strong{Weighted Detection Rate}, \strong{Weighted Detection Prevalence}, and
- \strong{Weighted Prevalence}.
+ \strong{\code{Accuracy}},
+ \emph{multiclass} \strong{\code{AUC}},
+ \strong{\code{Weighted Balanced Accuracy}},
+ \strong{\code{Weighted Accuracy}},
+ \strong{\code{Weighted F1}},
+ \strong{\code{Weighted Sensitivity}},
+ \strong{\code{Weighted Sensitivity}},
+ \strong{\code{Weighted Specificity}},
+ \strong{\code{Weighted Pos Pred Value}},
+ \strong{\code{Weighted Neg Pred Value}},
+ \strong{\code{Weighted Kappa}},
+ \strong{\code{Weighted Detection Rate}},
+ \strong{\code{Weighted Detection Prevalence}}, and
+ \strong{\code{Weighted Prevalence}}.
 
  Note that the "Weighted" average metrics are weighted by the \code{Support}.
 
@@ -360,18 +377,18 @@ Tbl (tibble) with results for each model.
 
  A nested tibble with the \strong{predictions}, predicted classes, and targets.
 
- A list of \strong{ROC} curve objects.
+ A list of \strong{ROC} curve objects when \code{AUC} is enabled.
 
  A nested tibble with the multiclass \strong{Confusion Matrix}.
 
  \strong{Class Level Results}
 
- Besides the binomial evaluation metrics and the \code{Support} metric,
- the nested class level results tibble also includes:
-
- A nested tibble with the \strong{confusion matrix} from the one-vs-all evaluation.
+ Besides the binomial evaluation metrics and the \code{Support},
+ the nested class level results tibble also contains a
+ nested tibble with the \strong{Confusion Matrix} from the one-vs-all evaluation.
  The \code{Pos_} columns tells you whether a row is a
- True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
+ True Positive (\code{TP}), True Negative (\code{TN}),
+ False Positive (\code{FP}), or False Negative (\code{FN}),
  depending on which level is the "positive" class. In our case, \code{1} is the current class
  and \code{0} represents all the other classes together.
  }
@@ -381,7 +398,7 @@ Tbl (tibble) with results for each model.
 
  Cross-validate your model function with one or multiple model formulas at once.
  Perform repeated cross-validation. Preprocess the train/test split
- within the cross-validation. Perform hyperparameter tuning with (sampled) grid search.
+ within the cross-validation. Perform hyperparameter tuning with grid search.
  Returns results in a tibble for easy comparison,
  reporting and further analysis.
 

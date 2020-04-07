@@ -66,22 +66,17 @@ It can be unclear whether the IC metrics (computed on the `lm()`/`lmer()` model 
 
 * `most_challenging()` is added. Finds the data points that were the most difficult to predict.
 
-* `plot_confusion_matrix()` is added. Creates a ggplot representing a given confusion matrix.
+* `plot_confusion_matrix()` is added. Creates a `ggplot` representing a given confusion matrix. Thanks to Malte Lau Petersen (@maltelau), Maris Sala (@marissala) and Kenneth Enevoldsen (@KennethEnevoldsen) for feedback.
 
 * `plot_metric_density()` is added. Creates a ggplot density plot for a metric column. 
 
 * `font()` is added. Utility for setting font settings (size, color, etc.) in plotting functions. 
 
-* `simplify_formula()` is added. Converts a formula with inline functions to a simple formula 
-where all variables are added together (e.g. `y ~ x*z + log(a) + (1|b)` -> `y ~ x + z + a + b`). This is 
-useful when passing a formula to `recipes::recipe()`, which doesn't allow the inline functions.
+* `simplify_formula()` is added. Converts a formula with inline functions to a simple formula where all variables are added together (e.g. `y ~ x*z + log(a) + (1|b)` -> `y ~ x + z + a + b`). This is useful when passing a formula to `recipes::recipe()`, which doesn't allow the inline functions.
 
-* `gaussian_metrics()`, `binomial_metrics()`, and `multinomial_metrics()` are added. Can be used
-to select metrics for the `metrics` argument in many `cvms` functions.
+* `gaussian_metrics()`, `binomial_metrics()`, and `multinomial_metrics()` are added. Can be used to select metrics for the `metrics` argument in many `cvms` functions.
 
-* `baseline_gaussian()`, `baseline_binomial()`, `baseline_multinomial()` are added. Simple wrappers for
-`baseline()` that are easier to use and have simpler help files. `baseline()` has a lot of arguments that are 
-specific to a family, which can be a bit confusing.
+* `baseline_gaussian()`, `baseline_binomial()`, `baseline_multinomial()` are added. Simple wrappers for `baseline()` that are easier to use and have simpler help files. `baseline()` has a lot of arguments that are specific to a family, which can be a bit confusing.
 
 ### New datasets
 
@@ -89,8 +84,7 @@ specific to a family, which can be a bit confusing.
 
 * `musicians` dataset is added. This has been **generated** for multiclass classification examples.
 
-* `predicted.musicians` dataset is added. This contains cross-validated predictions of the `musicians`
-dataset by three algorithms. Can be used to demonstrate working with predictions from repeated 5-fold stratified cross-validation.
+* `predicted.musicians` dataset is added. This contains cross-validated predictions of the `musicians` dataset by three algorithms. Can be used to demonstrate working with predictions from repeated 5-fold stratified cross-validation.
 
 ### New metrics
 
@@ -148,8 +142,7 @@ still carry more information though. Both the prediction and target columns must
 
 * Changes the required arguments in the `model_fn` function passed to `cross_validate_fn()`.
 
-* Warnings and messages from `preprocess_fn` are caught and added to `Warnings and Messages`. 
-Warnings are counted in `Other Warnings`.
+* Warnings and messages from `preprocess_fn` are caught and added to `Warnings and Messages`. Warnings are counted in `Other Warnings`.
 
 * Nesting is now done with `dplyr::group_nest` instead of `tidyr::nest_legacy` for speed improvements.
 
@@ -169,8 +162,7 @@ Warnings are counted in `Other Warnings`.
 
 * Fixes documentation in `cross_validate_fn()`. The examples section contained an unreasonable number of mistakes :-)
 
-* In `cross_validate_fn()`, warnings and messages from the predict function are now included in 
-`Warnings and Messages`. The warnings are counted in `Other Warnings`.
+* In `cross_validate_fn()`, warnings and messages from the predict function are now included in `Warnings and Messages`. The warnings are counted in `Other Warnings`.
 
 # cvms 0.3.0
 

@@ -8,8 +8,10 @@
 #' @description
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
 #'
-#'  Creates a ggplot2 object representing a confusion matrix with counts,
-#'  percentages overall, row percentages and column percentages.
+#'  Creates a \code{\link[ggplot2:ggplot]{ggplot2}} object representing a confusion matrix with counts,
+#'  overall percentages, row percentages and column percentages.
+#'
+#'  The confusion matrix can be created with \code{\link[cvms:evaluate]{evaluate()}}. See \code{Examples}.
 #'
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
@@ -64,13 +66,13 @@
 #'  Can be provided with \code{\link[cvms:font]{font()}}.
 #' @param arrow_size Size of arrow icons. (Numeric)
 #'
-#'  Passed to \code{\link[ggimage:geom_icon]{ggimage::geom_icon()}}.
+#'  Is divided by \code{sqrt(nrow(conf_matrix))} and passed on
+#'  to \code{\link[ggimage:geom_icon]{ggimage::geom_icon()}}.
 #' @param arrow_nudge_from_text Distance from the percentage text to the arrow. (Numeric)
 #' @param digits Number of digits to round to (percentages only).
 #'  Set to a negative number for no rounding.
 #'
-#'  Can be set for each font individually via the
-#'  \code{font_counts}, \code{font_normalized}, \code{font_row_percentages} and \code{font_col_percentages} arguments.
+#'  Can be set for each font individually via the \code{font_*} arguments.
 #' @param palette Color scheme. Passed directly to \code{palette} in
 #'  \code{\link[ggplot2:scale_fill_distiller]{ggplot2::scale_fill_distiller}}.
 #'
@@ -87,9 +89,9 @@
 #'
 #'  Technically, a lower value increases the upper limit in
 #'  \code{\link[ggplot2:scale_fill_distiller]{ggplot2::scale_fill_distiller}}.
-#' @param theme_fn The ggplot2 theme function to apply.
+#' @param theme_fn The \code{ggplot2} theme function to apply.
 #' @param place_x_axis_above Move the x-axis text to the top and reverse the levels such that
-#     the "correct" diagonal goes from top left to bottom right. (Logical)
+#'  the "correct" diagonal goes from top left to bottom right. (Logical)
 #' @details
 #'  Inspired by Antoine Sachet's answer at https://stackoverflow.com/a/53612391/11832955
 #' @return
@@ -104,17 +106,19 @@
 #'  the column percentages are the class-level sensitivity scores,
 #'  while the row percentages are the class-level positive predictive values.
 #' @examples
+#' \donttest{
 #' # Attach cvms
 #' library(cvms)
 #' library(ggplot2)
 #'
 #' # Two classes
 #'
-#' \donttest{
 #' # Create targets and predictions data frame
 #' data <- data.frame(
-#'   "target" = c("A", "B", "A", "B", "A", "B", "A", "B", "A", "B", "A", "B"),
-#'   "prediction" = c("B", "B", "A", "A", "A", "B", "B", "B", "A", "B", "A", "A"),
+#'   "target" = c("A", "B", "A", "B", "A", "B",
+#'                "A", "B", "A", "B", "A", "B"),
+#'   "prediction" = c("B", "B", "A", "A", "A", "B",
+#'                    "B", "B", "A", "B", "A", "A"),
 #'   stringsAsFactors = FALSE
 #' )
 #'
@@ -139,8 +143,8 @@
 #'
 #' # Create targets and predictions data frame
 #' data <- data.frame(
-#'   "target" = c("A", "B", "C", "B", "A", "B",
-#'                "C", "B", "A", "B", "C", "B", "A"),
+#'   "target" = c("A", "B", "C", "B", "A", "B", "C",
+#'                "B", "A", "B", "C", "B", "A"),
 #'   "prediction" = c("C", "B", "A", "C", "A", "B", "B",
 #'                    "C", "A", "B", "C", "A", "C"),
 #'   stringsAsFactors = FALSE
@@ -205,7 +209,7 @@ plot_confusion_matrix <- function(conf_matrix,
                                   font_normalized = font(),
                                   font_row_percentages = font(),
                                   font_col_percentages = font(),
-                                  arrow_size = 0.048/sqrt(nrow(conf_matrix)),
+                                  arrow_size = 0.048,
                                   arrow_nudge_from_text = 0.065,
                                   tile_border_color = NA,
                                   tile_border_size = 0.1,
@@ -365,6 +369,9 @@ plot_confusion_matrix <- function(conf_matrix,
                       "down" = get_figure_path("caret_down_sharp.svg"),
                       "left" = get_figure_path("caret_back_sharp.svg"),
                       "right" = get_figure_path("caret_forward_sharp.svg"))
+
+  # Scale arrow size
+  arrow_size <- arrow_size / sqrt(nrow(conf_matrix))
 
   #### Prepare dataset ####
 

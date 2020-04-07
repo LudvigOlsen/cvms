@@ -25,7 +25,7 @@ plot_confusion_matrix(
   font_normalized = font(),
   font_row_percentages = font(),
   font_col_percentages = font(),
-  arrow_size = 0.048/sqrt(nrow(conf_matrix)),
+  arrow_size = 0.048,
   arrow_nudge_from_text = 0.065,
   tile_border_color = NA,
   tile_border_size = 0.1,
@@ -90,9 +90,10 @@ such that the counts are on top. (Logical)}
  \code{"Greys"}, \code{"Purples"}, \code{"Reds"},
  as well as the default \code{"Blues"}.}
 
-\item{theme_fn}{The ggplot2 theme function to apply.}
+\item{theme_fn}{The \code{ggplot2} theme function to apply.}
 
-\item{place_x_axis_above}{Move the x-axis text to the top and reverse the levels such that}
+\item{place_x_axis_above}{Move the x-axis text to the top and reverse the levels such that
+the "correct" diagonal goes from top left to bottom right. (Logical)}
 
 \item{rotate_y_text}{Whether to rotate the y-axis text to
 be vertical instead of horizontal. (Logical)}
@@ -100,8 +101,7 @@ be vertical instead of horizontal. (Logical)}
 \item{digits}{Number of digits to round to (percentages only).
  Set to a negative number for no rounding.
 
- Can be set for each font individually via the
- \code{font_counts}, \code{font_normalized}, \code{font_row_percentages} and \code{font_col_percentages} arguments.}
+ Can be set for each font individually via the \code{font_*} arguments.}
 
 \item{font_counts}{List of font settings for the counts.
 Can be provided with \code{\link[cvms:font]{font()}}.}
@@ -117,7 +117,8 @@ Can be provided with \code{\link[cvms:font]{font()}}.}
 
 \item{arrow_size}{Size of arrow icons. (Numeric)
 
- Passed to \code{\link[ggimage:geom_icon]{ggimage::geom_icon()}}.}
+ Is divided by \code{sqrt(nrow(conf_matrix))} and passed on
+ to \code{\link[ggimage:geom_icon]{ggimage::geom_icon()}}.}
 
 \item{arrow_nudge_from_text}{Distance from the percentage text to the arrow. (Numeric)}
 
@@ -150,24 +151,28 @@ A \code{ggplot2} object representing a confusion matrix. Color intensity depends
 \description{
 \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
 
- Creates a ggplot2 object representing a confusion matrix with counts,
- percentages overall, row percentages and column percentages.
+ Creates a \code{\link[ggplot2:ggplot]{ggplot2}} object representing a confusion matrix with counts,
+ overall percentages, row percentages and column percentages.
+
+ The confusion matrix can be created with \code{\link[cvms:evaluate]{evaluate()}}. See \code{Examples}.
 }
 \details{
 Inspired by Antoine Sachet's answer at https://stackoverflow.com/a/53612391/11832955
 }
 \examples{
+\donttest{
 # Attach cvms
 library(cvms)
 library(ggplot2)
 
 # Two classes
 
-\donttest{
 # Create targets and predictions data frame
 data <- data.frame(
-  "target" = c("A", "B", "A", "B", "A", "B", "A", "B", "A", "B", "A", "B"),
-  "prediction" = c("B", "B", "A", "A", "A", "B", "B", "B", "A", "B", "A", "A"),
+  "target" = c("A", "B", "A", "B", "A", "B",
+               "A", "B", "A", "B", "A", "B"),
+  "prediction" = c("B", "B", "A", "A", "A", "B",
+                   "B", "B", "A", "B", "A", "A"),
   stringsAsFactors = FALSE
 )
 
@@ -192,8 +197,8 @@ plot_confusion_matrix(eval)
 
 # Create targets and predictions data frame
 data <- data.frame(
-  "target" = c("A", "B", "C", "B", "A", "B",
-               "C", "B", "A", "B", "C", "B", "A"),
+  "target" = c("A", "B", "C", "B", "A", "B", "C",
+               "B", "A", "B", "C", "B", "A"),
   "prediction" = c("C", "B", "A", "C", "A", "B", "B",
                    "C", "A", "B", "C", "A", "C"),
   stringsAsFactors = FALSE

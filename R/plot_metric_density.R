@@ -4,8 +4,12 @@
 #' @description
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
 #'
-#'  Creates a ggplot2 object with a density plot for one of the columns in the passed data frame(s).
+#'  Creates a \code{\link[ggplot2:ggplot]{ggplot2}} object with a density plot
+#'  for one of the columns in the passed data frame(s).
 #'
+#'  Note: In its current form, it is mainly intended as a quick way to visualize
+#'  the results from cross-validations and baselines (random evaluations).
+#'  It may change significantly in future versions.
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
 #' @family plotting functions
@@ -19,13 +23,54 @@
 #' @param metric Name of the metric column in \code{results} to plot. (Character)
 #' @param fill Colors of the plotted distributions.
 #'  The first color is for the \code{baseline}, the second for the \code{results}.
-#' @param alpha Transparency of the distribution (0 - 1).
+#' @param alpha Transparency of the distribution (\code{0 - 1}).
 #' @param xlim Limits for the x-axis. Can be set to NULL.
 #'
 #'  E.g. \code{c(0, 1)}.
-#' @param theme_fn The ggplot2 theme function to apply.
+#' @param theme_fn The \code{ggplot2} theme function to apply.
 #' @return
-#'  ggplot2 object.
+#'  A \code{ggplot2} object with the density of a metric, possibly split
+#'  in \emph{Results} and \emph{Baseline}.
+#' @examples
+#' \donttest{
+#' # Attach packages
+#' library(cvms)
+#' library(dplyr)
+#'
+#' # We will use the musicians and predicted.musicians datasets
+#' musicians
+#' predicted.musicians
+#'
+#' # Set seed
+#' set.seed(42)
+#'
+#' # Create baseline for targets
+#' bsl <- baseline_multinomial(
+#'   test_data = musicians,
+#'   dependent_col = "Class",
+#'   n = 20  # Normally 100
+#' )
+#'
+#' # Evaluate predictions grouped by classifier and fold column
+#' eval <- predicted.musicians %>%
+#'   dplyr::group_by(Classifier, `Fold Column`) %>%
+#'   evaluate(
+#'   target_col = "Target",
+#'   prediction_cols = c("A", "B", "C", "D"),
+#'   type = "multinomial"
+#' )
+#'
+#' # Plot density of the Overall Accuracy metric
+#' plot_metric_density(
+#'   results = eval,
+#'   baseline = bsl$random_evaluations,
+#'   metric = "Overall Accuracy",
+#'   xlim = c(0,1)
+#' )
+#'
+#' # The bulk of classifier results are much better than
+#' # the baseline results
+#' }
 plot_metric_density <- function(results = NULL,
                                 baseline = NULL,
                                 metric = "",

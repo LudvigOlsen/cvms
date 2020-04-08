@@ -76,7 +76,7 @@ multiclass_probability_tibble <- function(num_classes,
 
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
-  checkmate::assert_count(x = num_classes, add = assert_collection)
+  checkmate::assert_count(x = num_classes, positive = TRUE, add = assert_collection)
   checkmate::assert_count(x = num_observations, add = assert_collection)
   checkmate::assert_flag(x = apply_softmax, add = assert_collection)
   checkmate::assert_flag(x = add_targets, add = assert_collection)

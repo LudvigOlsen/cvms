@@ -165,7 +165,7 @@ The following formulas are used for calculating the metrics:
 
  \code{Detection Prevalence = (TP + FP) / (TP + FN + TN + FP)}
 
- \code{Threat Score = FP / (TP + FN + FP)}
+ \code{Threat Score = TP / (TP + FN + FP)}
 
  \code{False Neg Rate = 1 - Sensitivity}
 

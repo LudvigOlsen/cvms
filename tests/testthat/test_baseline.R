@@ -164,10 +164,8 @@ test_that("binomial evaluations are correct in baseline()", {
     tolerance = 1e-5
   )
   expect_equal(binom_baseline_summ$`Threat Score`,
-    c(
-      0.238503105590062, 0.25, 0.0422266202536457, 0.0551086956521739,
-      0.28, 0.142857142857143, 0, 0, 0, 0.4
-    ),
+               c(0.351489648033126, 0.36, 0.122896613634581, 0.121992753623188,
+               0.523809523809524, 0.0869565217391304, 0, 0, 0, 0.6),
     tolerance = 1e-5
   )
 
@@ -329,10 +327,9 @@ test_that("binomial evaluations are correct in baseline()", {
   )
 
   expect_equal(binom_baseline_reval$`Threat Score`,
-    c(
-      0.142857142857143, 0.25, 0.217391304347826, 0.28, 0.25, 0.28,
-      0.28, 0.217391304347826, 0.25, 0.217391304347826
-    ),
+               c(0.523809523809524, 0.416666666666667, 0.304347826086957, 0.32,
+               0.458333333333333, 0.36, 0.36, 0.434782608695652, 0.25, 0.0869565217391304
+               ),
     tolerance = 1e-3
   )
 
@@ -1966,13 +1963,11 @@ test_that("multinomial evaluations are correct in baseline()", {
       ),
       tolerance = 1e-5
     )
-    expect_equal(multinom_baseline_summ$`Threat Score`,
-      c(
-        0.360143992717522, 0.372252747252747, 0.0591874871517986, 0.100775388826859,
-        0.43015873015873, 0.263170163170163, 0, 0,
-        0.533333333333333, 0.181818181818182, 0, 0, 0.213333333333333,
-        0.24, 0.213333333333333
-      ),
+    expect_equal(
+      multinom_baseline_summ$`Threat Score`,
+      c(0.272473109678992, 0.253357753357753, 0.111848069715885, 0.169954378410261,
+      0.475058275058275, 0.138095238095238, 0, 0, 0.6, 0.0666666666666667,
+      0, 0, 0.12, 0.0933333333333333, 0.12),
       tolerance = 1e-5
     )
     # Weighted
@@ -2091,13 +2086,11 @@ test_that("multinomial evaluations are correct in baseline()", {
       ),
       tolerance = 1e-5
     )
-    expect_equal(multinom_baseline_summ$`Weighted Threat Score`,
-      c(
-        0.356333911513323, 0.363571428571429, 0.057824352283336, 0.0974106865356865,
-        0.421904761904762, 0.260223776223776, 0, 0, NA,
-        NA, NA, NA, 0.2304, 0.2016,
-        0.2304
-      ),
+    expect_equal(
+      multinom_baseline_summ$`Weighted Threat Score`,
+      c(0.273521485703839, 0.255824175824176, 0.112601755397812, 0.179807138939492,
+      0.465062937062937, 0.143809523809524, 0, 0, NA, NA, NA, NA, 0.1296,
+      0.0784, 0.1296),
       tolerance = 1e-5
     )
   }
@@ -2137,7 +2130,7 @@ test_that("multinomial evaluations are correct in baseline()", {
     expect_equal(sum(multinom_baseline_class$`False Pos Rate`), 7.155891, tolerance = 1e-4)
     expect_equal(sum(multinom_baseline_class$`False Discovery Rate`, na.rm = TRUE), 10.19412, tolerance = 1e-4)
     expect_equal(sum(multinom_baseline_class$`False Omission Rate`, na.rm = TRUE), 4.99052, tolerance = 1e-4)
-    expect_equal(sum(multinom_baseline_class$`Threat Score`), 6.759634, tolerance = 1e-4)
+    expect_equal(sum(multinom_baseline_class$`Threat Score`), 5.3493824364086, tolerance = 1e-4)
   }
 
   # Random evaluations results
@@ -2438,20 +2431,18 @@ test_that("multinomial evaluations are correct in baseline()", {
       tolerance = 1e-4
     )
 
-    expect_equal(multinom_baseline_random_eval_summ$`Threat Score`,
-      c(
-        0.414799253034547, 0.30997150997151, 0.403769841269841, 0.300865800865801,
-        0.388278388278388, 0.263170163170163, 0.419047619047619, 0.315151515151515,
-        0.43015873015873, 0.356227106227106
-      ),
+    expect_equal(
+      multinom_baseline_random_eval_summ$`Threat Score`,
+      c(0.166199813258637, 0.342450142450142, 0.200396825396825, 0.385281385281385,
+      0.223443223443223, 0.475058275058275, 0.165079365079365, 0.345454545454545,
+      0.138095238095238, 0.283272283272283),
       tolerance = 1e-4
     )
-    expect_equal(multinom_baseline_random_eval_summ$`Weighted Threat Score`,
-      c(
-        0.414649859943978, 0.316991452991453, 0.402738095238095, 0.295844155844156,
-        0.379340659340659, 0.260223776223776, 0.412571428571429, 0.311272727272727,
-        0.421904761904762, 0.347802197802198
-      ),
+    expect_equal(
+      multinom_baseline_random_eval_summ$`Weighted Threat Score`,
+      c(0.166162464985994, 0.352068376068376, 0.189761904761905, 0.394285714285714,
+      0.224175824175824, 0.465062937062937, 0.161142857142857, 0.351272727272727,
+      0.143809523809524, 0.287472527472527),
       tolerance = 1e-4
     )
 
@@ -2688,8 +2679,9 @@ test_that("multinomial evaluations are correct in baseline()", {
       8.707853,
       tolerance = 1e-4
     )
-    expect_equal(sum(multinom_baseline_random_eval_class$`Threat Score`),
-      10.80432,
+    expect_equal(
+      sum(multinom_baseline_random_eval_class$`Threat Score`),
+      8.17419329036976,
       tolerance = 1e-4
     )
     expect_equal(sum(multinom_baseline_random_eval_class$Support),

@@ -86,7 +86,7 @@
 #'
 #'  \code{Detection Prevalence = (TP + FP) / (TP + FN + TN + FP)}
 #'
-#'  \code{Threat Score = FP / (TP + FN + FP)}
+#'  \code{Threat Score = TP / (TP + FN + FP)}
 #'
 #'  \code{False Neg Rate = 1 - Sensitivity}
 #'
@@ -800,8 +800,8 @@ false_omission_rate <- function(label_counts) {
 threat_score <- function(label_counts) {
   check_label_counts(label_counts)
 
-  # FP / (TP + FN + FP)
-  label_counts[["FP"]] / (label_counts[["TP"]] + label_counts[["FN"]] + label_counts[["FP"]])
+  # TP / (TP + FN + FP)
+  label_counts[["TP"]] / (label_counts[["TP"]] + label_counts[["FN"]] + label_counts[["FP"]])
 }
 
 balanced_accuracy <- function(label_counts) {

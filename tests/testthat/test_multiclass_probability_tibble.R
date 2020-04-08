@@ -78,7 +78,6 @@ test_that("multiclass_probability_tibble() works", {
 
 })
 
-
 test_that("fuzz testing multiclass_probability_tibble()", {
   xpectr::set_test_seed(42)
 

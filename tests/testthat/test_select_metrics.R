@@ -282,7 +282,7 @@ test_that("select_metrics() works with output from cross-validation", {
     tolerance = 1e-4)
   expect_equal(
     binomial_metrics[["Threat Score"]],
-    0.21739,
+    0.695652,
     tolerance = 1e-4)
   expect_equal(
     binomial_metrics[["AIC"]],
@@ -491,11 +491,11 @@ test_that("select_metrics() works with output from cross-validation", {
     tolerance = 1e-4)
   expect_equal(
     multinomial_metrics[["Threat Score"]],
-    0.41551,
+    0.143494,
     tolerance = 1e-4)
   expect_equal(
     multinomial_metrics[["Weighted Threat Score"]],
-    0.41551,
+    0.1434946,
     tolerance = 1e-4)
   expect_equal(
     multinomial_metrics[["AIC"]],
@@ -822,7 +822,7 @@ test_that("select_metrics() works with output from baseline", {
     tolerance = 1e-4)
   expect_equal(
     binomial_metrics[["Threat Score"]],
-    c(0.2963, 0.26923, 0.26923, 0.13636),
+    c(0.407407, 0.346153, 0.192307, 0.22727),
     tolerance = 1e-4)
   expect_equal(
     binomial_metrics[["Dependent"]],
@@ -1009,11 +1009,11 @@ test_that("select_metrics() works with output from baseline", {
     tolerance = 1e-4)
   expect_equal(
     multinomial_metrics[["Threat Score"]],
-    c(0.42402, 0.43544, 0.38278, 0.41336),
+    c(0.12316, 0.12414, 0.22847, 0.13999),
     tolerance = 1e-4)
   expect_equal(
     multinomial_metrics[["Weighted Threat Score"]],
-    c(0.42402, 0.43544, 0.38278, 0.41336),
+    c(0.12316, 0.12414, 0.22847, 0.13999),
     tolerance = 1e-4)
   expect_equal(
     multinomial_metrics[["Dependent"]],
@@ -1290,7 +1290,7 @@ test_that("select_metrics() works with output from evaluate", {
     tolerance = 1e-4)
   expect_equal(
     binomial_metrics[["Threat Score"]],
-    0.22917,
+    0.4375,
     tolerance = 1e-4)
   # Testing column names
   expect_equal(
@@ -1473,11 +1473,11 @@ test_that("select_metrics() works with output from evaluate", {
     tolerance = 1e-4)
   expect_equal(
     multinomial_metrics[["Threat Score"]],
-    0.42842,
+    0.14316,
     tolerance = 1e-4)
   expect_equal(
     multinomial_metrics[["Weighted Threat Score"]],
-    0.42842,
+    0.14316,
     tolerance = 1e-4)
   # Testing column names
   expect_equal(
@@ -1734,7 +1734,7 @@ test_that("select_metrics() works with confusion matrix", {
     tolerance = 1e-4)
   expect_equal(
     binomial_metrics[["Threat Score"]],
-    0.4,
+    0.2,
     tolerance = 1e-4)
   # Testing column names
   expect_equal(
@@ -1910,11 +1910,11 @@ test_that("select_metrics() works with confusion matrix", {
     tolerance = 1e-4)
   expect_equal(
     multinomial_metrics[["Threat Score"]],
-    0.38333,
+    0.22222,
     tolerance = 1e-4)
   expect_equal(
     multinomial_metrics[["Weighted Threat Score"]],
-    0.38333,
+    0.22222,
     tolerance = 1e-4)
   # Testing column names
   expect_equal(

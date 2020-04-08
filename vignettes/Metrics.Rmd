@@ -120,7 +120,7 @@ With these counts, we can calculate the following metrics. Note, that the `Kappa
 |Detection Rate||$\frac{TP}{TP + FN + TN + FP}$|
 |Detection Prevalence||$\frac{TP + FP}{TP + FN + TN + FP}$|
 |Prevalence||$\frac{TP + FN}{TP + FN + TN + FP}$|
-|Threat Score||$\frac{FP}{TP + FN + FP}$|
+|Threat Score||$\frac{TP}{TP + FN + FP}$|
 |False Negative Rate||${\scriptstyle 1 - Sensitivity}$|
 |False Positive Rate||${\scriptstyle 1 - Specificity}$|
 |False Discovery Rate||${\scriptstyle 1 - Pos Pred Value}$|

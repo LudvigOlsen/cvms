@@ -23,7 +23,7 @@ most_challenging(
 
  Predictions can be passed as values, predicted classes or predicted probabilities:
 
- \strong{N.B.} Probabilities \code{<1e-20} are truncated to avoid \code{log(0)}.
+ \strong{N.B.} Adds \code{\link[base:.Machine]{.Machine$double.eps}} to all probabilities to avoid \code{log(0)}.
 
  \subsection{Multinomial}{
  When \code{type} is \code{"multinomial"}, the predictions can be passed in one of two formats.

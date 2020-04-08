@@ -9,7 +9,7 @@
 #'
 #'  Predictions can be passed as values, predicted classes or predicted probabilities:
 #'
-#'  \strong{N.B.} Probabilities \code{<1e-20} are truncated to avoid \code{log(0)}.
+#'  \strong{N.B.} Adds \code{\link[base:.Machine]{.Machine$double.eps}} to all probabilities to avoid \code{log(0)}.
 #'
 #'  \subsection{Multinomial}{
 #'  When \code{type} is \code{"multinomial"}, the predictions can be passed in one of two formats.
@@ -358,6 +358,13 @@ most_challenging <- function(data,
   grouping_keys <- dplyr::group_keys(data)
   data <- dplyr::ungroup(data)
 
+  if (obs_id_col %in% colnames(grouping_keys)){
+    assert_collection$push(
+      "'data' cannot be grouped by the 'obs_id_col'. This is done internally."
+    )
+    checkmate::reportAssertions(assert_collection)
+  }
+
   # Select relevant columns
   data <- data[, c(
     colnames(grouping_keys),
@@ -588,6 +595,10 @@ prepare_predictions <- function(data,
         target_index_map[[x]]
       }
     )
+
+    # Add + .Machine$double.eps to probabilities
+    data[, prediction_cols] <- data[, prediction_cols] + .Machine$double.eps
+    # Find probability of targets
     data[["probability_of_target"]] <- as.data.frame(data[, prediction_cols])[
       cbind(seq_along(target_indices), target_indices)]
 
@@ -602,9 +613,13 @@ prepare_predictions <- function(data,
 
       if (type == "binomial"){
         negative <- cat_levels[cat_levels != positive]
+        # Find predicted classes
         data[["predicted_class"]] <-
           ifelse(data[[prediction_cols]] > cutoff,
                  positive, negative)
+        # Add + .Machine$double.eps to probabilities
+        data[[prediction_cols]] <- data[[prediction_cols]] + .Machine$double.eps
+        # Find probability of targets
         data[["probability_of_target"]] <-
           ifelse(data[[target_col]] == positive,
                  data[[prediction_cols]],

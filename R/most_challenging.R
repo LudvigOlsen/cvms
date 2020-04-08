@@ -84,9 +84,7 @@
 #' @param obs_id_col Name of column with observation IDs. This will be used to aggregate
 #'  the performance of each observation.
 #' @param target_col Name of column with the true classes/values in \code{data}.
-#' @param prediction_col Name of column with the predictions.
-#'
-#'  When evaluating a classification task, the column should contain the predicted classes.
+#' @param prediction_cols Name(s) of column(s) with the predictions.
 #' @param type Type of task used to get the predictions:
 #'
 #'  \code{"gaussian"} for regression (like linear regression).

@@ -108,6 +108,8 @@ the performance of each observation.}
 
 \item{target_col}{Name of column with the true classes/values in \code{data}.}
 
+\item{prediction_cols}{Name(s) of column(s) with the predictions.}
+
 \item{threshold}{Threshold to filter observations by. Depends on \code{type} and \code{threshold_is}.
 
  The \code{threshold} can either be a \strong{percentage} or a \strong{score}.
@@ -163,10 +165,6 @@ the performance of each observation.}
 \item{cutoff}{Threshold for predicted classes. (Numeric)
 
  \strong{N.B. Binomial only}.}
-
-\item{prediction_col}{Name of column with the predictions.
-
- When evaluating a classification task, the column should contain the predicted classes.}
 }
 \value{
 Data frame with the most challenging observations and their metrics.

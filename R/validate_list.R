@@ -86,7 +86,8 @@ validate_list <- function(train_data,
   )
   if (checkmate::test_data_frame(hyperparameters)) {
     checkmate::assert_data_frame(
-      x = hyperparameters, col.names = "named",
+      x = hyperparameters,
+      col.names = "named",
       min.rows = 1, min.cols = 1,
       add = assert_collection
     )
@@ -95,6 +96,7 @@ validate_list <- function(train_data,
       x = hyperparameters,
       null.ok = TRUE,
       any.missing = FALSE,
+      min.len = 1,
       names = "named",
       add = assert_collection
     )
@@ -107,6 +109,7 @@ validate_list <- function(train_data,
   )
   checkmate::assert_flag(x = verbose, add = assert_collection)
   checkmate::assert_flag(x = err_nc, add = assert_collection)
+  checkmate::assert_flag(x = rm_nc, add = assert_collection)
   checkmate::assert_flag(x = preprocess_once, add = assert_collection)
   checkmate::assert_flag(
     x = parallel_, add = assert_collection,
@@ -114,6 +117,13 @@ validate_list <- function(train_data,
   )
   checkmate::assert_flag(x = return_models, add = assert_collection)
   checkmate::assert_string(x = caller, add = assert_collection)
+  checkmate::assert_string(x = partitions_col, add = assert_collection)
+  checkmate::reportAssertions(assert_collection)
+  if (is.null(test_data) &&
+      partitions_col %ni% colnames(train_data)){
+    assert_collection$push("Could not find 'partition_col' column in 'train_data'.")
+  }
+
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
 

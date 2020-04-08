@@ -74,13 +74,15 @@ cross_validate_list <- function(data,
 
   checkmate::assert(
     checkmate::check_data_frame(
-      x = hyperparameters, col.names = "named",
+      x = hyperparameters,
+      col.names = "named",
       min.rows = 1, min.cols = 1
     ),
     checkmate::check_list(
       x = hyperparameters,
       null.ok = TRUE,
       any.missing = FALSE,
+      min.len = 1,
       names = "named"
     )
   )
@@ -95,7 +97,8 @@ cross_validate_list <- function(data,
   checkmate::assert_flag(x = rm_nc, add = assert_collection)
   checkmate::assert_flag(x = preprocess_once, add = assert_collection)
   checkmate::assert_flag(
-    x = parallel_, add = assert_collection,
+    x = parallel_,
+    add = assert_collection,
     .var.name = "parallel"
   )
   checkmate::assert_string(x = caller, add = assert_collection)
@@ -123,6 +126,14 @@ cross_validate_list <- function(data,
     add = assert_collection
   )
 
+  checkmate::reportAssertions(assert_collection)
+  if (length(setdiff(fold_cols, colnames(data))) > 0){
+    assert_collection$push(
+      paste0("the following 'fold_cols' columns were not in 'data': ", paste0(
+        setdiff(fold_cols, colnames(data)), collapse = ", "
+      ))
+    )
+  }
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
 

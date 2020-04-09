@@ -272,12 +272,11 @@ test_that("fuzz testing multiclass_probability_tibble()", {
   side_effects_17365 <- xpectr::capture_side_effects(multiclass_probability_tibble(num_classes = 3, num_observations = 0, apply_softmax = TRUE, FUN = runif, class_name = "class_", add_predicted_classes = FALSE, add_targets = FALSE), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_17365[['error']]),
-    xpectr::strip("Can't subset columns that don't exist.\n\033[31mx\033[39m The columns `class_1`, `class_2`, and `class_3` don't exist."),
+    xpectr::strip("1 assertions failed:\n * Variable 'num_observations': Must be >= 1."),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_17365[['error_class']]),
-    xpectr::strip(c("vctrs_error_subscript_oob", "vctrs_error_subscript",
-      "rlang_error", "error", "condition")),
+    xpectr::strip(c("simpleError", "error", "condition")),
     fixed = TRUE)
 
   # Testing multiclass_probability_tibble(num_classes = ...
@@ -288,7 +287,7 @@ test_that("fuzz testing multiclass_probability_tibble()", {
   side_effects_11346 <- xpectr::capture_side_effects(multiclass_probability_tibble(num_classes = 3, num_observations = -1, apply_softmax = TRUE, FUN = runif, class_name = "class_", add_predicted_classes = FALSE, add_targets = FALSE), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_11346[['error']]),
-    xpectr::strip("1 assertions failed:\n * Variable 'num_observations': Must be >= 0."),
+    xpectr::strip("1 assertions failed:\n * Variable 'num_observations': Must be >= 1."),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_11346[['error_class']]),

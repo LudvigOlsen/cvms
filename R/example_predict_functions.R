@@ -11,7 +11,7 @@
 #' @family example functions
 #' @return A function with the following form:
 #'
-#'  \code{function(test_data, model, formula, hyperparameters) \{}
+#'  \code{function(test_data, model, formula, hyperparameters, train_data) \{}
 #'
 #'  \verb{    }\code{# Use model to predict test_data}
 #'
@@ -49,7 +49,8 @@ example_predict_functions <- function(name) {
     "glmer_binomial",
     "randomForest_gaussian"
   )) {
-    predict_fn <- function(test_data, model, formula, hyperparameters) {
+    predict_fn <- function(test_data, model, formula,
+                           hyperparameters, train_data) {
       stats::predict(
         object = model,
         newdata = test_data,
@@ -58,7 +59,8 @@ example_predict_functions <- function(name) {
       )
     }
   } else if (name %in% c("svm_gaussian")) {
-    predict_fn <- function(test_data, model, formula, hyperparameters) {
+    predict_fn <- function(test_data, model, formula,
+                           hyperparameters, train_data) {
       stats::predict(
         object = model,
         newdata = test_data,
@@ -66,7 +68,8 @@ example_predict_functions <- function(name) {
       )
     }
   } else if (name == "svm_binomial") {
-    predict_fn <- function(test_data, model, formula, hyperparameters) {
+    predict_fn <- function(test_data, model, formula,
+                           hyperparameters, train_data) {
       predictions <- stats::predict(
         object = model,
         newdata = test_data,
@@ -83,7 +86,8 @@ example_predict_functions <- function(name) {
       probabilities[[2]]
     }
   } else if (name == "svm_multinomial") {
-    predict_fn <- function(test_data, model, formula, hyperparameters) {
+    predict_fn <- function(test_data, model, formula,
+                           hyperparameters, train_data) {
       predictions <- stats::predict(
         object = model,
         newdata = test_data,
@@ -100,7 +104,8 @@ example_predict_functions <- function(name) {
       probabilities
     }
   } else if (name == "naive_bayes") {
-    predict_fn <- function(test_data, model, formula, hyperparameters) {
+    predict_fn <- function(test_data, model, formula,
+                           hyperparameters, train_data) {
       stats::predict(
         object = model,
         newdata = test_data,
@@ -109,7 +114,8 @@ example_predict_functions <- function(name) {
       )[, 2]
     }
   } else if (name == "nnet_multinom") {
-    predict_fn <- function(test_data, model, formula, hyperparameters) {
+    predict_fn <- function(test_data, model, formula,
+                           hyperparameters, train_data) {
       stats::predict(
         object = model,
         newdata = test_data,
@@ -118,7 +124,8 @@ example_predict_functions <- function(name) {
       )
     }
   } else if (name %in% c("nnet_gaussian", "nnet_binomial")) {
-    predict_fn <- function(test_data, model, formula, hyperparameters) {
+    predict_fn <- function(test_data, model, formula,
+                           hyperparameters, train_data) {
       stats::predict(
         object = model,
         newdata = test_data,
@@ -127,7 +134,8 @@ example_predict_functions <- function(name) {
       )
     }
   } else if (name %in% c("randomForest_binomial")) {
-    predict_fn <- function(test_data, model, formula, hyperparameters) {
+    predict_fn <- function(test_data, model, formula,
+                           hyperparameters, train_data) {
       stats::predict(
         object = model,
         newdata = test_data,
@@ -135,7 +143,8 @@ example_predict_functions <- function(name) {
       )[, 2]
     }
   } else if (name %in% c("randomForest_multinomial")) {
-    predict_fn <- function(test_data, model, formula, hyperparameters) {
+    predict_fn <- function(test_data, model, formula,
+                           hyperparameters, train_data) {
       stats::predict(
         object = model,
         newdata = test_data,

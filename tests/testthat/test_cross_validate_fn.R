@@ -182,7 +182,7 @@ test_that("binomial glm model works with cross_validate_fn()", {
   )
 
   # wrong predict fn
-  wrong_predict_fn <- function(test_data, model, formula = NULL, hyperparameters = NULL) {
+  wrong_predict_fn <- function(test_data, model, formula = NULL, hyperparameters = NULL, train_data = NULL) {
     tibble::tibble(
       "1" = stats::predict(
         object = model, newdata = test_data,
@@ -216,7 +216,7 @@ test_that("binomial glm model works with cross_validate_fn()", {
     formulas = c("diagnosis~score", "diagnosis~age"),
     fold_cols = ".folds",
     predict_fn = function(test_data, model, formula = NULL,
-                          hyperparameters = NULL) {
+                          hyperparameters = NULL, train_data = NULL) {
       NULL
     },
     type = "binomial"
@@ -229,7 +229,7 @@ test_that("binomial glm model works with cross_validate_fn()", {
     formulas = c("diagnosis~score", "diagnosis~age"),
     fold_cols = ".folds",
     predict_fn = function(test_data, model, formula = NULL,
-                          hyperparameters = NULL) {
+                          hyperparameters = NULL, train_data = NULL) {
       lm
     },
     type = "binomial"
@@ -261,7 +261,8 @@ test_that("binomial glm model works with cross_validate_fn()", {
     formulas = c("diagnosis~score", "diagnosis~age"),
     fold_cols = ".folds",
     predict_fn = function(test_data, model, formula = NULL,
-                          hyperparameters = NULL) {
+                          hyperparameters = NULL,
+                          train_data = NULL) {
       c("a", "b", "d")
     },
     type = "binomial"
@@ -274,7 +275,8 @@ test_that("binomial glm model works with cross_validate_fn()", {
     formulas = c("diagnosis~score", "diagnosis~age"),
     fold_cols = ".folds",
     predict_fn = function(test_data, model, formula = NULL,
-                          hyperparameters = NULL) {
+                          hyperparameters = NULL,
+                          train_data = NULL) {
       head(LETTERS, nrow(test_data))
     },
     type = "binomial"
@@ -287,7 +289,7 @@ test_that("binomial glm model works with cross_validate_fn()", {
     formulas = c("diagnosis~score", "diagnosis~age"),
     fold_cols = ".folds",
     predict_fn = function(test_data, model, formula = NULL,
-                          hyperparameters = NULL) {
+                          hyperparameters = NULL, train_data = NULL) {
       stop("predict_fn error")
     },
     type = "binomial"
@@ -306,7 +308,7 @@ test_that("binomial glm model works with cross_validate_fn()", {
     formulas = c("diagnosis~score", "diagnosis~age"),
     fold_cols = ".folds",
     predict_fn = function(t_data, model, formula = NULL,
-                          hyperparameters = NULL) {
+                          hyperparameters = NULL, train_data = NULL) {
       NULL
     },
     type = "binomial"
@@ -321,7 +323,9 @@ test_that("binomial glm model works with cross_validate_fn()", {
 
   expect_equal(
     run_predict_fn(
-      test_data = data.frame(), model = NULL,
+      test_data = data.frame(),
+      train_data = NULL,
+      model = NULL,
       model_formula = "",
       y_col = "",
       user_predict_fn = NULL,
@@ -897,11 +901,11 @@ test_that("gaussian svm models with hparams and preprocessing work with cross_va
     )
   }
 
-  # broom::tidy(svm_model_fn(train_data = dat, formula = as.formula("score~diagnosis"),
+  # broom::tidy(svm_model_fn(train_data = dat, formula = as.formula("score~diagnosis", train_data = NULL),
   #              hyperparameters = list(
   #                "kernel" = "linear", "cost" = 10)))
 
-  svm_predict_fn <- function(test_data, model, formula, hyperparameters) {
+  svm_predict_fn <- function(test_data, model, formula, hyperparameters, train_data = NULL) {
     warning("This is a predict_fn warning")
     message("This is a predict_fn message")
 
@@ -1141,14 +1145,14 @@ test_that("binomial naiveBayes models from e1071 work with cross_validate_fn()",
 
   # nb_ <- nb_model_fn(data = dat, formula = as.formula("diagnosis~score"))
 
-  nb_predict_fn <- function(test_data, model, formula = NULL, hyperparameters) {
+  nb_predict_fn <- function(test_data, model, formula = NULL, hyperparameters, train_data = NULL) {
     stats::predict(
       object = model, newdata = test_data, type = "raw",
       allow.new.levels = TRUE
     )[, 2]
   }
 
-  nb_wrong_predict_fn <- function(test_data, model, formula = NULL, hyperparameters) {
+  nb_wrong_predict_fn <- function(test_data, model, formula = NULL, hyperparameters, train_data = NULL) {
     stats::predict(
       object = model, newdata = test_data, type = "raw",
       allow.new.levels = TRUE
@@ -2538,7 +2542,7 @@ test_that("binomial random predictions work with cross_validate_fn()", {
     glm(formula = formula, data = train_data, family = "binomial")
   }
 
-  random_predict_fn <- function(test_data, model, formula, hyperparameters) {
+  random_predict_fn <- function(test_data, model, formula, hyperparameters, train_data) {
     runif(nrow(test_data), min = 0, max = 1)
   }
 
@@ -2706,7 +2710,7 @@ test_that("gaussian random predictions work with cross_validate_fn()", {
     lm(formula = formula, data = train_data)
   }
 
-  random_predict_fn <- function(test_data, model, formula, hyperparameters) {
+  random_predict_fn <- function(test_data, model, formula, hyperparameters, train_data) {
     runif(nrow(test_data), min = 10, max = 70)
   }
 
@@ -2769,7 +2773,7 @@ test_that("multinomial random predictions work with cross_validate_fn()", {
     )
   }
 
-  random_predict_fn <- function(test_data, model, formula, hyperparameters) {
+  random_predict_fn <- function(test_data, model, formula, hyperparameters, train_data) {
     multiclass_probability_tibble(
       num_classes = 3, num_observations = nrow(test_data),
       apply_softmax = TRUE, FUN = runif,
@@ -3098,7 +3102,7 @@ test_that("gaussian results are returned in correct order from cross_validate_fn
     lm(formula = formula, data = train_data)
   }
 
-  random_predict_fn <- function(test_data, model, formula, hyperparameters) {
+  random_predict_fn <- function(test_data, model, formula, hyperparameters, train_data) {
     if ("age" %in% as.character(formula)) {
       return(runif(nrow(test_data), min = 10, max = 70) + 100)
     }
@@ -3161,7 +3165,7 @@ test_that("binomial results are returned in correct order from cross_validate_fn
 
   glm_model_fn <- example_model_functions("glm_binomial")
 
-  random_predict_fn <- function(test_data, model, formula, hyperparameters) {
+  random_predict_fn <- function(test_data, model, formula, hyperparameters, train_data) {
     if ("age" %in% as.character(formula)) {
       return(runif(nrow(test_data), min = 0, max = 0.5))
     }
@@ -3322,7 +3326,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
   #                          }
   #                        ),
   #                        "predict_fn" = list(
-  #                          function(test_data, model, formula, hyperparameters) {
+  #                          function(test_data, model, formula, hyperparameters, train_data) {
   #                            stats::predict(
   #                              object = model,
   #                              newdata = test_data,
@@ -3338,7 +3342,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
   #                              allow.new.levels = TRUE
   #                            )
   #                          },
-  #                          function(test_data, model, formula, hyperparameters, xx) {
+  #                          function(test_data, model, formula, hyperparameters, train_data, xx) {
   #                            stats::predict(
   #                              object = model,
   #                              newdata = test_data,
@@ -3346,7 +3350,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
   #                              allow.new.levels = TRUE
   #                            )
   #                          },
-  #                          function(test_data, model, formula, hyperparameters) {
+  #                          function(test_data, model, formula, hyperparameters, train_data) {
   #                            NULL
   #                          }, NA, 1
   #                        ),
@@ -3441,7 +3445,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -3563,7 +3567,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -3598,7 +3602,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -3633,7 +3637,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -3668,7 +3672,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -3703,7 +3707,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -3740,7 +3744,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -3775,7 +3779,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -3810,7 +3814,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -3845,7 +3849,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -3880,7 +3884,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -3913,7 +3917,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
   # Assigning side effects
   side_effects_12121 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(formula, hyperparameters, xx) {
       lme4::lmer(formula = formula, data = NULL, REML = FALSE)
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -3944,7 +3948,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
   xpectr::set_test_seed(42)
   # Testing side effects
   # Assigning side effects
-  side_effects_16516 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = NA, predict_fn = function(test_data, model, formula, hyperparameters) {
+  side_effects_16516 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = NA, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -3975,7 +3979,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
   xpectr::set_test_seed(42)
   # Testing side effects
   # Assigning side effects
-  side_effects_11255 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = 1, predict_fn = function(test_data, model, formula, hyperparameters) {
+  side_effects_11255 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = 1, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -4008,7 +4012,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
   # Assigning side effects
   side_effects_12672 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters) {
       NULL
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -4046,7 +4050,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
   # Assigning side effects
   side_effects_19148 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = function(train_data, formula, hyperparameters, xx) {
       lme4::lmer(formula = formula, data = train_data, REML = FALSE)
-    }, predict_fn = function(test_data, model, formula, hyperparameters) {
+    }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
                      allow.new.levels = TRUE)
     }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -4077,7 +4081,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
   xpectr::set_test_seed(42)
   # Testing side effects
   # Assigning side effects
-  side_effects_10133 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = NULL, predict_fn = function(test_data, model, formula, hyperparameters) {
+  side_effects_10133 <- xpectr::capture_side_effects(cross_validate_fn(data = dat, formulas = "score ~ diagnosis + (1|session)", model_fn = NULL, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -4131,7 +4135,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
   }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_13823[['error']]),
-    xpectr::strip("1 assertions failed:\n * Variable 'predict_fn argument names': Must be a identical to (test_data,model,formula,hyperparameters)."),
+    xpectr::strip("1 assertions failed:\n * Variable 'predict_fn argument names': Must be a identical to (test_data,model,formula,hyperparameters,train_data)."),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_13823[['error_class']]),
@@ -4170,7 +4174,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     , reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_19148[['error']]),
-    xpectr::strip("1 assertions failed:\n * Variable 'predict_fn argument names': Must be a identical to (test_data,model,formula,hyperparameters)."),
+    xpectr::strip("1 assertions failed:\n * Variable 'predict_fn argument names': Must be a identical to (test_data,model,formula,hyperparameters,train_data)."),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_19148[['error_class']]),
@@ -4186,7 +4190,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       NULL
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
       formula <- simplify_formula(formula, train_data)
@@ -4204,7 +4208,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
   }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_13403[['error']]),
-    xpectr::strip("\n-------------------------------------\ncross_validate_fn(): Error:\nIn formula:\nscore ~ diagnosis + (1|session)\nFor fold column:\n.folds\nIn fold:\n1\nError in run_predict_fn(test_data = test_data, model = model, model_formula = model_formula, : cross_validate_fn(): predictions were NULL.\n"),
+    xpectr::strip("\n-------------------------------------\ncross_validate_fn(): Error:\nIn formula:\nscore ~ diagnosis + (1|session)\nFor fold column:\n.folds\nIn fold:\n1\nError in run_predict_fn(test_data = test_data, train_data = train_data, : cross_validate_fn(): predictions were NULL.\n"),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_13403[['error_class']]),
@@ -4316,7 +4320,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula) {
@@ -4340,7 +4344,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters, xx) {
@@ -4364,7 +4368,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = NA, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
@@ -4386,7 +4390,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = 1, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
@@ -4407,7 +4411,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = NULL, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE)
@@ -4515,7 +4519,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -4550,7 +4554,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -4584,7 +4588,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -4706,7 +4710,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -4741,7 +4745,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -4776,7 +4780,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -4812,7 +4816,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
         if (!"REML" %in% names(hyperparameters))
             stop("'hyperparameters' must include 'REML'")
         lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-    }, predict_fn = function(test_data, model, formula, hyperparameters) {
+    }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
         stats::predict(object = model, newdata = test_data, type = "response",
             allow.new.levels = TRUE)
     }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -4848,7 +4852,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -4883,7 +4887,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -4918,7 +4922,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -4953,7 +4957,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -4988,7 +4992,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -5023,7 +5027,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -5058,7 +5062,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -5093,7 +5097,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -5127,7 +5131,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -5249,7 +5253,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -5283,7 +5287,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -5405,7 +5409,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -5440,7 +5444,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -5475,7 +5479,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -5509,7 +5513,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -5630,7 +5634,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -5752,7 +5756,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -5787,7 +5791,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -5821,7 +5825,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -5943,7 +5947,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -5977,7 +5981,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -6099,7 +6103,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {
@@ -6134,7 +6138,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       if (!"REML" %in% names(hyperparameters))
           stop("'hyperparameters' must include 'REML'")
       lme4::lmer(formula = formula, data = train_data, REML = hyperparameters[["REML"]])
-  }, predict_fn = function(test_data, model, formula, hyperparameters) {
+  }, predict_fn = function(test_data, model, formula, hyperparameters, train_data) {
       stats::predict(object = model, newdata = test_data, type = "response",
           allow.new.levels = TRUE)
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters) {

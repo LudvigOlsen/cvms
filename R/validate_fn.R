@@ -219,7 +219,8 @@
 #' }
 #'
 #' # Create predict function that returns the predictions
-#' lm_predict_fn <- function(test_data, model, formula, hyperparameters) {
+#' lm_predict_fn <- function(test_data, model, formula,
+#'                           hyperparameters, train_data) {
 #'   stats::predict(
 #'     object = model,
 #'     newdata = test_data,
@@ -253,7 +254,8 @@
 #' }
 #'
 #' # Create predict function that returns the predictions
-#' glm_predict_fn <- function(test_data, model, formula, hyperparameters) {
+#' glm_predict_fn <- function(test_data, model, formula,
+#'                            hyperparameters, train_data) {
 #'   stats::predict(
 #'     object = model,
 #'     newdata = test_data,
@@ -302,7 +304,8 @@
 #' }
 #'
 #' # Create predict function that returns the predictions
-#' svm_predict_fn <- function(test_data, model, formula, hyperparameters) {
+#' svm_predict_fn <- function(test_data, model, formula,
+#'                            hyperparameters, train_data) {
 #'   predictions <- stats::predict(
 #'     object = model,
 #'     newdata = test_data,

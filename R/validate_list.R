@@ -157,7 +157,8 @@ validate_list <- function(train_data,
     x = names(formals(predict_fn)),
     identical.to = c(
       "test_data", "model",
-      "formula", "hyperparameters"
+      "formula", "hyperparameters",
+      "train_data"
     ),
     what = "argument names",
     .var.name = "predict_fn argument names",

@@ -1186,7 +1186,7 @@ test_that("fuzz testing validate_fn()", {
   side_effects_15603 <- xpectr::capture_side_effects(validate_fn(train_data = dat_ready, formulas = "diagnosis~score", type = "binomial", model_fn = glm_model_fn, predict_fn = identity, test_data = NULL, preprocess_fn = glm_preprocess_fn, preprocess_once = FALSE, hyperparameters = hparams, partitions_col = ".partitions", cutoff = 0.5, positive = 2, metrics = list(all = FALSE, Accuracy = TRUE, Sensitivity = TRUE), rm_nc = FALSE, parallel = FALSE, verbose = FALSE), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_15603[['error']]),
-    xpectr::strip("1 assertions failed:\n * Variable 'predict_fn argument names': Must be a identical to (test_data,model,formula,hyperparameters)."),
+    xpectr::strip("1 assertions failed:\n * Variable 'predict_fn argument names': Must be a identical to (test_data,model,formula,hyperparameters,train_data)."),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_15603[['error_class']]),
@@ -2500,7 +2500,7 @@ test_that("fuzz testing gaussian lm model with validate_fn()",{
   side_effects_11174 <- xpectr::capture_side_effects(validate_fn(train_data = dat_ready, formulas = "score ~ diagnosis", type = "gaussian", model_fn = lm_model_fn, predict_fn = identity, test_data = NULL, preprocess_fn = NULL, preprocess_once = FALSE, hyperparameters = list(a = c(1, 2), b = c(2)), partitions_col = ".partitions", metrics = list(all = FALSE, RMSE = TRUE), rm_nc = FALSE, parallel = FALSE, verbose = FALSE), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_11174[['error']]),
-    xpectr::strip("1 assertions failed:\n * Variable 'predict_fn argument names': Must be a identical to (test_data,model,formula,hyperparameters)."),
+    xpectr::strip("1 assertions failed:\n * Variable 'predict_fn argument names': Must be a identical to (test_data,model,formula,hyperparameters,train_data)."),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_11174[['error_class']]),
@@ -3281,7 +3281,7 @@ test_that("fuzz testing multinomial nnet model with validate_fn()", {
   side_effects_19346 <- xpectr::capture_side_effects(validate_fn(train_data = data_mc, formulas = "target ~ predictor_1 + predictor_2 + predictor_3", type = "gaussian", model_fn = multinom_model_fn, predict_fn = multinom_predict_fn, test_data = NULL, preprocess_fn = NULL, preprocess_once = FALSE, hyperparameters = hparams, partitions_col = ".partitions", metrics = list(), rm_nc = FALSE, parallel = FALSE, verbose = FALSE), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_19346[['error']]),
-    xpectr::strip("\n-------------------------------------\nvalidate_fn(): Error:\nIn formula:\ntarget ~ predictor_1 + predictor_2 + predictor_3\nFor fold column:\n.partitions\nIn fold:\n2\nError in run_predict_fn(test_data = test_data, model = model, model_formula = model_formula, : When type/family is gaussian, the predictions must be a vector or matrix / data frame with one column but was a matrix with 3 columns. Did you specify 'predict_fn' correctly?\n"),
+    xpectr::strip("\n-------------------------------------\nvalidate_fn(): Error:\nIn formula:\ntarget ~ predictor_1 + predictor_2 + predictor_3\nFor fold column:\n.partitions\nIn fold:\n2\nError in run_predict_fn(test_data = test_data, train_data = train_data, : When 'type'/'family' is 'gaussian', the predictions must be a vector or matrix / data frame with one column but was a matrix with 3 columns. Did you specify 'predict_fn' correctly?\n"),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_19346[['error_class']]),
@@ -3356,7 +3356,7 @@ test_that("fuzz testing multinomial nnet model with validate_fn()", {
   side_effects_11174 <- xpectr::capture_side_effects(validate_fn(train_data = data_mc, formulas = "target ~ predictor_1 + predictor_2 + predictor_3", type = "multinomial", model_fn = multinom_model_fn, predict_fn = identity, test_data = NULL, preprocess_fn = NULL, preprocess_once = FALSE, hyperparameters = hparams, partitions_col = ".partitions", metrics = list(all = FALSE, MCC = TRUE, Accuracy = TRUE, Sensitivity = TRUE), rm_nc = FALSE, parallel = FALSE, verbose = FALSE), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_11174[['error']]),
-    xpectr::strip("1 assertions failed:\n * Variable 'predict_fn argument names': Must be a identical to (test_data,model,formula,hyperparameters)."),
+    xpectr::strip("1 assertions failed:\n * Variable 'predict_fn argument names': Must be a identical to (test_data,model,formula,hyperparameters,train_data)."),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_11174[['error_class']]),

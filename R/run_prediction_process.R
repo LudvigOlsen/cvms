@@ -1,4 +1,5 @@
 run_prediction_process <- function(test_data,
+                                   train_data,
                                    model,
                                    model_formula,
                                    y_col,
@@ -10,6 +11,7 @@ run_prediction_process <- function(test_data,
       purrr::map(.x = 1, .f = purrr::quietly(function(.x) {
         run_predict_fn(
           test_data = test_data,
+          train_data = train_data,
           model = model,
           model_formula = model_formula,
           y_col = y_col,
@@ -93,6 +95,7 @@ run_prediction_process <- function(test_data,
 
 
 run_predict_fn <- function(test_data,
+                           train_data,
                            model,
                            model_formula,
                            y_col,
@@ -117,6 +120,7 @@ run_predict_fn <- function(test_data,
         model = model,
         formula = model_specifics[["model_formula"]],
         hyperparameters = extract_hparams(model_specifics),
+        train_data = train_data,
         caller = model_specifics[["caller"]]
       )
     } else {
@@ -237,6 +241,7 @@ run_user_predict_fn <- function(user_predict_fn,
                                 model,
                                 formula,
                                 hyperparameters,
+                                train_data,
                                 caller = "") {
   tryCatch(
     {
@@ -245,7 +250,8 @@ run_user_predict_fn <- function(user_predict_fn,
         test_data = test_data,
         model = model,
         formula = stats::as.formula(formula),
-        hyperparameters = hyperparameters
+        hyperparameters = hyperparameters,
+        train_data = train_data
       )
     },
     error = function(e) {

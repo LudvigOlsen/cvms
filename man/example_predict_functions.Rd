@@ -34,7 +34,7 @@ example_predict_functions(name)
 \value{
 A function with the following form:
 
- \code{function(test_data, model, formula, hyperparameters) \{}
+ \code{function(test_data, model, formula, hyperparameters, train_data) \{}
 
  \verb{    }\code{# Use model to predict test_data}
 

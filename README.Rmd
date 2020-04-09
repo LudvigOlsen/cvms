@@ -373,8 +373,7 @@ svm_model_fn <- function(train_data, formula, hyperparameters){
 ```
 
 We also need a predict function. This will usually wrap the `stats::predict` function. The point is to ensure that the predictions have the correct format. In this case, we want a single column with the probability of the positive class. 
-
-Note, that you do not need to use the `formula` and `hyperparameters` arguments within your function.
+Note, that you do not need to use the `formula`, `hyperparameters`, and `train_data` arguments within your function. These are there for the few cases, where they are needed.
 
 ```{r}
 # Create predict function
@@ -383,8 +382,9 @@ Note, that you do not need to use the `formula` and `hyperparameters` arguments 
 # model : fitted model object
 # formula : a formula object
 # hyperparameters : a named list of hyparameters
+# train_data : tibble with the training data
 
-svm_predict_fn <- function(test_data, model, formula, hyperparameters){
+svm_predict_fn <- function(test_data, model, formula, hyperparameters, train_data){
   
   # Predict the test set with the model
   predictions <- stats::predict(
@@ -451,8 +451,9 @@ And the predict function:
 # model : fitted model object
 # formula : a formula object
 # hyperparameters : a named list of hyparameters
+# train_data : tibble with the training data
 
-nb_predict_fn <- function(test_data, model, formula, hyperparameters){
+nb_predict_fn <- function(test_data, model, formula, hyperparameters, train_data){
   stats::predict(
     object = model,
     newdata = test_data,
@@ -492,15 +493,17 @@ predictions <- dplyr::bind_rows(
   nb_predictions, 
   .id = "Architecture"
 )
+predictions[["Target"]] <- as.character(predictions[["Target"]])
 
 predictions
 ```
 
-Now, let's find the overall most difficult to predict observations. `most_challenging()` calculates the accuracy for each prediction. We can then extract the observations with the ~20% lowest accuracies. Note that `most_challenging()` works with grouped data frames as well.
+Now, let's find the overall most difficult to predict observations. `most_challenging()` calculates the `Accuracy`, `MAE`, and `Cross-Entropy` for each prediction. We can then extract the observations with the ~20% highest `MAE` scores. Note that `most_challenging()` works with grouped data frames as well.
 
 ```{r}
 challenging <- most_challenging(
   data = predictions,
+  prediction_cols = "Prediction",
   type = "binomial",
   threshold = 0.20,
   threshold_is = "percentage"

@@ -383,7 +383,7 @@ test_that("multinomial model works with most_challenging()", {
     )
   }
 
-  random_predict_fn <- function(test_data, model, formula, hyperparameters) {
+  random_predict_fn <- function(test_data, model, formula, hyperparameters, train_data) {
     multiclass_probability_tibble(
       num_classes = 3, num_observations = nrow(test_data),
       apply_softmax = TRUE, FUN = runif,

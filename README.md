@@ -581,10 +581,9 @@ svm_model_fn <- function(train_data, formula, hyperparameters){
 We also need a predict function. This will usually wrap the
 `stats::predict` function. The point is to ensure that the predictions
 have the correct format. In this case, we want a single column with the
-probability of the positive class.
-
-Note, that you do not need to use the `formula` and `hyperparameters`
-arguments within your function.
+probability of the positive class. Note, that you do not need to use the
+`formula`, `hyperparameters`, and `train_data` arguments within your
+function. These are there for the few cases, where they are needed.
 
 ``` r
 # Create predict function
@@ -593,8 +592,9 @@ arguments within your function.
 # model : fitted model object
 # formula : a formula object
 # hyperparameters : a named list of hyparameters
+# train_data : tibble with the training data
 
-svm_predict_fn <- function(test_data, model, formula, hyperparameters){
+svm_predict_fn <- function(test_data, model, formula, hyperparameters, train_data){
   
   # Predict the test set with the model
   predictions <- stats::predict(
@@ -623,7 +623,7 @@ machine:
 ``` r
 # Cross-validate svm_model_fn
 CV6 <- cross_validate_fn(
-  data = data,
+  data,
   model_fn = svm_model_fn,
   predict_fn = svm_predict_fn,
   formulas = c("diagnosis~score", "diagnosis~age"),
@@ -676,8 +676,9 @@ And the predict function:
 # model : fitted model object
 # formula : a formula object
 # hyperparameters : a named list of hyparameters
+# train_data : tibble with the training data
 
-nb_predict_fn <- function(test_data, model, formula, hyperparameters){
+nb_predict_fn <- function(test_data, model, formula, hyperparameters, train_data){
   stats::predict(
     object = model,
     newdata = test_data,
@@ -734,48 +735,50 @@ predictions <- dplyr::bind_rows(
   nb_predictions, 
   .id = "Architecture"
 )
+predictions[["Target"]] <- as.character(predictions[["Target"]])
 
 predictions
 #> # A tibble: 360 x 8
 #>    Architecture Model `Fold Column`  Fold Observation Target Prediction
-#>    <chr>        <chr> <chr>         <int>       <int>  <dbl>      <dbl>
-#>  1 1            1     .folds_1          1          10      0      0.721
-#>  2 1            1     .folds_1          1          11      0      0.422
-#>  3 1            1     .folds_1          1          12      0      0.242
-#>  4 1            1     .folds_1          1          28      1      0.884
-#>  5 1            1     .folds_1          1          29      1      0.734
-#>  6 1            1     .folds_1          1          30      1      0.563
-#>  7 1            1     .folds_1          2           4      0      0.831
-#>  8 1            1     .folds_1          2           5      0      0.620
-#>  9 1            1     .folds_1          2           6      0      0.202
-#> 10 1            1     .folds_1          2          13      1      0.928
+#>    <chr>        <chr> <chr>         <int>       <int> <chr>       <dbl>
+#>  1 1            1     .folds_1          1          10 0           0.721
+#>  2 1            1     .folds_1          1          11 0           0.422
+#>  3 1            1     .folds_1          1          12 0           0.242
+#>  4 1            1     .folds_1          1          28 1           0.884
+#>  5 1            1     .folds_1          1          29 1           0.734
+#>  6 1            1     .folds_1          1          30 1           0.563
+#>  7 1            1     .folds_1          2           4 0           0.831
+#>  8 1            1     .folds_1          2           5 0           0.620
+#>  9 1            1     .folds_1          2           6 0           0.202
+#> 10 1            1     .folds_1          2          13 1           0.928
 #> # … with 350 more rows, and 1 more variable: `Predicted Class` <chr>
 ```
 
 Now, let’s find the overall most difficult to predict observations.
-`most_challenging()` calculates the accuracy for each prediction. We can
-then extract the observations with the ~20% lowest accuracies. Note that
+`most_challenging()` calculates the `Accuracy`, `MAE`, and
+`Cross-Entropy` for each prediction. We can then extract the
+observations with the ~20% highest `MAE` scores. Note that
 `most_challenging()` works with grouped data frames as well.
 
 ``` r
 challenging <- most_challenging(
   data = predictions,
+  prediction_cols = "Prediction",
   type = "binomial",
   threshold = 0.20,
   threshold_is = "percentage"
 )
 
 challenging
-#> # A tibble: 7 x 5
-#>   Observation Correct Incorrect Accuracy   `<=`
-#>         <int>   <int>     <int>    <dbl>  <dbl>
-#> 1           4       0        12   0      0.0833
-#> 2           5       0        12   0      0.0833
-#> 3           7       0        12   0      0.0833
-#> 4          10       0        12   0      0.0833
-#> 5           1       1        11   0.0833 0.0833
-#> 6          20       1        11   0.0833 0.0833
-#> 7          21       1        11   0.0833 0.0833
+#> # A tibble: 6 x 7
+#>   Observation Correct Incorrect Accuracy   MAE `Cross Entropy`  `<=`
+#>         <int>   <int>     <int>    <dbl> <dbl>           <dbl> <dbl>
+#> 1          21       1        11   0.0833 0.820            2.10 0.615
+#> 2           4       0        12   0      0.783            1.66 0.615
+#> 3          10       0        12   0      0.774            1.57 0.615
+#> 4          20       1        11   0.0833 0.742            1.50 0.615
+#> 5           1       1        11   0.0833 0.733            1.39 0.615
+#> 6           7       0        12   0      0.690            1.22 0.615
 ```
 
 We can then extract the difficult observations from the dataset. First,
@@ -793,15 +796,14 @@ challenging <- data %>%
 challenging %>% kable()
 ```
 
-| participant | age | diagnosis | score | session | .folds\_1 | .folds\_2 | .folds\_3 | .folds\_4 | Observation | Correct | Incorrect |  Accuracy |       \<= |
-| :---------- | --: | --------: | ----: | ------: | :-------- | :-------- | :-------- | :-------- | ----------: | ------: | --------: | --------: | --------: |
-| 2           |  23 |         0 |    24 |       1 | 2         | 3         | 1         | 2         |           4 |       0 |        12 | 0.0000000 | 0.0833333 |
-| 2           |  23 |         0 |    40 |       2 | 2         | 3         | 1         | 2         |           5 |       0 |        12 | 0.0000000 | 0.0833333 |
-| 4           |  21 |         0 |    35 |       1 | 3         | 2         | 4         | 4         |           7 |       0 |        12 | 0.0000000 | 0.0833333 |
-| 9           |  34 |         0 |    33 |       1 | 1         | 1         | 2         | 3         |          10 |       0 |        12 | 0.0000000 | 0.0833333 |
-| 10          |  32 |         0 |    29 |       1 | 4         | 4         | 3         | 1         |           1 |       1 |        11 | 0.0833333 | 0.0833333 |
-| 5           |  32 |         1 |    54 |       2 | 4         | 2         | 4         | 2         |          20 |       1 |        11 | 0.0833333 | 0.0833333 |
-| 5           |  32 |         1 |    62 |       3 | 4         | 2         | 4         | 2         |          21 |       1 |        11 | 0.0833333 | 0.0833333 |
+| participant | age | diagnosis | score | session | .folds\_1 | .folds\_2 | .folds\_3 | .folds\_4 | Observation | Correct | Incorrect |  Accuracy |       MAE | Cross Entropy |       \<= |
+| :---------- | --: | --------: | ----: | ------: | :-------- | :-------- | :-------- | :-------- | ----------: | ------: | --------: | --------: | --------: | ------------: | --------: |
+| 5           |  32 |         1 |    62 |       3 | 4         | 2         | 4         | 2         |          21 |       1 |        11 | 0.0833333 | 0.8199538 |      2.097782 | 0.6145233 |
+| 2           |  23 |         0 |    24 |       1 | 2         | 3         | 1         | 2         |           4 |       0 |        12 | 0.0000000 | 0.7832189 |      1.664472 | 0.6145233 |
+| 9           |  34 |         0 |    33 |       1 | 1         | 1         | 2         | 3         |          10 |       0 |        12 | 0.0000000 | 0.7735253 |      1.568240 | 0.6145233 |
+| 5           |  32 |         1 |    54 |       2 | 4         | 2         | 4         | 2         |          20 |       1 |        11 | 0.0833333 | 0.7419556 |      1.497591 | 0.6145233 |
+| 10          |  32 |         0 |    29 |       1 | 4         | 4         | 3         | 1         |           1 |       1 |        11 | 0.0833333 | 0.7333863 |      1.390259 | 0.6145233 |
+| 4           |  21 |         0 |    35 |       1 | 3         | 2         | 4         | 4         |           7 |       0 |        12 | 0.0000000 | 0.6896729 |      1.218275 | 0.6145233 |
 
 ## Evaluating predictions
 
@@ -1055,7 +1057,7 @@ plot_metric_density(baseline = random_evaluations,
                     metric = "F1", xlim = c(0, 1))
 ```
 
-<img src="man/figures/README-unnamed-chunk-28-1.png" width="506" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-28-1.png" width="552" style="display: block; margin: auto;" />
 
 ### Multinomial baseline
 

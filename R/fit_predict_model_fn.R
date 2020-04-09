@@ -54,6 +54,7 @@ fit_predict_model_fn <- function(train_data,
   # Predict test set and catch warnings and messages
   prediction_process <- run_prediction_process(
     test_data = test_data,
+    train_data = train_data,
     model = model,
     model_formula = model_specifics[["model_formula"]],
     y_col = y_col,

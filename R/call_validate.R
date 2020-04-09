@@ -299,7 +299,7 @@ basics_model_fn <- function(train_data, formula, hyperparameters) {
   }
 }
 
-basics_predict_fn <- function(test_data, model, formula, hyperparameters) {
+basics_predict_fn <- function(test_data, model, formula, hyperparameters, train_data) {
 
   # Extract family from hyperparameters
   family_ <- hyperparameters[["family"]]

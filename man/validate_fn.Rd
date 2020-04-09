@@ -64,9 +64,9 @@ validate_fn(
 
  Must have the following function arguments:
 
- \code{function(test_data, model,}
+ \code{function(test_data, model, formula,}
 
- \verb{         }\code{formula, hyperparameters)}
+ \verb{         }\code{hyperparameters, train_data)}
 
  Must return predictions in the following formats, depending on \code{type}:
 
@@ -478,7 +478,8 @@ lm_model_fn <- function(train_data, formula, hyperparameters) {
 }
 
 # Create predict function that returns the predictions
-lm_predict_fn <- function(test_data, model, formula, hyperparameters) {
+lm_predict_fn <- function(test_data, model, formula,
+                          hyperparameters, train_data) {
   stats::predict(
     object = model,
     newdata = test_data,
@@ -512,7 +513,8 @@ glm_model_fn <- function(train_data, formula, hyperparameters) {
 }
 
 # Create predict function that returns the predictions
-glm_predict_fn <- function(test_data, model, formula, hyperparameters) {
+glm_predict_fn <- function(test_data, model, formula,
+                           hyperparameters, train_data) {
   stats::predict(
     object = model,
     newdata = test_data,
@@ -561,7 +563,8 @@ svm_model_fn <- function(train_data, formula, hyperparameters) {
 }
 
 # Create predict function that returns the predictions
-svm_predict_fn <- function(test_data, model, formula, hyperparameters) {
+svm_predict_fn <- function(test_data, model, formula,
+                           hyperparameters, train_data) {
   predictions <- stats::predict(
     object = model,
     newdata = test_data,

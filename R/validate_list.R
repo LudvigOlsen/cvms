@@ -44,7 +44,8 @@ validate_list <- function(train_data,
     add = assert_collection
   )
   checkmate::assert_character(
-    x = formulas, min.len = 1,
+    x = formulas,
+    min.len = 1,
     any.missing = FALSE,
     add = assert_collection
   )
@@ -55,6 +56,7 @@ validate_list <- function(train_data,
       "binomial",
       "multinomial"
     ),
+    .var.name = "family/type",
     add = assert_collection
   )
   checkmate::assert_number(
@@ -63,20 +65,19 @@ validate_list <- function(train_data,
     upper = 1,
     add = assert_collection
   )
-  if (is.numeric(positive)) {
-    # TODO make meaningful combined assert (numeric or string)
-    checkmate::assert_choice(
+
+  # Positive
+  checkmate::assert(
+    checkmate::check_choice(
       x = positive,
-      choices = c(1, 2),
-      add = assert_collection
-    )
-  } else {
-    checkmate::assert_string(
+      choices = c(1, 2)
+    ),
+    checkmate::check_string(
       x = positive,
-      min.chars = 1,
-      add = assert_collection
+      min.chars = 1
     )
-  }
+  )
+
   checkmate::assert_list(
     x = metrics,
     types = "logical",
@@ -84,23 +85,24 @@ validate_list <- function(train_data,
     names = "named",
     add = assert_collection
   )
-  if (checkmate::test_data_frame(hyperparameters)) {
-    checkmate::assert_data_frame(
+
+  checkmate::assert(
+    checkmate::check_data_frame(
       x = hyperparameters,
       col.names = "named",
-      min.rows = 1, min.cols = 1,
-      add = assert_collection
-    )
-  } else {
-    checkmate::assert_list(
+      min.rows = 1,
+      min.cols = 1,
+      null.ok = TRUE
+    ),
+    checkmate::check_list(
       x = hyperparameters,
       null.ok = TRUE,
       any.missing = FALSE,
       min.len = 1,
-      names = "named",
-      add = assert_collection
+      names = "named"
     )
-  }
+  )
+
   checkmate::assert_list(
     x = info_cols,
     any.missing = FALSE,
@@ -112,7 +114,8 @@ validate_list <- function(train_data,
   checkmate::assert_flag(x = rm_nc, add = assert_collection)
   checkmate::assert_flag(x = preprocess_once, add = assert_collection)
   checkmate::assert_flag(
-    x = parallel_, add = assert_collection,
+    x = parallel_,
+    add = assert_collection,
     .var.name = "parallel"
   )
   checkmate::assert_flag(x = return_models, add = assert_collection)
@@ -122,6 +125,54 @@ validate_list <- function(train_data,
   if (is.null(test_data) &&
       partitions_col %ni% colnames(train_data)){
     assert_collection$push("Could not find 'partition_col' column in 'train_data'.")
+  }
+
+  # Functions
+
+  checkmate::assert_function(
+    x = model_fn,
+    add = assert_collection
+  )
+  checkmate::assert_function(
+    x = predict_fn,
+    add = assert_collection
+  )
+  checkmate::assert_function(
+    x = preprocess_fn,
+    null.ok = TRUE,
+    add = assert_collection
+  )
+  checkmate::reportAssertions(assert_collection)
+
+  # Argument names
+
+  checkmate::assert_names(
+    x = names(formals(model_fn)),
+    identical.to = c("train_data", "formula", "hyperparameters"),
+    what = "argument names",
+    .var.name = "model_fn argument names",
+    add = assert_collection)
+
+  checkmate::assert_names(
+    x = names(formals(predict_fn)),
+    identical.to = c(
+      "test_data", "model",
+      "formula", "hyperparameters"
+    ),
+    what = "argument names",
+    .var.name = "predict_fn argument names",
+    add = assert_collection)
+
+  if (!is.null(preprocess_fn)){
+    checkmate::assert_names(
+      x = names(formals(preprocess_fn)),
+      identical.to = c(
+        "train_data", "test_data",
+        "formula", "hyperparameters"
+      ),
+      what = "argument names",
+      .var.name = "preprocess_fn argument names",
+      add = assert_collection)
   }
 
   checkmate::reportAssertions(assert_collection)

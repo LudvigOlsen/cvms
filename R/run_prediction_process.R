@@ -131,8 +131,8 @@ run_predict_fn <- function(test_data,
       if (is.matrix(predictions)) {
         if (ncol(predictions) > 1) {
           stop(paste0(
-            "When type/family is ", model_specifics[["family"]],
-            ", the predictions must be a vector or matrix / data frame ",
+            "When 'type'/'family' is '", model_specifics[["family"]],
+            "', the predictions must be a vector or matrix / data frame ",
             "with one column but was a matrix with ",
             ncol(predictions), " columns. ",
             "Did you specify 'predict_fn' correctly?"
@@ -147,8 +147,8 @@ run_predict_fn <- function(test_data,
       } else if (is.data.frame(predictions)) {
         if (ncol(predictions) > 1) {
           stop(paste0(
-            "When type/family is ", model_specifics[["family"]],
-            ", the predictions must be a vector or matrix / data frame ",
+            "When 'type'/'family' is '", model_specifics[["family"]],
+            "', the predictions must be a vector or matrix / data frame ",
             "with one column but was a data frame with ",
             ncol(predictions), " columns. ",
             "Did you specify 'predict_fn' correctly?"

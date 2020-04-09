@@ -264,7 +264,6 @@ evaluate_predictions_multinomial <- function(data,
     # 1. Extract the fold column results from each one-vs-all
     # 2. Use those to calculate the overall metrics per fold column (Becomes 'Results' tibble in overall results)
     # 3. Average those.
-    # TODO (IMPORTANT THAT THIS IS ADDED TO NEWS.md)
 
     # Extract the metrics for calculating (weighted) averages
     metrics_only <- one_vs_all_evaluations[["Results"]] %>%

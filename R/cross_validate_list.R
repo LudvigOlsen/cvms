@@ -28,12 +28,14 @@ cross_validate_list <- function(data,
     add = assert_collection
   )
   checkmate::assert_character(
-    x = formulas, min.len = 1,
+    x = formulas,
+    min.len = 1,
     any.missing = FALSE,
     add = assert_collection
   )
   checkmate::assert_character(
-    x = fold_cols, min.len = 1,
+    x = fold_cols,
+    min.len = 1,
     any.missing = FALSE,
     add = assert_collection
   )
@@ -44,6 +46,7 @@ cross_validate_list <- function(data,
       "binomial",
       "multinomial"
     ),
+    .var.name = "family/type",
     add = assert_collection
   )
   checkmate::assert_number(
@@ -53,6 +56,7 @@ cross_validate_list <- function(data,
     add = assert_collection
   )
 
+  # Positive
   checkmate::assert(
     checkmate::check_choice(
       x = positive,
@@ -76,7 +80,9 @@ cross_validate_list <- function(data,
     checkmate::check_data_frame(
       x = hyperparameters,
       col.names = "named",
-      min.rows = 1, min.cols = 1
+      min.rows = 1,
+      min.cols = 1,
+      null.ok = TRUE
     ),
     checkmate::check_list(
       x = hyperparameters,
@@ -105,26 +111,49 @@ cross_validate_list <- function(data,
 
   checkmate::assert_function(
     x = model_fn,
-    args = c("train_data", "formula", "hyperparameters"),
     add = assert_collection
   )
   checkmate::assert_function(
     x = predict_fn,
-    args = c(
-      "test_data", "model",
-      "formula", "hyperparameters"
-    ),
     add = assert_collection
   )
   checkmate::assert_function(
     x = preprocess_fn,
-    args = c(
-      "train_data", "test_data",
-      "formula", "hyperparameters"
-    ),
     null.ok = TRUE,
     add = assert_collection
   )
+  checkmate::reportAssertions(assert_collection)
+
+  # Argument names
+
+  checkmate::assert_names(
+    x = names(formals(model_fn)),
+    identical.to = c("train_data", "formula", "hyperparameters"),
+    what = "argument names",
+    .var.name = "model_fn argument names",
+    add = assert_collection)
+
+  checkmate::assert_names(
+    x = names(formals(predict_fn)),
+    identical.to = c(
+      "test_data", "model",
+      "formula", "hyperparameters"
+    ),
+    what = "argument names",
+    .var.name = "predict_fn argument names",
+    add = assert_collection)
+
+  if (!is.null(preprocess_fn)){
+    checkmate::assert_names(
+      x = names(formals(preprocess_fn)),
+      identical.to = c(
+        "train_data", "test_data",
+        "formula", "hyperparameters"
+      ),
+      what = "argument names",
+      .var.name = "preprocess_fn argument names",
+      add = assert_collection)
+  }
 
   checkmate::reportAssertions(assert_collection)
   if (length(setdiff(fold_cols, colnames(data))) > 0){

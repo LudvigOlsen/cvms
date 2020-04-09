@@ -273,7 +273,7 @@ binomial_eval_collect <- function(unique_fold_cols,
       metrics = metrics,
       include_predictions = FALSE
     ) %>%
-      dplyr::mutate(`Fold Column` = as.character(fcol))
+      dplyr::mutate(`Fold Column` = fcol)
   }) %>%
     dplyr::as_tibble()
 

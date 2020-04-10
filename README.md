@@ -77,15 +77,23 @@ package.
 | `plot_metric_density()`   | Create a density plot for a metric column                                           |
 | `font()`                  | Set font settings for plotting functions (currently only `plot_confusion_matrix()`) |
 
+### Custom functions
+
+| Function                   | Description                                            |
+| :------------------------- | :----------------------------------------------------- |
+| `model_functions()`        | Example model functions for `cross_validate_fn()`      |
+| `predict_functions()`      | Example predict functions for `cross_validate_fn()`    |
+| `preprocess_functions()`   | Example preprocess functions for `cross_validate_fn()` |
+| `update_hyperparameters()` | Manage hyperparameters in custom model functions       |
+
 ### Other utilities
 
-| Function                                                                                             | Description                                              |
-| :--------------------------------------------------------------------------------------------------- | :------------------------------------------------------- |
-| `select_metrics()`                                                                                   | Select the metric columns from the output                |
-| `select_definitions()`                                                                               | Select the model-defining columns from the output        |
-| `gaussian_metrics()`<br />`binomial_metrics()`<br />`multinomial_metrics()`                          | Create list of metrics for the common `metrics` argument |
-| `example_model_functions()`<br />`example_predict_functions()`<br />`example_preprocess_functions()` | Example functions for `cross_validate_fn()`              |
-| `multiclass_probability_tibble()`                                                                    | Generate a multiclass probability tibble                 |
+| Function                                                                    | Description                                              |
+| :-------------------------------------------------------------------------- | :------------------------------------------------------- |
+| `select_metrics()`                                                          | Select the metric columns from the output                |
+| `select_definitions()`                                                      | Select the model-defining columns from the output        |
+| `gaussian_metrics()`<br />`binomial_metrics()`<br />`multinomial_metrics()` | Create list of metrics for the common `metrics` argument |
+| `multiclass_probability_tibble()`                                           | Generate a multiclass probability tibble                 |
 
 ### Datasets
 
@@ -106,6 +114,7 @@ package.
           - [Evaluation utilities](#evaluation-utilities)
           - [Formula utilities](#formula-utilities)
           - [Plotting utilities](#plotting-utilities)
+          - [Custom functions](#custom-functions)
           - [Other utilities](#other-utilities)
           - [Datasets](#datasets)
       - [Important News](#important-news)

@@ -5,6 +5,10 @@
 #'  Examples of model functions that can be used in
 #'  \code{\link[cvms:cross_validate_fn]{cross_validate_fn()}}.
 #'  They can either be used directly or be starting points.
+#'
+#'  The \code{\link[cvms:update_hyperparameters]{update_hyperparameters()}} function
+#'  updates the list of hyperparameters with default values for missing hyperparameters.
+#'  You can also specify required hyperparameters.
 #' @return A function with the following form:
 #'
 #'  \code{function(train_data, formula, hyperparameters) \{}
@@ -19,15 +23,15 @@
 #'  as it appears in the following list:
 #'
 #'  \tabular{rrr}{
-#'   \strong{Name} \tab \strong{Function} \tab \strong{Hyperparameters} \cr
+#'   \strong{Name} \tab \strong{Function} \tab \strong{Hyperparameters (default)} \cr
 #'   "lm" \tab \code{\link[stats:lm]{stats::lm()}} \tab \cr
-#'   "lmer" \tab \code{\link[lme4:lmer]{lme4::lmer()}} \tab \code{REML} \cr
+#'   "lmer" \tab \code{\link[lme4:lmer]{lme4::lmer()}} \tab \code{REML (FALSE)} \cr
 #'   "glm_binomial" \tab \code{\link[stats:lm]{stats::glm()}} \tab \cr
 #'   "glmer_binomial" \tab \code{\link[lme4:glmer]{lme4::glmer()}} \tab \cr
-#'   "svm_gaussian" \tab \code{\link[e1071:svm]{e1071::svm()}} \tab \code{kernel}, \code{cost}\cr
-#'   "svm_binomial" \tab \code{\link[e1071:svm]{e1071::svm()}} \tab \code{kernel}, \code{cost}\cr
-#'   "svm_multinomial" \tab \code{\link[e1071:svm]{e1071::svm()}} \tab \code{kernel}, \code{cost}\cr
-#'   "naive_bayes" \tab \code{\link[e1071:naiveBayes]{e1071::naiveBayes()}} \tab \code{laplace} \cr
+#'   "svm_gaussian" \tab \code{\link[e1071:svm]{e1071::svm()}} \tab \code{kernel ("radial")}, \code{cost (1)}\cr
+#'   "svm_binomial" \tab \code{\link[e1071:svm]{e1071::svm()}} \tab \code{kernel ("radial")}, \code{cost (1)}\cr
+#'   "svm_multinomial" \tab \code{\link[e1071:svm]{e1071::svm()}} \tab \code{kernel ("radial")}, \code{cost (1)}\cr
+#'   "naive_bayes" \tab \code{\link[e1071:naiveBayes]{e1071::naiveBayes()}} \tab \code{laplace (0)} \cr
 #'   }
 model_functions <- function(name) {
   if (name == "lm") {
@@ -37,10 +41,15 @@ model_functions <- function(name) {
   } else if (name == "lmer") {
     model_fn <- function(train_data, formula, hyperparameters) {
 
-      # Expected hyperparameters:
+      # Optional hyperparameters:
       #  - REML
-      if (!"REML" %in% names(hyperparameters))
-        stop("'hyperparameters' must include 'REML'")
+
+      # Set defaults for any missing hyperparameters
+      # These are the defaults in cross_validate()
+      hyperparameters <- cvms::update_hyperparameters(
+        REML = FALSE,
+        hyperparameters = hyperparameters
+      )
 
       lme4::lmer(
         formula = formula,
@@ -65,13 +74,17 @@ model_functions <- function(name) {
   } else if (name == "svm_gaussian") {
     model_fn <- function(train_data, formula, hyperparameters) {
 
-      # Expected hyperparameters:
+      # Optional hyperparameters:
       #  - kernel
       #  - cost
-      if (!"kernel" %in% names(hyperparameters))
-        stop("'hyperparameters' must include 'kernel'")
-      if (!"cost" %in% names(hyperparameters))
-        stop("'hyperparameters' must include 'cost'")
+
+      # Set defaults for any missing hyperparameters
+      # These are the defaults in e1071::svm
+      hyperparameters <- cvms::update_hyperparameters(
+        kernel = "radial",
+        cost = 1,
+        hyperparameters = hyperparameters
+      )
 
       e1071::svm(
         formula = formula,
@@ -85,13 +98,17 @@ model_functions <- function(name) {
   } else if (name %in% c("svm_binomial", "svm_multinomial")) {
     model_fn <- function(train_data, formula, hyperparameters) {
 
-      # Expected hyperparameters:
+      # Optional hyperparameters:
       #  - kernel
       #  - cost
-      if (!"kernel" %in% names(hyperparameters))
-        stop("'hyperparameters' must include 'kernel'")
-      if (!"cost" %in% names(hyperparameters))
-        stop("'hyperparameters' must include 'cost'")
+
+      # Set defaults for any missing hyperparameters
+      # These are the defaults in e1071::svm
+      hyperparameters <- cvms::update_hyperparameters(
+        kernel = "radial",
+        cost = 1,
+        hyperparameters = hyperparameters
+      )
 
       e1071::svm(
         formula = formula,
@@ -106,10 +123,15 @@ model_functions <- function(name) {
   } else if (name == "naive_bayes") {
     model_fn <- function(train_data, formula, hyperparameters) {
 
-      # Expected hyperparameters:
+      # Optional hyperparameters:
       #  - laplace
-      if (!"laplace" %in% names(hyperparameters))
-        stop("'hyperparameters' must include 'laplace'")
+
+      # Set defaults for any missing hyperparameters
+      # These are the defaults in e1071::naiveBayes
+      hyperparameters <- cvms::update_hyperparameters(
+        laplace = 0,
+        hyperparameters = hyperparameters
+      )
 
       e1071::naiveBayes(
         formula = formula,

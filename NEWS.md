@@ -66,6 +66,8 @@ It can be unclear whether the IC metrics (computed on the `lm()`/`lmer()` model 
 
 * `preprocess_functions()` is added. Contains simple `preprocess_fn` examples that can be used in `cross_validate_fn()` and `validate_fn()` or as starting points.
 
+* `update_hyperparameters()` is added. For managing hyperparameters when writing custom model functions.
+
 * `most_challenging()` is added. Finds the data points that were the most difficult to predict.
 
 * `plot_confusion_matrix()` is added. Creates a `ggplot` representing a given confusion matrix. Thanks to Malte Lau Petersen (@maltelau), Maris Sala (@marissala) and Kenneth Enevoldsen (@KennethEnevoldsen) for feedback.

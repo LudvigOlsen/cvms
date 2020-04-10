@@ -6,6 +6,13 @@ run_prediction_process <- function(test_data,
                                    user_predict_fn,
                                    model_specifics,
                                    fold_info) {
+
+  # TODO This is to make sure the exact same columns are in
+  # test and train data. It will fail if .observations is .observations__
+  # Perhaps just create the observations column before splitting the two?
+  if (".observation" %in% colnames(test_data))
+    train_data$.observation <- 1
+
   prediction_process <- tryCatch(
     {
       purrr::map(.x = 1, .f = purrr::quietly(function(.x) {

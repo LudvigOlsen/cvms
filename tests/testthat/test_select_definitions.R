@@ -16,8 +16,8 @@ test_that("select_definitions() works with output from cross-validation", {
     cross_validate_fn(
       data = dat,
       formulas = "score ~ diagnosis + (1|session)",
-      model_fn = example_model_functions("lmer"),
-      predict_fn = example_predict_functions("lmer"),
+      model_fn = model_functions("lmer"),
+      predict_fn = predict_functions("lmer"),
       hyperparameters = list("REML" = FALSE),
       fold_cols = ".folds",
       metrics = list("all" = TRUE),
@@ -28,8 +28,8 @@ test_that("select_definitions() works with output from cross-validation", {
     cross_validate_fn(
       data = dat,
       formulas = "diagnosis ~ score + (1|session)",
-      model_fn = example_model_functions("glmer_binomial"),
-      predict_fn = example_predict_functions("glmer_binomial"),
+      model_fn = model_functions("glmer_binomial"),
+      predict_fn = predict_functions("glmer_binomial"),
       fold_cols = ".folds",
       metrics = list("all" = TRUE),
       type = "binomial"
@@ -39,8 +39,8 @@ test_that("select_definitions() works with output from cross-validation", {
     cross_validate_fn(
       data = mdata,
       formulas = "Class ~ Height + Bass + Guitar + Keys + Vocals + (1|Drums)",
-      model_fn = example_model_functions("svm_multinomial"),
-      predict_fn = example_predict_functions("svm_multinomial"),
+      model_fn = model_functions("svm_multinomial"),
+      predict_fn = predict_functions("svm_multinomial"),
       hyperparameters = list("kernel" = "linear", "cost" = 10),
       fold_cols = ".folds",
       metrics = list("all" = TRUE),

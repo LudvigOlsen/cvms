@@ -62,8 +62,8 @@ get_probabilities <- function(df){
 
   model_formula <- "Class ~ Height + Age + Drums + Bass + Guitar + Keys + Vocals"
 
-  svm_model_fn <- example_model_functions("svm_multinomial")
-  svm_predict_fn <- example_predict_functions("svm_multinomial")
+  svm_model_fn <- model_functions("svm_multinomial")
+  svm_predict_fn <- predict_functions("svm_multinomial")
   svm_cv <- cross_validate_fn(
     df_folded,
     model_formula,
@@ -82,7 +82,7 @@ get_probabilities <- function(df){
       data = train_data
     )
   }
-  rf_predict_fn <- example_predict_functions("randomForest_multinomial")
+  rf_predict_fn <- predict_functions("randomForest_multinomial")
   rf_cv <- cross_validate_fn(
     df_folded,
     model_formula,
@@ -100,7 +100,7 @@ get_probabilities <- function(df){
       data = train_data
     )
   }
-  nnet_predict_fn <- example_predict_functions("nnet_multinom")
+  nnet_predict_fn <- predict_functions("nnet_multinom")
   nnet_cv <- cross_validate_fn(
     df_folded,
     model_formula,

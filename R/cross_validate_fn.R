@@ -377,9 +377,9 @@
 #' library(dplyr) # %>% arrange() mutate()
 #'
 #' # Note: More examples of custom functions can be found at:
-#' # model_fn: example_model_functions()
-#' # predict_fn: example_predict_functions()
-#' # preprocess_fn: example_preprocess_functions()
+#' # model_fn: model_functions()
+#' # predict_fn: predict_functions()
+#' # preprocess_fn: preprocess_functions()
 #'
 #' # Data is part of cvms
 #' data <- participant.scores

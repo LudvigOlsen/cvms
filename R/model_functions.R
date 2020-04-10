@@ -29,7 +29,7 @@
 #'   "svm_multinomial" \tab \code{\link[e1071:svm]{e1071::svm()}} \tab \code{kernel}, \code{cost}\cr
 #'   "naive_bayes" \tab \code{\link[e1071:naiveBayes]{e1071::naiveBayes()}} \tab \code{laplace} \cr
 #'   }
-example_model_functions <- function(name) {
+model_functions <- function(name) {
   if (name == "lm") {
     model_fn <- function(train_data, formula, hyperparameters) {
       lm(formula = formula, data = train_data)

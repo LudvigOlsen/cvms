@@ -1,12 +1,12 @@
 library(cvms)
 context("example functions")
 
-## example_preprocess_functions()
+## preprocess_functions()
 
-test_that("the expected function definitions are returned in example_preprocess_functions()", {
+test_that("the expected function definitions are returned in preprocess_functions()", {
   testthat::skip("Fails in check - IMPROVE THESE TESTS")
   expect_equal(
-    head(capture.output(example_preprocess_functions("standardize")), 22),
+    head(capture.output(preprocess_functions("standardize")), 22),
     c(
       "function(train_data, test_data, formula, hyperparameters){",
       "",
@@ -34,7 +34,7 @@ test_that("the expected function definitions are returned in example_preprocess_
   )
 
   expect_equal(
-    head(capture.output(example_preprocess_functions("normalize")), 22),
+    head(capture.output(preprocess_functions("normalize")), 22),
     c(
       "function(train_data, test_data, formula, hyperparameters){",
       "",
@@ -61,7 +61,7 @@ test_that("the expected function definitions are returned in example_preprocess_
   )
 })
 
-test_that("the expected output is returned from example_preprocess_functions() functions", {
+test_that("the expected output is returned from preprocess_functions() functions", {
 
   # Standardize
 
@@ -82,7 +82,7 @@ test_that("the expected output is returned from example_preprocess_functions() f
   test_set <- partitions[partitions[[".partitions"]] == 2, ]
 
   # Standardize with preprocess_fn
-  standardize_fn <- example_preprocess_functions("standardize")
+  standardize_fn <- preprocess_functions("standardize")
   standardized_by_fn <- standardize_fn(
     train_data = train_set, test_data = test_set,
     # notAVar is just to avoid changing the unit tests below
@@ -159,7 +159,7 @@ test_that("the expected output is returned from example_preprocess_functions() f
   # Normalize
 
   # Normalize with preprocess_fn
-  normalize_fn <- example_preprocess_functions("range")
+  normalize_fn <- preprocess_functions("range")
   normalized_by_fn <- normalize_fn(
     train_data = train_set, test_data = test_set,
     formula = as.formula("notAVar ~ ."),
@@ -239,3 +239,5 @@ test_that("the expected output is returned from example_preprocess_functions() f
     tolerance = 1e-4
   )
 })
+
+# TODO test the other example function functions

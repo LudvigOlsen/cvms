@@ -52,7 +52,7 @@
 #'   "center" \tab Centers the numeric predictors to have a mean of zero\cr
 #'   "warn" \tab Identity function that throws a warning and a message\cr
 #'   }
-example_preprocess_functions <- function(name) {
+preprocess_functions <- function(name) {
   if (name == "standardize") {
     preprocess_fn <- function(train_data, test_data, formula, hyperparameters) {
 

@@ -17,7 +17,7 @@
 #'
 #'  This is useful when passing a formula to \code{\link[recipes:recipe]{recipes::recipe()}}
 #'  for preprocessing a dataset, as used in the
-#'  \code{\link[cvms:example_preprocess_functions]{example_preprocess_functions()}}.
+#'  \code{\link[cvms:preprocess_functions]{preprocess_functions()}}.
 #'
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export

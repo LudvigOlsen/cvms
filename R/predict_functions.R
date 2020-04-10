@@ -41,7 +41,7 @@
 #'   "randomForest_binomial" \tab \code{\link[randomForest:randomForest]{randomForest::randomForest()}} \tab \cr
 #'   "randomForest_multinomial" \tab \code{\link[randomForest:randomForest]{randomForest::randomForest()}} \tab \cr
 #'  }
-example_predict_functions <- function(name) {
+predict_functions <- function(name) {
   if (name %in% c(
     "lm",
     "lmer",

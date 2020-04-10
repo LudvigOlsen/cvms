@@ -26,7 +26,7 @@ test_that("binomial glm model works with validate_fn()", {
     glm(formula = formula, data = train_data, family = "binomial")
   }
 
-  glm_predict_fn <- example_predict_functions("glm_binomial")
+  glm_predict_fn <- predict_functions("glm_binomial")
 
   # The example fn requires formula, but we need it hardcoded for test
   glm_preprocess_fn <- function(train_data, test_data, formula, hyperparameters) {
@@ -669,7 +669,7 @@ test_that("fuzz testing validate_fn()", {
     glm(formula = formula, data = train_data, family = "binomial")
   }
 
-  glm_predict_fn <- example_predict_functions("glm_binomial")
+  glm_predict_fn <- predict_functions("glm_binomial")
 
   # The example fn requires formula, but we need it hardcoded for test
   glm_preprocess_fn <- function(train_data, test_data, formula, hyperparameters) {
@@ -2092,7 +2092,7 @@ test_that("fuzz testing gaussian lm model with validate_fn()",{
     lm(formula = formula, data = train_data)
   }
 
-  lm_predict_fn <- example_predict_functions("lm")
+  lm_predict_fn <- predict_functions("lm")
 
   # Generate expectations for 'validate_fn'
   # Tip: comment out the gxs_function() call
@@ -2995,9 +2995,9 @@ test_that("fuzz testing multinomial nnet model with validate_fn()", {
     }
 
   multinom_predict_fn <-
-    example_predict_functions("nnet_multinom")
+    predict_functions("nnet_multinom")
 
-  multinom_preprocess_fn <- example_preprocess_functions("scale")
+  multinom_preprocess_fn <- preprocess_functions("scale")
 
   hparams <- list("a" = c(1,2), "b" = c(1))
 
@@ -4079,9 +4079,9 @@ test_that("testing nested tibbles in multinomial validate_fn()", {
     }
 
   multinom_predict_fn <-
-    example_predict_functions("nnet_multinom")
+    predict_functions("nnet_multinom")
 
-  multinom_preprocess_fn <- example_preprocess_functions("scale")
+  multinom_preprocess_fn <- preprocess_functions("scale")
 
   hparams <- list("a" = c(1,2), "b" = c(1))
 
@@ -4732,7 +4732,7 @@ test_that("testing nested tibbles in gaussian validate_fn()", {
     lm(formula = formula, data = train_data)
   }
 
-  lm_predict_fn <- example_predict_functions("lm")
+  lm_predict_fn <- predict_functions("lm")
 
   # Generate expectations for 'validate_fn'
   # Tip: comment out the gxs_function() call

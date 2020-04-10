@@ -60,11 +60,11 @@ It can be unclear whether the IC metrics (computed on the `lm()`/`lmer()` model 
 
 * `select_definitions()` is added. Select the columns that define the models, such as `Dependent`, `Fixed`, `Random`, and the (unnested) hyperparameters.
 
-* `example_model_functions()` is added. Contains simple `model_fn` examples that can be used in `cross_validate_fn()` and `validate_fn()` or as starting points.
+* `model_functions()` is added. Contains simple `model_fn` examples that can be used in `cross_validate_fn()` and `validate_fn()` or as starting points.
 
-* `example_predict_functions()` is added. Contains simple `predict_fn` examples that can be used in `cross_validate_fn()` and `validate_fn()` or as starting points.
+* `predict_functions()` is added. Contains simple `predict_fn` examples that can be used in `cross_validate_fn()` and `validate_fn()` or as starting points.
 
-* `example_preprocess_functions()` is added. Contains simple `preprocess_fn` examples that can be used in `cross_validate_fn()` and `validate_fn()` or as starting points.
+* `preprocess_functions()` is added. Contains simple `preprocess_fn` examples that can be used in `cross_validate_fn()` and `validate_fn()` or as starting points.
 
 * `most_challenging()` is added. Finds the data points that were the most difficult to predict.
 

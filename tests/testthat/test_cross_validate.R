@@ -1825,7 +1825,7 @@ test_that("preprocessing works with binomial models in cross_validate()", {
   #     dplyr::filter(.data$.folds != fold)
   #   test_data <- dat %>%
   #     dplyr::filter(.data$.folds == fold)
-  #   preprocessed_split <- example_preprocess_functions("range")(
+  #   preprocessed_split <- preprocess_functions("range")(
   #     train_data = train_data,
   #     test_data = test_data,
   #     formula = as.formula("diagnosis ~ age"),

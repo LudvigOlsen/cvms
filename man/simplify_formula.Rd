@@ -36,7 +36,7 @@ simplify_formula(formula, data = NULL, string_out = FALSE)
 
  This is useful when passing a formula to \code{\link[recipes:recipe]{recipes::recipe()}}
  for preprocessing a dataset, as used in the
- \code{\link[cvms:example_preprocess_functions]{example_preprocess_functions()}}.
+ \code{\link[cvms:preprocess_functions]{preprocess_functions()}}.
 }
 \examples{
 # Attach cvms

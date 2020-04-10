@@ -96,7 +96,7 @@ Currently supports regression (`'gaussian'`), binary classification (`'binomial'
 |`select_metrics()`     |Select the metric columns from the output |
 |`select_definitions()` |Select the model-defining columns from the output |
 |`gaussian_metrics()`<br />`binomial_metrics()`<br />`multinomial_metrics()` |Create list of metrics for the common `metrics` argument |
-|`example_model_functions()`<br />`example_predict_functions()`<br />`example_preprocess_functions()` |Example functions for `cross_validate_fn()`|
+|`model_functions()`<br />`predict_functions()`<br />`preprocess_functions()` |Example functions for `cross_validate_fn()`|
 |`multiclass_probability_tibble()` |Generate a multiclass probability tibble |
 
 

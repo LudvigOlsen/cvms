@@ -23,7 +23,7 @@ test_that("binomial glm model works with cross_validate_fn()", {
     glm(formula = formula, data = train_data, family = "binomial")
   }
 
-  glm_predict_fn <- example_predict_functions("glm_binomial")
+  glm_predict_fn <- predict_functions("glm_binomial")
 
   CVbinomlist <- cross_validate_fn(
     data = dat,
@@ -357,7 +357,7 @@ test_that("gaussian lm model works with cross_validate_fn()", {
   # summary(lmm <- lm_model_fn(dat, "score ~ diagnosis"))
   # MuMIn::AICc(lmm, REML = F) # The one used in the package
 
-  lm_predict_fn <- example_predict_functions("lm")
+  lm_predict_fn <- predict_functions("lm")
 
   # Cross-validate the data
   CVed <- cross_validate_fn(dat,
@@ -463,9 +463,9 @@ test_that("binomial glm model with preprocess_fn works with cross_validate_fn()"
   ) %>%
     dplyr::mutate(diagnosis = as.factor(diagnosis))
 
-  glm_model_fn <- example_model_functions("glm_binomial")
+  glm_model_fn <- model_functions("glm_binomial")
 
-  glm_predict_fn <- example_predict_functions("glm_binomial")
+  glm_predict_fn <- predict_functions("glm_binomial")
 
   # The example fn requires formula, but we need it hardcoded for test
   glm_preprocess_fn <- function(train_data, test_data, formula, hyperparameters) {
@@ -697,8 +697,8 @@ test_that("binomial svm models from e1071 work with cross_validate_fn()", {
   )
   dat[["diagnosis"]] <- factor(dat[["diagnosis"]])
 
-  svm_model_fn <- example_model_functions("svm_binomial")
-  svm_predict_fn <- example_predict_functions("svm_binomial")
+  svm_model_fn <- model_functions("svm_binomial")
+  svm_predict_fn <- predict_functions("svm_binomial")
 
   # m <- svm_model_fn(dat, as.formula("diagnosis~score"), hyperparameters = hparams)
   # svm_predict_fn(dat, m, NULL, NULL)
@@ -815,7 +815,7 @@ test_that("gaussian svm models from e1071 work with cross_validate_fn()", {
   # Cross-validate the data
   CVed <- cross_validate_fn(dat,
     model_fn = svm_model_fn,
-    predict_fn = example_predict_functions("svm_gaussian"),
+    predict_fn = predict_functions("svm_gaussian"),
     formulas = "score~diagnosis",
     fold_cols = ".folds",
     type = "gaussian"
@@ -1262,7 +1262,7 @@ test_that("binomial nnet models work with cross_validate_fn()", {
   # nn <- nnet_model_fn(data = dat, formula = as.formula("diagnosis~score"))
   # predict(nn, dat, type = "raw", allow.new.levels = TRUE)
 
-  nnet_predict_fn <- example_predict_functions("nnet_binomial")
+  nnet_predict_fn <- predict_functions("nnet_binomial")
 
   CVbinomlist <- cross_validate_fn(dat,
     model_fn = nnet_model_fn,
@@ -1392,7 +1392,7 @@ test_that("gaussian nnet models work with cross_validate_fn()", {
   # nn <- nnet_model_fn(data = dat, formula = as.formula("score~diagnosis+age"))
   # predict(nn, dat, type="raw", allow.new.levels = TRUE)
 
-  nnet_predict_fn <- example_predict_functions("nnet_gaussian")
+  nnet_predict_fn <- predict_functions("nnet_gaussian")
 
   # Cross-validate the data
   CVed <- cross_validate_fn(dat,
@@ -1482,7 +1482,7 @@ test_that("multinomial nnet models work with cross_validate_fn()", {
     )
   }
 
-  multinom_predict_fn <- example_predict_functions("nnet_multinom")
+  multinom_predict_fn <- predict_functions("nnet_multinom")
 
 
   CVmultinomlist <- cross_validate_fn(dat,
@@ -1783,7 +1783,7 @@ test_that("binomial randomForest models work with cross_validate_fn()", {
   }
 
   # m <- rf_model_fn(dat, as.formula("diagnosis ~ age"), NULL)
-  rf_predict_fn <- example_predict_functions("randomForest_binomial")
+  rf_predict_fn <- predict_functions("randomForest_binomial")
 
   CVbinomlist <- cross_validate_fn(dat,
     model_fn = rf_model_fn,
@@ -1894,7 +1894,7 @@ test_that("multinomial randomForest models work with cross_validate_fn()", {
     )
   }
 
-  rf_predict_fn <- example_predict_functions("randomForest_multinomial")
+  rf_predict_fn <- predict_functions("randomForest_multinomial")
 
   # m <- rf_model_fn(dat, as.formula("target ~ predictor_1"), NULL)
   # rf_predict_fn(dat, m, NULL, NULL)
@@ -2076,7 +2076,7 @@ test_that("gaussian randomForest models work with cross_validate_fn()", {
   # rf <- rf_model_fn(data = dat, formula = as.formula("score~diagnosis+age"))
   # predict(rf, dat, allow.new.levels = TRUE)
 
-  rf_predict_fn <- example_predict_functions("randomForest_gaussian")
+  rf_predict_fn <- predict_functions("randomForest_gaussian")
 
   # Cross-validate the data
   CVed <- cross_validate_fn(dat,
@@ -2344,9 +2344,9 @@ test_that("binomial glm model with metrics list works with cross_validate_fn()",
     id_col = "participant"
   )
 
-  glm_model_fn <- example_model_functions("glm_binomial")
+  glm_model_fn <- model_functions("glm_binomial")
 
-  glm_predict_fn <- example_predict_functions("glm_binomial")
+  glm_predict_fn <- predict_functions("glm_binomial")
 
   CVbinomlist <- cross_validate_fn(dat,
     model_fn = glm_model_fn,
@@ -2393,8 +2393,8 @@ test_that("gaussian lm model with metrics list works with cross_validate_fn()", 
     id_col = "participant"
   )
 
-  lm_model_fn <- example_model_functions("lm")
-  lm_predict_fn <- example_predict_functions("lm")
+  lm_model_fn <- model_functions("lm")
+  lm_predict_fn <- predict_functions("lm")
 
   # Cross-validate the data
   CVed <- cross_validate_fn(dat,
@@ -2447,7 +2447,7 @@ test_that("multinomial nnet model with metrics list works with cross_validate_fn
     )
   }
 
-  multinom_predict_fn <- example_predict_functions("nnet_multinom")
+  multinom_predict_fn <- predict_functions("nnet_multinom")
 
   CVmultinomlist <- cross_validate_fn(dat,
     model_fn = multinom_model_fn,
@@ -3163,7 +3163,7 @@ test_that("binomial results are returned in correct order from cross_validate_fn
     id_col = "participant"
   )
 
-  glm_model_fn <- example_model_functions("glm_binomial")
+  glm_model_fn <- model_functions("glm_binomial")
 
   random_predict_fn <- function(test_data, model, formula, hyperparameters, train_data) {
     if ("age" %in% as.character(formula)) {
@@ -3238,7 +3238,7 @@ test_that("lmer model with provided hparams grid works with cross_validate_fn()"
     lme4::lmer(formula = formula, data = train_data, hyperparameters[["REML"]])
   }
 
-  lmer_predict_fn <- example_predict_functions("lmer")
+  lmer_predict_fn <- predict_functions("lmer")
 
   hparams <- tibble::tibble(
     "REML" = c(TRUE, FALSE),

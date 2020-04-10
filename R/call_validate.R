@@ -310,15 +310,15 @@ basics_predict_fn <- function(test_data, model, formula, hyperparameters, train_
   # so this conditional selection is technically unnecessary
   if (family_ == "gaussian") {
     if (!isTRUE(contains_random_effects)) {
-      p_fn <- example_predict_functions("lm")
+      p_fn <- predict_functions("lm")
     } else {
-      p_fn <- example_predict_functions("lmer")
+      p_fn <- predict_functions("lmer")
     }
   } else if (family_ == "binomial") {
     if (!isTRUE(contains_random_effects)) {
-      p_fn <- example_predict_functions("glm_binomial")
+      p_fn <- predict_functions("glm_binomial")
     } else {
-      p_fn <- example_predict_functions("glmer_binomial")
+      p_fn <- predict_functions("glmer_binomial")
     }
   }
 
@@ -334,13 +334,13 @@ basics_pick_preprocess_fn <- function(preprocessing) {
   }
 
   if (preprocessing == "standardize") {
-    preprocess_fn <- example_preprocess_functions("standardize")
+    preprocess_fn <- preprocess_functions("standardize")
   } else if (preprocessing == "scale") {
-    preprocess_fn <- example_preprocess_functions("scale")
+    preprocess_fn <- preprocess_functions("scale")
   } else if (preprocessing == "center") {
-    preprocess_fn <- example_preprocess_functions("center")
+    preprocess_fn <- preprocess_functions("center")
   } else if (preprocessing == "range") {
-    preprocess_fn <- example_preprocess_functions("range")
+    preprocess_fn <- preprocess_functions("range")
   } else {
     stop("'preprocessing' was not found.")
   }

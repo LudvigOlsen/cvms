@@ -1,0 +1,388 @@
+---
+title: "Cross-validating custom model functions with cvms"
+author: 
+  - "Ludvig Renbo Olsen"
+date: "`r Sys.Date()`"
+abstract: |
+  In this vignette, we use **repeated cross-validation** to tune the hyperparameters 
+  of a **custom model function** with `cross_validate_fn()`.
+  &nbsp;  
+  &nbsp;  
+  Contact the author at r-pkgs@ludvigolsen.dk
+  &nbsp;  
+  &nbsp;  
+  
+output: 
+  rmarkdown::html_vignette:
+    css: 
+    - !expr system.file("rmarkdown/templates/html_vignette/resources/vignette.css", package = "rmarkdown")
+    - styles.css
+    fig_width: 6
+    fig_height: 4
+    toc: yes
+    number_sections: no
+  rmarkdown::pdf_document:
+    highlight: tango
+    number_sections: yes
+    toc: yes
+    toc_depth: 4
+vignette: >
+  %\VignetteIndexEntry{cross_validating_custom}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/vignette_conf_mat-",
+  dpi = 92,
+  fig.retina = 2
+)
+```
+
+# Introduction
+
+
+```{r warning=FALSE, message=FALSE}
+library(cvms)
+library(groupdata2) # fold
+library(dplyr)
+library(knitr)  # kable
+
+set.seed(1)
+```
+
+```{r}
+# Enable parallelization by uncommenting
+# library(doParallel)
+# registerDoParallel(4) # 4 cores
+```
+
+
+## Prepare data
+
+```{r}
+data <- participant.scores
+
+data <- fold(
+  data,
+  k = 3,
+  cat_col = "diagnosis",
+  id_col = "participant",
+  num_fold_cols = 3,
+  parallel = FALSE # set to TRUE to run in parallel
+)
+
+data %>% kable()
+
+```
+
+
+## Model function
+
+
+```{r}
+svm_model_fn <- function(train_data, formula, hyperparameters) {
+  e1071::svm(
+    formula = formula,
+    data = train_data,
+    kernel = "linear",
+    cost = 10,
+    scale = FALSE,
+    type = "eps-regression"
+  )
+}
+
+
+# Try the model function
+m0 <- svm_model_fn(data, score ~ age)
+m0
+```
+
+
+## Predict function
+
+
+```{r}
+svm_predict_fn <- function(test_data, model, formula, hyperparameters, train_data) {
+  stats::predict(object = model,
+                 newdata = test_data,
+                 allow.new.levels = TRUE)
+}
+
+
+# Try the predict function
+svm_predict_fn(test_data = data, model = m0)
+
+```
+
+## Cross-validating the functions
+
+```{r}
+
+cv1 <- cross_validate_fn(
+  data = data,
+  formulas = c("score ~ diagnosis",
+               "score ~ age"),
+  type = "gaussian",
+  model_fn = svm_model_fn,
+  predict_fn = svm_predict_fn,
+  fold_cols = paste0(".folds_", 1:3),
+  parallel = FALSE # set to TRUE to run in parallel
+)
+
+cv1
+
+```
+
+
+# Passing hyperparameters
+
+```{r}
+svm_model_fn <- function(train_data, formula, hyperparameters) {
+  
+  # Expected hyperparameters:
+  #  - kernel
+  #  - cost
+  if (!"kernel" %in% names(hyperparameters))
+    stop("'hyperparameters' must include 'kernel'")
+  if (!"cost" %in% names(hyperparameters))
+    stop("'hyperparameters' must include 'cost'")
+  
+  e1071::svm(
+    formula = formula,
+    data = train_data,
+    kernel = hyperparameters[["kernel"]],
+    cost = hyperparameters[["cost"]],
+    scale = FALSE,
+    type = "eps-regression"
+  )
+}
+```
+
+## update_hyperparameters()
+If we have a lot of hyperparameters, asking if they exist one at a time can be a hassle. We can instead use the `update_hyperparameters()` function to check for required hyperparameters and set default values for those that are *not required* but were not passed by the user.
+
+`update_hyperparameters()` has three parts to it:
+
+1) The default hyperparameter values (*passed first*). If we wish to set the default for the `kernel` parameter to `"radial"`, we simply pass `kernel = "radial"`.
+
+2) The list of hyperparameters. Remember to name the argument when passing it, i.e.: `hyperparameters = hyperparameters`.
+
+3) The names of the required hyperparameters. If any of these are not in the hyperparameters, an error is thrown. Again, remember to name the argument when passing it, .e.g. `.required = c("cost", "scale")`.
+
+It returns the updated list of hyperparameters.
+
+Let's specify the model function such that `cost` MUST be passed, while `kernel` is optional and has the default `"radial"`:
+
+```{r}
+svm_model_fn <- function(train_data, formula, hyperparameters) {
+  
+  # Optional hyperparameters:
+  #  - kernel
+  # Required hyperparameters:
+  #  - cost
+  
+  # 1) If 'cost' is not present in hyperparameters, throw error
+  # 2) If 'kernel' is not present in hyperparameters, set to "radial"
+  hyperparameters <- update_hyperparameters(
+    kernel = "radial",
+    hyperparameters = hyperparameters,
+    required = "cost"
+  )
+
+  e1071::svm(
+    formula = formula,
+    data = train_data,
+    kernel = hyperparameters[["kernel"]],
+    cost = hyperparameters[["cost"]],
+    scale = FALSE,
+    type = "eps-regression"
+  )
+}
+```
+
+
+```{r}
+hparams <- list(
+  "kernel" = c("linear", "radial"),
+  "cost" = c(1, 5, 10)
+)
+```
+
+
+```{r}
+
+cv2 <- cross_validate_fn(
+  data = data,
+  formulas = c("score ~ diagnosis",
+               "score ~ age"),
+  type = "gaussian",
+  model_fn = svm_model_fn,
+  predict_fn = svm_predict_fn,
+  hyperparameters = hparams,
+  fold_cols = paste0(".folds_", 1:3)
+)
+
+cv2
+
+cv2 %>% 
+  dplyr::arrange(RMSE, RRSE) %>% 
+  select_definitions(additional_includes = "RMSE") %>% 
+  kable()
+
+```
+
+
+# Preprocessing within the cross-validation
+
+```{r}
+preprocess_fn <- preprocess_functions("standardize")
+
+preprocess_fn
+```
+
+[TODO: Make sure diagnosis is factor so it's not standardized! Describe this!]
+
+```{r}
+cv3 <- cross_validate_fn(
+  data = data,
+  formulas = c("score ~ diagnosis",
+               "score ~ age"),
+  type = "gaussian",
+  model_fn = svm_model_fn,
+  predict_fn = svm_predict_fn,
+  preprocess_fn = preprocess_fn,
+  hyperparameters = list(
+    "kernel" = c("radial"),
+    "cost" = c(10)
+  ),
+  fold_cols = paste0(".folds_", 1:3)
+)
+
+cv3
+
+cv3$Preprocess[[1]] %>% head(10) %>% kable()
+
+```
+
+
+# Binomial example
+
+```{r}
+bnml_svm_model_fn <- model_functions("svm_binomial")
+bnml_svm_model_fn # Note the probability = TRUE
+m1 <- bnml_svm_model_fn(train_data = data, formula = diagnosis ~ score, 
+                        hyperparameters = list("kernel" = "linear", "cost" = 10))
+m1
+
+bnml_svm_predict_fn <- predict_functions("svm_binomial")
+bnml_svm_predict_fn
+p1 <- bnml_svm_predict_fn(test_data = data, model = m1)
+p1 # Vector with probabilities that diagnosis is 1
+```
+
+```{r}
+cv4 <- cross_validate_fn(
+  data = data,
+  formulas = c("diagnosis ~ score",
+               "diagnosis ~ age"),
+  type = "binomial",
+  model_fn = bnml_svm_model_fn,
+  predict_fn = bnml_svm_predict_fn,
+  hyperparameters = list(
+    "kernel" = c("linear", "radial"),
+    "cost" = c(10)
+  ),
+  fold_cols = paste0(".folds_", 1:3)
+)
+
+cv4
+
+cv4 %>% 
+  select_definitions(additional_includes = c("Balanced Accuracy", "F1", "MCC")) %>% 
+  kable()
+
+```
+
+
+# Multinomial example
+
+```{r}
+set.seed(1)
+
+data_mc <- musicians
+data_mc[["ID"]] <- as.factor(data_mc[["ID"]])
+
+data_mc <- fold(
+  data = data_mc,
+  k = 5,
+  cat_col = "Class",
+  id_col = "ID",
+  num_col = "Age",
+  num_fold_cols = 3
+)
+
+data_mc %>% head(10) %>% kable()
+
+# You can use skimr to get a better overview of the dataset
+# Uncomment:
+# library(skimr) 
+# skimr::skim(data_mc)
+```
+
+```{r}
+mc_svm_model_fn <- model_functions("svm_multinomial")
+mc_svm_model_fn
+# Same as before!
+m2 <- mc_svm_model_fn(train_data = data_mc, formula = Class ~ Age + Height, 
+                      hyperparameters = list("kernel" = "linear", "cost" = 10))
+m2
+
+mc_svm_predict_fn <- predict_functions("svm_multinomial")
+mc_svm_predict_fn # only different in probabilities being multiple columns
+p2 <- mc_svm_predict_fn(test_data = data_mc, model = m2)
+p2 # One column of probabilities per class
+```
+
+```{r fig.width=6, fig.height=6, fig.align='center'}
+cv5 <- cross_validate_fn(
+  data = data_mc,
+  formulas = c("Class ~ Age + Height",
+               "Class ~ Age + Height + Bass + Guitar + Keys + Vocals"),
+  type = "multinomial",
+  model_fn = mc_svm_model_fn,
+  predict_fn = mc_svm_predict_fn,
+  hyperparameters = list(
+    "kernel" = c("linear", "radial"),
+    "cost" = c(10)
+  ),
+  fold_cols = paste0(".folds_", 1:3)
+)
+
+cv5
+
+cv5 %>% 
+  dplyr::arrange(dplyr::desc(`Balanced Accuracy`)) %>% 
+  select_definitions(additional_includes = c(
+    "Overall Accuracy", "Balanced Accuracy", "F1")) %>% 
+  kable()
+
+cv5$`Class Level Results`[[3]]
+
+cv5$Results[[3]]
+
+cv5$`Confusion Matrix`[[3]]
+
+overall_confusion_matrix <- cv5$`Confusion Matrix`[[3]] %>% 
+  dplyr::group_by(Prediction, Target) %>% 
+  dplyr::summarise(N = sum(N))
+
+overall_confusion_matrix %>% kable()
+
+plot_confusion_matrix(overall_confusion_matrix)
+
+```
+

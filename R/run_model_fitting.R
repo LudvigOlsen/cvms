@@ -45,22 +45,16 @@ run_model_fitting <- function(model_fitting_fn, model_specifics, train_data,
       }))
     },
     error = function(e) {
-      message(e) # The error is not always shown in full, in the below
-      # making it hard to debug
-      stop(paste("",
-        "-------------------------------------",
-        paste0(caller, ": Error:"),
-        "In model:",
-        model_formula,
-        "For fold column:",
-        fold_column,
-        "In fold:",
-        rel_fold,
-        "Hyperparameters:",
-        paste_hparams(extract_hparams(model_specifics)),
-        e,
-        sep = "\n"
-      ))
+      stop(
+        create_message(
+          m = e,
+          caller = caller,
+          formula = model_formula,
+          fold_col = fold_column,
+          fold = rel_fold,
+          hyperparameters = extract_hparams(model_specifics)
+        )
+      )
     }
   )
 
@@ -71,20 +65,15 @@ run_model_fitting <- function(model_fitting_fn, model_specifics, train_data,
   # Check that model is not NULL
   if (is.null(model)){
     stop(
-      paste(
-        "",
-        "--------------------------------------------------",
-        paste0(caller, ": Boundary (Singular) Fit Message:"),
-        "In model:",
-        model_formula,
-        "For fold column:",
-        fold_column,
-        "In fold:",
-        rel_fold,
-        "Hyperparameters:",
-        paste_hparams(extract_hparams(model_specifics)),
-        "'model_fn' returned 'NULL'. Must return a fitted model object.",
-        sep = "\n"
+      create_message(
+        m = "'model_fn' returned 'NULL'. Must return a fitted model object.",
+        caller = caller,
+        formula = model_formula,
+        fold_col = fold_column,
+        fold = rel_fold,
+        hyperparameters = extract_hparams(model_specifics),
+        note = ifelse(caller %in% c("cross_validate()", "validate()"),
+                      "Boundary (Singular) Fit Message", "")
       )
     )
   }
@@ -104,20 +93,16 @@ run_model_fitting <- function(model_fitting_fn, model_specifics, train_data,
     m <- gsub("\\\n$", "", m)
 
     if (grepl("boundary \\(singular\\) fit", as.character(m), ignore.case = TRUE)) {
-      message(paste("",
-        "--------------------------------------------------",
-        paste0(caller, ": Boundary (Singular) Fit Message:"),
-        "In model:",
-        model_formula,
-        "For fold column:",
-        fold_column,
-        "In fold:",
-        rel_fold,
-        "Hyperparameters:",
-        paste_hparams(extract_hparams(model_specifics)),
-        m,
-        sep = "\n"
-      ))
+      message(
+        create_message(
+          m = m,
+          caller = caller,
+          formula = model_formula,
+          fold_col = fold_column,
+          fold = rel_fold,
+          hyperparameters = extract_hparams(model_specifics),
+          note = "Boundary (Singular) Fit Message"
+        ))
 
       threw_singular_message <- TRUE
     } else if (grepl("Model function: Used", as.character(m), ignore.case = TRUE)) {
@@ -125,20 +110,15 @@ run_model_fitting <- function(model_fitting_fn, model_specifics, train_data,
       message(m)
     } else {
       threw_unknown_message <- TRUE
-      message(paste("",
-        "--------------------------",
-        paste0(caller, ": Message:"),
-        "In model:",
-        model_formula,
-        "For fold column:",
-        fold_column,
-        "In fold:",
-        rel_fold,
-        "Hyperparameters:",
-        paste_hparams(extract_hparams(model_specifics)),
-        m,
-        sep = "\n"
-      ))
+      message(
+        create_message(
+          m = m,
+          caller = caller,
+          formula = model_formula,
+          fold_col = fold_column,
+          fold = rel_fold,
+          hyperparameters = extract_hparams(model_specifics)
+        ))
     }
   }
 
@@ -159,20 +139,16 @@ run_model_fitting <- function(model_fitting_fn, model_specifics, train_data,
       # .. issue the warning
       # .. and return NULL to model
 
-      warning(paste("",
-        "-------------------------------------",
-        paste0(caller, ": Convergence Warning:"),
-        "In model:",
-        model_formula,
-        "For fold column:",
-        fold_column,
-        "In fold:",
-        rel_fold,
-        "Hyperparameters:",
-        paste_hparams(extract_hparams(model_specifics)),
-        w,
-        sep = "\n"
-      ))
+      warning(
+        create_message(
+          m = w,
+          caller = caller,
+          formula = model_formula,
+          fold_col = fold_column,
+          fold = rel_fold,
+          hyperparameters = extract_hparams(model_specifics),
+          note = "Convergence Warning"
+        ))
 
       threw_convergence_warning <- TRUE
       # We don't want to evaluate the non-converged models
@@ -184,20 +160,15 @@ run_model_fitting <- function(model_fitting_fn, model_specifics, train_data,
       # .. issue the warning
       # .. and return the fitted model
 
-      warning(paste("",
-        "-------------------------------------",
-        paste0(caller, ": Warning:"),
-        "In model:",
-        model_formula,
-        "For fold column:",
-        fold_column,
-        "In fold:",
-        rel_fold,
-        "Hyperparameters:",
-        paste_hparams(extract_hparams(model_specifics)),
-        w,
-        sep = "\n"
-      ))
+      warning(
+        create_message(
+          m = w,
+          caller = caller,
+          formula = model_formula,
+          fold_col = fold_column,
+          fold = rel_fold,
+          hyperparameters = extract_hparams(model_specifics)
+        ))
 
       threw_unknown_warning <- TRUE
     }

@@ -69,25 +69,19 @@ prepare_train_test <- function(data, fold_info, fold_cols, model_specifics) {
         }))
       },
       error = function(e) {
-
-        if (grepl("Must be a formula, not 'NULL'",e)){
-          e <- paste0(e, " Possibly caused by 'preprocessing_once' being TRUE?")
-        }
-
-        stop(paste("",
-          "-------------------------------------", # TODO just calculate the number of hyphens?
-          paste0(model_specifics[["caller"]], ": Error:"),
-          "In formula:",
-          current_formula,
-          "For fold column:",
-          fold_info[["fold_column"]],
-          "In fold:",
-          fold_info[["rel_fold"]],
-          "Hyperparameters:",
-          paste_hparams(current_hparams),
-          e,
-          sep = "\n"
-        ))
+        stop(
+          create_message(
+            m = e,
+            caller = model_specifics[["caller"]],
+            formula = current_formula,
+            fold_col = fold_info[["fold_column"]],
+            fold = fold_info[["rel_fold"]],
+            hyperparameters = current_hparams,
+            why = ifelse(grepl("Must be a formula, not 'NULL'", e),
+                         "Possibly caused by 'preprocessing_once' being TRUE?",
+                         "")
+          )
+        )
       }
     )
 
@@ -100,13 +94,13 @@ prepare_train_test <- function(data, fold_info, fold_cols, model_specifics) {
         train_test[["train"]]
       },
       error = function(e) {
-        stop(paste("",
-          "-------------------------------------",
-          paste0(model_specifics[["caller"]], ": Error:"),
-          "Could not extract the training data from the output of 'preprocess_fn'.",
-          "Did you name the output list correctly?",
-          sep = "\n"
-        ))
+        stop(
+          create_message(
+            m = "Could not extract the training data from the output of 'preprocess_fn'.",
+            caller = model_specifics[["caller"]],
+            why = "Did you name the output list correctly?"
+          )
+        )
       }
     )
 
@@ -115,13 +109,13 @@ prepare_train_test <- function(data, fold_info, fold_cols, model_specifics) {
         train_test[["test"]]
       },
       error = function(e) {
-        stop(paste("",
-          "-------------------------------------",
-          paste0(model_specifics[["caller"]], ": Error:"),
-          "Could not extract the test data from the output of 'preprocess_fn'.",
-          "Did you name the output list correctly?",
-          sep = "\n"
-        ))
+        stop(
+          create_message(
+            m = "Could not extract the test data from the output of 'preprocess_fn'.",
+            caller = model_specifics[["caller"]],
+            why = "Did you name the output list correctly?"
+          )
+        )
       }
     )
 
@@ -141,14 +135,12 @@ prepare_train_test <- function(data, fold_info, fold_cols, model_specifics) {
             )
         },
         error = function(e) {
-          stop(paste(
-            "",
-            "-------------------------------------",
-            paste0(model_specifics[["caller"]], ": Error:"),
-            "Could not extract the preprocessing parameters properly from the output of 'preprocess_fn'.",
-            e,
-            sep = "\n"
-          ))
+          stop(
+            create_message(
+              m = "Could not extract the preprocessing parameters properly from the output of 'preprocess_fn'.",
+              caller = model_specifics[["caller"]]
+            )
+          )
         }
       )
     } else {
@@ -180,38 +172,30 @@ prepare_train_test <- function(data, fold_info, fold_cols, model_specifics) {
     # purrr::quietly adds \n to end of messages, which we're not interested in here
     m <- gsub("\\\n$", "", m)
 
-    message(paste("",
-      "-----------------------------",
-      paste0(model_specifics[["caller"]], ": Message:"),
-      "In formula:",
-      current_formula,
-      "For fold column:",
-      fold_info[["fold_column"]],
-      "In fold:",
-      fold_info[["rel_fold"]],
-      "Hyperparameters:",
-      paste_hparams(current_hparams),
-      m,
-      sep = "\n"
-    ))
+    message(
+      create_message(
+        m = m,
+        caller = model_specifics[["caller"]],
+        formula = current_formula,
+        fold_col = fold_info[["fold_column"]],
+        fold = fold_info[["rel_fold"]],
+        hyperparameters = current_hparams
+      )
+    )
   }
 
   # Throw the caught warnings
   for (w in warnings) {
-    warning(paste("",
-      "---------------------------------------",
-      paste0(model_specifics[["caller"]], ": Warning:"),
-      "In formula:",
-      current_formula,
-      "For fold column:",
-      fold_info[["fold_column"]],
-      "In fold:",
-      fold_info[["rel_fold"]],
-      "Hyperparameters:",
-      paste_hparams(current_hparams),
-      w,
-      sep = "\n"
-    ))
+    warning(
+      create_message(
+        m = w,
+        caller = model_specifics[["caller"]],
+        formula = current_formula,
+        fold_col = fold_info[["fold_column"]],
+        fold = fold_info[["rel_fold"]],
+        hyperparameters = current_hparams
+      )
+    )
   }
 
   if ("observation_id_col" %in% names(model_specifics)) {

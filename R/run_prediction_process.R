@@ -28,18 +28,15 @@ run_prediction_process <- function(test_data,
       }))
     },
     error = function(e) {
-      stop(paste("",
-        "-------------------------------------",
-        paste0(model_specifics[["caller"]], ": Error:"),
-        "In formula:",
-        model_formula,
-        "For fold column:",
-        fold_info[["fold_column"]],
-        "In fold:",
-        fold_info[["rel_fold"]],
-        e,
-        sep = "\n"
-      ))
+      stop(
+        create_message(
+          m = e,
+          caller = model_specifics[["caller"]],
+          formula = model_formula,
+          fold_col = fold_info[["fold_column"]],
+          fold = fold_info[["rel_fold"]]
+        )
+      )
     }
   )
 
@@ -60,34 +57,28 @@ run_prediction_process <- function(test_data,
     # purrr::quietly adds \n to end of messages, which we're not interested in here
     m <- gsub("\\\n$", "", m)
 
-    message(paste("",
-      "-----------------------------",
-      paste0(model_specifics[["caller"]], ": Message:"),
-      "In formula:",
-      model_formula,
-      "For fold column:",
-      fold_info[["fold_column"]],
-      "In fold:",
-      fold_info[["rel_fold"]],
-      m,
-      sep = "\n"
-    ))
+    message(
+      create_message(
+        m = m,
+        caller = model_specifics[["caller"]],
+        formula = model_formula,
+        fold_col = fold_info[["fold_column"]],
+        fold = fold_info[["rel_fold"]]
+      )
+    )
   }
 
   # Throw the caught warnings
   for (w in warnings) {
-    warning(paste("",
-      "---------------------------------------",
-      paste0(model_specifics[["caller"]], ": Warning:"),
-      "In formula:",
-      model_formula,
-      "For fold column:",
-      fold_info[["fold_column"]],
-      "In fold:",
-      fold_info[["rel_fold"]],
-      w,
-      sep = "\n"
-    ))
+    warning(
+      create_message(
+        m = w,
+        caller = model_specifics[["caller"]],
+        formula = model_formula,
+        fold_col = fold_info[["fold_column"]],
+        fold = fold_info[["rel_fold"]]
+      )
+    )
   }
 
   return(

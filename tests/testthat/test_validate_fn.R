@@ -880,10 +880,13 @@ test_that("fuzz testing validate_fn()", {
   side_effects_16417 <- xpectr::capture_side_effects(validate_fn(train_data = dat_ready, formulas = "diagnosis~score+(1|session)", type = "binomial", model_fn = glm_model_fn, predict_fn = glm_predict_fn, test_data = NULL, preprocess_fn = glm_preprocess_fn, preprocess_once = FALSE, hyperparameters = hparams, partitions_col = ".partitions", cutoff = 0.5, positive = 2, metrics = list(all = FALSE, Accuracy = TRUE, Sensitivity = TRUE), rm_nc = FALSE, parallel = FALSE, verbose = FALSE), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_16417[['warnings']]),
-    xpectr::strip(c("\n---------------------------------------\nvalidate_fn(): Warning:\nIn formula:\ndiagnosis~score+(1|session)\nFor fold column:\n.partitions\nIn fold:\n2\nprediction from a rank-deficient fit may be misleading",
-      "\n---------------------------------------\nvalidate_fn(): Warning:\nIn formula:\ndiagnosis~score+(1|session)\nFor fold column:\n.partitions\nIn fold:\n2\nprediction from a rank-deficient fit may be misleading",
-      "\n---------------------------------------\nvalidate_fn(): Warning:\nIn formula:\ndiagnosis~score+(1|session)\nFor fold column:\n.partitions\nIn fold:\n2\nprediction from a rank-deficient fit may be misleading",
-      "\n---------------------------------------\nvalidate_fn(): Warning:\nIn formula:\ndiagnosis~score+(1|session)\nFor fold column:\n.partitions\nIn fold:\n2\nprediction from a rank-deficient fit may be misleading")),
+    xpectr::strip(
+      c("---\nvalidate_fn(): prediction from a rank-deficient fit may be misleading\nFor:\nFormula: diagnosis~score+(1|session)\nFold column: .partitions\nFold: 2\n",
+      "---\nvalidate_fn(): prediction from a rank-deficient fit may be misleading\nFor:\nFormula: diagnosis~score+(1|session)\nFold column: .partitions\nFold: 2\n",
+      "---\nvalidate_fn(): prediction from a rank-deficient fit may be misleading\nFor:\nFormula: diagnosis~score+(1|session)\nFold column: .partitions\nFold: 2\n",
+      "---\nvalidate_fn(): prediction from a rank-deficient fit may be misleading\nFor:\nFormula: diagnosis~score+(1|session)\nFold column: .partitions\nFold: 2\n"
+      )
+      ),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_16417[['messages']]),
@@ -2255,8 +2258,10 @@ test_that("fuzz testing gaussian lm model with validate_fn()",{
   side_effects_15190 <- xpectr::capture_side_effects(validate_fn(train_data = dat_ready, formulas = "score ~ diagnosis + (1|session)", type = "gaussian", model_fn = lm_model_fn, predict_fn = lm_predict_fn, test_data = NULL, preprocess_fn = NULL, preprocess_once = FALSE, hyperparameters = list(a = c(1, 2), b = c(2)), partitions_col = ".partitions", metrics = list(all = FALSE, RMSE = TRUE), rm_nc = FALSE, parallel = FALSE, verbose = FALSE), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_15190[['warnings']]),
-    xpectr::strip(c("\n---------------------------------------\nvalidate_fn(): Warning:\nIn formula:\nscore ~ diagnosis + (1|session)\nFor fold column:\n.partitions\nIn fold:\n2\nprediction from a rank-deficient fit may be misleading",
-      "\n---------------------------------------\nvalidate_fn(): Warning:\nIn formula:\nscore ~ diagnosis + (1|session)\nFor fold column:\n.partitions\nIn fold:\n2\nprediction from a rank-deficient fit may be misleading")),
+    xpectr::strip(
+      c("---\nvalidate_fn(): prediction from a rank-deficient fit may be misleading\nFor:\nFormula: score ~ diagnosis + (1|session)\nFold column: .partitions\nFold: 2\n",
+        "---\nvalidate_fn(): prediction from a rank-deficient fit may be misleading\nFor:\nFormula: score ~ diagnosis + (1|session)\nFold column: .partitions\nFold: 2\n"
+      )),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_15190[['messages']]),
@@ -2350,7 +2355,7 @@ test_that("fuzz testing gaussian lm model with validate_fn()",{
   side_effects_11346 <- xpectr::capture_side_effects(validate_fn(train_data = dat_ready, formulas = "score ~ nope", type = "gaussian", model_fn = lm_model_fn, predict_fn = lm_predict_fn, test_data = NULL, preprocess_fn = NULL, preprocess_once = FALSE, hyperparameters = list(a = c(1, 2), b = c(2)), partitions_col = ".partitions", metrics = list(all = FALSE, RMSE = TRUE), rm_nc = FALSE, parallel = FALSE, verbose = FALSE), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_11346[['error']]),
-    xpectr::strip("object 'nope' not found"),
+    xpectr::strip("---\nvalidate_fn(): Error in eval(predvars, data, env): object 'nope' not found\n\nFor:\nFormula: score ~ nope\nFold column: .partitions\nFold: 2\nHyperparameters: a : 1, b : 2\n"),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_11346[['error_class']]),
@@ -3281,7 +3286,7 @@ test_that("fuzz testing multinomial nnet model with validate_fn()", {
   side_effects_19346 <- xpectr::capture_side_effects(validate_fn(train_data = data_mc, formulas = "target ~ predictor_1 + predictor_2 + predictor_3", type = "gaussian", model_fn = multinom_model_fn, predict_fn = multinom_predict_fn, test_data = NULL, preprocess_fn = NULL, preprocess_once = FALSE, hyperparameters = hparams, partitions_col = ".partitions", metrics = list(), rm_nc = FALSE, parallel = FALSE, verbose = FALSE), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_19346[['error']]),
-    xpectr::strip("\n-------------------------------------\nvalidate_fn(): Error:\nIn formula:\ntarget ~ predictor_1 + predictor_2 + predictor_3\nFor fold column:\n.partitions\nIn fold:\n2\nError in run_predict_fn(test_data = test_data, train_data = train_data, : When 'type'/'family' is 'gaussian', the predictions must be a vector or matrix / data frame with one column but was a matrix with 3 columns. Did you specify 'predict_fn' correctly?\n"),
+    xpectr::strip("---\nvalidate_fn(): Error in run_predict_fn(test_data = test_data, train_data = train_data, : When 'type'/'family' is 'gaussian', the predictions must be a vector or matrix / data frame with one column but was a matrix with 3 columns. Did you specify 'predict_fn' correctly?\n\nFor:\nFormula: target ~ predictor_1 + predictor_2 + predictor_3\nFold column: .partitions\nFold: 2\n"),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_19346[['error_class']]),

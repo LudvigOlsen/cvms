@@ -610,6 +610,56 @@ create_warnings_and_messages_tibble <- function(warnings, messages, fn) {
 }
 
 
+
+#   __________________ #< 440b147b963f8a7fd202661bfc3b068e ># __________________
+#   Create message for side effects                                         ####
+
+append_to_message <- function(msg, .var = NULL, .msg = NULL, ignore_var_null = TRUE, ignore_empty = TRUE){
+
+  if (is.null(.var) && isTRUE(ignore_var_null)){
+    return(msg)
+  }
+
+  if (checkmate::test_string(.var) && .var == "" && isTRUE(ignore_empty)){
+    return(msg)
+  }
+
+  paste0(
+    msg, "\n",
+    .msg,
+    .var
+  )
+}
+
+create_message <- function(m, caller, formula = NULL, fold_col = NULL, fold = NULL,
+                           hyperparameters = NULL, note = NULL, why = NULL){
+  msg <- paste(
+    "---",
+    paste0(caller, ": ", m),
+    sep = "\n")
+
+  msg <- append_to_message(msg, .var = why, .msg = "Why: ")
+  msg <- append_to_message(msg, .var = note, .msg = "Note: ")
+
+  if (!is.null(formula) || !is.null(fold_col) ||
+      !is.null(fold) || !is.null(hyperparameters)){
+
+    msg <- append_to_message(msg, .msg = "For:", ignore_var_null = FALSE)
+    msg <- append_to_message(msg, .var = formula, .msg = "Formula: ")
+    msg <- append_to_message(msg, .var = fold_col, .msg = "Fold column: ")
+    msg <- append_to_message(msg, .var = fold, .msg = "Fold: ")
+    msg <- append_to_message(msg, .var = paste_hparams(hyperparameters), .msg = "Hyperparameters: ")
+
+  }
+
+  msg <- append_to_message(msg, .msg = "", ignore_var_null = FALSE, ignore_empty = FALSE)
+
+  msg
+}
+
+
+
+
 #   __________________ #< 71c73c7cedb289ef6c3dd17503736847 ># __________________
 #   Convert to tibble                                                       ####
 

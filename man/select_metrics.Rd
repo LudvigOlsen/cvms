@@ -2,7 +2,7 @@
 % Please edit documentation in R/select_metrics.R
 \name{select_metrics}
 \alias{select_metrics}
-\title{Select columns with evaluation metrics and model definitions.}
+\title{Select columns with evaluation metrics and model definitions}
 \usage{
 select_metrics(results, include_definitions = TRUE, additional_includes = NULL)
 }

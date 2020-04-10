@@ -58,6 +58,8 @@ It can be unclear whether the IC metrics (computed on the `lm()`/`lmer()` model 
 
 * `summarize_metrics()` is added. Use it summarize the numeric columns in your dataset with a set of common descriptors. Counts the `NA`s and `Inf`s. Used by `baseline()`.
 
+* `select_definitions()` is added. Select the columns that define the models, such as `Dependent`, `Fixed`, `Random`, and the (unnested) hyperparameters.
+
 * `example_model_functions()` is added. Contains simple `model_fn` examples that can be used in `cross_validate_fn()` and `validate_fn()` or as starting points.
 
 * `example_predict_functions()` is added. Contains simple `predict_fn` examples that can be used in `cross_validate_fn()` and `validate_fn()` or as starting points.

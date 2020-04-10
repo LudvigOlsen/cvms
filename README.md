@@ -82,6 +82,7 @@ package.
 | Function                                                                                             | Description                                              |
 | :--------------------------------------------------------------------------------------------------- | :------------------------------------------------------- |
 | `select_metrics()`                                                                                   | Select the metric columns from the output                |
+| `select_definitions()`                                                                               | Select the model-defining columns from the output        |
 | `gaussian_metrics()`<br />`binomial_metrics()`<br />`multinomial_metrics()`                          | Create list of metrics for the common `metrics` argument |
 | `example_model_functions()`<br />`example_predict_functions()`<br />`example_preprocess_functions()` | Example functions for `cross_validate_fn()`              |
 | `multiclass_probability_tibble()`                                                                    | Generate a multiclass probability tibble                 |
@@ -272,6 +273,16 @@ CV1 %>% select_metrics() %>% kable()
 | Fixed     |     RMSE |      MAE | NRMSE(IQR) |      RRSE |      RAE |     RMSLE |      AIC |     AICc |      BIC | Dependent |
 | :-------- | -------: | -------: | ---------: | --------: | -------: | --------: | -------: | -------: | -------: | :-------- |
 | diagnosis | 16.35261 | 13.75772 |  0.9373575 | 0.9004745 | 0.932284 | 0.4736577 | 194.6218 | 195.9276 | 197.9556 | score     |
+
+``` r
+
+# Just the formulas
+CV1 %>% select_definitions() %>% kable()
+```
+
+| Dependent | Fixed     |
+| :-------- | :-------- |
+| score     | diagnosis |
 
 ``` r
 

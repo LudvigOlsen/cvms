@@ -1,5 +1,5 @@
 
-#' @title Select columns with evaluation metrics and model definitions.
+#' @title Select columns with evaluation metrics and model definitions
 #' @description
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("maturing")}
 #'
@@ -29,7 +29,8 @@ select_metrics <- function(results, include_definitions = TRUE,
     add = assert_collection
   )
   checkmate::assert_flag(x = include_definitions, add = assert_collection)
-  checkmate::assert_character(x = additional_includes, null.ok = TRUE, add = assert_collection)
+  checkmate::assert_character(x = additional_includes, null.ok = TRUE,
+                              add = assert_collection)
   if (!is.null(additional_includes)) {
     checkmate::reportAssertions(assert_collection)
     checkmate::assert_names(
@@ -49,7 +50,7 @@ select_metrics <- function(results, include_definitions = TRUE,
   metric_cols <- c(
     # Gaussian
     "RMSE", "MAE",
-    "NRMSE(RNG)", "NRMSE(IQR)", "NRMSE(STD)", "NRMSE(AVG)",         # TODO Order the new metrics meaningfully!
+    "NRMSE(RNG)", "NRMSE(IQR)", "NRMSE(STD)", "NRMSE(AVG)",
     "RSE", "RRSE", "RAE", "RMSLE", "MALE",
     "MAPE", "MSE", "TAE", "TSE",
     "r2m", "r2c",

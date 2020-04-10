@@ -40,7 +40,7 @@ Imports:
     stats,
     stringr,
     tibble (>= 2.1.1),
-    tidyr (>= 0.8.3),
+    tidyr (>= 1.0.2),
     utils
 Suggests: 
     AUC,

@@ -57,7 +57,7 @@ preprocess_functions <- function(name) {
     preprocess_fn <- function(train_data, test_data, formula, hyperparameters) {
 
       # Create simplified version of the formula
-      # as recipe does not like inline functions
+      # as recipe() does not like inline functions
       # like log() or random effect structures like (1|z)
       # Example:
       # "y ~ log(x) + (1 | z)"  becomes  "y ~ x + z"
@@ -75,7 +75,7 @@ preprocess_functions <- function(name) {
       ) %>%
 
         # Add preprocessing steps
-        # Note: We could add specific variable to each step
+        # Note: We could add specific variables to each step
         # instead of just selecting all numeric predictors
         recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
         recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
@@ -105,7 +105,7 @@ preprocess_functions <- function(name) {
     preprocess_fn <- function(train_data, test_data, formula, hyperparameters) {
 
       # Create simplified version of the formula
-      # as recipe does not like inline functions
+      # as recipe() does not like inline functions
       # like log() or random effect structures like (1|z)
       # Example:
       # "y ~ log(x) + (1 | z)"  becomes  "y ~ x + z"
@@ -123,7 +123,7 @@ preprocess_functions <- function(name) {
       ) %>%
 
         # Add preprocessing steps
-        # Note: We could add specific variable to each step
+        # Note: We could add specific variables to each step
         # instead of just selecting all numeric predictors
         recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
 
@@ -151,7 +151,7 @@ preprocess_functions <- function(name) {
     preprocess_fn <- function(train_data, test_data, formula, hyperparameters) {
 
       # Create simplified version of the formula
-      # as recipe does not like inline functions
+      # as recipe() does not like inline functions
       # like log() or random effect structures like (1|z)
       # Example:
       # "y ~ log(x) + (1 | z)"  becomes  "y ~ x + z"
@@ -169,7 +169,7 @@ preprocess_functions <- function(name) {
       ) %>%
 
         # Add preprocessing steps
-        # Note: We could add specific variable to each step
+        # Note: We could add specific variables to each step
         # instead of just selecting all numeric predictors
         recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
 
@@ -197,7 +197,7 @@ preprocess_functions <- function(name) {
     preprocess_fn <- function(train_data, test_data, formula, hyperparameters) {
 
       # Create simplified version of the formula
-      # as recipe does not like inline functions
+      # as recipe() does not like inline functions
       # like log() or random effect structures like (1|z)
       # Example:
       # "y ~ log(x) + (1 | z)"  becomes  "y ~ x + z"
@@ -215,7 +215,7 @@ preprocess_functions <- function(name) {
       ) %>%
 
         # Add preprocessing steps
-        # Note: We could add specific variable to each step
+        # Note: We could add specific variables to each step
         # instead of just selecting all numeric variables
         recipes::step_range(recipes::all_numeric(), -recipes::all_outcomes(),
           min = 0.0, max = 1.0

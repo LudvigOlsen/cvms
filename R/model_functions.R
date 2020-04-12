@@ -75,14 +75,16 @@ model_functions <- function(name) {
     model_fn <- function(train_data, formula, hyperparameters) {
 
       # Optional hyperparameters:
-      #  - kernel
-      #  - cost
+      #  - kernel (default: "radial")
+      #  - cost   (default: 1)
+      #  - scale  (default: FALSE)
 
       # Set defaults for any missing hyperparameters
-      # These are the defaults in e1071::svm
+      # Except for 'scale', these are the defaults in e1071::svm
       hyperparameters <- cvms::update_hyperparameters(
         kernel = "radial",
         cost = 1,
+        scale = FALSE,
         hyperparameters = hyperparameters
       )
 
@@ -91,7 +93,7 @@ model_functions <- function(name) {
         data = train_data,
         kernel = hyperparameters[["kernel"]],
         cost = hyperparameters[["cost"]],
-        scale = FALSE,
+        scale = hyperparameters[["scale"]],
         type = "eps-regression"
       )
     }
@@ -99,14 +101,16 @@ model_functions <- function(name) {
     model_fn <- function(train_data, formula, hyperparameters) {
 
       # Optional hyperparameters:
-      #  - kernel
-      #  - cost
+      #  - kernel (default: "radial")
+      #  - cost   (default: 1)
+      #  - scale  (default: FALSE)
 
       # Set defaults for any missing hyperparameters
-      # These are the defaults in e1071::svm
+      # Except for 'scale', these are the defaults in e1071::svm
       hyperparameters <- cvms::update_hyperparameters(
         kernel = "radial",
         cost = 1,
+        scale = FALSE,
         hyperparameters = hyperparameters
       )
 
@@ -115,7 +119,7 @@ model_functions <- function(name) {
         data = train_data,
         kernel = hyperparameters[["kernel"]],
         cost = hyperparameters[["cost"]],
-        scale = FALSE,
+        scale = hyperparameters[["scale"]],
         type = "C-classification",
         probability = TRUE
       )
@@ -124,7 +128,7 @@ model_functions <- function(name) {
     model_fn <- function(train_data, formula, hyperparameters) {
 
       # Optional hyperparameters:
-      #  - laplace
+      #  - laplace  (default: 0)
 
       # Set defaults for any missing hyperparameters
       # These are the defaults in e1071::naiveBayes

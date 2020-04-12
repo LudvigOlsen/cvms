@@ -316,9 +316,10 @@ create_folds_map <- function(data, fold_cols) {
     plyr::ldply(seq_len(length(fold_cols)), function(fold_column) {
       data.frame(
         "fold_col_idx" = fold_column,
-        "fold_col_name" = fold_cols[[fold_column]],
+        "fold_col_name" = factor(fold_cols[[fold_column]]),
         abs_fold = c(folds_map[["start_"]][[fold_column]]:folds_map[["end_"]][[fold_column]]),
-        rel_fold = c(1:folds_map[["num_folds"]][[fold_column]])
+        rel_fold = c(1:folds_map[["num_folds"]][[fold_column]]),
+        stringsAsFactors = FALSE
       )
     }) %>% dplyr::as_tibble()
 

@@ -38,8 +38,7 @@ test_that("the correct grid is created with create_computation_grid()", {
   expect_equal(as.vector(table(grid_1$abs_fold)), rep(24, 12))
   expect_equal(as.vector(table(grid_1$model)), rep(12, 24))
   expect_equal(grid_1$Formula, rep(c("y ~ x", "y ~ z"), each = 144))
-  # TODO this fails on R dev without as.character. Find out why!
-  expect_equal(as.character(grid_1$fold_col_name), as.character(factor(rep(rep(paste0(".folds_", 1:3), each = 48), 2))))
+  expect_equal(grid_1$fold_col_name, factor(rep(rep(paste0(".folds_", 1:3), each = 48), 2)))
   expect_equal(grid_1.2$a, rep(c(-1, 0, 1), 96))
   expect_equal(grid_1.2$b, rep(7, 288))
   expect_equal(

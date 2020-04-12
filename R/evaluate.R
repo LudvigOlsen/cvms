@@ -512,7 +512,7 @@ evaluate <- function(data,
       id_col
     )
   ) %>%
-    as.data.frame() %>%
+    as.data.frame(stringsAsFactors = FALSE) %>%
     dplyr::as_tibble() %>% # removes grouping
     dplyr::group_by_at(colnames(dplyr::group_keys(data)))
 

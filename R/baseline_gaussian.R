@@ -75,7 +75,8 @@ create_gaussian_baseline_evaluations <- function(train_data,
   train_set_inclusion_vals <-
     data.frame(
       "inclusion_probability" = runif(n_train_targets * n_samplings),
-      "split_factor" = factor(rep(1:n_samplings, each = n_train_targets))
+      "split_factor" = factor(rep(1:n_samplings, each = n_train_targets)),
+      stringsAsFactors = FALSE
     ) %>%
     dplyr::group_by(.data$split_factor) %>%
     dplyr::mutate(indices = 1:dplyr::n()) %>%

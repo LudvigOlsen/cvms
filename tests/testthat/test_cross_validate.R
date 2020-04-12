@@ -2364,9 +2364,9 @@ test_that("that singular fit messages are caught, counted and messaged about in 
       positive = 2
     ), reset_seed = TRUE)
   expect_equal(
-    xpectr::strip(side_effects_12059[['warnings']]),
+    xpectr::strip(side_effects_12059[['warnings']], remove_numbers = TRUE),
     xpectr::strip(c("\n---\ncross_validate(): Model failed to converge with max|grad| = 0.0281933 (tol = 0.002, component 1)\nNote: Convergence Warning\nFor:\nFormula: diagnosis~score+(1|participant)+(1|session)\nFold column: .folds\nFold: 3\nHyperparameters: REML : FALSE, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), restart_edge = FALSE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, \n    relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list(), tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE)), model_verbose : FALSE, family : binomial, is_special_fn : TRUE",
-      "cross_validate(): predictions contained NA.")),
+      "cross_validate(): predictions contained NA."), remove_numbers = TRUE),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_12059[['messages']]),

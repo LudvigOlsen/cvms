@@ -49,7 +49,7 @@ Suggests:
     furrr,
     groupdata2 (>= 1.2.0),
     knitr,
-    nnet (>= 7.3-13),
+    nnet (>= 7.3-12),
     randomForest (>= 4.6-14),
     rmarkdown,
     testthat (>= 2.3.2),

@@ -275,14 +275,18 @@ check_constant_targets_within_ids <- function(distinct_data, groups_col, id_col)
     dplyr::summarize(n = dplyr::n())
 
   if (any(counts$n > 1)) {
+    non_constant_ids <- counts %>%
+      dplyr::filter(.data$n > 1) %>%
+      dplyr::pull(!!as.name(id_col))
+
     stop(paste0(
       "The targets must be constant within the IDs with the current ID method. ",
       "These IDs had more than one unique value in the target column: ",
-      paste0(counts %>%
-        dplyr::filter(.data$n > 1) %>%
-        dplyr::pull(!!as.name(id_col)),
+      paste0(head(non_constant_ids, 5),
       collapse = ", "
-      ), "."
+      ),
+      ifelse(length(non_constant_ids) > 5, ", ...", ""),
+      "."
     ))
   }
 }

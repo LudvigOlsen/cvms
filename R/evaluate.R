@@ -477,6 +477,31 @@ evaluate <- function(data,
     )
   }
 
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_data_frame(
+    x = data, min.rows = 1,
+    min.cols = 2,
+    col.names = "named",
+    add = assert_collection
+  )
+  checkmate::assert_string(
+    x = target_col, min.chars = 1,
+    add = assert_collection
+  )
+  checkmate::assert_character(
+    x = prediction_cols,
+    min.len = 1,
+    min.chars = 1,
+    add = assert_collection
+  )
+  checkmate::assert_string(
+    x = id_col, min.chars = 1, null.ok = TRUE,
+    add = assert_collection
+  )
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
+
   # Remove unnecessary columns
   data <- base_select(
     data,
@@ -637,6 +662,16 @@ run_evaluate <- function(data,
       min.chars = 1
     )
   )
+
+  checkmate::reportAssertions(assert_collection)
+
+  # Need to report before, so type is not NULL
+  if (type != "multinomial" &&
+      length(prediction_cols) != 1){
+    assert_collection$push(
+      paste0("When 'type' is '", type, "', 'prediction_cols' must have length 1.")
+    )
+  }
 
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####

@@ -22,19 +22,19 @@ BugReports: https://github.com/ludvigolsen/cvms/issues
 Depends:
     R (>= 3.5)
 Imports:
-    broom (>= 0.5.2),
+    broom (>= 0.5.5),
     checkmate (>= 2.0.0),
     data.table (>= 1.12),
-    dplyr,
+    dplyr (>= 0.8.5),
     ggimage (>= 0.2.7),
     ggplot2,
     lifecycle,
-    lme4 (>= 1.1-21),
-    MuMIn (>= 1.43.6),
+    lme4 (>= 1.1-23),
+    MuMIn (>= 1.43.15),
     plyr,
-    pROC (>= 1.14.0),
+    pROC (>= 1.16.0),
     purrr,
-    recipes,
+    recipes (>= 0.1.10),
     rlang (>= 0.4.0),
     rsvg,
     stats,
@@ -47,12 +47,12 @@ Suggests:
     covr (>= 3.3.1),
     e1071 (>= 1.7-2),
     furrr,
-    groupdata2 (>= 1.1.2),
+    groupdata2 (>= 1.2.0),
     knitr,
-    nnet (>= 7.3-12),
+    nnet (>= 7.3-13),
     randomForest (>= 4.6-14),
     rmarkdown,
-    testthat (>= 2.2.1),
+    testthat (>= 2.3.2),
     xpectr (>= 0.3.0)
 VignetteBuilder: 
     knitr

@@ -164,8 +164,10 @@ test_set <- partitions[[2]]
 # Note: usually n=100 is a good setting
 
 baseline_gaussian(
-  test_data = test_set, train_data = train_set,
-  dependent_col = "score", random_effects = "(1|session)",
+  test_data = test_set,
+  train_data = train_set,
+  dependent_col = "score",
+  random_effects = "(1|session)",
   n = 2
 )
 
@@ -176,12 +178,14 @@ baseline_gaussian(
 # library(doParallel)
 # registerDoParallel(4)
 
+# Make sure to uncomment the parallel argument
 baseline_gaussian(
   test_data = test_set,
   train_data = train_set,
   dependent_col = "score",
   random_effects = "(1|session)",
-  n = 4, parallel = TRUE
+  n = 4
+  #, parallel = TRUE  # Uncomment
 )
 }
 }

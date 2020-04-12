@@ -561,6 +561,7 @@
 #' )
 #'
 #' # Cross-validate a list of 20 models in parallel
+#' # Make sure to uncomment the parallel argument
 #' system.time({
 #'   cross_validate_fn(
 #'     data,
@@ -569,8 +570,8 @@
 #'     model_fn = svm_model_fn,
 #'     predict_fn = svm_predict_fn,
 #'     hyperparameters = hparams,
-#'     fold_cols = ".folds",
-#'     parallel = TRUE
+#'     fold_cols = ".folds"
+#'     #, parallel = TRUE  # Uncomment
 #'   )
 #' })
 #'
@@ -583,8 +584,8 @@
 #'     model_fn = svm_model_fn,
 #'     predict_fn = svm_predict_fn,
 #'     hyperparameters = hparams,
-#'     fold_cols = ".folds",
-#'     parallel = FALSE
+#'     fold_cols = ".folds"
+#'     #, parallel = TRUE  # Uncomment
 #'   )
 #' })
 #' }

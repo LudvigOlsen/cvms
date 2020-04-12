@@ -179,10 +179,12 @@ baseline_binomial(
 # library(doParallel)
 # registerDoParallel(4)
 
+# Make sure to uncomment the parallel argument
 baseline_binomial(
   test_data = test_set,
   dependent_col = "diagnosis",
-  n = 4, parallel = TRUE
+  n = 4
+  #, parallel = TRUE  # Uncomment
 )
 }
 }

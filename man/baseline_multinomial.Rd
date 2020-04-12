@@ -227,11 +227,12 @@ baseline_multinomial(
 # library(doParallel)
 # registerDoParallel(4)
 
+# Make sure to uncomment the parallel argument
 (mb <- baseline_multinomial(
   test_data = multiclass_data,
   dependent_col = "target",
-  n = 6,
-  parallel = TRUE
+  n = 6
+  #, parallel = TRUE  # Uncomment
 ))
 
 # Inspect the summarized class level results
@@ -248,12 +249,13 @@ rcertain <- function(n) {
   (runif(n, min = 1, max = 100)^1.4) / 100
 }
 
+# Make sure to uncomment the parallel argument
 baseline_multinomial(
   test_data = multiclass_data,
   dependent_col = "target",
   n = 6,
-  parallel = TRUE,
   random_generator_fn = rcertain
+  #, parallel = TRUE  # Uncomment
 )
 }
 }

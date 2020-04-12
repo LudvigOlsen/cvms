@@ -146,8 +146,10 @@
 #' # Note: usually n=100 is a good setting
 #'
 #' baseline_gaussian(
-#'   test_data = test_set, train_data = train_set,
-#'   dependent_col = "score", random_effects = "(1|session)",
+#'   test_data = test_set,
+#'   train_data = train_set,
+#'   dependent_col = "score",
+#'   random_effects = "(1|session)",
 #'   n = 2
 #' )
 #'
@@ -158,12 +160,14 @@
 #' # library(doParallel)
 #' # registerDoParallel(4)
 #'
+#' # Make sure to uncomment the parallel argument
 #' baseline_gaussian(
 #'   test_data = test_set,
 #'   train_data = train_set,
 #'   dependent_col = "score",
 #'   random_effects = "(1|session)",
-#'   n = 4, parallel = TRUE
+#'   n = 4
+#'   #, parallel = TRUE  # Uncomment
 #' )
 #' }
 baseline_gaussian <- function(test_data,
@@ -356,10 +360,12 @@ baseline_gaussian <- function(test_data,
 #' # library(doParallel)
 #' # registerDoParallel(4)
 #'
+#' # Make sure to uncomment the parallel argument
 #' baseline_binomial(
 #'   test_data = test_set,
 #'   dependent_col = "diagnosis",
-#'   n = 4, parallel = TRUE
+#'   n = 4
+#'   #, parallel = TRUE  # Uncomment
 #' )
 #' }
 baseline_binomial <- function(test_data,
@@ -595,11 +601,12 @@ baseline_binomial <- function(test_data,
 #' # library(doParallel)
 #' # registerDoParallel(4)
 #'
+#' # Make sure to uncomment the parallel argument
 #' (mb <- baseline_multinomial(
 #'   test_data = multiclass_data,
 #'   dependent_col = "target",
-#'   n = 6,
-#'   parallel = TRUE
+#'   n = 6
+#'   #, parallel = TRUE  # Uncomment
 #' ))
 #'
 #' # Inspect the summarized class level results
@@ -616,12 +623,13 @@ baseline_binomial <- function(test_data,
 #'   (runif(n, min = 1, max = 100)^1.4) / 100
 #' }
 #'
+#' # Make sure to uncomment the parallel argument
 #' baseline_multinomial(
 #'   test_data = multiclass_data,
 #'   dependent_col = "target",
 #'   n = 6,
-#'   parallel = TRUE,
 #'   random_generator_fn = rcertain
+#'   #, parallel = TRUE  # Uncomment
 #' )
 #' }
 baseline_multinomial <- function(test_data,

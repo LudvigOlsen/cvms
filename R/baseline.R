@@ -397,22 +397,24 @@
 #' # Binomial
 #' baseline(
 #'   test_data = test_set, dependent_col = "diagnosis",
-#'   n = 4, family = "binomial", parallel = TRUE
+#'   n = 4, family = "binomial"
+#'   #, parallel = TRUE   # Uncomment
 #' )
 #'
 #' # Gaussian
 #' baseline(
 #'   test_data = test_set, train_data = train_set,
 #'   dependent_col = "score", random_effects = "(1|session)",
-#'   n = 4, family = "gaussian", parallel = TRUE
+#'   n = 4, family = "gaussian"
+#'   #, parallel = TRUE   # Uncomment
 #' )
 #'
 #' # Multinomial
 #' (mb <- baseline(
 #'   test_data = multiclass_data,
 #'   dependent_col = "target",
-#'   n = 6, family = "multinomial",
-#'   parallel = TRUE
+#'   n = 6, family = "multinomial"
+#'   #, parallel = TRUE   # Uncomment
 #' ))
 #'
 #' # Inspect the summarized class level results
@@ -433,8 +435,8 @@
 #'   test_data = multiclass_data,
 #'   dependent_col = "target",
 #'   n = 6, family = "multinomial",
-#'   parallel = TRUE,
 #'   random_generator_fn = rcertain
+#'   #, parallel = TRUE  # Uncomment
 #' )
 #' }
 #' @importFrom stats runif rnorm terms IQR median predict sd

@@ -315,11 +315,12 @@
 #' # registerDoParallel(4)
 #'
 #' # Cross-validate a list of model formulas in parallel
+#' # Make sure to uncomment the parallel argument
 #' cross_validate(
 #'   data,
 #'   formulas = formulas,
-#'   family = "gaussian",
-#'   parallel = TRUE
+#'   family = "gaussian"
+#'   #, parallel = TRUE  # Uncomment
 #' )
 #' }
 #' @importFrom stats binomial gaussian glm lm

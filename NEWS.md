@@ -16,7 +16,7 @@
 * In functions with `family`/`type` argument, this argument no longer has a default, forcing the user to specify the family/type of the task. This also means that arguments have been reordered. In general, it is safer to name arguments when passing values to them.
 
 * In `evaluate()`, `apply_softmax` now defaults to `FALSE`. 
-Throws error if probabilities do not add up 1 row-wise (tolerance of 5 decimals) when `type` is `multinomial`.
+Throws error if probabilities do not add up to 1 row-wise (tolerance of 5 decimals) when `type` is `multinomial`.
 
 ### Changed metrics
 

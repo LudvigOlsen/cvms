@@ -155,7 +155,7 @@ package.
 > Check `NEWS.md` for the full list of changes.
 
   - Version `1.0.0` contained **multiple breaking changes**. Please see
-    `NEWS.md`. (14th of April 2020)
+    `NEWS.md`. (13th of April 2020)
 
   - `cv_plot()` has been removed.
 
@@ -835,8 +835,8 @@ Note: You may have to scroll to the right in the table.
 ## Evaluating predictions
 
 We can also evaluate predictions from a model trained outside `cvms`.
-This works with regression (`gaussian`), binary classification
-(`binomial`), and multiclass classification (`multinomial`).
+This works with regression (`'gaussian'`), binary classification
+(`'binomial'`), and multiclass classification (`'multinomial'`).
 
 ### Gaussian evaluation
 

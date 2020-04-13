@@ -136,7 +136,7 @@ cvms:::render_toc("README.Rmd")
 > Check `NEWS.md` for the full list of changes.
 >
 
-* Version `1.0.0` contained **multiple breaking changes**. Please see `NEWS.md`. (14th of April 2020)
+* Version `1.0.0` contained **multiple breaking changes**. Please see `NEWS.md`. (13th of April 2020)
 
 * `cv_plot()` has been removed.
 

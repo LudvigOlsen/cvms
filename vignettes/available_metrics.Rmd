@@ -41,14 +41,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-
-# ```{r echo=FALSE, warning=FALSE, message=FALSE}
-# library(dplyr)
-# library(cvms)
-# library(ggplot2)
-# library(knitr)
-# ```
-
 ## Introduction
 
 `cvms` has a large set of metrics for model evaluation. In this document, we list the metrics and their formulas. 

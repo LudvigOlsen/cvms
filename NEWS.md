@@ -124,6 +124,8 @@ Pass a list of hyperparameters and every combination of these will be cross-vali
 
 ### New vignettes
 
+* Adds vignette: `Cross-validating custom model functions with cvms`
+
 * Adds vignette: `Creating a confusion matrix with cvms`
 
 * Adds vignette: `The available metrics in cvms`

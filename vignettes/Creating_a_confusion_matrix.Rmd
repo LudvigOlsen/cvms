@@ -46,29 +46,31 @@ knitr::opts_chunk$set(
 
 When inspecting a classification model's performance, a confusion matrix tells you the distribution of the predictions and targets. 
 
-If we have two classes (0, 1), we will have these 4 possible combinations of predictions and targets:
+If we have two classes (0, 1), we have these 4 possible combinations of predictions and targets:
 
-| Target | Prediction | Called |
+| Target | Prediction | Called\* |
 |:-------|:-----------|:-------|
 |0|0| True Negative  |
 |0|1| False Negative |
 |1|0| False Positive |
 |1|1| True Positive  |
 
-For each combination, we can count how many times the model made that prediction for an observation with that target. This is often more useful than the various metrics, as it reveals any class imbalances and tells us which classes the model tend to *confuse*. 
+\* Given that `1` is the *positive* class.
 
-An accuracy of 90% may, for instance, seem very high- Without the context though, this is impossible to judge. It may be, that the test set is so highly imbalanced that simply predicting the majority class yields such an accuracy. When looking at the confusion matrix, we discover many of such problems and gain a much better intuition about our model's performance.
+For each combination, we can count how many times the model made *that* prediction for an observation with *that* target. This is often more useful than the various metrics, as it reveals any class imbalances and tells us which classes the model tend to *confuse*. 
 
-In this vignette, we will learn three approaches to making and plotting a confusion matrix. First, we will manually create it with the `table()` function. Then, we will use the `evaluate()` function from `cvms`. This is our recommended approach in most use cases. Finally, we will use the `confusion_matrix()` function from `cvms`. All approaches result in a data frame with the counts for each combination. We will plot these with `plot_confusion_matrix()` from `cvms` and make a few tweaks to the plot.
+An accuracy score of 90% may, for instance, seem very high. Without the context though, this is impossible to judge. It may be, that the test set is so highly imbalanced that simply predicting the majority class yields such an accuracy. When looking at the confusion matrix, we discover many of such problems and gain a much better intuition about our model's performance.
+
+In this vignette, we will learn three approaches to making and plotting a confusion matrix. First, we will manually create it with the `table()` function. Then, we will use the `evaluate()` function from `cvms`. This is our recommended approach in most use cases. Finally, we will use the `confusion_matrix()` function from `cvms`. All approaches result in a data frame with the counts for each combination. We will plot these with `plot_confusion_matrix()` and make a few tweaks to the plot.
 
 Let's begin!
 
 ## Attach packages and set seed for reproducibility
 
-```{r setup}
+```{r warning=FALSE, message=FALSE}
 library(cvms)
-library(broom)  # tidy()
-library(tibble) # tibble()
+library(broom)    # tidy()
+library(tibble)   # tibble()
 
 set.seed(1)
 ```
@@ -115,7 +117,7 @@ In the middle of each tile, we have the *normalized count* (overall percentage) 
 
 At the bottom, we have the *column percentage*. Of all the observations where `Target` is `1`, 63.2% of them were predicted to be `1` and 36.8% `0`.
 
-At the right side of each tile, we have the *row percentage*. Of all the observations where `Prediction` is `1`, 71.7% of them were actually `1`, while 28.3% were `0`.
+At the right side of each tile, we have the *row percentage*. Of all the observations where `Prediction` is `1`, 71.7% of them *were* actually `1`, while 28.3% were `0`.
 
 Note that the color intensity is based on the counts. 
 
@@ -179,7 +181,7 @@ plot_confusion_matrix(conf_mat$`Confusion Matrix`[[1]])
 
 # Tweaking `plot_confusion_matrix()`
 
-Let's explore, how we can tweak the plot. 
+Let's explore how we can tweak the plot. 
 
 While the defaults of `plot_confusion_matrix()` should (hopefully) be useful in most cases, it is very flexible. For instance, you may prefer to have the "Target" label at the bottom of the plot:
 
@@ -188,7 +190,7 @@ plot_confusion_matrix(conf_mat$`Confusion Matrix`[[1]],
                       place_x_axis_above = FALSE)
 ```
 
-If we want only the counts in the middle of the tiles, we can disable the normalized counts (overall percentages):
+If we only want the counts in the middle of the tiles, we can disable the normalized counts (overall percentages):
 
 ```{r}
 plot_confusion_matrix(conf_mat$`Confusion Matrix`[[1]], 
@@ -224,6 +226,6 @@ plot_confusion_matrix(conf_mat$`Confusion Matrix`[[1]],
 
 We could have chosen those settings as the defaults, but chose against it with a coin flip!
 
-Now you know how to create and plot a confusion matrix with cvms.
+Now you know how to create and plot a confusion matrix with `cvms`.
 
 

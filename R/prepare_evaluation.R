@@ -100,7 +100,7 @@ prepare_id_level_evaluation <- function(data,
 
       # In case not all classes were predicted
       # We add them with NA values
-      # TODO Add unit test to make sure this part works !!!! !!!! !!!!
+      # TODO Add unit test to make sure this part works!
       classes_to_add <- setdiff(
         prediction_cols, # use for testing: c(prediction_cols, "cl_7"),
         data_majority_count_by_id[["predicted_class"]]

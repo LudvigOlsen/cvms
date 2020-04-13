@@ -199,7 +199,7 @@ run_predict_fn <- function(test_data,
         base_select(cols = "prediction")
     } else if (model_specifics[["family"]] == "multinomial") {
 
-      # TODO DO ALL SORTS OF CHECKS HERE
+      # TODO Do checks here?
 
       # Convert to tibble
       predictions <- dplyr::as_tibble(predictions) %>%

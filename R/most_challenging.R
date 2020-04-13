@@ -684,7 +684,7 @@ most_challenging_classification <- function(data,
       Incorrect = sum(.data$Incorrect),
       Accuracy = mean(.data$corr),
       MAE = mean(1 - .data$ProbabilityOfTarget),
-      `Cross Entropy` = -mean(.data$LogProbabilityOfTarget) # TODO Remember to test this
+      `Cross Entropy` = -mean(.data$LogProbabilityOfTarget)
     ) %>% dplyr::ungroup()
 
   if (is.null(probability_of_target_col)){
@@ -789,7 +789,7 @@ most_challenging_gaussian <- function(data,
     dplyr::rename(`>=` = .data$Threshold)
 }
 
-# TODO add tests
+
 exceeds_threshold <- function(data,
                               threshold,
                               threshold_is,

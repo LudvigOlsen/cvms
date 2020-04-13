@@ -10,7 +10,7 @@ cross_validate_list <- function(data,
                                 cutoff = 0.5,
                                 positive = 2,
                                 metrics = list(),
-                                info_cols = list(), # TODO use in cross_validate to turn on info cols
+                                info_cols = list(),
                                 rm_nc = FALSE,
                                 verbose = FALSE,
                                 parallel_ = FALSE,

@@ -88,7 +88,6 @@ nesting_predictions <- function(data,
     predictions_for_nesting[[id_col]] <- data[[id_col]]
     predictions_for_nesting[["id_method"]] <- id_method
 
-    # TODO Add standard deviation of prediction when id_method is mean
   }
 
   if (!isTRUE(include_fold_columns)) {

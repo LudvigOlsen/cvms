@@ -113,7 +113,7 @@ set_metrics <- function(family, metrics_list = NULL, include_model_object_metric
       "Weighted False Omission Rate" = FALSE,
       "Threat Score" = FALSE,
       "Weighted Threat Score" = FALSE,
-      "AIC" = FALSE, # TODO: does the IC metrics work with multinomial?
+      "AIC" = FALSE,
       "AICc" = FALSE,
       "BIC" = FALSE
     )

@@ -325,8 +325,6 @@ create_multinomial_baseline_evaluations <- function(test_data,
     ) %>%
     dplyr::mutate(Class = unname(.data$Class))
 
-  # TODO Rename to something meaningful.
-  # Note, overall accuracy is not an average, so average metrics are not that meaningful!
   list(
     "summarized_metrics" = summarized_avg_metrics,
     "summarized_class_level_results" = nested_class_level,

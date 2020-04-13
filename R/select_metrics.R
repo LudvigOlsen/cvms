@@ -45,8 +45,6 @@ select_metrics <- function(results, include_definitions = TRUE,
   model_formula_cols <- c("Dependent", "Fixed", "Random", "HParams")
   model_formula_cols <- intersect(model_formula_cols, colnames(results))
 
-  # TODO What about "Convergence Warnings"? People should be aware of this!
-
   metric_cols <- c(
     # Gaussian
     "RMSE", "MAE",

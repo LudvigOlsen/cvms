@@ -364,7 +364,7 @@ plot_confusion_matrix <- function(conf_matrix,
     }
   ))
 
-  # Arrow icons # TODO should be svg images within the package instead!
+  # Arrow icons
   arrow_icons <- list("up" = get_figure_path("caret_up_sharp.svg"),
                       "down" = get_figure_path("caret_down_sharp.svg"),
                       "left" = get_figure_path("caret_back_sharp.svg"),

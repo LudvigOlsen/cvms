@@ -74,7 +74,7 @@
 plot_metric_density <- function(results = NULL,
                                 baseline = NULL,
                                 metric = "",
-                                fill = c("darkblue", "lightblue"), # TODO find good default colors
+                                fill = c("darkblue", "lightblue"),
                                 alpha = 0.6,
                                 theme_fn = ggplot2::theme_minimal,
                                 xlim = NULL) {

@@ -17,7 +17,7 @@ validate_list <- function(train_data,
                           cutoff = 0.5,
                           positive = 2,
                           metrics = list(),
-                          info_cols = list(), # TODO use in validate to turn on info cols
+                          info_cols = list(),
                           err_nc = FALSE,
                           rm_nc = FALSE,
                           verbose = FALSE,

@@ -111,7 +111,7 @@ List containing:
 
  Create a baseline evaluation of a test set.
 
- In modelling, a \code{baseline} is a result from certain circumstances that
+ In modelling, a \code{baseline} is a result that
  is meaningful to compare the results from our models to. In regression, we
  want our model to be better than a model without any predictors. If our
  model does not perform better than such a simple model, it's unlikely to

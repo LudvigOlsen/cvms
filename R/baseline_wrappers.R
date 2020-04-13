@@ -14,7 +14,7 @@
 #'
 #'  Create a baseline evaluation of a test set.
 #'
-#'  In modelling, a \code{baseline} is a result from certain circumstances that
+#'  In modelling, a \code{baseline} is a result that
 #'  is meaningful to compare the results from our models to. In regression, we
 #'  want our model to be better than a model without any predictors. If our
 #'  model does not perform better than such a simple model, it's unlikely to
@@ -206,7 +206,7 @@ baseline_gaussian <- function(test_data,
 #'
 #'  Create a baseline evaluation of a test set.
 #'
-#'  In modelling, a \code{baseline} is a result from certain circumstances that
+#'  In modelling, a \code{baseline} is a result that
 #'  is meaningful to compare the results from our models to. For instance, in
 #'  classification, we usually want our results to be better than \emph{random guessing}.
 #'  E.g. if we have three classes, we can expect an accuracy of \code{33.33\%}, as for every
@@ -398,7 +398,7 @@ baseline_binomial <- function(test_data,
 #'
 #'  Create a baseline evaluation of a test set.
 #'
-#'  In modelling, a \code{baseline} is a result from certain circumstances that
+#'  In modelling, a \code{baseline} is a result that
 #'  is meaningful to compare the results from our models to. For instance, in
 #'  classification, we usually want our results to be better than \emph{random guessing}.
 #'  E.g. if we have three classes, we can expect an accuracy of \code{33.33\%}, as for every

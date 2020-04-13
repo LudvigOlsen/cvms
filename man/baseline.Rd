@@ -312,7 +312,7 @@ List containing:
 
  Create a baseline evaluation of a test set.
 
- In modelling, a \code{baseline} is a result from certain circumstances that
+ In modelling, a \code{baseline} is a result that
  is meaningful to compare the results from our models to. For instance, in
  classification, we usually want our results to be better than \emph{random guessing}.
  E.g. if we have three classes, we can expect an accuracy of \code{33.33\%}, as for every

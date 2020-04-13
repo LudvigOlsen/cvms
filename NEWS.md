@@ -1,5 +1,5 @@
 
-# cvms 0.3.2.9000
+# cvms 1.0.0
 
 ## Breaking changes
 

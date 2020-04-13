@@ -308,7 +308,7 @@ There are three parts to the inputs to `update_hyperparameters()`:
 
 2) The list of hyperparameters. Remember to name the argument when passing it, i.e.: `hyperparameters = hyperparameters`.
 
-3) The names of the **required** hyperparameters. If any of these are not in the hyperparameters, an error is thrown. Temember to name the argument when passing it, e.g.: `.required = c("cost", "scale")`.
+3) The names of the **required** hyperparameters. If any of these are not in the hyperparameters, an error is thrown. Remember to name the argument when passing it, e.g.: `.required = c("cost", "scale")`.
 
 It returns the updated list of hyperparameters.
 

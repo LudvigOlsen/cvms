@@ -7,11 +7,13 @@ run_prediction_process <- function(test_data,
                                    model_specifics,
                                    fold_info) {
 
-  # TODO This is to make sure the exact same columns are in
-  # test and train data. It will fail if .observations is .observations__
-  # Perhaps just create the observations column before splitting the two?
-  if (".observation" %in% colnames(test_data))
-    train_data$.observation <- 1
+  # Ensure that the two partitions has the exact same column names
+  # E.g. that both have the .observation column
+  # (We can't add it to train_data previously, as the user might pass y ~ .)
+  cols_to_add_to_test <- setdiff(colnames(train_data), colnames(test_data))
+  cols_to_add_to_train <- setdiff(colnames(test_data), colnames(train_data))
+  for (cta in cols_to_add_to_test){test_data[[cta]] <- NA}
+  for (cta in cols_to_add_to_train){train_data[[cta]] <- NA}
 
   prediction_process <- tryCatch(
     {

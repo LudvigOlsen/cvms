@@ -784,6 +784,23 @@ test_that("Metrics work in confusion_matrix()", {
     mcc(list("TP" = TP, "FP" = FP, "FN" = FN, "TN" = TN)),
     mcc(list("TP" = TN, "FP" = FN, "FN" = FP, "TN" = TP))
   )
+
+
+  # Multiclass MCC
+  xpectr::set_test_seed(1)
+  mc_preds <- factor(sample(c(1,2,3,4), 100, replace = TRUE))
+  mc_targs_random <- factor(sample(c(1,2,3,4), 100, replace = TRUE))
+  mc_targs_good <- factor(ifelse(runif(100) < 0.7, mc_preds, mc_targs_random))
+
+  mcc_cmf <- confusion_matrix(targets = mc_targs_good, predictions = mc_preds, do_one_vs_all = FALSE)
+  # yardstick_mcc <- yardstick::mcc_vec(mc_targs_good, mc_preds) # 0.759631087897275
+  expect_equal(mcc_cmf$MCC, 0.759631087897275, tolerance = 1e-8)
+
+  mcc_cmf <- confusion_matrix(targets = mc_targs_random, predictions = mc_preds, do_one_vs_all = FALSE)
+  # yardstick_mcc <- yardstick::mcc_vec(mc_targs_random, mc_preds) # 0.0153721822602552
+  expect_equal(mcc_cmf$MCC, 0.0153721822602552, tolerance = 1e-8)
+
+
 })
 
 test_that("evaluate_residuals() metrics work", {

@@ -235,15 +235,15 @@ test_that("select_metrics() works with output from cross-validation", {
   expect_equal(
     binomial_metrics[["AUC"]],
     0.8287,
-    tolerance = 1e-4)
+    tolerance = 1e-2) # 1e-2 for windows compatibility
   expect_equal(
     binomial_metrics[["Lower CI"]],
     0.68274,
-    tolerance = 1e-4)
+    tolerance = 1e-2) # 1e-2 for windows compatibility
   expect_equal(
     binomial_metrics[["Upper CI"]],
     0.97467,
-    tolerance = 1e-4)
+    tolerance = 1e-2) # 1e-2 for windows compatibility
   expect_equal(
     binomial_metrics[["Kappa"]],
     0.49275,

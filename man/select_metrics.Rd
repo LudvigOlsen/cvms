@@ -2,20 +2,21 @@
 % Please edit documentation in R/select_metrics.R
 \name{select_metrics}
 \alias{select_metrics}
-\title{Select columns with evaluation metrics and model definitions.}
+\title{Select columns with evaluation metrics and model definitions}
 \usage{
 select_metrics(results, include_definitions = TRUE, additional_includes = NULL)
 }
 \arguments{
-\item{results}{Results tibble from \code{\link{cross_validate}()} or \code{\link{validate}()}.}
+\item{results}{Results tibble. E.g. from
+\code{\link[cvms:cross_validate]{cross_validate()}} or \code{\link[cvms:evaluate]{evaluate()}}.}
 
 \item{include_definitions}{Whether to include the \code{Dependent},
-\code{Fixed} and (possibly) \code{Random} columns. (Logical)}
+\code{Fixed} and (possibly) \code{Random} and \code{HParams} columns. (Logical)}
 
 \item{additional_includes}{Names of additional columns to select. (Character)}
 }
 \value{
-The results tibble with only metric and model definition columns.
+The results tibble with only the metric and model definition columns.
 }
 \description{
 \Sexpr[results=rd, stage=render]{lifecycle::badge("maturing")}
@@ -23,9 +24,8 @@ The results tibble with only metric and model definition columns.
  When reporting results, we might not want all
  the nested tibbles and process information columns.
  This function selects the evaluation metrics and model formulas only.
-}
-\details{
-The first element in the \code{Family} column is used to identify the relevant columns.
+
+ If an expected column is not in the \code{results} tibble, it is simply ignored.
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

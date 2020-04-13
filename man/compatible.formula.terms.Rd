@@ -4,7 +4,8 @@
 \name{compatible.formula.terms}
 \alias{compatible.formula.terms}
 \title{Compatible formula terms}
-\format{A data frame with 162,660 rows and 5 variables:
+\format{
+A data frame with 162,660 rows and 5 variables:
 \describe{
   \item{left}{term, fixed effect or interaction, with fixed effects separated by "\code{*}"}
   \item{right}{term, fixed effect or interaction, with fixed effects separated by "\code{*}"}
@@ -13,7 +14,8 @@
   \item{min_num_fixed_effects}{minimum number of fixed effects required to use a formula with the two terms,
   i.e. the index in the alphabet of the last of the alphabetically ordered effects (letters) in the two terms,
   so \code{4} if \code{left == "A"} and \code{right == "D"} }
-}}
+}
+}
 \description{
 162,660 pairs of compatible terms for building model formulas with up to 15 fixed effects.
 }

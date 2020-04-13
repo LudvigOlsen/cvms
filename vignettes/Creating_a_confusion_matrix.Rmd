@@ -1,0 +1,231 @@
+---
+title: "Creating a confusion matrix with cvms"
+author: 
+  - "Ludvig Renbo Olsen"
+date: "`r Sys.Date()`"
+abstract: |
+  In this vignette, we learn how to create and plot a confusion matrix from a set of classification
+  predictions. The functions of interest are `evaluate()` and `plot_confusion_matrix()`.
+  &nbsp;  
+  &nbsp;  
+  Contact the author at r-pkgs@ludvigolsen.dk
+  &nbsp;  
+  &nbsp;  
+  
+output: 
+  rmarkdown::html_vignette:
+    css: 
+    - !expr system.file("rmarkdown/templates/html_vignette/resources/vignette.css", package = "rmarkdown")
+    - styles.css
+    fig_width: 6
+    fig_height: 4
+    toc: yes
+    number_sections: no
+  rmarkdown::pdf_document:
+    highlight: tango
+    number_sections: yes
+    toc: yes
+    toc_depth: 4
+vignette: >
+  %\VignetteIndexEntry{Confusion_Matrix_Intro}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/vignette_conf_mat-",
+  dpi = 92,
+  fig.retina = 2
+)
+```
+
+# Introduction
+
+When inspecting a classification model's performance, a confusion matrix tells you the distribution of the predictions and targets. 
+
+If we have two classes (0, 1), we have these 4 possible combinations of predictions and targets:
+
+| Target | Prediction | Called\* |
+|:-------|:-----------|:-------|
+|0|0| True Negative  |
+|0|1| False Negative |
+|1|0| False Positive |
+|1|1| True Positive  |
+
+\* Given that `1` is the *positive* class.
+
+For each combination, we can count how many times the model made *that* prediction for an observation with *that* target. This is often more useful than the various metrics, as it reveals any class imbalances and tells us which classes the model tend to *confuse*. 
+
+An accuracy score of 90% may, for instance, seem very high. Without the context though, this is impossible to judge. It may be, that the test set is so highly imbalanced that simply predicting the majority class yields such an accuracy. When looking at the confusion matrix, we discover many of such problems and gain a much better intuition about our model's performance.
+
+In this vignette, we will learn three approaches to making and plotting a confusion matrix. First, we will manually create it with the `table()` function. Then, we will use the `evaluate()` function from `cvms`. This is our recommended approach in most use cases. Finally, we will use the `confusion_matrix()` function from `cvms`. All approaches result in a data frame with the counts for each combination. We will plot these with `plot_confusion_matrix()` and make a few tweaks to the plot.
+
+Let's begin!
+
+## Attach packages and set seed for reproducibility
+
+```{r warning=FALSE, message=FALSE}
+library(cvms)
+library(broom)    # tidy()
+library(tibble)   # tibble()
+
+set.seed(1)
+```
+
+## Binomial data
+
+We will start with a binary classification example. For this, we create a data frame with targets and predictions:
+
+```{r}
+d_binomial <- tibble("target" = rbinom(100, 1, 0.7),
+                     "prediction" = rbinom(100, 1, 0.6))
+
+d_binomial
+```
+
+
+# Manually creating two-class confusion matrix
+Before taking the recommended approach, let's first create the confusion matrix **manually**. Then, we will simplify the process with first `evaluate()` and then `confusion_matrix()`. In most cases, **we recommend that you use `evaluate()`**.
+
+Given the simplicity of our data frame, we can quickly get a confusion matrix table with `table()`:
+
+```{r}
+basic_table <- table(d_binomial)
+basic_table
+```
+
+In order to plot it with `ggplot2`, we convert it to a data frame with `broom::tidy()`:
+
+```{r}
+cfm <- tidy(basic_table)
+cfm
+```
+
+We can now plot it with `plot_confusion_matrix()`:
+
+```{r}
+plot_confusion_matrix(cfm, 
+                      targets_col = "target", 
+                      predictions_col = "prediction",
+                      counts_col = "n")
+```
+
+In the middle of each tile, we have the *normalized count* (overall percentage) and, beneath it, the *count*. 
+
+At the bottom, we have the *column percentage*. Of all the observations where `Target` is `1`, 63.2% of them were predicted to be `1` and 36.8% `0`.
+
+At the right side of each tile, we have the *row percentage*. Of all the observations where `Prediction` is `1`, 71.7% of them *were* actually `1`, while 28.3% were `0`.
+
+Note that the color intensity is based on the counts. 
+
+Now, let's use the `evaluate()` function to evaluate the predictions and get the confusion matrix tibble:
+
+# Creating confusion matrix with `evaluate()`
+
+```{r}
+eval <- evaluate(d_binomial,
+                 target_col = "target",
+                 prediction_cols = "prediction",
+                 type = "binomial")
+
+eval
+```
+
+The output contains the confusion matrix tibble:
+
+```{r}
+conf_mat <- eval$`Confusion Matrix`[[1]]
+conf_mat
+```
+
+Compared to the manually created version, we have two extra columns, `Pos_0` and `Pos_1`. These describe whether the row is the **T**rue **P**ositive, **T**rue **N**egative, **F**alse **P**ositive, or **F**alse **N**egative, depending on which class (0 or 1) is the positive class.
+
+Once again, we can plot it with `plot_confusion_matrix()`:
+
+```{r}
+plot_confusion_matrix(conf_mat)
+```
+
+# Multiclass confusion matrix with `confusion_matrix()`
+
+A third approach is to use the `confusion_matrix()` function. It is a lightweight alternative to `evaluate()` with fewer features. As a matter of fact, `evaluate()` uses it internally! Let's try it on a multiclass classification task. 
+
+Create a data frame with targets and predictions:
+
+```{r}
+d_multi <- tibble("target" = floor(runif(100) * 3),
+                  "prediction" = floor(runif(100) * 3))
+
+d_multi
+```
+
+Whereas `evaluate()` takes a data frame as input, `confusion_matrix()` takes a vector of targets and a vector of predictions:
+
+```{r}
+conf_mat <- confusion_matrix(targets = d_multi$target,
+                             predictions = d_multi$prediction)
+
+conf_mat
+```
+
+The output includes the confusion matrix tibble and related metrics.
+
+Let's plot the multiclass confusion matrix:
+
+```{r}
+plot_confusion_matrix(conf_mat$`Confusion Matrix`[[1]])
+```
+
+# Tweaking `plot_confusion_matrix()`
+
+Let's explore how we can tweak the plot. 
+
+While the defaults of `plot_confusion_matrix()` should (hopefully) be useful in most cases, it is very flexible. For instance, you may prefer to have the "Target" label at the bottom of the plot:
+
+```{r}
+plot_confusion_matrix(conf_mat$`Confusion Matrix`[[1]], 
+                      place_x_axis_above = FALSE)
+```
+
+If we only want the counts in the middle of the tiles, we can disable the normalized counts (overall percentages):
+
+```{r}
+plot_confusion_matrix(conf_mat$`Confusion Matrix`[[1]], 
+                      add_normalized = FALSE)
+```
+
+We can choose one of the other available color palettes. 
+
+You can find the available *sequential* palettes at `?scale_fill_distiller`.
+
+```{r}
+plot_confusion_matrix(conf_mat$`Confusion Matrix`[[1]],
+                      palette = "Oranges")
+
+plot_confusion_matrix(conf_mat$`Confusion Matrix`[[1]],
+                      palette = "Greens")
+```
+
+Finally, let's try tweaking the font settings for the counts. For this, we use the `font()` helper function. 
+
+Let's disable all the percentages and make the counts big, red and angled 45 degrees:
+
+```{r}
+plot_confusion_matrix(conf_mat$`Confusion Matrix`[[1]],
+                      font_counts = font(size = 10,
+                                         angle = 45,
+                                         color = "red"),
+                      add_normalized = FALSE,
+                      add_col_percentages = FALSE,
+                      add_row_percentages = FALSE
+                      )
+```
+
+We could have chosen those settings as the defaults, but chose against it with a coin flip!
+
+Now you know how to create and plot a confusion matrix with `cvms`.
+
+

@@ -6,18 +6,21 @@
 \usage{
 cross_validate(
   data,
-  models,
+  formulas,
+  family,
   fold_cols = ".folds",
-  family = "gaussian",
-  link = NULL,
   control = NULL,
   REML = FALSE,
   cutoff = 0.5,
   positive = 2,
   metrics = list(),
+  preprocessing = NULL,
   rm_nc = FALSE,
   parallel = FALSE,
-  model_verbose = FALSE
+  verbose = FALSE,
+  link = deprecated(),
+  models = deprecated(),
+  model_verbose = deprecated()
 )
 }
 \arguments{
@@ -26,7 +29,7 @@ cross_validate(
  Must include grouping factor for identifying folds
   - as made with \code{\link[groupdata2:fold]{groupdata2::fold()}}.}
 
-\item{models}{Model formulas as strings. (Character)
+\item{formulas}{Model formulas as strings. (Character)
 
  E.g. \code{c("y~x", "y~z")}.
 
@@ -34,33 +37,23 @@ cross_validate(
 
  E.g. \code{c("y~x+(1|r)", "y~z+(1|r)")}.}
 
+\item{family}{Name of the family. (Character)
+
+ Currently supports \strong{\code{"gaussian"}} for linear regression
+ with \code{\link[stats:lm]{lm()}} / \code{\link[lme4:lmer]{lme4::lmer()}}
+ and \strong{\code{"binomial"}} for binary classification
+ with \code{\link[stats:glm]{glm()}} / \code{\link[lme4:glmer]{lme4::glmer()}}.}
+
 \item{fold_cols}{Name(s) of grouping factor(s) for identifying folds. (Character)
 
  Include names of multiple grouping factors for repeated cross-validation.}
 
-\item{family}{Name of family. (Character)
-
- Currently supports \code{"gaussian"} and \code{"binomial"}.}
-
-\item{link}{Link function. (Character)
-
- E.g. \code{link = "log"} with \code{family = "gaussian"} will
- use \code{family = gaussian(link = "log")}.
-
- See \code{\link[stats:family]{stats::family}} for available link functions.
-
- \subsection{Default link functions}{
-
- Gaussian: \code{'identity'}.
-
- Binomial: \code{'logit'}.}}
-
 \item{control}{Construct control structures for mixed model fitting
- (i.e. \code{\link[lme4]{lmer}} and \code{\link[lme4]{glmer}}).
+ (with \code{\link[lme4:lmer]{lme4::lmer()}} or \code{\link[lme4:glmer]{lme4::glmer()}}).
  See \code{\link[lme4:lmerControl]{lme4::lmerControl}} and
  \code{\link[lme4:glmerControl]{lme4::glmerControl}}.
 
- N.B. Ignored if fitting \code{\link[stats]{lm}} or \code{\link[stats]{glm}} models.}
+ N.B. Ignored if fitting \code{\link[stats:lm]{lm()}} or \code{\link[stats:glm]{glm()}} models.}
 
 \item{REML}{Restricted Maximum Likelihood. (Logical)}
 
@@ -69,12 +62,17 @@ cross_validate(
  N.B. \strong{Binomial models only}}
 
 \item{positive}{Level from dependent variable to predict.
- Either as character or level index (\code{1} or \code{2} - alphabetically).
+ Either as character (\emph{preferable}) or level index (\code{1} or \code{2} - alphabetically).
 
  E.g. if we have the levels \code{"cat"} and \code{"dog"} and we want \code{"dog"} to be the positive class,
  we can either provide \code{"dog"} or \code{2}, as alphabetically, \code{"dog"} comes after \code{"cat"}.
 
- Used when calculating confusion matrix metrics and creating ROC curves.
+ \strong{Note:} For \emph{reproducibility}, it's preferable to \strong{specify the name directly}, as
+ different \code{\link[base:locales]{locales}} may sort the levels differently.
+
+ Used when calculating confusion matrix metrics and creating \code{ROC} curves.
+
+ The \code{Positive Class} column in the output can be used to verify this setting.
 
  N.B. Only affects evaluation metrics, not the model training or returned predictions.
 
@@ -82,14 +80,41 @@ cross_validate(
 
 \item{metrics}{List for enabling/disabling metrics.
 
-  E.g. \code{list("RMSE" = FALSE)} would remove RMSE from the results,
-  and \code{list("Accuracy" = TRUE)} would add the regular accuracy metric
+  E.g. \code{list("RMSE" = FALSE)} would remove \code{RMSE} from the results,
+  and \code{list("Accuracy" = TRUE)} would add the regular \code{Accuracy} metric
   to the classification results.
-  Default values (TRUE/FALSE) will be used for the remaining metrics available.
+  Default values (\code{TRUE}/\code{FALSE}) will be used for the remaining available metrics.
 
-  Also accepts the string \code{"all"}.
+  You can enable/disable all metrics at once by including
+  \code{"all" = TRUE/FALSE} in the list. This is done prior to enabling/disabling
+  individual metrics, why \code{list("all" = FALSE, "RMSE" = TRUE)}
+  would return only the \code{RMSE} metric.
 
-  N.B. Currently, disabled metrics are still computed.}
+  The list can be created with
+  \code{\link[cvms:gaussian_metrics]{gaussian_metrics()}} or
+  \code{\link[cvms:binomial_metrics]{binomial_metrics()}}.
+
+  Also accepts the string \code{"all"}.}
+
+\item{preprocessing}{Name of preprocessing to apply.
+
+ Available preprocessings are:
+
+ \tabular{rrr}{
+  \strong{Name} \tab \strong{Description} \cr
+  "standardize" \tab Centers and scales the numeric predictors.\cr
+  "range" \tab Normalizes the numeric predictors to the \code{0}-\code{1} range.
+  Values outside the min/max range in the test fold are truncated to \code{0}/\code{1}.\cr
+  "scale" \tab Scales the numeric predictors to have a standard deviation of one.\cr
+  "center" \tab Centers the numeric predictors to have a mean of zero.\cr
+ }
+
+ The preprocessing parameters (\code{mean}, \code{SD}, etc.) are extracted from the training folds and
+ applied to both the training folds and the test fold.
+ They are returned in the \strong{Preprocess} column for inspection.
+
+ N.B. The preprocessings should not affect the results
+ to a noticeable degree, although \code{"range"} might due to the truncation.}
 
 \item{rm_nc}{Remove non-converged models from output. (Logical)}
 
@@ -98,10 +123,13 @@ cross_validate(
  Remember to register a parallel backend first.
  E.g. with \code{doParallel::registerDoParallel}.}
 
-\item{model_verbose}{Message name of used model function on each iteration. (Logical)}
+\item{verbose}{Whether to message process information
+like the number of model instances to fit and which model function was applied. (Logical)}
+
+\item{link, models, model_verbose}{Deprecated.}
 }
 \value{
-Tbl (tibble) with results for each model.
+Tibble with results for each model.
 
  \subsection{Shared across families}{
  A nested tibble with \strong{coefficients} of the models from all iterations.
@@ -115,19 +143,20 @@ Tbl (tibble) with results for each model.
 
  Count of \strong{other warnings}. These are warnings without keywords such as "convergence".
 
- Count of \strong{Singular Fit messages}. See \code{?\link[lme4:isSingular]{lme4::isSingular}} for more information.
+ Count of \strong{Singular Fit messages}.
+ See \code{\link[lme4:isSingular]{lme4::isSingular}} for more information.
 
  Nested tibble with the \strong{warnings and messages} caught for each model.
 
  Specified \strong{family}.
-
- Specified \strong{link} function.
 
  Name of \strong{dependent} variable.
 
  Names of \strong{fixed} effects.
 
  Names of \strong{random} effects, if any.
+
+ Nested tibble with \strong{preprocess}ing parameters, if any.
  }
 
  ----------------------------------------------------------------
@@ -136,10 +165,14 @@ Tbl (tibble) with results for each model.
 
  ----------------------------------------------------------------
 
- Average \strong{RMSE}, \strong{MAE}, \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
- and \strong{BIC} of all the iterations*,
+ Average \strong{\code{RMSE}}, \strong{\code{MAE}}, \strong{\code{NRMSE(IQR)}},
+ \strong{\code{RRSE}}, \strong{\code{RAE}}, \strong{\code{RMSLE}},
+ \strong{\code{AIC}}, \strong{\code{AICc}},
+ and \strong{\code{BIC}} of all the iterations*,
  \emph{\strong{omitting potential NAs} from non-converged iterations}.
- Note that the Information Criteria metrics (AIC, AICc, and BIC) are also averages.
+ Note that the Information Criterion metrics (\code{AIC}, \code{AICc}, and \code{BIC}) are also averages.
+
+ See the additional metrics (disabled by default) at \code{\link[cvms:gaussian_metrics]{?gaussian_metrics}}.
 
  A nested tibble with the \strong{predictions} and targets.
 
@@ -157,41 +190,46 @@ Tbl (tibble) with results for each model.
  ----------------------------------------------------------------
 
  Based on the \strong{collected} predictions from the test folds*,
- a confusion matrix and a ROC curve are created to get the following:
+ a confusion matrix and a \code{ROC} curve are created to get the following:
 
- ROC:
+ \code{ROC}:
 
- \strong{AUC}, \strong{Lower CI}, and \strong{Upper CI}
+ \strong{\code{AUC}}, \strong{\code{Lower CI}}, and \strong{\code{Upper CI}}
 
- Confusion Matrix:
+ \code{Confusion Matrix}:
 
- \strong{Balanced Accuracy}, \strong{F1},
- \strong{Sensitivity}, \strong{Specificity},
- \strong{Positive Prediction Value},
- \strong{Negative Prediction Value},
- \strong{Kappa},
- \strong{Detection Rate},
- \strong{Detection Prevalence},
- \strong{Prevalence}, and
- \strong{MCC} (Matthews correlation coefficient).
+ \strong{\code{Balanced Accuracy}},
+ \strong{\code{F1}},
+ \strong{\code{Sensitivity}},
+ \strong{\code{Specificity}},
+ \strong{\code{Positive Predictive Value}},
+ \strong{\code{Negative Predictive Value}},
+ \strong{\code{Kappa}},
+ \strong{\code{Detection Rate}},
+ \strong{\code{Detection Prevalence}},
+ \strong{\code{Prevalence}}, and
+ \strong{\code{MCC}} (Matthews correlation coefficient).
 
- Other available metrics (disabled by default, see \code{metrics}):
- \strong{Accuracy}.
+ See the additional metrics (disabled by default) at
+ \code{\link[cvms:binomial_metrics]{?binomial_metrics}}.
 
  Also includes:
 
  A nested tibble with \strong{predictions}, predicted classes (depends on \code{cutoff}), and the targets.
- Note, that the \strong{predictions are not necessarily of the specified \code{positive} class}, but of
- the model's positive class (second level of dependent variable, alphabetically).
+ Note, that the predictions are \emph{not necessarily} of the \emph{specified} \code{positive} class, but of
+ the \emph{model's} positive class (second level of dependent variable, alphabetically).
 
- A nested tibble with the sensativities and specificities from the \strong{ROC} curve(s).
+ The \code{\link[pROC:roc]{pROC::roc}} \strong{\code{ROC}} curve object(s).
 
  A nested tibble with the \strong{confusion matrix}/matrices.
  The \code{Pos_} columns tells you whether a row is a
- True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
+ True Positive (\code{TP}), True Negative (\code{TN}),
+ False Positive (\code{FP}), or False Negative (\code{FN}),
  depending on which level is the "positive" class. I.e. the level you wish to predict.
 
- A nested tibble with the \strong{results} from all fold columns, when using \emph{repeated cross-validation}.
+ A nested tibble with the \strong{results} from all fold columns.
+
+ The name of the \strong{Positive Class}.
 
  * In \emph{repeated cross-validation}, an evaluation is made per fold column (repetition) and averaged.
 
@@ -200,7 +238,7 @@ Tbl (tibble) with results for each model.
 \description{
 \Sexpr[results=rd, stage=render]{lifecycle::badge("stable")}
 
- Cross-validate one or multiple gaussian or binomial
+ Cross-validate one or multiple linear or logistic regression
  models at once. Perform repeated cross-validation.
  Returns results in a tibble for easy comparison,
  reporting and further analysis.
@@ -213,35 +251,36 @@ Packages used:
 
  \subsection{Models}{
 
- Gaussian: \link[stats:lm]{stats::lm}, \code{\link[lme4:lmer]{lme4::lmer}}
+ Gaussian: \code{\link[stats:lm]{stats::lm}}, \code{\link[lme4:lmer]{lme4::lmer}}
 
  Binomial: \code{\link[stats:glm]{stats::glm}}, \code{\link[lme4:glmer]{lme4::glmer}}
  }
  \subsection{Results}{
+ \subsection{Shared}{
+
+ \code{AIC} : \code{\link[stats:AIC]{stats::AIC}}
+
+ \code{AICc} : \code{\link[MuMIn:AICc]{MuMIn::AICc}}
+
+ \code{BIC} : \code{\link[stats:BIC]{stats::BIC}}
+
+ }
  \subsection{Gaussian}{
 
- r2m : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
+ \code{r2m} : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
 
- r2c : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
-
- AIC : \code{\link[stats:AIC]{stats::AIC}}
-
- AICc : \code{\link[MuMIn:AICc]{MuMIn::AICc}}
-
- BIC : \code{\link[stats:BIC]{stats::BIC}}
+ \code{r2c} : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
 
  }
  \subsection{Binomial}{
 
- Confusion matrix: \code{\link[caret:confusionMatrix]{caret::confusionMatrix}}
+ \code{ROC and AUC}: \code{\link[pROC:roc]{pROC::roc}}
 
- ROC: \code{\link[pROC:roc]{pROC::roc}}
-
- MCC: \code{\link[mltools:mcc]{mltools::mcc}}
  }
  }
 }
 \examples{
+\donttest{
 # Attach packages
 library(cvms)
 library(groupdata2) # fold()
@@ -254,72 +293,72 @@ data <- participant.scores
 set.seed(7)
 
 # Fold data
-data <- fold(data, k = 4,
-             cat_col = 'diagnosis',
-             id_col = 'participant') \%>\%
-        arrange(.folds)
+data <- fold(
+  data,
+  k = 4,
+  cat_col = "diagnosis",
+  id_col = "participant"
+) \%>\%
+  arrange(.folds)
 
+#
 # Cross-validate a single model
+#
 
-\donttest{
 # Gaussian
-cross_validate(data,
-               models = "score~diagnosis",
-               family = 'gaussian',
-               REML = FALSE)
+cross_validate(
+  data,
+  formulas = "score~diagnosis",
+  family = "gaussian",
+  REML = FALSE
+)
 
 # Binomial
-cross_validate(data,
-               models = "diagnosis~score",
-               family='binomial')
+cross_validate(
+  data,
+  formulas = "diagnosis~score",
+  family = "binomial"
+)
 
+#
 # Cross-validate multiple models
+#
 
-models <- c("score~diagnosis+(1|session)",
-            "score~age+(1|session)")
+formulas <- c(
+  "score~diagnosis+(1|session)",
+  "score~age+(1|session)"
+)
 
-cross_validate(data,
-               models = models,
-               family = 'gaussian',
-               REML = FALSE)
+cross_validate(
+  data,
+  formulas = formulas,
+  family = "gaussian",
+  REML = FALSE
+)
 
-# Use non-default link functions
-
-cross_validate(data,
-               models = "score~diagnosis",
-               family = 'gaussian',
-               link = 'log',
-               REML = FALSE)
-}
+#
 # Use parallelization
+#
 
-\donttest{
 # Attach doParallel and register four cores
 # Uncomment:
 # library(doParallel)
 # registerDoParallel(4)
 
-# Create list of 20 model formulas
-models <- rep(c("score~diagnosis+(1|session)",
-                "score~age+(1|session)"), 10)
-
-# Cross-validate a list of 20 model formulas in parallel
-system.time({cross_validate(data,
-                            models = models,
-                            family = 'gaussian',
-                            parallel = TRUE)})
-
-# Cross-validate a list of 20 model formulas sequentially
-system.time({cross_validate(data,
-                            models = models,
-                            family = 'gaussian',
-                            parallel = FALSE)})
+# Cross-validate a list of model formulas in parallel
+# Make sure to uncomment the parallel argument
+cross_validate(
+  data,
+  formulas = formulas,
+  family = "gaussian"
+  #, parallel = TRUE  # Uncomment
+)
 }
-
 }
 \seealso{
 Other validation functions: 
 \code{\link{cross_validate_fn}()},
+\code{\link{validate_fn}()},
 \code{\link{validate}()}
 }
 \author{

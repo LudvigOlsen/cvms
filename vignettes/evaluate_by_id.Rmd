@@ -1,0 +1,274 @@
+---
+title: "Evaluate by ID/group"
+author: 
+  - "Ludvig Renbo Olsen"
+date: "`r Sys.Date()`"
+abstract: |
+  In this vignette, we learn how to evaluate predictions on the ID level with `evaluate()`.
+  &nbsp;  
+  &nbsp;  
+  Contact the author at r-pkgs@ludvigolsen.dk
+  &nbsp;  
+  &nbsp;  
+  
+output: 
+  rmarkdown::html_vignette:
+    css: 
+    - !expr system.file("rmarkdown/templates/html_vignette/resources/vignette.css", package = "rmarkdown")
+    - styles.css
+    fig_width: 6
+    fig_height: 4
+    toc: yes
+    number_sections: no
+  rmarkdown::pdf_document:
+    highlight: tango
+    number_sections: yes
+    toc: yes
+    toc_depth: 4
+vignette: >
+  %\VignetteIndexEntry{Evaluate_by_ID}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/vignette_conf_mat-",
+  dpi = 92,
+  fig.retina = 2
+)
+```
+
+# Introduction
+
+When we have groups of observations (e.g. a participant ID), we are sometimes more interested in the overall prediction for the group than those at the observation-level.
+
+Say we have a dataset with 10 observations per participant and a model that predicts whether a participant has an autism diagnosis or not. While the model will predict each of the 10 observations, it's really the overall prediction for the participant that we are interested in.
+
+`evaluate()` has two approaches to performing the evaluation on the ID level: *averaging* and *voting*. 
+
+## Averaging
+
+In averaging, we simply average the predicted probabilities for the participant. This is the default approach as it maintains information about how certain our model is about its **class** prediction. That is, if all observations have a 60% predicted probability of an autism diagnosis, that should be considered differently than 90%.
+
+## Voting
+
+In voting, we simply count the predictions of each outcome class and assign the class with the most predictions to the participant. 
+
+If 7 out of 10 of the observations are predicted as having no autism diagnosis, that becomes the prediction for the participant.
+
+# ID evaluation with evaluate()
+
+We will use the simple `participant.scores` dataset as it has 3 rows per participant and a diagnosis column that we can evaluate predictions against. Let's add predicted probabilities and diagnoses and have a look:
+
+```{r warning=FALSE, message=FALSE}
+library(cvms)
+library(knitr)  # kable()
+library(dplyr)
+set.seed(74)
+
+# Prepare dataset
+data <- participant.scores %>% as_tibble()
+# Add probabilities and predicted classes
+data[["probability"]] <- runif(nrow(data))
+data[["predicted diagnosis"]] <- ifelse(data[["probability"]] > 0.5, 1, 0)
+
+data %>% head(10) %>% kable()
+
+```
+
+We tell `evaluate()` to aggregate the predictions by the `participant` column with the `mean` (averaging) method.
+
+*Note*: It is assumed that the target class is constant within the IDs. I.e., that the participant has the same diagnosis in all observations.
+
+```{r}
+ev <- evaluate(
+  data = data,
+  target_col = "diagnosis",
+  prediction_cols = "probability",
+  id_col = "participant",
+  id_method = "mean",
+  type = "binomial"
+)
+
+ev
+
+```
+
+The `Predictions` column contains the averaged predictions:
+
+```{r}
+ev$Predictions[[1]] %>% kable()
+
+```
+
+Let's plot the confusion matrix as well:
+
+```{r fig.width=4, fig.height=4, fig.align='center'}
+# Note: If ev had multiple rows, we would have to 
+# pass ev$`Confusion Matrix`[[1]] to 
+# plot the first row's confusion matrix
+plot_confusion_matrix(ev)
+
+```
+
+We can have a better look at the metrics:
+
+```{r}
+ev_metrics <- select_metrics(ev)
+ev_metrics %>% select(1:9) %>% kable(digits = 5)
+ev_metrics %>% select(10:14) %>% kable(digits = 5)
+
+```
+
+## Using voting
+
+We can use the `majority` (voting) method for the ID aggregation instead:
+
+```{r}
+ev_2 <- evaluate(
+  data = data,
+  target_col = "diagnosis",
+  prediction_cols = "probability",
+  id_col = "participant",
+  id_method = "majority",
+  type = "binomial"
+)
+
+ev_2
+
+```
+
+Now the `Predictions` column looks as follows:
+
+```{r}
+ev_2$Predictions[[1]] %>% kable()
+
+```
+
+In this case, the `Predicted Class` column is identical to that in the averaging approach. We just don't have the probabilities to tell us, how sure the model is about that prediction.
+
+# Per model
+
+If we have predictions from multiple models, we can group the data frame and get the results per model. 
+
+Let's duplicate the dataset and change the predictions. We then combine the datasets and add a `model` column for indicating which of the data frames the observation came from:
+
+```{r}
+# Duplicate data frame
+data_2 <- data
+# Change the probabilities and predicted classes
+data_2[["probability"]] <- runif(nrow(data))
+data_2[["predicted diagnosis"]] <- ifelse(data_2[["probability"]] > 0.5, 1, 0)
+
+# Combine the two data frames
+data_multi <- dplyr::bind_rows(data, data_2, .id = "model")
+
+data_multi
+
+```
+
+We can now group the data frame by the `model` column and run the evaluation again:
+
+```{r}
+ev_3 <- data_multi %>%
+  dplyr::group_by(model) %>%
+  evaluate(
+    target_col = "diagnosis",
+    prediction_cols = "probability",
+    id_col = "participant",
+    id_method = "mean",
+    type = "binomial"
+  )
+
+ev_3
+
+```
+
+The `Predictions` for the second model looks as follows:
+
+```{r}
+ev_3$Predictions[[2]] %>% kable()
+
+```
+
+
+# In `'gaussian'` evaluation
+
+This kind of ID aggregation is also available for the `'gaussian'` evaluation (e.g. for linear regression models), although only with the averaging approach. Again, it is assumed that the target value is constant for all observations by a participant (like the `age` column in our dataset). 
+
+We add a `predicted age` column to our initial dataset:
+
+```{r}
+data[["predicted age"]] <- sample(20:45, size = 30, replace = TRUE)
+
+```
+
+We evaluate the predicted age, aggregated by participant:
+
+```{r}
+ev_4 <- evaluate(
+  data = data,
+  target_col = "age",
+  prediction_cols = "predicted age",
+  id_col = "participant",
+  id_method = "mean",
+  type = "gaussian"
+)
+
+ev_4
+
+```
+
+The `Predictions` column looks as follows:
+
+```{r}
+ev_4$Predictions[[1]] %>% kable()
+
+```
+
+On average, we predict `participant 1` to have the age `35.66`.
+
+# Results for each ID
+
+If our targets are not constant within the IDs, we might be interested in the ID-level evaluation. E.g. how well it predicted the score for each of the participants.
+
+We add a `predicted score` column to our dataset:
+
+```{r}
+data[["predicted score"]] <- round(runif(30, 10, 81))
+
+```
+
+Now, we group the data frame by the `participant` column and evaluate the predicted scores:
+
+```{r}
+data %>% 
+  dplyr::group_by(participant) %>% 
+  evaluate(
+    target_col = "score",
+    prediction_cols = "predicted score",
+    type = "gaussian"
+  )
+
+```
+
+`Participant 4` has the lowest prediction error while `participant 7` has the highest.
+
+This approach is similar to what the `most_challenging()` function does:
+
+```{r}
+# Extract the ~20% observations with highest prediction error
+most_challenging(
+  data = data,
+  type = "gaussian",
+  obs_id_col = "participant",
+  target_col = "score",
+  prediction_cols = "predicted score",
+  threshold = 0.20
+)
+```
+
+This concludes the vignette. If any elements are unclear you can leave feedback in a mail or in a GitHub issue :-)

@@ -8,16 +8,16 @@ evaluate(
   data,
   target_col,
   prediction_cols,
-  type = "gaussian",
+  type,
   id_col = NULL,
   id_method = "mean",
-  models = NULL,
-  apply_softmax = TRUE,
+  apply_softmax = FALSE,
   cutoff = 0.5,
   positive = 2,
   metrics = list(),
   include_predictions = TRUE,
-  parallel = FALSE
+  parallel = FALSE,
+  models = deprecated()
 )
 }
 \arguments{
@@ -25,9 +25,13 @@ evaluate(
  Can be grouped with \code{\link[dplyr]{group_by}}.
 
  \subsection{Multinomial}{
- When \code{type} is \code{"multinomial"}, the predictions should be passed as
- one column per class with the probability of that class. The columns should
- have the name of their class, as they are named in the target column. E.g.:
+ When \code{type} is \code{"multinomial"}, the predictions can be passed in one of two formats.
+
+ \subsection{Probabilities (Preferable)}{
+
+ One column per class with the probability of that class.
+ The columns should have the name of their class,
+ as they are named in the target column. E.g.:
 
  \tabular{rrrrr}{
   \strong{class_1} \tab \strong{class_2} \tab
@@ -37,9 +41,24 @@ evaluate(
   0.375 \tab 0.371 \tab 0.254 \tab class_2\cr
   ... \tab ... \tab ... \tab ...}
  }
+ \subsection{Classes}{
+
+ A single column of type \code{character} with the predicted classes. E.g.:
+
+ \tabular{rrrrr}{
+  \strong{prediction} \tab \strong{target}\cr
+  class_2 \tab class_2\cr
+  class_1 \tab class_3\cr
+  class_1 \tab class_2\cr
+  ... \tab ...}
+
+ }
+ }
  \subsection{Binomial}{
- When \code{type} is \code{"binomial"}, the predictions should be passed as
- one column with the probability of class being
+ When \code{type} is \code{"binomial"}, the predictions can be passed in one of two formats.
+
+ \subsection{Probabilities (Preferable)}{
+ One column with the probability of class being
  the second class alphabetically
  (1 if classes are 0 and 1). E.g.:
 
@@ -49,6 +68,23 @@ evaluate(
   0.368 \tab 1\cr
   0.375 \tab 0\cr
   ... \tab ...}
+ }
+
+ \subsection{Classes}{
+
+ A single column of type \code{character} with the predicted classes. E.g.:
+
+ \tabular{rrrrr}{
+  \strong{prediction} \tab \strong{target}\cr
+  class_0 \tab class_1\cr
+  class_1 \tab class_1\cr
+  class_1 \tab class_0\cr
+  ... \tab ...}
+ }
+
+ Note: The prediction column will be converted to the probability \code{0.0}
+ for the first class alphabetically and \code{1.0} for
+ the second class alphabetically.
  }
  \subsection{Gaussian}{
  When \code{type} is \code{"gaussian"}, the predictions should be passed as
@@ -69,8 +105,8 @@ evaluate(
 
 \item{prediction_cols}{Name(s) of column(s) with the predictions.
 
- When evaluating a classification task,
- the column(s) should contain the predicted probabilities.}
+ Columns can be either numeric or character depending on which format is chosen.
+ See \code{data} for the possible formats.}
 
 \item{type}{Type of evaluation to perform:
 
@@ -84,9 +120,10 @@ evaluate(
 
  N.B. Current methods assume that the target class/value is constant within the IDs.
 
- N.B. When aggregating by ID, some metrics (such as those from model objects) are excluded.}
+ N.B. When aggregating by ID, some metrics may be disabled.}
 
-\item{id_method}{Method to use when aggregating predictions by ID. Either \code{"mean"} or \code{"majority"}.
+\item{id_method}{Method to use when aggregating predictions by ID.
+ Either \code{"mean"} or \code{"majority"}.
 
  When \code{type} is \code{gaussian}, only the \code{"mean"} method is available.
 
@@ -100,19 +137,6 @@ evaluate(
  This method assumes that the target class/value is constant within the IDs.
  }}
 
-\item{models}{Unnamed list of fitted model(s) for calculating R^2 metrics and information criterion metrics.
- May only work for some types of models.
-
- When only passing one model, remember to pass it in a list (e.g. \code{list(m)}).
-
- N.B. When \code{data} is grouped, provide one model per group in the same order as the groups.
-
- N.B. When aggregating by ID (i.e. when \code{id_col} is not \code{NULL}),
- it's not currently possible to pass model objects,
- as these would not be aggregated by the IDs.
-
- N.B. Currently, \strong{Gaussian only}.}
-
 \item{apply_softmax}{Whether to apply the softmax function to the
  prediction columns when \code{type} is \code{"multinomial"}.
 
@@ -123,12 +147,17 @@ evaluate(
 N.B. \strong{Binomial models only}.}
 
 \item{positive}{Level from dependent variable to predict.
- Either as character or level index (1 or 2 - alphabetically).
+ Either as character (\emph{preferable}) or level index (1 or 2 - alphabetically).
 
  E.g. if we have the levels \code{"cat"} and \code{"dog"} and we want \code{"dog"} to be the positive class,
  we can either provide \code{"dog"} or \code{2}, as alphabetically, \code{"dog"} comes after \code{"cat"}.
 
- Used when calculating confusion matrix metrics and creating ROC curves.
+ \strong{Note:} For \emph{reproducibility}, it's preferable to \strong{specify the name directly}, as
+ different \code{\link[base:locales]{locales}} may sort the levels differently.
+
+ Used when calculating confusion matrix metrics and creating \code{ROC} curves.
+
+ The \code{Positive Class} column in the output can be used to verify this setting.
 
  N.B. Only affects the evaluation metrics.
 
@@ -136,20 +165,30 @@ N.B. \strong{Binomial models only}.}
 
 \item{metrics}{List for enabling/disabling metrics.
 
-  E.g. \code{list("RMSE" = FALSE)} would remove RMSE from the results,
-  and \code{list("Accuracy" = TRUE)} would add the regular accuracy metric
+  E.g. \code{list("RMSE" = FALSE)} would remove \code{RMSE} from the regression results,
+  and \code{list("Accuracy" = TRUE)} would add the regular \code{Accuracy} metric
   to the classification results.
-  Default values (TRUE/FALSE) will be used for the remaining metrics available.
+  Default values (\code{TRUE}/\code{FALSE}) will be used for the remaining available metrics.
 
-  Also accepts the string \code{"all"}.
+  You can enable/disable all metrics at once by including
+  \code{"all" = TRUE/FALSE} in the list. This is done prior to enabling/disabling
+  individual metrics, why f.i. \code{list("all" = FALSE, "RMSE" = TRUE)}
+  would return only the \code{RMSE} metric.
 
-  N.B. Currently, disabled metrics are still computed.}
+  The list can be created with
+  \code{\link[cvms:gaussian_metrics]{gaussian_metrics()}},
+  \code{\link[cvms:binomial_metrics]{binomial_metrics()}}, or
+  \code{\link[cvms:multinomial_metrics]{multinomial_metrics()}}.
+
+  Also accepts the string \code{"all"}.}
 
 \item{include_predictions}{Whether to include the predictions
 in the output as a nested tibble. (Logical)}
 
 \item{parallel}{Whether to run evaluations in parallel,
-when \code{data} is grouped with \code{\link[dplyr]{group_by}}.}
+when \code{data} is grouped with \code{\link[dplyr:group_by]{group_by}}.}
+
+\item{models}{Deprecated.}
 }
 \value{
 ----------------------------------------------------------------
@@ -160,21 +199,15 @@ when \code{data} is grouped with \code{\link[dplyr]{group_by}}.}
 
  Tibble containing the following metrics by default:
 
- Average \strong{RMSE}, \strong{MAE}, \strong{r2m},
- \strong{r2c}, \strong{AIC}, \strong{AICc}, and \strong{BIC}.
+ Average \strong{\code{RMSE}}, \strong{\code{MAE}}, \strong{\code{NRMSE(IQR)}},
+ \strong{\code{RRSE}}, \strong{\code{RAE}}, \strong{\code{RMSLE}}.
 
- N.B. Some of the metrics will only be returned if model
- objects were passed, and will be \code{NA} if they could not be
- extracted from the passed model objects.
+ See the additional metrics (disabled by default) at
+ \code{\link[cvms:gaussian_metrics]{?gaussian_metrics}}.
 
  Also includes:
 
  A nested tibble with the \strong{Predictions} and targets.
-
- A nested tibble with the model \strong{Coefficients}. The coefficients
- are extracted from the model object with \code{\link[broom:tidy]{broom::tidy()}} or
- \code{\link[stats:coef]{coef()}} (with some restrictions on the output).
- If these attempts fail, a default coefficients tibble filled with \code{NA}s is returned.
  }
 
  ----------------------------------------------------------------
@@ -184,39 +217,43 @@ when \code{data} is grouped with \code{\link[dplyr]{group_by}}.}
  ----------------------------------------------------------------
 
  Tibble with the following evaluation metrics, based on a
- confusion matrix and a ROC curve fitted to the predictions:
+ \code{confusion matrix} and a \code{ROC} curve fitted to the predictions:
 
- ROC:
+ \code{Confusion Matrix}:
 
- \strong{AUC}, \strong{Lower CI}, and \strong{Upper CI}
+ \strong{\code{Balanced Accuracy}},
+ \strong{\code{F1}},
+ \strong{\code{Sensitivity}},
+ \strong{\code{Specificity}},
+ \strong{\code{Positive Predictive Value}},
+ \strong{\code{Negative Predictive Value}},
+ \strong{\code{Kappa}},
+ \strong{\code{Detection Rate}},
+ \strong{\code{Detection Prevalence}},
+ \strong{\code{Prevalence}}, and
+ \strong{\code{MCC}} (Matthews correlation coefficient).
 
- Confusion Matrix:
+ \code{ROC}:
 
- \strong{Balanced Accuracy},
- \strong{F1},
- \strong{Sensitivity},
- \strong{Specificity},
- \strong{Positive Prediction Value},
- \strong{Negative Prediction Value},
- \strong{Kappa},
- \strong{Detection Rate},
- \strong{Detection Prevalence},
- \strong{Prevalence}, and
- \strong{MCC} (Matthews correlation coefficient).
+ \strong{\code{AUC}}, \strong{\code{Lower CI}}, and \strong{\code{Upper CI}}
+
+ Note, that the \code{ROC} curve is only computed if \code{AUC} is enabled. See \code{metrics}.
 
  Other available metrics (disabled by default, see \code{metrics}):
- \strong{Accuracy}.
+ \strong{\code{Accuracy}}.
 
  Also includes:
 
  A nested tibble with the \strong{predictions} and targets.
 
- A nested tibble with the sensativities and specificities from the \strong{ROC} curve.
+ A list of \strong{ROC} curve objects (if computed).
 
  A nested tibble with the \strong{confusion matrix}.
  The \code{Pos_} columns tells you whether a row is a
- True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
- depending on which level is the "\code{positive}" class. I.e. the level you wish to predict.
+ True Positive (\code{TP}), True Negative (\code{TN}),
+ False Positive (\code{FP}), or False Negative (\code{FN}),
+ depending on which level is the "\code{positive}" class.
+ I.e. the level you wish to predict.
  }
 
  ----------------------------------------------------------------
@@ -227,47 +264,59 @@ when \code{data} is grouped with \code{\link[dplyr]{group_by}}.}
 
  For each class, a \emph{one-vs-all} binomial evaluation is performed. This creates
  a \strong{Class Level Results} tibble containing the same metrics as the binomial results
- described above, along with the \strong{Support} metric, which is simply a
- count of the class in the target column. These metrics are used to calculate the macro metrics
- in the output tibble. The nested class level results tibble is also included in the output tibble,
- and would usually be reported along with the macro and overall metrics.
+ described above (excluding \code{MCC}, \code{AUC}, \code{Lower CI} and \code{Upper CI}),
+ along with a count of the class in the target column (\strong{\code{Support}}).
+ These metrics are used to calculate the macro metrics. The nested class level results
+ tibble is also included in the output tibble,
+ and could be reported along with the macro and overall metrics.
 
  The output tibble contains the macro and overall metrics.
  The metrics that share their name with the metrics in the nested
  class level results tibble are averages of those metrics
  (note: does not remove \code{NA}s before averaging).
- In addition to these, it also includes the \strong{Overall Accuracy} metric.
+ In addition to these, it also includes the \strong{\code{Overall Accuracy}} and
+ the multiclass \strong{\code{MCC}}.
 
  Other available metrics (disabled by default, see \code{metrics}):
- \strong{Accuracy}, \strong{Weighted Balanced Accuracy}, \strong{Weighted Accuracy},
- \strong{Weighted F1}, \strong{Weighted Sensitivity}, \strong{Weighted Sensitivity},
- \strong{Weighted Specificity}, \strong{Weighted Pos Pred Value},
- \strong{Weighted Neg Pred Value}, \strong{Weighted AUC}, \strong{Weighted Lower CI},
- \strong{Weighted Upper CI}, \strong{Weighted Kappa}, \strong{Weighted MCC},
- \strong{Weighted Detection Rate}, \strong{Weighted Detection Prevalence}, and
- \strong{Weighted Prevalence}.
+ \strong{\code{Accuracy}},
+ \emph{multiclass} \strong{\code{AUC}},
+ \strong{\code{Weighted Balanced Accuracy}},
+ \strong{\code{Weighted Accuracy}},
+ \strong{\code{Weighted F1}},
+ \strong{\code{Weighted Sensitivity}},
+ \strong{\code{Weighted Sensitivity}},
+ \strong{\code{Weighted Specificity}},
+ \strong{\code{Weighted Pos Pred Value}},
+ \strong{\code{Weighted Neg Pred Value}},
+ \strong{\code{Weighted Kappa}},
+ \strong{\code{Weighted Detection Rate}},
+ \strong{\code{Weighted Detection Prevalence}}, and
+ \strong{\code{Weighted Prevalence}}.
 
- Note that the "Weighted" metrics are weighted averages, weighted by the \code{Support}.
+ Note that the "Weighted" average metrics are weighted by the \code{Support}.
+
+ When having a large set of classes, consider keeping \code{AUC} disabled.
 
  Also includes:
 
  A nested tibble with the \strong{Predictions} and targets.
 
+ A list of \strong{ROC} curve objects when \code{AUC} is enabled.
+
  A nested tibble with the multiclass \strong{Confusion Matrix}.
- }
 
- \strong{Class Level Results}
+ \subsection{Class Level Results}{
 
- Besides the binomial evaluation metrics and the \code{Support} metric,
- the nested class level results tibble also contains:
-
- A nested tibble with the sensativities and specificities from the \strong{ROC} curve.
-
- A nested tibble with the \strong{Confusion Matrix} from the one-vs-all evaluation.
+ Besides the binomial evaluation metrics and the \code{Support},
+ the nested class level results tibble also contains a
+ nested tibble with the \strong{Confusion Matrix} from the one-vs-all evaluation.
  The \code{Pos_} columns tells you whether a row is a
- True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
+ True Positive (\code{TP}), True Negative (\code{TN}),
+ False Positive (\code{FP}), or False Negative (\code{FN}),
  depending on which level is the "positive" class. In our case, \code{1} is the current class
  and \code{0} represents all the other classes together.
+ }
+ }
 }
 \description{
 \Sexpr[results=rd, stage=render]{lifecycle::badge("maturing")}
@@ -283,26 +332,13 @@ when \code{data} is grouped with \code{\link[dplyr]{group_by}}.}
 \details{
 Packages used:
 
- \strong{Gaussian}:
-
- r2m : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
-
- r2c : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
-
- AIC : \code{\link[stats:AIC]{stats::AIC}}
-
- AICc : \code{\link[MuMIn:AICc]{MuMIn::AICc}}
-
- BIC : \code{\link[stats:BIC]{stats::BIC}}
-
  \strong{Binomial} and \strong{Multinomial}:
 
- Confusion matrix and related metrics:
- \code{\link[caret:confusionMatrix]{caret::confusionMatrix}}
+ \code{ROC} and \code{AUC}:
 
- ROC and related metrics: \code{\link[pROC:roc]{pROC::roc}}
+ Binomial: \code{\link[pROC:roc]{pROC::roc}}
 
- MCC: \code{\link[mltools:mcc]{mltools::mcc}}
+ Multinomial: \code{\link[pROC:multiclass.roc]{pROC::multiclass.roc}}
 }
 \examples{
 \donttest{
@@ -319,111 +355,147 @@ binomial_model <- glm(diagnosis ~ score, data = data)
 
 # Add predictions
 data[["gaussian_predictions"]] <- predict(gaussian_model, data,
-                                          type = "response",
-                                          allow.new.levels = TRUE)
+  type = "response",
+  allow.new.levels = TRUE
+)
 data[["binomial_predictions"]] <- predict(binomial_model, data,
-                                          allow.new.levels = TRUE)
+  allow.new.levels = TRUE
+)
 
 # Gaussian evaluation
-evaluate(data = data, target_col = "age",
-         prediction_cols = "gaussian_predictions",
-         models = list(gaussian_model),
-         type = "gaussian")
+evaluate(
+  data = data, target_col = "age",
+  prediction_cols = "gaussian_predictions",
+  type = "gaussian"
+)
 
 # Binomial evaluation
-evaluate(data = data, target_col = "diagnosis",
-         prediction_cols = "binomial_predictions",
-         type = "binomial")
+evaluate(
+  data = data, target_col = "diagnosis",
+  prediction_cols = "binomial_predictions",
+  type = "binomial"
+)
 
+#
 # Multinomial
+#
 
-# Create a tibble with predicted probabilities
+# Create a tibble with predicted probabilities and targets
 data_mc <- multiclass_probability_tibble(
-    num_classes = 3, num_observations = 30,
-    apply_softmax = TRUE, FUN = runif,
-    class_name = "class_")
+  num_classes = 3, num_observations = 30,
+  apply_softmax = TRUE, FUN = runif,
+  class_name = "class_",
+  add_targets = TRUE
+)
 
-# Add targets
-class_names <- paste0("class_", c(1,2,3))
-data_mc[["target"]] <- sample(x = class_names,
-                              size = 30, replace = TRUE)
+class_names <- paste0("class_", 1:3)
 
 # Multinomial evaluation
-evaluate(data = data_mc, target_col = "target",
-         prediction_cols = class_names,
-         type = "multinomial")
+evaluate(
+  data = data_mc, target_col = "Target",
+  prediction_cols = class_names,
+  type = "multinomial"
+)
 
+#
 # ID evaluation
+#
 
 # Gaussian ID evaluation
 # Note that 'age' is the same for all observations
 # of a participant
-evaluate(data = data, target_col = "age",
-         prediction_cols = "gaussian_predictions",
-         id_col = "participant",
-         type = "gaussian")
+evaluate(
+  data = data, target_col = "age",
+  prediction_cols = "gaussian_predictions",
+  id_col = "participant",
+  type = "gaussian"
+)
 
 # Binomial ID evaluation
-evaluate(data = data, target_col = "diagnosis",
-         prediction_cols = "binomial_predictions",
-         id_col = "participant",
-         id_method = "mean", # alternatively: "majority"
-         type = "binomial")
+evaluate(
+  data = data, target_col = "diagnosis",
+  prediction_cols = "binomial_predictions",
+  id_col = "participant",
+  id_method = "mean", # alternatively: "majority"
+  type = "binomial"
+)
 
 # Multinomial ID evaluation
 
 # Add IDs and new targets (must be constant within IDs)
-data_mc[["target"]] <- NULL
-data_mc[["id"]] <- rep(1:6, each = 5)
+data_mc[["Target"]] <- NULL
+data_mc[["ID"]] <- rep(1:6, each = 5)
 id_classes <- tibble::tibble(
-    "id" = 1:6,
-    target = sample(x = class_names, size = 6, replace = TRUE)
+  "ID" = 1:6,
+  "Target" = sample(x = class_names, size = 6, replace = TRUE)
 )
 data_mc <- data_mc \%>\%
-    dplyr::left_join(id_classes, by = "id")
+  dplyr::left_join(id_classes, by = "ID")
 
 # Perform ID evaluation
-evaluate(data = data_mc, target_col = "target",
-         prediction_cols = class_names,
-         id_col = "id",
-         id_method = "mean", # alternatively: "majority"
-         type = "multinomial")
+evaluate(
+  data = data_mc, target_col = "Target",
+  prediction_cols = class_names,
+  id_col = "ID",
+  id_method = "mean", # alternatively: "majority"
+  type = "multinomial"
+)
 
+#
 # Training and evaluating a multinomial model with nnet
+#
 
 # Create a data frame with some predictors and a target column
 class_names <- paste0("class_", 1:4)
 data_for_nnet <- multiclass_probability_tibble(
-    num_classes = 3, # Here, number of predictors
-    num_observations = 30,
-    apply_softmax = FALSE,
-    FUN = rnorm,
-    class_name = "predictor_") \%>\%
-    dplyr::mutate(class = sample(
-        class_names,
-        size = 30,
-        replace = TRUE))
+  num_classes = 3, # Here, number of predictors
+  num_observations = 30,
+  apply_softmax = FALSE,
+  FUN = rnorm,
+  class_name = "predictor_"
+) \%>\%
+  dplyr::mutate(Target = sample(
+    class_names,
+    size = 30,
+    replace = TRUE
+  ))
 
 # Train multinomial model using the nnet package
 mn_model <- nnet::multinom(
-    "class ~ predictor_1 + predictor_2 + predictor_3",
-    data = data_for_nnet)
+  "Target ~ predictor_1 + predictor_2 + predictor_3",
+  data = data_for_nnet
+)
 
 # Predict the targets in the dataset
 # (we would usually use a test set instead)
-predictions <- predict(mn_model, data_for_nnet,
-                       type = "probs") \%>\%
-    dplyr::as_tibble()
+predictions <- predict(
+  mn_model,
+  data_for_nnet,
+  type = "probs"
+) \%>\%
+  dplyr::as_tibble()
 
 # Add the targets
-predictions[["target"]] <- data_for_nnet[["class"]]
+predictions[["Target"]] <- data_for_nnet[["Target"]]
 
 # Evaluate predictions
-evaluate(data = predictions, target_col = "target",
-         prediction_cols = class_names,
-         type = "multinomial")
+evaluate(
+  data = predictions,
+  target_col = "Target",
+  prediction_cols = class_names,
+  type = "multinomial"
+)
 }
+}
+\seealso{
+Other evaluation functions: 
+\code{\link{binomial_metrics}()},
+\code{\link{confusion_matrix}()},
+\code{\link{evaluate_residuals}()},
+\code{\link{gaussian_metrics}()},
+\code{\link{multinomial_metrics}()}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
 }
+\concept{evaluation functions}

@@ -40,57 +40,118 @@ rvers <- substring(dep, 7, nchar(dep)-1)
 [![DOI](https://zenodo.org/badge/71063931.svg)](https://zenodo.org/badge/latestdoi/71063931)
 
 
-## Overview {#overview}
+## Overview
 
-R package: Cross-validate one or multiple regression or classification models and get relevant evaluation metrics in a tidy format. Validate the best model on a test set and compare it to a baseline evaluation. Alternatively, evaluate predictions from an external model. Currently supports regression (`'gaussian'`), binary classification (`'binomial'`), and (some functions only) multiclass classification (`'multinomial'`).
+R package for model evaluation and comparison.
 
-Main functions:  
+* **Cross-validate** one or multiple regression or classification models with relevant evaluation metrics in a **tidy** format. 
+* **Validate** the best model on a test set and compare it to a **baseline** evaluation.
+* Perform **hyperparameter tuning** with *grid search*. 
+* **Evaluate** predictions from an external model. 
+* Extract the observations that were the **most challenging** to predict.
 
-* `cross_validate()`  
-* `cross_validate_fn()`  
-* `validate()`  
-* `evaluate()`
-* `baseline()`  
-* `combine_predictors()`  
-* `cv_plot()`  
-* `select_metrics()`  
-* `reconstruct_formulas()`   
+Currently supports regression (`'gaussian'`), binary classification (`'binomial'`), and (some functions only) multiclass classification (`'multinomial'`). Many of the functions allow **parallelization**, e.g. through the `doParallel` package.
 
-## Table of Contents {#toc}
+
+### Main functions
+
+| Function              | Description                                                        |
+|:----------------------|:-------------------------------------------------------------------|
+|`cross_validate()`     |Cross-validate linear models with `lm()`/`lmer()`/`glm()`/`glmer()` |
+|`cross_validate_fn()`  |Cross-validate a custom model function                              |
+|`validate()`           |Validate linear models with (`lm`/`lmer`/`glm`/`glmer`)             |
+|`validate_fn()`        |Validate a custom model function                                    |
+|`evaluate()`           |Evaluate predictions with a large set of metrics                    |
+|`baseline()`</br>`baseline_gaussian()`</br>`baseline_binomial()`</br>`baseline_multinomial()`           |Perform baseline evaluations of a dataset |
+
+
+### Evaluation utilities
+
+| Function              | Description                                                        |
+|:----------------------|:-------------------------------------------------------------------|
+|`confusion_matrix()`   |Create a confusion matrix from predictions and targets |
+|`evaluate_residuals()` |Evaluate residuals from a regression task |
+|`most_challenging()`   |Find the observations that were the most challenging to predict |
+|`summarize_metrics()`  |Summarize numeric columns with a set of descriptors |
+
+
+### Formula utilities
+
+| Function                | Description                                                        |
+|:------------------------|:-------------------------------------------------------------------|
+|`combine_predictors()`   |Generate model formulas from a list of predictors |
+|`reconstruct_formulas()` |Extract formulas from output tibble |
+|`simplify_formula()`     |Remove inline functions with more from a formula object |
+
+
+### Plotting utilities
+
+| Function                 | Description                                                        |
+|:-------------------------|:-------------------------------------------------------------------|
+|`plot_confusion_matrix()` |Plot a confusion matrix |
+|`plot_metric_density()`   |Create a density plot for a metric column |
+|`font()` |Set font settings for plotting functions (currently only `plot_confusion_matrix()`) |
+
+
+### Custom functions
+
+| Function                  | Description                                             |
+|:--------------------------|:--------------------------------------------------------|
+|`model_functions()`        |Example model functions for `cross_validate_fn()`        |
+|`predict_functions()`      |Example predict functions for `cross_validate_fn()`      |
+|`preprocess_functions()`   |Example preprocess functions for `cross_validate_fn()`   |
+|`update_hyperparameters()` |Manage hyperparameters in custom model functions         |
+
+
+### Other utilities
+
+| Function              | Description                                                        |
+|:----------------------|:-------------------------------------------------------------------|
+|`select_metrics()`     |Select the metric columns from the output |
+|`select_definitions()` |Select the model-defining columns from the output |
+|`gaussian_metrics()`<br />`binomial_metrics()`<br />`multinomial_metrics()` |Create list of metrics for the common `metrics` argument |
+|`multiclass_probability_tibble()` |Generate a multiclass probability tibble |
+
+
+### Datasets
+
+| Name                      | Description                                                        |
+|:--------------------------|:-------------------------------------------------------------------|
+|`participant.scores`       |Made-up experiment data with 10 participants and two diagnoses |
+|`wines`                    |A list of wine varieties in an approximately Zipfian distribution |
+|`musicians`                |Made-up data on 60 musicians in 4 groups for multiclass classification |
+| `predicted.musicians`     |Predictions by 3 classifiers of the 4 classes in the `musicians` dataset |
+|`precomputed.formulas`     |Fixed effect combinations for model formulas with/without two- and three-way interactions |
+|`compatible.formula.terms` |162,660 pairs of compatible terms for building model formulas with up to 15 fixed effects |
+
+## Table of Contents
 
 ```{r toc, echo=FALSE}
 cvms:::render_toc("README.Rmd")
 ```
 
+## Important News
 
-### The difference between `cross_validate()` and `cross_validate_fn()` {#diff-cv-fn}
+>
+> Check `NEWS.md` for the full list of changes.
+>
 
-Originally, `cvms` only provided the option to cross-validate Gaussian and binomial regression models, fitting
-the models internally with the `lm()`, `lmer()`, `glm()`, and `glmer()` functions.
-The `cross_validate()` function has thus been designed specifically to work with those functions.
+* Version `1.0.0` contained **multiple breaking changes**. Please see `NEWS.md`. (13th of April 2020)
 
-To allow cross-validation of custom model functions like support-vector machines, neural networks, etc., 
-the `cross_validate_fn()` function has been added. You provide a model function 
-and (if defaults fail) a predict function, and it does the rest (see examples below).
-
-## Important News {#news}
+* `cv_plot()` has been removed.
 
 * Fixes bug in `evaluate()`, when used on a grouped data frame. The row order in the output was not guaranteed to fit with the grouping keys. If you have used `evaluate()` on a grouped data frame, please rerun to make sure your results are correct! (30th of November 2019)
 
-* `cross_validate_fn()` is added. Cross-validate custom model functions.
+* In `cross_validate()` and `validate()`, the `models` argument is renamed to `formulas` and the `model_verbose` argument is renamed to `verbose`. Further, the `link` argument is hard-deprecated and will throw an error if used.
 
-* In `evaluate()`, when `type` is `multinomial`, the output is now a single tibble. The `Class Level Results` are included as a nested tibble.
+* `Multinomial AUC` is now calculated with `pROC::multiclass.roc`.
 
-* Adds `'multinomial'` family to `baseline()` and `evaluate()`.
+* `cross_validate_fn()` and `validate_fn()` now take the `preprocess_fn`, `preprocess_once`, and `hyperparameters` arguments. The `predict_type` argument has been removed.
 
-* `evaluate()` is added. Evaluate your model's predictions with the same metrics as used in `cross_validate()`.
-
-* AUC calculation has changed. Now explicitly sets the direction in `pROC::roc`. (27th of May 2019)
-
-* Argument `positive` now defaults to `2`. If a dependent variable has the values 0 and 1, 1 is now the default positive class, as that's the second smallest value. If the dependent variable is of type `character`, it's in alphabetical order.
+* `cross_validate_fn()` and `validate_fn()` are added. (Cross-)validate custom model functions.
 
 
-## Installation  {#installation}
+## Installation
 
 CRAN:
 
@@ -104,61 +165,68 @@ Development version:
 >
 > devtools::install_github("LudvigOlsen/cvms")  
 
-# Examples {#examples}
+# Examples
 
-## Attach packages {#packages}
+## Attach packages
 
 ```{r warning=FALSE, message=FALSE}
 library(cvms)
-library(groupdata2) # fold() partition()
-library(knitr) # kable()
-library(dplyr) # %>% arrange()
+library(groupdata2)   # fold() partition()
+library(knitr)        # kable()
+library(dplyr)        # %>% arrange()
 library(ggplot2)
 ```
 
-## Load data {#load-data}
+## Load data
 
-The dataset `participant.scores` comes with cvms.
+The dataset `participant.scores` comes with `cvms`:
 
 ```{r}
 data <- participant.scores
 ```
 
-## Fold data {#fold}
+## Fold data
 
-Create a grouping factor for subsetting of folds using `groupdata2::fold()`. Order the dataset by the folds.
+Create a grouping factor for subsetting of folds using `groupdata2::fold()`. Order the dataset by the folds:
 
 ```{r}
 # Set seed for reproducibility
 set.seed(7)
 
 # Fold data 
-data <- fold(data, k = 4,
-             cat_col = 'diagnosis',
-             id_col = 'participant') %>% 
+data <- fold(
+  data = data, k = 4,
+  cat_col = 'diagnosis',
+  id_col = 'participant') %>% 
   arrange(.folds)
 
 # Show first 15 rows of data
 data %>% head(15) %>% kable()
 ```
 
-## Cross-validate a single model {#cv-single}
+## Cross-validate a single model
 
-### Gaussian {#cv-single-gaussian}
+### Gaussian
 
 ```{r warning=FALSE, message=FALSE}
-CV1 <- cross_validate(data, "score~diagnosis",
-                      fold_cols = '.folds',
-                      family = 'gaussian',
-                      REML = FALSE)
+CV1 <- cross_validate(
+  data = data,
+  formulas = "score ~ diagnosis",
+  fold_cols = '.folds',
+  family = 'gaussian',
+  REML = FALSE
+)
 
 # Show results
 CV1
 
 # Let's take a closer look at the different parts of the output 
 
-# Results metrics
+# Metrics and formulas
 CV1 %>% select_metrics() %>% kable()
+
+# Just the formulas
+CV1 %>% select_definitions() %>% kable()
 
 # Nested predictions 
 # Note that [[1]] picks predictions for the first row
@@ -174,16 +242,19 @@ CV1$Coefficients[[1]] %>% kable()
 
 # Additional information about the model
 # and the training process
-CV1 %>% select(11:17) %>% kable()
+CV1 %>% select(14:21) %>% kable()
 
 ```
 
-### Binomial {#cv-single-binomial}
+### Binomial
 
-```{r}
-CV2 <- cross_validate(data, "diagnosis~score",
-                      fold_cols = '.folds',
-                      family = 'binomial')
+```{r fig.width = 4.25, fig.height = 4.25, fig.align='center'}
+CV2 <- cross_validate(
+  data = data,
+  formulas = "diagnosis~score",
+  fold_cols = '.folds',
+  family = 'binomial'
+)
 
 # Show results
 CV2
@@ -191,144 +262,135 @@ CV2
 # Let's take a closer look at the different parts of the output 
 # We won't repeat the parts too similar to those in Gaussian
 
-# Results metrics
-CV2 %>% select(1:9) %>% kable()
-CV2 %>% select(10:14) %>% kable()
-
-# ROC curve info
-CV2$ROC[[1]] %>% head() %>% kable()
+# Metrics
+CV2 %>% select(1:9) %>% kable(digits = 5)
+CV2 %>% select(10:15) %>% kable()
 
 # Confusion matrix
 CV2$`Confusion Matrix`[[1]] %>% kable()
+
+# Plot confusion matrix
+plot_confusion_matrix(CV2$`Confusion Matrix`[[1]])
+
 ```
 
 
-## Cross-validate multiple models {#cv-multi}
+## Cross-validate multiple models
 
-### Create model formulas {#cv-multi-formulas}
+### Create model formulas
 
 ```{r}
-models <- c("score~diagnosis", "score~age")
-mixed_models <- c("score~diagnosis+(1|session)", "score~age+(1|session)")
+model_formulas <- c("score ~ diagnosis", "score ~ age")
+mixed_model_formulas <- c("score ~ diagnosis + (1|session)",
+                          "score ~ age + (1|session)")
 ```
 
-### Cross-validate fixed effects models {#cv-multi-fixed}
+### Cross-validate fixed effects models
 
 ```{r}
-CV3 <- cross_validate(data, models,
-                      fold_cols = '.folds',
-                      family = 'gaussian',
-                      REML = FALSE)
+CV3 <- cross_validate(
+  data = data,
+  formulas = model_formulas,
+  fold_cols = '.folds',
+  family = 'gaussian',
+  REML = FALSE
+)
 
 # Show results
 CV3
 ```
 
-### Cross-validate mixed effects models {#cv-multi-mixed}
+### Cross-validate mixed effects models
 
 ```{r}
-CV4 <- cross_validate(data, mixed_models,
-                      fold_cols = '.folds',
-                      family = 'gaussian',
-                      REML = FALSE)
+CV4 <- cross_validate(
+  data = data,
+  formulas = mixed_model_formulas,
+  fold_cols = '.folds',
+  family = 'gaussian',
+  REML = FALSE
+)
 
 # Show results
 CV4
 ```
 
-## Repeated cross-validation {#cv-repeated}
+## Repeated cross-validation
 
-Let's first add some extra fold columns. We will use the num_fold_cols argument to add 3 unique fold columns. We tell `fold()` to keep the existing fold column and simply add three extra columns. We could also choose to remove the existing fold column, if for instance we were changing the number of folds (k). Note, that the original fold column will be renamed to ".folds_1".  
+Instead of only dividing our data into folds once, we can do it multiple times and average the results. As the models can be ranked differently with different splits, this is generally preferable.
+
+Let's first add some extra fold columns. We will use the `num_fold_cols` argument to add 3 *unique* fold columns. We tell `fold()` to *keep* the existing fold column and simply add three extra columns. We could also choose to remove the existing fold column, if, for instance, we were changing the number of folds (`k`). Note, that the original fold column will be renamed to `".folds_1"`.  
 
 ```{r}
 # Set seed for reproducibility
 set.seed(2)
 
 # Fold data 
-data <- fold(data, k = 4,
-             cat_col = 'diagnosis',
-             id_col = 'participant',
-             num_fold_cols = 3,
-             handle_existing_fold_cols = "keep")
+data <- fold(
+  data = data, k = 4,
+  cat_col = 'diagnosis',
+  id_col = 'participant',
+  num_fold_cols = 3,
+  handle_existing_fold_cols = "keep"
+)
 
 # Show first 15 rows of data
 data %>% head(10) %>% kable()
 
 ```
 
+Now, let's cross-validate the four fold columns. We use `paste0()` to create the four column names:
 
 ```{r}
-CV5 <- cross_validate(data, "diagnosis ~ score",
-                      fold_cols = paste0(".folds_", 1:4),
-                      family = 'binomial',
-                      REML = FALSE)
+CV5 <- cross_validate(
+  data = data,
+  formulas = c("diagnosis ~ score",
+               "diagnosis ~ score + age"),
+  fold_cols = paste0(".folds_", 1:4),
+  family = 'binomial'
+)
 
 # Show results
 CV5
 
-# The binomial output now has a nested 'Results' tibble
-# Let's see a subset of the columns
-CV5$Results[[1]] %>% select(1:8) %>%  kable()
+# Subset of the results per fold for the first model
+CV5$Results[[1]] %>% select(1:8) %>% kable()
 ```
 
-## Cross-validating custom model functions {#cv-custom}
+## Cross-validating custom model functions
 
-`cross_validate_fn()` works with regression (`gaussian`), binary classification (`binomial`), and multiclass classification (`multinomial`). 
+`cross_validate_fn()` allows us to cross-validate a custom model function, like a support vector machine or a neural network. It works with regression (`gaussian`), binary classification (`binomial`), and multiclass classification (`multinomial`). 
 
-### SVM {#cv-custom-svm}
+It is required to pass a model function and a predict function. Further, it is possible to pass a preprocessing function and a list of hyperparameter values to test with grid search. You can check the requirements for these functions at `?cross_validate_fn`.
+
+### SVM
 
 Let's cross-validate a support-vector machine using the `svm()` function from the `e1071` package.
-First, we will create a model function. You can do anything you want in it, as long as it takes the arguments `train_data` and `formula` and returns the fitted model object.
+First, we will create a model function. You can do anything you want inside it, as long as it takes the arguments `train_data`, `formula`, and `hyperparameters` and returns a fitted model object:
 
 ```{r}
 # Create model function
 #
 # train_data : tibble with the training data
 # formula : a formula object
+# hyperparameters : a named list of hyparameters
 
-svm_model_fn <- function(train_data, formula){
+svm_model_fn <- function(train_data, formula, hyperparameters){
   
-  # Note that `formula` must be specified first
+  # Note that `formula` must be passed first
   # when calling svm(), otherwise it fails
-  e1071::svm(formula = formula,
-             data = train_data, 
-             kernel = "linear",
-             type = "C-classification")
+  e1071::svm(
+    formula = formula,
+    data = train_data,
+    kernel = "linear",
+    type = "C-classification",
+    probability = TRUE
+  )
 }
 ```
 
-For the `svm()` function, the default predict function and settings within `cross_validate_fn()` works, so we don't have to specify a predict function. In many cases, it's probably safer to supply a predict function anyway, so you're sure everything is correct. We will see how in the naive Bayes example below, but first, let's cross-validate the model function. Note, that some of the arguments have changed names (`models -> formulas`, `family -> type`).
-
-```{r}
-# Cross-validate svm_model_fn
-CV6 <- cross_validate_fn(data = data,
-                         model_fn = svm_model_fn,
-                         formulas = c("diagnosis~score", "diagnosis~age"),
-                         fold_cols = '.folds_1', 
-                         type = 'binomial')
-
-CV6
-```
-
-### Naive Bayes {#cv-custom-naive}
-
-The naive Bayes classifier requires us to supply a predict function, so we will go through that next. First, let's create the model function.
-
-```{r}
-# Create model function
-#
-# train_data : tibble with the training data
-# formula : a formula object
-
-nb_model_fn <- function(train_data, formula){
-  e1071::naiveBayes(formula = formula, 
-                    data = train_data)
-}
-```
-
-Now, we will create a predict function. This will usually wrap `stats::predict()` and just make sure, the predictions have the correct format. When `type` is `binomial`, the predictions should be a vector, or a one-column matrix / data frame, with the probabilities of the second class (alphabetically). That is, if we have the classes `0` and `1`, it should be the probabilities of the observations being in class `1`. The help file, `?cross_validate_fn`, describes the formats for the other types (`gaussian` and `multinomial`). 
-
-The predict function should take the arguments `test_data`, `model`, and `formula`. You do not need to use the `formula` within your function.
+We also need a predict function. This will usually wrap the `stats::predict()` function. The point is to ensure that the predictions have the correct format. In this case, we want a single column with the probability of the positive class. 
+Note, that you do not need to use the `formula`, `hyperparameters`, and `train_data` arguments within your function. These are there for the few cases, where they are needed.
 
 ```{r}
 # Create predict function
@@ -336,157 +398,327 @@ The predict function should take the arguments `test_data`, `model`, and `formul
 # test_data : tibble with the test data
 # model : fitted model object
 # formula : a formula object
-nb_predict_fn <- function(test_data, model, formula){
-    stats::predict(object = model, newdata = test_data, 
-                   type = "raw", allow.new.levels = TRUE)[,2]
-  }
+# hyperparameters : a named list of hyparameters
+# train_data : tibble with the training data
+
+svm_predict_fn <- function(test_data, model, formula, hyperparameters, train_data){
+  
+  # Predict the test set with the model
+  predictions <- stats::predict(
+    object = model,
+    newdata = test_data,
+    allow.new.levels = TRUE,
+    probability = TRUE
+  )
+
+  # Extract the probabilities
+  # Usually the predict function will just 
+  # output the probabilities directly
+  probabilities <- dplyr::as_tibble(
+    attr(predictions, "probabilities")
+  )
+
+  # Return second column
+  # with probabilities of positive class
+  probabilities[[2]]
+}
 ```
 
-With both functions specified, we are ready to cross-validate our naive Bayes classifier.
+With these functions defined, we can cross-validate the support-vector machine:
 
 ```{r}
-CV7 <- cross_validate_fn(data,
-                         model_fn = nb_model_fn,
-                         formulas = c("diagnosis~score", "diagnosis~age"),
-                         type = 'binomial',
-                         predict_fn = nb_predict_fn,
-                         fold_cols = '.folds_1')
+# Cross-validate svm_model_fn
+CV6 <- cross_validate_fn(
+  data = data,
+  model_fn = svm_model_fn,
+  predict_fn = svm_predict_fn,
+  formulas = c("diagnosis ~ score", "diagnosis ~ age"),
+  fold_cols = '.folds_1',
+  type = 'binomial'
+)
+
+CV6
+```
+
+### Naïve Bayes
+
+Let's try with a naïve Bayes classifier as well. First, we will define the model function:
+
+```{r}
+# Create model function
+#
+# train_data : tibble with the training data
+# formula : a formula object
+# hyperparameters : a named list of hyparameters
+
+nb_model_fn <- function(train_data, formula, hyperparameters){
+  e1071::naiveBayes(
+    formula = formula,
+    data = train_data
+  )
+}
+```
+
+And the predict function:
+
+```{r}
+# Create predict function
+#
+# test_data : tibble with the test data
+# model : fitted model object
+# formula : a formula object
+# hyperparameters : a named list of hyparameters
+# train_data : tibble with the training data
+
+nb_predict_fn <- function(test_data, model, formula, hyperparameters, train_data){
+  stats::predict(
+    object = model,
+    newdata = test_data,
+    type = "raw",
+    allow.new.levels = TRUE)[, 2]
+}
+```
+
+With both functions specified, we are ready to cross-validate our naïve Bayes classifier:
+
+```{r}
+CV7 <- cross_validate_fn(
+  data = data,
+  model_fn = nb_model_fn,
+  predict_fn = nb_predict_fn,
+  formulas = c("diagnosis ~ score", "diagnosis ~ age"),
+  type = 'binomial',
+  fold_cols = '.folds_1'
+)
 
 CV7
 ```
 
+## Extracting the most challenging observations
 
-## Evaluating predictions {#evaluate}
+If we wish to investigate why some observations are harder to predict than others, we should start by identifying the most challenging observations. This can be done with `most_challenging()`. 
 
-Evaluate predictions from a model trained outside cvms. Works with regression (`gaussian`), binary classification (`binomial`), and multiclass classification (`multinomial`). The following is an example of multinomial evaluation.
-
-### Multinomial {#evaluate-multinomial}
-
-Create a dataset with 3 predictors and a target column. Partition it with `groupdata2::partition()` to create a training set and a validation set. `multiclass_probability_tibble()` is a simple helper function for generating random tibbles.
+Let's first extract the predictions from some of the cross-validation results:
 
 ```{r}
-# Set seed
-set.seed(1)
+glm_predictions <- dplyr::bind_rows(CV5$Predictions, .id = "Model")
+svm_predictions <- dplyr::bind_rows(CV6$Predictions, .id = "Model")
+nb_predictions <- dplyr::bind_rows(CV7$Predictions, .id = "Model")
+predictions <- dplyr::bind_rows(
+  glm_predictions, 
+  svm_predictions, 
+  nb_predictions, 
+  .id = "Architecture"
+)
+predictions[["Target"]] <- as.character(predictions[["Target"]])
 
-# Create class names
-class_names <- paste0("class_", 1:4)
+predictions
+```
 
-# Create random dataset with 100 observations 
-# Partition into training set (75%) and test set (25%)
-multiclass_partitions <- multiclass_probability_tibble(
+Now, let's find the *overall most difficult to predict* observations. `most_challenging()` calculates the `Accuracy`, `MAE`, and `Cross-Entropy` for each prediction. We can then extract the observations with the ~20% highest `MAE` scores. Note that `most_challenging()` works with grouped data frames as well.
+
+```{r}
+challenging <- most_challenging(
+  data = predictions,
+  prediction_cols = "Prediction",
+  type = "binomial",
+  threshold = 0.20,
+  threshold_is = "percentage"
+)
+
+challenging
+```
+
+We can then extract the difficult observations from the dataset. First, we add an index to the dataset. Then, we perform a right-join, to only get the rows that are in the `challenging` data frame.
+
+```{r}
+# Index with values 1:30
+data[["Observation"]] <- seq_len(nrow(data))
+
+# Add information to the challenging observations
+challenging <- data %>% 
+  # Remove fold columns for clarity
+  dplyr::select(-c(.folds_1, .folds_2, .folds_3, .folds_4)) %>% 
+  # Add the scores
+  dplyr::right_join(challenging, by = "Observation")
+
+challenging %>% kable()
+```
+
+Note: You may have to scroll to the right in the table.
+
+## Evaluating predictions
+
+We can also evaluate predictions from a model trained outside `cvms`. This works with regression (`'gaussian'`), binary classification (`'binomial'`), and multiclass classification (`'multinomial'`). 
+
+### Gaussian evaluation
+
+Extract the targets and predictions from the first cross-validation we performed and evaluate it with `evaluate()`. We group the data frame by the `Fold` column to evaluate each fold separately:
+
+```{r}
+# Extract the predictions from the first cross-validation
+predictions <- CV1$Predictions[[1]] 
+predictions %>% head(6) %>% kable()
+
+# Evaluate the predictions per fold
+predictions %>% 
+  group_by(Fold) %>% 
+  evaluate(
+    target_col = "Target",
+    prediction_cols = "Prediction",
+    type = "gaussian"
+  )
+```
+
+### Binomial evaluation
+
+We can do the same for the predictions from the second, binomial cross-validation:
+
+```{r}
+# Extract the predictions from the second cross-validation
+predictions <- CV2$Predictions[[1]] 
+predictions %>% head(6) %>% kable()
+
+# Evaluate the predictions per fold
+predictions %>% 
+  group_by(Fold) %>% 
+  evaluate(
+    target_col = "Target",
+    prediction_cols = "Prediction",
+    type = "binomial"
+  )
+```
+
+### Multinomial evaluation
+
+We will use the `multiclass_probability_tibble()` helper to generate a data frame with predicted probabilities for three classes, along with the predicted class and the target class. Then, we will 1) evaluate the three probability columns against the targets (preferable format), and 2) evaluate the predicted classes against the targets:
+
+```{r}
+# Create dataset for multinomial evaluation
+multiclass_data <- multiclass_probability_tibble(
   num_classes = 3, # Here, number of predictors
-  num_observations = 100,
-  apply_softmax = FALSE,
-  FUN = rnorm,
-  class_name = "predictor_") %>%
-  dplyr::mutate(class = sample(
-    class_names,
-    size = 100,
-    replace = TRUE)) %>%
-  partition(p = 0.75,
-            cat_col = "class")
+  num_observations = 30,
+  apply_softmax = TRUE,
+  add_predicted_classes = TRUE,
+  add_targets = TRUE) 
 
-# Extract partitions
-multiclass_train_set <- multiclass_partitions[[1]]
-multiclass_test_set <- multiclass_partitions[[2]]
+multiclass_data
 
-multiclass_test_set
-```
-
-Train multinomial model using the `nnet` package and get the predicted probabilities. 
-
-```{r}
-# Train multinomial model
-multiclass_model <- nnet::multinom(
-   "class ~ predictor_1 + predictor_2 + predictor_3",
-   data = multiclass_train_set)
-
-# Predict the targets in the test set
-predictions <- predict(multiclass_model, 
-                       multiclass_test_set,
-                       type = "probs") %>%
-  dplyr::as_tibble()
-
-# Add the targets
-predictions[["target"]] <- multiclass_test_set[["class"]]
-
-head(predictions, 10)
-```
-
-Perform the evaluation. This will create one-vs-all binomial evaluations and summarize the results.
-
-```{r}
-# Evaluate predictions
-ev <- evaluate(data = predictions,
-               target_col = "target",
-               prediction_cols = class_names,
-               type = "multinomial")
+# Evaluate probabilities
+# One prediction column *per class*
+ev <- evaluate(
+  data = multiclass_data,
+  target_col = "Target",
+  prediction_cols = paste0("class_", 1:3),
+  type = "multinomial"
+)
 
 ev
+
+# The one-vs-all evaluations
+ev$`Class Level Results`[[1]]
+
+# Evaluate the predicted classes
+# One prediction column with the class names
+evaluate(
+  data = multiclass_data,
+  target_col = "Target",
+  prediction_cols = "Predicted Class",
+  type = "multinomial"
+)
 ```
 
-The class level results (i.e., the one-vs-all evaluations) are also included, and would usually be reported alongside the above results.
+## Baseline evaluations
 
-```{r}
-ev$`Class Level Results`
-```
+While it's common to find the chance-level baseline analytically (in classification tasks), it's often possible to get a better evaluation than that by chance. Hence, it is useful to check the range of our metrics when randomly guessing the probabilities. 
 
+Usually, we use `baseline()` on our test set at the start of our modeling process, so we know what level of performance we should beat.
 
-## Baseline evaluations {#baseline}
+Note: Where `baseline()` works with all three families (`gaussian`, `binomial` and `multinomial`), 
+each family also has a wrapper function (e.g. `baseline_gaussian()`) that is easier to use. We use those here.
 
-Create baseline evaluations of a test set.
-
-### Gaussian {#baseline-gaussian}
-
-Approach: The baseline model (y ~ 1), where 1 is simply the intercept (i.e. mean of y), is fitted on n random subsets of the training set and evaluated on the test set. We also perform an evaluation of the model fitted on the entire training set.
-
-Start by partitioning the dataset.
+Start by partitioning the dataset:
 
 ```{r}
 # Set seed for reproducibility
 set.seed(1)
 
 # Partition the dataset 
-partitions <- groupdata2::partition(participant.scores,
-                                    p = 0.7,
-                                    cat_col = 'diagnosis',
-                                    id_col = 'participant',
-                                    list_out = TRUE)
+partitions <- groupdata2::partition(
+  participant.scores,
+  p = 0.7,
+  cat_col = 'diagnosis',
+  id_col = 'participant',
+  list_out = TRUE
+)
+
 train_set <- partitions[[1]]
 test_set <- partitions[[2]]
 ```
 
+
+### Binomial baseline
+
+Approach: `n` random sets of predictions are evaluated against the dependent variable in the test set. We also evaluate a set of all `0`s and a set of all `1`s.
+
 Create the baseline evaluations:
 
 ```{r}
-baseline(test_data = test_set, train_data = train_set,
-         n = 100, dependent_col = "score", family = "gaussian")
+# Perform binomial baseline evaluation
+# Note: It's worth enabling parallelization (see ?baseline examples)
+binomial_baseline <- baseline_binomial(
+  test_data = test_set, 
+  dependent_col = "diagnosis",
+  n = 100
+)
+
+binomial_baseline$summarized_metrics
+
 ```
 
-### Binomial {#baseline-binomial}
+On average, we can expect an `F1` score of approximately `0.481`. The maximum `F1` score achieved by randomly guessing was `0.833` though. That's likely because of the small size of the test set, but it illustrates how such information could be useful in a real-life scenario.
 
-Approach: n random sets of predictions are evaluated against the dependent variable in the test set. We also evaluate a set of all 0s and a set of all 1s.
-
-Create the baseline evaluations:
+The `All_1` row shows us that we can achieve an `F1` score of `0.667` by always predicting `1`. Some model architectures, like neural networks, have a tendency to always predict the majority class. Such a model is quite useless of course, why it is good to be aware of the performance it could achieve. We could also check the confusion matrix for such a pattern.
 
 ```{r}
-baseline(test_data = test_set, n = 100, 
-         dependent_col = "diagnosis", family = "binomial")
+binomial_baseline$random_evaluations
 ```
 
-### Multinomial {#baseline-multinomial}
+We can plot the distribution of `F1` scores from the random evaluations:
 
-Approach: Creates one-vs-all (binomial) baseline evaluations for n sets of random predictions against the dependent variable, along with sets of "all class x,y,z,..." predictions.
+```{r fig.width = 6, fig.height = 4.5, fig.align='center'}
+# First, remove the NAs from the F1 column
+random_evaluations <- binomial_baseline$random_evaluations
+random_evaluations <- random_evaluations[!is.na(random_evaluations$F1),]
+
+# Create density plot for F1
+plot_metric_density(baseline = random_evaluations, 
+                    metric = "F1", xlim = c(0, 1))
+```
+
+
+### Multinomial baseline
+
+Approach: Creates one-vs-all (binomial) baseline evaluations for `n` sets of random predictions against the dependent variable, along with sets of `all class x,y,z,...` predictions.
 
 Create the baseline evaluations:
 
-```{r}
-multiclass_baseline <- baseline(
-  test_data = multiclass_test_set, n = 100,
-  dependent_col = "class", family = "multinomial")
+```{r warning=FALSE}
+
+multiclass_baseline <- baseline_multinomial(
+  test_data = multiclass_data, 
+  dependent_col = "Target",
+  n = 100
+)
 
 # Summarized metrics
 multiclass_baseline$summarized_metrics
+
+```
+
+The `CL_` measures describe the `Class Level Results` (aka. one-vs-all evaluations). One of the classes have a maximum `Balanced Accuracy` score of `0.770`, while the maximum `Balanced Accuracy` in the random evaluations is `0.664`.
+
+```{r}
 
 # Summarized class level results for class 1
 multiclass_baseline$summarized_class_level_results %>% 
@@ -495,35 +727,46 @@ multiclass_baseline$summarized_class_level_results %>%
 
 # Random evaluations
 # Note, that the class level results for each repetition
-# is available as well
+# are available as well
 multiclass_baseline$random_evaluations
+
 ```
 
-## Plot results {#plot}
+### Gaussian baseline
 
-There are currently a small set of plots for quick visualization of the results. It is supposed to be easy to extract the needed information to create your own plots. If you lack access to any information or have other requests or ideas, feel free to open an issue.
+Approach: The baseline model `(y ~ 1)`, where `1` is simply the intercept (i.e. mean of `y`), is fitted on `n` random subsets of the training set and evaluated on the test set. We also perform an evaluation of the model fitted on the entire training set.
 
-### Gaussian {#plot-gaussian}
+We usually wish to establish whether our predictors add anything useful to our model. We should thus at least do better than a model without any predictors. 
+
+Create the baseline evaluations:
 
 ```{r}
-cv_plot(CV1, type = "RMSE") +
-  theme_bw()
-cv_plot(CV1, type = "r2") +
-  theme_bw()
-cv_plot(CV1, type = "IC") +
-  theme_bw()
-cv_plot(CV1, type = "coefficients") +
-  theme_bw()
+gaussian_baseline <- baseline_gaussian(
+  test_data = test_set,
+  train_data = train_set,
+  dependent_col = "score",
+  n = 100
+)
+
+gaussian_baseline$summarized_metrics
 ```
 
-### Binomial {#plot-binomial}
+The `All_rows` row tells us the performance when fitting the intercept model on the full training set. It is quite close to the mean of the random evaluations.
 
 ```{r}
-cv_plot(CV2, type = "ROC") +
-  theme_bw()
+gaussian_baseline$random_evaluations
 ```
 
-## Generate model formulas {#generate-formulas}
+Plot the density plot for `RMSE`:
+
+```{r fig.width = 6, fig.height = 3.5, fig.align='center'}
+plot_metric_density(baseline = gaussian_baseline$random_evaluations,
+                    metric = "RMSE")
+```
+
+In this instance, the `All_rows` row might have been enough, as the subsets mainly add higher `RMSE` scores.
+
+## Generate model formulas
 
 Instead of manually typing all possible model formulas for a set of fixed effects (including the possible interactions), `combine_predictors()` can do it for you (with some constraints). 
 
@@ -532,16 +775,20 @@ When including interactions, >200k formulas have been precomputed for up to 8 fi
 We can also append a random effects structure to the generated formulas.
 
 ```{r}
-combine_predictors(dependent = "y",
-                   fixed_effects = c("a","b","c"),
-                   random_effects = "(1|d)")
+combine_predictors(
+  dependent = "y",
+  fixed_effects = c("a", "b", "c"),
+  random_effects = "(1|d)"
+)
 ```
 
 If two or more fixed effects should not be in the same formula, like an effect and its log-transformed version, we can provide them as sublists.
 
 ```{r}
-combine_predictors(dependent = "y",
-                   fixed_effects = list("a", list("b","log_b")),
-                   random_effects = "(1|d)")
+combine_predictors(
+  dependent = "y",
+  fixed_effects = list("a", list("b", "log_b")),
+  random_effects = "(1|d)"
+)
 ```
 

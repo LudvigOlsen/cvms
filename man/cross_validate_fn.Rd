@@ -6,17 +6,20 @@
 \usage{
 cross_validate_fn(
   data,
-  model_fn,
   formulas,
+  type,
+  model_fn,
+  predict_fn,
+  preprocess_fn = NULL,
+  preprocess_once = FALSE,
+  hyperparameters = NULL,
   fold_cols = ".folds",
-  type = "gaussian",
   cutoff = 0.5,
   positive = 2,
-  predict_type = NULL,
-  predict_fn = NULL,
   metrics = list(),
   rm_nc = FALSE,
-  parallel = FALSE
+  parallel = FALSE,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -24,14 +27,6 @@ cross_validate_fn(
 
  Must include grouping factor for identifying folds
   - as made with \code{\link[groupdata2:fold]{groupdata2::fold()}}.}
-
-\item{model_fn}{Model function that returns a fitted model object.
- Will usually wrap an existing model function like \code{\link[e1071:svm]{e1071::svm}}
- or \code{\link[nnet:multinom]{nnet::multinom}}.
-
- Must have the following function arguments:
-
- \code{function(train_data, formula)}}
 
 \item{formulas}{Model formulas as strings. (Character)
 
@@ -44,10 +39,6 @@ cross_validate_fn(
 
  E.g. \code{c("y~x+(1|r)", "y~z+(1|r)")}.}
 
-\item{fold_cols}{Name(s) of grouping factor(s) for identifying folds. (Character)
-
- Include names of multiple grouping factors for repeated cross-validation.}
-
 \item{type}{Type of evaluation to perform:
 
  \code{"gaussian"} for regression (like linear regression).
@@ -56,29 +47,30 @@ cross_validate_fn(
 
  \code{"multinomial"} for multiclass classification.}
 
-\item{cutoff}{Threshold for predicted classes. (Numeric)
+\item{model_fn}{Model function that returns a fitted model object.
+ Will usually wrap an existing model function like \code{\link[e1071:svm]{e1071::svm}}
+ or \code{\link[nnet:multinom]{nnet::multinom}}.
 
- N.B. \strong{Binomial models only}}
+ Must have the following function arguments:
 
-\item{positive}{Level from dependent variable to predict.
- Either as character or level index (\code{1} or \code{2} - alphabetically).
+ \code{function(train_data, formula,}
 
- E.g. if we have the levels \code{"cat"} and \code{"dog"} and we want \code{"dog"} to be the positive class,
- we can either provide \code{"dog"} or \code{2}, as alphabetically, \code{"dog"} comes after \code{"cat"}.
+ \verb{         }\code{hyperparameters)}}
 
- Used when calculating confusion matrix metrics and creating ROC curves.
+\item{predict_fn}{Function for predicting the targets in the test folds/sets using the fitted model object.
+ Will usually wrap \code{\link[stats:predict]{stats::predict()}}, but doesn't have to.
 
- N.B. Only affects evaluation metrics, not the model training or returned predictions.
+ Must have the following function arguments:
 
- N.B. \strong{Binomial models only}.}
+ \code{function(test_data, model, formula,}
 
-\item{predict_type}{The \code{type} argument for \code{\link[stats:predict]{predict()}}.
+ \verb{         }\code{hyperparameters, train_data)}
 
- When the defaults fail, provide it such that the \code{\link[stats:predict]{predict()}}
- output is as follows:
+ Must return predictions in the following formats, depending on \code{type}:
 
  \subsection{Binomial}{
- Vector or one-column matrix / data frame with probabilities (0-1).
+ Vector or one-column matrix / data frame with probabilities (0-1)
+ of the second class, alphabetically.
  E.g.:
 
  \code{c(0.3, 0.5, 0.1, 0.5)}
@@ -103,30 +95,125 @@ cross_validate_fn(
   0.368 \tab 0.322 \tab 0.310\cr
   0.375 \tab 0.371 \tab 0.254\cr
   ... \tab ... \tab ...}
-
- N.B. \code{predict_fn} and \code{predict_type} are mutually exclusive. Specify only one of them.
  }}
 
-\item{predict_fn}{Function for predicting the targets in the test folds using the fitted model object.
- Will usually wrap \code{\link[stats:predict]{predict()}}, but doesn't have to.
- Must return predictions in the format described in \code{predict_type} above.
+\item{preprocess_fn}{Function for preprocessing the training and test sets.
+
+ Can, for instance, be used to standardize both the training and test sets
+ with the scaling and centering parameters from the training set.
 
  Must have the following function arguments:
 
- \code{function(test_data, model, formula = NULL)}
+ \code{function(train_data, test_data,}
 
- N.B. \code{predict_fn} and \code{predict_type} are mutually exclusive. Specify only one of them.}
+ \verb{         }\code{formula, hyperparameters)}
+
+ Must return a list with the preprocessed \code{train_data} and \code{test_data}. It may also contain
+ a tibble with the \code{parameters} used in preprocessing:
+
+ \code{list("train" = train_data,}
+
+ \verb{     }\code{"test" = test_data,}
+
+ \verb{     }\code{"parameters" = preprocess_parameters)}
+
+ Additional elements in the returned list will be ignored.
+
+ The optional parameters tibble will be included in the output.
+ It could have the following format:
+
+ \tabular{rrr}{
+  \strong{Measure} \tab \strong{var_1} \tab \strong{var_2} \cr
+  Mean \tab 37.921 \tab 88.231\cr
+  SD \tab 12.4 \tab 5.986\cr
+  ... \tab ... \tab ...}
+
+ N.B. When \code{preprocess_once} is FALSE, the current formula and
+ hyperparameters will be provided. Otherwise,
+ these arguments will be \code{NULL}.}
+
+\item{preprocess_once}{Whether to apply the preprocessing once
+ (ignoring the formula and hyperparameters arguments in \code{preprocess_fn})
+ or for every model separately. (Logical)
+
+ When preprocessing does not depend on the current formula or hyperparameters,
+ we can do the preprocessing of each train/test split once, to save time.
+ This \strong{may require holding a lot more data in memory} though,
+ why it is not the default setting.}
+
+\item{hyperparameters}{Either a named list with hyperparameter values to combine in a grid
+ or a data frame with one row per hyperparameter combination.
+
+ \subsection{Named list for grid search}{
+ Add \code{".n"} to sample the combinations. Can be the number of combinations to use,
+ or a percentage between \code{0} and \code{1}.
+
+ E.g.
+
+ \code{list(".n" = 10,  # sample 10 combinations}
+
+ \verb{     }\code{"lrn_rate" = c(0.1, 0.01, 0.001),}
+
+ \verb{     }\code{"h_layers" = c(10, 100, 1000),}
+
+ \verb{     }\code{"drop_out" = runif(5, 0.3, 0.7))}
+ }
+
+ \subsection{Data frame with specific hyperparameter combinations}{
+ One row per combination to test.
+
+ E.g.
+
+ \tabular{rrr}{
+  \strong{lrn_rate} \tab \strong{h_layers} \tab \strong{drop_out} \cr
+  0.1 \tab 10 \tab 0.65\cr
+  0.1 \tab 1000 \tab 0.65\cr
+  0.01 \tab 1000 \tab 0.63\cr
+  ... \tab ... \tab ...}
+ }}
+
+\item{fold_cols}{Name(s) of grouping factor(s) for identifying folds. (Character)
+
+ Include names of multiple grouping factors for repeated cross-validation.}
+
+\item{cutoff}{Threshold for predicted classes. (Numeric)
+
+ N.B. \strong{Binomial models only}}
+
+\item{positive}{Level from dependent variable to predict.
+ Either as character (\emph{preferable}) or level index (\code{1} or \code{2} - alphabetically).
+
+ E.g. if we have the levels \code{"cat"} and \code{"dog"} and we want \code{"dog"} to be the positive class,
+ we can either provide \code{"dog"} or \code{2}, as alphabetically, \code{"dog"} comes after \code{"cat"}.
+
+ \strong{Note:} For \emph{reproducibility}, it's preferable to \strong{specify the name directly}, as
+ different \code{\link[base:locales]{locales}} may sort the levels differently.
+
+ Used when calculating confusion matrix metrics and creating \code{ROC} curves.
+
+ The \code{Positive Class} column in the output can be used to verify this setting.
+
+ N.B. Only affects evaluation metrics, not the model training or returned predictions.
+
+ N.B. \strong{Binomial models only}.}
 
 \item{metrics}{List for enabling/disabling metrics.
 
-  E.g. \code{list("RMSE" = FALSE)} would remove RMSE from the results,
+  E.g. \code{list("RMSE" = FALSE)} would remove RMSE from the regression results,
   and \code{list("Accuracy" = TRUE)} would add the regular accuracy metric
   to the classification results.
-  Default values (TRUE/FALSE) will be used for the remaining metrics available.
+  Default values (TRUE/FALSE) will be used for the remaining available metrics.
 
-  Also accepts the string \code{"all"}.
+  You can enable/disable all metrics at once by including
+  \code{"all" = TRUE/FALSE} in the list. This is done prior to enabling/disabling
+  individual metrics, why f.i. \code{list("all" = FALSE, "RMSE" = TRUE)} would return only the RMSE metric.
 
-  N.B. Currently, disabled metrics are still computed.}
+  The list can be created with
+  \code{\link[cvms:gaussian_metrics]{gaussian_metrics()}},
+  \code{\link[cvms:binomial_metrics]{binomial_metrics()}}, or
+  \code{\link[cvms:multinomial_metrics]{multinomial_metrics()}}.
+
+  Also accepts the string \code{"all"}.}
 
 \item{rm_nc}{Remove non-converged models from output. (Logical)}
 
@@ -134,15 +221,24 @@ cross_validate_fn(
 
  Remember to register a parallel backend first.
  E.g. with \code{doParallel::registerDoParallel}.}
+
+\item{verbose}{Whether to message process information
+like the number of model instances to fit. (Logical)}
 }
 \value{
 Tbl (tibble) with results for each model.
 
+ N.B. The \strong{Fold} column in the nested tibbles contains the test fold in that train/test split.
+
  \subsection{Shared across families}{
+
  A nested tibble with \strong{coefficients} of the models from all iterations. The coefficients
  are extracted from the model object with \code{\link[broom:tidy]{broom::tidy()}} or
  \code{\link[stats:coef]{coef()}} (with some restrictions on the output).
  If these attempts fail, a default coefficients tibble filled with \code{NA}s is returned.
+
+ Nested tibble with the used \strong{preprocessing parameters},
+ if a passed \code{preprocess_fn} returns the parameters in a tibble.
 
  Number of \emph{total} \strong{folds}.
 
@@ -162,6 +258,7 @@ Tbl (tibble) with results for each model.
  Names of \strong{fixed} effects.
 
  Names of \strong{random} effects, if any.
+
  }
 
  ----------------------------------------------------------------
@@ -170,12 +267,11 @@ Tbl (tibble) with results for each model.
 
  ----------------------------------------------------------------
 
- Average \strong{RMSE}, \strong{MAE}, \strong{r2m}, \strong{r2c}, \strong{AIC}, \strong{AICc},
- and \strong{BIC} of all the iterations*,
- \emph{\strong{omitting potential NAs} from non-converged iterations}. Some metrics will
- return \code{NA} if they can't be extracted from the fitted model objects.
+ Average \strong{\code{RMSE}}, \strong{\code{MAE}}, \strong{\code{NRMSE(IQR)}},
+ \strong{\code{RRSE}}, \strong{\code{RAE}}, \strong{\code{RMSLE}} of all the iterations*,
+ \emph{\strong{omitting potential NAs} from non-converged iterations}.
 
- N.B. The Information Criteria metrics (AIC, AICc, and BIC) are also averages.
+ See the additional metrics (disabled by default) at \code{\link[cvms:gaussian_metrics]{?gaussian_metrics}}.
 
  A nested tibble with the \strong{predictions} and targets.
 
@@ -193,41 +289,46 @@ Tbl (tibble) with results for each model.
  ----------------------------------------------------------------
 
  Based on the \strong{collected} predictions from the test folds*,
- a confusion matrix and a ROC curve are created to get the following:
+ a confusion matrix and a \code{ROC} curve are created to get the following:
 
- ROC:
+ \code{ROC}:
 
- \strong{AUC}, \strong{Lower CI}, and \strong{Upper CI}
+ \strong{\code{AUC}}, \strong{\code{Lower CI}}, and \strong{\code{Upper CI}}
 
- Confusion Matrix:
+ \code{Confusion Matrix}:
 
- \strong{Balanced Accuracy}, \strong{F1},
- \strong{Sensitivity}, \strong{Specificity},
- \strong{Positive Prediction Value},
- \strong{Negative Prediction Value},
- \strong{Kappa},
- \strong{Detection Rate},
- \strong{Detection Prevalence},
- \strong{Prevalence}, and
- \strong{MCC} (Matthews correlation coefficient).
+ \strong{\code{Balanced Accuracy}},
+ \strong{\code{F1}},
+ \strong{\code{Sensitivity}},
+ \strong{\code{Specificity}},
+ \strong{\code{Positive Predictive Value}},
+ \strong{\code{Negative Predictive Value}},
+ \strong{\code{Kappa}},
+ \strong{\code{Detection Rate}},
+ \strong{\code{Detection Prevalence}},
+ \strong{\code{Prevalence}}, and
+ \strong{\code{MCC}} (Matthews correlation coefficient).
 
- Other available metrics (disabled by default, see \code{metrics}):
- \strong{Accuracy}.
+ See the additional metrics (disabled by default) at
+ \code{\link[cvms:binomial_metrics]{?binomial_metrics}}.
 
  Also includes:
 
- A nested tibble with the \strong{predictions}, predicted classes (depends on \code{cutoff}), and targets.
- Note, that the \strong{predictions are not necessarily of the specified \code{positive} class}, but of
- the model's positive class (second level of dependent variable, alphabetically).
+ A nested tibble with \strong{predictions}, predicted classes (depends on \code{cutoff}), and the targets.
+ Note, that the predictions are \emph{not necessarily} of the \emph{specified} \code{positive} class, but of
+ the \emph{model's} positive class (second level of dependent variable, alphabetically).
 
- A nested tibble with the sensativities and specificities from the \strong{ROC} curves.
+ The \code{\link[pROC:roc]{pROC::roc}} \strong{\code{ROC}} curve object(s).
 
  A nested tibble with the \strong{confusion matrix}/matrices.
  The \code{Pos_} columns tells you whether a row is a
- True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
+ True Positive (\code{TP}), True Negative (\code{TN}),
+ False Positive (\code{FP}), or False Negative (\code{FN}),
  depending on which level is the "positive" class. I.e. the level you wish to predict.
 
- A nested tibble with the \strong{results} from all fold columns, when using \emph{repeated cross-validation}.
+ A nested tibble with the \strong{results} from all fold columns.
+
+ The name of the \strong{Positive Class}.
 
  * In \emph{repeated cross-validation}, an evaluation is made per fold column (repetition) and averaged.
 
@@ -240,75 +341,82 @@ Tbl (tibble) with results for each model.
  ----------------------------------------------------------------
 
  For each class, a \emph{one-vs-all} binomial evaluation is performed. This creates
- a \strong{class level results} tibble containing the same metrics as the binomial results
- described above, along with the \strong{Support} metric, which is simply a
- count of the class in the target column. These metrics are used to calculate the macro metrics
- in the output tibble. The nested class level results tibble is also included in the output tibble,
- and would usually be reported along with the macro and overall metrics.
+ a \strong{Class Level Results} tibble containing the same metrics as the binomial results
+ described above (excluding \code{MCC}, \code{AUC}, \code{Lower CI} and \code{Upper CI}),
+ along with a count of the class in the target column (\strong{\code{Support}}).
+ These metrics are used to calculate the macro metrics. The nested class level results
+ tibble is also included in the output tibble,
+ and could be reported along with the macro and overall metrics.
 
  The output tibble contains the macro and overall metrics.
  The metrics that share their name with the metrics in the nested
  class level results tibble are averages of those metrics
  (note: does not remove \code{NA}s before averaging).
- In addition to these, it also includes the \strong{Overall Accuracy} metric.
+ In addition to these, it also includes the \strong{\code{Overall Accuracy}} and
+ the multiclass \strong{\code{MCC}}.
 
  Other available metrics (disabled by default, see \code{metrics}):
- \strong{Accuracy}, \strong{Weighted Balanced Accuracy}, \strong{Weighted Accuracy},
- \strong{Weighted F1}, \strong{Weighted Sensitivity}, \strong{Weighted Sensitivity},
- \strong{Weighted Specificity}, \strong{Weighted Pos Pred Value},
- \strong{Weighted Neg Pred Value}, \strong{Weighted AUC}, \strong{Weighted Lower CI},
- \strong{Weighted Upper CI}, \strong{Weighted Kappa}, \strong{Weighted MCC},
- \strong{Weighted Detection Rate}, \strong{Weighted Detection Prevalence}, and
- \strong{Weighted Prevalence}.
+ \strong{\code{Accuracy}},
+ \emph{multiclass} \strong{\code{AUC}},
+ \strong{\code{Weighted Balanced Accuracy}},
+ \strong{\code{Weighted Accuracy}},
+ \strong{\code{Weighted F1}},
+ \strong{\code{Weighted Sensitivity}},
+ \strong{\code{Weighted Sensitivity}},
+ \strong{\code{Weighted Specificity}},
+ \strong{\code{Weighted Pos Pred Value}},
+ \strong{\code{Weighted Neg Pred Value}},
+ \strong{\code{Weighted Kappa}},
+ \strong{\code{Weighted Detection Rate}},
+ \strong{\code{Weighted Detection Prevalence}}, and
+ \strong{\code{Weighted Prevalence}}.
 
- Note that the "Weighted" metrics are weighted averages, weighted by the \code{Support}.
+ Note that the "Weighted" average metrics are weighted by the \code{Support}.
 
  Also includes:
 
  A nested tibble with the \strong{predictions}, predicted classes, and targets.
 
+ A list of \strong{ROC} curve objects when \code{AUC} is enabled.
+
  A nested tibble with the multiclass \strong{Confusion Matrix}.
 
  \strong{Class Level Results}
 
- The nested class level results tibble also includes:
-
- A nested tibble with the sensativities and specificities from the \strong{ROC} curve.
-
- A nested tibble with the \strong{confusion matrix} from the one-vs-all evaluation.
+ Besides the binomial evaluation metrics and the \code{Support},
+ the nested class level results tibble also contains a
+ nested tibble with the \strong{Confusion Matrix} from the one-vs-all evaluation.
  The \code{Pos_} columns tells you whether a row is a
- True Positive (TP), True Negative (TN), False Positive (FP), or False Negative (FN),
+ True Positive (\code{TP}), True Negative (\code{TN}),
+ False Positive (\code{FP}), or False Negative (\code{FN}),
  depending on which level is the "positive" class. In our case, \code{1} is the current class
  and \code{0} represents all the other classes together.
-
  }
 }
 \description{
 \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
 
  Cross-validate your model function with one or multiple model formulas at once.
- Perform repeated cross-validation.
+ Perform repeated cross-validation. Preprocess the train/test split
+ within the cross-validation. Perform hyperparameter tuning with grid search.
  Returns results in a tibble for easy comparison,
  reporting and further analysis.
 
  Compared to \code{\link[cvms:cross_validate]{cross_validate()}},
- this function allows you supply a custom model function
- and (if needed) a custom predict function.
+ this function allows you supply a custom model function, a predict function,
+ a preprocess function and the hyperparameter values to cross-validate.
 
- Supports regression and classification (binary and multiclass). See \code{type}.
+ Supports regression and classification (binary and multiclass).
+ See \code{type}.
 
- Note that some metrics may not be computable for all types
+ Note that some metrics may not be computable for some types
  of model objects.
 }
 \details{
 Packages used:
 
  \subsection{Results}{
- \subsection{Gaussian}{
-
- r2m : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
-
- r2c : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
+ \subsection{Shared}{
 
  AIC : \code{\link[stats:AIC]{stats::AIC}}
 
@@ -317,21 +425,34 @@ Packages used:
  BIC : \code{\link[stats:BIC]{stats::BIC}}
 
  }
- \subsection{Binomial}{
+ \subsection{Gaussian}{
 
- Confusion matrix: \code{\link[caret:confusionMatrix]{caret::confusionMatrix}}
+ r2m : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
 
- ROC: \code{\link[pROC:roc]{pROC::roc}}
+ r2c : \code{\link[MuMIn:r.squaredGLMM]{MuMIn::r.squaredGLMM}}
 
- MCC: \code{\link[mltools:mcc]{mltools::mcc}}
+ }
+ \subsection{Binomial and Multinomial}{
+
+ ROC and related metrics:
+
+ Binomial: \code{\link[pROC:roc]{pROC::roc}}
+
+ Multinomial: \code{\link[pROC:multiclass.roc]{pROC::multiclass.roc}}
  }
  }
 }
 \examples{
+\donttest{
 # Attach packages
 library(cvms)
 library(groupdata2) # fold()
 library(dplyr) # \%>\% arrange() mutate()
+
+# Note: More examples of custom functions can be found at:
+# model_fn: model_functions()
+# predict_fn: predict_functions()
+# preprocess_fn: preprocess_functions()
 
 # Data is part of cvms
 data <- participant.scores
@@ -340,131 +461,215 @@ data <- participant.scores
 set.seed(7)
 
 # Fold data
-data <- fold(data, k = 4,
-             cat_col = 'diagnosis',
-             id_col = 'participant') \%>\%
-    mutate(diagnosis = as.factor(diagnosis)) \%>\%
-    arrange(.folds)
+data <- fold(
+  data,
+  k = 4,
+  cat_col = "diagnosis",
+  id_col = "participant"
+) \%>\%
+  mutate(diagnosis = as.factor(diagnosis)) \%>\%
+  arrange(.folds)
 
 # Cross-validate multiple formulas
 
-formulas_gaussian <- c("score ~ diagnosis",
-                       "score ~ age")
-formulas_binomial <- c("diagnosis ~ score",
-                       "diagnosis ~ age")
+formulas_gaussian <- c(
+  "score ~ diagnosis",
+  "score ~ age"
+)
+formulas_binomial <- c(
+  "diagnosis ~ score",
+  "diagnosis ~ age"
+)
 
-\donttest{
+#
 # Gaussian
+#
 
-# Create model function with args 'train_data' and 'formula'
-# that returns a fitted model object
-lm_model_fn <- function(train_data, formula){
-    lm(formula = formula, data = train_data)
+# Create model function that returns a fitted model object
+lm_model_fn <- function(train_data, formula, hyperparameters) {
+  lm(formula = formula, data = train_data)
+}
+
+# Create predict function that returns the predictions
+lm_predict_fn <- function(test_data, model, formula,
+                          hyperparameters, train_data) {
+  stats::predict(
+    object = model,
+    newdata = test_data,
+    type = "response",
+    allow.new.levels = TRUE
+  )
 }
 
 # Cross-validate the model function
-cross_validate_fn(data,
-                  model_fn = lm_model_fn,
-                  formulas = formulas_gaussian,
-                  type = 'gaussian',
-                  fold_cols = ".folds")
+cross_validate_fn(
+  data,
+  formulas = formulas_gaussian,
+  type = "gaussian",
+  model_fn = lm_model_fn,
+  predict_fn = lm_predict_fn,
+  fold_cols = ".folds"
+)
 
+#
 # Binomial
+#
 
-# Create model function with args 'train_data' and 'formula'
-# that returns a fitted model object
-glm_model_fn <- function(train_data, formula){
-    glm(formula = formula, data = train_data, family = "binomial")
+# Create model function that returns a fitted model object
+glm_model_fn <- function(train_data, formula, hyperparameters) {
+  glm(formula = formula, data = train_data, family = "binomial")
+}
+
+# Create predict function that returns the predictions
+glm_predict_fn <- function(test_data, model, formula,
+                           hyperparameters, train_data) {
+  stats::predict(
+    object = model,
+    newdata = test_data,
+    type = "response",
+    allow.new.levels = TRUE
+  )
 }
 
 # Cross-validate the model function
-cross_validate_fn(data,
-                  model_fn = glm_model_fn,
-                  formulas = formulas_binomial,
-                  type = 'binomial',
-                  fold_cols = ".folds")
+cross_validate_fn(
+  data,
+  formulas = formulas_binomial,
+  type = "binomial",
+  model_fn = glm_model_fn,
+  predict_fn = glm_predict_fn,
+  fold_cols = ".folds"
+)
 
+#
 # Support Vector Machine (svm)
+# with hyperparameter tuning
+#
 
-# Create model function with args 'train_data' and 'formula'
-# that returns a fitted model object
-svm_model_fn <- function(train_data, formula){
-    e1071::svm(formula = formula,
-               data = train_data,
-               kernel = "linear",
-               type = "C-classification")
+# Create model function that returns a fitted model object
+# We use the hyperparameters arg to pass in the kernel and cost values
+svm_model_fn <- function(train_data, formula, hyperparameters) {
+
+  # Expected hyperparameters:
+  #  - kernel
+  #  - cost
+  if (!"kernel" \%in\% names(hyperparameters))
+    stop("'hyperparameters' must include 'kernel'")
+  if (!"cost" \%in\% names(hyperparameters))
+    stop("'hyperparameters' must include 'cost'")
+
+  e1071::svm(
+    formula = formula,
+    data = train_data,
+    kernel = hyperparameters[["kernel"]],
+    cost = hyperparameters[["cost"]],
+    scale = FALSE,
+    type = "C-classification",
+    probability = TRUE
+  )
 }
+
+# Create predict function that returns the predictions
+svm_predict_fn <- function(test_data, model, formula,
+                           hyperparameters, train_data) {
+  predictions <- stats::predict(
+    object = model,
+    newdata = test_data,
+    allow.new.levels = TRUE,
+    probability = TRUE
+  )
+
+  # Extract probabilities
+  probabilities <- dplyr::as_tibble(
+    attr(predictions, "probabilities")
+  )
+
+  # Return second column
+  probabilities[[2]]
+}
+
+# Specify hyperparameters to try
+# The optional ".n" samples 4 combinations
+svm_hparams <- list(
+  ".n" = 4,
+  "kernel" = c("linear", "radial"),
+  "cost" = c(1, 5, 10)
+)
 
 # Cross-validate the model function
-cross_validate_fn(data,
-                  model_fn = svm_model_fn,
-                  formulas = formulas_binomial,
-                  type = 'binomial',
-                  fold_cols = ".folds")
+cv <- cross_validate_fn(
+  data,
+  formulas = formulas_binomial,
+  type = "binomial",
+  model_fn = svm_model_fn,
+  predict_fn = svm_predict_fn,
+  hyperparameters = svm_hparams,
+  fold_cols = ".folds"
+)
 
-# Naive Bayes
+cv
 
-# Create model function with args 'train_data' and 'formula'
-# that returns a fitted model object
-nb_model_fn <- function(train_data, formula){
-    e1071::naiveBayes(formula = formula,
-                      data = train_data)
-}
+# The `HParams` column has the nested hyperparameter values
+cv \%>\%
+  select(Dependent, Fixed, HParams, `Balanced Accuracy`, F1, AUC, MCC) \%>\%
+  tidyr::unnest(cols = "HParams") \%>\%
+  arrange(desc(`Balanced Accuracy`), desc(F1))
 
-# Create predict function with args 'test_data', 'model', and 'formula'
-# that returns predictions in right format (here, a one-column matrix)
-# Note the type = "raw" and that we pick the probabilities for class 1 with [,2]
-nb_predict_fn <- function(test_data, model, formula = NULL){
-  stats::predict(object = model, newdata = test_data,
-                 type = "raw", allow.new.levels = TRUE)[,2]
-}
 
-# Cross-validate the model function
-cross_validate_fn(data,
-                  model_fn = nb_model_fn,
-                  formulas = formulas_binomial,
-                  type = 'binomial',
-                  predict_fn = nb_predict_fn,
-                  fold_cols = ".folds")
-
-}
+#
 # Use parallelization
+# The below examples show the speed gains when running in parallel
+#
 
-\donttest{
 # Attach doParallel and register four cores
 # Uncomment:
 # library(doParallel)
 # registerDoParallel(4)
 
-# Create list of 20 model formulas
-formulas <- rep(c("score~diagnosis",
-                "score~age"), 10)
+# Specify hyperparameters such that we will
+# cross-validate 20 models
+hparams <- list(
+  "kernel" = c("linear", "radial"),
+  "cost" = 1:5
+)
 
-# Cross-validate a list of 20 model formulas in parallel
-system.time({cross_validate_fn(data,
-                               model_fn = lm_model_fn,
-                               formulas = formulas,
-                               type = 'gaussian',
-                               fold_cols = ".folds",
-                               parallel = TRUE)})
+# Cross-validate a list of 20 models in parallel
+# Make sure to uncomment the parallel argument
+system.time({
+  cross_validate_fn(
+    data,
+    formulas = formulas_gaussian,
+    type = "gaussian",
+    model_fn = svm_model_fn,
+    predict_fn = svm_predict_fn,
+    hyperparameters = hparams,
+    fold_cols = ".folds"
+    #, parallel = TRUE  # Uncomment
+  )
+})
 
-# Cross-validate a list of 20 model formulas sequentially
-system.time({cross_validate_fn(data,
-                               model_fn = lm_model_fn,
-                               formulas = formulas,
-                               type = 'gaussian',
-                               fold_cols = ".folds",
-                               parallel = FALSE)})
+# Cross-validate a list of 20 models sequentially
+system.time({
+  cross_validate_fn(
+    data,
+    formulas = formulas_gaussian,
+    type = "gaussian",
+    model_fn = svm_model_fn,
+    predict_fn = svm_predict_fn,
+    hyperparameters = hparams,
+    fold_cols = ".folds"
+    #, parallel = TRUE  # Uncomment
+  )
+})
 }
 }
 \seealso{
 Other validation functions: 
 \code{\link{cross_validate}()},
+\code{\link{validate_fn}()},
 \code{\link{validate}()}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
-
-Benjamin Hugh Zachariae
 }
 \concept{validation functions}

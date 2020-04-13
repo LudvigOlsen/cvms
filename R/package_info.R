@@ -6,13 +6,19 @@
 #'
 #' Returns results in a tibble for easy comparison, reporting and further analysis.
 #'
-#' The cvms package provides 5 main functions:
-#' \code{cross_validate}, \code{cross_validate_fn}, \code{validate}, \code{baseline}, and \code{evaluate}.
-#'
-#' And a couple of helper functions:
-#' \code{combine_predictors}, \code{select_metrics}, \code{reconstruct_formulas}, \code{cv_plot}.
+#' The main functions are:
+#' \code{\link[cvms:cross_validate]{cross_validate()}},
+#' \code{\link[cvms:cross_validate_fn]{cross_validate_fn()}},
+#' \code{\link[cvms:validate]{validate()}},
+#' \code{\link[cvms:validate_fn]{validate_fn()}},
+#' \code{\link[cvms:baseline]{baseline()}},
+#' and \code{\link[cvms:evaluate]{evaluate()}}.
 #'
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @docType package
 #' @name cvms
 NULL
+
+
+# R CMD check NOTE handling
+if (getRversion() >= "2.15.1") utils::globalVariables(c("."))

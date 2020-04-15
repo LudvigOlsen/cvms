@@ -76,9 +76,13 @@ add to the middle of the tiles. (Logical)}
 
  By default, the row percentage is placed at the bottom of the tile.}
 
-\item{add_arrows}{Add the arrows to the row and col percentages. (Logical)}
+\item{add_arrows}{Add the arrows to the row and col percentages. (Logical)
 
-\item{add_zero_shading}{Add image of skewed lines to zero-tiles. (Logical)}
+ Note: Adding the arrows requires the \code{rsvg} and \code{ggimage} packages.}
+
+\item{add_zero_shading}{Add image of skewed lines to zero-tiles. (Logical)
+
+ Note: Adding the zero-shading requires the \code{rsvg} and \code{ggimage} packages.}
 
 \item{counts_on_top}{Switch the counts and normalized counts,
 such that the counts are on top. (Logical)}

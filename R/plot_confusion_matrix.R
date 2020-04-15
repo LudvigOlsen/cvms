@@ -51,7 +51,11 @@
 #'
 #'  By default, the row percentage is placed at the bottom of the tile.
 #' @param add_arrows Add the arrows to the row and col percentages. (Logical)
+#'
+#'  Note: Adding the arrows requires the \code{rsvg} and \code{ggimage} packages.
 #' @param add_zero_shading Add image of skewed lines to zero-tiles. (Logical)
+#'
+#'  Note: Adding the zero-shading requires the \code{rsvg} and \code{ggimage} packages.
 #' @param counts_on_top Switch the counts and normalized counts,
 #'  such that the counts are on top. (Logical)
 #' @param rotate_y_text Whether to rotate the y-axis text to
@@ -304,8 +308,14 @@ plot_confusion_matrix <- function(conf_matrix,
   # End of argument checks ####
 
   # When 'rsvg' is missing
-  if (!requireNamespace("rsvg", quietly = TRUE)) {
-    warning("'rsvg' is missing. Will not plot arrows and zero-shading.")
+  user_has_rsvg <- requireNamespace("rsvg", quietly = TRUE)
+  user_has_ggimage <- requireNamespace("ggimage", quietly = TRUE)
+  use_ggimage <- all(user_has_rsvg, user_has_ggimage)
+  if (isTRUE(use_ggimage)){
+    if (!isTRUE(user_has_ggimage))
+      warning("'ggimage' is missing. Will not plot arrows and zero-shading.")
+    if (!isTRUE(user_has_rsvg))
+      warning("'rsvg' is missing. Will not plot arrows and zero-shading.")
     add_arrows <- FALSE
     add_zero_shading <- FALSE
   }
@@ -398,7 +408,7 @@ plot_confusion_matrix <- function(conf_matrix,
   cm <- set_arrows(cm, place_x_axis_above = place_x_axis_above,
                    icons = arrow_icons)
 
-  if (isTRUE(add_zero_shading)){
+  if (isTRUE(use_ggimage) && isTRUE(add_zero_shading)){
     # Add image path for skewed lines for when there's an N=0
     cm[["image_skewed_lines"]] <- ifelse(cm[["N"]] == 0,
                                          get_figure_path("skewed_lines.svg"),
@@ -489,7 +499,9 @@ plot_confusion_matrix <- function(conf_matrix,
       axis.title.x.bottom = ggplot2::element_text(margin = ggplot2::margin(6, 0, 0, 0))
     )
 
-  if (isTRUE(add_zero_shading) && any(cm[["N"]] == 0)){
+  if (isTRUE(use_ggimage) &&
+      isTRUE(add_zero_shading) &&
+      any(cm[["N"]] == 0)){
     pl <- pl + ggimage::geom_image(
       ggplot2::aes(image=.data$image_skewed_lines),
       by = "height", size = 0.90/sqrt(nrow(cm)))
@@ -580,7 +592,9 @@ plot_confusion_matrix <- function(conf_matrix,
 
   #### Add arrow icons ####
 
-  if (isTRUE(add_col_percentages) && isTRUE(add_arrows)){
+  if (isTRUE(use_ggimage) &&
+      isTRUE(add_col_percentages) &&
+      isTRUE(add_arrows)){
     pl <- pl +
       ggimage::geom_image(
         ggplot2::aes(image = .data$down_icon),
@@ -599,7 +613,9 @@ plot_confusion_matrix <- function(conf_matrix,
       )
   }
 
-  if (isTRUE(add_row_percentages) && isTRUE(add_arrows)){
+  if (isTRUE(use_ggimage) &&
+      isTRUE(add_row_percentages) &&
+      isTRUE(add_arrows)){
     pl <- pl +
       ggimage::geom_image(
         ggplot2::aes(image = .data$right_icon),
@@ -617,7 +633,6 @@ plot_confusion_matrix <- function(conf_matrix,
         nudge_y = font_row_percentages[["nudge_y"]]
       )
   }
-
 
   pl
 }

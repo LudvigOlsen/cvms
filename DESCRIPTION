@@ -1,6 +1,6 @@
 Package: cvms
 Title: Cross-Validation for Model Selection
-Version: 1.0.0
+Version: 1.0.1
 Authors@R: 
     c(person(given = "Ludvig Renbo",
              family = "Olsen",
@@ -26,7 +26,6 @@ Imports:
     checkmate (>= 2.0.0),
     data.table (>= 1.12),
     dplyr (>= 0.8.5),
-    ggimage (>= 0.2.7),
     ggplot2,
     lifecycle,
     lme4 (>= 1.1-23),
@@ -46,6 +45,7 @@ Suggests:
     covr (>= 3.3.1),
     e1071 (>= 1.7-2),
     furrr,
+    ggimage (>= 0.2.7),
     groupdata2 (>= 1.2.0),
     knitr,
     nnet (>= 7.3-12),

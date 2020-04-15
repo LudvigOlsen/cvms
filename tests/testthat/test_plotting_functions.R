@@ -3,8 +3,9 @@ context("plotting functions")
 
 test_that("plot_confusion_matrix() returns expected plots", {
 
-  if (!requireNamespace("rsvg", quietly = TRUE)) {
-    testthat::skip("'rsvg' is missing.")
+  if (!requireNamespace("rsvg", quietly = TRUE) ||
+      !requireNamespace("ggimage", quietly = TRUE)) {
+    testthat::skip("missing 'rsvg' and/or 'ggimage'.")
   }
 
   # Note: These are just initial tests
@@ -86,8 +87,9 @@ test_that("plot_confusion_matrix() returns expected plots", {
 
 test_that("plot_confusion_matrix() with multiclass conf mat returns expected plots", {
 
-  if (!requireNamespace("rsvg", quietly = TRUE)) {
-    testthat::skip("'rsvg' is missing.")
+  if (!requireNamespace("rsvg", quietly = TRUE) ||
+      !requireNamespace("ggimage", quietly = TRUE)) {
+    testthat::skip("missing 'rsvg' and/or 'ggimage'.")
   }
 
   # Note: These are just initial tests

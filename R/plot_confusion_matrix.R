@@ -216,9 +216,6 @@ plot_confusion_matrix <- function(conf_matrix,
                                   tile_border_linetype = "solid",
                                   darkness = 0.8) {
 
-  # Require rsvg
-  require_package("rsvg", platform_notice = TRUE)
-
   if (length(intersect(class(conf_matrix), c("cfm_results", "eval_results"))) > 0 &&
       "Confusion Matrix" %in% colnames(conf_matrix) &&
       nrow(conf_matrix) > 0){
@@ -305,6 +302,13 @@ plot_confusion_matrix <- function(conf_matrix,
 
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
+
+  # When 'rsvg' is missing
+  if (!requireNamespace("rsvg", quietly = TRUE)) {
+    warning("'rsvg' is missing. Will not plot arrows and zero-shading.")
+    add_arrows <- FALSE
+    add_zero_shading <- FALSE
+  }
 
   #### Update font settings ####
 
@@ -490,7 +494,6 @@ plot_confusion_matrix <- function(conf_matrix,
       ggplot2::aes(image=.data$image_skewed_lines),
       by = "height", size = 0.90/sqrt(nrow(cm)))
   }
-
 
   ##### Add numbers to plot ####
 

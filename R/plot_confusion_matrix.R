@@ -311,7 +311,7 @@ plot_confusion_matrix <- function(conf_matrix,
   user_has_rsvg <- requireNamespace("rsvg", quietly = TRUE)
   user_has_ggimage <- requireNamespace("ggimage", quietly = TRUE)
   use_ggimage <- all(user_has_rsvg, user_has_ggimage)
-  if (isTRUE(use_ggimage)){
+  if (!isTRUE(use_ggimage)){
     if (!isTRUE(user_has_ggimage))
       warning("'ggimage' is missing. Will not plot arrows and zero-shading.")
     if (!isTRUE(user_has_rsvg))
@@ -408,7 +408,8 @@ plot_confusion_matrix <- function(conf_matrix,
   cm <- set_arrows(cm, place_x_axis_above = place_x_axis_above,
                    icons = arrow_icons)
 
-  if (isTRUE(use_ggimage) && isTRUE(add_zero_shading)){
+  if (isTRUE(use_ggimage) &&
+      isTRUE(add_zero_shading)){
     # Add image path for skewed lines for when there's an N=0
     cm[["image_skewed_lines"]] <- ifelse(cm[["N"]] == 0,
                                          get_figure_path("skewed_lines.svg"),

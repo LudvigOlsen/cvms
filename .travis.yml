@@ -13,6 +13,7 @@ matrix:
   - r: release
     after_success:
     - Rscript -e 'covr::codecov()'
+    before_script: Rscript -e "install.packages('rsvg')"
     before_install:
     - sudo add-apt-repository -y ppa:cran/imagemagick
     - sudo apt-get update

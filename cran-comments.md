@@ -4,9 +4,9 @@
 * win-builder
 
 ## R CMD check results  
-There were no ERRORs, WARNINGs or NOTEs.
+There were no ERRORs or WARNINGs. There was 1 NOTE when 'rsvg' was not installed (as expected).
 
-The Windows errors were likely due to some of the packages being slightly differently compiled there, so I decreased the test tolerance when not on unix systems.
+Moved ggimage and rsvg to Suggests. rsvg is not used *directly* by cvms but by ggimage. I added checks to make sure ggimage isn't called when either ggimage or rsvg isn't installed. I also skip tests when it is not available.
 
 ## Downstream dependencies
 There are currently no downstream dependencies.

@@ -964,15 +964,3 @@ is_newer_lme4 <- function(){
   out
 }
 
-require_package <- function(pkg, platform_notice = FALSE){
-
-  if (!requireNamespace(pkg, quietly = TRUE)) {
-    m <- paste0("the package '", pkg, "' must be installed for this function.")
-
-    if (isTRUE(platform_notice)){
-      m <- paste0(m, " This package may not be available on all platforms.")
-    }
-    stop(m)
-  }
-
-}

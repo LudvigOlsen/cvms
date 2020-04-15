@@ -216,6 +216,9 @@ plot_confusion_matrix <- function(conf_matrix,
                                   tile_border_linetype = "solid",
                                   darkness = 0.8) {
 
+  # Require rsvg
+  require_package("rsvg", platform_notice = TRUE)
+
   if (length(intersect(class(conf_matrix), c("cfm_results", "eval_results"))) > 0 &&
       "Confusion Matrix" %in% colnames(conf_matrix) &&
       nrow(conf_matrix) > 0){

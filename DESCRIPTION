@@ -36,7 +36,6 @@ Imports:
     purrr,
     recipes (>= 0.1.10),
     rlang (>= 0.4.0),
-    rsvg,
     stats,
     stringr,
     tibble (>= 2.1.1),
@@ -52,6 +51,7 @@ Suggests:
     nnet (>= 7.3-12),
     randomForest (>= 4.6-14),
     rmarkdown,
+    rsvg,
     testthat (>= 2.3.2),
     xpectr (>= 0.3.0)
 VignetteBuilder: 

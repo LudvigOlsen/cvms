@@ -27,7 +27,7 @@ output:
     toc: yes
     toc_depth: 4
 vignette: >
-  %\VignetteIndexEntry{Confusion_Matrix_Intro}
+  %\VignetteIndexEntry{creating_confusion_matrix}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 ---

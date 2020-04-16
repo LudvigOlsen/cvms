@@ -4471,12 +4471,11 @@ test_that("the different prediction formats work properly in Gaussian evaluate()
   side_effects_14622 <- xpectr::capture_side_effects(evaluate(data = gauss, target_col = "Target_1", prediction_cols = "Prediction_1", type = "gaussian", id_col = "Target_1", id_method = "mean", metrics = list(all = FALSE, RMSE = TRUE)), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_14622[['error']]),
-    xpectr::strip("Column name `Target_1` must not be duplicated."),
+    xpectr::strip("1 assertions failed:\n * 'id_col' and 'target_col' cannot be identical."),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_14622[['error_class']]),
-    xpectr::strip(c("tibble_error_column_names_must_be_unique", "tibble_error",
-      "rlang_error", "error", "condition")),
+    xpectr::strip(c("simpleError", "error", "condition")),
     fixed = TRUE)
 
   # Testing evaluate(data = gauss, target_col = "Target_...

@@ -26,7 +26,7 @@ output:
     toc: yes
     toc_depth: 4
 vignette: >
-  %\VignetteIndexEntry{Evaluate_by_ID}
+  %\VignetteIndexEntry{evaluate_by_id}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 ---

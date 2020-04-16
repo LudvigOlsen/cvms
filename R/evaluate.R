@@ -499,6 +499,38 @@ evaluate <- function(data,
     x = id_col, min.chars = 1, null.ok = TRUE,
     add = assert_collection
   )
+
+  checkmate::reportAssertions(assert_collection)
+
+  group_columns <- colnames(dplyr::group_keys(data))
+
+  if (target_col %in% prediction_cols) {
+    assert_collection$push("'target_col' was in 'prediction_cols'.")
+  }
+
+  if (target_col %in% group_columns) {
+    assert_collection$push("'data' cannot be grouped by the 'target_col' column.")
+  }
+
+  if (length(intersect(prediction_cols, group_columns)) > 0) {
+    assert_collection$push("'data' cannot be grouped by a prediction column.")
+  }
+
+  if (!is.null(id_col)){
+    if (id_col %in% prediction_cols) {
+      assert_collection$push("'id_col' was in 'prediction_cols'.")
+    }
+
+    if (id_col == target_col) {
+      assert_collection$push("'id_col' and 'target_col' cannot be identical.")
+    }
+
+    if (id_col %in% group_columns) {
+      assert_collection$push("'data' cannot be grouped by the 'id_col' column.")
+    }
+
+  }
+
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
 
@@ -506,7 +538,7 @@ evaluate <- function(data,
   data <- base_select(
     data,
     c(
-      colnames(dplyr::group_keys(data)),
+      group_columns,
       target_col,
       prediction_cols,
       id_col
@@ -514,7 +546,7 @@ evaluate <- function(data,
   ) %>%
     as.data.frame(stringsAsFactors = FALSE) %>%
     dplyr::as_tibble() %>% # removes grouping
-    dplyr::group_by_at(colnames(dplyr::group_keys(data)))
+    dplyr::group_by_at(group_columns)
 
   eval <- run_evaluate(
     data = data,

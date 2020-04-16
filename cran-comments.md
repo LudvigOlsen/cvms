@@ -6,7 +6,10 @@
 ## R CMD check results  
 There were no ERRORs or WARNINGs. There was 1 NOTE when 'rsvg' was not installed (as expected).
 
-Moved ggimage and rsvg to Suggests. rsvg is not used *directly* by cvms but by ggimage. I added checks to make sure ggimage isn't called when either ggimage or rsvg isn't installed. I also skip tests when it is not available.
-
 ## Downstream dependencies
 There are currently no downstream dependencies.
+
+
+## Fixes for 1.0.0 errors
+* Moved ggimage and rsvg to Suggests. rsvg is not used *directly* by cvms but by ggimage. I added checks to make sure ggimage isn't called when either ggimage or rsvg isn't installed. I also skip tests when it is not available.
+* Fixed the failing unit test by improving the input checks in evaluate().

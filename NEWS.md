@@ -3,6 +3,8 @@
 
 * `rsvg` and `ggimage` are now only *suggested* and `plot_confusion_matrix()` throws warning if either are not installed.
 
+* Additional input checks for `evaluate()`.
+
 # cvms 1.0.0
 
 ## Breaking changes

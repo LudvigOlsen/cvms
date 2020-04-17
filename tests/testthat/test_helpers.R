@@ -317,8 +317,8 @@ test_that("glmer throws same warnings on mac and ubuntu", {
   # which is weird.. but now I'm just stripping the punctuations
   # cause it's not a problem here
   expect_equal(
-    strip(sort(warns)),
-    strip(sort(
+    xpectr::strip(sort(warns), remove_numbers = TRUE),
+    xpectr::strip(sort(
       c(
         "extra argument(s) ‘REML’ disregarded", "extra argument(s) ‘REML’ disregarded",
         "extra argument(s) ‘REML’ disregarded", "extra argument(s) ‘REML’ disregarded",
@@ -329,7 +329,7 @@ test_that("glmer throws same warnings on mac and ubuntu", {
         "Model failed to converge with max|grad| = 0.025616 (tol = 0.001, component 1)",
         "Model failed to converge with max|grad| = 0.033809 (tol = 0.001, component 1)"
       )
-    ))
+    ), remove_numbers = TRUE)
   )
 
   expect_equal(mesgs, character())

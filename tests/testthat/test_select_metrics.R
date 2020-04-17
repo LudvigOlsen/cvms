@@ -4,6 +4,8 @@ context("select_metrics()")
 
 test_that("select_metrics() works with output from cross-validation", {
 
+  testthat::skip_on_cran()
+
   # Create data ####
 
   xpectr::set_test_seed(1)
@@ -565,6 +567,8 @@ test_that("select_metrics() works with output from cross-validation", {
 })
 
 test_that("select_metrics() works with output from baseline", {
+
+  testthat::skip_on_cran()
 
   # Create data ####
   xpectr::set_test_seed(1)

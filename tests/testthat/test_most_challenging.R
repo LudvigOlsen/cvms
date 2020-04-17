@@ -3,6 +3,10 @@ context("most_challenging()")
 
 test_that("binomial model works with most_challenging()", {
 
+  # TODO Save the data and cross-validation to disk
+  # So we save time and can run on CRAN
+  testthat::skip_on_cran()
+
   # Load data and fold it
   xpectr::set_test_seed(1)
   dat_ready <- participant.scores %>%
@@ -359,6 +363,10 @@ test_that("binomial model works with most_challenging()", {
 })
 
 test_that("multinomial model works with most_challenging()", {
+
+  # TODO Save the data and cross-validation to disk
+  # So we save time and can run on CRAN
+  testthat::skip_on_cran()
 
   # Load data and fold it
   xpectr::set_test_seed(1)
@@ -727,6 +735,10 @@ test_that("multinomial model works with most_challenging()", {
 })
 
 test_that("multinomial - predicted.musicians works with most_challenging()", {
+
+  # TODO Save the data and cross-validation to disk
+  # So we save time and can run on CRAN
+  testthat::skip_on_cran()
 
   xpectr::set_test_seed(1)
 
@@ -1483,6 +1495,10 @@ test_that("multinomial - predicted.musicians works with most_challenging()", {
 })
 
 test_that("gaussian model works with most_challenging()", {
+
+  # TODO Save the data and cross-validation to disk
+  # So we save time and can run on CRAN
+  testthat::skip_on_cran()
 
   # Load data and fold it
   xpectr::set_test_seed(1)

@@ -729,7 +729,7 @@ test_that("binomial models gives warnings with control specified in cross_valida
 
 test_that("gaussian models work with control specified in cross_validate()", {
 
-  # skip_test_if_old_R_version()
+  testthat::skip_on_cran()
 
   # Load data and fold it
   xpectr::set_test_seed(2)
@@ -1011,7 +1011,7 @@ test_that("model using inline functions in formulas works with cross_validate()"
 
 test_that("binomial models work with repeated cross_validate()", {
 
-  # skip_test_if_old_R_version()
+  testthat::skip_on_cran()
 
   # Load data and fold it
   xpectr::set_test_seed(2)
@@ -1520,6 +1520,8 @@ test_that("gaussian models work with repeated cross_validate()", {
 # TODO Check preprocessing with random effects as well!
 test_that("preprocessing works with binomial models in cross_validate()", {
 
+  testthat::skip_on_cran()
+
   # Load data and fold it
   xpectr::set_test_seed(1)
   dat <- groupdata2::fold(participant.scores,
@@ -1998,6 +2000,8 @@ test_that("preprocessing works with binomial models in cross_validate()", {
 
 test_that("preprocessing works with binomial mixed models in cross_validate()", {
 
+  testthat::skip_on_cran()
+
   # Load data and fold it
   xpectr::set_test_seed(1)
   dat <- groupdata2::fold(participant.scores,
@@ -2343,7 +2347,7 @@ test_that("preprocessing works with binomial mixed models in cross_validate()", 
 
 test_that("that singular fit messages are caught, counted and messaged about in cross_validate()", {
 
-  # skip_test_if_old_R_version()
+  testthat::skip_on_cran()
 
   xpectr::set_test_seed(1)
   dat <- groupdata2::fold(participant.scores,
@@ -2541,6 +2545,7 @@ test_that("that singular fit messages are caught, counted and messaged about in 
 
 test_that("the expected errors are thrown by cross_validate()", {
 
+  testthat::skip_on_cran()
 
   # Load data and fold it
   xpectr::set_test_seed(1)
@@ -2645,6 +2650,7 @@ Please use the `verbose` argument instead.",
 
 test_that("verbose reports the correct model functions in cross_validate()", {
 
+  testthat::skip_on_cran()
 
   # Load data and fold it
   xpectr::set_test_seed(1)
@@ -3297,6 +3303,8 @@ test_that("verbose reports the correct model functions in cross_validate()", {
 
 test_that("binomial models with metrics list work with cross_validate()", {
 
+  testthat::skip_on_cran()
+
   # Load data and fold it
   xpectr::set_test_seed(1)
   dat <- groupdata2::fold(participant.scores,
@@ -3373,7 +3381,7 @@ test_that("binomial models with metrics list work with cross_validate()", {
 
 test_that("gaussian models with metrics list work with cross_validate()", {
 
-  # skip_test_if_old_R_version()
+  testthat::skip_on_cran()
 
   # Load data and fold it
   xpectr::set_test_seed(1)

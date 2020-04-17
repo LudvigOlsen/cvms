@@ -3931,6 +3931,7 @@ test_that("evaluate() works with wines dataset", {
 })
 
 test_that("evaluate() is agnostic about the order of the input data", {
+
   dat <- data.frame(
     "target" = c(2, 1, 2, 1, 2, 1, 1, 1, 2, 2, 2, 1, 2, 1, 1, 2, 2, 2, 1, 1, 1, 1, 1),
     "prediction" = c(
@@ -4109,6 +4110,9 @@ test_that("evaluate() and evaluate_residuals() has same metric values", {
 # for the same data
 
 test_that("the different prediction formats work properly in Gaussian evaluate()", {
+
+  testthat::skip_on_cran()
+
   xpectr::set_test_seed(42)
 
   # Gaussian
@@ -4605,6 +4609,9 @@ test_that("the different prediction formats work properly in Gaussian evaluate()
 })
 
 test_that("the different prediction formats work properly in multinomial evaluate()", {
+
+  testthat::skip_on_cran()
+
   xpectr::set_test_seed(42)
 
   multinom <- tibble::tibble(
@@ -5247,6 +5254,9 @@ test_that("the different prediction formats work properly in multinomial evaluat
 })
 
 test_that("the different prediction formats work properly in binomial evaluate()", {
+
+  testthat::skip_on_cran()
+
   xpectr::set_test_seed(42)
 
   binom <- tibble::tibble(

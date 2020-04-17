@@ -654,6 +654,9 @@ test_that("binomial glm model works with validate_fn()", {
 })
 
 test_that("fuzz testing validate_fn()", {
+
+  testthat::skip_on_cran()
+
   xpectr::set_test_seed(42)
 
   dat_ready <- participant.scores %>%
@@ -2082,6 +2085,8 @@ test_that("fuzz testing validate_fn()", {
 
 test_that("fuzz testing gaussian lm model with validate_fn()",{
 
+  testthat::skip_on_cran()
+
   # Load data and fold it
   xpectr::set_test_seed(1)
   dat_ready <- participant.scores %>%
@@ -2976,6 +2981,8 @@ test_that("fuzz testing gaussian lm model with validate_fn()",{
 })
 
 test_that("fuzz testing multinomial nnet model with validate_fn()", {
+
+  testthat::skip_on_cran()
 
   # Load data and fold it
   xpectr::set_test_seed(1)

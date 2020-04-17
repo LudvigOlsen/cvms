@@ -4,6 +4,8 @@ context("select_definitions()")
 
 test_that("select_definitions() works with output from cross-validation", {
 
+  testthat::skip_on_cran()
+
   # Create data ####
 
   xpectr::set_test_seed(1)

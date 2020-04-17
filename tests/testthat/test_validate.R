@@ -107,7 +107,7 @@ test_that("binomial model work with validate()", {
 
 test_that("binomial model with metrics list work with validate()", {
 
-  # skip_test_if_old_R_version()
+  testthat::skip_on_cran()
 
   # Load data and partition it
   xpectr::set_test_seed(2)
@@ -267,7 +267,7 @@ test_that("binomial mixed model work with validate()", {
 
 test_that("binomial model work with test_data in validate()", {
 
-  # skip_test_if_old_R_version()
+  testthat::skip_on_cran()
 
   # Load data and partition it
   xpectr::set_test_seed(1)
@@ -393,6 +393,8 @@ test_that("gaussian model with validate()", {
 })
 
 test_that("gaussian model with metrics list works with validate()", {
+
+  testthat::skip_on_cran()
 
   # Load data and fold it
   xpectr::set_test_seed(4)
@@ -627,6 +629,7 @@ test_that("the expected errors are thrown by validate()", {
 
 test_that("verbose reports the correct model functions in validate()", {
 
+  testthat::skip_on_cran()
 
   # Load data and fold it
   xpectr::set_test_seed(1)

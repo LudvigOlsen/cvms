@@ -683,6 +683,9 @@ test_that("gaussian evaluations are correct in baseline()", {
 })
 
 test_that("gaussian evaluations of random effects models are correct in baseline()", {
+
+  testthat::skip_on_cran()
+
   xpectr::set_test_seed(2)
   # set.seed(1)
   dat <- groupdata2::partition(participant.scores, p = 0.6, list_out = TRUE)
@@ -875,6 +878,9 @@ test_that("gaussian evaluations of random effects models are correct in baseline
 })
 
 test_that("gaussian evaluations of random effects models are correct with REML FALSE in baseline()", {
+
+  testthat::skip_on_cran()
+
   xpectr::set_test_seed(2)
   # set.seed(1)
   dat <- groupdata2::partition(participant.scores, p = 0.6, list_out = TRUE)
@@ -1071,6 +1077,9 @@ test_that("gaussian evaluations of random effects models are correct with REML F
 
 
 test_that("multinomial evaluations are correct in baseline()", {
+
+  testthat::skip_on_cran()
+
   xpectr::set_test_seed(1)
   targets_1 <- dplyr::sample_n(tibble::enframe(rep(1:3, each = 10), value = "targets_3"), 25) %>%
     dplyr::select(-name)
@@ -3026,6 +3035,8 @@ test_that("multinomial baseline() works when test_data contains columns with nam
 
 test_that("multinomial baseline() summarizes correctly with imbalanced dataset", {
 
+  testthat::skip_on_cran()
+
   # We simply test that we get different random evaluations
   # when test_data contains columns with same names as the classes
   # that could be interpreted as the probability columns
@@ -3115,6 +3126,8 @@ test_that("multinomial baseline() summarizes correctly with imbalanced dataset",
 })
 
 test_that("baseline wrappers minimal testing", {
+
+  testthat::skip_on_cran()
 
   # These tests just show that calling with normal arg values doesn't fail
   # That is, that the args are passed correctly to baseline()

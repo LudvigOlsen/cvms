@@ -451,6 +451,8 @@ test_that("gaussian lm model works with cross_validate_fn()", {
 
 test_that("binomial glm model with preprocess_fn works with cross_validate_fn()", {
 
+  testthat::skip_on_cran()
+
   # Load data and fold it
   xpectr::set_test_seed(1)
 
@@ -688,6 +690,8 @@ test_that("binomial glm model with preprocess_fn works with cross_validate_fn()"
 
 test_that("binomial svm models from e1071 work with cross_validate_fn()", {
 
+  testthat::skip_on_cran()
+
   # Load data and fold it
   xpectr::set_test_seed(1)
   dat <- groupdata2::fold(participant.scores,
@@ -795,7 +799,7 @@ test_that("binomial svm models from e1071 work with cross_validate_fn()", {
 
 test_that("gaussian svm models from e1071 work with cross_validate_fn()", {
 
-  # skip_test_if_old_R_version()
+  testthat::skip_on_cran()
 
   # Load data and fold it
   xpectr::set_test_seed(1)
@@ -882,7 +886,7 @@ test_that("gaussian svm models from e1071 work with cross_validate_fn()", {
 
 test_that("gaussian svm models with hparams and preprocessing work with cross_validate_fn()", {
 
-  # skip_test_if_old_R_version()
+  testthat::skip_on_cran()
 
   # Load data and fold it
   xpectr::set_test_seed(1)
@@ -1131,6 +1135,8 @@ test_that("gaussian svm models with hparams and preprocessing work with cross_va
 
 test_that("binomial naiveBayes models from e1071 work with cross_validate_fn()", {
 
+  testthat::skip_on_cran()
+
   # Load data and fold it
   xpectr::set_test_seed(1)
   dat <- groupdata2::fold(participant.scores,
@@ -1239,6 +1245,7 @@ test_that("binomial naiveBayes models from e1071 work with cross_validate_fn()",
 
 test_that("binomial nnet models work with cross_validate_fn()", {
 
+  testthat::skip_on_cran()
   # testthat::skip("mac and ubuntu give different warnings")
   testthat::skip_on_os("windows")
   testthat::skip_on_os("linux")
@@ -1375,7 +1382,7 @@ test_that("binomial nnet models work with cross_validate_fn()", {
 
 test_that("gaussian nnet models work with cross_validate_fn()", {
 
-  # skip_test_if_old_R_version()
+  testthat::skip_on_cran()
 
   # Load data and fold it
   xpectr::set_test_seed(4)
@@ -1770,6 +1777,8 @@ test_that("multinomial nnet models work with cross_validate_fn()", {
 
 test_that("binomial randomForest models work with cross_validate_fn()", {
 
+  testthat::skip_on_cran()
+
   # Load data and fold it
   xpectr::set_test_seed(1)
   dat <- groupdata2::fold(participant.scores,
@@ -1876,6 +1885,8 @@ test_that("binomial randomForest models work with cross_validate_fn()", {
 })
 
 test_that("multinomial randomForest models work with cross_validate_fn()", {
+
+  testthat::skip_on_cran()
 
   # Load data and fold it
   xpectr::set_test_seed(1)
@@ -2062,7 +2073,7 @@ test_that("multinomial randomForest models work with cross_validate_fn()", {
 
 test_that("gaussian randomForest models work with cross_validate_fn()", {
 
-  # skip_test_if_old_R_version()
+  testthat::skip_on_cran()
 
   # Load data and fold it
   xpectr::set_test_seed(4)
@@ -2342,6 +2353,8 @@ test_that("binomial tidymodels work with cross_validate_fn()", {
 
 test_that("binomial glm model with metrics list works with cross_validate_fn()", {
 
+  testthat::skip_on_cran()
+
   # Load data and fold it
   xpectr::set_test_seed(1)
   dat <- groupdata2::fold(participant.scores,
@@ -2389,7 +2402,7 @@ test_that("binomial glm model with metrics list works with cross_validate_fn()",
 
 test_that("gaussian lm model with metrics list works with cross_validate_fn()", {
 
-  # skip_test_if_old_R_version()
+  testthat::skip_on_cran()
 
   # Load data and fold it
   xpectr::set_test_seed(1)
@@ -2429,6 +2442,8 @@ test_that("gaussian lm model with metrics list works with cross_validate_fn()", 
 })
 
 test_that("multinomial nnet model with metrics list works with cross_validate_fn()", {
+
+  testthat::skip_on_cran()
 
   # Load data and fold it
   xpectr::set_test_seed(1)
@@ -3094,7 +3109,7 @@ test_that("multinomial random predictions work with cross_validate_fn()", {
 
 test_that("gaussian results are returned in correct order from cross_validate_fn()", {
 
-  # skip_test_if_old_R_version()
+  testthat::skip_on_cran()
 
   # Load data and fold it
   xpectr::set_test_seed(1)
@@ -3159,7 +3174,7 @@ test_that("gaussian results are returned in correct order from cross_validate_fn
 
 test_that("binomial results are returned in correct order from cross_validate_fn()", {
 
-  # skip_test_if_old_R_version()
+  testthat::skip_on_cran()
 
   # Load data and fold it
   xpectr::set_test_seed(1)
@@ -3227,6 +3242,8 @@ test_that("binomial results are returned in correct order from cross_validate_fn
 
 test_that("lmer model with provided hparams grid works with cross_validate_fn()", {
 
+  testthat::skip_on_cran()
+
   # Load data and fold it
   xpectr::set_test_seed(1)
   dat <- groupdata2::fold(participant.scores,
@@ -3284,6 +3301,8 @@ test_that("lmer model with provided hparams grid works with cross_validate_fn()"
 # generated tests
 
 test_that("generated tests for gaussian models in cross_validate_fn()", {
+
+  testthat::skip_on_cran()
 
   # Load data and fold it
   xpectr::set_test_seed(1)

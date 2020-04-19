@@ -1,5 +1,5 @@
 
-# TODO Add setting to order probabilities left, right, happy face, sad face
+# TODO Add setting to order probabilities left, right, happy face, sad face (align_max = "left/center/right")
 # Add this reordering to the groupdata2 rearrange function and use that?
 
 # TODO Add option to plot the distribution of class probabilities per observation and overall
@@ -7,6 +7,12 @@
 
 # TODO Option to add CI to lines instead of points (E.g. if there are a LOT of observations per id)
 
+# TODO When hlines have same score, make sure each line has 1/(num overlapping lines) of the color on x-axis
+# so we can see them all (must be possible)
+
+# Differently behaving models can have the same confusion matrix. This
+# inspects the behavior.
+#
 # Horizontal Lines:
 # When 'probability_of' is 'target', these are recalls
 # When 'probability_of' is 'prediction', these are precisions
@@ -26,6 +32,18 @@
 #   group = "Classifier",
 #   obs_id_col = "ID",
 #   probability_of = "target"
+# )
+#
+# # without faceting
+# plot_probabilities(
+#   data = binom_data,
+#   target_col = "Target",
+#   probability_cols = "Probability",
+#   predicted_class_col = "Predicted Class",
+#   group = "Classifier",
+#   obs_id_col = "ID",
+#   probability_of = "target",
+#   apply_facet = FALSE
 # )
 #
 #
@@ -49,28 +67,153 @@ plot_probabilities <- function(data,
                                theme_fn = ggplot2::theme_minimal,
                                color_scale = ggplot2::scale_colour_brewer(palette = "Dark2"),
                                add_points = ifelse(is.null(obs_id_col), FALSE, TRUE),
-                               add_hlines = TRUE, # TODO Requires predicted_class_col
+                               add_hlines = TRUE,
                                point_size = 0.1,
                                point_alpha = 0.4,
-                               hline_size = 0.2,
+                               hline_size = 0.35,
                                hline_alpha = 0.5,
                                apply_facet = TRUE,
                                facet_nrow = NULL,
                                facet_ncol = NULL,
                                facet_strip_position = "top",
-                               ylim = c(0,1),
+                               ylim = c(0, 1),
                                verbose = TRUE) {
 
 
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
-  checkmate::assert_string(x = group_col, null.ok = TRUE, add = assert_collection)
 
-  if (isTRUE(add_hlines) && is.null(predicted_class_col)){
-    assert_collection$push(
-      "When 'add_sensitivities' is TRUE, 'predicted_class_col' cannot be 'NULL'."
-    )
+  ## Data Frame ####
+  checkmate::assert_data_frame(
+    x = data,
+    any.missing = FALSE,
+    min.rows = 2,
+    min.cols = 2,
+    col.names = "named",
+    add = assert_collection
+  )
+
+  ## Strings ####
+  checkmate::assert_string(x = target_col, add = assert_collection)
+  checkmate::assert_string(
+    x = predicted_class_col,
+    null.ok = TRUE,
+    min.chars = 1,
+    add = assert_collection
+  )
+  checkmate::assert_string(
+    x = obs_id_col,
+    null.ok = TRUE,
+    min.chars = 1,
+    add = assert_collection
+  )
+  checkmate::assert_string(
+    x = group_col,
+    null.ok = TRUE,
+    min.chars = 1,
+    add = assert_collection
+  )
+  checkmate::assert_string(x = probability_of, add = assert_collection)
+  checkmate::assert_string(x = facet_strip_position, add = assert_collection)
+  checkmate::assert_character(
+    x = probability_cols,
+    any.missing = FALSE,
+    min.len = 1,
+    names = "unnamed",
+    unique = TRUE,
+    add = assert_collection
+  )
+
+  ## Flag ####
+  checkmate::assert_flag(x = add_points, add = assert_collection)
+  checkmate::assert_flag(x = add_hlines, add = assert_collection)
+  checkmate::assert_flag(x = apply_facet, add = assert_collection)
+
+  ## Number ####
+  checkmate::assert_number(x = point_size, lower = 0, add = assert_collection)
+  checkmate::assert_number(
+    x = point_alpha,
+    lower = 0,
+    upper = 1,
+    add = assert_collection
+  )
+  checkmate::assert_number(x = hline_size, lower = 0, add = assert_collection)
+  checkmate::assert_number(
+    x = hline_alpha,
+    lower = 0,
+    upper = 1,
+    add = assert_collection
+  )
+  checkmate::assert_count(
+    x = facet_nrow,
+    positive = TRUE,
+    null.ok = TRUE,
+    add = assert_collection
+  )
+  checkmate::assert_count(
+    x = facet_ncol,
+    positive = TRUE,
+    null.ok = TRUE,
+    add = assert_collection
+  )
+  checkmate::assert_numeric(
+    x = ylim,
+    len = 2,
+    sorted = TRUE,
+    any.missing = FALSE,
+    names = "unnamed",
+    unique = TRUE,
+    add = assert_collection
+  )
+
+  ## Function ####
+  checkmate::assert_function(x = theme_fn, add = assert_collection)
+
+  ## Additional checks ####
+
+  # Color scale
+  if ("Scale" %ni% class(color_scale)) {
+    assert_collection$push("'color_scale' must be a 'Scale' object.")
   }
+
+  checkmate::reportAssertions(assert_collection)
+  checkmate::assert_names(
+    x = colnames(data),
+    must.include = c(
+      target_col,
+      probability_cols,
+      predicted_class_col,
+      obs_id_col,
+      group_col
+    ),
+    what = "colnames",
+    add = assert_collection
+  )
+  checkmate::assert_names(
+    x = probability_of,
+    subset.of = c("target", "prediction"),
+    add = assert_collection
+  )
+  if (isTRUE(add_hlines) && is.null(predicted_class_col)) {
+    assert_collection$push("When 'add_hlines' is TRUE, 'predicted_class_col' cannot be 'NULL'.")
+  }
+  checkmate::reportAssertions(assert_collection)
+
+  ## Column types ####
+
+  checkmate::assert(
+    checkmate::check_character(x = data[[target_col]], any.missing = FALSE),
+    checkmate::check_factor(x = data[[target_col]], min.levels = 2, any.missing = FALSE)
+  )
+  checkmate::assert(
+    checkmate::check_character(x = data[[predicted_class_col]], any.missing = FALSE, null.ok = TRUE),
+    checkmate::check_factor(x = data[[predicted_class_col]], any.missing = FALSE)
+  )
+  checkmate::assert_data_frame(
+    x = data[, probability_cols],
+    types = "double",
+    add = assert_collection
+  )
 
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
@@ -109,6 +252,7 @@ plot_probabilities <- function(data,
     )
   }
 
+  # Extract probabilities of target/prediction
   data[[prob_of_col]] <- extract_probabilities_of(
     data = data,
     probability_cols = probability_cols,
@@ -141,7 +285,9 @@ plot_probabilities <- function(data,
     }
     hlines <- data %>%
       dplyr::group_by_at(hline_by) %>%
-      dplyr::summarise(hline = mean(!!as.name(target_col) == !!as.name(predicted_class_col)))
+      dplyr::summarise(
+        hline = mean(!!as.name(target_col) == !!as.name(predicted_class_col))
+      )
     # Add scores to data
     data <- data %>%
       dplyr::left_join(hlines, by = hline_by)
@@ -186,15 +332,11 @@ plot_probabilities <- function(data,
                           size = point_size, alpha = point_alpha)
   }
 
-  y_lab_prob_of <- dplyr::case_when(
-    probability_of == "target" ~ "Target",
-    probability_of == "prediction" ~ "Predicted",
-    TRUE ~ ""
-  )
-
+  # Add average probability lines
   pl <- pl +
     ggplot2::stat_summary(fun = mean, geom = "line")    # fun.max = max,fun.min = min, could be sd or 95% CI?
 
+  # Add faceting
   if (isTRUE(apply_facet)){
     pl <- pl +
       ggplot2::facet_wrap(
@@ -205,10 +347,9 @@ plot_probabilities <- function(data,
       )
   }
 
+  # Tweak layout
   pl <- pl +
     ggplot2::coord_cartesian(ylim = ylim) +
-    ggplot2::labs(x = "Observation Rank",
-                  y = paste0("Probability of ", y_lab_prob_of, " Class")) +
     theme_fn() +
     ggplot2::theme(
       # Add margin to axis labels
@@ -217,6 +358,19 @@ plot_probabilities <- function(data,
       axis.title.x.bottom = ggplot2::element_text(margin = ggplot2::margin(6, 0, 0, 0))
     )
 
+  # Prepare for y-axis label
+  y_lab_prob_of <- dplyr::case_when(
+    probability_of == "target" ~ "Target",
+    probability_of == "prediction" ~ "Predicted",
+    TRUE ~ ""
+  )
+
+  # Add labels to axes
+  pl <- pl +
+    ggplot2::labs(x = "Observation Rank",
+                  y = paste0("Probability of ", y_lab_prob_of, " Class"))
+
+  # Remove legend if no groups
   if (isTRUE(remove_legend)){
     pl <- pl +
       ggplot2::theme(legend.position = "none")

@@ -5,8 +5,8 @@ author:
 date: "`r Sys.Date()`"
 abstract: |
   In this vignette, we use **repeated cross-validation** to tune the hyperparameters 
-  of a **custom model function** with `cross_validate_fn()`.
-  We preprocess the training and test sets within the cross-validation.
+  of a **custom model function** with `cross_validate_fn()`. Additionally, we learn 
+  to preprocess the training and test folds within the cross-validation.
   
   Examples of model functions, predict functions and preprocess functions
   are available in `model_functions()`, `predict_functions()`, and `preprocess_functions()`.
@@ -48,8 +48,7 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-Where `cross_validate()` only allows us to cross-validate the `lm()`, `lmer()`, `glm()`, and `glmer()` model functions, 
-`cross_validate_fn()` can cross-validate **any** model function that can be wrapped in a specific function and predict new data. This means, we can cross-validate *support-vector machines*, *neural networks*, *naïve Bayes*, etc., and compare them.
+Where `cross_validate()` only allows us to cross-validate the `lm()`, `lmer()`, `glm()`, and `glmer()` model functions, `cross_validate_fn()` can cross-validate **any** model function that can be wrapped in a specific function and predict new data. This means, we can cross-validate *support-vector machines*, *neural networks*, *naïve Bayes*, etc., and compare them.
 
 As these model functions are all a bit different and return predictions in different formats, we need to wrap them in a specific set of functions that `cross_validate_fn()` knows how to deal with. That requires a bit more work than using `cross_validate()` but is very flexible.
 

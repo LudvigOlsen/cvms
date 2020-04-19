@@ -87,7 +87,7 @@ d_binomial
 ```
 
 
-# Manually creating two-class confusion matrix
+# Manually creating a two-class confusion matrix
 Before taking the recommended approach, let's first create the confusion matrix **manually**. Then, we will simplify the process with first `evaluate()` and then `confusion_matrix()`. In most cases, **we recommend that you use `evaluate()`**.
 
 Given the simplicity of our data frame, we can quickly get a confusion matrix table with `table()`:
@@ -123,7 +123,7 @@ Note that the color intensity is based on the counts.
 
 Now, let's use the `evaluate()` function to evaluate the predictions and get the confusion matrix tibble:
 
-# Creating confusion matrix with `evaluate()`
+# Creating a confusion matrix with `evaluate()`
 
 ```{r}
 eval <- evaluate(d_binomial,

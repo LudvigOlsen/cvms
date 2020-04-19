@@ -1,4 +1,6 @@
 
+# cvms 1.0.1.9000
+
 # cvms 1.0.1
 
 * `rsvg` and `ggimage` are now only *suggested* and `plot_confusion_matrix()` throws warning if either are not installed.

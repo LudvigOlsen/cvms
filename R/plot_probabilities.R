@@ -157,6 +157,7 @@
 #' # Attach cvms
 #' library(cvms)
 #' library(ggplot2)
+#' library(dplyr)
 #'
 #' #
 #' # Multiclass
@@ -232,7 +233,7 @@ plot_probabilities <- function(data,
                                predicted_class_col = NULL,
                                obs_id_col = NULL,
                                group_col = NULL,
-                               probability_of = "target", # or prediction
+                               probability_of = "target",
                                descending = TRUE,
                                theme_fn = ggplot2::theme_minimal,
                                color_scale = ggplot2::scale_colour_brewer(palette = "Dark2"),

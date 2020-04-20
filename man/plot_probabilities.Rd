@@ -187,6 +187,7 @@ TODO
 # Attach cvms
 library(cvms)
 library(ggplot2)
+library(dplyr)
 
 #
 # Multiclass

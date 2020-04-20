@@ -12,13 +12,16 @@ plot_probabilities(
   obs_id_col = NULL,
   group_col = NULL,
   probability_of = "target",
+  descending = TRUE,
   theme_fn = ggplot2::theme_minimal,
   color_scale = ggplot2::scale_colour_brewer(palette = "Dark2"),
   apply_facet = TRUE,
-  add_points = ifelse(is.null(obs_id_col), FALSE, TRUE),
+  add_points = !is.null(obs_id_col),
   add_hlines = TRUE,
   point_size = 0.1,
   point_alpha = 0.4,
+  line_size = 0.5,
+  line_alpha = 1,
   hline_size = 0.35,
   hline_alpha = 0.5,
   facet_nrow = NULL,
@@ -40,6 +43,7 @@ plot_probabilities(
   SVM \tab 2 \tab 0.7 \tab cl_1 \tab cl_2 \cr
   NB \tab 1 \tab 0.2 \tab cl_2 \tab cl_1 \cr
   NB \tab 2 \tab 0.8 \tab cl_2 \tab cl_2 \cr
+  ... \tab ... \tab ... \tab ... \tab ... \cr
  }
 
  Example for multiclass classification:
@@ -50,6 +54,7 @@ plot_probabilities(
   SVM \tab 2 \tab 0.3 \tab 0.5 \tab 0.2 \tab cl_1 \tab cl_2 \cr
   NB \tab 1 \tab 0.8 \tab 0.1 \tab 0.1 \tab cl_2 \tab cl_1 \cr
   NB \tab 2 \tab 0.1 \tab 0.6 \tab 0.3 \tab cl_3 \tab cl_2 \cr
+  ... \tab ... \tab ... \tab ... \tab ... \tab ... \tab ... \cr
  }
 
  You can have multiple rows per observation ID per group. If, for instance, we
@@ -61,11 +66,11 @@ plot_probabilities(
 
 \item{probability_cols}{Name of columns with predicted probabilities.
 
- For \strong{binary} classification, this should be \strong{one column with the probability of the
- second class} (alphabetically).
+ For \strong{binary} classification, this should be \strong{one column} with the probability of the
+ \strong{second class} (alphabetically).
 
  For \strong{multiclass} classification, this should be \strong{one column per class}.
- These probabilities must sum to 1 row-wise.}
+ These probabilities must sum to \code{1} row-wise.}
 
 \item{predicted_class_col}{Name of column with predicted classes.
 
@@ -95,6 +100,8 @@ plot_probabilities(
  to plot, as they show the behavior of the classifier in a way a confusion matrix doesn't.
  One classifier might be very certain in its predictions (whether wrong or right), whereas
  another might be less certain.}
+
+\item{descending}{Whether to order the probabilities in descending or ascending order. (Logical)}
 
 \item{theme_fn}{The \code{ggplot2} theme function to apply.}
 

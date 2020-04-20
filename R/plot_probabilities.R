@@ -54,6 +54,7 @@
 #'   SVM \tab 2 \tab 0.7 \tab cl_1 \tab cl_2 \cr
 #'   NB \tab 1 \tab 0.2 \tab cl_2 \tab cl_1 \cr
 #'   NB \tab 2 \tab 0.8 \tab cl_2 \tab cl_2 \cr
+#'   ... \tab ... \tab ... \tab ... \tab ... \cr
 #'  }
 #'
 #'  Example for multiclass classification:
@@ -64,6 +65,7 @@
 #'   SVM \tab 2 \tab 0.3 \tab 0.5 \tab 0.2 \tab cl_1 \tab cl_2 \cr
 #'   NB \tab 1 \tab 0.8 \tab 0.1 \tab 0.1 \tab cl_2 \tab cl_1 \cr
 #'   NB \tab 2 \tab 0.1 \tab 0.6 \tab 0.3 \tab cl_3 \tab cl_2 \cr
+#'   ... \tab ... \tab ... \tab ... \tab ... \tab ... \tab ... \cr
 #'  }
 #'
 #'  You can have multiple rows per observation ID per group. If, for instance, we
@@ -75,11 +77,11 @@
 #' @param targets_col Name of column with target levels.
 #' @param probability_cols Name of columns with predicted probabilities.
 #'
-#'  For \strong{binary} classification, this should be \strong{one column with the probability of the
-#'  second class} (alphabetically).
+#'  For \strong{binary} classification, this should be \strong{one column} with the probability of the
+#'  \strong{second class} (alphabetically).
 #'
 #'  For \strong{multiclass} classification, this should be \strong{one column per class}.
-#'  These probabilities must sum to 1 row-wise.
+#'  These probabilities must sum to \code{1} row-wise.
 #' @param predicted_class_col Name of column with predicted classes.
 #'
 #'  This is required when \code{probability_of = "prediction"} and/or \code{add_hlines = TRUE}.
@@ -105,6 +107,7 @@
 #'  to plot, as they show the behavior of the classifier in a way a confusion matrix doesn't.
 #'  One classifier might be very certain in its predictions (whether wrong or right), whereas
 #'  another might be less certain.
+#' @param descending Whether to order the probabilities in descending or ascending order. (Logical)
 #' @param color_scale \code{ggplot2} color scale object for adding discrete colors to the plot.
 #'
 #'  E.g. the output of
@@ -230,13 +233,16 @@ plot_probabilities <- function(data,
                                obs_id_col = NULL,
                                group_col = NULL,
                                probability_of = "target", # or prediction
+                               descending = TRUE,
                                theme_fn = ggplot2::theme_minimal,
                                color_scale = ggplot2::scale_colour_brewer(palette = "Dark2"),
                                apply_facet = TRUE,
-                               add_points = ifelse(is.null(obs_id_col), FALSE, TRUE),
+                               add_points = !is.null(obs_id_col),
                                add_hlines = TRUE,
                                point_size = 0.1,
                                point_alpha = 0.4,
+                               line_size = 0.5,
+                               line_alpha = 1.0,
                                hline_size = 0.35,
                                hline_alpha = 0.5,
                                facet_nrow = NULL,
@@ -294,6 +300,7 @@ plot_probabilities <- function(data,
   checkmate::assert_flag(x = add_points, add = assert_collection)
   checkmate::assert_flag(x = add_hlines, add = assert_collection)
   checkmate::assert_flag(x = apply_facet, add = assert_collection)
+  checkmate::assert_flag(x = descending, add = assert_collection)
 
   ## Number ####
   checkmate::assert_number(x = point_size, lower = 0, add = assert_collection)
@@ -360,9 +367,22 @@ plot_probabilities <- function(data,
     subset.of = c("target", "prediction"),
     add = assert_collection
   )
+
   if (isTRUE(add_hlines) && is.null(predicted_class_col)) {
     assert_collection$push("When 'add_hlines' is TRUE, 'predicted_class_col' cannot be 'NULL'.")
   }
+
+  # Check probabilities sum to 1
+  if (length(probability_cols)>1 &&
+      !rows_sum_to(data[, probability_cols], sum_to = 1, digits = 5)) {
+    assert_collection$push(
+      paste0(
+        "when 'probability_cols' has length > 1, probability columns m",
+        "ust sum to 1 row-wise."
+      )
+    )
+  }
+
   checkmate::reportAssertions(assert_collection)
 
   ## Column types ####
@@ -383,8 +403,6 @@ plot_probabilities <- function(data,
 
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
-
-  # TODO Add check that prob columns sum to 1 row-wise
 
   #### Prepare dataset ####
 
@@ -427,7 +445,6 @@ plot_probabilities <- function(data,
     of_col = of_col,
     cat_levels = cat_levels)
 
-
   # Remove probability cols
   data <- base_deselect(data, cols = probability_cols)
 
@@ -438,6 +455,7 @@ plot_probabilities <- function(data,
     obs_id_col = obs_id_col,
     of_col = of_col,
     prob_of_col = prob_of_col,
+    descending = descending,
     rank_col_name = rank_col
   )
 
@@ -502,7 +520,10 @@ plot_probabilities <- function(data,
 
   # Add average probability lines
   pl <- pl +
-    ggplot2::stat_summary(fun = mean, geom = "line")    # fun.max = max,fun.min = min, could be sd or 95% CI?
+    ggplot2::stat_summary(fun = mean,
+                          geom = "line",
+                          size = line_size,
+                          alpha = line_alpha)
 
   # Add faceting
   if (isTRUE(apply_facet)){
@@ -568,14 +589,20 @@ plot_probabilities <- function(data,
 #### Helpers ####
 
 add_id_aggregates <- function(data, group_col, obs_id_col, of_col, prob_of_col,
-                              rank_col_name = ".observation_rank"){
+                              descending, rank_col_name = ".observation_rank"){
+
+  if (isTRUE(descending)){
+    arrange_fn <- function(data, col){dplyr::arrange(data, dplyr::desc(!!as.name(col)), .by_group = TRUE)}
+  } else {
+    arrange_fn <- function(data, col){dplyr::arrange(data, !!as.name(col), .by_group = TRUE)}
+  }
 
   # Order by IDs' average probability
   id_aggregates <- data %>%
     dplyr::group_by_at(c(group_col, of_col, obs_id_col)) %>%
     dplyr::summarise(avg_probability = mean(!!as.name(prob_of_col))) %>%
     dplyr::group_by_at(c(group_col, of_col)) %>%
-    dplyr::arrange(dplyr::desc(.data$avg_probability), .by_group = TRUE) %>%
+    arrange_fn(col = "avg_probability") %>%
     dplyr::mutate(!!rank_col_name := seq_len(dplyr::n())) %>%
     dplyr::ungroup()
 

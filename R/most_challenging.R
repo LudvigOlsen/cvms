@@ -520,7 +520,7 @@ check_prediction_cols <- function(data,
       assert_collection$push("prediction columns contained NAs (missing data).")
       checkmate::reportAssertions(assert_collection)
     }
-    if (any(round(rowSums(data_preds), digits = 5) != 1)) {
+    if (!rows_sum_to(data_preds, sum_to = 1, digits = 5)) {
       assert_collection$push(
         paste0("when 'prediction_cols' has length > 1, prediction columns m",
                "ust sum to 1 row-wise."))

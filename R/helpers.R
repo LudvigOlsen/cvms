@@ -448,6 +448,15 @@ is_between_ <- function(x, a, b) {
 }
 
 
+#   __________________ #< 7b5741e261cb48ace03223ef51752445 ># __________________
+#   Check rows sum to                                                       ####
+
+
+rows_sum_to <- function(data, sum_to = 1, digits = 5){
+  !any(round(rowSums(data), digits = digits) != 1)
+}
+
+
 #   __________________ #< b3810924eabe73aa9d64767d421a7bf3 ># __________________
 #   Tidyr legacy functions                                                  ####
 

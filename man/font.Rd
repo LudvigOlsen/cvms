@@ -41,7 +41,8 @@ font(
 \seealso{
 Other plotting functions: 
 \code{\link{plot_confusion_matrix}()},
-\code{\link{plot_metric_density}()}
+\code{\link{plot_metric_density}()},
+\code{\link{plot_probabilities}()}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

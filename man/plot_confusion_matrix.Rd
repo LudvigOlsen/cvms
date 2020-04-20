@@ -251,7 +251,8 @@ plot_confusion_matrix(eval[["Confusion Matrix"]][[1]]) +
 \seealso{
 Other plotting functions: 
 \code{\link{font}()},
-\code{\link{plot_metric_density}()}
+\code{\link{plot_metric_density}()},
+\code{\link{plot_probabilities}()}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

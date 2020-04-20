@@ -13,50 +13,216 @@
 # Differently behaving models can have the same confusion matrix. This
 # inspects the behavior.
 #
-# Horizontal Lines:
-# When 'probability_of' is 'target', these are recalls
-# When 'probability_of' is 'prediction', these are precisions
-# When 'apply_facet' is FALSE, these are accuracies
-#
-#
-# binom_data <- predicted.musicians %>%
-#   dplyr::filter(Target %in% c("A", "B")) %>%
-#   dplyr::rename(Probability = B) %>%
-#   dplyr::select(-c("A","C","D"))
-#
-# plot_probabilities(
-#   data = binom_data,
-#   target_col = "Target",
-#   probability_cols = "Probability",
-#   predicted_class_col = "Predicted Class",
-#   group = "Classifier",
-#   obs_id_col = "ID",
-#   probability_of = "target"
-# )
-#
-# # without faceting
-# plot_probabilities(
-#   data = binom_data,
-#   target_col = "Target",
-#   probability_cols = "Probability",
-#   predicted_class_col = "Predicted Class",
-#   group = "Classifier",
-#   obs_id_col = "ID",
-#   probability_of = "target",
-#   apply_facet = FALSE
-# )
-#
-#
-# plot_probabilities(
-#   data = predicted.musicians,
-#   target_col = "Target",
-#   probability_cols = c("A", "B", "C", "D"),
-#   predicted_class_col = "Predicted Class",
-#   group = "Classifier",
-#   obs_id_col = "ID",
-#   probability_of = "target"
-# )
-#
+
+
+
+
+
+#   __________________ #< c57c79b191073c821289f43e8a78cd1a ># __________________
+#   Plot probabilities                                                      ####
+
+
+#' @title Plot predicted probabilities
+#' @description
+#'  \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
+#'
+#'  Creates a \code{\link[ggplot2:ggplot]{ggplot2}} line plot object with the probabilities
+#'  of either the target classes or the predicted classes.
+#'
+#'  The observations are ordered by the highest probability.
+#'
+#'  TODO line geom: average probability per observation
+#'
+#'  TODO points geom: actual probabilities per observation
+#'
+#'  The meaning of the \strong{horizontal lines} depend on the settings.
+#'  These are either \emph{recall} scores, \emph{precision} scores,
+#'  or \emph{accuracy} scores, depending on the \code{probability_of}
+#'  and \code{apply_facet} arguments.
+#'
+#' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
+#' @export
+#' @family plotting functions
+#' @param data Data frame with probabilities, target classes and (optional) predicted classes.
+#'  Can also include observation identifiers and a grouping variable.
+#'
+#'  Example for binary classification:
+#'
+#'  \tabular{rrrrr}{
+#'   \strong{Classifier} \tab \strong{Observation} \tab \strong{Probability} \tab \strong{Target} \tab \strong{Prediction}  \cr
+#'   SVM \tab 1 \tab 0.3 \tab cl_1 \tab cl_1 \cr
+#'   SVM \tab 2 \tab 0.7 \tab cl_1 \tab cl_2 \cr
+#'   NB \tab 1 \tab 0.2 \tab cl_2 \tab cl_1 \cr
+#'   NB \tab 2 \tab 0.8 \tab cl_2 \tab cl_2 \cr
+#'  }
+#'
+#'  Example for multiclass classification:
+#'
+#'  \tabular{rrrrrrr}{
+#'   \strong{Classifier} \tab \strong{Observation} \tab \strong{cl_1} \tab \strong{cl_2} \tab \strong{cl_3} \tab \strong{Target} \tab \strong{Prediction}  \cr
+#'   SVM \tab 1 \tab 0.2 \tab 0.1 \tab 0.7 \tab cl_1 \tab cl_3 \cr
+#'   SVM \tab 2 \tab 0.3 \tab 0.5 \tab 0.2 \tab cl_1 \tab cl_2 \cr
+#'   NB \tab 1 \tab 0.8 \tab 0.1 \tab 0.1 \tab cl_2 \tab cl_1 \cr
+#'   NB \tab 2 \tab 0.1 \tab 0.6 \tab 0.3 \tab cl_3 \tab cl_2 \cr
+#'  }
+#'
+#'  You can have multiple rows per observation ID per group. If, for instance, we
+#'  have run repeated cross-validation of 3 classifiers, we would have one predicted probability
+#'  per fold column per classifier.
+#'
+#'  As created with the various validation functions in \code{cvms}, like
+#'  \code{\link[cvms:cross_validate_fn]{cross_validate_fn()}}.
+#' @param targets_col Name of column with target levels.
+#' @param probability_cols Name of columns with predicted probabilities.
+#'
+#'  For \strong{binary} classification, this should be \strong{one column with the probability of the
+#'  second class} (alphabetically).
+#'
+#'  For \strong{multiclass} classification, this should be \strong{one column per class}.
+#'  These probabilities must sum to 1 row-wise.
+#' @param predicted_class_col Name of column with predicted classes.
+#'
+#'  This is required when \code{probability_of = "prediction"} and/or \code{add_hlines = TRUE}.
+#' @param obs_id_col Name of column with observation identifiers for grouping the \strong{x-axis}.
+#'  When \code{NULL}, each row is an observation.
+#'
+#'  For instance useful when you have multiple predicted probabilities per observation by a classifier
+#'  (e.g. from repeated cross-validation).
+#'
+#'  Can also be a grouping variable that you wish to aggregate.
+#' @param group_col Name of column with groups. The plot elements
+#'  are split by these groups and can be identified by their color.
+#'
+#'  E.g. the \emph{classifier} responsible for the prediction.
+#'
+#'  \strong{N.B.} With more than \strong{\code{8}} groups,
+#'  the default \code{color_scale} might run out of colors.
+#' @param probability_of Whether to plot the probabilities of the
+#'  target classes (\code{"target"}) or the predicted classes (\code{"prediction"}).
+#'
+#'  For each row, we extract the probability of either the
+#'  \emph{target class} or the \emph{predicted class}. Both are useful
+#'  to plot, as they show the behavior of the classifier in a way a confusion matrix doesn't.
+#'  One classifier might be very certain in its predictions (whether wrong or right), whereas
+#'  another might be less certain.
+#' @param color_scale \code{ggplot2} color scale object for adding discrete colors to the plot.
+#'
+#'  E.g. the output of
+#'  \code{\link[ggplot2:scale_colour_brewer]{ggplot2::scale_colour_brewer()}} or
+#'  \code{\link[ggplot2:scale_colour_viridis_d]{ggplot2::scale_colour_viridis_d()}}.
+#'
+#'  \strong{N.B.} The number of colors in the object's palette should be at least the same as
+#'  the number of groups in the \code{group_col} column.
+#' @param add_points Add a point for each predicted probability.
+#'  These are grouped on the x-axis by the \code{obs_id_col} column. (Logical)
+#' @param add_hlines Add horizontal lines. (Logical)
+#'
+#'  The meaning of these lines depend on the \code{probability_of}
+#'  and \code{apply_facet} arguments:
+#'
+#'  When \code{apply_facet = FALSE}, the lines are \strong{accuracy} scores.
+#'
+#'  When \code{apply_facet = TRUE} and \code{probability_of = "target"},
+#'  the lines are \strong{recall/sensitivity} scores.
+#'
+#'  When \code{apply_facet = TRUE} and \code{probability_of = "prediction"},
+#'  the lines are \strong{precision/PPV} scores.
+#' @param apply_facet Whether to use
+#'  \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}. (Logical)
+#' @param theme_fn The \code{ggplot2} theme function to apply.
+#' @param point_size Size of the points. (Numeric)
+#' @param point_alpha Opacity of the points. (Numeric)
+#' @param hline_size Width of the horizontal lines. (Numeric)
+#' @param hline_alpha Opacity of the horizontal lines. (Numeric)
+#' @param facet_nrow Number of rows in \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}. (Numeric)
+#' @param facet_ncol Number of columns in \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}. (Numeric)
+#' @param facet_strip_position The \code{strip.position} argument for
+#'  \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}. Where to
+#'  place the labels on either of the four sides.
+#'
+#'  One of: \code{"top"}, \code{"bottom"}, \code{"left"}, \code{"right"}.
+#' @param ylim Limits for the y-scale.
+#' @param verbose Whether to message the meaning of the horizontal lines. (Logical)
+#'
+#'  This might be used to add additional explanations in a later version.
+#' @details
+#'  TODO
+#' @return
+#'  A \code{ggplot2} object with a faceted line plot. TODO
+#' @examples
+#' \donttest{
+#' # Attach cvms
+#' library(cvms)
+#' library(ggplot2)
+#'
+#' #
+#' # Multiclass
+#' #
+#'
+#' # Plot probabilities of target classes
+#' # From repeated cross-validation of three classifiers
+#'
+#' plot_probabilities(
+#'   data = predicted.musicians,
+#'   target_col = "Target",
+#'   probability_cols = c("A", "B", "C", "D"),
+#'   predicted_class_col = "Predicted Class",
+#'   group = "Classifier",
+#'   obs_id_col = "ID",
+#'   probability_of = "target"
+#' )
+#'
+#' # Plot probabilities of predicted classes
+#' # From repeated cross-validation of three classifiers
+#'
+#' plot_probabilities(
+#'   data = predicted.musicians,
+#'   target_col = "Target",
+#'   probability_cols = c("A", "B", "C", "D"),
+#'   predicted_class_col = "Predicted Class",
+#'   group = "Classifier",
+#'   obs_id_col = "ID",
+#'   probability_of = "prediction"
+#' )
+#'
+#' #
+#' # Binary
+#' #
+#'
+#' # Filter the predicted.musicians dataset
+#' binom_data <- predicted.musicians %>%
+#'   dplyr::filter(Target %in% c("A", "B")) %>%
+#'   # "B" is the second class alphabetically
+#'   dplyr::rename(Probability = B) %>%
+#'   dplyr::select(-c("A","C","D"))
+#'
+#' # Plot probabilities of predicted classes
+#' # From repeated cross-validation of three classifiers
+#'
+#' plot_probabilities(
+#'   data = binom_data,
+#'   target_col = "Target",
+#'   probability_cols = "Probability",
+#'   predicted_class_col = "Predicted Class",
+#'   group = "Classifier",
+#'   obs_id_col = "ID",
+#'   probability_of = "target"
+#' )
+#'
+#' # Without faceting
+#' # Horizontal lines become accuracies
+#' plot_probabilities(
+#'   data = binom_data,
+#'   target_col = "Target",
+#'   probability_cols = "Probability",
+#'   predicted_class_col = "Predicted Class",
+#'   group = "Classifier",
+#'   obs_id_col = "ID",
+#'   probability_of = "target",
+#'   apply_facet = FALSE
+#' )
+#'
+#' }
 plot_probabilities <- function(data,
                                target_col,
                                probability_cols,
@@ -66,13 +232,13 @@ plot_probabilities <- function(data,
                                probability_of = "target", # or prediction
                                theme_fn = ggplot2::theme_minimal,
                                color_scale = ggplot2::scale_colour_brewer(palette = "Dark2"),
+                               apply_facet = TRUE,
                                add_points = ifelse(is.null(obs_id_col), FALSE, TRUE),
                                add_hlines = TRUE,
                                point_size = 0.1,
                                point_alpha = 0.4,
                                hline_size = 0.35,
                                hline_alpha = 0.5,
-                               apply_facet = TRUE,
                                facet_nrow = NULL,
                                facet_ncol = NULL,
                                facet_strip_position = "top",
@@ -217,6 +383,8 @@ plot_probabilities <- function(data,
 
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
+
+  # TODO Add check that prob columns sum to 1 row-wise
 
   #### Prepare dataset ####
 

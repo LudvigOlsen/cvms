@@ -12,7 +12,7 @@ plot_probabilities(
   obs_id_col = NULL,
   group_col = NULL,
   probability_of = "target",
-  descending = TRUE,
+  order = "descending",
   theme_fn = ggplot2::theme_minimal,
   color_scale = ggplot2::scale_colour_brewer(palette = "Dark2"),
   apply_facet = TRUE,
@@ -98,7 +98,9 @@ plot_probabilities(
  One classifier might be very certain in its predictions (whether wrong or right), whereas
  another might be less certain.}
 
-\item{descending}{Whether to order the probabilities in descending or ascending order. (Logical)}
+\item{order}{How to order of the the probabilities. (Character)
+
+  One of: \code{"descending"}, \code{"ascending"}, and \code{"centered"}.}
 
 \item{theme_fn}{The \code{ggplot2} theme function to apply.}
 
@@ -246,6 +248,19 @@ plot_probabilities(
   group = "Classifier",
   obs_id_col = "ID",
   probability_of = "prediction"
+)
+
+# Center probabilities
+
+plot_probabilities(
+  data = predicted.musicians,
+  target_col = "Target",
+  probability_cols = c("A", "B", "C", "D"),
+  predicted_class_col = "Predicted Class",
+  group = "Classifier",
+  obs_id_col = "ID",
+  probability_of = "prediction",
+  order = "centered"
 )
 
 #

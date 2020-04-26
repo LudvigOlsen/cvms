@@ -98,7 +98,9 @@
 #'  to plot, as they show the behavior of the classifier in a way a confusion matrix doesn't.
 #'  One classifier might be very certain in its predictions (whether wrong or right), whereas
 #'  another might be less certain.
-#' @param descending Whether to order the probabilities in descending or ascending order. (Logical)
+#' @param order How to order of the the probabilities. (Character)
+#'
+#'   One of: \code{"descending"}, \code{"ascending"}, and \code{"centered"}.
 #' @param color_scale \code{ggplot2} color scale object for adding discrete colors to the plot.
 #'
 #'  E.g. the output of
@@ -214,6 +216,19 @@
 #'   probability_of = "prediction"
 #' )
 #'
+#' # Center probabilities
+#'
+#' plot_probabilities(
+#'   data = predicted.musicians,
+#'   target_col = "Target",
+#'   probability_cols = c("A", "B", "C", "D"),
+#'   predicted_class_col = "Predicted Class",
+#'   group = "Classifier",
+#'   obs_id_col = "ID",
+#'   probability_of = "prediction",
+#'   order = "centered"
+#' )
+#'
 #' #
 #' # Binary
 #' #
@@ -259,7 +274,7 @@ plot_probabilities <- function(data,
                                obs_id_col = NULL,
                                group_col = NULL,
                                probability_of = "target",
-                               descending = TRUE,
+                               order = "descending",
                                theme_fn = ggplot2::theme_minimal,
                                color_scale = ggplot2::scale_colour_brewer(palette = "Dark2"),
                                apply_facet = TRUE,
@@ -319,6 +334,7 @@ plot_probabilities <- function(data,
     add = assert_collection
   )
   checkmate::assert_string(x = probability_of, add = assert_collection)
+  checkmate::assert_string(x = order, add = assert_collection)
   checkmate::assert_character(
     x = probability_cols,
     any.missing = FALSE,
@@ -332,7 +348,6 @@ plot_probabilities <- function(data,
   checkmate::assert_flag(x = add_points, add = assert_collection)
   checkmate::assert_flag(x = add_hlines, add = assert_collection)
   checkmate::assert_flag(x = apply_facet, add = assert_collection)
-  checkmate::assert_flag(x = descending, add = assert_collection)
 
   ## Number ####
   checkmate::assert_numeric(
@@ -371,6 +386,11 @@ plot_probabilities <- function(data,
   checkmate::assert_names(
     x = probability_of,
     subset.of = c("target", "prediction"),
+    add = assert_collection
+  )
+  checkmate::assert_names(
+    x = order,
+    subset.of = c("descending", "ascending", "centered"),
     add = assert_collection
   )
 
@@ -458,6 +478,7 @@ plot_probabilities <- function(data,
 
   # Create tmp column names
   prob_of_col <- create_tmp_name(data, ".probability_of")
+  avg_prob_col <- create_tmp_name(data, name = ".avg_probability")
   rank_col <- create_tmp_name(data, ".observation_rank")
 
   # Prepare extraction of probabilities
@@ -490,8 +511,9 @@ plot_probabilities <- function(data,
     obs_id_col = obs_id_col,
     of_col = of_col,
     prob_of_col = prob_of_col,
-    descending = descending,
-    rank_col_name = rank_col
+    order = order,
+    rank_col_name = rank_col,
+    avg_prob_col = avg_prob_col
   )
 
   # Calculate horizontal lines
@@ -527,7 +549,7 @@ plot_probabilities <- function(data,
   pl <- data %>%
     ggplot2::ggplot(
       mapping = ggplot2::aes_string(
-        x = rank_col, y = "avg_probability")
+        x = rank_col, y = avg_prob_col)
     ) +
     color_scale
 
@@ -601,7 +623,7 @@ plot_probabilities <- function(data,
 
   # Add labels to axes
   pl <- pl +
-    ggplot2::labs(x = "Observation Rank",
+    ggplot2::labs(x = paste0("Observations (", order, ")"),
                   y = paste0("Probability of ", y_lab_prob_of, " Class"))
 
   # Remove legend if no groups
@@ -634,22 +656,60 @@ plot_probabilities <- function(data,
 #### Helpers ####
 
 add_id_aggregates <- function(data, group_col, obs_id_col, of_col, prob_of_col,
-                              descending, rank_col_name = ".observation_rank"){
+                              order, rank_col_name = ".observation_rank",
+                              avg_prob_col = ".avg_probability"){
 
-  if (isTRUE(descending)){
+  if (order == "descending") {
     arrange_fn <- function(data, col){dplyr::arrange(data, dplyr::desc(!!as.name(col)), .by_group = TRUE)}
-  } else {
+  } else if (order == "ascending") {
     arrange_fn <- function(data, col){dplyr::arrange(data, !!as.name(col), .by_group = TRUE)}
+  } else if (order == "centered") {
+    arrange_fn <- function(data, col){groupdata2::center_max(data = data, col = col)}
   }
 
   # Order by IDs' average probability
   id_aggregates <- data %>%
     dplyr::group_by_at(c(group_col, of_col, obs_id_col)) %>%
-    dplyr::summarise(avg_probability = mean(!!as.name(prob_of_col))) %>%
+    dplyr::summarise(!!avg_prob_col := mean(!!as.name(prob_of_col))) %>%
     dplyr::group_by_at(c(group_col, of_col)) %>%
-    arrange_fn(col = "avg_probability") %>%
+    arrange_fn(col = avg_prob_col) %>%
+    dplyr::group_by_at(c(group_col, of_col)) %>%
     dplyr::mutate(!!rank_col_name := seq_len(dplyr::n())) %>%
     dplyr::ungroup()
+
+  # Add padding when centered
+  if (order == "centered"){
+    obs_per_group <- id_aggregates %>%
+      dplyr::group_by_at(group_col) %>%
+      dplyr::count(!!as.name(of_col))
+
+    tmp_index <- create_tmp_name(id_aggregates, name = "max_val_index")
+    max_val_indices_per_group <- id_aggregates %>%
+      dplyr::group_by_at(c(group_col, of_col)) %>%
+      dplyr::mutate(!!tmp_index := seq_len(dplyr::n())) %>%
+      dplyr::filter(
+        !!as.name(avg_prob_col) == max(!!as.name(avg_prob_col))
+      ) %>%
+      base_select(cols = c(group_col, of_col, tmp_index))
+
+    tmp_max_ind <- create_tmp_name(id_aggregates, name = ".__max_ind__")
+    tmp_pad_left <- create_tmp_name(id_aggregates, name = "padding_left")
+    obs_per_group <- obs_per_group %>%
+      dplyr::left_join(max_val_indices_per_group, by = c(group_col, of_col)) %>%
+      dplyr::ungroup() %>%
+      dplyr::mutate(!!tmp_max_ind := max(!!as.name(tmp_index)),
+                    !!tmp_pad_left := max(!!as.name(tmp_max_ind)) - !!as.name(tmp_index)) %>%
+      base_select(cols = c(group_col, of_col, tmp_pad_left))
+
+    id_aggregates <- id_aggregates %>%
+      dplyr::left_join(obs_per_group, by = c(group_col, of_col)) %>%
+      dplyr::mutate(!!rank_col_name := !!as.name(rank_col_name) + !!as.name(tmp_pad_left))
+
+    if (min(id_aggregates[[rank_col_name]]) > 0){
+      id_aggregates[[rank_col_name]] <- id_aggregates[[rank_col_name]] - min(id_aggregates[[rank_col_name]])
+    }
+
+  }
 
   # Add ranks and aggregates to 'data'
   data <- id_aggregates %>%

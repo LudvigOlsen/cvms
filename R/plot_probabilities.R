@@ -5,17 +5,8 @@
 # TODO Add option to plot the distribution of class probabilities per observation and overall
 #  - start by arranging by each of the probability cols from A-D
 
-# TODO Option to add CI to lines instead of points (E.g. if there are a LOT of observations per id)
-
 # TODO When hlines have same score, make sure each line has 1/(num overlapping lines) of the color on x-axis
 # so we can see them all (must be possible)
-
-# Differently behaving models can have the same confusion matrix. This
-# inspects the behavior.
-#
-
-
-
 
 
 #   __________________ #< c57c79b191073c821289f43e8a78cd1a ># __________________
@@ -88,7 +79,7 @@
 #' @param obs_id_col Name of column with observation identifiers for grouping the \strong{x-axis}.
 #'  When \code{NULL}, each row is an observation.
 #'
-#'  For instance useful when you have multiple predicted probabilities per observation by a classifier
+#'  Use case: when you have multiple predicted probabilities per observation by a classifier
 #'  (e.g. from repeated cross-validation).
 #'
 #'  Can also be a grouping variable that you wish to aggregate.
@@ -120,30 +111,64 @@
 #'  These are grouped on the x-axis by the \code{obs_id_col} column. (Logical)
 #' @param add_hlines Add horizontal lines. (Logical)
 #'
-#'  The meaning of these lines depend on the \code{probability_of}
+#'  The meaning of these lines depends on the \code{probability_of}
 #'  and \code{apply_facet} arguments:
 #'
-#'  When \code{apply_facet = FALSE}, the lines are \strong{accuracy} scores.
+#'  \tabular{rrr}{
+#'   \strong{\code{apply_facet}} \tab \strong{\code{probability_of}} \tab \strong{Metric} \cr
+#'   \code{FALSE} \tab \code{"target"} \tab \strong{Accuracy} \cr
+#'   \code{FALSE} \tab \code{"prediction"} \tab \strong{Accuracy} \cr
+#'   \code{TRUE} \tab \code{"target"} \tab \strong{Recall / Sensitivity} \cr
+#'   \code{TRUE} \tab \code{"prediction"} \tab \strong{Precision / PPV} \cr
+#'  }
 #'
-#'  When \code{apply_facet = TRUE} and \code{probability_of = "target"},
-#'  the lines are \strong{recall/sensitivity} scores.
-#'
-#'  When \code{apply_facet = TRUE} and \code{probability_of = "prediction"},
-#'  the lines are \strong{precision/PPV} scores.
 #' @param apply_facet Whether to use
 #'  \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}. (Logical)
-#' @param theme_fn The \code{ggplot2} theme function to apply.
-#' @param point_size Size of the points. (Numeric)
-#' @param point_alpha Opacity of the points. (Numeric)
-#' @param hline_size Width of the horizontal lines. (Numeric)
-#' @param hline_alpha Opacity of the horizontal lines. (Numeric)
-#' @param facet_nrow Number of rows in \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}. (Numeric)
-#' @param facet_ncol Number of columns in \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}. (Numeric)
-#' @param facet_strip_position The \code{strip.position} argument for
-#'  \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}. Where to
-#'  place the labels on either of the four sides.
+#' @param smoothe Whether to use \code{\link[ggplot2:geom_smooth]{ggplot2::geom_smooth()}} instead of
+#'  \code{\link[ggplot2:geom_line]{ggplot2::geom_line()}}.
+#'  This also adds a 95\% confidence interval by default.
 #'
-#'  One of: \code{"top"}, \code{"bottom"}, \code{"left"}, \code{"right"}.
+#'  Settings can be passed via the \code{smoothe_settings} argument.
+#' @param theme_fn The \code{ggplot2} theme function to apply.
+#' @param line_settings Named list of arguments for \code{\link[ggplot2:geom_line]{ggplot2::geom_line()}}.
+#'
+#'   The \code{mapping} argument is set separately.
+#'
+#'   Any argument not in the list will use its default value.
+#'
+#'   Default: \code{list(size = 0.5)}
+#'
+#'   \strong{N.B.} Ignored when \code{smoothe = TRUE}.
+#' @param smoothe_settings Named list of arguments for \code{\link[ggplot2:geom_smooth]{ggplot2::geom_smooth()}}.
+#'
+#'   The \code{mapping} argument is set separately.
+#'
+#'   Any argument not in the list will use its default value.
+#'
+#'   Default: \code{list(size = 0.5, alpha = 0.18, level = 0.95, se = TRUE)}
+#'
+#'   \strong{N.B.} Only used when \code{smoothe = TRUE}.
+#' @param point_settings Named list of arguments for \code{\link[ggplot2:geom_point]{ggplot2::geom_point()}}.
+#'
+#'   The \code{mapping} argument is set separately.
+#'
+#'   Any argument not in the list will use its default value.
+#'
+#'   Default: \code{list(size = 0.1, alpha = 0.4)}
+#' @param hline_settings Named list of arguments for \code{\link[ggplot2:geom_hline]{ggplot2::geom_hline()}}.
+#'
+#'   The \code{mapping} argument is set separately.
+#'
+#'   Any argument not in the list will use its default value.
+#'
+#'   Default: \code{list(size = 0.35, alpha = 0.5)}
+#' @param facet_settings Named list of arguments for \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}.
+#'
+#'   The \code{facets} argument is set separately.
+#'
+#'   Any argument not in the list will use its default value.
+#'
+#'   Commonly set arguments are \code{nrow} and \code{ncol}.
 #' @param ylim Limits for the y-scale.
 #' @param verbose Whether to message the meaning of the horizontal lines. (Logical)
 #'
@@ -238,20 +263,16 @@ plot_probabilities <- function(data,
                                theme_fn = ggplot2::theme_minimal,
                                color_scale = ggplot2::scale_colour_brewer(palette = "Dark2"),
                                apply_facet = TRUE,
+                               smoothe = FALSE,
                                add_points = !is.null(obs_id_col),
                                add_hlines = TRUE,
-                               point_size = 0.1,
-                               point_alpha = 0.4,
-                               line_size = 0.5,
-                               line_alpha = 1.0,
-                               hline_size = 0.35,
-                               hline_alpha = 0.5,
-                               facet_nrow = NULL,
-                               facet_ncol = NULL,
-                               facet_strip_position = "top",
+                               line_settings = list(),
+                               smoothe_settings = list(),
+                               point_settings = list(),
+                               hline_settings = list(),
+                               facet_settings = list(),
                                ylim = c(0, 1),
                                verbose = TRUE) {
-
 
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
@@ -264,6 +285,17 @@ plot_probabilities <- function(data,
     min.cols = 2,
     col.names = "named",
     add = assert_collection
+  )
+
+  ## List ####
+
+  aapply(
+    checkmate::assert_list,
+    . ~ line_settings + smoothe_settings +
+      point_settings + hline_settings +
+      facet_settings,
+    any.missing = FALSE,
+    names = "unique"
   )
 
   ## Strings ####
@@ -287,7 +319,6 @@ plot_probabilities <- function(data,
     add = assert_collection
   )
   checkmate::assert_string(x = probability_of, add = assert_collection)
-  checkmate::assert_string(x = facet_strip_position, add = assert_collection)
   checkmate::assert_character(
     x = probability_cols,
     any.missing = FALSE,
@@ -304,32 +335,6 @@ plot_probabilities <- function(data,
   checkmate::assert_flag(x = descending, add = assert_collection)
 
   ## Number ####
-  checkmate::assert_number(x = point_size, lower = 0, add = assert_collection)
-  checkmate::assert_number(
-    x = point_alpha,
-    lower = 0,
-    upper = 1,
-    add = assert_collection
-  )
-  checkmate::assert_number(x = hline_size, lower = 0, add = assert_collection)
-  checkmate::assert_number(
-    x = hline_alpha,
-    lower = 0,
-    upper = 1,
-    add = assert_collection
-  )
-  checkmate::assert_count(
-    x = facet_nrow,
-    positive = TRUE,
-    null.ok = TRUE,
-    add = assert_collection
-  )
-  checkmate::assert_count(
-    x = facet_ncol,
-    positive = TRUE,
-    null.ok = TRUE,
-    add = assert_collection
-  )
   checkmate::assert_numeric(
     x = ylim,
     len = 2,
@@ -404,6 +409,35 @@ plot_probabilities <- function(data,
 
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
+
+
+  #### Update settings lists ####
+
+  # Update setting lists
+  line_settings <- update_hyperparameters(
+    size = 0.5,
+    hyperparameters = line_settings
+  )
+  smoothe_settings <- update_hyperparameters(
+    alpha = 0.18,
+    size = 0.5,
+    level = 0.95,
+    se = TRUE,
+    hyperparameters = smoothe_settings
+  )
+  point_settings <- update_hyperparameters(
+    size = 0.1,
+    alpha = 0.4,
+    hyperparameters = point_settings
+  )
+  hline_settings <- update_hyperparameters(
+    size = 0.35,
+    alpha = 0.5,
+    hyperparameters = hline_settings
+  )
+  facet_settings <- update_hyperparameters(
+    hyperparameters = facet_settings
+  )
 
   #### Prepare dataset ####
 
@@ -505,35 +539,45 @@ plot_probabilities <- function(data,
 
   # Add horizontal lines (recall or precision)
   if (isTRUE(add_hlines)){
+
+    call_geom_hline <- function(...){
+      ggplot2::geom_hline(ggplot2::aes_string(yintercept = "hline", color = group_col), ...)
+    }
+
     pl <- pl +
-      ggplot2::geom_hline(
-        ggplot2::aes(yintercept = hline,
-                     color = !!as.name(group_col)),
-        size = hline_size, alpha = hline_alpha)
+      do.call(call_geom_hline, hline_settings)
   }
 
   # Add points
   if (isTRUE(add_points)){
+
+    call_geom_point <- function(...){
+      ggplot2::geom_point(ggplot2::aes_string(y = prob_of_col), ...)
+    }
+
     pl <- pl +
-      ggplot2::geom_point(ggplot2::aes(y = !!as.name(prob_of_col)),
-                          size = point_size, alpha = point_alpha)
+      do.call(call_geom_point, point_settings)
   }
 
   # Add average probability lines
-  pl <- pl +
-    ggplot2::stat_summary(fun = mean,
-                          geom = "line",
-                          size = line_size,
-                          alpha = line_alpha)
+  if (isTRUE(smoothe)) {
+    # Add geom_smooth with user's settings
+    pl <- pl +
+      do.call(ggplot2::geom_smooth, smoothe_settings)
+  } else {
+    pl <- pl +
+      do.call(ggplot2::geom_line, line_settings)
+  }
 
   # Add faceting
   if (isTRUE(apply_facet)){
     pl <- pl +
-      ggplot2::facet_wrap(
-        reformulate(paste0("`", of_col, "`")),
-        nrow = facet_nrow,
-        ncol = facet_ncol,
-        strip.position = facet_strip_position
+      do.call(
+        ggplot2::facet_wrap,
+        c(
+          facets = reformulate(paste0("`", of_col, "`")),
+          facet_settings
+        )
       )
   }
 
@@ -613,3 +657,15 @@ add_id_aggregates <- function(data, group_col, obs_id_col, of_col, prob_of_col,
 
   data
 }
+
+# # TODO Is this a reasonable approach to calculating CIs?
+# Naaaaaaah doesn't seem so. Not without a lot more data points at least
+# calc_lower_ci <- function(vec, level = .95){
+#   quantile(vec, probs = 1-(level)/2)
+# }
+#
+# calc_upper_ci <- function(vec, level = .95){
+#   quantile(vec, probs = 1-(1-level)/2)
+# }
+#
+

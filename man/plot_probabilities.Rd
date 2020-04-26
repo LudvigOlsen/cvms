@@ -16,17 +16,14 @@ plot_probabilities(
   theme_fn = ggplot2::theme_minimal,
   color_scale = ggplot2::scale_colour_brewer(palette = "Dark2"),
   apply_facet = TRUE,
+  smoothe = FALSE,
   add_points = !is.null(obs_id_col),
   add_hlines = TRUE,
-  point_size = 0.1,
-  point_alpha = 0.4,
-  line_size = 0.5,
-  line_alpha = 1,
-  hline_size = 0.35,
-  hline_alpha = 0.5,
-  facet_nrow = NULL,
-  facet_ncol = NULL,
-  facet_strip_position = "top",
+  line_settings = list(),
+  smoothe_settings = list(),
+  point_settings = list(),
+  hline_settings = list(),
+  facet_settings = list(),
   ylim = c(0, 1),
   verbose = TRUE
 )
@@ -79,7 +76,7 @@ plot_probabilities(
 \item{obs_id_col}{Name of column with observation identifiers for grouping the \strong{x-axis}.
  When \code{NULL}, each row is an observation.
 
- For instance useful when you have multiple predicted probabilities per observation by a classifier
+ Use case: when you have multiple predicted probabilities per observation by a classifier
  (e.g. from repeated cross-validation).
 
  Can also be a grouping variable that you wish to aggregate.}
@@ -117,39 +114,71 @@ plot_probabilities(
 \item{apply_facet}{Whether to use
 \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}. (Logical)}
 
+\item{smoothe}{Whether to use \code{\link[ggplot2:geom_smooth]{ggplot2::geom_smooth()}} instead of
+ \code{\link[ggplot2:geom_line]{ggplot2::geom_line()}}.
+ This also adds a 95\% confidence interval by default.
+
+ Settings can be passed via the \code{smoothe_settings} argument.}
+
 \item{add_points}{Add a point for each predicted probability.
 These are grouped on the x-axis by the \code{obs_id_col} column. (Logical)}
 
 \item{add_hlines}{Add horizontal lines. (Logical)
 
- The meaning of these lines depend on the \code{probability_of}
+ The meaning of these lines depends on the \code{probability_of}
  and \code{apply_facet} arguments:
 
- When \code{apply_facet = FALSE}, the lines are \strong{accuracy} scores.
+ \tabular{rrr}{
+  \strong{\code{apply_facet}} \tab \strong{\code{probability_of}} \tab \strong{Metric} \cr
+  \code{FALSE} \tab \code{"target"} \tab \strong{Accuracy} \cr
+  \code{FALSE} \tab \code{"prediction"} \tab \strong{Accuracy} \cr
+  \code{TRUE} \tab \code{"target"} \tab \strong{Recall / Sensitivity} \cr
+  \code{TRUE} \tab \code{"prediction"} \tab \strong{Precision / PPV} \cr
+ }}
 
- When \code{apply_facet = TRUE} and \code{probability_of = "target"},
- the lines are \strong{recall/sensitivity} scores.
+\item{line_settings}{Named list of arguments for \code{\link[ggplot2:geom_line]{ggplot2::geom_line()}}.
 
- When \code{apply_facet = TRUE} and \code{probability_of = "prediction"},
- the lines are \strong{precision/PPV} scores.}
+  The \code{mapping} argument is set separately.
 
-\item{point_size}{Size of the points. (Numeric)}
+  Any argument not in the list will use its default value.
 
-\item{point_alpha}{Opacity of the points. (Numeric)}
+  Default: \code{list(size = 0.5)}
 
-\item{hline_size}{Width of the horizontal lines. (Numeric)}
+  \strong{N.B.} Ignored when \code{smoothe = TRUE}.}
 
-\item{hline_alpha}{Opacity of the horizontal lines. (Numeric)}
+\item{smoothe_settings}{Named list of arguments for \code{\link[ggplot2:geom_smooth]{ggplot2::geom_smooth()}}.
 
-\item{facet_nrow}{Number of rows in \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}. (Numeric)}
+  The \code{mapping} argument is set separately.
 
-\item{facet_ncol}{Number of columns in \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}. (Numeric)}
+  Any argument not in the list will use its default value.
 
-\item{facet_strip_position}{The \code{strip.position} argument for
- \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}. Where to
- place the labels on either of the four sides.
+  Default: \code{list(size = 0.5, alpha = 0.18, level = 0.95, se = TRUE)}
 
- One of: \code{"top"}, \code{"bottom"}, \code{"left"}, \code{"right"}.}
+  \strong{N.B.} Only used when \code{smoothe = TRUE}.}
+
+\item{point_settings}{Named list of arguments for \code{\link[ggplot2:geom_point]{ggplot2::geom_point()}}.
+
+  The \code{mapping} argument is set separately.
+
+  Any argument not in the list will use its default value.
+
+  Default: \code{list(size = 0.1, alpha = 0.4)}}
+
+\item{hline_settings}{Named list of arguments for \code{\link[ggplot2:geom_hline]{ggplot2::geom_hline()}}.
+
+  The \code{mapping} argument is set separately.
+
+  Any argument not in the list will use its default value.
+
+  Default: \code{list(size = 0.35, alpha = 0.5)}}
+
+\item{facet_settings}{Named list of arguments for \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}.
+
+  The \code{facets} argument is set separately.
+
+  Any argument not in the list will use its default value.
+
+  Commonly set arguments are \code{nrow} and \code{ncol}.}
 
 \item{ylim}{Limits for the y-scale.}
 

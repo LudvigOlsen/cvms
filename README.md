@@ -119,6 +119,7 @@ package.
           - [Datasets](#datasets)
       - [Important News](#important-news)
       - [Installation](#installation)
+      - [Vignettes](#vignettes-)
   - [Examples](#examples)
       - [Attach packages](#attach-packages)
       - [Load data](#load-data)
@@ -183,15 +184,22 @@ package.
 
 CRAN:
 
-> install.packages(“cvms”)
+> `install.packages("cvms")`
 
 Development version:
 
-> install.packages(“devtools”)
+> `install.packages("devtools")`
 > 
-> devtools::install\_github(“LudvigOlsen/groupdata2”)
+> `devtools::install_github("LudvigOlsen/groupdata2")`
 > 
-> devtools::install\_github(“LudvigOlsen/cvms”)
+> `devtools::install_github("LudvigOlsen/cvms")`
+
+## Vignettes
+
+`cvms` contains a number of vignettes with relevant use cases and
+descriptions:
+
+> `vignette(package = "cvms")` \# for an overview
 
 # Examples
 

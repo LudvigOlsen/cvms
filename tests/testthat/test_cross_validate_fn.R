@@ -3562,7 +3562,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_classes(output_12059),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", "list",
+      "integer", "integer", "list", "character", ifelse(is_dplyr_1(), "vctrs_list_of", "list"),
       "character", "character"),
     fixed = TRUE)
   # Testing column types
@@ -4515,7 +4515,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_classes(output_11079),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "list", "list", "list", "integer", "integer", "integer",
-      "integer", "list", "character", "list", "character",
+      "integer", "list", "character", ifelse(is_dplyr_1(), "vctrs_list_of", "list"), "character",
       "character"),
     fixed = TRUE)
   # Testing column types
@@ -4705,7 +4705,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_classes(output_18209),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", "list",
+      "integer", "integer", "list", "character", ifelse(is_dplyr_1(), "vctrs_list_of", "list"),
       "character", "character"),
     fixed = TRUE)
   # Testing column types
@@ -5248,7 +5248,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_classes(output_12447),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", "list",
+      "integer", "integer", "list", "character", ifelse(is_dplyr_1(), "vctrs_list_of", "list"),
       "character", "character"),
     fixed = TRUE)
   # Testing column types
@@ -5404,7 +5404,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_classes(output_10994),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", "list",
+      "integer", "integer", "list", "character", ifelse(is_dplyr_1(), "vctrs_list_of", "list"),
       "character", "character"),
     fixed = TRUE)
   # Testing column types
@@ -5630,7 +5630,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_classes(output_14068),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", "list",
+      "integer", "integer", "list", "character", ifelse(is_dplyr_1(), "vctrs_list_of", "list"),
       "character", "character"),
     fixed = TRUE)
   # Testing column types
@@ -5751,7 +5751,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_classes(output_19128),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", "list",
+      "integer", "integer", "list", "character", ifelse(is_dplyr_1(), "vctrs_list_of", "list"),
       "character", "character"),
     fixed = TRUE)
   # Testing column types
@@ -5942,7 +5942,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_classes(output_13323),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", "list",
+      "integer", "integer", "list", "character", ifelse(is_dplyr_1(), "vctrs_list_of", "list"),
       "character", "character"),
     fixed = TRUE)
   # Testing column types
@@ -6098,7 +6098,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_classes(output_12580),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", "list",
+      "integer", "integer", "list", "character", ifelse(is_dplyr_1(), "vctrs_list_of", "list"),
       "character", "character"),
     fixed = TRUE)
   # Testing column types

@@ -3433,7 +3433,8 @@ test_that("baseline wrappers minimal testing", {
     c("numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
-      "numeric", "numeric", "list", "list", "integer", "character",
+      "numeric", "numeric", ifelse(is_dplyr_1(), "vctrs_list_of", "list"),
+      ifelse(is_dplyr_1(), "vctrs_list_of", "list"), "integer", "character",
       "character", "character", "character"),
     fixed = TRUE)
   # Testing column types
@@ -3753,7 +3754,8 @@ test_that("baseline wrappers minimal testing", {
     c("numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
-      "numeric", "numeric", "list", "list", "list", "character", "character",
+      "numeric", "numeric", ifelse(is_dplyr_1(), "vctrs_list_of", "list"), "list",
+      ifelse(is_dplyr_1(), "vctrs_list_of", "list"), "character", "character",
       "character"),
     fixed = TRUE)
   # Testing column types
@@ -4414,7 +4416,9 @@ test_that("baseline wrappers minimal testing", {
       "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
-      "numeric", "list", "list", "list", "list", "character"),
+      "numeric", ifelse(is_dplyr_1(), "vctrs_list_of", "list"), "list",
+      ifelse(is_dplyr_1(), "vctrs_list_of", "list"),
+      ifelse(is_dplyr_1(), "vctrs_list_of", "list"), "character"),
     fixed = TRUE)
   # Testing column types
   expect_equal(

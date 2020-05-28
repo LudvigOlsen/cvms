@@ -482,7 +482,7 @@ legacy_nest <- function(...) {
 ##  .................. #< 65355f4d719ea07c474f69fceb2d1ef2 ># ..................
 ##  Legacy unnest                                                           ####
 
-
+# TODO Change to new unnest
 legacy_unnest <- function(...) {
   if (tidyr_new_interface()) {
     tidyr::unnest_legacy(...)
@@ -962,5 +962,10 @@ is_newer_lme4 <- function(){
   else if (v$patch < 22) out <- FALSE
   else out <- TRUE
   out
+}
+
+is_dplyr_1 <- function() {
+  v <- get_pkg_version("dplyr")
+  v$major >= 1 || (v$minor == 8 && v$patch == 99 && v$dev >= 9003)
 }
 

@@ -4709,7 +4709,9 @@ test_that("testing nested tibbles in multinomial validate_fn()", {
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_19148),
-    c("integer", "character", "list", "character"),
+    c("integer", "character",
+      ifelse(is_dplyr_1(), "vctrs_list_of", "list"),
+      "character"),
     fixed = TRUE)
   # Testing column types
   expect_equal(

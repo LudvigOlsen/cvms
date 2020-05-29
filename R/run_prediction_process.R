@@ -123,6 +123,7 @@ run_predict_fn <- function(test_data,
         train_data = train_data,
         caller = model_specifics[["caller"]]
       )
+
     } else {
       stop("'predict_fn' was NULL")
     }
@@ -202,6 +203,20 @@ run_predict_fn <- function(test_data,
       # TODO Do checks here?
 
       # Convert to tibble
+      if (!is.data.frame(predictions)){
+        predictions <- as.data.frame(predictions, stringsAsFactors = FALSE)
+      }
+
+      if (ncol(predictions) < 2){
+        stop(paste0(
+          "When 'type'/'family' is '", model_specifics[["family"]],
+          "', the predictions must be a matrix / data frame ",
+          "with one column per class but only had ",
+          ncol(predictions), " columns. ",
+          "Did you specify 'predict_fn' correctly?"
+        ))
+      }
+
       predictions <- dplyr::as_tibble(predictions) %>%
         dplyr::mutate_all(~ force_numeric(
           predictions_vector = ., caller = model_specifics[["caller"]]

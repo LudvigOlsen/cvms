@@ -39,7 +39,14 @@ evaluate_predictions_multinomial <- function(data,
   predicted_probabilities <- tryCatch({
     dplyr::bind_rows(data[[predictions_col]])
     }, error = function(e) {
-      stop("Could not bind the specified predictions_col: ", predictions_col, ".")
+      stop(
+        paste0(
+          "Could not bind the specified 'predictions_col': ",
+          predictions_col,
+          ". Got error: ",
+          e
+        )
+      )
     }
   )
 

@@ -124,10 +124,20 @@ call_evaluate_residuals <- function(data,
                                     targets_col,
                                     predictions_col,
                                     metrics,
+                                    allow_col_nas = TRUE,
                                     return_nas = FALSE) {
 
   # If the dataset is grouped, we need the indices and keys for the groups
   # so we can evaluate group wise
+
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_numeric(data[[targets_col]], any.missing = allow_col_nas, add = assert_collection)
+  checkmate::assert_numeric(data[[predictions_col]], any.missing = allow_col_nas, add = assert_collection)
+  checkmate::assert_character(metrics, any.missing = FALSE, add = assert_collection)
+  checkmate::assert_flag(return_nas, add = assert_collection)
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
 
   # Get grouping keys
   grouping_keys <- dplyr::group_keys(data)

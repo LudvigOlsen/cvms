@@ -1334,7 +1334,7 @@ test_that("multinomial evaluations with one predicted class column is correctly 
       c("Prediction", "Target", "N")
     )
 
-    preds <- legacy_unnest(mn_id_eval_1$Predictions[[1]])
+    preds <- tidyr::unnest(mn_id_eval_1$Predictions[[1]], cols = c(Prediction))
     expect_equal(
       preds$Target,
       c(
@@ -4012,7 +4012,7 @@ test_that("evaluate() and confusion_matrix() has same metric values", {
     ))
   expect_equal(colnames(eval_binom_shared),
                colnames(cfm_binom_shared))
-  expect_equal(eval_binom_shared, cfm_binom_shared)
+  expect_equal(unlist(eval_binom_shared), unlist(cfm_binom_shared))
   expect_equal(eval_binom$`Confusion Matrix`,
                cfm_binom$`Confusion Matrix`)
   expect_equal(eval_binom$`Positive Class`,
@@ -4051,7 +4051,7 @@ test_that("evaluate() and confusion_matrix() has same metric values", {
     ))
   expect_equal(colnames(eval_multinom_shared),
                colnames(cfm_multinom_shared))
-  expect_equal(eval_multinom_shared, cfm_multinom_shared)
+  expect_equal(unlist(eval_multinom_shared), unlist(cfm_multinom_shared))
 
   expect_equal(eval_multinom$`Confusion Matrix`,
                cfm_multinom$`Confusion Matrix`)
@@ -4101,7 +4101,7 @@ test_that("evaluate() and evaluate_residuals() has same metric values", {
       setdiff(colnames(resid_eval), shared_cols)
     ))
   expect_equal(colnames(eval_shared), colnames(resid_eval_shared))
-  expect_equal(eval_shared, resid_eval_shared)
+  expect_equal(unlist(eval_shared), unlist(resid_eval_shared))
 
 
 })
@@ -4220,7 +4220,7 @@ test_that("the different prediction formats work properly in Gaussian evaluate()
   side_effects_12861 <- xpectr::capture_side_effects(evaluate(data = gauss, target_col = "Target_1_chr", prediction_cols = "Prediction_1", type = "gaussian", id_col = NULL, id_method = "mean", metrics = list(all = FALSE, RMSE = TRUE)), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_12861[['error']]),
-    xpectr::strip("'predictions' must be numeric"),
+    xpectr::strip("1 assertions failed:\n * Variable 'data[[targets_col]]': Must be of type 'numeric', not 'character'."),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_12861[['error_class']]),
@@ -4235,7 +4235,7 @@ test_that("the different prediction formats work properly in Gaussian evaluate()
   side_effects_18304 <- xpectr::capture_side_effects(evaluate(data = gauss, target_col = "Target_1_fct", prediction_cols = "Prediction_1", type = "gaussian", id_col = NULL, id_method = "mean", metrics = list(all = FALSE, RMSE = TRUE)), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_18304[['error']]),
-    xpectr::strip("'predictions' must be numeric"),
+    xpectr::strip("1 assertions failed:\n * Variable 'data[[targets_col]]': Must be of type 'numeric', not 'factor'."),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_18304[['error_class']]),
@@ -4345,7 +4345,7 @@ test_that("the different prediction formats work properly in Gaussian evaluate()
   side_effects_11346 <- xpectr::capture_side_effects(evaluate(data = gauss, target_col = "Target_1", prediction_cols = "Prediction_1_chr", type = "gaussian", id_col = NULL, id_method = "mean", metrics = list(all = FALSE, RMSE = TRUE)), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_11346[['error']]),
-    xpectr::strip("'predictions' must be numeric"),
+    xpectr::strip("1 assertions failed:\n * Variable 'data[[predictions_col]]': Must be of type 'numeric', not 'character'."),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_11346[['error_class']]),
@@ -4360,7 +4360,7 @@ test_that("the different prediction formats work properly in Gaussian evaluate()
   side_effects_16569 <- xpectr::capture_side_effects(evaluate(data = gauss, target_col = "Target_1", prediction_cols = "Prediction_1_fct", type = "gaussian", id_col = NULL, id_method = "mean", metrics = list(all = FALSE, RMSE = TRUE)), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_16569[['error']]),
-    xpectr::strip("'predictions' must be numeric"),
+    xpectr::strip("1 assertions failed:\n * Variable 'data[[predictions_col]]': Must be of type 'numeric', not 'factor'."),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_16569[['error_class']]),

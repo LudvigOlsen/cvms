@@ -171,7 +171,8 @@ test_that("select_metrics() works with output from cross-validation", {
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
-      "numeric", "numeric", "numeric", "character", "character", "list"),
+      "numeric", "numeric", "numeric", "character", "character",
+      ifelse(is_dplyr_1(), "vctrs_list_of", "list")),
     fixed = TRUE)
   # Testing column types
   expect_equal(
@@ -542,7 +543,8 @@ test_that("select_metrics() works with output from cross-validation", {
       "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
-      "numeric", "numeric", "numeric", "numeric", "character", "list"),
+      "numeric", "numeric", "numeric", "numeric", "character",
+      ifelse(is_dplyr_1(), "vctrs_list_of", "list")),
     fixed = TRUE)
   # Testing column types
   expect_equal(

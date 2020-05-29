@@ -406,7 +406,7 @@ validate_list <- function(train_data,
         dplyr::bind_cols(model_evaluation) %>%
         tibble::add_column(
           "Preprocess" = nested_preprocess_params,
-          "HParams" = model_specifics[["hparams"]],
+          "HParams" = list(model_specifics[["hparams"]][[1]]),
           "Formula" = model_specifics[["model_formula"]]
         ) %>%
         dplyr::bind_cols(extract_model_effects(model_specifics[["model_formula"]]))

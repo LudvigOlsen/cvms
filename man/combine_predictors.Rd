@@ -17,7 +17,7 @@ combine_predictors(
 \arguments{
 \item{dependent}{Name of dependent variable. (Character)}
 
-\item{fixed_effects}{List of fixed effects. (Character)
+\item{fixed_effects}{\code{list} of fixed effects. (Character)
 
  Max. limit of \code{8} effects \strong{when interactions are included}!
 
@@ -51,7 +51,7 @@ combine_predictors(
 \item{max_effect_frequency}{Maximum number of times an effect is included in a formula string.}
 }
 \value{
-List of model formulas.
+\code{list} of model formulas.
 
  E.g.:
 

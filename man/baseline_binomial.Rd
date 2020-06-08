@@ -15,13 +15,13 @@ baseline_binomial(
 )
 }
 \arguments{
-\item{test_data}{Data frame.}
+\item{test_data}{\code{data.frame}.}
 
 \item{dependent_col}{Name of dependent variable in the supplied test and training sets.}
 
 \item{n}{The number of sets of random predictions to evaluate. (Default is \code{100})}
 
-\item{metrics}{List for enabling/disabling metrics.
+\item{metrics}{\code{list} for enabling/disabling metrics.
 
   E.g. \code{list("F1" = FALSE)} would remove \code{F1} from the results,
   and \code{list("Accuracy" = TRUE)} would add the regular \code{Accuracy} metric
@@ -29,11 +29,11 @@ baseline_binomial(
   Default values (\code{TRUE}/\code{FALSE}) will be used for the remaining available metrics.
 
   You can enable/disable all metrics at once by including
-  \code{"all" = TRUE/FALSE} in the list. This is done prior to enabling/disabling
+  \code{"all" = TRUE/FALSE} in the \code{list}. This is done prior to enabling/disabling
   individual metrics, why f.i. \code{list("all" = FALSE, "Accuracy" = TRUE)}
   would return only the \code{Accuracy} metric.
 
-  The list can be created with
+  The \code{list} can be created with
   \code{\link[cvms:binomial_metrics]{binomial_metrics()}}.
 
   Also accepts the string \code{"all"}.}
@@ -53,17 +53,17 @@ baseline_binomial(
 
 \item{cutoff}{Threshold for predicted classes. (Numeric)}
 
-\item{parallel}{Whether to run the \code{n} evaluations in parallel. (Logical)
+\item{parallel}{Whether to run the \code{`n`} evaluations in parallel. (Logical)
 
  Remember to register a parallel backend first.
  E.g. with \code{doParallel::registerDoParallel}.}
 }
 \value{
-List containing:
+\code{list} containing:
 
  \enumerate{
-  \item a tibble with summarized results (called \code{summarized_metrics})
-  \item a tibble with random evaluations (\code{random_evaluations})
+  \item a \code{tibble} with summarized results (called \code{summarized_metrics})
+  \item a \code{tibble} with random evaluations (\code{random_evaluations})
  }
 
  ....................................................................
@@ -91,7 +91,7 @@ List containing:
 
  ....................................................................
 
- The \strong{Summarized Results} tibble contains:
+ The \strong{Summarized Results} \code{tibble} contains:
 
  The \strong{Measure} column indicates the statistical descriptor used on the evaluations.
  The row where \code{Measure == All_0} is the evaluation when all predictions are \code{0}.
@@ -101,15 +101,15 @@ List containing:
 
  ....................................................................
 
- The \strong{Random Evaluations} tibble contains:
+ The \strong{Random Evaluations} \code{tibble} contains:
 
  The \strong{non-aggregated metrics}.
 
- A nested tibble with the \strong{predictions} and targets.
+ A nested \code{tibble} with the \strong{predictions} and targets.
 
- A list of \strong{ROC} curve objects (if computed).
+ A \code{list} of \strong{ROC} curve objects (if computed).
 
- A nested tibble with the \strong{confusion matrix}.
+ A nested \code{tibble} with the \strong{confusion matrix}.
  The \code{Pos_} columns tells you whether a row is a
  True Positive (\code{TP}), True Negative (\code{TN}), False Positive (\code{FP}),
  or False Negative (\code{FN}), depending on which level is the "positive" class.
@@ -124,7 +124,7 @@ List containing:
 
  Create a baseline evaluation of a test set.
 
- In modelling, a \code{baseline} is a result that
+ In modelling, a \emph{baseline} is a result that
  is meaningful to compare the results from our models to. For instance, in
  classification, we usually want our results to be better than \emph{random guessing}.
  E.g. if we have three classes, we can expect an accuracy of \code{33.33\%}, as for every

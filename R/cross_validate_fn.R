@@ -6,7 +6,7 @@
 #'  Cross-validate your model function with one or multiple model formulas at once.
 #'  Perform repeated cross-validation. Preprocess the train/test split
 #'  within the cross-validation. Perform hyperparameter tuning with grid search.
-#'  Returns results in a tibble for easy comparison,
+#'  Returns results in a \code{tibble} for easy comparison,
 #'  reporting and further analysis.
 #'
 #'  Compared to \code{\link[cvms:cross_validate]{cross_validate()}},
@@ -14,7 +14,7 @@
 #'  a preprocess function and the hyperparameter values to cross-validate.
 #'
 #'  Supports regression and classification (binary and multiclass).
-#'  See \code{type}.
+#'  See \code{`type`}.
 #'
 #'  Note that some metrics may not be computable for some types
 #'  of model objects.
@@ -26,7 +26,7 @@
 #' @param formulas Model formulas as strings. (Character)
 #'
 #'  Will be converted to \code{\link[stats:formula]{formula}} objects
-#'  before being passed to \code{model_fn}.
+#'  before being passed to \code{`model_fn`}.
 #'
 #'  E.g. \code{c("y~x", "y~z")}.
 #'
@@ -51,10 +51,10 @@
 #'
 #'  \verb{         }\code{hyperparameters, train_data)}
 #'
-#'  Must return predictions in the following formats, depending on \code{type}:
+#'  Must return predictions in the following formats, depending on \code{`type`}:
 #'
 #'  \subsection{Binomial}{
-#'  Vector or one-column matrix / data frame with probabilities (0-1)
+#'  \code{vector} or one-column \code{matrix} / \code{data.frame} with probabilities (0-1)
 #'  of the second class, alphabetically.
 #'  E.g.:
 #'
@@ -62,14 +62,14 @@
 #'  }
 #'
 #'  \subsection{Gaussian}{
-#'  Vector or one-column matrix / data frame with the predicted value.
+#'  \code{vector} or one-column \code{matrix} / \code{data.frame} with the predicted value.
 #'  E.g.:
 #'
 #'  \code{c(3.7, 0.9, 1.2, 7.3)}
 #'  }
 #'
 #'  \subsection{Multinomial}{
-#'  Data frame with one column per class containing probabilities of the class.
+#'  \code{data.frame} with one column per class containing probabilities of the class.
 #'  Column names should be identical to how the class names are written in the target column.
 #'  E.g.:
 #'
@@ -92,8 +92,8 @@
 #'
 #'  \verb{         }\code{formula, hyperparameters)}
 #'
-#'  Must return a list with the preprocessed \code{train_data} and \code{test_data}. It may also contain
-#'  a tibble with the \code{parameters} used in preprocessing:
+#'  Must return a \code{list} with the preprocessed \code{`train_data`} and \code{`test_data`}. It may also contain
+#'  a \code{tibble} with the \code{parameters} used in preprocessing:
 #'
 #'  \code{list("train" = train_data,}
 #'
@@ -101,9 +101,9 @@
 #'
 #'  \verb{     }\code{"parameters" = preprocess_parameters)}
 #'
-#'  Additional elements in the returned list will be ignored.
+#'  Additional elements in the returned \code{list} will be ignored.
 #'
-#'  The optional parameters tibble will be included in the output.
+#'  The optional parameters \code{tibble} will be included in the output.
 #'  It could have the following format:
 #'
 #'  \tabular{rrr}{
@@ -112,19 +112,19 @@
 #'   SD \tab 12.4 \tab 5.986\cr
 #'   ... \tab ... \tab ...}
 #'
-#'  N.B. When \code{preprocess_once} is FALSE, the current formula and
+#'  N.B. When \code{`preprocess_once`} is \code{FALSE}, the current formula and
 #'  hyperparameters will be provided. Otherwise,
 #'  these arguments will be \code{NULL}.
 #' @param preprocess_once Whether to apply the preprocessing once
-#'  (ignoring the formula and hyperparameters arguments in \code{preprocess_fn})
+#'  (ignoring the formula and hyperparameters arguments in \code{`preprocess_fn`})
 #'  or for every model separately. (Logical)
 #'
 #'  When preprocessing does not depend on the current formula or hyperparameters,
 #'  we can do the preprocessing of each train/test split once, to save time.
 #'  This \strong{may require holding a lot more data in memory} though,
 #'  why it is not the default setting.
-#' @param hyperparameters Either a named list with hyperparameter values to combine in a grid
-#'  or a data frame with one row per hyperparameter combination.
+#' @param hyperparameters Either a \code{named list} with hyperparameter values to combine in a grid
+#'  or a \code{data.frame} with one row per hyperparameter combination.
 #'
 #'  \subsection{Named list for grid search}{
 #'  Add \code{".n"} to sample the combinations. Can be the number of combinations to use,
@@ -141,7 +141,7 @@
 #'  \verb{     }\code{"drop_out" = runif(5, 0.3, 0.7))}
 #'  }
 #'
-#'  \subsection{Data frame with specific hyperparameter combinations}{
+#'  \subsection{\code{data.frame} with specific hyperparameter combinations}{
 #'  One row per combination to test.
 #'
 #'  E.g.
@@ -153,18 +153,18 @@
 #'   0.01 \tab 1000 \tab 0.63\cr
 #'   ... \tab ... \tab ...}
 #'  }
-#' @param metrics List for enabling/disabling metrics.
+#' @param metrics \code{list} for enabling/disabling metrics.
 #'
-#'   E.g. \code{list("RMSE" = FALSE)} would remove RMSE from the regression results,
-#'   and \code{list("Accuracy" = TRUE)} would add the regular accuracy metric
+#'   E.g. \code{list("RMSE" = FALSE)} would remove \code{RMSE} from the regression results,
+#'   and \code{list("Accuracy" = TRUE)} would add the regular \code{Accuracy} metric
 #'   to the classification results.
-#'   Default values (TRUE/FALSE) will be used for the remaining available metrics.
+#'   Default values (\code{TRUE}/\code{FALSE}) will be used for the remaining available metrics.
 #'
 #'   You can enable/disable all metrics at once by including
-#'   \code{"all" = TRUE/FALSE} in the list. This is done prior to enabling/disabling
-#'   individual metrics, why f.i. \code{list("all" = FALSE, "RMSE" = TRUE)} would return only the RMSE metric.
+#'   \code{"all" = TRUE/FALSE} in the \code{list}. This is done prior to enabling/disabling
+#'   individual metrics, why f.i. \code{list("all" = FALSE, "RMSE" = TRUE)} would return only the \code{RMSE} metric.
 #'
-#'   The list can be created with
+#'   The \code{list} can be created with
 #'   \code{\link[cvms:gaussian_metrics]{gaussian_metrics()}},
 #'   \code{\link[cvms:binomial_metrics]{binomial_metrics()}}, or
 #'   \code{\link[cvms:multinomial_metrics]{multinomial_metrics()}}.
@@ -203,19 +203,19 @@
 #'  }
 #'  }
 #' @return
-#'  Tbl (tibble) with results for each model.
+#'  \code{tibble} with results for each model.
 #'
-#'  N.B. The \strong{Fold} column in the nested tibbles contains the test fold in that train/test split.
+#'  N.B. The \strong{Fold} column in the nested \code{tibble}s contains the test fold in that train/test split.
 #'
 #'  \subsection{Shared across families}{
 #'
-#'  A nested tibble with \strong{coefficients} of the models from all iterations. The coefficients
+#'  A nested \code{tibble} with \strong{coefficients} of the models from all iterations. The coefficients
 #'  are extracted from the model object with \code{\link[broom:tidy]{broom::tidy()}} or
 #'  \code{\link[stats:coef]{coef()}} (with some restrictions on the output).
-#'  If these attempts fail, a default coefficients tibble filled with \code{NA}s is returned.
+#'  If these attempts fail, a default coefficients \code{tibble} filled with \code{NA}s is returned.
 #'
-#'  Nested tibble with the used \strong{preprocessing parameters},
-#'  if a passed \code{preprocess_fn} returns the parameters in a tibble.
+#'  Nested \code{tibble} with the used \strong{preprocessing parameters},
+#'  if a passed \code{preprocess_fn} returns the parameters in a \code{tibble}.
 #'
 #'  Number of \emph{total} \strong{folds}.
 #'
@@ -226,7 +226,7 @@
 #'  Consider discarding models that did not converge on all iterations.
 #'  Note: you might still see results, but these should be taken with a grain of salt!
 #'
-#'  Nested tibble with the \strong{warnings and messages} caught for each model.
+#'  Nested \code{tibble} with the \strong{warnings and messages} caught for each model.
 #'
 #'  Specified \strong{family}.
 #'
@@ -250,9 +250,9 @@
 #'
 #'  See the additional metrics (disabled by default) at \code{\link[cvms:gaussian_metrics]{?gaussian_metrics}}.
 #'
-#'  A nested tibble with the \strong{predictions} and targets.
+#'  A nested \code{tibble} with the \strong{predictions} and targets.
 #'
-#'  A nested tibble with the non-averaged \strong{results} from all iterations.
+#'  A nested \code{tibble} with the non-averaged \strong{results} from all iterations.
 #'
 #'  * In \emph{repeated cross-validation},
 #'  the metrics are first averaged for each fold column (repetition) and then averaged again.
@@ -291,19 +291,19 @@
 #'
 #'  Also includes:
 #'
-#'  A nested tibble with \strong{predictions}, predicted classes (depends on \code{cutoff}), and the targets.
+#'  A nested \code{tibble} with \strong{predictions}, predicted classes (depends on \code{cutoff}), and the targets.
 #'  Note, that the predictions are \emph{not necessarily} of the \emph{specified} \code{positive} class, but of
 #'  the \emph{model's} positive class (second level of dependent variable, alphabetically).
 #'
 #'  The \code{\link[pROC:roc]{pROC::roc}} \strong{\code{ROC}} curve object(s).
 #'
-#'  A nested tibble with the \strong{confusion matrix}/matrices.
+#'  A nested \code{tibble} with the \strong{confusion matrix}/matrices.
 #'  The \code{Pos_} columns tells you whether a row is a
 #'  True Positive (\code{TP}), True Negative (\code{TN}),
 #'  False Positive (\code{FP}), or False Negative (\code{FN}),
 #'  depending on which level is the "positive" class. I.e. the level you wish to predict.
 #'
-#'  A nested tibble with the \strong{results} from all fold columns.
+#'  A nested \code{tibble} with the \strong{results} from all fold columns.
 #'
 #'  The name of the \strong{Positive Class}.
 #'
@@ -318,16 +318,16 @@
 #'  ----------------------------------------------------------------
 #'
 #'  For each class, a \emph{one-vs-all} binomial evaluation is performed. This creates
-#'  a \strong{Class Level Results} tibble containing the same metrics as the binomial results
+#'  a \strong{Class Level Results} \code{tibble} containing the same metrics as the binomial results
 #'  described above (excluding \code{MCC}, \code{AUC}, \code{Lower CI} and \code{Upper CI}),
 #'  along with a count of the class in the target column (\strong{\code{Support}}).
 #'  These metrics are used to calculate the macro metrics. The nested class level results
-#'  tibble is also included in the output tibble,
+#'  \code{tibble} is also included in the output \code{tibble},
 #'  and could be reported along with the macro and overall metrics.
 #'
-#'  The output tibble contains the macro and overall metrics.
+#'  The output \code{tibble} contains the macro and overall metrics.
 #'  The metrics that share their name with the metrics in the nested
-#'  class level results tibble are averages of those metrics
+#'  class level results \code{tibble} are averages of those metrics
 #'  (note: does not remove \code{NA}s before averaging).
 #'  In addition to these, it also includes the \strong{\code{Overall Accuracy}} and
 #'  the multiclass \strong{\code{MCC}}.
@@ -352,17 +352,17 @@
 #'
 #'  Also includes:
 #'
-#'  A nested tibble with the \strong{predictions}, predicted classes, and targets.
+#'  A nested \code{tibble} with the \strong{predictions}, predicted classes, and targets.
 #'
-#'  A list of \strong{ROC} curve objects when \code{AUC} is enabled.
+#'  A \code{list} of \strong{ROC} curve objects when \code{AUC} is enabled.
 #'
-#'  A nested tibble with the multiclass \strong{Confusion Matrix}.
+#'  A nested \code{tibble} with the multiclass \strong{Confusion Matrix}.
 #'
 #'  \strong{Class Level Results}
 #'
 #'  Besides the binomial evaluation metrics and the \code{Support},
-#'  the nested class level results tibble also contains a
-#'  nested tibble with the \strong{Confusion Matrix} from the one-vs-all evaluation.
+#'  the nested class level results \code{tibble} also contains a
+#'  nested \code{tibble} with the \strong{Confusion Matrix} from the one-vs-all evaluation.
 #'  The \code{Pos_} columns tells you whether a row is a
 #'  True Positive (\code{TP}), True Negative (\code{TN}),
 #'  False Positive (\code{FP}), or False Negative (\code{FN}),

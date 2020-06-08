@@ -10,35 +10,35 @@
 #'
 #'  Train linear or logistic regression models on a training set and validate it by
 #'  predicting a test/validation set.
-#'  Returns results in a tibble for easy reporting, along with the trained models.
+#'  Returns results in a \code{tibble} for easy reporting, along with the trained models.
 #'
 #'  See \code{\link[cvms:validate_fn]{validate_fn()}} for use
 #'  with custom model functions.
 #' @inheritParams cross_validate
-#' @param train_data Data frame.
+#' @param train_data \code{data.frame}.
 #'
 #'  Can contain a grouping factor for identifying partitions - as made with
 #'  \code{\link[groupdata2:partition]{groupdata2::partition()}}.
-#'  See \code{partitions_col}.
-#' @param test_data Data frame. If specifying \code{partitions_col}, this can be \code{NULL}.
+#'  See \code{`partitions_col`}.
+#' @param test_data \code{data.frame}. If specifying \code{`partitions_col`}, this can be \code{NULL}.
 #' @param partitions_col Name of grouping factor for identifying partitions. (Character)
 #'
-#'  Rows with the value \code{1} in \code{partitions_col} are used as training set and
+#'  Rows with the value \code{1} in \code{`partitions_col`} are used as training set and
 #'  rows with the value \code{2} are used as test set.
 #'
-#'  N.B. \strong{Only used if \code{test_data} is \code{NULL}}.
-#' @param err_nc Raise error if a model does not converge. (Logical)
+#'  N.B. \strong{Only used if \code{`test_data`} is \code{NULL}}.
+#' @param err_nc Whether to raise an \code{error} if a model does not converge. (Logical)
 #' @param parallel Whether to validate the list of models in parallel. (Logical)
 #'
 #'  Remember to register a parallel backend first.
 #'  E.g. with \code{doParallel::registerDoParallel}.
 #' @param link,models,model_verbose Deprecated.
 #' @inherit cross_validate details
-#' @return Tibble with the results and model objects.
+#' @return \code{tibble} with the results and model objects.
 #'
 #'  \subsection{Shared across families}{
 #'
-#'  A nested tibble with \strong{coefficients} of the models from all iterations.
+#'  A nested \code{tibble} with \strong{coefficients} of the models from all iterations.
 #'
 #'  Count of \strong{convergence warnings}. Consider discarding models that did not converge.
 #'
@@ -47,7 +47,7 @@
 #'  Count of \strong{Singular Fit messages}. See
 #'  \code{\link[lme4:isSingular]{lme4::isSingular}} for more information.
 #'
-#'  Nested tibble with the \strong{warnings and messages} caught for each model.
+#'  Nested \code{tibble} with the \strong{warnings and messages} caught for each model.
 #'
 #'  Specified \strong{family}.
 #'
@@ -59,7 +59,7 @@
 #'
 #'  Names of \strong{random} effects, if any.
 #'
-#'  Nested tibble with \strong{preprocess}ing parameters, if any.
+#'  Nested \code{tibble} with \strong{preprocess}ing parameters, if any.
 #'
 #'  }
 #'
@@ -75,7 +75,7 @@
 #'
 #'  See the additional metrics (disabled by default) at \code{\link[cvms:gaussian_metrics]{?gaussian_metrics}}.
 #'
-#'  A nested tibble with the \strong{predictions} and targets.
+#'  A nested \code{tibble} with the \strong{predictions} and targets.
 #'  }
 #'
 #'  ----------------------------------------------------------------
@@ -110,13 +110,13 @@
 #'
 #'  Also includes:
 #'
-#'  A nested tibble with \strong{predictions}, predicted classes (depends on \code{cutoff}), and the targets.
+#'  A nested \code{tibble} with \strong{predictions}, predicted classes (depends on \code{cutoff}), and the targets.
 #'  Note, that the predictions are \emph{not necessarily} of the \emph{specified} \code{positive} class, but of
 #'  the \emph{model's} positive class (second level of dependent variable, alphabetically).
 #'
 #'  The \code{\link[pROC:roc]{pROC::roc}} \strong{\code{ROC}} curve object(s).
 #'
-#'  A nested tibble with the \strong{confusion matrix}/matrices.
+#'  A nested \code{tibble} with the \strong{confusion matrix}/matrices.
 #'  The \code{Pos_} columns tells you whether a row is a
 #'  True Positive (\code{TP}), True Negative (\code{TN}),
 #'  False Positive (\code{FP}), or False Negative (\code{FN}),

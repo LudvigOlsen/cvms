@@ -5,7 +5,7 @@
 \alias{wines}
 \title{Wine varieties}
 \format{
-A data frame with 368 rows and 1 variable:
+A \code{data.frame} with \code{368} rows and \code{1} variable:
 \describe{
   \item{Variety}{Wine variety, 10 levels}
 }

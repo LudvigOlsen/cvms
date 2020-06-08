@@ -24,7 +24,7 @@ cross_validate(
 )
 }
 \arguments{
-\item{data}{Data frame.
+\item{data}{\code{data.frame}.
 
  Must include grouping factor for identifying folds
   - as made with \code{\link[groupdata2:fold]{groupdata2::fold()}}.}
@@ -78,7 +78,7 @@ cross_validate(
 
  N.B. \strong{Binomial models only}.}
 
-\item{metrics}{List for enabling/disabling metrics.
+\item{metrics}{\code{list} for enabling/disabling metrics.
 
   E.g. \code{list("RMSE" = FALSE)} would remove \code{RMSE} from the results,
   and \code{list("Accuracy" = TRUE)} would add the regular \code{Accuracy} metric
@@ -86,11 +86,11 @@ cross_validate(
   Default values (\code{TRUE}/\code{FALSE}) will be used for the remaining available metrics.
 
   You can enable/disable all metrics at once by including
-  \code{"all" = TRUE/FALSE} in the list. This is done prior to enabling/disabling
+  \code{"all" = TRUE/FALSE} in the \code{list}. This is done prior to enabling/disabling
   individual metrics, why \code{list("all" = FALSE, "RMSE" = TRUE)}
   would return only the \code{RMSE} metric.
 
-  The list can be created with
+  The \code{list} can be created with
   \code{\link[cvms:gaussian_metrics]{gaussian_metrics()}} or
   \code{\link[cvms:binomial_metrics]{binomial_metrics()}}.
 
@@ -118,7 +118,7 @@ cross_validate(
 
 \item{rm_nc}{Remove non-converged models from output. (Logical)}
 
-\item{parallel}{Whether to cross-validate the list of models in parallel. (Logical)
+\item{parallel}{Whether to cross-validate the \code{list} of models in parallel. (Logical)
 
  Remember to register a parallel backend first.
  E.g. with \code{doParallel::registerDoParallel}.}
@@ -129,10 +129,10 @@ like the number of model instances to fit and which model function was applied. 
 \item{link, models, model_verbose}{Deprecated.}
 }
 \value{
-Tibble with results for each model.
+\code{tibble} with results for each model.
 
  \subsection{Shared across families}{
- A nested tibble with \strong{coefficients} of the models from all iterations.
+ A nested \code{tibble} with \strong{coefficients} of the models from all iterations.
 
  Number of \emph{total} \strong{folds}.
 
@@ -146,7 +146,7 @@ Tibble with results for each model.
  Count of \strong{Singular Fit messages}.
  See \code{\link[lme4:isSingular]{lme4::isSingular}} for more information.
 
- Nested tibble with the \strong{warnings and messages} caught for each model.
+ Nested \code{tibble} with the \strong{warnings and messages} caught for each model.
 
  Specified \strong{family}.
 
@@ -156,7 +156,7 @@ Tibble with results for each model.
 
  Names of \strong{random} effects, if any.
 
- Nested tibble with \strong{preprocess}ing parameters, if any.
+ Nested \code{tibble} with \strong{preprocess}ing parameters, if any.
  }
 
  ----------------------------------------------------------------
@@ -174,9 +174,9 @@ Tibble with results for each model.
 
  See the additional metrics (disabled by default) at \code{\link[cvms:gaussian_metrics]{?gaussian_metrics}}.
 
- A nested tibble with the \strong{predictions} and targets.
+ A nested \code{tibble} with the \strong{predictions} and targets.
 
- A nested tibble with the non-averaged \strong{results} from all iterations.
+ A nested \code{tibble} with the non-averaged \strong{results} from all iterations.
 
  * In \emph{repeated cross-validation},
  the metrics are first averaged for each fold column (repetition) and then averaged again.
@@ -215,19 +215,19 @@ Tibble with results for each model.
 
  Also includes:
 
- A nested tibble with \strong{predictions}, predicted classes (depends on \code{cutoff}), and the targets.
+ A nested \code{tibble} with \strong{predictions}, predicted classes (depends on \code{cutoff}), and the targets.
  Note, that the predictions are \emph{not necessarily} of the \emph{specified} \code{positive} class, but of
  the \emph{model's} positive class (second level of dependent variable, alphabetically).
 
  The \code{\link[pROC:roc]{pROC::roc}} \strong{\code{ROC}} curve object(s).
 
- A nested tibble with the \strong{confusion matrix}/matrices.
+ A nested \code{tibble} with the \strong{confusion matrix}/matrices.
  The \code{Pos_} columns tells you whether a row is a
  True Positive (\code{TP}), True Negative (\code{TN}),
  False Positive (\code{FP}), or False Negative (\code{FN}),
  depending on which level is the "positive" class. I.e. the level you wish to predict.
 
- A nested tibble with the \strong{results} from all fold columns.
+ A nested \code{tibble} with the \strong{results} from all fold columns.
 
  The name of the \strong{Positive Class}.
 
@@ -240,7 +240,7 @@ Tibble with results for each model.
 
  Cross-validate one or multiple linear or logistic regression
  models at once. Perform repeated cross-validation.
- Returns results in a tibble for easy comparison,
+ Returns results in a \code{tibble} for easy comparison,
  reporting and further analysis.
 
  See \code{\link[cvms:cross_validate_fn]{cross_validate_fn()}} for use

@@ -18,7 +18,7 @@ most_challenging(
 )
 }
 \arguments{
-\item{data}{Data frame with predictions, targets and observation IDs.
+\item{data}{\code{data.frame} with predictions, targets and observation IDs.
  Can be grouped by \code{\link[dplyr:group_by]{dplyr::group_by()}}.
 
  Predictions can be passed as values, predicted classes or predicted probabilities:
@@ -26,7 +26,7 @@ most_challenging(
  \strong{N.B.} Adds \code{\link[base:.Machine]{.Machine$double.eps}} to all probabilities to avoid \code{log(0)}.
 
  \subsection{Multinomial}{
- When \code{type} is \code{"multinomial"}, the predictions can be passed in one of two formats.
+ When \code{`type`} is \code{"multinomial"}, the predictions can be passed in one of two formats.
 
  \subsection{Probabilities (Preferable)}{
 
@@ -56,7 +56,7 @@ most_challenging(
  }
  }
  \subsection{Binomial}{
- When \code{type} is \code{"binomial"}, the predictions can be passed in one of two formats.
+ When \code{`type`} is \code{"binomial"}, the predictions can be passed in one of two formats.
 
  \subsection{Probabilities (Preferable)}{
  One column with the \strong{probability of class being
@@ -84,7 +84,7 @@ most_challenging(
  }
  }
  \subsection{Gaussian}{
- When \code{type} is \code{"gaussian"}, the predictions should be passed as
+ When \code{`type`} is \code{"gaussian"}, the predictions should be passed as
  one column with the predicted values. E.g.:
 
  \tabular{rrrrr}{
@@ -106,15 +106,15 @@ most_challenging(
 \item{obs_id_col}{Name of column with observation IDs. This will be used to aggregate
 the performance of each observation.}
 
-\item{target_col}{Name of column with the true classes/values in \code{data}.}
+\item{target_col}{Name of column with the true classes/values in \code{`data`}.}
 
 \item{prediction_cols}{Name(s) of column(s) with the predictions.}
 
-\item{threshold}{Threshold to filter observations by. Depends on \code{type} and \code{threshold_is}.
+\item{threshold}{Threshold to filter observations by. Depends on \code{`type`} and \code{`threshold_is`}.
 
  The \code{threshold} can either be a \strong{percentage} or a \strong{score}.
  For percentages, a lower \code{threshold}
- returns fewer observations. For scores, this depends on \code{type}.
+ returns fewer observations. For scores, this depends on \code{`type`}.
 
  \subsection{Gaussian}{
  \subsection{threshold_is "percentage"}{
@@ -141,7 +141,7 @@ the performance of each observation.}
  }
  }}
 
-\item{threshold_is}{Either \code{"score"} or \code{"percentage"}. See \code{threshold}.}
+\item{threshold_is}{Either \code{"score"} or \code{"percentage"}. See \code{`threshold`}.}
 
 \item{metric}{The metric to use. If \code{NULL},
  the default metric depends on the format of the prediction columns.
@@ -164,10 +164,10 @@ the performance of each observation.}
 
 \item{cutoff}{Threshold for predicted classes. (Numeric)
 
- \strong{N.B. Binomial only}.}
+ N.B. \strong{Binomial only}.}
 }
 \value{
-Data frame with the most challenging observations and their metrics.
+\code{data.frame} with the most challenging observations and their metrics.
 
  \code{`>=` / `<=`} denotes the threshold as score.
 }

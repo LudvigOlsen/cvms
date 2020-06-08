@@ -10,16 +10,16 @@
 #'  \code{Dependent}, \code{Fixed} and \code{Random}.
 #'  Quickly reconstruct the model formulas from these columns.
 #' @return
-#'  List of model formulas.
+#'  \code{list} of model formulas.
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
-#' @param results Data frame with results from
+#' @param results \code{data.frame} with results from
 #' \code{\link[cvms:cross_validate]{cross_validate()}}
 #'  or \code{\link[cvms:validate]{validate()}}. (tbl)
 #'
 #'  Must contain at least the columns \code{"Dependent"} and \code{"Fixed"}. For random effects,
 #'  the \code{"Random"} column should be included.
-#' @param topn Number of top rows to return. Simply applies \code{head()} to the results tibble.
+#' @param topn Number of top rows to return. Simply applies \code{head()} to the results \code{tibble}.
 reconstruct_formulas <- function(results, topn = NULL) {
 
   # Check arguments ####

@@ -16,39 +16,39 @@
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
 #' @family evaluation functions
-#' @param targets Vector with true classes. Either numeric or character.
-#' @param predictions Vector with predicted classes. Either numeric or character.
-#' @param metrics List for enabling/disabling metrics.
+#' @param targets \code{vector} with true classes. Either \code{numeric} or \code{character}.
+#' @param predictions \code{vector} with predicted classes. Either \code{numeric} or \code{character}.
+#' @param metrics \code{list} for enabling/disabling metrics.
 #'
 #'   E.g. \code{list("Accuracy" = TRUE)} would add the regular accuracy metric,
-#'   whie \code{list("F1" = FALSE)} would remove the F1 metric.
+#'   whie \code{list("F1" = FALSE)} would remove the \code{F1} metric.
 #'   Default values (TRUE/FALSE) will be used for the remaining available metrics.
 #'
 #'   You can enable/disable all metrics at once by including
-#'   \code{"all" = TRUE/FALSE} in the list. This is done prior to enabling/disabling
-#'   individual metrics, why f.i. \code{list("all" = FALSE, "Accuracy" = TRUE)}
-#'   would return only the Accuracy metric.
+#'   \code{"all" = TRUE/FALSE} in the \code{list}. This is done prior to enabling/disabling
+#'   individual metrics, why for instance \code{list("all" = FALSE, "Accuracy" = TRUE)}
+#'   would return only the \code{Accuracy} metric.
 #'
-#'   The list can be created with
+#'   The \code{list} can be created with
 #'   \code{\link[cvms:binomial_metrics]{binomial_metrics()}} or
 #'   \code{\link[cvms:multinomial_metrics]{multinomial_metrics()}}.
 #'
 #'   Also accepts the string \code{"all"}.
-#' @param positive Level from \code{targets} to predict.
-#'  Either as character (\emph{preferable}) or level index (1 or 2 - alphabetically). (\strong{Two-class only})
+#' @param positive Level from \code{`targets`} to predict.
+#'  Either as character (\emph{preferable}) or level index (\code{1} or \code{2} - alphabetically). (\strong{Two-class only})
 #'
 #'  E.g. if we have the levels \code{"cat"} and \code{"dog"} and we want \code{"dog"} to be the positive class,
 #'  we can either provide \code{"dog"} or \code{2}, as alphabetically, \code{"dog"} comes after \code{"cat"}.
 #'
 #'  \strong{Note:} For \emph{reproducibility}, it's preferable to \strong{specify the name directly}, as
 #'  different \code{\link[base:locales]{locales}} may sort the levels differently.
-#' @param c_levels Vector with categorical levels in the targets. Should have same type as \code{targets}.
-#'  If \code{NULL}, they are inferred from \code{targets}.
+#' @param c_levels \code{vector} with categorical levels in the targets. Should have same type as \code{`targets`}.
+#'  If \code{NULL}, they are inferred from \code{`targets`}.
 #'
-#'  N.B. the levels are sorted alphabetically. When \code{Positive} is numeric (i.e. an index),
+#'  N.B. the levels are sorted alphabetically. When \code{`positive`} is numeric (i.e. an index),
 #'  it therefore still refers to the index of the alphabetically sorted levels.
-#' @param do_one_vs_all Whether to perform one-vs-all evaluations
-#'  when working with more than 2 elements (multiclass).
+#' @param do_one_vs_all Whether to perform \emph{one-vs-all} evaluations
+#'  when working with more than 2 classes (multiclass).
 #'
 #'  If you are only interested in the confusion matrix,
 #'  this allows you to skip most of the metric calculations.
@@ -79,8 +79,9 @@
 #'
 #'  \code{MCC = ((TP * TN) - (FP * FN)) / sqrt((TP + FP) * (TP + FN) * (TN + FP) * (TN + FN))}
 #'
-#'  Note for MCC: Formula is for the \emph{binary} case. When the denominator is 0, we set it to 1 to avoid \code{NaN}.
-#'  See the \code{metrics} vignette for multiclass version.
+#'  Note for \code{MCC}: Formula is for the \emph{binary} case. When the denominator is \code{0},
+#'  we set it to \code{1} to avoid \code{NaN}.
+#'  See the \code{metrics} vignette for the multiclass version.
 #'
 #'  \code{Detection Rate = TP / (TP + FN + TN + FP)}
 #'
@@ -96,7 +97,7 @@
 #'
 #'  \code{False Omission Rate = 1 - Neg Pred Value}
 #'
-#'  For \strong{Kappa} the counts (TP, TN, FP, FN) are normalized to percentages (summing to 1).
+#'  For \strong{Kappa} the counts (\code{TP}, \code{TN}, \code{FP}, \code{FN}) are normalized to percentages (summing to 1).
 #'  Then the following is calculated:
 #'
 #'  \code{p_observed = TP + TN}
@@ -105,7 +106,7 @@
 #'
 #'  \code{Kappa = (p_observed - p_expected) / (1 - p_expected)}
 #' @return
-#'  Tbl (tibble) with:
+#'  \code{tibble} with:
 #'
 #'  Nested \strong{confusion matrix} (tidied version)
 #'
@@ -117,7 +118,7 @@
 #'  the nested confusion matrices, and the \strong{Support} metric, which is a
 #'  count of the class in the target column and is used for the weighted average metrics.
 #'
-#'  The following metrics are available (see \code{metrics}):
+#'  The following metrics are available (see \code{`metrics`}):
 #'
 #'  \subsection{Two classes or more}{
 #'
@@ -143,7 +144,7 @@
 #'  }
 #'
 #'  The \strong{Name} column refers to the name used in the package.
-#'  This is the name in the output and when enabling/disabling in \code{metrics}.
+#'  This is the name in the output and when enabling/disabling in \code{`metrics`}.
 #'  }
 #'
 #'  \subsection{Three classes or more}{
@@ -151,7 +152,7 @@
 #'  The metrics mentioned above (excluding \code{MCC})
 #'  has a weighted average version (disabled by default; weighted by the \strong{Support}).
 #'
-#'  In order to enable a weighted metric, prefix the metric name with \code{"Weighted "} when specifying \code{metrics}.
+#'  In order to enable a weighted metric, prefix the metric name with \code{"Weighted "} when specifying \code{`metrics`}.
 #'
 #'  E.g. \code{metrics = list("Weighted Accuracy" = TRUE)}.
 #'

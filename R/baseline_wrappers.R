@@ -14,20 +14,20 @@
 #'
 #'  Create a baseline evaluation of a test set.
 #'
-#'  In modelling, a \code{baseline} is a result that
+#'  In modelling, a \emph{baseline} is a result that
 #'  is meaningful to compare the results from our models to. In regression, we
 #'  want our model to be better than a model without any predictors. If our
 #'  model does not perform better than such a simple model, it's unlikely to
 #'  be useful.
 #'
-#'  \code{baseline_gaussian()} fits the intercept-only model (\code{y ~ 1}) on \code{n} random
-#'  subsets of \code{train_data} and evaluates each model on \code{test_data}. Additionally, it evaluates a
-#'  model fitted on all rows in \code{train_data}.
-#' @param test_data Data frame.
-#' @param train_data Data frame.
+#'  \code{baseline_gaussian()} fits the intercept-only model (\code{y ~ 1}) on \code{`n`} random
+#'  subsets of \code{`train_data`} and evaluates each model on \code{`test_data`}. Additionally, it evaluates a
+#'  model fitted on all rows in \code{`train_data`}.
+#' @param test_data \code{data.frame}.
+#' @param train_data \code{data.frame}.
 #' @param dependent_col Name of dependent variable in the supplied test and training sets.
-#' @param n The number of random samplings of \code{train_data} to fit baseline models on. (Default is \code{100})
-#' @param metrics List for enabling/disabling metrics.
+#' @param n The number of random samplings of \code{`train_data`} to fit baseline models on. (Default is \code{100})
+#' @param metrics \code{list} for enabling/disabling metrics.
 #'
 #'   E.g. \code{list("RMSE" = FALSE)} would remove \code{RMSE} from the results,
 #'   and \code{list("TAE" = TRUE)} would add the \code{Total Absolute Error} metric
@@ -35,25 +35,25 @@
 #'   Default values (\code{TRUE}/\code{FALSE}) will be used for the remaining available metrics.
 #'
 #'   You can enable/disable all metrics at once by including
-#'   \code{"all" = TRUE/FALSE} in the list. This is done prior to enabling/disabling
+#'   \code{"all" = TRUE/FALSE} in the \code{list}. This is done prior to enabling/disabling
 #'   individual metrics, why f.i. \code{list("all" = FALSE, "RMSE" = TRUE)}
 #'   would return only the \code{RMSE} metric.
 #'
-#'   The list can be created with
+#'   The \code{list} can be created with
 #'   \code{\link[cvms:gaussian_metrics]{gaussian_metrics()}}.
 #'
 #'   Also accepts the string \code{"all"}.
-#' @param random_effects Random effects structure for baseline model. (Character)
+#' @param random_effects Random effects structure for the baseline model. (Character)
 #'
 #'  E.g. with \code{"(1|ID)"}, the model becomes \code{"y ~ 1 + (1|ID)"}.
-#' @param min_training_rows Minimum number of rows in the random subsets of \code{train_data}.
-#' @param min_training_rows_left_out Minimum number of rows left out of the random subsets of \code{train_data}.
+#' @param min_training_rows Minimum number of rows in the random subsets of \code{`train_data`}.
+#' @param min_training_rows_left_out Minimum number of rows left out of the random subsets of \code{`train_data`}.
 #'
 #'  I.e. a subset will maximally have the size:
 #'
-#'  \code{max_rows_in_subset = nrow(train_data) - min_training_rows_left_out}.
+#'  \code{max_rows_in_subset = nrow(`train_data`) - `min_training_rows_left_out`}.
 #' @param REML Whether to use Restricted Maximum Likelihood. (Logical)
-#' @param parallel Whether to run the \code{n} evaluations in parallel. (Logical)
+#' @param parallel Whether to run the \code{`n`} evaluations in parallel. (Logical)
 #'
 #'  Remember to register a parallel backend first.
 #'  E.g. with \code{doParallel::registerDoParallel}.
@@ -78,16 +78,16 @@
 #'  BIC : \code{\link[stats:BIC]{stats::BIC}}
 #'
 #'  }
-#' @return List containing:
+#' @return \code{list} containing:
 #'
 #'  \enumerate{
-#'   \item a tibble with summarized results (called \code{summarized_metrics})
-#'   \item a tibble with random evaluations (\code{random_evaluations})
+#'   \item a \code{tibble} with summarized results (called \code{summarized_metrics})
+#'   \item a \code{tibble} with random evaluations (\code{random_evaluations})
 #'  }
 #'
 #'  ....................................................................
 #'
-#'  The \strong{Summarized Results} tibble contains:
+#'  The \strong{Summarized Results} \code{tibble} contains:
 #'
 #'  Average \strong{\code{RMSE}}, \strong{\code{MAE}}, \strong{\code{NRMSE(IQR)}},
 #'  \strong{\code{RRSE}}, \strong{\code{RAE}}, \strong{\code{RMSLE}}.
@@ -96,20 +96,20 @@
 #'
 #'  The \strong{Measure} column indicates the statistical descriptor used on the evaluations.
 #'  The row where \code{Measure == All_rows} is the evaluation when the baseline model
-#'  is trained on all rows in \code{train_data}.
+#'  is trained on all rows in \code{`train_data`}.
 #'
-#'  The \strong{Training Rows} column contains the aggregated number of rows used from \code{train_data},
+#'  The \strong{Training Rows} column contains the aggregated number of rows used from \code{`train_data`},
 #'  when fitting the baseline models.
 #'
 #'  ....................................................................
 #'
-#'  The \strong{Random Evaluations} tibble contains:
+#'  The \strong{Random Evaluations} \code{tibble} contains:
 #'
 #'  The \strong{non-aggregated metrics}.
 #'
-#'  A nested tibble with the \strong{predictions} and targets.
+#'  A nested \code{tibble} with the \strong{predictions} and targets.
 #'
-#'  A nested tibble with the \strong{coefficients} of the baseline models.
+#'  A nested \code{tibble} with the \strong{coefficients} of the baseline models.
 #'
 #'  Number of \strong{training rows} used when fitting the baseline model on the training set.
 #'
@@ -206,7 +206,7 @@ baseline_gaussian <- function(test_data,
 #'
 #'  Create a baseline evaluation of a test set.
 #'
-#'  In modelling, a \code{baseline} is a result that
+#'  In modelling, a \emph{baseline} is a result that
 #'  is meaningful to compare the results from our models to. For instance, in
 #'  classification, we usually want our results to be better than \emph{random guessing}.
 #'  E.g. if we have three classes, we can expect an accuracy of \code{33.33\%}, as for every
@@ -222,10 +222,10 @@ baseline_gaussian <- function(test_data,
 #'  it evaluates a set of all \code{0} predictions and
 #'  a set of all \code{1} predictions.
 #'
-#' @param test_data Data frame.
+#' @param test_data \code{data.frame}.
 #' @param dependent_col Name of dependent variable in the supplied test and training sets.
 #' @param n The number of sets of random predictions to evaluate. (Default is \code{100})
-#' @param metrics List for enabling/disabling metrics.
+#' @param metrics \code{list} for enabling/disabling metrics.
 #'
 #'   E.g. \code{list("F1" = FALSE)} would remove \code{F1} from the results,
 #'   and \code{list("Accuracy" = TRUE)} would add the regular \code{Accuracy} metric
@@ -233,11 +233,11 @@ baseline_gaussian <- function(test_data,
 #'   Default values (\code{TRUE}/\code{FALSE}) will be used for the remaining available metrics.
 #'
 #'   You can enable/disable all metrics at once by including
-#'   \code{"all" = TRUE/FALSE} in the list. This is done prior to enabling/disabling
+#'   \code{"all" = TRUE/FALSE} in the \code{list}. This is done prior to enabling/disabling
 #'   individual metrics, why f.i. \code{list("all" = FALSE, "Accuracy" = TRUE)}
 #'   would return only the \code{Accuracy} metric.
 #'
-#'   The list can be created with
+#'   The \code{list} can be created with
 #'   \code{\link[cvms:binomial_metrics]{binomial_metrics()}}.
 #'
 #'   Also accepts the string \code{"all"}.
@@ -254,7 +254,7 @@ baseline_gaussian <- function(test_data,
 #'
 #'  N.B. Only affects evaluation metrics, not the returned predictions.
 #' @param cutoff Threshold for predicted classes. (Numeric)
-#' @param parallel Whether to run the \code{n} evaluations in parallel. (Logical)
+#' @param parallel Whether to run the \code{`n`} evaluations in parallel. (Logical)
 #'
 #'  Remember to register a parallel backend first.
 #'  E.g. with \code{doParallel::registerDoParallel}.
@@ -263,11 +263,11 @@ baseline_gaussian <- function(test_data,
 #'  Packages used:
 #'
 #'  \code{ROC} and \code{AUC}: \code{\link[pROC:roc]{pROC::roc}}
-#' @return List containing:
+#' @return \code{list} containing:
 #'
 #'  \enumerate{
-#'   \item a tibble with summarized results (called \code{summarized_metrics})
-#'   \item a tibble with random evaluations (\code{random_evaluations})
+#'   \item a \code{tibble} with summarized results (called \code{summarized_metrics})
+#'   \item a \code{tibble} with random evaluations (\code{random_evaluations})
 #'  }
 #'
 #'  ....................................................................
@@ -295,7 +295,7 @@ baseline_gaussian <- function(test_data,
 #'
 #'  ....................................................................
 #'
-#'  The \strong{Summarized Results} tibble contains:
+#'  The \strong{Summarized Results} \code{tibble} contains:
 #'
 #'  The \strong{Measure} column indicates the statistical descriptor used on the evaluations.
 #'  The row where \code{Measure == All_0} is the evaluation when all predictions are \code{0}.
@@ -305,15 +305,15 @@ baseline_gaussian <- function(test_data,
 #'
 #'  ....................................................................
 #'
-#'  The \strong{Random Evaluations} tibble contains:
+#'  The \strong{Random Evaluations} \code{tibble} contains:
 #'
 #'  The \strong{non-aggregated metrics}.
 #'
-#'  A nested tibble with the \strong{predictions} and targets.
+#'  A nested \code{tibble} with the \strong{predictions} and targets.
 #'
-#'  A list of \strong{ROC} curve objects (if computed).
+#'  A \code{list} of \strong{ROC} curve objects (if computed).
 #'
-#'  A nested tibble with the \strong{confusion matrix}.
+#'  A nested \code{tibble} with the \strong{confusion matrix}.
 #'  The \code{Pos_} columns tells you whether a row is a
 #'  True Positive (\code{TP}), True Negative (\code{TN}), False Positive (\code{FP}),
 #'  or False Negative (\code{FN}), depending on which level is the "positive" class.
@@ -398,7 +398,7 @@ baseline_binomial <- function(test_data,
 #'
 #'  Create a baseline evaluation of a test set.
 #'
-#'  In modelling, a \code{baseline} is a result that
+#'  In modelling, a \emph{baseline} is a result that
 #'  is meaningful to compare the results from our models to. For instance, in
 #'  classification, we usually want our results to be better than \emph{random guessing}.
 #'  E.g. if we have three classes, we can expect an accuracy of \code{33.33\%}, as for every
@@ -413,12 +413,12 @@ baseline_binomial <- function(test_data,
 #'  of random predictions and summarizing them with a set of useful descriptors.
 #'
 #'  Technically, it creates \emph{one-vs-all} (binomial) baseline evaluations
-#'  for the \code{n} sets of random predictions and summarizes them. Additionally,
+#'  for the \code{`n`} sets of random predictions and summarizes them. Additionally,
 #'  sets of "all class x,y,z,..." predictions are evaluated.
-#' @param test_data Data frame.
+#' @param test_data \code{data.frame}.
 #' @param dependent_col Name of dependent variable in the supplied test and training sets.
 #' @param n The number of sets of random predictions to evaluate. (Default is \code{100})
-#' @param metrics List for enabling/disabling metrics.
+#' @param metrics \code{list} for enabling/disabling metrics.
 #'
 #'   E.g. \code{list("F1" = FALSE)} would remove \code{F1} from the results,
 #'   and \code{list("Accuracy" = TRUE)} would add the regular \code{Accuracy} metric
@@ -426,23 +426,23 @@ baseline_binomial <- function(test_data,
 #'   Default values (\code{TRUE}/\code{FALSE}) will be used for the remaining available metrics.
 #'
 #'   You can enable/disable all metrics at once by including
-#'   \code{"all" = TRUE/FALSE} in the list. This is done prior to enabling/disabling
+#'   \code{"all" = TRUE/FALSE} in the \code{list}. This is done prior to enabling/disabling
 #'   individual metrics, why f.i. \code{list("all" = FALSE, "Accuracy" = TRUE)}
 #'   would return only the \code{Accuracy} metric.
 #'
-#'   The list can be created with
+#'   The \code{list} can be created with
 #'   \code{\link[cvms:multinomial_metrics]{multinomial_metrics()}}.
 #'
 #'   Also accepts the string \code{"all"}.
 #' @param random_generator_fn Function for generating random numbers.
-#'  The softmax function is applied to the generated numbers to transform them to probabilities.
+#'  The \code{softmax} function is applied to the generated numbers to transform them to probabilities.
 #'
 #'  The first argument must be the number of random numbers to generate,
 #'  as no other arguments are supplied.
 #'
 #'  To test the effect of using different functions,
 #'  see \code{\link[cvms:multiclass_probability_tibble]{multiclass_probability_tibble()}}.
-#' @param parallel Whether to run the \code{n} evaluations in parallel. (Logical)
+#' @param parallel Whether to run the \code{`n`} evaluations in parallel. (Logical)
 #'
 #'  Remember to register a parallel backend first.
 #'  E.g. with \code{doParallel::registerDoParallel}.
@@ -452,12 +452,12 @@ baseline_binomial <- function(test_data,
 #'
 #'  Multiclass \code{ROC} curve and \code{AUC}:
 #'  \code{\link[pROC:multiclass.roc]{pROC::multiclass.roc}}
-#' @return List containing:
+#' @return \code{list} containing:
 #'
 #'  \enumerate{
-#'   \item a tibble with summarized results (called \code{summarized_metrics})
-#'   \item a tibble with random evaluations (\code{random_evaluations})
-#'   \item a tibble with the summarized class level results
+#'   \item a \code{tibble} with summarized results (called \code{summarized_metrics})
+#'   \item a \code{tibble} with random evaluations (\code{random_evaluations})
+#'   \item a \code{tibble} with the summarized class level results
 #'         (\code{summarized_class_level_results})
 #'  }
 #'
@@ -499,7 +499,7 @@ baseline_binomial <- function(test_data,
 #'  }
 #'  ....................................................................
 #'
-#'  The \strong{Summarized Results} tibble contains:
+#'  The \strong{Summarized Results} \code{tibble} contains:
 #'
 #'  Summary of the random evaluations.
 #'
@@ -509,7 +509,7 @@ baseline_binomial <- function(test_data,
 #'
 #'  The \strong{Measure} column indicates the statistical descriptor used on the evaluations.
 #'  The \strong{Mean}, \strong{Median}, \strong{SD}, \strong{IQR}, \strong{Max}, \strong{Min},
-#'  \strong{NAs}, and \strong{INFs} measures describe the \emph{Random Evaluations} tibble,
+#'  \strong{NAs}, and \strong{INFs} measures describe the \emph{Random Evaluations} \code{tibble},
 #'  while the \strong{CL_Max}, \strong{CL_Min}, \strong{CL_NAs}, and
 #'  \strong{CL_INFs} describe the \strong{C}lass \strong{L}evel results.
 #'
@@ -518,11 +518,11 @@ baseline_binomial <- function(test_data,
 #'
 #'  ....................................................................
 #'
-#'  The \strong{Summarized Class Level Results} tibble contains:
+#'  The \strong{Summarized Class Level Results} \code{tibble} contains:
 #'
 #'  The (nested) summarized results for each class, with the same metrics and descriptors as
-#'  the \emph{Summarized Results} tibble. Use \code{\link[tidyr:unnest]{tidyr::unnest}}
-#'  on the tibble to inspect the results.
+#'  the \emph{Summarized Results} \code{tibble}. Use \code{\link[tidyr:unnest]{tidyr::unnest}}
+#'  on the \code{tibble} to inspect the results.
 #'
 #'  \strong{How}: The one-vs-all evaluations are summarized by class.
 #'
@@ -532,9 +532,9 @@ baseline_binomial <- function(test_data,
 #'
 #'  ....................................................................
 #'
-#'  The \strong{Random Evaluations} tibble contains:
+#'  The \strong{Random Evaluations} \code{tibble} contains:
 #'
-#'  The repetition results with the same metrics as the \emph{Summarized Results} tibble.
+#'  The repetition results with the same metrics as the \emph{Summarized Results} \code{tibble}.
 #'
 #'  \strong{How}: The one-vs-all evaluations are aggregated by repetition.
 #'  If a metric contains one or more \code{NAs} in the one-vs-all evaluations, it
@@ -542,16 +542,16 @@ baseline_binomial <- function(test_data,
 #'
 #'  Also includes:
 #'
-#'  A nested tibble with the one-vs-all binomial evaluations (\strong{Class Level Results}),
+#'  A nested \code{tibble} with the one-vs-all binomial evaluations (\strong{Class Level Results}),
 #'  including nested \strong{Confusion Matrices} and the
 #'  \strong{Support} column, which is a count of how many observations from the
 #'  class is in the test set.
 #'
-#'  A nested tibble with the \strong{predictions} and targets.
+#'  A nested \code{tibble} with the \strong{predictions} and targets.
 #'
-#'  A list of \strong{ROC} curve objects.
+#'  A \code{list} of \strong{ROC} curve objects.
 #'
-#'  A nested tibble with the multiclass \strong{confusion matrix}.
+#'  A nested \code{tibble} with the multiclass \strong{confusion matrix}.
 #'
 #'  Specified \strong{family}.
 #'

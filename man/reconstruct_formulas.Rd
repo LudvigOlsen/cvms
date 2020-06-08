@@ -7,17 +7,17 @@
 reconstruct_formulas(results, topn = NULL)
 }
 \arguments{
-\item{results}{Data frame with results from
+\item{results}{\code{data.frame} with results from
 \code{\link[cvms:cross_validate]{cross_validate()}}
  or \code{\link[cvms:validate]{validate()}}. (tbl)
 
  Must contain at least the columns \code{"Dependent"} and \code{"Fixed"}. For random effects,
  the \code{"Random"} column should be included.}
 
-\item{topn}{Number of top rows to return. Simply applies \code{head()} to the results tibble.}
+\item{topn}{Number of top rows to return. Simply applies \code{head()} to the results \code{tibble}.}
 }
 \value{
-List of model formulas.
+\code{list} of model formulas.
 }
 \description{
 \Sexpr[results=rd, stage=render]{lifecycle::badge("maturing")}

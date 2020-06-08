@@ -18,7 +18,7 @@
 #'  For managing hyperparameters in custom model functions for
 #'  \code{\link[cvms:cross_validate_fn]{cross_validate_fn()}} or
 #'  \code{\link[cvms:validate_fn]{validate_fn()}}.
-#' @return A named list with the updated hyperparameters.
+#' @return A \code{named list} with the updated hyperparameters.
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
 #' @family example functions
@@ -27,11 +27,11 @@
 #'  E.g.:
 #'
 #'  \code{kernel = "linear", cost = 10}
-#' @param hyperparameters List of hyperparameters as supplied to
+#' @param hyperparameters \code{list} of hyperparameters as supplied to
 #'  \code{\link[cvms:cross_validate_fn]{cross_validate_fn()}}.
-#'  Can also be a single-row data frame.
+#'  Can also be a single-row \code{data.frame}.
 #' @param .required Names of required hyperparameters. If any of these
-#'  are not present in the hyperparameters, an error is thrown.
+#'  are not present in the hyperparameters, an \code{error} is thrown.
 #' @examples
 #' \donttest{
 #' # Attach packages

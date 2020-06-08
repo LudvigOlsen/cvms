@@ -5,7 +5,7 @@
 \alias{compatible.formula.terms}
 \title{Compatible formula terms}
 \format{
-A data frame with 162,660 rows and 5 variables:
+A \code{data.frame} with \code{162,660} rows and \code{5} variables:
 \describe{
   \item{left}{term, fixed effect or interaction, with fixed effects separated by "\code{*}"}
   \item{right}{term, fixed effect or interaction, with fixed effects separated by "\code{*}"}
@@ -17,7 +17,7 @@ A data frame with 162,660 rows and 5 variables:
 }
 }
 \description{
-162,660 pairs of compatible terms for building model formulas with up to 15 fixed effects.
+\code{162,660} pairs of compatible terms for building model formulas with up to \code{15} fixed effects.
 }
 \details{
 A term is either a fixed effect or an interaction between fixed effects (up to three-way), where

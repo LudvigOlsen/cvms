@@ -5,7 +5,7 @@
 \alias{participant.scores}
 \title{Participant scores}
 \format{
-A data frame with 30 rows and 5 variables:
+A \code{data.frame} with \code{30} rows and \code{5} variables:
 \describe{
   \item{participant}{participant identifier, 10 levels}
   \item{age}{age of the participant, in years}

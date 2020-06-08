@@ -7,14 +7,14 @@
 #'  predicting a test/validation set.
 #'  Validate different hyperparameter combinations and formulas at once.
 #'  Preprocess the train/test split.
-#'  Returns results and fitted models in a tibble for easy reporting and further analysis.
+#'  Returns results and fitted models in a \code{tibble} for easy reporting and further analysis.
 #'
 #'  Compared to \code{\link[cvms:validate]{validate()}},
 #'  this function allows you supply a custom model function, a predict function,
 #'  a preprocess function and the hyperparameter values to validate.
 #'
 #'  Supports regression and classification (binary and multiclass).
-#'  See \code{type}.
+#'  See \code{`type`}.
 #'
 #'  Note that some metrics may not be computable for some types
 #'  of model objects.
@@ -24,24 +24,24 @@
 #' @inheritParams cross_validate_fn
 #' @inheritParams validate
 #' @inherit cross_validate_fn details
-#' @return Tbl (tibble) with the results and model objects.
+#' @return \code{tibble} with the results and model objects.
 #'
 #'  \subsection{Shared across families}{
 #'
-#'  A nested tibble with \strong{coefficients} of the models. The coefficients
+#'  A nested \code{tibble} with \strong{coefficients} of the models. The coefficients
 #'  are extracted from the model object with \code{\link[broom:tidy]{broom::tidy()}} or
 #'  \code{\link[stats:coef]{coef()}} (with some restrictions on the output).
-#'  If these attempts fail, a default coefficients tibble filled with \code{NA}s is returned.
+#'  If these attempts fail, a default coefficients \code{tibble} filled with \code{NA}s is returned.
 #'
-#'  Nested tibble with the used \strong{preprocessing parameters},
-#'  if a passed \code{preprocess_fn} returns the parameters in a tibble.
+#'  Nested \code{tibble} with the used \strong{preprocessing parameters},
+#'  if a passed \code{`preprocess_fn`} returns the parameters in a \code{tibble}.
 #'
 #'  Count of \strong{convergence warnings}, using a limited set of keywords (e.g. "convergence"). If a
 #'  convergence warning does not contain one of these keywords, it will be counted with \strong{other warnings}.
 #'  Consider discarding models that did not converge on all iterations.
 #'  Note: you might still see results, but these should be taken with a grain of salt!
 #'
-#'  Nested tibble with the \strong{warnings and messages} caught for each model.
+#'  Nested \code{tibble} with the \strong{warnings and messages} caught for each model.
 #'
 #'  Specified \strong{family}.
 #'
@@ -66,7 +66,7 @@
 #'
 #'  See the additional metrics (disabled by default) at \code{\link[cvms:gaussian_metrics]{?gaussian_metrics}}.
 #'
-#'  A nested tibble with the \strong{predictions} and targets.
+#'  A nested \code{tibble} with the \strong{predictions} and targets.
 #'  }
 #'
 #'  ----------------------------------------------------------------
@@ -101,13 +101,13 @@
 #'
 #'  Also includes:
 #'
-#'  A nested tibble with \strong{predictions}, predicted classes (depends on \code{cutoff}), and the targets.
+#'  A nested \code{tibble} with \strong{predictions}, predicted classes (depends on \code{cutoff}), and the targets.
 #'  Note, that the predictions are \emph{not necessarily} of the \emph{specified} \code{positive} class, but of
 #'  the \emph{model's} positive class (second level of dependent variable, alphabetically).
 #'
 #'  The \code{\link[pROC:roc]{pROC::roc}} \strong{\code{ROC}} curve object(s).
 #'
-#'  A nested tibble with the \strong{confusion matrix}/matrices.
+#'  A nested \code{tibble} with the \strong{confusion matrix}/matrices.
 #'  The \code{Pos_} columns tells you whether a row is a
 #'  True Positive (\code{TP}), True Negative (\code{TN}),
 #'  False Positive (\code{FP}), or False Negative (\code{FN}),
@@ -123,16 +123,16 @@
 #'  ----------------------------------------------------------------
 #'
 #'  For each class, a \emph{one-vs-all} binomial evaluation is performed. This creates
-#'  a \strong{Class Level Results} tibble containing the same metrics as the binomial results
+#'  a \strong{Class Level Results} \code{tibble} containing the same metrics as the binomial results
 #'  described above (excluding \code{MCC}, \code{AUC}, \code{Lower CI} and \code{Upper CI}),
 #'  along with a count of the class in the target column (\strong{\code{Support}}).
 #'  These metrics are used to calculate the macro metrics. The nested class level results
-#'  tibble is also included in the output tibble,
+#'  \code{tibble} is also included in the output \code{tibble},
 #'  and could be reported along with the macro and overall metrics.
 #'
-#'  The output tibble contains the macro and overall metrics.
+#'  The output \code{tibble} contains the macro and overall metrics.
 #'  The metrics that share their name with the metrics in the nested
-#'  class level results tibble are averages of those metrics
+#'  class level results \code{tibble} are averages of those metrics
 #'  (note: does not remove \code{NA}s before averaging).
 #'  In addition to these, it also includes the \strong{\code{Overall Accuracy}} and
 #'  the multiclass \strong{\code{MCC}}.
@@ -157,17 +157,17 @@
 #'
 #'  Also includes:
 #'
-#'  A nested tibble with the \strong{predictions}, predicted classes, and targets.
+#'  A nested \code{tibble} with the \strong{predictions}, predicted classes, and targets.
 #'
 #'  A list of \strong{ROC} curve objects when \code{AUC} is enabled.
 #'
-#'  A nested tibble with the multiclass \strong{Confusion Matrix}.
+#'  A nested \code{tibble} with the multiclass \strong{Confusion Matrix}.
 #'
 #'  \strong{Class Level Results}
 #'
 #'  Besides the binomial evaluation metrics and the \code{Support},
-#'  the nested class level results tibble also contains a
-#'  nested tibble with the \strong{Confusion Matrix} from the one-vs-all evaluation.
+#'  the nested class level results \code{tibble} also contains a
+#'  nested \code{tibble} with the \strong{Confusion Matrix} from the one-vs-all evaluation.
 #'  The \code{Pos_} columns tells you whether a row is a
 #'  True Positive (\code{TP}), True Negative (\code{TN}),
 #'  False Positive (\code{FP}), or False Negative (\code{FN}),

@@ -14,7 +14,7 @@
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
 #'
 #'  Enable/disable metrics for Gaussian evaluation. Can be supplied to the
-#'  \code{metrics} argument in many of the \code{cvms} functions.
+#'  \code{`metrics`} argument in many of the \code{cvms} functions.
 #'
 #'  Note: Some functions may have slightly different defaults than the ones supplied here.
 #' @param all Enable/disable all arguments at once. (Logical)
@@ -165,7 +165,7 @@ gaussian_metrics <- function(all = NULL,
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
 #'
 #'  Enable/disable metrics for binomial evaluation. Can be supplied to the
-#'  \code{metrics} argument in many of the \code{cvms} functions.
+#'  \code{`metrics`} argument in many of the \code{cvms} functions.
 #'
 #'  Note: Some functions may have slightly different defaults than the ones supplied here.
 #' @param all Enable/disable all arguments at once. (Logical)
@@ -289,7 +289,7 @@ binomial_metrics <- function(all = NULL,
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
 #'
 #'  Enable/disable metrics for multinomial evaluation. Can be supplied to the
-#'  \code{metrics} argument in many of the \code{cvms} functions.
+#'  \code{`metrics`} argument in many of the \code{cvms} functions.
 #'
 #'  Note: Some functions may have slightly different defaults than the ones supplied here.
 #' @param all Enable/disable all arguments at once. (Logical)

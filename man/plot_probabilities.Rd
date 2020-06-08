@@ -29,7 +29,7 @@ plot_probabilities(
 )
 }
 \arguments{
-\item{data}{Data frame with probabilities, target classes and (optional) predicted classes.
+\item{data}{\code{data.frame} with probabilities, target classes and (optional) predicted classes.
  Can also include observation identifiers and a grouping variable.
 
  Example for binary classification:
@@ -87,7 +87,7 @@ plot_probabilities(
  E.g. the \emph{classifier} responsible for the prediction.
 
  \strong{N.B.} With more than \strong{\code{8}} groups,
- the default \code{color_scale} might run out of colors.}
+ the default \code{`color_scale`} might run out of colors.}
 
 \item{probability_of}{Whether to plot the probabilities of the
  target classes (\code{"target"}) or the predicted classes (\code{"prediction"}).
@@ -111,24 +111,24 @@ plot_probabilities(
  \code{\link[ggplot2:scale_colour_viridis_d]{ggplot2::scale_colour_viridis_d()}}.
 
  \strong{N.B.} The number of colors in the object's palette should be at least the same as
- the number of groups in the \code{group_col} column.}
+ the number of groups in the \code{`group_col`} column.}
 
 \item{apply_facet}{Whether to use
 \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}. (Logical)}
 
 \item{smoothe}{Whether to use \code{\link[ggplot2:geom_smooth]{ggplot2::geom_smooth()}} instead of
  \code{\link[ggplot2:geom_line]{ggplot2::geom_line()}}.
- This also adds a 95\% confidence interval by default.
+ This also adds a \code{95\%} confidence interval by default.
 
- Settings can be passed via the \code{smoothe_settings} argument.}
+ Settings can be passed via the \code{`smoothe_settings`} argument.}
 
 \item{add_points}{Add a point for each predicted probability.
-These are grouped on the x-axis by the \code{obs_id_col} column. (Logical)}
+These are grouped on the x-axis by the \code{`obs_id_col`} column. (Logical)}
 
 \item{add_hlines}{Add horizontal lines. (Logical)
 
- The meaning of these lines depends on the \code{probability_of}
- and \code{apply_facet} arguments:
+ The meaning of these lines depends on the \code{`probability_of`}
+ and \code{`apply_facet`} arguments:
 
  \tabular{rrr}{
   \strong{\code{apply_facet}} \tab \strong{\code{probability_of}} \tab \strong{Metric} \cr
@@ -207,8 +207,8 @@ A \code{ggplot2} object with a faceted line plot. TODO
 
  The meaning of the \strong{horizontal lines} depend on the settings.
  These are either \emph{recall} scores, \emph{precision} scores,
- or \emph{accuracy} scores, depending on the \code{probability_of}
- and \code{apply_facet} arguments.
+ or \emph{accuracy} scores, depending on the \code{`probability_of`}
+ and \code{`apply_facet`} arguments.
 }
 \details{
 TODO

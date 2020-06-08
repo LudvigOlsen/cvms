@@ -5,7 +5,7 @@
 \alias{predicted.musicians}
 \title{Predicted musician groups}
 \format{
-A data frame with 540 rows and 10 variables:
+A \code{data.frame} with \code{540} rows and \code{10} variables:
 \describe{
   \item{Classifier}{The applied classifier.
   One of \code{"nnet_multinom"}, \code{"randomForest"}, and \code{"e1071_svm"}.}
@@ -30,7 +30,7 @@ The three classifiers were fit using \code{nnet::multinom},
 \code{randomForest::randomForest}, and \code{e1071::svm}.
 }
 \details{
-Used formula: "Class ~ Height + Age + Drums + Bass + Guitar + Keys + Vocals"
+Used formula: \code{"Class ~ Height + Age + Drums + Bass + Guitar + Keys + Vocals"}
 }
 \examples{
 # Attach packages

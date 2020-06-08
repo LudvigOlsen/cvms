@@ -4,7 +4,7 @@
 #' Perform baseline evaluations on your test set. Generate model formulas by combining your fixed effects.
 #' Evaluate predictions from an external model.
 #'
-#' Returns results in a tibble for easy comparison, reporting and further analysis.
+#' Returns results in a \code{tibble} for easy comparison, reporting and further analysis.
 #'
 #' The main functions are:
 #' \code{\link[cvms:cross_validate]{cross_validate()}},

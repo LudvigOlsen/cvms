@@ -15,7 +15,7 @@
 #'  Uses the \code{+} and \code{*} operators, so lower order interactions are
 #'  automatically included.
 #' @return
-#'  List of model formulas.
+#'  \code{list} of model formulas.
 #'
 #'  E.g.:
 #'
@@ -25,7 +25,7 @@
 #' @export
 #' @aliases generate_formulas
 #' @param dependent Name of dependent variable. (Character)
-#' @param fixed_effects List of fixed effects. (Character)
+#' @param fixed_effects \code{list} of fixed effects. (Character)
 #'
 #'  Max. limit of \code{8} effects \strong{when interactions are included}!
 #'
@@ -342,7 +342,7 @@ contains_NA_left_of_value <- function(...) {
 # Removes all but the first interchangeable effects from fixed_effects.
 # With this, we can create our formulas with one combination of effects
 # and add versions with the combinations of interchangeable effects afterwards.
-# @param fixed_effects Vector of fixed effects. (Character)
+# @param fixed_effects \code{vector} of fixed effects. (Character)
 create_interchangeable_effects_combinations <- function(fixed_effects) {
 
   # Check if any element is a list with more than one element

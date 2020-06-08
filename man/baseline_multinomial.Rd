@@ -14,13 +14,13 @@ baseline_multinomial(
 )
 }
 \arguments{
-\item{test_data}{Data frame.}
+\item{test_data}{\code{data.frame}.}
 
 \item{dependent_col}{Name of dependent variable in the supplied test and training sets.}
 
 \item{n}{The number of sets of random predictions to evaluate. (Default is \code{100})}
 
-\item{metrics}{List for enabling/disabling metrics.
+\item{metrics}{\code{list} for enabling/disabling metrics.
 
   E.g. \code{list("F1" = FALSE)} would remove \code{F1} from the results,
   and \code{list("Accuracy" = TRUE)} would add the regular \code{Accuracy} metric
@@ -28,17 +28,17 @@ baseline_multinomial(
   Default values (\code{TRUE}/\code{FALSE}) will be used for the remaining available metrics.
 
   You can enable/disable all metrics at once by including
-  \code{"all" = TRUE/FALSE} in the list. This is done prior to enabling/disabling
+  \code{"all" = TRUE/FALSE} in the \code{list}. This is done prior to enabling/disabling
   individual metrics, why f.i. \code{list("all" = FALSE, "Accuracy" = TRUE)}
   would return only the \code{Accuracy} metric.
 
-  The list can be created with
+  The \code{list} can be created with
   \code{\link[cvms:multinomial_metrics]{multinomial_metrics()}}.
 
   Also accepts the string \code{"all"}.}
 
 \item{random_generator_fn}{Function for generating random numbers.
- The softmax function is applied to the generated numbers to transform them to probabilities.
+ The \code{softmax} function is applied to the generated numbers to transform them to probabilities.
 
  The first argument must be the number of random numbers to generate,
  as no other arguments are supplied.
@@ -46,18 +46,18 @@ baseline_multinomial(
  To test the effect of using different functions,
  see \code{\link[cvms:multiclass_probability_tibble]{multiclass_probability_tibble()}}.}
 
-\item{parallel}{Whether to run the \code{n} evaluations in parallel. (Logical)
+\item{parallel}{Whether to run the \code{`n`} evaluations in parallel. (Logical)
 
  Remember to register a parallel backend first.
  E.g. with \code{doParallel::registerDoParallel}.}
 }
 \value{
-List containing:
+\code{list} containing:
 
  \enumerate{
-  \item a tibble with summarized results (called \code{summarized_metrics})
-  \item a tibble with random evaluations (\code{random_evaluations})
-  \item a tibble with the summarized class level results
+  \item a \code{tibble} with summarized results (called \code{summarized_metrics})
+  \item a \code{tibble} with random evaluations (\code{random_evaluations})
+  \item a \code{tibble} with the summarized class level results
         (\code{summarized_class_level_results})
  }
 
@@ -99,7 +99,7 @@ List containing:
  }
  ....................................................................
 
- The \strong{Summarized Results} tibble contains:
+ The \strong{Summarized Results} \code{tibble} contains:
 
  Summary of the random evaluations.
 
@@ -109,7 +109,7 @@ List containing:
 
  The \strong{Measure} column indicates the statistical descriptor used on the evaluations.
  The \strong{Mean}, \strong{Median}, \strong{SD}, \strong{IQR}, \strong{Max}, \strong{Min},
- \strong{NAs}, and \strong{INFs} measures describe the \emph{Random Evaluations} tibble,
+ \strong{NAs}, and \strong{INFs} measures describe the \emph{Random Evaluations} \code{tibble},
  while the \strong{CL_Max}, \strong{CL_Min}, \strong{CL_NAs}, and
  \strong{CL_INFs} describe the \strong{C}lass \strong{L}evel results.
 
@@ -118,11 +118,11 @@ List containing:
 
  ....................................................................
 
- The \strong{Summarized Class Level Results} tibble contains:
+ The \strong{Summarized Class Level Results} \code{tibble} contains:
 
  The (nested) summarized results for each class, with the same metrics and descriptors as
- the \emph{Summarized Results} tibble. Use \code{\link[tidyr:unnest]{tidyr::unnest}}
- on the tibble to inspect the results.
+ the \emph{Summarized Results} \code{tibble}. Use \code{\link[tidyr:unnest]{tidyr::unnest}}
+ on the \code{tibble} to inspect the results.
 
  \strong{How}: The one-vs-all evaluations are summarized by class.
 
@@ -132,9 +132,9 @@ List containing:
 
  ....................................................................
 
- The \strong{Random Evaluations} tibble contains:
+ The \strong{Random Evaluations} \code{tibble} contains:
 
- The repetition results with the same metrics as the \emph{Summarized Results} tibble.
+ The repetition results with the same metrics as the \emph{Summarized Results} \code{tibble}.
 
  \strong{How}: The one-vs-all evaluations are aggregated by repetition.
  If a metric contains one or more \code{NAs} in the one-vs-all evaluations, it
@@ -142,16 +142,16 @@ List containing:
 
  Also includes:
 
- A nested tibble with the one-vs-all binomial evaluations (\strong{Class Level Results}),
+ A nested \code{tibble} with the one-vs-all binomial evaluations (\strong{Class Level Results}),
  including nested \strong{Confusion Matrices} and the
  \strong{Support} column, which is a count of how many observations from the
  class is in the test set.
 
- A nested tibble with the \strong{predictions} and targets.
+ A nested \code{tibble} with the \strong{predictions} and targets.
 
- A list of \strong{ROC} curve objects.
+ A \code{list} of \strong{ROC} curve objects.
 
- A nested tibble with the multiclass \strong{confusion matrix}.
+ A nested \code{tibble} with the multiclass \strong{confusion matrix}.
 
  Specified \strong{family}.
 
@@ -162,7 +162,7 @@ List containing:
 
  Create a baseline evaluation of a test set.
 
- In modelling, a \code{baseline} is a result that
+ In modelling, a \emph{baseline} is a result that
  is meaningful to compare the results from our models to. For instance, in
  classification, we usually want our results to be better than \emph{random guessing}.
  E.g. if we have three classes, we can expect an accuracy of \code{33.33\%}, as for every
@@ -177,7 +177,7 @@ List containing:
  of random predictions and summarizing them with a set of useful descriptors.
 
  Technically, it creates \emph{one-vs-all} (binomial) baseline evaluations
- for the \code{n} sets of random predictions and summarizes them. Additionally,
+ for the \code{`n`} sets of random predictions and summarizes them. Additionally,
  sets of "all class x,y,z,..." predictions are evaluated.
 }
 \details{

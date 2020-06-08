@@ -18,15 +18,15 @@ baseline_gaussian(
 )
 }
 \arguments{
-\item{test_data}{Data frame.}
+\item{test_data}{\code{data.frame}.}
 
-\item{train_data}{Data frame.}
+\item{train_data}{\code{data.frame}.}
 
 \item{dependent_col}{Name of dependent variable in the supplied test and training sets.}
 
-\item{n}{The number of random samplings of \code{train_data} to fit baseline models on. (Default is \code{100})}
+\item{n}{The number of random samplings of \code{`train_data`} to fit baseline models on. (Default is \code{100})}
 
-\item{metrics}{List for enabling/disabling metrics.
+\item{metrics}{\code{list} for enabling/disabling metrics.
 
   E.g. \code{list("RMSE" = FALSE)} would remove \code{RMSE} from the results,
   and \code{list("TAE" = TRUE)} would add the \code{Total Absolute Error} metric
@@ -34,45 +34,45 @@ baseline_gaussian(
   Default values (\code{TRUE}/\code{FALSE}) will be used for the remaining available metrics.
 
   You can enable/disable all metrics at once by including
-  \code{"all" = TRUE/FALSE} in the list. This is done prior to enabling/disabling
+  \code{"all" = TRUE/FALSE} in the \code{list}. This is done prior to enabling/disabling
   individual metrics, why f.i. \code{list("all" = FALSE, "RMSE" = TRUE)}
   would return only the \code{RMSE} metric.
 
-  The list can be created with
+  The \code{list} can be created with
   \code{\link[cvms:gaussian_metrics]{gaussian_metrics()}}.
 
   Also accepts the string \code{"all"}.}
 
-\item{random_effects}{Random effects structure for baseline model. (Character)
+\item{random_effects}{Random effects structure for the baseline model. (Character)
 
  E.g. with \code{"(1|ID)"}, the model becomes \code{"y ~ 1 + (1|ID)"}.}
 
-\item{min_training_rows}{Minimum number of rows in the random subsets of \code{train_data}.}
+\item{min_training_rows}{Minimum number of rows in the random subsets of \code{`train_data`}.}
 
-\item{min_training_rows_left_out}{Minimum number of rows left out of the random subsets of \code{train_data}.
+\item{min_training_rows_left_out}{Minimum number of rows left out of the random subsets of \code{`train_data`}.
 
  I.e. a subset will maximally have the size:
 
- \code{max_rows_in_subset = nrow(train_data) - min_training_rows_left_out}.}
+ \code{max_rows_in_subset = nrow(`train_data`) - `min_training_rows_left_out`}.}
 
 \item{REML}{Whether to use Restricted Maximum Likelihood. (Logical)}
 
-\item{parallel}{Whether to run the \code{n} evaluations in parallel. (Logical)
+\item{parallel}{Whether to run the \code{`n`} evaluations in parallel. (Logical)
 
  Remember to register a parallel backend first.
  E.g. with \code{doParallel::registerDoParallel}.}
 }
 \value{
-List containing:
+\code{list} containing:
 
  \enumerate{
-  \item a tibble with summarized results (called \code{summarized_metrics})
-  \item a tibble with random evaluations (\code{random_evaluations})
+  \item a \code{tibble} with summarized results (called \code{summarized_metrics})
+  \item a \code{tibble} with random evaluations (\code{random_evaluations})
  }
 
  ....................................................................
 
- The \strong{Summarized Results} tibble contains:
+ The \strong{Summarized Results} \code{tibble} contains:
 
  Average \strong{\code{RMSE}}, \strong{\code{MAE}}, \strong{\code{NRMSE(IQR)}},
  \strong{\code{RRSE}}, \strong{\code{RAE}}, \strong{\code{RMSLE}}.
@@ -81,20 +81,20 @@ List containing:
 
  The \strong{Measure} column indicates the statistical descriptor used on the evaluations.
  The row where \code{Measure == All_rows} is the evaluation when the baseline model
- is trained on all rows in \code{train_data}.
+ is trained on all rows in \code{`train_data`}.
 
- The \strong{Training Rows} column contains the aggregated number of rows used from \code{train_data},
+ The \strong{Training Rows} column contains the aggregated number of rows used from \code{`train_data`},
  when fitting the baseline models.
 
  ....................................................................
 
- The \strong{Random Evaluations} tibble contains:
+ The \strong{Random Evaluations} \code{tibble} contains:
 
  The \strong{non-aggregated metrics}.
 
- A nested tibble with the \strong{predictions} and targets.
+ A nested \code{tibble} with the \strong{predictions} and targets.
 
- A nested tibble with the \strong{coefficients} of the baseline models.
+ A nested \code{tibble} with the \strong{coefficients} of the baseline models.
 
  Number of \strong{training rows} used when fitting the baseline model on the training set.
 
@@ -111,15 +111,15 @@ List containing:
 
  Create a baseline evaluation of a test set.
 
- In modelling, a \code{baseline} is a result that
+ In modelling, a \emph{baseline} is a result that
  is meaningful to compare the results from our models to. In regression, we
  want our model to be better than a model without any predictors. If our
  model does not perform better than such a simple model, it's unlikely to
  be useful.
 
- \code{baseline_gaussian()} fits the intercept-only model (\code{y ~ 1}) on \code{n} random
- subsets of \code{train_data} and evaluates each model on \code{test_data}. Additionally, it evaluates a
- model fitted on all rows in \code{train_data}.
+ \code{baseline_gaussian()} fits the intercept-only model (\code{y ~ 1}) on \code{`n`} random
+ subsets of \code{`train_data`} and evaluates each model on \code{`test_data`}. Additionally, it evaluates a
+ model fitted on all rows in \code{`train_data`}.
 }
 \details{
 Packages used:

@@ -7,7 +7,7 @@
 select_definitions(results, unnest_hparams = TRUE, additional_includes = NULL)
 }
 \arguments{
-\item{results}{Results tibble. E.g. from
+\item{results}{Results \code{tibble}. E.g. from
 \code{\link[cvms:cross_validate]{cross_validate()}} or \code{\link[cvms:evaluate]{evaluate()}}.}
 
 \item{unnest_hparams}{Whether to unnest the \code{HParams} column. (Logical)}
@@ -15,7 +15,7 @@ select_definitions(results, unnest_hparams = TRUE, additional_includes = NULL)
 \item{additional_includes}{Names of additional columns to select. (Character)}
 }
 \value{
-The model definition columns from the results tibble.
+The model definition columns from the results \code{tibble}.
 }
 \description{
 \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
@@ -23,7 +23,7 @@ The model definition columns from the results tibble.
  Select the columns that define the models, such as the formula terms
  and hyperparameters.
 
- If an expected column is not in the \code{results} tibble, it is simply ignored.
+ If an expected column is not in the \code{`results`} \code{tibble}, it is simply ignored.
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

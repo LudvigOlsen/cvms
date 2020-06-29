@@ -53,7 +53,7 @@ Suggests:
     rmarkdown,
     rsvg,
     testthat (>= 2.3.2),
-    xpectr (>= 0.3.0)
+    xpectr (>= 0.4.0)
 VignetteBuilder: 
     knitr
 RdMacros: 

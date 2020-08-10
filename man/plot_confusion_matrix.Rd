@@ -13,6 +13,7 @@ plot_confusion_matrix(
   add_normalized = TRUE,
   add_row_percentages = TRUE,
   add_col_percentages = TRUE,
+  diag_percentages_only = FALSE,
   add_arrows = TRUE,
   add_zero_shading = TRUE,
   counts_on_top = FALSE,
@@ -75,6 +76,8 @@ add to the middle of the tiles. (Logical)}
  i.e. how big a part of its column the tile makes up. (Logical)
 
  By default, the row percentage is placed at the bottom of the tile.}
+
+\item{diag_percentages_only}{Whether to only have row and column percentages in the diagonal tiles. (Logical)}
 
 \item{add_arrows}{Add the arrows to the row and col percentages. (Logical)
 

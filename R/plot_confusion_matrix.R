@@ -56,6 +56,7 @@
 #' @param add_zero_shading Add image of skewed lines to zero-tiles. (Logical)
 #'
 #'  Note: Adding the zero-shading requires the \code{rsvg} and \code{ggimage} packages.
+#' @param diag_percentages_only Whether to only have row and column percentages in the diagonal tiles. (Logical)
 #' @param counts_on_top Switch the counts and normalized counts,
 #'  such that the counts are on top. (Logical)
 #' @param rotate_y_text Whether to rotate the y-axis text to
@@ -201,6 +202,7 @@ plot_confusion_matrix <- function(conf_matrix,
                                   add_normalized = TRUE,
                                   add_row_percentages = TRUE,
                                   add_col_percentages = TRUE,
+                                  diag_percentages_only = FALSE,
                                   add_arrows = TRUE,
                                   add_zero_shading = TRUE,
                                   counts_on_top = FALSE,
@@ -257,6 +259,7 @@ plot_confusion_matrix <- function(conf_matrix,
   checkmate::assert_flag(x = counts_on_top, add = assert_collection)
   checkmate::assert_flag(x = place_x_axis_above, add = assert_collection)
   checkmate::assert_flag(x = rotate_y_text, add = assert_collection)
+  checkmate::assert_flag(x = diag_percentages_only, add = assert_collection)
 
   # Function
   checkmate::assert_function(x = theme_fn, add = assert_collection)
@@ -444,6 +447,12 @@ plot_confusion_matrix <- function(conf_matrix,
           .data$Prediction_Percentage, font_row_percentages
         )
       )
+  }
+
+  # Remove percentages outside the diagonal
+  if (isTRUE(diag_percentages_only)) {
+    cm[cm[["Target"]] != cm[["Prediction"]],] <- empty_tile_percentages(
+      cm[cm[["Target"]] != cm[["Prediction"]],])
   }
 
   #### Prepare for plotting ####

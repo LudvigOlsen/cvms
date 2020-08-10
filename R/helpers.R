@@ -941,6 +941,29 @@ set_arrows <- function(cm, place_x_axis_above, icons,
 }
 
 
+#   __________________ #< dcca4b803d31b98d0906e28484ac92b8 ># __________________
+#   Empty percentages cols for confusion matrix plot                        ####
+
+empty_tile_percentages <- function(data){
+  cols_to_make_invisible_img <- intersect(
+    colnames(data),
+    c("right_icon", "left_icon", "up_icon", "down_icon")
+  )
+  cols_to_make_empty_string <- intersect(
+    colnames(data),
+    c("Class_Percentage_text", "Prediction_Percentage_text")
+  )
+  # Set image addresses to empty square image
+  data[, cols_to_make_invisible_img] <- get_figure_path("empty_square.svg")
+
+  # Set each cell to empty text string
+  data[, cols_to_make_empty_string] <- ""
+
+  # Return data
+  data
+}
+
+
 #   __________________ #< 044131f18e1777a3f55f678ac9a6e0e8 ># __________________
 #   R cmd check imports                                                     ####
 

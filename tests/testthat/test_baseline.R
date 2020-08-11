@@ -850,11 +850,12 @@ test_that("gaussian evaluations of random effects models are correct in baseline
   expect_equal(
     colnames(all_coeffs),
     c(
-      "Repetition", "term", "estimate", "std.error", "statistic",
+      "Repetition", "effect", "term", "estimate", "std.error", "statistic",
       "p.value"
     )
   )
   expect_equal(all_coeffs$Repetition, 1:10)
+  expect_equal(all_coeffs$effect, rep("fixed", 10))
   expect_equal(all_coeffs$estimate,
     c(
       29.4482246187172, 34.039741354335, 40.9321844272457, 29.7091048995076,
@@ -1045,11 +1046,12 @@ test_that("gaussian evaluations of random effects models are correct with REML F
   expect_equal(
     colnames(all_coeffs),
     c(
-      "Repetition", "term", "estimate", "std.error", "statistic",
+      "Repetition", "effect", "term", "estimate", "std.error", "statistic",
       "p.value"
     )
   )
   expect_equal(all_coeffs$Repetition, 1:10)
+  expect_equal(all_coeffs$effect, rep("fixed", 10))
   expect_equal(all_coeffs$estimate,
     c(
       29.0475640591351, 34.3203425052484, 41.2416418477926, 29.944216654405,

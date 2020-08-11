@@ -23,6 +23,7 @@ Depends:
     R (>= 3.5)
 Imports:
     broom (>= 0.5.5),
+    broom.mixed (>= 0.2.6),
     checkmate (>= 2.0.0),
     data.table (>= 1.12),
     dplyr (>= 0.8.5),

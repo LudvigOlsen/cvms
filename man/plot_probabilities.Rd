@@ -12,20 +12,22 @@ plot_probabilities(
   obs_id_col = NULL,
   group_col = NULL,
   probability_of = "target",
-  order = "descending",
+  positive = 2,
+  order = "centered",
   theme_fn = ggplot2::theme_minimal,
   color_scale = ggplot2::scale_colour_brewer(palette = "Dark2"),
-  apply_facet = TRUE,
+  apply_facet = length(probability_cols) > 1,
   smoothe = FALSE,
   add_points = !is.null(obs_id_col),
   add_hlines = TRUE,
+  add_caption = TRUE,
+  show_x_scale = FALSE,
   line_settings = list(),
   smoothe_settings = list(),
   point_settings = list(),
   hline_settings = list(),
   facet_settings = list(),
-  ylim = c(0, 1),
-  verbose = TRUE
+  ylim = c(0, 1)
 )
 }
 \arguments{
@@ -98,6 +100,8 @@ plot_probabilities(
  One classifier might be very certain in its predictions (whether wrong or right), whereas
  another might be less certain.}
 
+\item{positive}{TODO}
+
 \item{order}{How to order of the the probabilities. (Character)
 
   One of: \code{"descending"}, \code{"ascending"}, and \code{"centered"}.}
@@ -114,7 +118,9 @@ plot_probabilities(
  the number of groups in the \code{`group_col`} column.}
 
 \item{apply_facet}{Whether to use
-\code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}. (Logical)}
+ \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}. (Logical)
+
+ By default, faceting is applied when there are more than one probability column (multiclass).}
 
 \item{smoothe}{Whether to use \code{\link[ggplot2:geom_smooth]{ggplot2::geom_smooth()}} instead of
  \code{\link[ggplot2:geom_line]{ggplot2::geom_line()}}.
@@ -137,6 +143,13 @@ These are grouped on the x-axis by the \code{`obs_id_col`} column. (Logical)}
   \code{TRUE} \tab \code{"target"} \tab \strong{Recall / Sensitivity} \cr
   \code{TRUE} \tab \code{"prediction"} \tab \strong{Precision / PPV} \cr
  }}
+
+\item{add_caption}{Whether to add a caption explaining the plot. This is dynamically generated
+ and intended as a starting point. (Logical)
+
+ You can overwrite the text with \code{ggplot2::labs(caption = "...")}.}
+
+\item{show_x_scale}{TODO}
 
 \item{line_settings}{Named list of arguments for \code{\link[ggplot2:geom_line]{ggplot2::geom_line()}}.
 
@@ -184,10 +197,6 @@ These are grouped on the x-axis by the \code{`obs_id_col`} column. (Logical)}
 
 \item{ylim}{Limits for the y-scale.}
 
-\item{verbose}{Whether to message the meaning of the horizontal lines. (Logical)
-
- This might be used to add additional explanations in a later version.}
-
 \item{targets_col}{Name of column with target levels.}
 }
 \value{
@@ -232,7 +241,7 @@ plot_probabilities(
   target_col = "Target",
   probability_cols = c("A", "B", "C", "D"),
   predicted_class_col = "Predicted Class",
-  group = "Classifier",
+  group_col = "Classifier",
   obs_id_col = "ID",
   probability_of = "target"
 )
@@ -245,7 +254,7 @@ plot_probabilities(
   target_col = "Target",
   probability_cols = c("A", "B", "C", "D"),
   predicted_class_col = "Predicted Class",
-  group = "Classifier",
+  group_col = "Classifier",
   obs_id_col = "ID",
   probability_of = "prediction"
 )
@@ -257,7 +266,7 @@ plot_probabilities(
   target_col = "Target",
   probability_cols = c("A", "B", "C", "D"),
   predicted_class_col = "Predicted Class",
-  group = "Classifier",
+  group_col = "Classifier",
   obs_id_col = "ID",
   probability_of = "prediction",
   order = "centered"
@@ -269,9 +278,13 @@ plot_probabilities(
 
 # Filter the predicted.musicians dataset
 binom_data <- predicted.musicians \%>\%
-  dplyr::filter(Target \%in\% c("A", "B")) \%>\%
+  dplyr::filter(
+    Target \%in\% c("A", "B")
+  ) \%>\%
   # "B" is the second class alphabetically
   dplyr::rename(Probability = B) \%>\%
+  dplyr::mutate(`Predicted Class` = ifelse(
+    Probability > 0.5, "B", "A")) \%>\%
   dplyr::select(-c("A","C","D"))
 
 # Plot probabilities of predicted classes
@@ -282,9 +295,20 @@ plot_probabilities(
   target_col = "Target",
   probability_cols = "Probability",
   predicted_class_col = "Predicted Class",
-  group = "Classifier",
+  group_col = "Classifier",
   obs_id_col = "ID",
   probability_of = "target"
+)
+
+plot_probabilities(
+  data = binom_data,
+  target_col = "Target",
+  probability_cols = "Probability",
+  predicted_class_col = "Predicted Class",
+  group_col = "Classifier",
+  obs_id_col = "ID",
+  probability_of = "prediction",
+  ylim = c(0.5, 1)
 )
 
 # Without faceting
@@ -294,7 +318,7 @@ plot_probabilities(
   target_col = "Target",
   probability_cols = "Probability",
   predicted_class_col = "Predicted Class",
-  group = "Classifier",
+  group_col = "Classifier",
   obs_id_col = "ID",
   probability_of = "target",
   apply_facet = FALSE

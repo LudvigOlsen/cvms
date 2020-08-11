@@ -242,8 +242,12 @@ nest_models <- function(model_coefs) {
 #   Levels as characters                                                    ####
 
 
-levels_as_characters <- function(col) {
-  levs <- levels(factor(col))
+levels_as_characters <- function(col, drop_unused = TRUE) {
+  fcol <- factor(col)
+  if (isTRUE(drop_unused)){
+    fcol <- droplevels(fcol)
+  }
+  levs <- levels(fcol)
 
   cat_levels <- plyr::llply(seq_len(length(levs)), function(i) {
     as.character(levs[i])

@@ -1,5 +1,5 @@
 
-extract_probabilities_of <- function(data, probability_cols, of_col = "Target", cat_levels = NULL){
+extract_probabilities_of <- function(data, probability_cols, of_col = "Target", cat_levels = NULL, positive = 2){
 
   # Multinomial
   if (length(probability_cols) > 1) {
@@ -19,14 +19,15 @@ extract_probabilities_of <- function(data, probability_cols, of_col = "Target", 
     # Binomial
 
     if (is.null(cat_levels)){
-      cat_levels <- levels_as_characters(data[[of_col]])
+      cat_levels <- levels_as_characters(data[[of_col]], drop_unused = TRUE)
     }
 
     if (length(cat_levels) != 2) {
       stop("When 'probability_cols' has length 1, the 'of_col' column should have 2 levels.")
     }
 
-    positive <- cat_levels[2]
+    if (is.numeric(positive))
+      positive <- cat_levels[positive]
 
     # Probability of 'of' column
     prob_of <-

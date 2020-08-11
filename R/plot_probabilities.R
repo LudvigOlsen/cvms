@@ -664,7 +664,7 @@ add_id_aggregates <- function(data, group_col, obs_id_col, of_col, prob_of_col,
   } else if (order == "ascending") {
     arrange_fn <- function(data, col){dplyr::arrange(data, !!as.name(col), .by_group = TRUE)}
   } else if (order == "centered") {
-    arrange_fn <- function(data, col){groupdata2::center_max(data = data, col = col)}
+    arrange_fn <- function(data, col){rearrr::center_max(data = data, col = col)}
   }
 
   # Order by IDs' average probability

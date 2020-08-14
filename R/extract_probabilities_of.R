@@ -1,4 +1,6 @@
 
+# TODO Optimize this for speed on laaaarge datasets
+# TODO Convert to external function
 extract_probabilities_of <- function(data, probability_cols, of_col = "Target", cat_levels = NULL, positive = 2){
 
   # Multinomial

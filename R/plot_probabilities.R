@@ -278,19 +278,6 @@
 #'   ylim = c(0.5, 1)
 #' )
 #'
-#' # Without faceting
-#' # Horizontal lines become accuracies
-#' plot_probabilities(
-#'   data = binom_data,
-#'   target_col = "Target",
-#'   probability_cols = "Probability",
-#'   predicted_class_col = "Predicted Class",
-#'   group_col = "Classifier",
-#'   obs_id_col = "ID",
-#'   probability_of = "target",
-#'   apply_facet = FALSE
-#' )
-#'
 #' }
 plot_probabilities <- function(data,
                                target_col,
@@ -716,7 +703,7 @@ call_plot_probabilities_ <- function(data,
       axis.title.x.top = ggplot2::element_text(margin = ggplot2::margin(0, 0, 6, 0)),
       axis.title.x.bottom = ggplot2::element_text(margin = ggplot2::margin(6, 0, 0, 0)),
       plot.caption = ggplot2::element_text(margin = ggplot2::margin(10, 0, 0, 0)),
-      panel.grid.minor = element_blank(),
+      panel.grid.minor = ggplot2::element_blank(),
       panel.grid.major = ggplot2::element_line(size = 0.25)
     )
 
@@ -724,7 +711,7 @@ call_plot_probabilities_ <- function(data,
     pl <- pl +
       ggplot2::theme(
         axis.text.x = ggplot2::element_blank(),
-        panel.grid.major.x = element_blank()
+        panel.grid.major.x = ggplot2::element_blank()
       )
   }
 
@@ -857,6 +844,8 @@ caption_probability_plot_ <- function(add_caption,
 }
 
 
+# TODO Optimize for speed on large datasets!
+# Perhaps this should be done as a data.table?
 add_id_aggregates <- function(data, group_col, obs_id_col, of_col, prob_of_col,
                               order, apply_facet, rank_col_name = ".observation_rank",
                               avg_prob_col = ".avg_probability"){
@@ -867,6 +856,8 @@ add_id_aggregates <- function(data, group_col, obs_id_col, of_col, prob_of_col,
     arrange_fn <- function(data, col){dplyr::arrange(data, !!as.name(col), .by_group = TRUE)}
   } else if (order == "centered") {
     arrange_fn <- function(data, col){rearrr::center_max(data = data, col = col)}
+  } else if (order == "identity") {
+    arrange_fn <- function(data, col){data %>% dplyr::ungroup()}
   }
 
   # Order by IDs' average probability
@@ -878,11 +869,11 @@ add_id_aggregates <- function(data, group_col, obs_id_col, of_col, prob_of_col,
 
   id_aggregates <- data %>%
     dplyr::group_by_at(c(by_cols, obs_id_col)) %>%
-    dplyr::summarise(!!avg_prob_col := mean(!!as.name(prob_of_col))) %>%
-    dplyr::group_by_at(by_cols) %>%
+    dplyr::summarise(!!avg_prob_col := mean(!!as.name(prob_of_col)),
+                     .groups = "drop_last") %>%
     arrange_fn(col = avg_prob_col) %>%
     dplyr::group_by_at(by_cols) %>%
-    dplyr::mutate(!!rank_col_name := seq_len(dplyr::n())) %>%
+    dplyr::mutate(!!rank_col_name := dplyr::row_number()) %>%
     dplyr::ungroup()
 
   # Add padding when centered
@@ -894,7 +885,7 @@ add_id_aggregates <- function(data, group_col, obs_id_col, of_col, prob_of_col,
     tmp_index <- create_tmp_name(id_aggregates, name = "max_val_index")
     max_val_indices_per_group <- id_aggregates %>%
       dplyr::group_by_at(c(group_col, of_col)) %>%
-      dplyr::mutate(!!tmp_index := seq_len(dplyr::n())) %>%
+      dplyr::mutate(!!tmp_index := dplyr::row_number()) %>%
       dplyr::filter(
         !!as.name(avg_prob_col) == max(!!as.name(avg_prob_col))
       ) %>%

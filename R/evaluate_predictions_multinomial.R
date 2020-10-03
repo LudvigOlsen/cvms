@@ -108,7 +108,7 @@ evaluate_predictions_multinomial <- function(data,
     })
 
     # Remove those 'missing' classes
-    classes <- setdiff(pred_col_classes, missing_classes)
+    classes <- sort(setdiff(pred_col_classes, missing_classes))
 
     num_classes <- length(classes)
 
@@ -419,7 +419,8 @@ evaluate_predictions_multinomial <- function(data,
       process_info_multinomial(
         data = data,
         targets_col = targets_col,
-        prediction_cols = model_specifics[["for_process"]][["prediction_cols"]],
+        prediction_cols = sort(model_specifics[["for_process"]][["prediction_cols"]]),
+        pred_class_col = "predicted_class",
         id_col = id_col,
         apply_softmax = model_specifics[["for_process"]][["apply_softmax"]],
         cat_levels = classes

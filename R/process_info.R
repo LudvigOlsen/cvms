@@ -62,9 +62,17 @@ as.character.cvms_process_info_binomial <- function(x, ...){
 
 
 process_info_multinomial <- function(
-  data, targets_col, prediction_cols, id_col, cat_levels, apply_softmax, locale=NULL){
+  data,
+  targets_col,
+  prediction_cols,
+  pred_class_col,
+  id_col,
+  cat_levels,
+  apply_softmax,
+  locale = NULL) {
   if (is.null(locale)) locale <- Sys.getlocale(category="LC_ALL")
   target_summary <- describe_categorical(data[[targets_col]])
+  predicted_class_summary <- describe_categorical(data[[pred_class_col]])
   l <- list(
     "Target Column" = targets_col,
     "Prediction Columns" = prediction_cols,
@@ -73,6 +81,7 @@ process_info_multinomial <- function(
     "Classes" = cat_levels,
     "Softmax Applied" = apply_softmax,
     "Target Summary" = target_summary,
+    "Prediction Summary" = predicted_class_summary,
     "Locale" = locale
   )
 
@@ -101,7 +110,8 @@ as.character.cvms_process_info_multinomial <- function(x, ...){
     "\nFamily / type: ", x[["Family"]],
     "\nClasses: ", classes_str,
     "\nSoftmax: ", ifelse(isTRUE(x[["Softmax Applied"]]), "Applied", "Not applied"),
-    "\nTarget counts: ", categorical_description_as_character(x[["Target Summary"]]),
+    "\nTarget counts: ", categorical_description_as_character(x[["Target Summary"]], lim=59),
+    "\nPrediction counts: ", categorical_description_as_character(x[["Prediction Summary"]], lim=55),
     "\nLocale (LC_ALL): \n  ", x[["Locale"]],
     "\n---"
   )
@@ -182,13 +192,16 @@ numeric_description_as_character <- function(x){
 }
 
 describe_categorical <- function(v, na.rm=FALSE){
+  class_counts <- table(v)
+  classes <- names(class_counts)
+  class_counts <- setNames(as.numeric(class_counts), nm = classes)
   list(
-    "Total"= length(v),
-    "Class Counts"= table(v)
+    "Total" = length(v),
+    "Class Counts" = class_counts
   )
 }
 
-categorical_description_as_character <- function(x){
+categorical_description_as_character <- function(x, lim=59){
   paste0(
     "total=",
     shorten_string(paste0(
@@ -197,6 +210,6 @@ categorical_description_as_character <- function(x){
         unname(x[["Class Counts"]]),
         collapse = ", ")
      ),
-    lim = 50)
+    lim = lim)
   )
 }

@@ -56,7 +56,7 @@ evaluate_predictions_binomial <- function(data,
   if (!na_in_targets && !na_in_predictions) {
     if (is.null(cat_levels)) {
       # Find the levels in the categorical target variable
-      cat_levels <- levels_as_characters(data[[targets_col]])
+      cat_levels <- sort(levels_as_characters(data[[targets_col]]))
     }
 
     if (length(cat_levels) > 2) {

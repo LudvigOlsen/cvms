@@ -3,6 +3,9 @@
 
 * In `plot_confusion_matrix()`, adds option to only have row and column percentages in the diagonal tiles. Thanks to [@xgirouxb ](https://github.com/LudvigOlsen/cvms/issues/12) for the idea.
 
+* Fixes: In binomial evaluation, the probabilities are now properly of the second class alphabetically.
+When the target column was a factor where the levels were not in alphabetic order, the second level in that order was used. The levels are now sorted before extraction.
+
 * Imports `broom.mixed` to allow tidying of coefficients from `lme4::lmer` models.
 
 # cvms 1.0.2

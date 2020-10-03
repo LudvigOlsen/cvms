@@ -150,8 +150,7 @@ evaluate_predictions_binomial <- function(data,
 }
 
 
-binomial_eval_confusion_matrices <- function(
-                                             data,
+binomial_eval_confusion_matrices <- function(data,
                                              targets_col,
                                              predicted_class_col,
                                              unique_fold_cols,

@@ -116,7 +116,7 @@
 #'  hyperparameters will be provided. Otherwise,
 #'  these arguments will be \code{NULL}.
 #' @param preprocess_once Whether to apply the preprocessing once
-#'  (ignoring the formula and hyperparameters arguments in \code{`preprocess_fn`})
+#'  (\strong{ignoring} the formula and hyperparameters arguments in \code{`preprocess_fn`})
 #'  or for every model separately. (Logical)
 #'
 #'  When preprocessing does not depend on the current formula or hyperparameters,

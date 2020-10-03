@@ -382,7 +382,7 @@ evaluate(
 
 # Create a tibble with predicted probabilities and targets
 data_mc <- multiclass_probability_tibble(
-  num_classes = 3, num_observations = 30,
+  num_classes = 3, num_observations = 45,
   apply_softmax = TRUE, FUN = runif,
   class_name = "class_",
   add_targets = TRUE
@@ -424,10 +424,10 @@ evaluate(
 
 # Add IDs and new targets (must be constant within IDs)
 data_mc[["Target"]] <- NULL
-data_mc[["ID"]] <- rep(1:6, each = 5)
+data_mc[["ID"]] <- rep(1:9, each = 5)
 id_classes <- tibble::tibble(
-  "ID" = 1:6,
-  "Target" = sample(x = class_names, size = 6, replace = TRUE)
+  "ID" = 1:9,
+  "Target" = sample(x = class_names, size = 9, replace = TRUE)
 )
 data_mc <- data_mc \%>\%
   dplyr::left_join(id_classes, by = "ID")

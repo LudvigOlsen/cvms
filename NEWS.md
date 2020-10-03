@@ -3,8 +3,12 @@
 
 * In `plot_confusion_matrix()`, adds option to only have row and column percentages in the diagonal tiles. Thanks to [@xgirouxb ](https://github.com/LudvigOlsen/cvms/issues/12) for the idea.
 
+* Adds `Process` information to output. [TODO Improve this message]
+
 * Fixes: In binomial evaluation, the probabilities are now properly of the second class alphabetically.
 When the target column was a factor where the levels were not in alphabetic order, the second level in that order was used. The levels are now sorted before extraction.
+
+* Fixes: In *grouped* multinomial evaluation, when predictions are classes and there are different sets of classes per group, only the classes in the subset are used.
 
 * Imports `broom.mixed` to allow tidying of coefficients from `lme4::lmer` models.
 

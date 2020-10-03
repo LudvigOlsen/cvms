@@ -98,7 +98,18 @@ evaluate_predictions_multinomial <- function(data,
 
     # Find the levels in the categorical target variable
     cat_levels_in_targets_col <- levels_as_characters(data[[targets_col]])
-    classes <- colnames(predicted_probabilities)
+    pred_col_classes <- colnames(predicted_probabilities)
+
+    # Find classes that are not in targets and were never predicted (always 0.0 probability)
+    classes_not_in_targets_col <- setdiff(pred_col_classes, cat_levels_in_targets_col)
+    missing_classes <- purrr::map(.x = classes_not_in_targets_col, .f = ~{
+      if (all(predicted_probabilities[[.x]] == 0.0))
+        .x
+    })
+
+    # Remove those 'missing' classes
+    classes <- setdiff(pred_col_classes, missing_classes)
+
     num_classes <- length(classes)
 
     # You may not have all the classes in the target (e.g. bad partitioning)
@@ -222,7 +233,7 @@ evaluate_predictions_multinomial <- function(data,
       if (is.null(group_info)) {
         tmp_group_info <- tibble::tibble("Class" = cl)
       } else {
-        tmp_group_info <- group_info # dplyr::as_tibble(group_info)
+        tmp_group_info <- group_info
         tmp_group_info[["Class"]] <- cl
       }
 
@@ -232,6 +243,7 @@ evaluate_predictions_multinomial <- function(data,
         predictions_col = local_tmp_predicted_probability_var,
         predicted_class_col = local_tmp_predicted_class_var,
         targets_col = local_tmp_target_var,
+        id_col=NULL,
         model_was_null_col = model_was_null_col,
         cat_levels = levels(factor(c(0, 1))),
         fold_info_cols = fold_info_cols,
@@ -252,6 +264,7 @@ evaluate_predictions_multinomial <- function(data,
 
     one_vs_all_evaluations[["Predictions"]] <- NULL
     one_vs_all_evaluations[["Positive Class"]] <- NULL
+    one_vs_all_evaluations[["Process"]] <- NULL
 
     # Move Support column
     one_vs_all_evaluations <- reposition_column(one_vs_all_evaluations,
@@ -401,6 +414,18 @@ evaluate_predictions_multinomial <- function(data,
       dplyr::pull(.data$data) %>%
       repeat_list_if(2, condition = both_keep_and_remove_NAs)
 
+    # Add process information
+    overall_results[["Process"]] <- list(
+      process_info_multinomial(
+        data = data,
+        targets_col = targets_col,
+        prediction_cols = model_specifics[["for_process"]][["prediction_cols"]],
+        id_col = id_col,
+        apply_softmax = model_specifics[["for_process"]][["apply_softmax"]],
+        cat_levels = classes
+      )
+    )
+
     # Rearrange columns in results
     all_cols <- colnames(overall_results)
     prediction_metrics <- intersect(metrics, all_cols)
@@ -408,6 +433,7 @@ evaluate_predictions_multinomial <- function(data,
     new_order <- c(prediction_metrics, "Results", "Class Level Results", non_metric_cols)
     results <- overall_results %>%
       base_select(cols = new_order)
+
   } else {
 
     # TODO replace with multinomial NA result

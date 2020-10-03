@@ -72,6 +72,16 @@ evaluate_predictions_binomial <- function(data,
       )
     }
 
+    positive <- model_specifics[["positive"]]
+    if (is.numeric(positive)) {
+      positive <- cat_levels[positive]
+    } else if (is.character(positive) && positive %ni% cat_levels) {
+      stop(paste0(
+        "When 'positive' is a character, it must correspond to a factor level in the dependent variable.",
+        "\n'positive' is ", positive, " and levels are ", paste(cat_levels, collapse = " and "), "."
+      ))
+    }
+
     # Nest predictions and targets
     # Will be NA if any model_was_null is TRUE and
     # include_predictions is TRUE
@@ -100,7 +110,7 @@ evaluate_predictions_binomial <- function(data,
       predicted_class_col = predicted_class_col,
       unique_fold_cols = unique_fold_cols,
       cat_levels = cat_levels,
-      positive = model_specifics[["positive"]],
+      positive = positive,
       fold_info_cols = fold_info_cols,
       group_info = group_info,
       include_fold_columns = include_fold_columns,
@@ -115,7 +125,7 @@ evaluate_predictions_binomial <- function(data,
         predictions_col = predictions_col,
         unique_fold_cols = unique_fold_cols,
         cat_levels = cat_levels,
-        positive = model_specifics[["positive"]],
+        positive = positive,
         fold_info_cols = fold_info_cols,
         include_fold_columns = include_fold_columns
       )
@@ -140,6 +150,19 @@ evaluate_predictions_binomial <- function(data,
     if (!isTRUE(calculate_roc)) {
       results[["ROC"]] <- NULL
     }
+
+    # Add process information
+    results[["Process"]] <- list(
+      process_info_binomial(
+        data = data,
+        targets_col = targets_col,
+        predictions_col = predictions_col,
+        id_col = model_specifics[["for_process"]][["id_col"]],
+        cat_levels = cat_levels,
+        positive = positive,
+        cutoff = model_specifics[["cutoff"]]
+      )
+    )
   } else {
     results <- binomial_classification_NA_results_tibble(
       metrics = metrics, include_predictions = include_predictions

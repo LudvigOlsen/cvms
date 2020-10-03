@@ -354,7 +354,7 @@
 #'
 #' # Create a tibble with predicted probabilities and targets
 #' data_mc <- multiclass_probability_tibble(
-#'   num_classes = 3, num_observations = 30,
+#'   num_classes = 3, num_observations = 45,
 #'   apply_softmax = TRUE, FUN = runif,
 #'   class_name = "class_",
 #'   add_targets = TRUE
@@ -396,10 +396,10 @@
 #'
 #' # Add IDs and new targets (must be constant within IDs)
 #' data_mc[["Target"]] <- NULL
-#' data_mc[["ID"]] <- rep(1:6, each = 5)
+#' data_mc[["ID"]] <- rep(1:9, each = 5)
 #' id_classes <- tibble::tibble(
-#'   "ID" = 1:6,
-#'   "Target" = sample(x = class_names, size = 6, replace = TRUE)
+#'   "ID" = 1:9,
+#'   "Target" = sample(x = class_names, size = 9, replace = TRUE)
 #' )
 #' data_mc <- data_mc %>%
 #'   dplyr::left_join(id_classes, by = "ID")
@@ -725,6 +725,12 @@ run_evaluate <- function(data,
     predict_fn = NULL,
     preprocess_fn = NULL,
     preprocess_once = NULL,
+    for_process = list(
+      apply_softmax=apply_softmax,
+      target_col=target_col,
+      prediction_cols=prediction_cols,
+      id_col = id_col
+    ),
     hparams = NULL,
     caller = caller
   ) %>%
@@ -945,8 +951,7 @@ run_evaluate <- function(data,
 }
 
 
-run_internal_evaluate_wrapper <- function(
-                                          data,
+run_internal_evaluate_wrapper <- function(data,
                                           type,
                                           predictions_col,
                                           targets_col,
@@ -1062,6 +1067,12 @@ run_internal_evaluate_wrapper <- function(
   results <- grouping_keys %>%
     dplyr::bind_cols(evaluations) %>%
     base_deselect(".__grouping__")
+
+  # Move Process last
+  if ("Process" %in% colnames(results)){
+    results <- results %>%
+      dplyr::relocate(.data$Process, .after = dplyr::last_col())
+  }
 
   # If na.rm != "both" and it contains the NAs_removed column
   if ((!is.character(na.rm) || na.rm != "both") &&
@@ -1183,7 +1194,6 @@ internal_evaluate <- function(data,
     }
     output[["ROC"]] <- ROCs
   }
-
   new_col_order <- c(metrics, intersect(info_cols, colnames(output)))
   base_select(output, cols = new_col_order)
 }

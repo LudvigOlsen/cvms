@@ -113,7 +113,6 @@ create_multinomial_baseline_evaluations <- function(test_data,
   ) %>%
     dplyr::as_tibble() %>%
     dplyr::mutate(
-      Family = "multinomial",
       Dependent = dependent_col
     )
 
@@ -299,7 +298,7 @@ create_multinomial_baseline_evaluations <- function(test_data,
           keep = TRUE
         ) %>%
         dplyr::pull(.data$`Class Level Results`),
-      .before = "Family"
+      .before = "Process"
     )
 
   # Add Repetition column to confusion matrix column
@@ -365,7 +364,6 @@ all_or_nothing_evaluations <- function(test_data, targets_col, current_class, re
       dplyr::mutate(Measure = paste0("All_", i - 1))
   }) %>%
     dplyr::as_tibble() %>%
-    dplyr::mutate(Family = "multinomial") %>%
     select_metrics(
       include_definitions = FALSE,
       additional_includes = "Measure"

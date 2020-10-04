@@ -3955,21 +3955,21 @@ test_that("evaluate() works with wines dataset", {
     ) %>%
     dplyr::arrange(current_variety)
 
-  expect_equal(mn_evaluations$`Class Level Results`[[1]]$Accuracy,
-    c(0.486413043478261, 0.798913043478261, 0.891304347826087, 0.942934782608696,
-      0.96195652173913, 0.0271739130434783, 0.978260869565217, 0.986413043478261,
-      0.989130434782609, 0.991847826086957
-    ),
+  expect_equal(
+    mn_evaluations$`Class Level Results`[[1]]$Accuracy,
+    c(0.0271739130434783, 0.978260869565217, 0.96195652173913, 0.989130434782609,
+    0.991847826086957, 0.986413043478261, 0.486413043478261, 0.942934782608696,
+    0.798913043478261, 0.891304347826087),
     tolerance = 1e-4
   )
-  expect_equal(mn_evaluations$`Class Level Results`[[1]]$F1,
-    c(
-      NaN, NaN, NaN, NaN, NaN, 0.0529100529100529, NaN, NaN, NaN,
-      NaN
-    ),
+  expect_equal(
+    mn_evaluations$`Class Level Results`[[1]]$F1,
+    c(0.0529100529100529, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN,
+    NaN),
     tolerance = 1e-4
   )
-  expect_equal(mn_evaluations$`Overall Accuracy`,
+  expect_equal(
+    mn_evaluations$`Overall Accuracy`,
     c(
       0.0271739130434783, 0.0217391304347826, 0.0380434782608696,
       0.0108695652173913, 0.00815217391304348, 0.0135869565217391,

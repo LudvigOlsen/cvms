@@ -110,7 +110,8 @@ test_that("binomial model work with validate()", {
            "s >= 0.5 are considered: 1\nLocale used when sorting class l",
            "evels (LC_ALL): \n  ",
            c("en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
-             "C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8"),
+             "C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
+             Sys.getlocale()),
            "\nTarget counts: total=9, 0=3, 1=6\nPro",
            "bability summary: mean: 0.615, median: 0.719, range: [0.097,",
            " 0.899], SD: 0.262, IQR: 0.286\n---"))
@@ -281,7 +282,8 @@ test_that("binomial mixed model work with validate()", {
              "s >= 0.5 are considered: 1\nLocale used when sorting class l",
              "evels (LC_ALL): \n  ",
              c("en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
-               "C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8"),
+               "C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
+               Sys.getlocale()),
              "\nTarget counts: total=12, 0=6, 1=6\nPro",
              "bability summary: mean: 0.555, median: 0.834, range: [0, 1], ",
              "SD: 0.497, IQR: 0.999\n---"))
@@ -418,7 +420,8 @@ test_that("gaussian model with validate()", {
            "7, range: [16.173, 69.441], SD: 17.635, IQR: 22.5\nLocale (L",
            "C_ALL): \n  ",
            c("en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
-             "C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8"),
+             "C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
+             Sys.getlocale()),
            "\n---"))
 })
 

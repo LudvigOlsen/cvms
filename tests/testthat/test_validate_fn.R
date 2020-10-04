@@ -4653,7 +4653,8 @@ test_that("testing nested tibbles in multinomial validate_fn()", {
   expect_true(
     vld_multinomial$Process[[1]]$`Locale` %in%
     c("en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
-      "C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8")
+      "C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
+      Sys.getlocale())
   )
 
   ## Finished testing 'vld_multinomial$Process[[1]]'                        ####
@@ -5004,7 +5005,8 @@ test_that("testing nested tibbles in gaussian validate_fn()", {
   expect_true(
     vld_gauss$Process[[1]]$`Locale` %in%
       c("en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
-        "C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8")
+        "C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
+        Sys.getlocale())
   )
 
   ## Finished testing 'vld_gauss$Process[[1]]'                        ####

@@ -563,7 +563,8 @@ test_that("binomial evaluations are correct in baseline()", {
   expect_true(
     output_19148$Locale %in% c(
       "C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
-      "en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8"
+      "en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
+      Sys.getlocale()
     )
   )
   ## Finished testing 'binom_baseline_reval$Process[[1]]'                   ####
@@ -593,7 +594,8 @@ test_that("binomial evaluations are correct in baseline()", {
            "ties >= 0.5 are considered: 1\nLocale used when sorting clas",
            "s levels (LC_ALL): \n  ",
            c("en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
-             "C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8"),
+             "C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
+             Sys.getlocale()),
            "\nTarget counts: total=30, 0=12, 1=1",
            "8\nProbability summary: mean: 0.51, median: 0.442, range: [0",
            ".013, 0.992], SD: 0.295, IQR: 0.491\n---"))
@@ -851,7 +853,8 @@ test_that("gaussian evaluations are correct in baseline()", {
   expect_true(
     output_11521$Locale %in% c(
       "C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
-      "en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8"
+      "en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
+      Sys.getlocale()
     )
   )
 
@@ -881,7 +884,8 @@ test_that("gaussian evaluations are correct in baseline()", {
            "7, IQR: 29.25\nPrediction summary: mean: 28.4, median: 28.4,",
            " range: [28.4, 28.4], SD: 0, IQR: 0\nLocale (LC_ALL): \n  ",
            c("en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
-             "C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8"),
+             "C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
+             Sys.getlocale()),
            "\n---"))
   # Testing names
   expect_equal(
@@ -1922,7 +1926,8 @@ test_that("multinomial evaluations are correct in baseline()", {
     expect_true(
       output_10358$Locale %in% c(
         "C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
-        "en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8"
+        "en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
+        Sys.getlocale()
       )
     )
     ## Finished testing 'multinom_baseline_random_eval_summ$Process...'     ####
@@ -1951,7 +1956,8 @@ test_that("multinomial evaluations are correct in baseline()", {
              "1=9, 2=7, 3=9\nPrediction counts: total=25, 1=7, 2=7, 3=11\n",
              "Locale (LC_ALL): \n  ",
              c("en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
-               "C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8"),
+               "C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
+               Sys.getlocale()),
              "\n---"))
     # Testing names
     expect_equal(
@@ -2771,7 +2777,8 @@ test_that("multinomial evaluations are correct in baseline()", {
              "1=9, 2=7, 3=9\nPrediction counts: total=25, 1=10, 2=7, 3=8\n",
              "Locale (LC_ALL): \n  ",
              c("en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
-               "C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8"),
+               "C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
+               Sys.getlocale()),
              "\n---"))
 
     expect_equal(

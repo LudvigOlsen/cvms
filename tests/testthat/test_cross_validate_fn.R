@@ -100,7 +100,8 @@ test_that("binomial glm model works with cross_validate_fn()", {
            "s >= 0.5 are considered: 1\nLocale used when sorting class l",
            "evels (LC_ALL): \n  ",
            c("en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
-             "C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8"),
+             "C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
+             Sys.getlocale()),
            "\nTarget counts: total=30, 0=12, 1=18\n",
            "Probability summary: mean: 0.585, median: 0.669, range: [0.0",
            "91, 0.932], SD: 0.272, IQR: 0.426\n---"))
@@ -2765,7 +2766,8 @@ test_that("gaussian random predictions work with cross_validate_fn()", {
            " range: [10.803, 69.514], SD: 16.338, IQR: 26.201\nLocale (L",
            "C_ALL): \n  ",
            c("en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
-             "C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8"),
+             "C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
+             Sys.getlocale()),
            "\n---")
   )
 

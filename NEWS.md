@@ -3,12 +3,16 @@
 
 * In `plot_confusion_matrix()`, adds option to only have row and column percentages in the diagonal tiles. Thanks to [@xgirouxb ](https://github.com/LudvigOlsen/cvms/issues/12) for the idea.
 
-* Adds `Process` information to output. [TODO Improve this message]
+* Adds `Process` information to output with the settings used. Adds transparency. It has a custom print method, making it easy to read. Underneath it is a list, why all information is available using `$` or similar. In most cases, the `Family` information has been moved into the `Process` object. Thanks to [@daviddalpiaz](https://github.com/LudvigOlsen/cvms/issues/13) for notifying me of the need for more transparency.
+
+* In outputs, the `Family` information is (in most cases) moved into the new `Process` object.
 
 * Fixes: In binomial evaluation, the probabilities are now properly of the second class alphabetically.
-When the target column was a factor where the levels were not in alphabetic order, the second level in that order was used. The levels are now sorted before extraction.
+When the target column was a factor where the levels were not in alphabetic order, the second level in that order was used. The levels are now sorted before extraction. Thanks to [@daviddalpiaz](https://github.com/LudvigOlsen/cvms/issues/13) for finding the bug.
 
 * Fixes: In *grouped* multinomial evaluation, when predictions are classes and there are different sets of classes per group, only the classes in the subset are used.
+
+* Fixes: Bug in `ROC` direction parameter being set wrong when `positive` is numeric. In regression tests, the `AUC` scores were *not* impacted.
 
 * Imports `broom.mixed` to allow tidying of coefficients from `lme4::lmer` models.
 

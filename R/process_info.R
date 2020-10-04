@@ -60,7 +60,7 @@ print.process_info_binomial <- function(x, ...){
 
 #' @rdname process_info_binomial
 #' @export
-as.character.process_info_binomial <- function(x){
+as.character.process_info_binomial <- function(x, ...){
   cat_levels <- x[["Classes"]]
   cutoff <- x[["Cutoff"]]
   paste0(
@@ -125,7 +125,7 @@ print.process_info_multinomial <- function(x, ...){
 
 #'@rdname process_info_binomial
 #'@export
-as.character.process_info_multinomial <- function(x){
+as.character.process_info_multinomial <- function(x, ...){
   # Collapse and shorten if necessary
   # E.g. in case of 100s of classes
   pred_cols_str <- paste0(x[["Prediction Columns"]], collapse = ", ")
@@ -184,7 +184,7 @@ print.process_info_gaussian <- function(x, ...){
 
 #'@rdname process_info_binomial
 #'@export
-as.character.process_info_gaussian <- function(x){
+as.character.process_info_gaussian <- function(x, ...){
   paste0(
     "---",
     "\nProcess Information",

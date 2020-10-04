@@ -976,6 +976,7 @@ empty_tile_percentages <- function(data){
 rcmd_import_handler <- function() {
   lifecycle::deprecate_soft()
   broom.mixed::tidy()
+  broom::tidy()
 }
 
 

@@ -104,7 +104,7 @@
 #' #   predicted_class_col = "Predicted Class",
 #' #   group_col = "Classifier",
 #' #   probability_of = "target"
-#' )
+#' # )
 #'
 #' # Plot probabilities of predicted classes
 #' # From repeated cross-validation of three classifiers

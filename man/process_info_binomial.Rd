@@ -25,7 +25,7 @@ process_info_binomial(
 
 \method{print}{process_info_binomial}(x, ...)
 
-\method{as.character}{process_info_binomial}(x)
+\method{as.character}{process_info_binomial}(x, ...)
 
 process_info_multinomial(
   data,
@@ -40,7 +40,7 @@ process_info_multinomial(
 
 \method{print}{process_info_multinomial}(x, ...)
 
-\method{as.character}{process_info_multinomial}(x)
+\method{as.character}{process_info_multinomial}(x, ...)
 
 process_info_gaussian(
   data,
@@ -52,7 +52,7 @@ process_info_gaussian(
 
 \method{print}{process_info_gaussian}(x, ...)
 
-\method{as.character}{process_info_gaussian}(x)
+\method{as.character}{process_info_gaussian}(x, ...)
 }
 \arguments{
 \item{data}{Data frame.}

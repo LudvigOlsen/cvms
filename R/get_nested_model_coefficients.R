@@ -31,7 +31,7 @@ get_nested_model_coefficients <- function(model,
 
   coefs_tidy <- tryCatch(
     {
-      broom::tidy(model, effects = c("fixed")) # Custom tidy methods?
+      broom.mixed::tidy(model, effects = c("fixed")) # Custom tidy methods?
     },
     error = function(e) {
       # If broom::tidy wasn't implemented for the model type

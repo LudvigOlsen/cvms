@@ -2133,10 +2133,8 @@ test_that("preprocessing works with binomial mixed models in cross_validate()", 
   # No preprocessing
   expect_equal(CVbinomlist_no_preprocessing$`Balanced Accuracy`, c(0.8611111), tolerance = 1e-3)
   expect_equal(CVbinomlist_no_preprocessing$Coefficients[[1]]$estimate,
-    c(
-      8.3579464874966, -0.193892587463713, 55.2463242203065, -1.33929033061194,
-      7.64561163963771, -0.168532399577982
-    ),
+    c(8.3579464874966, -0.193892587463713, 55.2463242203065, -1.33929033061194,
+      7.64561163963771, -0.168532399577982),
     tolerance = 1e-6
   )
   expect_equal(CVbinomlist_no_preprocessing$Predictions[[1]]$Prediction,

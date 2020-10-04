@@ -1062,10 +1062,7 @@ test_that("gaussian evaluations of random effects models are correct in baseline
   all_coeffs <- dplyr::bind_rows(gaussian_baseline_reval$Coefficients)
   expect_equal(
     colnames(all_coeffs),
-    c(
-      "Repetition", "effect", "term", "estimate", "std.error", "statistic",
-      "p.value"
-    )
+    c("Repetition", "effect", "term", "estimate", "std.error", "statistic","p.value")
   )
   expect_equal(all_coeffs$Repetition, 1:10)
   expect_equal(all_coeffs$effect, rep("fixed", 10))
@@ -1253,10 +1250,7 @@ test_that("gaussian evaluations of random effects models are correct with REML F
   all_coeffs <- dplyr::bind_rows(gaussian_baseline_reval$Coefficients)
   expect_equal(
     colnames(all_coeffs),
-    c(
-      "Repetition", "effect", "term", "estimate", "std.error", "statistic",
-      "p.value"
-    )
+    c("Repetition", "effect", "term", "estimate", "std.error", "statistic", "p.value")
   )
   expect_equal(all_coeffs$Repetition, 1:10)
   expect_equal(all_coeffs$effect, rep("fixed", 10))

@@ -224,7 +224,8 @@ call_confusion_matrix <- function(targets,
                                   do_one_vs_all = TRUE,
                                   parallel = FALSE,
                                   fold_col = NULL,
-                                  group_info = NULL) {
+                                  group_info = NULL,
+                                  force_multiclass = FALSE) {
   if (checkmate::test_string(x = metrics, pattern = "^all$")) {
     metrics <- list("all" = TRUE)
   }
@@ -237,6 +238,7 @@ call_confusion_matrix <- function(targets,
   )
   checkmate::assert_flag(x = do_one_vs_all, add = assert_collection)
   checkmate::assert_flag(x = parallel, add = assert_collection)
+  checkmate::assert_flag(x = force_multiclass, add = assert_collection)
   checkmate::assert_vector(
     x = targets,
     any.missing = FALSE, add = assert_collection
@@ -320,7 +322,7 @@ call_confusion_matrix <- function(targets,
     checkmate::reportAssertions(assert_collection)
   }
 
-  if (length(c_levels) == 2) {
+  if (length(c_levels) == 2 && !isTRUE(force_multiclass)) {
 
     # If not already a list of metric names
     if (typeof(metrics) != "character" ||

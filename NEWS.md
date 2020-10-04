@@ -16,6 +16,8 @@ When the target column was a factor where the levels were not in alphabetic orde
 
 * Fixes: Bug in `ROC` direction parameter being set wrong when `positive` is numeric. In regression tests, the `AUC` scores were *not* impacted.
 
+* Fixes: 2-class `multinomial` evaluation returns all expected metrics.
+
 * In multinomial evaluation, the `Class Level Results` are sorted by the `Class`.
 
 * Imports `broom.mixed` to allow tidying of coefficients from `lme4::lmer` models.

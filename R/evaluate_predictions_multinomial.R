@@ -146,20 +146,19 @@ evaluate_predictions_multinomial <- function(data,
 
       # Create multiclass confusion matrix
       # Also calculates MCC and Overall Accuracy
-      fcol_confusion_matrix <- tryCatch(
-        {
-          confusion_matrix(
-            targets = fcol_data[[targets_col]],
-            predictions = fcol_data[["predicted_class"]],
-            c_levels = classes,
-            metrics = metrics,
-            do_one_vs_all = FALSE
-          )
-        },
-        error = function(e) {
-          stop(paste0("Confusion matrix error: ", e))
-        }
-      )
+      fcol_confusion_matrix <- tryCatch({
+        call_confusion_matrix(
+          targets = fcol_data[[targets_col]],
+          predictions = fcol_data[["predicted_class"]],
+          c_levels = classes,
+          metrics = metrics,
+          do_one_vs_all = FALSE,
+          force_multiclass = TRUE
+        )
+      },
+      error = function(e) {
+        stop(paste0("Confusion matrix error: ", e))
+      })
 
       if ("AUC" %in% metrics){
 

@@ -678,7 +678,8 @@ test_that("multinomial evaluations are correct in evaluate()", {
       "fold_", "Overall Accuracy", "Balanced Accuracy", "F1", "Sensitivity",
       "Specificity", "Pos Pred Value", "Neg Pred Value",
       "Kappa", "MCC", "Detection Rate", "Detection Prevalence",
-      "Prevalence", "Predictions", "Confusion Matrix", "Class Level Results"
+      "Prevalence", "Predictions", "Confusion Matrix", "Class Level Results",
+      "Process"
     )
   )
   expect_equal(
@@ -1423,7 +1424,8 @@ test_that("multinomial evaluations with one predicted class column is correctly 
       "fold_", "Overall Accuracy", "Balanced Accuracy", "F1", "Sensitivity",
       "Specificity", "Pos Pred Value", "Neg Pred Value",
       "Kappa", "MCC", "Detection Rate", "Detection Prevalence",
-      "Prevalence", "Predictions", "Confusion Matrix", "Class Level Results"
+      "Prevalence", "Predictions", "Confusion Matrix", "Class Level Results",
+      "Process"
     )
   )
   expect_equal(
@@ -2255,7 +2257,8 @@ test_that("specific multinomial predictions yield correct results in evaluate()"
       ".groups", "Overall Accuracy", "Balanced Accuracy", "F1", "Sensitivity",
       "Specificity", "Pos Pred Value", "Neg Pred Value", "AUC",
       "Kappa", "MCC", "Detection Rate", "Detection Prevalence",
-      "Prevalence", "Predictions", "ROC", "Confusion Matrix", "Class Level Results"
+      "Prevalence", "Predictions", "ROC", "Confusion Matrix", "Class Level Results",
+      "Process"
     )
   )
 
@@ -2514,16 +2517,18 @@ test_that("arguments throw proper errors and warnings in evaluate()", {
   # Test that pROC::roc returns the expected error
   # when there's only observations for one level in the target col ("response")
 
-  expect_error(pROC::roc(data.frame(
-    "target" = c(1, 1, 1),
-    preds = c(0.01, 0.01, 1 - 0.02)
-  ),
-  response = "target",
-  predictor = "preds",
-  levels = c(0, 1)
-  ),
-  "No control observation.",
-  fixed = TRUE
+  expect_error(
+    pROC::roc(
+      data.frame(
+        "target" = c(1, 1, 1),
+        preds = c(0.01, 0.01, 1 - 0.02)
+      ),
+      response = "target",
+      predictor = "preds",
+      levels = c(0, 1)
+    ),
+    "No control observation.",
+    fixed = TRUE
   )
 })
 
@@ -2708,8 +2713,6 @@ test_that("binomial evaluation works in evaluate()", {
     tolerance = 1e-4
   )
 
-  expect_equal(bn_eval_1_inv$`Positive Class`, "cl_2")
-
   expect_true(!identical(bn_eval_1$ROC[[1]], bn_eval_1_inv$ROC[[1]]))
 
   expect_equal(
@@ -2815,7 +2818,7 @@ test_that("binomial evaluation works in evaluate()", {
     0.5,
     tolerance = 1e-4
   )
-  expect_equal(bn_eval_2$`Positive Class`, "cl_1")
+  expect_equal(bn_eval_2$Process[[1]]$`Positive Class`, "cl_1")
 
   # not including predictions
   bn_eval_2_no_preds <- evaluate(
@@ -2829,7 +2832,7 @@ test_that("binomial evaluation works in evaluate()", {
     include_predictions = FALSE
   )
 
-  expect_equal(bn_eval_2_no_preds$`Positive Class`, "cl_1")
+  expect_equal(bn_eval_2_no_preds$Process[[1]]$`Positive Class`, "cl_1")
   expect_equal(
     colnames(bn_eval_2_no_preds),
     c(
@@ -2837,7 +2840,7 @@ test_that("binomial evaluation works in evaluate()", {
       "Specificity", "Pos Pred Value", "Neg Pred Value", "AUC",
       "Lower CI", "Upper CI", "Kappa", "MCC",
       "Detection Rate", "Detection Prevalence", "Prevalence",
-      "ROC", "Confusion Matrix", "Positive Class"
+      "ROC", "Confusion Matrix", "Process"
     )
   )
   expect_identical(bn_eval_2_no_preds, bn_eval_2 %>% dplyr::select(-dplyr::one_of("Predictions")))
@@ -2927,7 +2930,7 @@ test_that("binomial evaluation works in evaluate()", {
     0.5,
     tolerance = 1e-4)
   expect_equal(
-    bn_eval_3[["Positive Class"]],
+    bn_eval_3[["Process"]][[1]][["Positive Class"]],
     "cl_2",
     fixed = TRUE)
   # Testing column names
@@ -2936,21 +2939,21 @@ test_that("binomial evaluation works in evaluate()", {
     c("Balanced Accuracy", "F1", "Sensitivity", "Specificity", "Pos Pred Value",
       "Neg Pred Value", "AUC", "Lower CI", "Upper CI", "Kappa", "MCC",
       "Detection Rate", "Detection Prevalence", "Prevalence", "Predictions",
-      "ROC", "Confusion Matrix", "Positive Class"),
+      "ROC", "Confusion Matrix", "Process"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
     xpectr::element_classes(bn_eval_3),
     c("numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
-      "numeric", "numeric", "list", "list", "list", "character"),
+      "numeric", "numeric", "list", "list", "list", "list"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::element_types(bn_eval_3),
     c("double", "double", "double", "double", "double", "double", "double",
       "double", "double", "double", "double", "double", "double",
-      "double", "list", "list", "list", "character"),
+      "double", "list", "list", "list", "list"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
@@ -3106,7 +3109,7 @@ test_that("binomial evaluation works in evaluate()", {
       "Specificity", "Pos Pred Value", "Neg Pred Value", "AUC",
       "Lower CI", "Upper CI", "Kappa", "MCC",
       "Detection Rate", "Detection Prevalence", "Prevalence",
-      "ROC", "Confusion Matrix", "Positive Class"
+      "ROC", "Confusion Matrix", "Process"
     )
   )
 
@@ -3131,7 +3134,7 @@ test_that("binomial evaluation works in evaluate()", {
       "Specificity", "Pos Pred Value", "Neg Pred Value", "AUC",
       "Lower CI", "Upper CI", "Kappa", "MCC",
       "Detection Rate", "Detection Prevalence", "Prevalence",
-      "Predictions", "ROC", "Confusion Matrix", "Positive Class"
+      "Predictions", "ROC", "Confusion Matrix", "Process"
     )
   )
   expect_equal(bn_eval_4$`Balanced Accuracy`, 0.5)
@@ -3148,7 +3151,7 @@ test_that("binomial evaluation works in evaluate()", {
   expect_equal(bn_eval_4$`Detection Rate`, 0.4, tolerance = 1e-4)
   expect_equal(bn_eval_4$`Detection Prevalence`, 0.8, tolerance = 1e-4)
   expect_equal(bn_eval_4$Prevalence, 0.5, tolerance = 1e-4)
-  expect_equal(bn_eval_4$`Positive Class`, "cl_2")
+  expect_equal(bn_eval_4[["Process"]][[1]]$`Positive Class`, "cl_2")
   expect_equal(length(bn_eval_4$Predictions), 1, tolerance = 1e-4)
   expect_equal(bn_eval_4$Predictions[[1]]$Target,
     c(
@@ -3309,12 +3312,11 @@ test_that("gaussian evaluations are correct in evaluate()", {
 
   expect_equal(
     colnames(e1),
-    c(
-      "RMSE", "MAE", "NRMSE(RNG)","NRMSE(IQR)","NRMSE(STD)","NRMSE(AVG)",
+    c("RMSE", "MAE", "NRMSE(RNG)","NRMSE(IQR)","NRMSE(STD)","NRMSE(AVG)",
       "RSE", "RRSE", "RAE",
       "RMSLE", "MALE",
       "MAPE", "MSE", "TAE", "TSE",
-      "Predictions"
+      "Predictions", "Process"
     )
   )
 
@@ -3349,7 +3351,7 @@ test_that("gaussian evaluations are correct in evaluate()", {
     colnames(e2),
     c("RMSE", "MAE", "NRMSE(RNG)", "NRMSE(IQR)", "NRMSE(STD)", "NRMSE(AVG)",
     "RSE", "RRSE", "RAE", "RMSLE", "MALE", "MAPE", "MSE", "TAE",
-    "TSE", "Predictions")
+    "TSE", "Predictions", "Process")
   )
   expect_equal(e2$RMSE, 16.16881, tolerance = 1e-4)
   expect_equal(e2$MAE, 13.47778, tolerance = 1e-4)
@@ -3383,7 +3385,7 @@ test_that("gaussian evaluations are correct in evaluate()", {
     colnames(e3),
     c("RMSE", "MAE", "NRMSE(RNG)", "NRMSE(IQR)", "NRMSE(STD)", "NRMSE(AVG)",
     "RSE", "RRSE", "RAE", "RMSLE", "MALE", "MAPE", "MSE", "TAE",
-    "TSE", "Predictions")
+    "TSE", "Predictions", "Process")
   )
 
   eval_data_3 <- dplyr::bind_rows(
@@ -3407,7 +3409,7 @@ test_that("gaussian evaluations are correct in evaluate()", {
     colnames(e4),
     c("fold_", "RMSE", "MAE", "NRMSE(RNG)", "NRMSE(IQR)", "NRMSE(STD)",
     "NRMSE(AVG)", "RSE", "RRSE", "RAE", "RMSLE", "MALE", "MAPE",
-    "MSE", "TAE", "TSE", "Predictions")
+    "MSE", "TAE", "TSE", "Predictions", "Process")
   )
 
   e1_e3 <- dplyr::bind_rows(e1, e3) %>%
@@ -3587,21 +3589,21 @@ test_that("gaussian evaluations are correct in evaluate()", {
     names(e5),
     c("fold_", "RMSE", "MAE", "NRMSE(RNG)", "NRMSE(IQR)", "NRMSE(STD)",
       "NRMSE(AVG)", "RSE", "RRSE", "RAE", "RMSLE", "MALE", "MAPE",
-      "MSE", "TAE", "TSE", "Predictions"),
+      "MSE", "TAE", "TSE", "Predictions", "Process"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
     xpectr::element_classes(e5),
     c("numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
-      "numeric", "numeric", "numeric", "numeric", "list"),
+      "numeric", "numeric", "numeric", "numeric", "list", "list"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::element_types(e5),
     c("double", "double", "double", "double", "double", "double", "double",
       "double", "double", "double", "double", "double", "double",
-      "double", "double", "double", "list"),
+      "double", "double", "double", "list", "list"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
@@ -3755,7 +3757,7 @@ test_that("gaussian evaluations are correct in evaluate()", {
     colnames(e6),
     c("fold_", "RMSE", "MAE", "NRMSE(RNG)", "NRMSE(IQR)", "NRMSE(STD)",
     "NRMSE(AVG)", "RSE", "RRSE", "RAE", "RMSLE", "MALE", "MAPE",
-    "MSE", "TAE", "TSE")
+    "MSE", "TAE", "TSE", "Process")
   )
 })
 
@@ -3954,8 +3956,7 @@ test_that("evaluate() works with wines dataset", {
     dplyr::arrange(current_variety)
 
   expect_equal(mn_evaluations$`Class Level Results`[[1]]$Accuracy,
-    c(
-      0.486413043478261, 0.798913043478261, 0.891304347826087, 0.942934782608696,
+    c(0.486413043478261, 0.798913043478261, 0.891304347826087, 0.942934782608696,
       0.96195652173913, 0.0271739130434783, 0.978260869565217, 0.986413043478261,
       0.989130434782609, 0.991847826086957
     ),
@@ -4147,12 +4148,12 @@ test_that("evaluate() and confusion_matrix() has same metric values", {
   shared_cols <- intersect(colnames(eval_binom), colnames(cfm_binom))
   eval_binom_shared <- eval_binom %>%
     base_deselect(cols = c(
-      "Confusion Matrix", "Positive Class",
+      "Confusion Matrix", "Process",
       setdiff(colnames(eval_binom), shared_cols)
     ))
   cfm_binom_shared <- cfm_binom %>%
     base_deselect(cols = c(
-      "Confusion Matrix", "Positive Class",
+      "Confusion Matrix", "Process",
       setdiff(colnames(cfm_binom), shared_cols)
     ))
   expect_equal(colnames(eval_binom_shared),
@@ -4160,9 +4161,9 @@ test_that("evaluate() and confusion_matrix() has same metric values", {
   expect_equal(unlist(eval_binom_shared), unlist(cfm_binom_shared))
   expect_equal(eval_binom$`Confusion Matrix`,
                cfm_binom$`Confusion Matrix`)
-  expect_equal(eval_binom$`Positive Class`,
-               cfm_binom$`Positive Class`)
-  expect_equal(eval_binom$`Positive Class`, "0")
+  expect_equal(eval_binom$`Process`,
+               cfm_binom$`Process`)
+  expect_equal(eval_binom[["Process"]][[1]]$`Positive Class`, "0")
 
 
   # Multinomial
@@ -4830,7 +4831,7 @@ test_that("the different prediction formats work properly in multinomial evaluat
   expect_equal(
     names(output_19148),
     c("Overall Accuracy", "Sensitivity", "Predictions", "Confusion Matrix",
-      "Class Level Results"),
+      "Class Level Results", "Process"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
@@ -4890,7 +4891,7 @@ test_that("the different prediction formats work properly in multinomial evaluat
   expect_equal(
     names(output_12861),
     c("Overall Accuracy", "Sensitivity", "Predictions", "Confusion Matrix",
-      "Class Level Results"),
+      "Class Level Results", "Process"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
@@ -4935,7 +4936,7 @@ test_that("the different prediction formats work properly in multinomial evaluat
   expect_equal(
     names(output_18304),
     c("Overall Accuracy", "Sensitivity", "Predictions", "Confusion Matrix",
-      "Class Level Results"),
+      "Class Level Results", "Process"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
@@ -5025,7 +5026,7 @@ test_that("the different prediction formats work properly in multinomial evaluat
   expect_equal(
     names(output_11346),
     c("Overall Accuracy", "Sensitivity", "Predictions", "Confusion Matrix",
-      "Class Level Results"),
+      "Class Level Results", "Process"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
@@ -5070,7 +5071,7 @@ test_that("the different prediction formats work properly in multinomial evaluat
   expect_equal(
     names(output_16569),
     c("Overall Accuracy", "Sensitivity", "Predictions", "Confusion Matrix",
-      "Class Level Results"),
+      "Class Level Results", "Process"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
@@ -5205,7 +5206,7 @@ test_that("the different prediction formats work properly in multinomial evaluat
   expect_equal(
     names(output_19400),
     c("Overall Accuracy", "Sensitivity", "Predictions", "Confusion Matrix",
-      "Class Level Results"),
+      "Class Level Results", "Process"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
@@ -5250,7 +5251,7 @@ test_that("the different prediction formats work properly in multinomial evaluat
   expect_equal(
     names(output_19782),
     c("Overall Accuracy", "Sensitivity", "Predictions", "Confusion Matrix",
-      "Class Level Results"),
+      "Class Level Results", "Process"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
@@ -5295,7 +5296,7 @@ test_that("the different prediction formats work properly in multinomial evaluat
   expect_equal(
     names(output_11174),
     c("Overall Accuracy", "Sensitivity", "Predictions", "Confusion Matrix",
-      "Class Level Results"),
+      "Class Level Results", "Process"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
@@ -5471,14 +5472,14 @@ test_that("the different prediction formats work properly in binomial evaluate()
     output_19148[["ROC"]],
     NA)
   expect_equal(
-    output_19148[["Positive Class"]],
+    output_19148[["Process"]][[1]][["Positive Class"]],
     "2",
     fixed = TRUE)
   # Testing column names
   expect_equal(
     names(output_19148),
     c("Balanced Accuracy", "Sensitivity", "Predictions", "ROC", "Confusion Matrix",
-      "Positive Class"),
+      "Process"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
@@ -5538,14 +5539,14 @@ test_that("the different prediction formats work properly in binomial evaluate()
     output_12861[["ROC"]],
     NA)
   expect_equal(
-    output_12861[["Positive Class"]],
+    output_12861[["Process"]][[1]][["Positive Class"]],
     "2",
     fixed = TRUE)
   # Testing column names
   expect_equal(
     names(output_12861),
     c("Balanced Accuracy", "Sensitivity", "Predictions", "ROC", "Confusion Matrix",
-      "Positive Class"),
+      "Process"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
@@ -5590,14 +5591,14 @@ test_that("the different prediction formats work properly in binomial evaluate()
     output_18304[["ROC"]],
     NA)
   expect_equal(
-    output_18304[["Positive Class"]],
+    output_18304[["Process"]][[1]][["Positive Class"]],
     "2",
     fixed = TRUE)
   # Testing column names
   expect_equal(
     names(output_18304),
     c("Balanced Accuracy", "Sensitivity", "Predictions", "ROC", "Confusion Matrix",
-      "Positive Class"),
+      "Process"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
@@ -5657,14 +5658,14 @@ test_that("the different prediction formats work properly in binomial evaluate()
     output_15190[["ROC"]],
     NA)
   expect_equal(
-    output_15190[["Positive Class"]],
+    output_15190[["Process"]][[1]][["Positive Class"]],
     "2",
     fixed = TRUE)
   # Testing column names
   expect_equal(
     names(output_15190),
     c("Balanced Accuracy", "Sensitivity", "Predictions", "ROC", "Confusion Matrix",
-      "Positive Class"),
+      "Process"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
@@ -5739,14 +5740,14 @@ test_that("the different prediction formats work properly in binomial evaluate()
     output_16569[["ROC"]],
     NA)
   expect_equal(
-    output_16569[["Positive Class"]],
+    output_16569[["Process"]][[1]][["Positive Class"]],
     "2",
     fixed = TRUE)
   # Testing column names
   expect_equal(
     names(output_16569),
     c("Balanced Accuracy", "Sensitivity", "Predictions", "ROC", "Confusion Matrix",
-      "Positive Class"),
+      "Process"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
@@ -5851,14 +5852,14 @@ test_that("the different prediction formats work properly in binomial evaluate()
     output_12554[["ROC"]],
     NA)
   expect_equal(
-    output_12554[["Positive Class"]],
+    output_12554[["Process"]][[1]][["Positive Class"]],
     "2",
     fixed = TRUE)
   # Testing column names
   expect_equal(
     names(output_12554),
     c("Balanced Accuracy", "Sensitivity", "Predictions", "ROC", "Confusion Matrix",
-      "Positive Class"),
+      "Process"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
@@ -5903,14 +5904,14 @@ test_that("the different prediction formats work properly in binomial evaluate()
     output_14622[["ROC"]],
     NA)
   expect_equal(
-    output_14622[["Positive Class"]],
+    output_14622[["Process"]][[1]][["Positive Class"]],
     "2",
     fixed = TRUE)
   # Testing column names
   expect_equal(
     names(output_14622),
     c("Balanced Accuracy", "Sensitivity", "Predictions", "ROC", "Confusion Matrix",
-      "Positive Class"),
+      "Process"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
@@ -5955,14 +5956,14 @@ test_that("the different prediction formats work properly in binomial evaluate()
     output_19400[["ROC"]],
     NA)
   expect_equal(
-    output_19400[["Positive Class"]],
+    output_19400[["Process"]][[1]][["Positive Class"]],
     "2",
     fixed = TRUE)
   # Testing column names
   expect_equal(
     names(output_19400),
     c("Balanced Accuracy", "Sensitivity", "Predictions", "ROC", "Confusion Matrix",
-      "Positive Class"),
+      "Process"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
@@ -6007,14 +6008,14 @@ test_that("the different prediction formats work properly in binomial evaluate()
     output_19782[["ROC"]],
     NA)
   expect_equal(
-    output_19782[["Positive Class"]],
+    output_19782[["Process"]][[1]][["Positive Class"]],
     "2",
     fixed = TRUE)
   # Testing column names
   expect_equal(
     names(output_19782),
     c("Balanced Accuracy", "Sensitivity", "Predictions", "ROC", "Confusion Matrix",
-      "Positive Class"),
+      "Process"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
@@ -6089,14 +6090,14 @@ test_that("the different prediction formats work properly in binomial evaluate()
     output_15603[["ROC"]],
     NA)
   expect_equal(
-    output_15603[["Positive Class"]],
+    output_15603[["Process"]][[1]][["Positive Class"]],
     "1",
     fixed = TRUE)
   # Testing column names
   expect_equal(
     names(output_15603),
     c("Balanced Accuracy", "Sensitivity", "Predictions", "ROC", "Confusion Matrix",
-      "Positive Class"),
+      "Process"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
@@ -6141,14 +6142,14 @@ test_that("the different prediction formats work properly in binomial evaluate()
     output_19040[["ROC"]],
     NA)
   expect_equal(
-    output_19040[["Positive Class"]],
+    output_19040[["Process"]][[1]][["Positive Class"]],
     "2",
     fixed = TRUE)
   # Testing column names
   expect_equal(
     names(output_19040),
     c("Balanced Accuracy", "Sensitivity", "Predictions", "ROC", "Confusion Matrix",
-      "Positive Class"),
+      "Process"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(

@@ -419,7 +419,7 @@ evaluate_predictions_multinomial <- function(data,
       process_info_multinomial(
         data = data,
         targets_col = targets_col,
-        prediction_cols = sort(model_specifics[["for_process"]][["prediction_cols"]]),
+        prediction_cols = classes,
         pred_class_col = "predicted_class",
         id_col = id_col,
         apply_softmax = model_specifics[["for_process"]][["apply_softmax"]],

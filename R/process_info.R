@@ -10,7 +10,7 @@
 
 process_info_binomial <- function(data, targets_col, predictions_col, id_col, cat_levels, positive, cutoff, locale=NULL){
   if (is.null(locale)) locale <- Sys.getlocale(category="LC_ALL")
-  target_summary <- describe_categorical(data[[targets_col]])
+  target_summary <- describe_categorical(data[[targets_col]], classes=cat_levels)
   predictions_summary <- describe_numeric(data[[predictions_col]])
   l <- list(
     "Target Column" = targets_col,
@@ -71,8 +71,8 @@ process_info_multinomial <- function(
   apply_softmax,
   locale = NULL) {
   if (is.null(locale)) locale <- Sys.getlocale(category="LC_ALL")
-  target_summary <- describe_categorical(data[[targets_col]])
-  predicted_class_summary <- describe_categorical(data[[pred_class_col]])
+  target_summary <- describe_categorical(data[[targets_col]], classes=cat_levels)
+  predicted_class_summary <- describe_categorical(data[[pred_class_col]], classes=cat_levels)
   l <- list(
     "Target Column" = targets_col,
     "Prediction Columns" = prediction_cols,
@@ -109,7 +109,9 @@ as.character.cvms_process_info_multinomial <- function(x, ...){
     ifelse(!is.null(x[["ID Column"]]), paste0("\nID column: ", x[["ID Column"]]), ""),
     "\nFamily / type: ", x[["Family"]],
     "\nClasses: ", classes_str,
-    "\nSoftmax: ", ifelse(isTRUE(x[["Softmax Applied"]]), "Applied", "Not applied"),
+    ifelse(!is.null(x[["Softmax Applied"]]),
+           paste0("\nSoftmax: ", ifelse(isTRUE(x[["Softmax Applied"]]), "Applied", "Not applied")),
+           ""),
     "\nTarget counts: ", categorical_description_as_character(x[["Target Summary"]], lim=59),
     "\nPrediction counts: ", categorical_description_as_character(x[["Prediction Summary"]], lim=55),
     "\nLocale (LC_ALL): \n  ", x[["Locale"]],
@@ -198,10 +200,21 @@ numeric_description_as_character <- function(x){
   )
 }
 
-describe_categorical <- function(v, na.rm=FALSE){
+describe_categorical <- function(v, classes, na.rm=FALSE){
+  # Count the classes in v
   class_counts <- table(v)
-  classes <- names(class_counts)
-  class_counts <- setNames(as.numeric(class_counts), nm = classes)
+  available_classes <- names(class_counts)
+  class_counts <- setNames(as.numeric(class_counts), nm = available_classes)
+
+  # Find and add the classes that are not in v
+  # but that we know should be there (with a zero-count)
+  missing_classes <- setdiff(classes, available_classes)
+  missing_counts <- setNames(rep(0, length(missing_classes)), nm = missing_classes)
+  class_counts <- c(class_counts, missing_counts)
+
+  # Order by class name
+  class_counts <- class_counts[order(names(class_counts))]
+
   list(
     "Total" = length(v),
     "Class Counts" = class_counts

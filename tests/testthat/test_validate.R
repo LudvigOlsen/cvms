@@ -778,7 +778,7 @@ test_that("verbose reports the correct model functions in validate()", {
       0,
       tolerance = 1e-4)
     expect_equal(
-      output_12059[["Positive"]][[1]][["Positive Class"]],
+      output_12059[["Process"]][[1]][["Positive Class"]],
       "0",
       fixed = TRUE)
     expect_equal(
@@ -941,7 +941,7 @@ test_that("verbose reports the correct model functions in validate()", {
       fixed = TRUE)
     expect_equal(
       output_19148[["Process"]][[1]][["Family"]],
-      "binomial",
+      "Binomial",
       fixed = TRUE)
     expect_equal(
       output_19148[["Dependent"]],
@@ -959,7 +959,7 @@ test_that("verbose reports the correct model functions in validate()", {
         "Kappa", "MCC", "Detection Rate", "Detection Prevalence", "Prevalence",
         "Predictions", "ROC", "Confusion Matrix", "Coefficients", "Convergence Warnings",
         "Singular Fit Messages", "Other Warnings", "Warnings and Messages",
-        "Proces", "Model", "Dependent", "Random"),
+        "Process", "Model", "Dependent", "Random"),
       fixed = TRUE)
     # Testing column classes
     expect_equal(
@@ -1080,7 +1080,7 @@ test_that("verbose reports the correct model functions in validate()", {
     tolerance = 1e-4)
   expect_equal(
     output_19148[["Process"]][[1]][["Family"]],
-    "gaussian",
+    "Gaussian",
     fixed = TRUE)
   expect_equal(
     output_19148[["Dependent"]],
@@ -1209,7 +1209,7 @@ test_that("verbose reports the correct model functions in validate()", {
     tolerance = 1e-4)
   expect_equal(
     output_19148[["Process"]][[1]][["Family"]],
-    "gaussian",
+    "Gaussian",
     fixed = TRUE)
   expect_equal(
     output_19148[["Dependent"]],

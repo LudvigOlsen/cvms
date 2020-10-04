@@ -727,8 +727,6 @@ run_evaluate <- function(data,
     preprocess_once = NULL,
     for_process = list(
       apply_softmax=apply_softmax,
-      target_col=target_col,
-      prediction_cols=prediction_cols,
       id_col = id_col
     ),
     hparams = NULL,

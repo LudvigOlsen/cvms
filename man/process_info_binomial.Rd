@@ -25,7 +25,7 @@ process_info_binomial(
 
 \method{print}{process_info_binomial}(x, ...)
 
-\method{as.character}{process_info_binomial}(x, ...)
+\method{as.character}{process_info_binomial}(x)
 
 process_info_multinomial(
   data,
@@ -40,7 +40,7 @@ process_info_multinomial(
 
 \method{print}{process_info_multinomial}(x, ...)
 
-\method{as.character}{process_info_multinomial}(x, ...)
+\method{as.character}{process_info_multinomial}(x)
 
 process_info_gaussian(
   data,
@@ -52,7 +52,7 @@ process_info_gaussian(
 
 \method{print}{process_info_gaussian}(x, ...)
 
-\method{as.character}{process_info_gaussian}(x, ...)
+\method{as.character}{process_info_gaussian}(x)
 }
 \arguments{
 \item{data}{Data frame.}
@@ -71,6 +71,10 @@ process_info_gaussian(
 
 \item{locale}{The locale when performing the evaluation.
 Relevant when any sorting has been performed.}
+
+\item{x}{a process info object used to select a method.}
+
+\item{...}{further arguments passed to or from other methods.}
 
 \item{pred_class_col}{Name of predicted classes column.}
 

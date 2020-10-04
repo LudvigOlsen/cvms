@@ -129,7 +129,7 @@ evaluate_predictions_gaussian <- function(data,
     process_info_gaussian(
       data = data,
       targets_col = targets_col,
-      predictions_col = predictions_col,
+      prediction_cols = predictions_col,
       id_col = model_specifics[["for_process"]][["id_col"]]
     )
   )

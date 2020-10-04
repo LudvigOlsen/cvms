@@ -27,6 +27,8 @@
 #' @param locale The locale when performing the evaluation.
 #'  Relevant when any sorting has been performed.
 #' @param apply_softmax Whether softmax has been applied.
+#' @param ... further arguments passed to or from other methods.
+#' @param x a process info object used to select a method.
 #' @return List with relevant information.
 #' @export
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
@@ -50,15 +52,15 @@ process_info_binomial <- function(data, targets_col, prediction_cols, id_col, ca
   structure(l, class = "process_info_binomial")
 }
 
-#'@rdname process_info_binomial
-#'@export
+#' @rdname process_info_binomial
+#' @export
 print.process_info_binomial <- function(x, ...){
-  cat(as.character(x))
+  cat(as.character(x), ...)
 }
 
-#'@rdname process_info_binomial
-#'@export
-as.character.process_info_binomial <- function(x, ...){
+#' @rdname process_info_binomial
+#' @export
+as.character.process_info_binomial <- function(x){
   cat_levels <- x[["Classes"]]
   cutoff <- x[["Cutoff"]]
   paste0(
@@ -118,12 +120,12 @@ process_info_multinomial <- function(
 #'@rdname process_info_binomial
 #'@export
 print.process_info_multinomial <- function(x, ...){
-  cat(as.character(x))
+  cat(as.character(x), ...)
 }
 
 #'@rdname process_info_binomial
 #'@export
-as.character.process_info_multinomial <- function(x, ...){
+as.character.process_info_multinomial <- function(x){
   # Collapse and shorten if necessary
   # E.g. in case of 100s of classes
   pred_cols_str <- paste0(x[["Prediction Columns"]], collapse = ", ")
@@ -177,12 +179,12 @@ process_info_gaussian <- function(data, targets_col, prediction_cols, id_col, lo
 #'@rdname process_info_binomial
 #'@export
 print.process_info_gaussian <- function(x, ...){
-  cat(as.character(x))
+  cat(as.character(x), ...)
 }
 
 #'@rdname process_info_binomial
 #'@export
-as.character.process_info_gaussian <- function(x, ...){
+as.character.process_info_gaussian <- function(x){
   paste0(
     "---",
     "\nProcess Information",

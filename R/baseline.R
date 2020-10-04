@@ -439,7 +439,7 @@
 #'   #, parallel = TRUE  # Uncomment
 #' )
 #' }
-#' @importFrom stats runif rnorm terms IQR median predict sd
+#' @importFrom stats runif rnorm terms IQR median predict sd reformulate
 baseline <- function(test_data,
                      dependent_col,
                      family,

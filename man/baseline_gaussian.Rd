@@ -98,7 +98,8 @@ baseline_gaussian(
 
  Number of \strong{training rows} used when fitting the baseline model on the training set.
 
- Specified \strong{family}.
+ A nested \strong{Process} information object with information
+ about the evaluation.
 
  Name of \strong{dependent} variable.
 

@@ -185,7 +185,8 @@
 #'
 #'  Number of \strong{training rows} used when fitting the baseline model on the training set.
 #'
-#'  Specified \strong{family}.
+#'  A nested \strong{Process} information object with information
+#'  about the evaluation.
 #'
 #'  Name of \strong{dependent} variable.
 #'
@@ -213,6 +214,7 @@
 #'  \code{Confusion Matrix}:
 #'
 #'  \strong{\code{Balanced Accuracy}},
+#'  \strong{\code{Accuracy}},
 #'  \strong{\code{F1}},
 #'  \strong{\code{Sensitivity}},
 #'  \strong{\code{Specificity}},
@@ -250,7 +252,8 @@
 #'  or False Negative (\code{FN}), depending on which level is the "positive" class.
 #'  I.e. the level you wish to predict.
 #'
-#'  Specified \strong{family}.
+#'  A nested \strong{Process} information object with information
+#'  about the evaluation.
 #'
 #'  Name of \strong{dependent} variable.
 #'  }
@@ -329,7 +332,8 @@
 #'
 #'  A nested \code{tibble} with the multiclass \strong{confusion matrix}.
 #'
-#'  Specified \strong{family}.
+#'  A nested \strong{Process} information object with information
+#'  about the evaluation.
 #'
 #'  Name of \strong{dependent} variable.
 #'
@@ -581,6 +585,12 @@ baseline <- function(test_data,
         ": ", paste(unaccepted_metrics, collapse = ", "), "."
       ))
     }
+
+    # Enable Accuracy if not otherwise specified
+    if (checkmate::test_string(x = metrics, pattern = "^all$")) {
+      metrics <- list("all" = TRUE)
+    }
+    metrics <- add_metric_if_not_specified(metrics, "Accuracy", value=TRUE, check_all=TRUE)
 
     return(
       create_binomial_baseline_evaluations(

@@ -153,7 +153,8 @@ baseline_multinomial(
 
  A nested \code{tibble} with the multiclass \strong{confusion matrix}.
 
- Specified \strong{family}.
+ A nested \strong{Process} information object with information
+ about the evaluation.
 
  Name of \strong{dependent} variable.
 }

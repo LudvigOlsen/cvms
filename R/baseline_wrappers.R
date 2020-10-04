@@ -113,7 +113,8 @@
 #'
 #'  Number of \strong{training rows} used when fitting the baseline model on the training set.
 #'
-#'  Specified \strong{family}.
+#'  A nested \strong{Process} information object with information
+#'  about the evaluation.
 #'
 #'  Name of \strong{dependent} variable.
 #'
@@ -283,7 +284,9 @@ baseline_gaussian <- function(test_data,
 #'
 #'  \code{Confusion Matrix}:
 #'
-#'  \strong{\code{Balanced Accuracy}}, \strong{\code{F1}},
+#'  \strong{\code{Balanced Accuracy}},
+#'  \strong{\code{Accuracy}},
+#'  \strong{\code{F1}},
 #'  \strong{\code{Sensitivity}}, \strong{\code{Specificity}},
 #'  \strong{\code{Positive Predictive Value}},
 #'  \strong{\code{Negative Predictive Value}},
@@ -319,7 +322,8 @@ baseline_gaussian <- function(test_data,
 #'  or False Negative (\code{FN}), depending on which level is the "positive" class.
 #'  I.e. the level you wish to predict.
 #'
-#'  Specified \strong{family}.
+#'  A nested \strong{Process} information object with information
+#'  about the evaluation.
 #'
 #'  Name of \strong{dependent} variable.
 #'
@@ -553,7 +557,8 @@ baseline_binomial <- function(test_data,
 #'
 #'  A nested \code{tibble} with the multiclass \strong{confusion matrix}.
 #'
-#'  Specified \strong{family}.
+#'  A nested \strong{Process} information object with information
+#'  about the evaluation.
 #'
 #'  Name of \strong{dependent} variable.
 #'

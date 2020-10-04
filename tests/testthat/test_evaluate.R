@@ -2936,7 +2936,7 @@ test_that("binomial evaluation works in evaluate()", {
   # Testing column names
   expect_equal(
     names(bn_eval_3),
-    c("Balanced Accuracy", "F1", "Sensitivity", "Specificity", "Pos Pred Value",
+    c("Balanced Accuracy", "Accuracy", "F1", "Sensitivity", "Specificity", "Pos Pred Value",
       "Neg Pred Value", "AUC", "Lower CI", "Upper CI", "Kappa", "MCC",
       "Detection Rate", "Detection Prevalence", "Prevalence", "Predictions",
       "ROC", "Confusion Matrix", "Process"),
@@ -2946,19 +2946,19 @@ test_that("binomial evaluation works in evaluate()", {
     xpectr::element_classes(bn_eval_3),
     c("numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
-      "numeric", "numeric", "list", "list", "list", "list"),
+      "numeric", "numeric", "numeric", "list", "list", "list", "list"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::element_types(bn_eval_3),
     c("double", "double", "double", "double", "double", "double", "double",
       "double", "double", "double", "double", "double", "double",
-      "double", "list", "list", "list", "list"),
+      "double", "double", "list", "list", "list", "list"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
     dim(bn_eval_3),
-    c(1L, 18L))
+    c(1L, 19L))
   # Testing group keys
   expect_equal(
     colnames(dplyr::group_keys(bn_eval_3)),
@@ -3105,7 +3105,7 @@ test_that("binomial evaluation works in evaluate()", {
   expect_equal(
     colnames(bn_eval_3_no_preds),
     c(
-      "Balanced Accuracy", "F1", "Sensitivity",
+      "Balanced Accuracy", "Accuracy", "F1", "Sensitivity",
       "Specificity", "Pos Pred Value", "Neg Pred Value", "AUC",
       "Lower CI", "Upper CI", "Kappa", "MCC",
       "Detection Rate", "Detection Prevalence", "Prevalence",
@@ -3130,7 +3130,7 @@ test_that("binomial evaluation works in evaluate()", {
   expect_equal(
     colnames(bn_eval_4),
     c(
-      "Balanced Accuracy", "F1", "Sensitivity",
+      "Balanced Accuracy", "Accuracy", "F1", "Sensitivity",
       "Specificity", "Pos Pred Value", "Neg Pred Value", "AUC",
       "Lower CI", "Upper CI", "Kappa", "MCC",
       "Detection Rate", "Detection Prevalence", "Prevalence",

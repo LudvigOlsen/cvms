@@ -157,7 +157,8 @@ baseline(
 
  Number of \strong{training rows} used when fitting the baseline model on the training set.
 
- Specified \strong{family}.
+ A nested \strong{Process} information object with information
+ about the evaluation.
 
  Name of \strong{dependent} variable.
 
@@ -185,6 +186,7 @@ baseline(
  \code{Confusion Matrix}:
 
  \strong{\code{Balanced Accuracy}},
+ \strong{\code{Accuracy}},
  \strong{\code{F1}},
  \strong{\code{Sensitivity}},
  \strong{\code{Specificity}},
@@ -222,7 +224,8 @@ baseline(
  or False Negative (\code{FN}), depending on which level is the "positive" class.
  I.e. the level you wish to predict.
 
- Specified \strong{family}.
+ A nested \strong{Process} information object with information
+ about the evaluation.
 
  Name of \strong{dependent} variable.
  }
@@ -301,7 +304,8 @@ baseline(
 
  A nested \code{tibble} with the multiclass \strong{confusion matrix}.
 
- Specified \strong{family}.
+ A nested \strong{Process} information object with information
+ about the evaluation.
 
  Name of \strong{dependent} variable.
 

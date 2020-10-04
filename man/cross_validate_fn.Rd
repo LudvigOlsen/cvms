@@ -251,7 +251,8 @@ like the number of model instances to fit. (Logical)}
 
  Nested \code{tibble} with the \strong{warnings and messages} caught for each model.
 
- Specified \strong{family}.
+ A nested \strong{Process} information object with information
+ about the evaluation.
 
  Name of \strong{dependent} variable.
 

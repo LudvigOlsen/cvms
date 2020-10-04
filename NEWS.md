@@ -7,6 +7,8 @@
 
 * In outputs, the `Family` information is (in most cases) moved into the new `Process` object.
 
+* In `binomial` `evaluate()` and `baseline()`, `Accuracy` is now enabled by default. It is still disabled in `cross_validate*()` functions to guide users away from using it as the main criterion for model selection (as it is well known to many but can be quite bad in cases with imbalanced datasets.)
+
 * Fixes: In binomial evaluation, the probabilities are now properly of the second class alphabetically.
 When the target column was a factor where the levels were not in alphabetic order, the second level in that order was used. The levels are now sorted before extraction. Thanks to [@daviddalpiaz](https://github.com/LudvigOlsen/cvms/issues/13) for finding the bug.
 

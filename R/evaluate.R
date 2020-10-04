@@ -200,6 +200,9 @@
 #'  Also includes:
 #'
 #'  A nested \code{tibble} with the \strong{Predictions} and targets.
+#'
+#'  A nested \strong{Process} information object with information
+#'  about the evaluation.
 #'  }
 #'
 #'  ----------------------------------------------------------------
@@ -214,6 +217,7 @@
 #'  \code{Confusion Matrix}:
 #'
 #'  \strong{\code{Balanced Accuracy}},
+#'  \strong{\code{Accuracy}},
 #'  \strong{\code{F1}},
 #'  \strong{\code{Sensitivity}},
 #'  \strong{\code{Specificity}},
@@ -231,9 +235,6 @@
 #'
 #'  Note, that the \code{ROC} curve is only computed if \code{AUC} is enabled. See \code{metrics}.
 #'
-#'  Other available metrics (disabled by default, see \code{metrics}):
-#'  \strong{\code{Accuracy}}.
-#'
 #'  Also includes:
 #'
 #'  A nested \code{tibble} with the \strong{predictions} and targets.
@@ -246,6 +247,9 @@
 #'  False Positive (\code{FP}), or False Negative (\code{FN}),
 #'  depending on which level is the "\code{positive}" class.
 #'  I.e. the level you wish to predict.
+#'
+#'  A nested \strong{Process} information object with information
+#'  about the evaluation.
 #'  }
 #'
 #'  ----------------------------------------------------------------
@@ -256,7 +260,7 @@
 #'
 #'  For each class, a \emph{one-vs-all} binomial evaluation is performed. This creates
 #'  a \strong{Class Level Results} \code{tibble} containing the same metrics as the binomial results
-#'  described above (excluding \code{MCC}, \code{AUC}, \code{Lower CI} and \code{Upper CI}),
+#'  described above (excluding \code{Accuracy}, \code{MCC}, \code{AUC}, \code{Lower CI} and \code{Upper CI}),
 #'  along with a count of the class in the target column (\strong{\code{Support}}).
 #'  These metrics are used to calculate the macro metrics. The nested class level results
 #'  \code{tibble} is also included in the output \code{tibble},
@@ -296,6 +300,9 @@
 #'  A \code{list} of \strong{ROC} curve objects when \code{AUC} is enabled.
 #'
 #'  A nested \code{tibble} with the multiclass \strong{Confusion Matrix}.
+#'
+#'  A nested \strong{Process} information object with information
+#'  about the evaluation.
 #'
 #'  \subsection{Class Level Results}{
 #'
@@ -799,6 +806,9 @@ run_evaluate <- function(data,
       data[[prediction_cols]] <- ifelse(data[[prediction_cols]] == c_levels[[2]],
                                         1.0, 0.0)
     }
+
+    # Enable Accuracy if not otherwise specified
+    metrics <- add_metric_if_not_specified(metrics, "Accuracy", value=TRUE, check_all=TRUE)
   }
 
   # Find number of classes if classification

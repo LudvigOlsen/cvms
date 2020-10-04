@@ -79,7 +79,9 @@ baseline_binomial(
 
  \code{Confusion Matrix}:
 
- \strong{\code{Balanced Accuracy}}, \strong{\code{F1}},
+ \strong{\code{Balanced Accuracy}},
+ \strong{\code{Accuracy}},
+ \strong{\code{F1}},
  \strong{\code{Sensitivity}}, \strong{\code{Specificity}},
  \strong{\code{Positive Predictive Value}},
  \strong{\code{Negative Predictive Value}},
@@ -115,7 +117,8 @@ baseline_binomial(
  or False Negative (\code{FN}), depending on which level is the "positive" class.
  I.e. the level you wish to predict.
 
- Specified \strong{family}.
+ A nested \strong{Process} information object with information
+ about the evaluation.
 
  Name of \strong{dependent} variable.
 }

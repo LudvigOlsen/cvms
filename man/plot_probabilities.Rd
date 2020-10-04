@@ -236,80 +236,80 @@ library(dplyr)
 # Plot probabilities of target classes
 # From repeated cross-validation of three classifiers
 
-plot_probabilities(
-  data = predicted.musicians,
-  target_col = "Target",
-  probability_cols = c("A", "B", "C", "D"),
-  predicted_class_col = "Predicted Class",
-  group_col = "Classifier",
-  obs_id_col = "ID",
-  probability_of = "target"
-)
+# plot_probabilities(
+#   data = predicted.musicians,
+#   target_col = "Target",
+#   probability_cols = c("A", "B", "C", "D"),
+#   predicted_class_col = "Predicted Class",
+#   group_col = "Classifier",
+#   obs_id_col = "ID",
+#   probability_of = "target"
+# )
 
 # Plot probabilities of predicted classes
 # From repeated cross-validation of three classifiers
 
-plot_probabilities(
-  data = predicted.musicians,
-  target_col = "Target",
-  probability_cols = c("A", "B", "C", "D"),
-  predicted_class_col = "Predicted Class",
-  group_col = "Classifier",
-  obs_id_col = "ID",
-  probability_of = "prediction"
-)
+# plot_probabilities(
+#   data = predicted.musicians,
+#   target_col = "Target",
+#   probability_cols = c("A", "B", "C", "D"),
+#   predicted_class_col = "Predicted Class",
+#   group_col = "Classifier",
+#   obs_id_col = "ID",
+#   probability_of = "prediction"
+# )
 
 # Center probabilities
 
-plot_probabilities(
-  data = predicted.musicians,
-  target_col = "Target",
-  probability_cols = c("A", "B", "C", "D"),
-  predicted_class_col = "Predicted Class",
-  group_col = "Classifier",
-  obs_id_col = "ID",
-  probability_of = "prediction",
-  order = "centered"
-)
+# plot_probabilities(
+#   data = predicted.musicians,
+#   target_col = "Target",
+#   probability_cols = c("A", "B", "C", "D"),
+#   predicted_class_col = "Predicted Class",
+#   group_col = "Classifier",
+#   obs_id_col = "ID",
+#   probability_of = "prediction",
+#   order = "centered"
+# )
 
 #
 # Binary
 #
 
 # Filter the predicted.musicians dataset
-binom_data <- predicted.musicians \%>\%
-  dplyr::filter(
-    Target \%in\% c("A", "B")
-  ) \%>\%
-  # "B" is the second class alphabetically
-  dplyr::rename(Probability = B) \%>\%
-  dplyr::mutate(`Predicted Class` = ifelse(
-    Probability > 0.5, "B", "A")) \%>\%
-  dplyr::select(-c("A","C","D"))
+# binom_data <- predicted.musicians \%>\%
+#   dplyr::filter(
+#     Target \%in\% c("A", "B")
+#   ) \%>\%
+#   # "B" is the second class alphabetically
+#   dplyr::rename(Probability = B) \%>\%
+#   dplyr::mutate(`Predicted Class` = ifelse(
+#     Probability > 0.5, "B", "A")) \%>\%
+#   dplyr::select(-c("A","C","D"))
 
 # Plot probabilities of predicted classes
 # From repeated cross-validation of three classifiers
 
-plot_probabilities(
-  data = binom_data,
-  target_col = "Target",
-  probability_cols = "Probability",
-  predicted_class_col = "Predicted Class",
-  group_col = "Classifier",
-  obs_id_col = "ID",
-  probability_of = "target"
-)
+# plot_probabilities(
+#   data = binom_data,
+#   target_col = "Target",
+#   probability_cols = "Probability",
+#   predicted_class_col = "Predicted Class",
+#   group_col = "Classifier",
+#   obs_id_col = "ID",
+#   probability_of = "target"
+# )
 
-plot_probabilities(
-  data = binom_data,
-  target_col = "Target",
-  probability_cols = "Probability",
-  predicted_class_col = "Predicted Class",
-  group_col = "Classifier",
-  obs_id_col = "ID",
-  probability_of = "prediction",
-  ylim = c(0.5, 1)
-)
+# plot_probabilities(
+#   data = binom_data,
+#   target_col = "Target",
+#   probability_cols = "Probability",
+#   predicted_class_col = "Predicted Class",
+#   group_col = "Classifier",
+#   obs_id_col = "ID",
+#   probability_of = "prediction",
+#   ylim = c(0.5, 1)
+# )
 
 }
 }

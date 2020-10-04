@@ -92,68 +92,68 @@
 #' # Multiclass
 #' #
 #'
-#' TODO: Go through and rewrite comments and code!
+#' # TODO: Go through and rewrite comments and code!
 #'
 #' # Plot probabilities of target classes
 #' # From repeated cross-validation of three classifiers
 #'
-#' plot_probabilities_ecdf(
-#'   data = predicted.musicians,
-#'   target_col = "Target",
-#'   probability_cols = c("A", "B", "C", "D"),
-#'   predicted_class_col = "Predicted Class",
-#'   group_col = "Classifier",
-#'   probability_of = "target"
+#' # plot_probabilities_ecdf(
+#' #   data = predicted.musicians,
+#' #   target_col = "Target",
+#' #   probability_cols = c("A", "B", "C", "D"),
+#' #   predicted_class_col = "Predicted Class",
+#' #   group_col = "Classifier",
+#' #   probability_of = "target"
 #' )
 #'
 #' # Plot probabilities of predicted classes
 #' # From repeated cross-validation of three classifiers
 #'
-#' plot_probabilities_ecdf(
-#'   data = predicted.musicians,
-#'   target_col = "Target",
-#'   probability_cols = c("A", "B", "C", "D"),
-#'   predicted_class_col = "Predicted Class",
-#'   group_col = "Classifier",
-#'   probability_of = "prediction"
-#' )
+#' # plot_probabilities_ecdf(
+#' #   data = predicted.musicians,
+#' #   target_col = "Target",
+#' #   probability_cols = c("A", "B", "C", "D"),
+#' #   predicted_class_col = "Predicted Class",
+#' #   group_col = "Classifier",
+#' #   probability_of = "prediction"
+#' # )
 #'
 #' #
 #' # Binary
 #' #
 #'
 #' # Filter the predicted.musicians dataset
-#' binom_data <- predicted.musicians %>%
-#'   dplyr::filter(
-#'     Target %in% c("A", "B")
-#'   ) %>%
-#'   # "B" is the second class alphabetically
-#'   dplyr::rename(Probability = B) %>%
-#'   dplyr::mutate(`Predicted Class` = ifelse(
-#'     Probability > 0.5, "B", "A")) %>%
-#'   dplyr::select(-c("A","C","D"))
+#' # binom_data <- predicted.musicians %>%
+#' #   dplyr::filter(
+#' #     Target %in% c("A", "B")
+#' #   ) %>%
+#' #   # "B" is the second class alphabetically
+#' #   dplyr::rename(Probability = B) %>%
+#' #   dplyr::mutate(`Predicted Class` = ifelse(
+#' #     Probability > 0.5, "B", "A")) %>%
+#' #   dplyr::select(-c("A","C","D"))
 #'
 #' # Plot probabilities of predicted classes
 #' # From repeated cross-validation of three classifiers
 #'
-#' plot_probabilities_ecdf(
-#'   data = binom_data,
-#'   target_col = "Target",
-#'   probability_cols = "Probability",
-#'   predicted_class_col = "Predicted Class",
-#'   group_col = "Classifier",
-#'   probability_of = "target"
-#' )
+#' # plot_probabilities_ecdf(
+#' #   data = binom_data,
+#' #   target_col = "Target",
+#' #   probability_cols = "Probability",
+#' #   predicted_class_col = "Predicted Class",
+#' #   group_col = "Classifier",
+#' #   probability_of = "target"
+#' # )
 #'
-#' plot_probabilities_ecdf(
-#'   data = binom_data,
-#'   target_col = "Target",
-#'   probability_cols = "Probability",
-#'   predicted_class_col = "Predicted Class",
-#'   group_col = "Classifier",
-#'   probability_of = "prediction",
-#'   xlim = c(0.5, 1)
-#' )
+#' # plot_probabilities_ecdf(
+#' #   data = binom_data,
+#' #   target_col = "Target",
+#' #   probability_cols = "Probability",
+#' #   predicted_class_col = "Predicted Class",
+#' #   group_col = "Classifier",
+#' #   probability_of = "prediction",
+#' #   xlim = c(0.5, 1)
+#' # )
 #'
 #' }
 plot_probabilities_ecdf <- function(data,
@@ -184,7 +184,6 @@ plot_probabilities_ecdf <- function(data,
     theme_fn = theme_fn,
     color_scale = color_scale,
     apply_facet = apply_facet,
-    add_points = add_points,
     add_caption = add_caption,
     ecdf_settings = ecdf_settings,
     facet_settings = facet_settings,
@@ -209,7 +208,6 @@ call_plot_probabilities_ecdf_ <- function(data,
                                      theme_fn,
                                      color_scale,
                                      apply_facet,
-                                     add_points,
                                      add_caption,
                                      ecdf_settings,
                                      facet_settings,
@@ -269,7 +267,6 @@ call_plot_probabilities_ecdf_ <- function(data,
   )
 
   ## Flag ####
-  checkmate::assert_flag(x = add_points, add = assert_collection)
   checkmate::assert_flag(x = add_caption, add = assert_collection)
   checkmate::assert_flag(x = apply_facet, add = assert_collection)
 

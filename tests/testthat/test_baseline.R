@@ -504,7 +504,7 @@ test_that("binomial evaluations are correct in baseline()", {
   # Testing class
   expect_equal(
     class(output_19148),
-    "cvms_process_info_binomial",
+    "process_info_binomial",
     fixed = TRUE)
   # Testing type
   expect_type(
@@ -802,7 +802,7 @@ test_that("gaussian evaluations are correct in baseline()", {
   # Testing class
   expect_equal(
     class(output_11521),
-    "cvms_process_info_gaussian",
+    "process_info_gaussian",
     fixed = TRUE)
   # Testing type
   expect_type(
@@ -1876,7 +1876,7 @@ test_that("multinomial evaluations are correct in baseline()", {
     # Testing class
     expect_equal(
       class(output_10358),
-      "cvms_process_info_multinomial",
+      "process_info_multinomial",
       fixed = TRUE)
     # Testing type
     expect_type(

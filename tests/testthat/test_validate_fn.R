@@ -4601,7 +4601,7 @@ test_that("testing nested tibbles in multinomial validate_fn()", {
   # Testing class
   expect_equal(
     class(vld_multinomial$Process[[1]]),
-    "cvms_process_info_multinomial",
+    "process_info_multinomial",
     fixed = TRUE)
   # Testing type
   expect_type(
@@ -4961,7 +4961,7 @@ test_that("testing nested tibbles in gaussian validate_fn()", {
   # Testing class
   expect_equal(
     class(vld_gauss$Process[[1]]),
-    "cvms_process_info_gaussian",
+    "process_info_gaussian",
     fixed = TRUE)
   # Testing type
   expect_type(

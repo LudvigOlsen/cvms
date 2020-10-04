@@ -18,6 +18,8 @@ When the target column was a factor where the levels were not in alphabetic orde
 
 * Imports `broom.mixed` to allow tidying of coefficients from `lme4::lmer` models.
 
+* Exports `process_info_binomial()`, `process_info_multinomial()`, `process_info_gaussian()` constructors to ensure the various methods are available. They are not necessarily intended for external use.
+
 # cvms 1.0.2
 
 * Compatibility with `dplyr` version `1.0.0`. NOTE: this version of `dplyr` slows down some functions in `cvms` significantly, why it might be beneficial not to update before version `1.1.0`, which is supposed to tackle this problem.

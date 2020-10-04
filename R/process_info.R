@@ -8,13 +8,35 @@
 ##  Binomial                                                                ####
 
 
-process_info_binomial <- function(data, targets_col, predictions_col, id_col, cat_levels, positive, cutoff, locale=NULL){
+#' @title A set of process information object constructors
+#' @description
+#'  \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
+#'
+#' Classes for storing process information from prediction evaluations.
+#'
+#' Used internally.
+#'
+#' @param data Data frame.
+#' @param targets_col Name of target column.
+#' @param prediction_cols Names of prediction columns.
+#' @param pred_class_col Name of predicted classes column.
+#' @param id_col Name of ID column.
+#' @param cat_levels Categorical levels (classes).
+#' @param positive Name of the positive class.
+#' @param cutoff The cutoff used to get class predictions from probabilities.
+#' @param locale The locale when performing the evaluation.
+#'  Relevant when any sorting has been performed.
+#' @param apply_softmax Whether softmax has been applied.
+#' @return List with relevant information.
+#' @export
+#' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
+process_info_binomial <- function(data, targets_col, prediction_cols, id_col, cat_levels, positive, cutoff, locale=NULL){
   if (is.null(locale)) locale <- Sys.getlocale(category="LC_ALL")
   target_summary <- describe_categorical(data[[targets_col]], classes=cat_levels)
-  predictions_summary <- describe_numeric(data[[predictions_col]])
+  predictions_summary <- describe_numeric(data[[prediction_cols]])
   l <- list(
     "Target Column" = targets_col,
-    "Prediction Column" = predictions_col,
+    "Prediction Column" = prediction_cols,
     "ID Column" = id_col,
     "Family" = "Binomial",
     "Classes" = cat_levels,
@@ -25,14 +47,18 @@ process_info_binomial <- function(data, targets_col, predictions_col, id_col, ca
     "Locale" = locale
   )
 
-  structure(l, class = "cvms_process_info_binomial")
+  structure(l, class = "process_info_binomial")
 }
 
-print.cvms_process_info_binomial <- function(x, ...){
+#'@rdname process_info_binomial
+#'@export
+print.process_info_binomial <- function(x, ...){
   cat(as.character(x))
 }
 
-as.character.cvms_process_info_binomial <- function(x, ...){
+#'@rdname process_info_binomial
+#'@export
+as.character.process_info_binomial <- function(x, ...){
   cat_levels <- x[["Classes"]]
   cutoff <- x[["Cutoff"]]
   paste0(
@@ -60,7 +86,8 @@ as.character.cvms_process_info_binomial <- function(x, ...){
 ##  .................. #< 2b0bd2c6fd20767770a15db54e22c6ec ># ..................
 ##  Multinomial                                                             ####
 
-
+#'@rdname process_info_binomial
+#'@export
 process_info_multinomial <- function(
   data,
   targets_col,
@@ -85,14 +112,18 @@ process_info_multinomial <- function(
     "Locale" = locale
   )
 
-  structure(l, class = "cvms_process_info_multinomial")
+  structure(l, class = "process_info_multinomial")
 }
 
-print.cvms_process_info_multinomial <- function(x, ...){
+#'@rdname process_info_binomial
+#'@export
+print.process_info_multinomial <- function(x, ...){
   cat(as.character(x))
 }
 
-as.character.cvms_process_info_multinomial <- function(x, ...){
+#'@rdname process_info_binomial
+#'@export
+as.character.process_info_multinomial <- function(x, ...){
   # Collapse and shorten if necessary
   # E.g. in case of 100s of classes
   pred_cols_str <- paste0(x[["Prediction Columns"]], collapse = ", ")
@@ -124,13 +155,15 @@ as.character.cvms_process_info_multinomial <- function(x, ...){
 ##  Gaussian                                                                ####
 
 
-process_info_gaussian <- function(data, targets_col, predictions_col, id_col, locale=NULL){
+#'@rdname process_info_binomial
+#'@export
+process_info_gaussian <- function(data, targets_col, prediction_cols, id_col, locale=NULL){
   if (is.null(locale)) locale <- Sys.getlocale(category="LC_ALL")
   target_summary <- describe_numeric(data[[targets_col]])
-  predictions_summary <- describe_numeric(data[[predictions_col]])
+  predictions_summary <- describe_numeric(data[[prediction_cols]])
   l <- list(
     "Target Column" = targets_col,
-    "Prediction Column" = predictions_col,
+    "Prediction Column" = prediction_cols,
     "ID Column" = id_col,
     "Family" = "Gaussian",
     "Target Summary" = target_summary,
@@ -138,14 +171,18 @@ process_info_gaussian <- function(data, targets_col, predictions_col, id_col, lo
     "Locale" = locale
   )
 
-  structure(l, class = "cvms_process_info_gaussian")
+  structure(l, class = "process_info_gaussian")
 }
 
-print.cvms_process_info_gaussian <- function(x, ...){
+#'@rdname process_info_binomial
+#'@export
+print.process_info_gaussian <- function(x, ...){
   cat(as.character(x))
 }
 
-as.character.cvms_process_info_gaussian <- function(x, ...){
+#'@rdname process_info_binomial
+#'@export
+as.character.process_info_gaussian <- function(x, ...){
   paste0(
     "---",
     "\nProcess Information",

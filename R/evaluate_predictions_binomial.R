@@ -159,7 +159,7 @@ evaluate_predictions_binomial <- function(data,
       process_info_binomial(
         data = data,
         targets_col = targets_col,
-        predictions_col = predictions_col,
+        prediction_cols = predictions_col,
         id_col = model_specifics[["for_process"]][["id_col"]],
         cat_levels = cat_levels,
         positive = positive,

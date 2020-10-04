@@ -57,6 +57,9 @@ evaluate_predictions_binomial <- function(data,
     if (is.null(cat_levels)) {
       # Find the levels in the categorical target variable
       cat_levels <- sort(levels_as_characters(data[[targets_col]]))
+      if (length(cat_levels) < 2){
+        stop("found less than 2 levels in the target column.")
+      }
     }
 
     if (length(cat_levels) > 2) {
@@ -399,7 +402,7 @@ binomial_classification_NA_results_tibble <- function(metrics, include_predictio
     "Predictions" = NA,
     "Results" = list(NA),
     "ROC" = NA,
-    "Positive Class" = NA
+    "Process" = NA
   )
 
   if (!isTRUE(include_predictions)) {

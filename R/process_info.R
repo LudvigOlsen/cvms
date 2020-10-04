@@ -177,7 +177,14 @@ describe_numeric <- function(v, na.rm=FALSE){
     "Median" = median(v, na.rm=na.rm),
     "Range" = range(v, na.rm=na.rm),
     "SD" = sd(v, na.rm=na.rm),
-    "IQR" = IQR(v, na.rm=na.rm)
+    "IQR" = tryCatch(IQR(v, na.rm=na.rm), error = function(e){
+      # As the only one, IQR throws error on NAs
+      if (grep("missing values and NaN", as.character(e))){
+        return(NA)
+      } else {
+        stop(e)
+      }
+    })
   )
 }
 

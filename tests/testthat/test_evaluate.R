@@ -3608,7 +3608,7 @@ test_that("gaussian evaluations are correct in evaluate()", {
   # Testing dimensions
   expect_equal(
     dim(e5),
-    c(2L, 17L))
+    c(2L, 18L))
   # Testing group keys
   expect_equal(
     colnames(dplyr::group_keys(e5)),
@@ -4153,7 +4153,7 @@ test_that("evaluate() and confusion_matrix() has same metric values", {
     ))
   cfm_binom_shared <- cfm_binom %>%
     base_deselect(cols = c(
-      "Confusion Matrix", "Process",
+      "Confusion Matrix",
       setdiff(colnames(cfm_binom), shared_cols)
     ))
   expect_equal(colnames(eval_binom_shared),
@@ -4161,8 +4161,6 @@ test_that("evaluate() and confusion_matrix() has same metric values", {
   expect_equal(unlist(eval_binom_shared), unlist(cfm_binom_shared))
   expect_equal(eval_binom$`Confusion Matrix`,
                cfm_binom$`Confusion Matrix`)
-  expect_equal(eval_binom$`Process`,
-               cfm_binom$`Process`)
   expect_equal(eval_binom[["Process"]][[1]]$`Positive Class`, "0")
 
 
@@ -4321,22 +4319,22 @@ test_that("the different prediction formats work properly in Gaussian evaluate()
   # Testing column names
   expect_equal(
     names(output_19148),
-    c("RMSE", "Predictions"),
+    c("RMSE", "Predictions", "Process"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_19148),
-    c("numeric", "list"),
+    c("numeric", "list", "list"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::element_types(output_19148),
-    c("double", "list"),
+    c("double", "list", "list"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
     dim(output_19148),
-    1:2)
+    c(1, 3))
   # Testing group keys
   expect_equal(
     colnames(dplyr::group_keys(output_19148)),
@@ -4406,22 +4404,22 @@ test_that("the different prediction formats work properly in Gaussian evaluate()
   # Testing column names
   expect_equal(
     names(output_16417),
-    c("RMSE", "Predictions"),
+    c("RMSE", "Predictions", "Process"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_16417),
-    c("numeric", "list"),
+    c("numeric", "list", "list"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::element_types(output_16417),
-    c("double", "list"),
+    c("double", "list", "list"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
     dim(output_16417),
-    1:2)
+    c(1, 3))
   # Testing group keys
   expect_equal(
     colnames(dplyr::group_keys(output_16417)),
@@ -4461,22 +4459,22 @@ test_that("the different prediction formats work properly in Gaussian evaluate()
   # Testing column names
   expect_equal(
     names(output_17365),
-    c("RMSE", "Predictions"),
+    c("RMSE", "Predictions", "Process"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_17365),
-    c("numeric", "list"),
+    c("numeric", "list", "list"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::element_types(output_17365),
-    c("double", "list"),
+    c("double", "list", "list"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
     dim(output_17365),
-    1:2)
+    c(1, 3))
   # Testing group keys
   expect_equal(
     colnames(dplyr::group_keys(output_17365)),
@@ -4531,22 +4529,22 @@ test_that("the different prediction formats work properly in Gaussian evaluate()
   # Testing column names
   expect_equal(
     names(output_17050),
-    c("RMSE", "Predictions"),
+    c("RMSE", "Predictions", "Process"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_17050),
-    c("numeric", "list"),
+    c("numeric", "list", "list"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::element_types(output_17050),
-    c("double", "list"),
+    c("double", "list", "list"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
     dim(output_17050),
-    1:2)
+    c(1, 3))
   # Testing group keys
   expect_equal(
     colnames(dplyr::group_keys(output_17050)),
@@ -4836,17 +4834,17 @@ test_that("the different prediction formats work properly in multinomial evaluat
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_19148),
-    c("numeric", "numeric", "list", "list", "list"),
+    c("numeric", "numeric", "list", "list", "list", "list"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::element_types(output_19148),
-    c("double", "double", "list", "list", "list"),
+    c("double", "double", "list", "list", "list", "list"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
     dim(output_19148),
-    c(1L, 5L))
+    c(1L, 6L))
   # Testing group keys
   expect_equal(
     colnames(dplyr::group_keys(output_19148)),
@@ -4896,17 +4894,17 @@ test_that("the different prediction formats work properly in multinomial evaluat
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_12861),
-    c("numeric", "numeric", "list", "list", "list"),
+    c("numeric", "numeric", "list", "list", "list", "list"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::element_types(output_12861),
-    c("double", "double", "list", "list", "list"),
+    c("double", "double", "list", "list", "list", "list"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
     dim(output_12861),
-    c(1L, 5L))
+    c(1L, 6L))
   # Testing group keys
   expect_equal(
     colnames(dplyr::group_keys(output_12861)),
@@ -4941,17 +4939,17 @@ test_that("the different prediction formats work properly in multinomial evaluat
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_18304),
-    c("numeric", "numeric", "list", "list", "list"),
+    c("numeric", "numeric", "list", "list", "list", "list"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::element_types(output_18304),
-    c("double", "double", "list", "list", "list"),
+    c("double", "double", "list", "list", "list", "list"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
     dim(output_18304),
-    c(1L, 5L))
+    c(1L, 6L))
   # Testing group keys
   expect_equal(
     colnames(dplyr::group_keys(output_18304)),
@@ -5031,17 +5029,17 @@ test_that("the different prediction formats work properly in multinomial evaluat
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_11346),
-    c("numeric", "numeric", "list", "list", "list"),
+    c("numeric", "numeric", "list", "list", "list", "list"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::element_types(output_11346),
-    c("double", "double", "list", "list", "list"),
+    c("double", "double", "list", "list", "list", "list"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
     dim(output_11346),
-    c(1L, 5L))
+    c(1L, 6L))
   # Testing group keys
   expect_equal(
     colnames(dplyr::group_keys(output_11346)),
@@ -5076,17 +5074,17 @@ test_that("the different prediction formats work properly in multinomial evaluat
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_16569),
-    c("numeric", "numeric", "list", "list", "list"),
+    c("numeric", "numeric", "list", "list", "list", "list"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::element_types(output_16569),
-    c("double", "double", "list", "list", "list"),
+    c("double", "double", "list", "list", "list", "list"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
     dim(output_16569),
-    c(1L, 5L))
+    c(1L, 6L))
   # Testing group keys
   expect_equal(
     colnames(dplyr::group_keys(output_16569)),
@@ -5211,17 +5209,17 @@ test_that("the different prediction formats work properly in multinomial evaluat
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_19400),
-    c("numeric", "numeric", "list", "list", "list"),
+    c("numeric", "numeric", "list", "list", "list", "list"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::element_types(output_19400),
-    c("double", "double", "list", "list", "list"),
+    c("double", "double", "list", "list", "list", "list"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
     dim(output_19400),
-    c(1L, 5L))
+    c(1L, 6L))
   # Testing group keys
   expect_equal(
     colnames(dplyr::group_keys(output_19400)),
@@ -5256,17 +5254,17 @@ test_that("the different prediction formats work properly in multinomial evaluat
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_19782),
-    c("numeric", "numeric", "list", "list", "list"),
+    c("numeric", "numeric", "list", "list", "list", "list"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::element_types(output_19782),
-    c("double", "double", "list", "list", "list"),
+    c("double", "double", "list", "list", "list", "list"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
     dim(output_19782),
-    c(1L, 5L))
+    c(1L, 6L))
   # Testing group keys
   expect_equal(
     colnames(dplyr::group_keys(output_19782)),
@@ -5301,17 +5299,17 @@ test_that("the different prediction formats work properly in multinomial evaluat
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_11174),
-    c("numeric", "numeric", "list", "list", "list"),
+    c("numeric", "numeric", "list", "list", "list", "list"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::element_types(output_11174),
-    c("double", "double", "list", "list", "list"),
+    c("double", "double", "list", "list", "list", "list"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
     dim(output_11174),
-    c(1L, 5L))
+    c(1L, 6L))
   # Testing group keys
   expect_equal(
     colnames(dplyr::group_keys(output_11174)),
@@ -5484,12 +5482,12 @@ test_that("the different prediction formats work properly in binomial evaluate()
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_19148),
-    c("numeric", "numeric", "list", "logical", "list", "character"),
+    c("numeric", "numeric", "list", "logical", "list", "list"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::element_types(output_19148),
-    c("double", "double", "list", "logical", "list", "character"),
+    c("double", "double", "list", "logical", "list", "list"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
@@ -5551,12 +5549,12 @@ test_that("the different prediction formats work properly in binomial evaluate()
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_12861),
-    c("numeric", "numeric", "list", "logical", "list", "character"),
+    c("numeric", "numeric", "list", "logical", "list", "list"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::element_types(output_12861),
-    c("double", "double", "list", "logical", "list", "character"),
+    c("double", "double", "list", "logical", "list", "list"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
@@ -5603,12 +5601,12 @@ test_that("the different prediction formats work properly in binomial evaluate()
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_18304),
-    c("numeric", "numeric", "list", "logical", "list", "character"),
+    c("numeric", "numeric", "list", "logical", "list", "list"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::element_types(output_18304),
-    c("double", "double", "list", "logical", "list", "character"),
+    c("double", "double", "list", "logical", "list", "list"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
@@ -5670,12 +5668,12 @@ test_that("the different prediction formats work properly in binomial evaluate()
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_15190),
-    c("numeric", "numeric", "list", "logical", "list", "character"),
+    c("numeric", "numeric", "list", "logical", "list", "list"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::element_types(output_15190),
-    c("double", "double", "list", "logical", "list", "character"),
+    c("double", "double", "list", "logical", "list", "list"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
@@ -5752,12 +5750,12 @@ test_that("the different prediction formats work properly in binomial evaluate()
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_16569),
-    c("numeric", "numeric", "list", "logical", "list", "character"),
+    c("numeric", "numeric", "list", "logical", "list", "list"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::element_types(output_16569),
-    c("double", "double", "list", "logical", "list", "character"),
+    c("double", "double", "list", "logical", "list", "list"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
@@ -5864,12 +5862,12 @@ test_that("the different prediction formats work properly in binomial evaluate()
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_12554),
-    c("numeric", "numeric", "list", "logical", "list", "character"),
+    c("numeric", "numeric", "list", "logical", "list", "list"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::element_types(output_12554),
-    c("double", "double", "list", "logical", "list", "character"),
+    c("double", "double", "list", "logical", "list", "list"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
@@ -5916,12 +5914,12 @@ test_that("the different prediction formats work properly in binomial evaluate()
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_14622),
-    c("numeric", "numeric", "list", "logical", "list", "character"),
+    c("numeric", "numeric", "list", "logical", "list", "list"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::element_types(output_14622),
-    c("double", "double", "list", "logical", "list", "character"),
+    c("double", "double", "list", "logical", "list", "list"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
@@ -5968,12 +5966,12 @@ test_that("the different prediction formats work properly in binomial evaluate()
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_19400),
-    c("numeric", "numeric", "list", "logical", "list", "character"),
+    c("numeric", "numeric", "list", "logical", "list", "list"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::element_types(output_19400),
-    c("double", "double", "list", "logical", "list", "character"),
+    c("double", "double", "list", "logical", "list", "list"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
@@ -6020,12 +6018,12 @@ test_that("the different prediction formats work properly in binomial evaluate()
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_19782),
-    c("numeric", "numeric", "list", "logical", "list", "character"),
+    c("numeric", "numeric", "list", "logical", "list", "list"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::element_types(output_19782),
-    c("double", "double", "list", "logical", "list", "character"),
+    c("double", "double", "list", "logical", "list", "list"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
@@ -6102,12 +6100,12 @@ test_that("the different prediction formats work properly in binomial evaluate()
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_15603),
-    c("numeric", "numeric", "list", "logical", "list", "character"),
+    c("numeric", "numeric", "list", "logical", "list", "list"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::element_types(output_15603),
-    c("double", "double", "list", "logical", "list", "character"),
+    c("double", "double", "list", "logical", "list", "list"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
@@ -6154,12 +6152,12 @@ test_that("the different prediction formats work properly in binomial evaluate()
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_19040),
-    c("numeric", "numeric", "list", "logical", "list", "character"),
+    c("numeric", "numeric", "list", "logical", "list", "list"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::element_types(output_19040),
-    c("double", "double", "list", "logical", "list", "character"),
+    c("double", "double", "list", "logical", "list", "list"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(

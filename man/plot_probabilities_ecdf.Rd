@@ -228,3 +228,4 @@ Other plotting functions:
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
 }
 \concept{plotting functions}
+\keyword{internal}

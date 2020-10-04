@@ -37,7 +37,7 @@
 #'  and \code{`apply_facet`} arguments.
 #'
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
-#' @export
+#' @keywords internal
 #' @family plotting functions
 #' @param data \code{data.frame} with probabilities, target classes and (optional) predicted classes.
 #'  Can also include observation identifiers and a grouping variable.
@@ -855,7 +855,8 @@ add_id_aggregates <- function(data, group_col, obs_id_col, of_col, prob_of_col,
   } else if (order == "ascending") {
     arrange_fn <- function(data, col){dplyr::arrange(data, !!as.name(col), .by_group = TRUE)}
   } else if (order == "centered") {
-    arrange_fn <- function(data, col){rearrr::center_max(data = data, col = col)}
+    stop("Not yet implemented.")
+    #arrange_fn <- function(data, col){rearrr::center_max(data = data, col = col)}
   } else if (order == "identity") {
     arrange_fn <- function(data, col){data %>% dplyr::ungroup()}
   }

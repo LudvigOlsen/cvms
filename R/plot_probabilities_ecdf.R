@@ -23,7 +23,7 @@
 #'  Creates a \code{\link[ggplot2:ggplot]{ggplot2}} with the \code{\link[ggplot2:stat_ecdf]{stat_ecdf()}} geom.
 #'
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
-#' @export
+#' @keywords internal
 #' @family plotting functions
 #' @param data \code{data.frame} with probabilities, target classes and (optional) predicted classes.
 #'  Can also include observation identifiers and a grouping variable.

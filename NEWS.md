@@ -1,5 +1,5 @@
 
-# cvms 1.0.2.9000
+# cvms 1.1.0
 
 * In `plot_confusion_matrix()`, adds option to only have row and column percentages in the diagonal tiles. Thanks to [@xgirouxb ](https://github.com/LudvigOlsen/cvms/issues/12) for the idea.
 
@@ -10,7 +10,7 @@
 * In `binomial` `evaluate()` and `baseline()`, `Accuracy` is now enabled by default. It is still disabled in `cross_validate*()` functions to guide users away from using it as the main criterion for model selection (as it is well known to many but can be quite bad in cases with imbalanced datasets.)
 
 * Fixes: In binomial evaluation, the probabilities are now properly of the second class alphabetically.
-When the target column was a factor where the levels were not in alphabetic order, the second level in that order was used. The levels are now sorted before extraction. Thanks to [@daviddalpiaz](https://github.com/LudvigOlsen/cvms/issues/13) for finding the bug.
+When the target column was a factor where the levels were not in alphabetical order, the second level in that order was used. The levels are now sorted before extraction. Thanks to [@daviddalpiaz](https://github.com/LudvigOlsen/cvms/issues/13) for finding the bug.
 
 * Fixes: In *grouped* multinomial evaluation, when predictions are classes and there are different sets of classes per group, only the classes in the subset are used.
 

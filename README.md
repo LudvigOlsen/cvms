@@ -160,12 +160,6 @@ package.
 
   - `cv_plot()` has been removed.
 
-  - Fixes bug in `evaluate()`, when used on a grouped data frame. The
-    row order in the output was not guaranteed to fit with the grouping
-    keys. If you have used `evaluate()` on a grouped data frame, please
-    rerun to make sure your results are correct\! (30th of November
-    2019)
-
   - In `cross_validate()` and `validate()`, the `models` argument is
     renamed to `formulas` and the `model_verbose` argument is renamed to
     `verbose`. Further, the `link` argument is hard-deprecated and will
@@ -281,7 +275,7 @@ CV1
 #> # … with 10 more variables: Results <list>, Coefficients <list>, Folds <int>,
 #> #   `Fold Columns` <int>, `Convergence Warnings` <int>, `Singular Fit
 #> #   Messages` <int>, `Other Warnings` <int>, `Warnings and Messages` <list>,
-#> #   Family <chr>, Dependent <chr>
+#> #   Process <list>, Dependent <chr>
 
 # Let's take a closer look at the different parts of the output 
 
@@ -355,12 +349,28 @@ CV1$Coefficients[[1]] %>% kable()
 
 # Additional information about the model
 # and the training process
-CV1 %>% select(14:21) %>% kable()
+CV1 %>% select(14:19, 21) %>% kable()
 ```
 
-| Folds | Fold Columns | Convergence Warnings | Singular Fit Messages | Other Warnings | Warnings and Messages                                                                                                       | Family   | Dependent |
-| ----: | -----------: | -------------------: | --------------------: | -------------: | :-------------------------------------------------------------------------------------------------------------------------- | :------- | :-------- |
-|     4 |            1 |                    0 |                     0 |              0 | list(`Fold Column` = character(0), Fold = integer(0), Function = character(0), Type = character(0), Message = character(0)) | gaussian | score     |
+| Folds | Fold Columns | Convergence Warnings | Singular Fit Messages | Other Warnings | Warnings and Messages | Dependent |
+| ----: | -----------: | -------------------: | --------------------: | -------------: | :-------------------- | :-------- |
+|     4 |            1 |                    0 |                     0 |              0 |                       | score     |
+
+``` r
+
+CV1$Process[[1]]
+#> ---
+#> Process Information
+#> ---
+#> Target column: target
+#> Prediction column: prediction
+#> Family / type: Gaussian
+#> Target summary: mean: 38.767, median: 35, range: [10, 81], SD: 19.294, IQR: 28
+#> Prediction summary: mean: 38.717, median: 33.667, range: [27.25, 53.333], SD: 10.386, IQR: 19.111
+#> Locale (LC_ALL): 
+#>   en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+#> ---
+```
 
 ### Binomial
 
@@ -374,18 +384,17 @@ CV2 <- cross_validate(
 
 # Show results
 CV2
-#> # A tibble: 1 x 29
+#> # A tibble: 1 x 28
 #>   Fixed `Balanced Accur…    F1 Sensitivity Specificity `Pos Pred Value`
 #>   <chr>            <dbl> <dbl>       <dbl>       <dbl>            <dbl>
 #> 1 score            0.736 0.821       0.889       0.583            0.762
-#> # … with 23 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
+#> # … with 22 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
 #> #   CI` <dbl>, `Upper CI` <dbl>, Kappa <dbl>, MCC <dbl>, `Detection
 #> #   Rate` <dbl>, `Detection Prevalence` <dbl>, Prevalence <dbl>,
 #> #   Predictions <list>, ROC <list>, `Confusion Matrix` <list>, Results <list>,
 #> #   Coefficients <list>, Folds <int>, `Fold Columns` <int>, `Convergence
 #> #   Warnings` <int>, `Singular Fit Messages` <int>, `Other Warnings` <int>,
-#> #   `Warnings and Messages` <list>, `Positive Class` <chr>, Family <chr>,
-#> #   Dependent <chr>
+#> #   `Warnings and Messages` <list>, Process <list>, Dependent <chr>
 
 # Let's take a closer look at the different parts of the output 
 # We won't repeat the parts too similar to those in Gaussian
@@ -458,7 +467,7 @@ CV3
 #> # … with 10 more variables: Results <list>, Coefficients <list>, Folds <int>,
 #> #   `Fold Columns` <int>, `Convergence Warnings` <int>, `Singular Fit
 #> #   Messages` <int>, `Other Warnings` <int>, `Warnings and Messages` <list>,
-#> #   Family <chr>, Dependent <chr>
+#> #   Process <list>, Dependent <chr>
 ```
 
 ### Cross-validate mixed effects models
@@ -482,7 +491,7 @@ CV4
 #> # … with 11 more variables: Results <list>, Coefficients <list>, Folds <int>,
 #> #   `Fold Columns` <int>, `Convergence Warnings` <int>, `Singular Fit
 #> #   Messages` <int>, `Other Warnings` <int>, `Warnings and Messages` <list>,
-#> #   Family <chr>, Dependent <chr>, Random <chr>
+#> #   Process <list>, Dependent <chr>, Random <chr>
 ```
 
 ## Repeated cross-validation
@@ -502,9 +511,14 @@ will be renamed to `".folds_1"`.
 # Set seed for reproducibility
 set.seed(2)
 
+# Ungroup data
+# Ootherwise we would create folds within the existing folds
+data <- dplyr::ungroup(data)
+
 # Fold data 
 data <- fold(
-  data = data, k = 4,
+  data = data, 
+  k = 4,
   cat_col = 'diagnosis',
   id_col = 'participant',
   num_fold_cols = 3,
@@ -542,19 +556,18 @@ CV5 <- cross_validate(
 
 # Show results
 CV5
-#> # A tibble: 2 x 29
+#> # A tibble: 2 x 28
 #>   Fixed `Balanced Accur…    F1 Sensitivity Specificity `Pos Pred Value`
 #>   <chr>            <dbl> <dbl>       <dbl>       <dbl>            <dbl>
 #> 1 score            0.729 0.813       0.875       0.583            0.759
 #> 2 scor…            0.545 0.643       0.653       0.438            0.635
-#> # … with 23 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
+#> # … with 22 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
 #> #   CI` <dbl>, `Upper CI` <dbl>, Kappa <dbl>, MCC <dbl>, `Detection
 #> #   Rate` <dbl>, `Detection Prevalence` <dbl>, Prevalence <dbl>,
 #> #   Predictions <list>, ROC <list>, `Confusion Matrix` <list>, Results <list>,
 #> #   Coefficients <list>, Folds <int>, `Fold Columns` <int>, `Convergence
 #> #   Warnings` <int>, `Singular Fit Messages` <int>, `Other Warnings` <int>,
-#> #   `Warnings and Messages` <list>, `Positive Class` <chr>, Family <chr>,
-#> #   Dependent <chr>
+#> #   `Warnings and Messages` <list>, Process <list>, Dependent <chr>
 
 # Subset of the results per fold for the first model
 CV5$Results[[1]] %>% select(1:8) %>% kable()
@@ -663,18 +676,18 @@ CV6 <- cross_validate_fn(
 #> Will cross-validate 2 models. This requires fitting 8 model instances.
 
 CV6
-#> # A tibble: 2 x 28
+#> # A tibble: 2 x 27
 #>   Fixed `Balanced Accur…    F1 Sensitivity Specificity `Pos Pred Value`
 #>   <chr>            <dbl> <dbl>       <dbl>       <dbl>            <dbl>
 #> 1 score            0.653 0.780       0.889       0.417            0.696
 #> 2 age              0.458 0.615       0.667       0.25             0.571
-#> # … with 22 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
+#> # … with 21 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
 #> #   CI` <dbl>, `Upper CI` <dbl>, Kappa <dbl>, MCC <dbl>, `Detection
 #> #   Rate` <dbl>, `Detection Prevalence` <dbl>, Prevalence <dbl>,
 #> #   Predictions <list>, ROC <list>, `Confusion Matrix` <list>, Results <list>,
 #> #   Coefficients <list>, Folds <int>, `Fold Columns` <int>, `Convergence
 #> #   Warnings` <int>, `Other Warnings` <int>, `Warnings and Messages` <list>,
-#> #   `Positive Class` <chr>, Family <chr>, Dependent <chr>
+#> #   Process <list>, Dependent <chr>
 ```
 
 ### Naïve Bayes
@@ -732,18 +745,18 @@ CV7 <- cross_validate_fn(
 #> Will cross-validate 2 models. This requires fitting 8 model instances.
 
 CV7
-#> # A tibble: 2 x 28
+#> # A tibble: 2 x 27
 #>   Fixed `Balanced Accur…    F1 Sensitivity Specificity `Pos Pred Value`
 #>   <chr>            <dbl> <dbl>       <dbl>       <dbl>            <dbl>
 #> 1 score            0.736 0.821       0.889       0.583            0.762
 #> 2 age              0.25  0.462       0.5         0                0.429
-#> # … with 22 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
+#> # … with 21 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
 #> #   CI` <dbl>, `Upper CI` <dbl>, Kappa <dbl>, MCC <dbl>, `Detection
 #> #   Rate` <dbl>, `Detection Prevalence` <dbl>, Prevalence <dbl>,
 #> #   Predictions <list>, ROC <list>, `Confusion Matrix` <list>, Results <list>,
 #> #   Coefficients <list>, Folds <int>, `Fold Columns` <int>, `Convergence
 #> #   Warnings` <int>, `Other Warnings` <int>, `Warnings and Messages` <list>,
-#> #   `Positive Class` <chr>, Family <chr>, Dependent <chr>
+#> #   Process <list>, Dependent <chr>
 ```
 
 ## Extracting the most challenging observations
@@ -831,12 +844,12 @@ challenging %>% kable()
 
 | participant | age | diagnosis | score | session | Observation | Correct | Incorrect |  Accuracy |       MAE | Cross Entropy |       \<= |
 | :---------- | --: | --------: | ----: | ------: | ----------: | ------: | --------: | --------: | --------: | ------------: | --------: |
-| 5           |  32 |         1 |    62 |       3 |          21 |       1 |        11 | 0.0833333 | 0.8199538 |      2.097782 | 0.6145233 |
+| 10          |  32 |         0 |    29 |       1 |           1 |       1 |        11 | 0.0833333 | 0.7333863 |      1.390259 | 0.6145233 |
 | 2           |  23 |         0 |    24 |       1 |           4 |       0 |        12 | 0.0000000 | 0.7832189 |      1.664472 | 0.6145233 |
+| 4           |  21 |         0 |    35 |       1 |           7 |       0 |        12 | 0.0000000 | 0.6896729 |      1.218275 | 0.6145233 |
 | 9           |  34 |         0 |    33 |       1 |          10 |       0 |        12 | 0.0000000 | 0.7735253 |      1.568240 | 0.6145233 |
 | 5           |  32 |         1 |    54 |       2 |          20 |       1 |        11 | 0.0833333 | 0.7419556 |      1.497591 | 0.6145233 |
-| 10          |  32 |         0 |    29 |       1 |           1 |       1 |        11 | 0.0833333 | 0.7333863 |      1.390259 | 0.6145233 |
-| 4           |  21 |         0 |    35 |       1 |           7 |       0 |        12 | 0.0000000 | 0.6896729 |      1.218275 | 0.6145233 |
+| 5           |  32 |         1 |    62 |       3 |          21 |       1 |        11 | 0.0833333 | 0.8199538 |      2.097782 | 0.6145233 |
 
 Note: You may have to scroll to the right in the table.
 
@@ -877,13 +890,25 @@ predictions %>%
     prediction_cols = "Prediction",
     type = "gaussian"
   )
-#> # A tibble: 4 x 8
-#>    Fold  RMSE   MAE `NRMSE(IQR)`  RRSE   RAE RMSLE Predictions     
-#>   <int> <dbl> <dbl>        <dbl> <dbl> <dbl> <dbl> <list>          
-#> 1     1  12.6  10.7        0.679 0.783 0.785 0.356 <tibble [6 × 3]>
-#> 2     2  16.6  14.8        1.04  1.01  1.13  0.581 <tibble [9 × 3]>
-#> 3     3  16.0  12.9        1.25  0.795 0.864 0.477 <tibble [6 × 3]>
-#> 4     4  20.3  16.7        0.779 1.01  0.953 0.482 <tibble [9 × 3]>
+#> New names:
+#> * Fold -> Fold...1
+#> * Fold -> Fold...3
+#> New names:
+#> * Fold -> Fold...1
+#> * Fold -> Fold...3
+#> New names:
+#> * Fold -> Fold...1
+#> * Fold -> Fold...3
+#> New names:
+#> * Fold -> Fold...1
+#> * Fold -> Fold...3
+#> # A tibble: 4 x 9
+#>    Fold  RMSE   MAE `NRMSE(IQR)`  RRSE   RAE RMSLE Predictions      Process   
+#>   <int> <dbl> <dbl>        <dbl> <dbl> <dbl> <dbl> <list>           <list>    
+#> 1     1  12.6  10.7        0.679 0.783 0.785 0.356 <tibble [6 × 4]> <prcss_n_>
+#> 2     2  16.6  14.8        1.04  1.01  1.13  0.581 <tibble [9 × 4]> <prcss_n_>
+#> 3     3  16.0  12.9        1.25  0.795 0.864 0.477 <tibble [6 × 4]> <prcss_n_>
+#> 4     4  20.3  16.7        0.779 1.01  0.953 0.482 <tibble [9 × 4]> <prcss_n_>
 ```
 
 ### Binomial evaluation
@@ -916,18 +941,30 @@ predictions %>%
     prediction_cols = "Prediction",
     type = "binomial"
   )
-#> # A tibble: 4 x 19
-#>    Fold `Balanced Accur…    F1 Sensitivity Specificity `Pos Pred Value`
-#>   <int>            <dbl> <dbl>       <dbl>       <dbl>            <dbl>
-#> 1     1            0.833 0.857       1           0.667             0.75
-#> 2     2            0.667 0.857       1           0.333             0.75
-#> 3     3            0.833 0.857       1           0.667             0.75
-#> 4     4            0.667 0.727       0.667       0.667             0.8 
+#> New names:
+#> * Fold -> Fold...1
+#> * Fold -> Fold...3
+#> New names:
+#> * Fold -> Fold...1
+#> * Fold -> Fold...3
+#> New names:
+#> * Fold -> Fold...1
+#> * Fold -> Fold...3
+#> New names:
+#> * Fold -> Fold...1
+#> * Fold -> Fold...3
+#> # A tibble: 4 x 20
+#>    Fold `Balanced Accur… Accuracy    F1 Sensitivity Specificity `Pos Pred Value`
+#>   <int>            <dbl>    <dbl> <dbl>       <dbl>       <dbl>            <dbl>
+#> 1     1            0.833    0.833 0.857       1           0.667             0.75
+#> 2     2            0.667    0.778 0.857       1           0.333             0.75
+#> 3     3            0.833    0.833 0.857       1           0.667             0.75
+#> 4     4            0.667    0.667 0.727       0.667       0.667             0.8 
 #> # … with 13 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower
 #> #   CI` <dbl>, `Upper CI` <dbl>, Kappa <dbl>, MCC <dbl>, `Detection
 #> #   Rate` <dbl>, `Detection Prevalence` <dbl>, Prevalence <dbl>,
-#> #   Predictions <list>, ROC <list>, `Confusion Matrix` <list>, `Positive
-#> #   Class` <chr>
+#> #   Predictions <list>, ROC <named list>, `Confusion Matrix` <list>,
+#> #   Process <list>
 ```
 
 ### Multinomial evaluation
@@ -973,14 +1010,14 @@ ev <- evaluate(
 )
 
 ev
-#> # A tibble: 1 x 15
+#> # A tibble: 1 x 16
 #>   `Overall Accura… `Balanced Accur…    F1 Sensitivity Specificity
 #>              <dbl>            <dbl> <dbl>       <dbl>       <dbl>
 #> 1            0.533            0.646 0.516       0.530       0.762
-#> # … with 10 more variables: `Pos Pred Value` <dbl>, `Neg Pred Value` <dbl>,
+#> # … with 11 more variables: `Pos Pred Value` <dbl>, `Neg Pred Value` <dbl>,
 #> #   Kappa <dbl>, MCC <dbl>, `Detection Rate` <dbl>, `Detection
 #> #   Prevalence` <dbl>, Prevalence <dbl>, Predictions <list>, `Confusion
-#> #   Matrix` <list>, `Class Level Results` <list>
+#> #   Matrix` <list>, `Class Level Results` <list>, Process <list>
 
 # The one-vs-all evaluations
 ev$`Class Level Results`[[1]]
@@ -1002,14 +1039,14 @@ evaluate(
   prediction_cols = "Predicted Class",
   type = "multinomial"
 )
-#> # A tibble: 1 x 15
+#> # A tibble: 1 x 16
 #>   `Overall Accura… `Balanced Accur…    F1 Sensitivity Specificity
 #>              <dbl>            <dbl> <dbl>       <dbl>       <dbl>
 #> 1            0.533            0.646 0.516       0.530       0.762
-#> # … with 10 more variables: `Pos Pred Value` <dbl>, `Neg Pred Value` <dbl>,
+#> # … with 11 more variables: `Pos Pred Value` <dbl>, `Neg Pred Value` <dbl>,
 #> #   Kappa <dbl>, MCC <dbl>, `Detection Rate` <dbl>, `Detection
 #> #   Prevalence` <dbl>, Prevalence <dbl>, Predictions <list>, `Confusion
-#> #   Matrix` <list>, `Class Level Results` <list>
+#> #   Matrix` <list>, `Class Level Results` <list>, Process <list>
 ```
 
 ## Baseline evaluations
@@ -1063,22 +1100,22 @@ binomial_baseline <- baseline_binomial(
 )
 
 binomial_baseline$summarized_metrics
-#> # A tibble: 10 x 15
-#>    Measure `Balanced Accur…      F1 Sensitivity Specificity `Pos Pred Value`
-#>    <chr>              <dbl>   <dbl>       <dbl>       <dbl>            <dbl>
-#>  1 Mean               0.496   0.481       0.475       0.517            0.494
-#>  2 Median             0.5     0.5         0.5         0.5              0.5  
-#>  3 SD                 0.130   0.144       0.178       0.181            0.146
-#>  4 IQR                0.167   0.195       0.208       0.333            0.200
-#>  5 Max                0.833   0.833       0.833       0.833            0.833
-#>  6 Min                0.25    0.182       0           0.167            0    
-#>  7 NAs                0       1           0           0                0    
-#>  8 INFs               0       0           0           0                0    
-#>  9 All_0              0.5   NaN           0           1              NaN    
-#> 10 All_1              0.5     0.667       1           0                0.5  
-#> # … with 9 more variables: `Neg Pred Value` <dbl>, AUC <dbl>, `Lower CI` <dbl>,
-#> #   `Upper CI` <dbl>, Kappa <dbl>, MCC <dbl>, `Detection Rate` <dbl>,
-#> #   `Detection Prevalence` <dbl>, Prevalence <dbl>
+#> # A tibble: 10 x 16
+#>    Measure `Balanced Accur… Accuracy      F1 Sensitivity Specificity
+#>    <chr>              <dbl>    <dbl>   <dbl>       <dbl>       <dbl>
+#>  1 Mean               0.496    0.496   0.481       0.475       0.517
+#>  2 Median             0.5      0.5     0.5         0.5         0.5  
+#>  3 SD                 0.130    0.130   0.144       0.178       0.181
+#>  4 IQR                0.167    0.167   0.195       0.208       0.333
+#>  5 Max                0.833    0.833   0.833       0.833       0.833
+#>  6 Min                0.25     0.25    0.182       0           0.167
+#>  7 NAs                0        0       1           0           0    
+#>  8 INFs               0        0       0           0           0    
+#>  9 All_0              0.5      0.5   NaN           0           1    
+#> 10 All_1              0.5      0.5     0.667       1           0    
+#> # … with 10 more variables: `Pos Pred Value` <dbl>, `Neg Pred Value` <dbl>,
+#> #   AUC <dbl>, `Lower CI` <dbl>, `Upper CI` <dbl>, Kappa <dbl>, MCC <dbl>,
+#> #   `Detection Rate` <dbl>, `Detection Prevalence` <dbl>, Prevalence <dbl>
 ```
 
 On average, we can expect an `F1` score of approximately `0.481`. The
@@ -1097,23 +1134,23 @@ pattern.
 ``` r
 binomial_baseline$random_evaluations
 #> # A tibble: 100 x 20
-#>    `Balanced Accur…    F1 Sensitivity Specificity `Pos Pred Value`
-#>               <dbl> <dbl>       <dbl>       <dbl>            <dbl>
-#>  1            0.417 0.462       0.5         0.333            0.429
-#>  2            0.667 0.6         0.5         0.833            0.75 
-#>  3            0.5   0.571       0.667       0.333            0.5  
-#>  4            0.417 0.364       0.333       0.5              0.4  
-#>  5            0.583 0.545       0.5         0.667            0.6  
-#>  6            0.583 0.545       0.5         0.667            0.6  
-#>  7            0.667 0.667       0.667       0.667            0.667
-#>  8            0.417 0.364       0.333       0.5              0.4  
-#>  9            0.333 0.333       0.333       0.333            0.333
-#> 10            0.583 0.545       0.5         0.667            0.6  
-#> # … with 90 more rows, and 15 more variables: `Neg Pred Value` <dbl>,
+#>    `Balanced Accur… Accuracy    F1 Sensitivity Specificity `Pos Pred Value`
+#>               <dbl>    <dbl> <dbl>       <dbl>       <dbl>            <dbl>
+#>  1            0.417    0.417 0.462       0.5         0.333            0.429
+#>  2            0.667    0.667 0.6         0.5         0.833            0.75 
+#>  3            0.5      0.5   0.571       0.667       0.333            0.5  
+#>  4            0.417    0.417 0.364       0.333       0.5              0.4  
+#>  5            0.583    0.583 0.545       0.5         0.667            0.6  
+#>  6            0.583    0.583 0.545       0.5         0.667            0.6  
+#>  7            0.667    0.667 0.667       0.667       0.667            0.667
+#>  8            0.417    0.417 0.364       0.333       0.5              0.4  
+#>  9            0.333    0.333 0.333       0.333       0.333            0.333
+#> 10            0.583    0.583 0.545       0.5         0.667            0.6  
+#> # … with 90 more rows, and 14 more variables: `Neg Pred Value` <dbl>,
 #> #   AUC <dbl>, `Lower CI` <dbl>, `Upper CI` <dbl>, Kappa <dbl>, MCC <dbl>,
 #> #   `Detection Rate` <dbl>, `Detection Prevalence` <dbl>, Prevalence <dbl>,
-#> #   Predictions <list>, ROC <list>, `Confusion Matrix` <list>, `Positive
-#> #   Class` <chr>, Family <chr>, Dependent <chr>
+#> #   Predictions <list<tbl_df[,4]>>, ROC <list>, `Confusion
+#> #   Matrix` <list<tbl_df[,6]>>, Process <list>, Dependent <chr>
 ```
 
 We can plot the distribution of `F1` scores from the random evaluations:
@@ -1182,7 +1219,7 @@ evaluations is `0.664`.
 multiclass_baseline$summarized_class_level_results %>% 
   dplyr::filter(Class == "class_1") %>%
   tidyr::unnest(Results)
-#> # A tibble: 10 x 12
+#> # A tibble: 10 x 13
 #>    Class Measure `Balanced Accur…      F1 Sensitivity Specificity
 #>    <chr> <chr>              <dbl>   <dbl>       <dbl>       <dbl>
 #>  1 clas… Mean              0.493    0.314       0.339       0.648
@@ -1195,9 +1232,9 @@ multiclass_baseline$summarized_class_level_results %>%
 #>  8 clas… INFs              0        0           0           0    
 #>  9 clas… All_0             0.5    NaN           0           1    
 #> 10 clas… All_1             0.5      0.462       1           0    
-#> # … with 6 more variables: `Pos Pred Value` <dbl>, `Neg Pred Value` <dbl>,
+#> # … with 7 more variables: `Pos Pred Value` <dbl>, `Neg Pred Value` <dbl>,
 #> #   Kappa <dbl>, `Detection Rate` <dbl>, `Detection Prevalence` <dbl>,
-#> #   Prevalence <dbl>
+#> #   Prevalence <dbl>, Accuracy <dbl>
 
 # Random evaluations
 # Note, that the class level results for each repetition
@@ -1218,8 +1255,9 @@ multiclass_baseline$random_evaluations
 #> 10         10            0.267            0.430   0.261       0.259       0.602
 #> # … with 90 more rows, and 12 more variables: `Pos Pred Value` <dbl>, `Neg Pred
 #> #   Value` <dbl>, Kappa <dbl>, MCC <dbl>, `Detection Rate` <dbl>, `Detection
-#> #   Prevalence` <dbl>, Prevalence <dbl>, Predictions <list>, `Confusion
-#> #   Matrix` <list>, `Class Level Results` <list>, Family <chr>, Dependent <chr>
+#> #   Prevalence` <dbl>, Prevalence <dbl>, Predictions <list<tbl_df[,4]>>,
+#> #   `Confusion Matrix` <list<tbl_df[,4]>>, `Class Level
+#> #   Results` <list<tbl_df[,16]>>, Process <list>, Dependent <chr>
 ```
 
 ### Gaussian baseline
@@ -1265,20 +1303,20 @@ random evaluations.
 ``` r
 gaussian_baseline$random_evaluations
 #> # A tibble: 100 x 12
-#>     RMSE   MAE `NRMSE(IQR)`  RRSE   RAE RMSLE Predictions Coefficients
-#>    <dbl> <dbl>        <dbl> <dbl> <dbl> <dbl> <list>      <list>      
-#>  1  19.1  15.5        0.921  1.01  1    0.544 <tibble [1… <tibble [1 …
-#>  2  19.2  15.5        0.926  1.02  1    0.543 <tibble [1… <tibble [1 …
-#>  3  19.0  15.5        0.917  1.01  1    0.568 <tibble [1… <tibble [1 …
-#>  4  19.0  15.5        0.916  1.00  1    0.566 <tibble [1… <tibble [1 …
-#>  5  19.2  15.5        0.927  1.02  1    0.542 <tibble [1… <tibble [1 …
-#>  6  19.5  15.5        0.937  1.03  1    0.541 <tibble [1… <tibble [1 …
-#>  7  20.4  15.9        0.983  1.08  1.02 0.546 <tibble [1… <tibble [1 …
-#>  8  18.9  15.5        0.912  1.00  1    0.558 <tibble [1… <tibble [1 …
-#>  9  19.5  15.5        0.939  1.03  1    0.541 <tibble [1… <tibble [1 …
-#> 10  18.9  15.5        0.912  1.00  1    0.558 <tibble [1… <tibble [1 …
-#> # … with 90 more rows, and 4 more variables: `Training Rows` <int>,
-#> #   Family <chr>, Dependent <chr>, Fixed <chr>
+#>     RMSE   MAE `NRMSE(IQR)`  RRSE   RAE RMSLE Predictions Coefficients Process
+#>    <dbl> <dbl>        <dbl> <dbl> <dbl> <dbl> <list<tbl_> <list<tbl_d> <list> 
+#>  1  19.1  15.5        0.921  1.01  1    0.544    [12 × 3]      [1 × 6] <prcss…
+#>  2  19.2  15.5        0.926  1.02  1    0.543    [12 × 3]      [1 × 6] <prcss…
+#>  3  19.0  15.5        0.917  1.01  1    0.568    [12 × 3]      [1 × 6] <prcss…
+#>  4  19.0  15.5        0.916  1.00  1    0.566    [12 × 3]      [1 × 6] <prcss…
+#>  5  19.2  15.5        0.927  1.02  1    0.542    [12 × 3]      [1 × 6] <prcss…
+#>  6  19.5  15.5        0.937  1.03  1    0.541    [12 × 3]      [1 × 6] <prcss…
+#>  7  20.4  15.9        0.983  1.08  1.02 0.546    [12 × 3]      [1 × 6] <prcss…
+#>  8  18.9  15.5        0.912  1.00  1    0.558    [12 × 3]      [1 × 6] <prcss…
+#>  9  19.5  15.5        0.939  1.03  1    0.541    [12 × 3]      [1 × 6] <prcss…
+#> 10  18.9  15.5        0.912  1.00  1    0.558    [12 × 3]      [1 × 6] <prcss…
+#> # … with 90 more rows, and 3 more variables: `Training Rows` <int>,
+#> #   Dependent <chr>, Fixed <chr>
 ```
 
 Plot the density plot for `RMSE`:

@@ -105,10 +105,15 @@ evaluate_predictions_multinomial <- function(data,
     missing_classes <- purrr::map(.x = classes_not_in_targets_col, .f = ~{
       if (all(predicted_probabilities[[.x]] == 0.0))
         .x
-    })
+    }) %>% unlist(recursive = TRUE)
 
     # Remove those 'missing' classes
     classes <- sort(setdiff(pred_col_classes, missing_classes))
+    if (length(missing_classes) > 0){
+      data[[predictions_col]] <- purrr::map(.x = data[[predictions_col]], .f = ~{
+        base_deselect(.x, cols = missing_classes)
+      })
+    }
 
     num_classes <- length(classes)
 

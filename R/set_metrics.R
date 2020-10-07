@@ -209,3 +209,23 @@ set_all <- function(metrics, to = TRUE) {
   }
   metrics
 }
+
+# This let's us have a different default
+# for a specific function
+# metrics: list of flags
+add_metric_if_not_specified <- function(metrics, metric, value=TRUE, check_all=TRUE){
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_list(metrics, types = "logical", add = assert_collection)
+  checkmate::assert_string(metric, add = assert_collection)
+  checkmate::assert_flag(value, add = assert_collection)
+  checkmate::assert_flag(check_all, add = assert_collection)
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
+  skip <- metric %in% names(metrics) || (isTRUE(check_all) && "all" %in% names(metrics))
+  if (!isTRUE(skip)){
+    if (isTRUE(check_all))
+    metrics[[metric]] <- value
+  }
+  metrics
+}

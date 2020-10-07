@@ -15,37 +15,37 @@ plot_metric_density(
 )
 }
 \arguments{
-\item{results}{Data frame with a metric column to create density plot for.
+\item{results}{\code{data.frame} with a metric column to create density plot for.
 
  To only plot the baseline, set to \code{NULL}.}
 
-\item{baseline}{Data frame with the random evaluations from \code{\link[cvms:baseline]{baseline()}}.
+\item{baseline}{\code{data.frame} with the random evaluations from \code{\link[cvms:baseline]{baseline()}}.
  Should contain a column for the \code{metric}.
 
  To only plot the results, set to \code{NULL}.}
 
-\item{metric}{Name of the metric column in \code{results} to plot. (Character)}
+\item{metric}{Name of the metric column in \code{`results`} to plot. (Character)}
 
 \item{fill}{Colors of the plotted distributions.
-The first color is for the \code{baseline}, the second for the \code{results}.}
+The first color is for the \code{`baseline`}, the second for the \code{`results`}.}
 
 \item{alpha}{Transparency of the distribution (\code{0 - 1}).}
 
 \item{theme_fn}{The \code{ggplot2} theme function to apply.}
 
-\item{xlim}{Limits for the x-axis. Can be set to NULL.
+\item{xlim}{Limits for the x-axis. Can be set to \code{NULL}.
 
  E.g. \code{c(0, 1)}.}
 }
 \value{
 A \code{ggplot2} object with the density of a metric, possibly split
- in \emph{Results} and \emph{Baseline}.
+ in \emph{`Results`} and \emph{`Baseline`}.
 }
 \description{
 \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
 
  Creates a \code{\link[ggplot2:ggplot]{ggplot2}} object with a density plot
- for one of the columns in the passed data frame(s).
+ for one of the columns in the passed \code{data.frame}(s).
 
  Note: In its current form, it is mainly intended as a quick way to visualize
  the results from cross-validations and baselines (random evaluations).
@@ -95,7 +95,9 @@ plot_metric_density(
 \seealso{
 Other plotting functions: 
 \code{\link{font}()},
-\code{\link{plot_confusion_matrix}()}
+\code{\link{plot_confusion_matrix}()},
+\code{\link{plot_probabilities_ecdf}()},
+\code{\link{plot_probabilities}()}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

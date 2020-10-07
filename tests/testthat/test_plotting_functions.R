@@ -235,6 +235,42 @@ test_that("plot_confusion_matrix() with multiclass conf mat returns expected plo
 
 })
 
+
+test_that("testing diag_percentages_only argument", {
+  xpectr::set_test_seed(42)
+
+  if (!requireNamespace("rsvg", quietly = TRUE) ||
+      !requireNamespace("ggimage", quietly = TRUE)) {
+    testthat::skip("missing 'rsvg' and/or 'ggimage'.")
+  }
+
+  targets <- c(0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1)
+  predictions <- c(1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0)
+
+  # Create confusion matrix with default metrics
+  cm <- confusion_matrix(targets, predictions)
+  cm[["Confusion Matrix"]]
+
+  expect_equal(cm[["Confusion Matrix"]][[1]]$N, c(4L, 2L, 2L, 4L))
+
+  # cm[["Confusion Matrix"]][[1]]$N[[3]] <- 0
+
+  p1 <- plot_confusion_matrix(cm[["Confusion Matrix"]][[1]], diag_percentages_only = TRUE)
+  expect_equal(p1$data$N, c(4L, 2L, 2L, 4L))
+  expect_equal(p1$data$N_text, as.character(c(4L, 2L, 2L, 4L)))
+  expect_equal(p1$data$Normalized, c(33.3333333333333, 16.6666666666667, 16.6666666666667, 33.3333333333333))
+  expect_equal(p1$data$Normalized_text, c("33.3%", "16.7%", "16.7%", "33.3%"))
+  expect_equal(p1$data$Class_N, c(6, 6, 6, 6))
+  expect_equal(p1$data$Class_Percentage, c(66.6666666666667, 33.3333333333333, 33.3333333333333, 66.6666666666667))
+  expect_equal(p1$data$Class_Percentage_text, c("66.7%", "", "", "66.7%"))
+  expect_equal(p1$data$Prediction_N, c(6, 6, 6, 6))
+  expect_equal(p1$data$Prediction_Percentage, c(66.6666666666667, 33.3333333333333, 33.3333333333333, 66.6666666666667))
+  expect_equal(p1$data$Prediction_Percentage_text, c("66.7%", "", "", "66.7%"))
+  # ...
+
+})
+
+
 test_that("font() gets updated correctly", {
   f_1 <- font(
     size = 9,

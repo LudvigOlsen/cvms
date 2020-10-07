@@ -14,12 +14,12 @@
 #'  Create ID-aggregated evaluations by multiple methods.
 #'
 #'  Currently supports regression and classification
-#'  (binary and multiclass). See \code{type}.
-#' @param data Data frame with predictions, targets and (optionally) an ID column.
+#'  (binary and multiclass). See \code{`type`}.
+#' @param data \code{data.frame} with predictions, targets and (optionally) an ID column.
 #'  Can be grouped with \code{\link[dplyr]{group_by}}.
 #'
 #'  \subsection{Multinomial}{
-#'  When \code{type} is \code{"multinomial"}, the predictions can be passed in one of two formats.
+#'  When \code{`type`} is \code{"multinomial"}, the predictions can be passed in one of two formats.
 #'
 #'  \subsection{Probabilities (Preferable)}{
 #'
@@ -49,7 +49,7 @@
 #'  }
 #'  }
 #'  \subsection{Binomial}{
-#'  When \code{type} is \code{"binomial"}, the predictions can be passed in one of two formats.
+#'  When \code{`type`} is \code{"binomial"}, the predictions can be passed in one of two formats.
 #'
 #'  \subsection{Probabilities (Preferable)}{
 #'  One column with the probability of class being
@@ -81,7 +81,7 @@
 #'  the second class alphabetically.
 #'  }
 #'  \subsection{Gaussian}{
-#'  When \code{type} is \code{"gaussian"}, the predictions should be passed as
+#'  When \code{`type`} is \code{"gaussian"}, the predictions should be passed as
 #'  one column with the predicted values. E.g.:
 #'
 #'  \tabular{rrrrr}{
@@ -91,14 +91,14 @@
 #'   23.4 \tab 21.3\cr
 #'   ... \tab ...}
 #'  }
-#' @param target_col Name of the column with the true classes/values in \code{data}.
+#' @param target_col Name of the column with the true classes/values in \code{`data`}.
 #'
-#'  When \code{type} is \code{"multinomial"}, this column should contain the class names,
+#'  When \code{`type`} is \code{"multinomial"}, this column should contain the class names,
 #'  not their indices.
 #' @param prediction_cols Name(s) of column(s) with the predictions.
 #'
 #'  Columns can be either numeric or character depending on which format is chosen.
-#'  See \code{data} for the possible formats.
+#'  See \code{`data`} for the possible formats.
 #' @param id_col Name of ID column to aggregate predictions by.
 #'
 #'  N.B. Current methods assume that the target class/value is constant within the IDs.
@@ -107,7 +107,7 @@
 #' @param id_method Method to use when aggregating predictions by ID.
 #'  Either \code{"mean"} or \code{"majority"}.
 #'
-#'  When \code{type} is \code{gaussian}, only the \code{"mean"} method is available.
+#'  When \code{`type`} is \code{gaussian}, only the \code{"mean"} method is available.
 #'
 #'  \subsection{mean}{
 #'  The average prediction (value or probability) is calculated per ID and evaluated.
@@ -119,14 +119,14 @@
 #'  This method assumes that the target class/value is constant within the IDs.
 #'  }
 #' @param apply_softmax Whether to apply the softmax function to the
-#'  prediction columns when \code{type} is \code{"multinomial"}.
+#'  prediction columns when \code{`type`} is \code{"multinomial"}.
 #'
 #'  N.B. \strong{Multinomial models only}.
 #' @param cutoff Threshold for predicted classes. (Numeric)
 #'
 #' N.B. \strong{Binomial models only}.
 #' @param positive Level from dependent variable to predict.
-#'  Either as character (\emph{preferable}) or level index (1 or 2 - alphabetically).
+#'  Either as character (\emph{preferable}) or level index (\code{1} or \code{2} - alphabetically).
 #'
 #'  E.g. if we have the levels \code{"cat"} and \code{"dog"} and we want \code{"dog"} to be the positive class,
 #'  we can either provide \code{"dog"} or \code{2}, as alphabetically, \code{"dog"} comes after \code{"cat"}.
@@ -142,8 +142,8 @@
 #'
 #'  N.B. \strong{Binomial models only}.
 #' @param parallel Whether to run evaluations in parallel,
-#'  when \code{data} is grouped with \code{\link[dplyr:group_by]{group_by}}.
-#' @param metrics List for enabling/disabling metrics.
+#'  when \code{`data`} is grouped with \code{\link[dplyr:group_by]{group_by}}.
+#' @param metrics \code{list} for enabling/disabling metrics.
 #'
 #'   E.g. \code{list("RMSE" = FALSE)} would remove \code{RMSE} from the regression results,
 #'   and \code{list("Accuracy" = TRUE)} would add the regular \code{Accuracy} metric
@@ -151,11 +151,11 @@
 #'   Default values (\code{TRUE}/\code{FALSE}) will be used for the remaining available metrics.
 #'
 #'   You can enable/disable all metrics at once by including
-#'   \code{"all" = TRUE/FALSE} in the list. This is done prior to enabling/disabling
+#'   \code{"all" = TRUE/FALSE} in the \code{list}. This is done prior to enabling/disabling
 #'   individual metrics, why f.i. \code{list("all" = FALSE, "RMSE" = TRUE)}
 #'   would return only the \code{RMSE} metric.
 #'
-#'   The list can be created with
+#'   The \code{list} can be created with
 #'   \code{\link[cvms:gaussian_metrics]{gaussian_metrics()}},
 #'   \code{\link[cvms:binomial_metrics]{binomial_metrics()}}, or
 #'   \code{\link[cvms:multinomial_metrics]{multinomial_metrics()}}.
@@ -169,7 +169,7 @@
 #'
 #'  \code{"multinomial"} for multiclass classification.
 #' @param include_predictions Whether to include the predictions
-#'  in the output as a nested tibble. (Logical)
+#'  in the output as a nested \code{tibble}. (Logical)
 #' @param models Deprecated.
 #' @details
 #'
@@ -189,7 +189,7 @@
 #'
 #'  ----------------------------------------------------------------
 #'
-#'  Tibble containing the following metrics by default:
+#'  \code{tibble} containing the following metrics by default:
 #'
 #'  Average \strong{\code{RMSE}}, \strong{\code{MAE}}, \strong{\code{NRMSE(IQR)}},
 #'  \strong{\code{RRSE}}, \strong{\code{RAE}}, \strong{\code{RMSLE}}.
@@ -199,7 +199,10 @@
 #'
 #'  Also includes:
 #'
-#'  A nested tibble with the \strong{Predictions} and targets.
+#'  A nested \code{tibble} with the \strong{Predictions} and targets.
+#'
+#'  A nested \strong{Process} information object with information
+#'  about the evaluation.
 #'  }
 #'
 #'  ----------------------------------------------------------------
@@ -208,12 +211,13 @@
 #'
 #'  ----------------------------------------------------------------
 #'
-#'  Tibble with the following evaluation metrics, based on a
+#'  \code{tibble} with the following evaluation metrics, based on a
 #'  \code{confusion matrix} and a \code{ROC} curve fitted to the predictions:
 #'
 #'  \code{Confusion Matrix}:
 #'
 #'  \strong{\code{Balanced Accuracy}},
+#'  \strong{\code{Accuracy}},
 #'  \strong{\code{F1}},
 #'  \strong{\code{Sensitivity}},
 #'  \strong{\code{Specificity}},
@@ -231,21 +235,21 @@
 #'
 #'  Note, that the \code{ROC} curve is only computed if \code{AUC} is enabled. See \code{metrics}.
 #'
-#'  Other available metrics (disabled by default, see \code{metrics}):
-#'  \strong{\code{Accuracy}}.
-#'
 #'  Also includes:
 #'
-#'  A nested tibble with the \strong{predictions} and targets.
+#'  A nested \code{tibble} with the \strong{predictions} and targets.
 #'
-#'  A list of \strong{ROC} curve objects (if computed).
+#'  A \code{list} of \strong{ROC} curve objects (if computed).
 #'
-#'  A nested tibble with the \strong{confusion matrix}.
+#'  A nested \code{tibble} with the \strong{confusion matrix}.
 #'  The \code{Pos_} columns tells you whether a row is a
 #'  True Positive (\code{TP}), True Negative (\code{TN}),
 #'  False Positive (\code{FP}), or False Negative (\code{FN}),
 #'  depending on which level is the "\code{positive}" class.
 #'  I.e. the level you wish to predict.
+#'
+#'  A nested \strong{Process} information object with information
+#'  about the evaluation.
 #'  }
 #'
 #'  ----------------------------------------------------------------
@@ -255,16 +259,16 @@
 #'  ----------------------------------------------------------------
 #'
 #'  For each class, a \emph{one-vs-all} binomial evaluation is performed. This creates
-#'  a \strong{Class Level Results} tibble containing the same metrics as the binomial results
-#'  described above (excluding \code{MCC}, \code{AUC}, \code{Lower CI} and \code{Upper CI}),
+#'  a \strong{Class Level Results} \code{tibble} containing the same metrics as the binomial results
+#'  described above (excluding \code{Accuracy}, \code{MCC}, \code{AUC}, \code{Lower CI} and \code{Upper CI}),
 #'  along with a count of the class in the target column (\strong{\code{Support}}).
 #'  These metrics are used to calculate the macro metrics. The nested class level results
-#'  tibble is also included in the output tibble,
+#'  \code{tibble} is also included in the output \code{tibble},
 #'  and could be reported along with the macro and overall metrics.
 #'
-#'  The output tibble contains the macro and overall metrics.
+#'  The output \code{tibble} contains the macro and overall metrics.
 #'  The metrics that share their name with the metrics in the nested
-#'  class level results tibble are averages of those metrics
+#'  class level results \code{tibble} are averages of those metrics
 #'  (note: does not remove \code{NA}s before averaging).
 #'  In addition to these, it also includes the \strong{\code{Overall Accuracy}} and
 #'  the multiclass \strong{\code{MCC}}.
@@ -291,17 +295,20 @@
 #'
 #'  Also includes:
 #'
-#'  A nested tibble with the \strong{Predictions} and targets.
+#'  A nested \code{tibble} with the \strong{Predictions} and targets.
 #'
-#'  A list of \strong{ROC} curve objects when \code{AUC} is enabled.
+#'  A \code{list} of \strong{ROC} curve objects when \code{AUC} is enabled.
 #'
-#'  A nested tibble with the multiclass \strong{Confusion Matrix}.
+#'  A nested \code{tibble} with the multiclass \strong{Confusion Matrix}.
+#'
+#'  A nested \strong{Process} information object with information
+#'  about the evaluation.
 #'
 #'  \subsection{Class Level Results}{
 #'
 #'  Besides the binomial evaluation metrics and the \code{Support},
-#'  the nested class level results tibble also contains a
-#'  nested tibble with the \strong{Confusion Matrix} from the one-vs-all evaluation.
+#'  the nested class level results \code{tibble} also contains a
+#'  nested \code{tibble} with the \strong{Confusion Matrix} from the one-vs-all evaluation.
 #'  The \code{Pos_} columns tells you whether a row is a
 #'  True Positive (\code{TP}), True Negative (\code{TN}),
 #'  False Positive (\code{FP}), or False Negative (\code{FN}),
@@ -354,7 +361,7 @@
 #'
 #' # Create a tibble with predicted probabilities and targets
 #' data_mc <- multiclass_probability_tibble(
-#'   num_classes = 3, num_observations = 30,
+#'   num_classes = 3, num_observations = 45,
 #'   apply_softmax = TRUE, FUN = runif,
 #'   class_name = "class_",
 #'   add_targets = TRUE
@@ -396,10 +403,10 @@
 #'
 #' # Add IDs and new targets (must be constant within IDs)
 #' data_mc[["Target"]] <- NULL
-#' data_mc[["ID"]] <- rep(1:6, each = 5)
+#' data_mc[["ID"]] <- rep(1:9, each = 5)
 #' id_classes <- tibble::tibble(
-#'   "ID" = 1:6,
-#'   "Target" = sample(x = class_names, size = 6, replace = TRUE)
+#'   "ID" = 1:9,
+#'   "Target" = sample(x = class_names, size = 9, replace = TRUE)
 #' )
 #' data_mc <- data_mc %>%
 #'   dplyr::left_join(id_classes, by = "ID")
@@ -725,6 +732,10 @@ run_evaluate <- function(data,
     predict_fn = NULL,
     preprocess_fn = NULL,
     preprocess_once = NULL,
+    for_process = list(
+      apply_softmax=apply_softmax,
+      id_col = id_col
+    ),
     hparams = NULL,
     caller = caller
   ) %>%
@@ -795,6 +806,9 @@ run_evaluate <- function(data,
       data[[prediction_cols]] <- ifelse(data[[prediction_cols]] == c_levels[[2]],
                                         1.0, 0.0)
     }
+
+    # Enable Accuracy if not otherwise specified
+    metrics <- add_metric_if_not_specified(metrics, "Accuracy", value=TRUE, check_all=TRUE)
   }
 
   # Find number of classes if classification
@@ -945,8 +959,7 @@ run_evaluate <- function(data,
 }
 
 
-run_internal_evaluate_wrapper <- function(
-                                          data,
+run_internal_evaluate_wrapper <- function(data,
                                           type,
                                           predictions_col,
                                           targets_col,
@@ -1062,6 +1075,12 @@ run_internal_evaluate_wrapper <- function(
   results <- grouping_keys %>%
     dplyr::bind_cols(evaluations) %>%
     base_deselect(".__grouping__")
+
+  # Move Process last
+  if ("Process" %in% colnames(results)){
+    results <- results %>%
+      dplyr::relocate(.data$Process, .after = dplyr::last_col())
+  }
 
   # If na.rm != "both" and it contains the NAs_removed column
   if ((!is.character(na.rm) || na.rm != "both") &&
@@ -1183,7 +1202,6 @@ internal_evaluate <- function(data,
     }
     output[["ROC"]] <- ROCs
   }
-
   new_col_order <- c(metrics, intersect(info_cols, colnames(output)))
   base_select(output, cols = new_col_order)
 }

@@ -50,7 +50,6 @@ test_that("binomial model work with validate()", {
       1e-3
   )
   expect_equal(Vbinom$`Convergence Warnings`, 0)
-  expect_equal(Vbinom$Family, "binomial")
   expect_equal(Vbinom$Dependent, "diagnosis")
   expect_equal(Vbinom$Fixed, "score")
 
@@ -75,34 +74,48 @@ test_that("binomial model work with validate()", {
 
   expect_equal(
     Vbinom$ROC[[1]]$direction,
-    "<"
+    ">"
   )
-  expect_equal(Vbinom$ROC[[1]]$thresholds,
-    c(
-      -Inf, 0.224265219974917, 0.426633976157444, 0.540457154631025,
-      0.648987905756078, 0.725216199854617, 0.75965587124329, 0.827264825824089,
-      0.882622758109746, Inf
-    ),
+  expect_equal(
+    Vbinom$ROC[[1]]$thresholds,
+    c(Inf, 0.882622758109746, 0.827264825824089, 0.75965587124329,
+    0.725216199854617, 0.648987905756078, 0.540457154631025, 0.426633976157444,
+    0.224265219974917, -Inf),
     tolerance = 1e-5
   )
-  expect_equal(Vbinom$ROC[[1]]$sensitivities,
-    c(
-      1, 1, 1, 0.833333333333333, 0.666666666666667, 0.5, 0.5, 0.333333333333333,
-      0.166666666666667, 0
-    ),
+  expect_equal(
+    Vbinom$ROC[[1]]$sensitivities,
+    c(1, 1, 1, 1, 0.666666666666667, 0.666666666666667, 0.666666666666667,
+    0.666666666666667, 0.333333333333333, 0),
     tolerance = 1e-5
   )
-  expect_equal(Vbinom$ROC[[1]]$specificities,
-    c(
-      0, 0.333333333333333, 0.666666666666667, 0.666666666666667,
-      0.666666666666667, 0.666666666666667, 1, 1, 1, 1
-    ),
+  expect_equal(
+    Vbinom$ROC[[1]]$specificities,
+    c(0, 0.166666666666667, 0.333333333333333, 0.5, 0.5, 0.666666666666667,
+    0.833333333333333, 1, 1, 1),
     tolerance = 1e-5
   )
   expect_equal(as.numeric(Vbinom$ROC[[1]]$auc),
     0.833333333333333,
     tolerance = 1e-5
   )
+
+  # Test Process
+  expect_true(
+    as.character(Vbinom$Process[[1]]) %in%
+    paste0("---\nProcess Information\n---\nTarget column: target\nPredi",
+           "ction column: prediction\nFamily / type: Binomial\nClasses: ",
+           "0, 1\nPositive class: 0\nCutoff: 0.5\nProbabilities are of c",
+           "lass: 1\nProbabilities < 0.5 are considered: 0\nProbabilitie",
+           "s >= 0.5 are considered: 1\nLocale used when sorting class l",
+           "evels (LC_ALL): \n  ",
+           c("en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
+             "C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
+             Sys.getlocale()),
+           "\nTarget counts: total=9, 0=3, 1=6\nPro",
+           "bability summary: mean: 0.615, median: 0.719, range: [0.097,",
+           " 0.899], SD: 0.262, IQR: 0.286\n---"))
+
 })
 
 test_that("binomial model with metrics list work with validate()", {
@@ -148,7 +161,7 @@ test_that("binomial model with metrics list work with validate()", {
       "MCC", "Detection Rate", "Detection Prevalence", "Prevalence",
       "Predictions", "ROC", "Confusion Matrix", "Coefficients", "Convergence Warnings",
       "Singular Fit Messages", "Other Warnings", "Warnings and Messages",
-      "Positive Class", "Family", "Model", "Dependent"
+      "Process", "Model", "Dependent"
     )
   )
 })
@@ -206,7 +219,6 @@ test_that("binomial mixed model work with validate()", {
   )
   expect_equal(Vbinom$`Convergence Warnings`, 0)
   expect_equal(Vbinom$`Singular Fit Messages`, 0)
-  expect_equal(Vbinom$Family, "binomial")
   expect_equal(Vbinom$Dependent, "diagnosis")
   expect_equal(Vbinom$Fixed, "score")
   expect_equal(Vbinom$Random, "(1|session)")
@@ -222,8 +234,7 @@ test_that("binomial mixed model work with validate()", {
 
   expect_equal(
     names(Vbinom$ROC[[1]]),
-    c(
-      "percent", "sensitivities", "specificities", "thresholds",
+    c("percent", "sensitivities", "specificities", "thresholds",
       "direction", "cases", "controls", "fun.sesp", "auc", "call",
       "original.predictor", "original.response", "predictor", "response",
       "levels"
@@ -232,36 +243,51 @@ test_that("binomial mixed model work with validate()", {
 
   expect_equal(
     Vbinom$ROC[[1]]$direction,
-    "<"
+    ">"
   )
-  expect_equal(Vbinom$ROC[[1]]$thresholds,
-    c(
-      -Inf, 5.26142227038134e-11, 2.9859423313853e-08, 1.13438806464474e-07,
-      3.80808821466656e-07, 0.349577298215006, 0.833659423893193, 0.983056382137284,
-      0.998594470992238, 0.999619864886364, 0.99999933823515, Inf
-    ),
+  expect_equal(
+    Vbinom$ROC[[1]]$thresholds,
+    c(Inf, 0.99999933823515, 0.999619864886364, 0.998594470992238,
+    0.983056382137284, 0.833659423893193, 0.349577298215006, 3.80808821466656e-07,
+    1.13438806464474e-07, 2.9859423313853e-08, 5.26142227038134e-11,
+    -Inf),
     tolerance = 1e-5
   )
-  expect_equal(Vbinom$ROC[[1]]$sensitivities,
-    c(
-      1, 1, 1, 0.833333333333333, 0.833333333333333, 0.666666666666667,
-      0.666666666666667, 0.666666666666667, 0.5, 0.333333333333333,
-      0.166666666666667, 0
-    ),
+  expect_equal(
+    Vbinom$ROC[[1]]$sensitivities,
+    c(1, 1, 1, 0.833333333333333, 0.833333333333333, 0.666666666666667,
+    0.5, 0.5, 0.333333333333333, 0.333333333333333, 0.166666666666667,
+    0),
     tolerance = 1e-5
   )
-  expect_equal(Vbinom$ROC[[1]]$specificities,
-    c(
-      0, 0.166666666666667, 0.333333333333333, 0.333333333333333,
-      0.5, 0.5, 0.666666666666667, 0.833333333333333, 0.833333333333333,
-      1, 1, 1
-    ),
+  expect_equal(
+    Vbinom$ROC[[1]]$specificities,
+    c(0, 0.166666666666667, 0.333333333333333, 0.5, 0.666666666666667,
+    0.666666666666667, 0.666666666666667, 0.833333333333333, 0.833333333333333,
+    1, 1, 1),
     tolerance = 1e-5
   )
   expect_equal(as.numeric(Vbinom$ROC[[1]]$auc),
     0.763888888888889,
     tolerance = 1e-5
   )
+
+  # Test Process
+  expect_true(
+    as.character(Vbinom$Process[[1]]) %in%
+      paste0("---\nProcess Information\n---\nTarget column: target\nPredi",
+             "ction column: prediction\nFamily / type: Binomial\nClasses: ",
+             "0, 1\nPositive class: 0\nCutoff: 0.5\nProbabilities are of c",
+             "lass: 1\nProbabilities < 0.5 are considered: 0\nProbabilitie",
+             "s >= 0.5 are considered: 1\nLocale used when sorting class l",
+             "evels (LC_ALL): \n  ",
+             c("en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
+               "C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
+               Sys.getlocale()),
+             "\nTarget counts: total=12, 0=6, 1=6\nPro",
+             "bability summary: mean: 0.555, median: 0.834, range: [0, 1], ",
+             "SD: 0.497, IQR: 0.999\n---"))
+
 })
 
 
@@ -310,7 +336,6 @@ test_that("binomial model work with test_data in validate()", {
       1e-3
   )
   expect_equal(Vbinom$`Convergence Warnings`, 0)
-  expect_equal(Vbinom$Family, "binomial")
   expect_equal(Vbinom$Dependent, "diagnosis")
   expect_equal(Vbinom$Fixed, "score")
 
@@ -325,26 +350,22 @@ test_that("binomial model work with test_data in validate()", {
 
   expect_equal(length(Vbinom$ROC), 1)
   expect_equal(length(Vbinom$ROC[[1]]$sensitivities), 9)
-  expect_equal(Vbinom$ROC[[1]]$sensitivities,
-    c(
-      1, 1, 1, 0.833333333333333, 0.833333333333333, 0.5, 0.333333333333333,
-      0.166666666666667, 0
-    ),
+  expect_equal(
+    Vbinom$ROC[[1]]$sensitivities,
+    c(1, 1, 1, 1, 1, 0.666666666666667, 0.666666666666667, 0.333333333333333, 0),
     tolerance = 1e-5
   )
-  expect_equal(Vbinom$ROC[[1]]$specificities,
-    c(
-      0, 0.333333333333333, 0.666666666666667, 0.666666666666667,
-      1, 1, 1, 1, 1
-    ),
+  expect_equal(
+    Vbinom$ROC[[1]]$specificities,
+    c(0, 0.166666666666667, 0.333333333333333, 0.5, 0.833333333333333,
+    0.833333333333333, 1, 1, 1),
     tolerance = 1e-5
   )
-  expect_equal(Vbinom$ROC[[1]]$thresholds,
-    c(
-      -Inf, 0.305300064306695, 0.520681562211535,
-      0.618752367349243, 0.679450474597164, 0.734648936984941,
-      0.802650625978057, 0.848041386220925, Inf
-    ),
+  expect_equal(
+    Vbinom$ROC[[1]]$thresholds,
+    c(Inf, 0.848041386220925, 0.802650625978057, 0.734648936984941,
+    0.679450474597164, 0.618752367349243, 0.520681562211535, 0.305300064306695,
+    -Inf),
     tolerance = 1e-5
   )
 })
@@ -386,10 +407,22 @@ test_that("gaussian model with validate()", {
   expect_equal(Vgauss$BIC, 152.5377, tolerance = 1e-3)
   expect_equal(Vgauss$`Convergence Warnings`, 0)
   expect_equal(Vgauss$`Singular Fit Messages`, 0)
-  expect_equal(Vgauss$Family, "gaussian")
   expect_equal(Vgauss$Dependent, "score")
   expect_equal(Vgauss$Fixed, "diagnosis")
   expect_equal(Vgauss$Random, "(1|session)")
+
+  expect_true(
+    as.character(Vgauss$Process[[1]]) %in%
+    paste0("---\nProcess Information\n---\nTarget column: target\nPredi",
+           "ction column: prediction\nFamily / type: Gaussian\nTarget su",
+           "mmary: mean: 37.417, median: 37.5, range: [10, 67], SD: 18.7",
+           "01, IQR: 23\nPrediction summary: mean: 43.417, median: 42.80",
+           "7, range: [16.173, 69.441], SD: 17.635, IQR: 22.5\nLocale (L",
+           "C_ALL): \n  ",
+           c("en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
+             "C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
+             Sys.getlocale()),
+           "\n---"))
 })
 
 test_that("gaussian model with metrics list works with validate()", {
@@ -428,7 +461,7 @@ test_that("gaussian model with metrics list works with validate()", {
     c("Fixed", "MAE", "NRMSE(IQR)", "RRSE", "RAE", "RMSLE", "r2m",
     "AIC", "AICc", "BIC", "Predictions", "Coefficients", "Convergence Warnings",
     "Singular Fit Messages", "Other Warnings", "Warnings and Messages",
-    "Family", "Model", "Dependent", "Random")
+    "Process", "Model", "Dependent", "Random")
   )
 })
 
@@ -748,12 +781,8 @@ test_that("verbose reports the correct model functions in validate()", {
       0,
       tolerance = 1e-4)
     expect_equal(
-      output_12059[["Positive Class"]],
+      output_12059[["Process"]][[1]][["Positive Class"]],
       "0",
-      fixed = TRUE)
-    expect_equal(
-      output_12059[["Family"]],
-      "binomial",
       fixed = TRUE)
     expect_equal(
       output_12059[["Dependent"]],
@@ -767,7 +796,7 @@ test_that("verbose reports the correct model functions in validate()", {
         "Kappa", "MCC", "Detection Rate", "Detection Prevalence", "Prevalence",
         "Predictions", "ROC", "Confusion Matrix", "Coefficients", "Convergence Warnings",
         "Singular Fit Messages", "Other Warnings", "Warnings and Messages",
-        "Positive Class", "Family", "Model", "Dependent"),
+        "Process", "Model", "Dependent"),
       fixed = TRUE)
     # Testing column classes
     expect_equal(
@@ -775,7 +804,7 @@ test_that("verbose reports the correct model functions in validate()", {
       c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
         "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
         "numeric", "numeric", "numeric", "list", "list", "list", "list",
-        "integer", "integer", "integer", "list", "character", "character",
+        "integer", "integer", "integer", "list", "list",
         "list", "character"),
       fixed = TRUE)
     # Testing column types
@@ -784,13 +813,13 @@ test_that("verbose reports the correct model functions in validate()", {
       c("character", "double", "double", "double", "double", "double",
         "double", "double", "double", "double", "double", "double",
         "double", "double", "double", "list", "list", "list", "list",
-        "integer", "integer", "integer", "list", "character", "character",
+        "integer", "integer", "integer", "list", "list",
         "list", "character"),
       fixed = TRUE)
     # Testing dimensions
     expect_equal(
       dim(output_12059),
-      c(1L, 27L))
+      c(1L, 26L))
     # Testing group keys
     expect_equal(
       colnames(dplyr::group_keys(output_12059)),
@@ -910,12 +939,12 @@ test_that("verbose reports the correct model functions in validate()", {
       0,
       tolerance = 1e-4)
     expect_equal(
-      output_19148[["Positive Class"]],
+      output_19148[["Process"]][[1]][["Positive Class"]],
       "0",
       fixed = TRUE)
     expect_equal(
-      output_19148[["Family"]],
-      "binomial",
+      output_19148[["Process"]][[1]][["Family"]],
+      "Binomial",
       fixed = TRUE)
     expect_equal(
       output_19148[["Dependent"]],
@@ -933,7 +962,7 @@ test_that("verbose reports the correct model functions in validate()", {
         "Kappa", "MCC", "Detection Rate", "Detection Prevalence", "Prevalence",
         "Predictions", "ROC", "Confusion Matrix", "Coefficients", "Convergence Warnings",
         "Singular Fit Messages", "Other Warnings", "Warnings and Messages",
-        "Positive Class", "Family", "Model", "Dependent", "Random"),
+        "Process", "Model", "Dependent", "Random"),
       fixed = TRUE)
     # Testing column classes
     expect_equal(
@@ -941,7 +970,7 @@ test_that("verbose reports the correct model functions in validate()", {
       c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
         "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
         "numeric", "numeric", "numeric", "list", "list", "list", "list",
-        "integer", "integer", "integer", "list", "character", "character",
+        "integer", "integer", "integer", "list", "list",
         "list", "character", "character"),
       fixed = TRUE)
     # Testing column types
@@ -950,13 +979,13 @@ test_that("verbose reports the correct model functions in validate()", {
       c("character", "double", "double", "double", "double", "double",
         "double", "double", "double", "double", "double", "double",
         "double", "double", "double", "list", "list", "list", "list",
-        "integer", "integer", "integer", "list", "character", "character",
+        "integer", "integer", "integer", "list", "list",
         "list", "character", "character"),
       fixed = TRUE)
     # Testing dimensions
     expect_equal(
       dim(output_19148),
-      c(1L, 28L))
+      c(1L, 27L))
     # Testing group keys
     expect_equal(
       colnames(dplyr::group_keys(output_19148)),
@@ -1053,8 +1082,8 @@ test_that("verbose reports the correct model functions in validate()", {
     0,
     tolerance = 1e-4)
   expect_equal(
-    output_19148[["Family"]],
-    "gaussian",
+    output_19148[["Process"]][[1]][["Family"]],
+    "Gaussian",
     fixed = TRUE)
   expect_equal(
     output_19148[["Dependent"]],
@@ -1066,14 +1095,14 @@ test_that("verbose reports the correct model functions in validate()", {
     c("Fixed", "RMSE", "MAE", "NRMSE(IQR)", "RRSE", "RAE", "RMSLE",
       "AIC", "AICc", "BIC", "Predictions", "Coefficients", "Convergence Warnings",
       "Singular Fit Messages", "Other Warnings", "Warnings and Messages",
-      "Family", "Model", "Dependent"),
+      "Process", "Model", "Dependent"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_19148),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "numeric", "numeric", "numeric", "list", "list",
-      "integer", "integer", "integer", "list", "character", "list",
+      "integer", "integer", "integer", "list", "list", "list",
       "character"),
     fixed = TRUE)
   # Testing column types
@@ -1081,7 +1110,7 @@ test_that("verbose reports the correct model functions in validate()", {
     xpectr::element_types(output_19148),
     c("character", "double", "double", "double", "double", "double",
       "double", "double", "double", "double", "list", "list", "integer",
-      "integer", "integer", "list", "character", "list", "character"),
+      "integer", "integer", "list", "list", "list", "character"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
@@ -1182,8 +1211,8 @@ test_that("verbose reports the correct model functions in validate()", {
     0,
     tolerance = 1e-4)
   expect_equal(
-    output_19148[["Family"]],
-    "gaussian",
+    output_19148[["Process"]][[1]][["Family"]],
+    "Gaussian",
     fixed = TRUE)
   expect_equal(
     output_19148[["Dependent"]],
@@ -1199,14 +1228,14 @@ test_that("verbose reports the correct model functions in validate()", {
     c("Fixed", "RMSE", "MAE", "NRMSE(IQR)", "RRSE", "RAE", "RMSLE",
       "AIC", "AICc", "BIC", "Predictions", "Coefficients", "Convergence Warnings",
       "Singular Fit Messages", "Other Warnings", "Warnings and Messages",
-      "Family", "Model", "Dependent", "Random"),
+      "Process", "Model", "Dependent", "Random"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_19148),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "numeric", "numeric", "numeric", "list", "list",
-      "integer", "integer", "integer", "list", "character", "list",
+      "integer", "integer", "integer", "list", "list", "list",
       "character", "character"),
     fixed = TRUE)
   # Testing column types
@@ -1214,7 +1243,7 @@ test_that("verbose reports the correct model functions in validate()", {
     xpectr::element_types(output_19148),
     c("character", "double", "double", "double", "double", "double",
       "double", "double", "double", "double", "list", "list", "integer",
-      "integer", "integer", "list", "character", "list", "character",
+      "integer", "integer", "list", "list", "list", "character",
       "character"),
     fixed = TRUE)
   # Testing dimensions

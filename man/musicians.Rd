@@ -5,7 +5,7 @@
 \alias{musicians}
 \title{Musician groups}
 \format{
-A data frame with 60 rows and 9 variables:
+A \code{data.frame} with \code{60} rows and \code{9} variables:
 \describe{
   \item{ID}{Musician identifier, 60 levels}
   \item{Age}{Age of the musician. Between 17 and 66 years.}

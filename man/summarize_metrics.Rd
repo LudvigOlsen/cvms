@@ -7,7 +7,7 @@
 summarize_metrics(data, cols = NULL, na.rm = TRUE, inf.rm = TRUE)
 }
 \arguments{
-\item{data}{Data frame with numeric columns to summarize.}
+\item{data}{\code{data.frame} with numeric columns to summarize.}
 
 \item{cols}{Names of columns to summarize. Non-numeric columns are ignored. (Character)}
 
@@ -16,7 +16,7 @@ summarize_metrics(data, cols = NULL, na.rm = TRUE, inf.rm = TRUE)
 \item{inf.rm}{Whether to remove \code{Inf}s before summarizing. (Logical)}
 }
 \value{
-Tibble where each row is a descriptor of the column.
+\code{tibble} where each row is a descriptor of the column.
 
  The \strong{Measure} column contains the name of the descriptor.
 

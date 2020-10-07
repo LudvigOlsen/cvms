@@ -56,7 +56,10 @@ evaluate_predictions_binomial <- function(data,
   if (!na_in_targets && !na_in_predictions) {
     if (is.null(cat_levels)) {
       # Find the levels in the categorical target variable
-      cat_levels <- levels_as_characters(data[[targets_col]])
+      cat_levels <- sort(levels_as_characters(data[[targets_col]]))
+      if (length(cat_levels) < 2){
+        stop("found less than 2 levels in the target column.")
+      }
     }
 
     if (length(cat_levels) > 2) {
@@ -70,6 +73,16 @@ evaluate_predictions_binomial <- function(data,
       data[[predicted_class_col]] <- ifelse(data[[predictions_col]] < model_specifics[["cutoff"]],
         cat_levels[1], cat_levels[2]
       )
+    }
+
+    positive <- model_specifics[["positive"]]
+    if (is.numeric(positive)) {
+      positive <- cat_levels[positive]
+    } else if (is.character(positive) && positive %ni% cat_levels) {
+      stop(paste0(
+        "When 'positive' is a character, it must correspond to a factor level in the dependent variable.",
+        "\n'positive' is ", positive, " and levels are ", paste(cat_levels, collapse = " and "), "."
+      ))
     }
 
     # Nest predictions and targets
@@ -100,7 +113,7 @@ evaluate_predictions_binomial <- function(data,
       predicted_class_col = predicted_class_col,
       unique_fold_cols = unique_fold_cols,
       cat_levels = cat_levels,
-      positive = model_specifics[["positive"]],
+      positive = positive,
       fold_info_cols = fold_info_cols,
       group_info = group_info,
       include_fold_columns = include_fold_columns,
@@ -115,7 +128,7 @@ evaluate_predictions_binomial <- function(data,
         predictions_col = predictions_col,
         unique_fold_cols = unique_fold_cols,
         cat_levels = cat_levels,
-        positive = model_specifics[["positive"]],
+        positive = positive,
         fold_info_cols = fold_info_cols,
         include_fold_columns = include_fold_columns
       )
@@ -140,6 +153,19 @@ evaluate_predictions_binomial <- function(data,
     if (!isTRUE(calculate_roc)) {
       results[["ROC"]] <- NULL
     }
+
+    # Add process information
+    results[["Process"]] <- list(
+      process_info_binomial(
+        data = data,
+        targets_col = targets_col,
+        prediction_cols = predictions_col,
+        id_col = model_specifics[["for_process"]][["id_col"]],
+        cat_levels = cat_levels,
+        positive = positive,
+        cutoff = model_specifics[["cutoff"]]
+      )
+    )
   } else {
     results <- binomial_classification_NA_results_tibble(
       metrics = metrics, include_predictions = include_predictions
@@ -150,8 +176,7 @@ evaluate_predictions_binomial <- function(data,
 }
 
 
-binomial_eval_confusion_matrices <- function(
-                                             data,
+binomial_eval_confusion_matrices <- function(data,
                                              targets_col,
                                              predicted_class_col,
                                              unique_fold_cols,
@@ -377,7 +402,7 @@ binomial_classification_NA_results_tibble <- function(metrics, include_predictio
     "Predictions" = NA,
     "Results" = list(NA),
     "ROC" = NA,
-    "Positive Class" = NA
+    "Process" = NA
   )
 
   if (!isTRUE(include_predictions)) {

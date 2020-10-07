@@ -1,6 +1,6 @@
 Package: cvms
 Title: Cross-Validation for Model Selection
-Version: 1.0.2.9000
+Version: 1.1.0
 Authors@R: 
     c(person(given = "Ludvig Renbo",
              family = "Olsen",
@@ -22,31 +22,32 @@ BugReports: https://github.com/ludvigolsen/cvms/issues
 Depends:
     R (>= 3.5)
 Imports:
-    broom (>= 0.5.5),
+    broom (>= 0.7.1),
+    broom.mixed (>= 0.2.6),
     checkmate (>= 2.0.0),
     data.table (>= 1.12),
     dplyr (>= 0.8.5),
     ggplot2,
     lifecycle,
     lme4 (>= 1.1-23),
-    MuMIn (>= 1.43.15),
+    MuMIn (>= 1.43.17),
     plyr,
     pROC (>= 1.16.0),
     purrr,
-    recipes (>= 0.1.10),
-    rlang (>= 0.4.0),
+    recipes (>= 0.1.13),
+    rlang (>= 0.4.7),
     stats,
     stringr,
-    tibble (>= 2.1.1),
-    tidyr (>= 1.0.2),
+    tibble (>= 3.0.3),
+    tidyr (>= 1.1.2),
     utils
 Suggests: 
     AUC,
     covr (>= 3.3.1),
     e1071 (>= 1.7-2),
     furrr,
-    ggimage (>= 0.2.7),
-    groupdata2 (>= 1.2.0),
+    ggimage (>= 0.2.8),
+    groupdata2 (>= 1.3.0),
     knitr,
     nnet (>= 7.3-12),
     randomForest (>= 4.6-14),
@@ -60,4 +61,4 @@ RdMacros:
     lifecycle
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1

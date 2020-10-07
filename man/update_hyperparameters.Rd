@@ -13,15 +13,15 @@ update_hyperparameters(..., hyperparameters, .required = NULL)
 
  \code{kernel = "linear", cost = 10}}
 
-\item{hyperparameters}{List of hyperparameters as supplied to
+\item{hyperparameters}{\code{list} of hyperparameters as supplied to
 \code{\link[cvms:cross_validate_fn]{cross_validate_fn()}}.
-Can also be a single-row data frame.}
+Can also be a single-row \code{data.frame}.}
 
 \item{.required}{Names of required hyperparameters. If any of these
-are not present in the hyperparameters, an error is thrown.}
+are not present in the hyperparameters, an \code{error} is thrown.}
 }
 \value{
-A named list with the updated hyperparameters.
+A \code{named list} with the updated hyperparameters.
 }
 \description{
 \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}

@@ -7,31 +7,31 @@
 evaluate_residuals(data, targets_col, predictions_col, metrics = list())
 }
 \arguments{
-\item{data}{Data frame with predictions and targets.}
+\item{data}{\code{data.frame} with predictions and targets.}
 
-\item{targets_col}{Name of the column with the true values in \code{data}.}
+\item{targets_col}{Name of the column with the true values in \code{`data`}.}
 
-\item{predictions_col}{Name of column with the predicted values in \code{data}.}
+\item{predictions_col}{Name of column with the predicted values in \code{`data`}.}
 
-\item{metrics}{List for enabling/disabling metrics.
+\item{metrics}{\code{list} for enabling/disabling metrics.
 
   E.g. \code{list("RMSE" = FALSE)} would disable \code{RMSE}.
   Default values (\code{TRUE}/\code{FALSE}) will be used for the remaining available metrics.
 
   You can enable/disable all metrics at once by including
-  \code{"all" = TRUE/FALSE} in the list. This is done prior to enabling/disabling
-  individual metrics, why f.i. \code{list("all" = FALSE, "RMSE" = TRUE)}
-  would return only the RMSE metric.
+  \code{"all" = TRUE/FALSE} in the \code{list}. This is done prior to enabling/disabling
+  individual metrics, why for instance \code{list("all" = FALSE, "RMSE" = TRUE)}
+  would return only the \code{RMSE} metric.
 
-  The list can be created with
+  The \code{list} can be created with
   \code{\link[cvms:gaussian_metrics]{gaussian_metrics()}}.
 
   Also accepts the string \code{"all"}.}
 }
 \value{
-Tbl (tibble) with the calculated metrics.
+\code{tibble} \code{data.frame} with the calculated metrics.
 
- The following metrics are available (see \code{metrics}):
+ The following metrics are available (see \code{`metrics`}):
 
  \tabular{rrr}{
   \strong{Metric} \tab \strong{Name} \tab \strong{Default} \cr
@@ -53,7 +53,7 @@ Tbl (tibble) with the calculated metrics.
  }
 
  The \strong{Name} column refers to the name used in the package.
- This is the name in the output and when enabling/disabling in \code{metrics}.
+ This is the name in the output and when enabling/disabling in \code{`metrics`}.
 }
 \description{
 \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
@@ -68,7 +68,7 @@ Tbl (tibble) with the calculated metrics.
  in \code{\link[cvms:evaluate]{evaluate()}}.
 }
 \details{
-The metric formulas are listed in \emph{The Available Metrics} vignette.
+The metric formulas are listed in \emph{`The Available Metrics`} vignette.
 }
 \examples{
 # Attach packages

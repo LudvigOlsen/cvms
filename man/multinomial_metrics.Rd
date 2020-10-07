@@ -134,7 +134,7 @@ multinomial_metrics(
 \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
 
  Enable/disable metrics for multinomial evaluation. Can be supplied to the
- \code{metrics} argument in many of the \code{cvms} functions.
+ \code{`metrics`} argument in many of the \code{cvms} functions.
 
  Note: Some functions may have slightly different defaults than the ones supplied here.
 }

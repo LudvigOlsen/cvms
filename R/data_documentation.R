@@ -9,7 +9,7 @@
 #' Made-up experiment data with 10 participants and two diagnoses.
 #' Test scores for 3 sessions per participant, where participants improve their scores each session.
 #'
-#' @format A data frame with 30 rows and 5 variables:
+#' @format A \code{data.frame} with \code{30} rows and \code{5} variables:
 #' \describe{
 #'   \item{participant}{participant identifier, 10 levels}
 #'   \item{age}{age of the participant, in years}
@@ -37,7 +37,7 @@ NULL
 #' Based on the wine-reviews (v4) kaggle dataset by Zack Thoutt:
 #' https://www.kaggle.com/zynicide/wine-reviews
 #'
-#' @format A data frame with 368 rows and 1 variable:
+#' @format A \code{data.frame} with \code{368} rows and \code{1} variable:
 #' \describe{
 #'   \item{Variety}{Wine variety, 10 levels}
 #' }
@@ -57,7 +57,7 @@ NULL
 #'
 #' Made-up data on 60 musicians in 4 groups for multiclass classification.
 #'
-#' @format A data frame with 60 rows and 9 variables:
+#' @format A \code{data.frame} with \code{60} rows and \code{9} variables:
 #' \describe{
 #'   \item{ID}{Musician identifier, 60 levels}
 #'   \item{Age}{Age of the musician. Between 17 and 66 years.}
@@ -89,9 +89,9 @@ NULL
 #' The three classifiers were fit using \code{nnet::multinom},
 #' \code{randomForest::randomForest}, and \code{e1071::svm}.
 #'
-#' Used formula: "Class ~ Height + Age + Drums + Bass + Guitar + Keys + Vocals"
+#' Used formula: \code{"Class ~ Height + Age + Drums + Bass + Guitar + Keys + Vocals"}
 #'
-#' @format A data frame with 540 rows and 10 variables:
+#' @format A \code{data.frame} with \code{540} rows and \code{10} variables:
 #' \describe{
 #'   \item{Classifier}{The applied classifier.
 #'   One of \code{"nnet_multinom"}, \code{"randomForest"}, and \code{"e1071_svm"}.}
@@ -153,7 +153,7 @@ NULL
 #'
 #' Used by \code{\link[cvms:combine_predictors]{combine_predictors}}.
 #'
-#' @format A data frame with 259,358 rows and 5 variables:
+#' @format A \code{data.frame} with \code{259,358} rows and \code{5} variables:
 #' \describe{
 #'   \item{formula_}{combination of fixed effects, separated by "\code{+}" and "\code{*}"}
 #'   \item{max_interaction_size}{maximum interaction size in the formula, up to \code{3}}
@@ -177,7 +177,7 @@ NULL
 
 #' Compatible formula terms
 #'
-#' 162,660 pairs of compatible terms for building model formulas with up to 15 fixed effects.
+#' \code{162,660} pairs of compatible terms for building model formulas with up to \code{15} fixed effects.
 #'
 #' A term is either a fixed effect or an interaction between fixed effects (up to three-way), where
 #' the effects are separated by the "\code{*}" operator.
@@ -191,7 +191,7 @@ NULL
 #'
 #' Used to generate the model formulas for \code{\link[cvms:combine_predictors]{combine_predictors}}.
 #'
-#' @format A data frame with 162,660 rows and 5 variables:
+#' @format A \code{data.frame} with \code{162,660} rows and \code{5} variables:
 #' \describe{
 #'   \item{left}{term, fixed effect or interaction, with fixed effects separated by "\code{*}"}
 #'   \item{right}{term, fixed effect or interaction, with fixed effects separated by "\code{*}"}

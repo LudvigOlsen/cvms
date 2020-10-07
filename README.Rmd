@@ -140,8 +140,6 @@ cvms:::render_toc("README.Rmd")
 
 * `cv_plot()` has been removed.
 
-* Fixes bug in `evaluate()`, when used on a grouped data frame. The row order in the output was not guaranteed to fit with the grouping keys. If you have used `evaluate()` on a grouped data frame, please rerun to make sure your results are correct! (30th of November 2019)
-
 * In `cross_validate()` and `validate()`, the `models` argument is renamed to `formulas` and the `model_verbose` argument is renamed to `verbose`. Further, the `link` argument is hard-deprecated and will throw an error if used.
 
 * `Multinomial AUC` is now calculated with `pROC::multiclass.roc`.
@@ -155,15 +153,21 @@ cvms:::render_toc("README.Rmd")
 
 CRAN:
 
-> install.packages("cvms")
+> `install.packages("cvms")`
 
 Development version:  
 
-> install.packages("devtools")  
+> `install.packages("devtools")`  
 >
-> devtools::install_github("LudvigOlsen/groupdata2")  
+> `devtools::install_github("LudvigOlsen/groupdata2")`  
 >
-> devtools::install_github("LudvigOlsen/cvms")  
+> `devtools::install_github("LudvigOlsen/cvms")`
+
+## Vignettes  
+
+`cvms` contains a number of vignettes with relevant use cases and descriptions:  
+  
+> `vignette(package = "cvms")` # for an overview   
 
 # Examples
 
@@ -242,7 +246,9 @@ CV1$Coefficients[[1]] %>% kable()
 
 # Additional information about the model
 # and the training process
-CV1 %>% select(14:21) %>% kable()
+CV1 %>% select(14:19, 21) %>% kable()
+
+CV1$Process[[1]]
 
 ```
 
@@ -319,15 +325,20 @@ CV4
 
 Instead of only dividing our data into folds once, we can do it multiple times and average the results. As the models can be ranked differently with different splits, this is generally preferable.
 
-Let's first add some extra fold columns. We will use the `num_fold_cols` argument to add 3 *unique* fold columns. We tell `fold()` to *keep* the existing fold column and simply add three extra columns. We could also choose to remove the existing fold column, if, for instance, we were changing the number of folds (`k`). Note, that the original fold column will be renamed to `".folds_1"`.  
+Let's first add some extra fold columns. We will use the `num_fold_cols` argument to add 3 *unique* fold columns. We tell `fold()` to *keep* the existing fold column and simply add three extra columns. We could also choose to remove the existing fold column, if, for instance, we were changing the number of folds (`k`). Note, that the original fold column will be renamed to `".folds_1"`. 
 
 ```{r}
 # Set seed for reproducibility
 set.seed(2)
 
+# Ungroup data
+# Ootherwise we would create folds within the existing folds
+data <- dplyr::ungroup(data)
+
 # Fold data 
 data <- fold(
-  data = data, k = 4,
+  data = data, 
+  k = 4,
   cat_col = 'diagnosis',
   id_col = 'participant',
   num_fold_cols = 3,

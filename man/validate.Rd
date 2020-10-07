@@ -26,11 +26,11 @@ validate(
 )
 }
 \arguments{
-\item{train_data}{Data frame.
+\item{train_data}{\code{data.frame}.
 
  Can contain a grouping factor for identifying partitions - as made with
  \code{\link[groupdata2:partition]{groupdata2::partition()}}.
- See \code{partitions_col}.}
+ See \code{`partitions_col`}.}
 
 \item{formulas}{Model formulas as strings. (Character)
 
@@ -47,14 +47,14 @@ validate(
  and \strong{\code{"binomial"}} for binary classification
  with \code{\link[stats:glm]{glm()}} / \code{\link[lme4:glmer]{lme4::glmer()}}.}
 
-\item{test_data}{Data frame. If specifying \code{partitions_col}, this can be \code{NULL}.}
+\item{test_data}{\code{data.frame}. If specifying \code{`partitions_col`}, this can be \code{NULL}.}
 
 \item{partitions_col}{Name of grouping factor for identifying partitions. (Character)
 
- Rows with the value \code{1} in \code{partitions_col} are used as training set and
+ Rows with the value \code{1} in \code{`partitions_col`} are used as training set and
  rows with the value \code{2} are used as test set.
 
- N.B. \strong{Only used if \code{test_data} is \code{NULL}}.}
+ N.B. \strong{Only used if \code{`test_data`} is \code{NULL}}.}
 
 \item{control}{Construct control structures for mixed model fitting
  (with \code{\link[lme4:lmer]{lme4::lmer()}} or \code{\link[lme4:glmer]{lme4::glmer()}}).
@@ -86,7 +86,7 @@ validate(
 
  N.B. \strong{Binomial models only}.}
 
-\item{metrics}{List for enabling/disabling metrics.
+\item{metrics}{\code{list} for enabling/disabling metrics.
 
   E.g. \code{list("RMSE" = FALSE)} would remove \code{RMSE} from the results,
   and \code{list("Accuracy" = TRUE)} would add the regular \code{Accuracy} metric
@@ -94,11 +94,11 @@ validate(
   Default values (\code{TRUE}/\code{FALSE}) will be used for the remaining available metrics.
 
   You can enable/disable all metrics at once by including
-  \code{"all" = TRUE/FALSE} in the list. This is done prior to enabling/disabling
+  \code{"all" = TRUE/FALSE} in the \code{list}. This is done prior to enabling/disabling
   individual metrics, why \code{list("all" = FALSE, "RMSE" = TRUE)}
   would return only the \code{RMSE} metric.
 
-  The list can be created with
+  The \code{list} can be created with
   \code{\link[cvms:gaussian_metrics]{gaussian_metrics()}} or
   \code{\link[cvms:binomial_metrics]{binomial_metrics()}}.
 
@@ -124,7 +124,7 @@ validate(
  N.B. The preprocessings should not affect the results
  to a noticeable degree, although \code{"range"} might due to the truncation.}
 
-\item{err_nc}{Raise error if a model does not converge. (Logical)}
+\item{err_nc}{Whether to raise an \code{error} if a model does not converge. (Logical)}
 
 \item{rm_nc}{Remove non-converged models from output. (Logical)}
 
@@ -139,11 +139,11 @@ like the number of model instances to fit and which model function was applied. 
 \item{link, models, model_verbose}{Deprecated.}
 }
 \value{
-Tibble with the results and model objects.
+\code{tibble} with the results and model objects.
 
  \subsection{Shared across families}{
 
- A nested tibble with \strong{coefficients} of the models from all iterations.
+ A nested \code{tibble} with \strong{coefficients} of the models from all iterations.
 
  Count of \strong{convergence warnings}. Consider discarding models that did not converge.
 
@@ -152,7 +152,7 @@ Tibble with the results and model objects.
  Count of \strong{Singular Fit messages}. See
  \code{\link[lme4:isSingular]{lme4::isSingular}} for more information.
 
- Nested tibble with the \strong{warnings and messages} caught for each model.
+ Nested \code{tibble} with the \strong{warnings and messages} caught for each model.
 
  Specified \strong{family}.
 
@@ -164,7 +164,7 @@ Tibble with the results and model objects.
 
  Names of \strong{random} effects, if any.
 
- Nested tibble with \strong{preprocess}ing parameters, if any.
+ Nested \code{tibble} with \strong{preprocess}ing parameters, if any.
 
  }
 
@@ -180,7 +180,7 @@ Tibble with the results and model objects.
 
  See the additional metrics (disabled by default) at \code{\link[cvms:gaussian_metrics]{?gaussian_metrics}}.
 
- A nested tibble with the \strong{predictions} and targets.
+ A nested \code{tibble} with the \strong{predictions} and targets.
  }
 
  ----------------------------------------------------------------
@@ -215,13 +215,13 @@ Tibble with the results and model objects.
 
  Also includes:
 
- A nested tibble with \strong{predictions}, predicted classes (depends on \code{cutoff}), and the targets.
+ A nested \code{tibble} with \strong{predictions}, predicted classes (depends on \code{cutoff}), and the targets.
  Note, that the predictions are \emph{not necessarily} of the \emph{specified} \code{positive} class, but of
  the \emph{model's} positive class (second level of dependent variable, alphabetically).
 
  The \code{\link[pROC:roc]{pROC::roc}} \strong{\code{ROC}} curve object(s).
 
- A nested tibble with the \strong{confusion matrix}/matrices.
+ A nested \code{tibble} with the \strong{confusion matrix}/matrices.
  The \code{Pos_} columns tells you whether a row is a
  True Positive (\code{TP}), True Negative (\code{TN}),
  False Positive (\code{FP}), or False Negative (\code{FN}),
@@ -236,7 +236,7 @@ Tibble with the results and model objects.
 
  Train linear or logistic regression models on a training set and validate it by
  predicting a test/validation set.
- Returns results in a tibble for easy reporting, along with the trained models.
+ Returns results in a \code{tibble} for easy reporting, along with the trained models.
 
  See \code{\link[cvms:validate_fn]{validate_fn()}} for use
  with custom model functions.

@@ -15,7 +15,7 @@ simplify_formula(formula, data = NULL, string_out = FALSE)
 
  An intercept (\code{1}) will only be kept if there are no variables on that side of the formula.}
 
-\item{data}{Data frame. Used to extract variables when the formula contains a "\code{.}".}
+\item{data}{\code{data.frame}. Used to extract variables when the formula contains a "\code{.}".}
 
 \item{string_out}{Whether to return as a string. (Logical)}
 }

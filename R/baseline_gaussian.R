@@ -182,9 +182,6 @@ create_gaussian_baseline_evaluations <- function(train_data,
     }
   ) %>%
     dplyr::bind_rows() %>%
-    dplyr::mutate(
-      Family = "gaussian"
-    ) %>%
     tibble::add_column(!!!model_effects) # bind_cols for recycling 1-row tibble
 
   # Extract the "all_rows" evaluation

@@ -11,12 +11,12 @@
 #'  Creates a \code{\link[ggplot2:ggplot]{ggplot2}} object representing a confusion matrix with counts,
 #'  overall percentages, row percentages and column percentages.
 #'
-#'  The confusion matrix can be created with \code{\link[cvms:evaluate]{evaluate()}}. See \code{Examples}.
+#'  The confusion matrix can be created with \code{\link[cvms:evaluate]{evaluate()}}. See \code{`Examples`}.
 #'
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
 #' @family plotting functions
-#' @param conf_matrix Confusion matrix tibble with each combination of
+#' @param conf_matrix Confusion matrix \code{tibble} with each combination of
 #' targets and predictions along with their counts.
 #'
 #'  E.g. for a binary classification:
@@ -34,7 +34,7 @@
 #'
 #'  \strong{Note}: If you supply the results from \code{\link[cvms:evaluate]{evaluate()}}
 #'  or \code{\link[cvms:confusion_matrix]{confusion_matrix()}} directly,
-#'  the confusion matrix tibble is extracted automatically, if possible.
+#'  the confusion matrix \code{tibble} is extracted automatically, if possible.
 #' @param targets_col Name of column with target levels.
 #' @param predictions_col Name of column with prediction levels.
 #' @param counts_col Name of column with a count for each combination
@@ -56,17 +56,18 @@
 #' @param add_zero_shading Add image of skewed lines to zero-tiles. (Logical)
 #'
 #'  Note: Adding the zero-shading requires the \code{rsvg} and \code{ggimage} packages.
+#' @param diag_percentages_only Whether to only have row and column percentages in the diagonal tiles. (Logical)
 #' @param counts_on_top Switch the counts and normalized counts,
 #'  such that the counts are on top. (Logical)
 #' @param rotate_y_text Whether to rotate the y-axis text to
 #'  be vertical instead of horizontal. (Logical)
-#' @param font_counts List of font settings for the counts.
+#' @param font_counts \code{list} of font settings for the counts.
 #'  Can be provided with \code{\link[cvms:font]{font()}}.
-#' @param font_normalized List of font settings for the normalized counts.
+#' @param font_normalized \code{list} of font settings for the normalized counts.
 #'  Can be provided with \code{\link[cvms:font]{font()}}.
-#' @param font_row_percentages List of font settings for the row percentages.
+#' @param font_row_percentages \code{list} of font settings for the row percentages.
 #'  Can be provided with \code{\link[cvms:font]{font()}}.
-#' @param font_col_percentages List of font settings for the column percentages.
+#' @param font_col_percentages \code{list} of font settings for the column percentages.
 #'  Can be provided with \code{\link[cvms:font]{font()}}.
 #' @param arrow_size Size of arrow icons. (Numeric)
 #'
@@ -89,7 +90,7 @@
 #' \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.
 #' @param tile_border_linetype Linetype for the tile borders. Passed as \emph{\code{linetype}} to
 #' \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.
-#' @param darkness How dark the darkest colors should be, between 0 and 1, where 1 is darkest.
+#' @param darkness How dark the darkest colors should be, between \code{0} and \code{1}, where \code{1} is darkest.
 #'
 #'  Technically, a lower value increases the upper limit in
 #'  \code{\link[ggplot2:scale_fill_distiller]{ggplot2::scale_fill_distiller}}.
@@ -201,6 +202,7 @@ plot_confusion_matrix <- function(conf_matrix,
                                   add_normalized = TRUE,
                                   add_row_percentages = TRUE,
                                   add_col_percentages = TRUE,
+                                  diag_percentages_only = FALSE,
                                   add_arrows = TRUE,
                                   add_zero_shading = TRUE,
                                   counts_on_top = FALSE,
@@ -257,6 +259,7 @@ plot_confusion_matrix <- function(conf_matrix,
   checkmate::assert_flag(x = counts_on_top, add = assert_collection)
   checkmate::assert_flag(x = place_x_axis_above, add = assert_collection)
   checkmate::assert_flag(x = rotate_y_text, add = assert_collection)
+  checkmate::assert_flag(x = diag_percentages_only, add = assert_collection)
 
   # Function
   checkmate::assert_function(x = theme_fn, add = assert_collection)
@@ -444,6 +447,12 @@ plot_confusion_matrix <- function(conf_matrix,
           .data$Prediction_Percentage, font_row_percentages
         )
       )
+  }
+
+  # Remove percentages outside the diagonal
+  if (isTRUE(diag_percentages_only)) {
+    cm[cm[["Target"]] != cm[["Prediction"]],] <- empty_tile_percentages(
+      cm[cm[["Target"]] != cm[["Prediction"]],])
   }
 
   #### Prepare for plotting ####

@@ -242,8 +242,12 @@ nest_models <- function(model_coefs) {
 #   Levels as characters                                                    ####
 
 
-levels_as_characters <- function(col) {
-  levs <- levels(factor(col))
+levels_as_characters <- function(col, drop_unused = TRUE) {
+  fcol <- factor(col)
+  if (isTRUE(drop_unused)){
+    fcol <- droplevels(fcol)
+  }
+  levs <- levels(fcol)
 
   cat_levels <- plyr::llply(seq_len(length(levs)), function(i) {
     as.character(levs[i])
@@ -445,6 +449,15 @@ is_between_ <- function(x, a, b) {
   # Checks if x is between a and b
 
   x > a & x < b
+}
+
+
+#   __________________ #< 7b5741e261cb48ace03223ef51752445 ># __________________
+#   Check rows sum to                                                       ####
+
+
+rows_sum_to <- function(data, sum_to = 1, digits = 5){
+  !any(round(rowSums(data), digits = digits) != 1)
 }
 
 
@@ -932,6 +945,29 @@ set_arrows <- function(cm, place_x_axis_above, icons,
 }
 
 
+#   __________________ #< dcca4b803d31b98d0906e28484ac92b8 ># __________________
+#   Empty percentages cols for confusion matrix plot                        ####
+
+empty_tile_percentages <- function(data){
+  cols_to_make_invisible_img <- intersect(
+    colnames(data),
+    c("right_icon", "left_icon", "up_icon", "down_icon")
+  )
+  cols_to_make_empty_string <- intersect(
+    colnames(data),
+    c("Class_Percentage_text", "Prediction_Percentage_text")
+  )
+  # Set image addresses to empty square image
+  data[, cols_to_make_invisible_img] <- get_figure_path("empty_square.svg")
+
+  # Set each cell to empty text string
+  data[, cols_to_make_empty_string] <- ""
+
+  # Return data
+  data
+}
+
+
 #   __________________ #< 044131f18e1777a3f55f678ac9a6e0e8 ># __________________
 #   R cmd check imports                                                     ####
 
@@ -939,7 +975,10 @@ set_arrows <- function(cm, place_x_axis_above, icons,
 # Never used, but removes R CMD check NOTEs
 rcmd_import_handler <- function() {
   lifecycle::deprecate_soft()
+  broom.mixed::tidy()
+  broom::tidy()
 }
+
 
 get_pkg_version <- function(pkg_name){
   vs <- unlist(packageVersion(pkg_name))

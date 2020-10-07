@@ -10,7 +10,7 @@
 #'
 #'  Create a baseline evaluation of a test set.
 #'
-#'  In modelling, a \code{baseline} is a result that
+#'  In modelling, a \emph{baseline} is a result that
 #'  is meaningful to compare the results from our models to. For instance, in
 #'  classification, we usually want our results to be better than \emph{random guessing}.
 #'  E.g. if we have three classes, we can expect an accuracy of \code{33.33\%}, as for every
@@ -28,18 +28,18 @@
 #'
 #'  \subsection{\strong{How}}{
 #'
-#'  When \code{family} is \code{binomial}: evaluates \code{n} sets of random predictions
+#'  When \code{`family`} is \code{binomial}: evaluates \code{`n`} sets of random predictions
 #'  against the dependent variable, along with a set of all \code{0} predictions and
 #'  a set of all \code{1} predictions. See also \code{\link[cvms:baseline_binomial]{baseline_binomial()}}.
 #'
-#'  When \code{family} is \code{multinomial}: creates one-vs-all (binomial)
-#'  baseline evaluations for \code{n} sets of random predictions against the dependent variable,
+#'  When \code{`family`} is \code{multinomial}: creates \emph{one-vs-all} (binomial)
+#'  baseline evaluations for \code{`n`} sets of random predictions against the dependent variable,
 #'  along with sets of "all class x,y,z,..." predictions.
 #'  See also \code{\link[cvms:baseline_multinomial]{baseline_multinomial()}}.
 #'
-#'  When \code{family} is \code{gaussian}: fits baseline models (\code{y ~ 1}) on \code{n} random
-#'  subsets of \code{train_data} and evaluates each model on \code{test_data}. Also evaluates a
-#'  model fitted on all rows in \code{train_data}.
+#'  When \code{`family`} is \code{gaussian}: fits baseline models (\code{y ~ 1}) on \code{`n`} random
+#'  subsets of \code{`train_data`} and evaluates each model on \code{`test_data`}. Also evaluates a
+#'  model fitted on all rows in \code{`train_data`}.
 #'  See also \code{\link[cvms:baseline_gaussian]{baseline_gaussian()}}.
 #'  }
 #'
@@ -52,12 +52,12 @@
 #'  }
 #'
 #' @inheritParams evaluate
-#' @param test_data Data frame.
-#' @param train_data Data frame. Only used when \code{family} is \code{"gaussian"}.
+#' @param test_data \code{data.frame}.
+#' @param train_data \code{data.frame}. Only used when \code{`family`} is \code{"gaussian"}.
 #' @param dependent_col Name of dependent variable in the supplied test and training sets.
 #' @param n Number of random samplings to perform. (Default is \code{100})
 #'
-#'  For \code{gaussian}: The number of random samplings of \code{train_data} to fit baseline models on.
+#'  For \code{gaussian}: The number of random samplings of \code{`train_data`} to fit baseline models on.
 #'
 #'  For \code{binomial} and \code{multinomial}: The number of sets of random predictions to evaluate.
 #'
@@ -77,17 +77,17 @@
 #'
 #'  N.B. Only affects evaluation metrics, not the returned predictions.
 #'
-#'  \strong{N.B. Binomial only}. (Character or Integer)
+#'  N.B. \strong{Binomial only}. (Character or Integer)
 #' @param cutoff Threshold for predicted classes. (Numeric)
 #'
 #'  N.B. \strong{Binomial only}
-#' @param random_effects Random effects structure for Gaussian baseline model. (Character)
+#' @param random_effects Random effects structure for the Gaussian baseline model. (Character)
 #'
 #'  E.g. with \code{"(1|ID)"}, the model becomes \code{"y ~ 1 + (1|ID)"}.
 #'
 #'  N.B. \strong{Gaussian only}
 #' @param random_generator_fn Function for generating random numbers when \code{type} is \code{"multinomial"}.
-#'  The softmax function is applied to the generated numbers to transform them to probabilities.
+#'  The \code{softmax} function is applied to the generated numbers to transform them to probabilities.
 #'
 #'  The first argument must be the number of random numbers to generate,
 #'  as no other arguments are supplied.
@@ -96,20 +96,20 @@
 #'  see \code{\link[cvms:multiclass_probability_tibble]{multiclass_probability_tibble()}}.
 #'
 #'  N.B. \strong{Multinomial only}
-#' @param min_training_rows Minimum number of rows in the random subsets of \code{train_data}.
+#' @param min_training_rows Minimum number of rows in the random subsets of \code{`train_data`}.
 #'
 #'  \strong{Gaussian only}. (Integer)
-#' @param min_training_rows_left_out Minimum number of rows left out of the random subsets of \code{train_data}.
+#' @param min_training_rows_left_out Minimum number of rows left out of the random subsets of \code{`train_data`}.
 #'
 #'  I.e. a subset will maximally have the size:
 #'
-#'  \code{max_rows_in_subset = nrow(train_data) - min_training_rows_left_out}.
+#'  \code{max_rows_in_subset = nrow(`train_data`) - `min_training_rows_left_out`}.
 #'
 #'  N.B. \strong{Gaussian only}. (Integer)
 #' @param REML Whether to use Restricted Maximum Likelihood. (Logical)
 #'
 #'  N.B. \strong{Gaussian only}. (Integer)
-#' @param parallel Whether to run the \code{n} evaluations in parallel. (Logical)
+#' @param parallel Whether to run the \code{`n`} evaluations in parallel. (Logical)
 #'
 #'  Remember to register a parallel backend first.
 #'  E.g. with \code{doParallel::registerDoParallel}.
@@ -143,12 +143,12 @@
 #'  Multinomial: \code{\link[pROC:multiclass.roc]{pROC::multiclass.roc}}
 #'
 #'  }
-#' @return List containing:
+#' @return \code{list} containing:
 #'
 #'  \enumerate{
-#'   \item a tibble with summarized results (called \code{summarized_metrics})
-#'   \item a tibble with random evaluations (\code{random_evaluations})
-#'   \item a tibble with the summarized class level results
+#'   \item a \code{tibble} with summarized results (called \code{summarized_metrics})
+#'   \item a \code{tibble} with random evaluations (\code{random_evaluations})
+#'   \item a \code{tibble} with the summarized class level results
 #'         (\code{summarized_class_level_results})
 #'         \strong{(Multinomial only)}
 #'  }
@@ -159,7 +159,7 @@
 #'
 #'  ----------------------------------------------------------------
 #'
-#'  The \strong{Summarized Results} tibble contains:
+#'  The \strong{Summarized Results} \code{tibble} contains:
 #'
 #'  Average \strong{\code{RMSE}}, \strong{\code{MAE}}, \strong{\code{NRMSE(IQR)}},
 #'  \strong{\code{RRSE}}, \strong{\code{RAE}}, \strong{\code{RMSLE}}.
@@ -168,24 +168,25 @@
 #'
 #'  The \strong{Measure} column indicates the statistical descriptor used on the evaluations.
 #'  The row where \code{Measure == All_rows} is the evaluation when the baseline model
-#'  is trained on all rows in \code{train_data}.
+#'  is trained on all rows in \code{`train_data`}.
 #'
-#'  The \strong{Training Rows} column contains the aggregated number of rows used from \code{train_data},
+#'  The \strong{Training Rows} column contains the aggregated number of rows used from \code{`train_data`},
 #'  when fitting the baseline models.
 #'
 #'  ....................................................................
 #'
-#'  The \strong{Random Evaluations} tibble contains:
+#'  The \strong{Random Evaluations} \code{tibble} contains:
 #'
 #'  The \strong{non-aggregated metrics}.
 #'
-#'  A nested tibble with the \strong{predictions} and targets.
+#'  A nested \code{tibble} with the \strong{predictions} and targets.
 #'
-#'  A nested tibble with the \strong{coefficients} of the baseline models.
+#'  A nested \code{tibble} with the \strong{coefficients} of the baseline models.
 #'
 #'  Number of \strong{training rows} used when fitting the baseline model on the training set.
 #'
-#'  Specified \strong{family}.
+#'  A nested \strong{Process} information object with information
+#'  about the evaluation.
 #'
 #'  Name of \strong{dependent} variable.
 #'
@@ -213,6 +214,7 @@
 #'  \code{Confusion Matrix}:
 #'
 #'  \strong{\code{Balanced Accuracy}},
+#'  \strong{\code{Accuracy}},
 #'  \strong{\code{F1}},
 #'  \strong{\code{Sensitivity}},
 #'  \strong{\code{Specificity}},
@@ -226,31 +228,32 @@
 #'
 #'  ....................................................................
 #'
-#'  The \strong{Summarized Results} tibble contains:
+#'  The \strong{Summarized Results} \code{tibble} contains:
 #'
 #'  The \strong{Measure} column indicates the statistical descriptor used on the evaluations.
-#'  The row where \code{Measure == All_0} is the evaluation when all predictions are 0.
-#'  The row where \code{Measure == All_1} is the evaluation when all predictions are 1.
+#'  The row where \code{Measure == All_0} is the evaluation when all predictions are \code{0}.
+#'  The row where \code{Measure == All_1} is the evaluation when all predictions are \code{1}.
 #'
 #'  The \strong{aggregated metrics}.
 #'
 #'  ....................................................................
 #'
-#'  The \strong{Random Evaluations} tibble contains:
+#'  The \strong{Random Evaluations} \code{tibble} contains:
 #'
 #'  The \strong{non-aggregated metrics}.
 #'
-#'  A nested tibble with the \strong{predictions} and targets.
+#'  A nested \code{tibble} with the \strong{predictions} and targets.
 #'
-#'  A list of \strong{ROC} curve objects (if computed).
+#'  A \code{list} of \strong{ROC} curve objects (if computed).
 #'
-#'  A nested tibble with the \strong{confusion matrix}.
+#'  A nested \code{tibble} with the \strong{confusion matrix}.
 #'  The \code{Pos_} columns tells you whether a row is a
 #'  True Positive (\code{TP}), True Negative (\code{TN}), False Positive (\code{FP}),
 #'  or False Negative (\code{FN}), depending on which level is the "positive" class.
 #'  I.e. the level you wish to predict.
 #'
-#'  Specified \strong{family}.
+#'  A nested \strong{Process} information object with information
+#'  about the evaluation.
 #'
 #'  Name of \strong{dependent} variable.
 #'  }
@@ -274,7 +277,7 @@
 #'
 #'  ....................................................................
 #'
-#'  The \strong{Summarized Results} tibble contains:
+#'  The \strong{Summarized Results} \code{tibble} contains:
 #'
 #'  Summary of the random evaluations.
 #'
@@ -285,7 +288,7 @@
 #'
 #'  The \strong{Measure} column indicates the statistical descriptor used on the evaluations.
 #'  The \strong{Mean}, \strong{Median}, \strong{SD}, \strong{IQR}, \strong{Max}, \strong{Min},
-#'  \strong{NAs}, and \strong{INFs} measures describe the \emph{Random Evaluations} tibble,
+#'  \strong{NAs}, and \strong{INFs} measures describe the \emph{Random Evaluations} \code{tibble},
 #'  while the \strong{CL_Max}, \strong{CL_Min}, \strong{CL_NAs}, and
 #'  \strong{CL_INFs} describe the \strong{C}lass \strong{L}evel results.
 #'
@@ -294,11 +297,11 @@
 #'
 #'  ....................................................................
 #'
-#'  The \strong{Summarized Class Level Results} tibble contains:
+#'  The \strong{Summarized Class Level Results} \code{tibble} contains:
 #'
 #'  The (nested) summarized results for each class, with the same metrics and descriptors as
-#'  the \emph{Summarized Results} tibble. Use \code{\link[tidyr:unnest]{tidyr::unnest}}
-#'  on the tibble to inspect the results.
+#'  the \emph{Summarized Results} \code{tibble}. Use \code{\link[tidyr:unnest]{tidyr::unnest}}
+#'  on the \code{tibble} to inspect the results.
 #'
 #'  \strong{How}: The one-vs-all evaluations are summarized by class.
 #'
@@ -308,9 +311,9 @@
 #'
 #'  ....................................................................
 #'
-#'  The \strong{Random Evaluations} tibble contains:
+#'  The \strong{Random Evaluations} \code{tibble} contains:
 #'
-#'  The repetition results with the same metrics as the \emph{Summarized Results} tibble.
+#'  The repetition results with the same metrics as the \emph{Summarized Results} \code{tibble}.
 #'
 #'  \strong{How}: The one-vs-all evaluations are aggregated by repetition.
 #'  If a metric contains one or more \code{NAs} in the one-vs-all evaluations, it
@@ -318,18 +321,19 @@
 #'
 #'  Also includes:
 #'
-#'  A nested tibble with the one-vs-all binomial evaluations (\strong{Class Level Results}),
+#'  A nested \code{tibble} with the one-vs-all binomial evaluations (\strong{Class Level Results}),
 #'  including nested \strong{Confusion Matrices} and the
 #'  \strong{Support} column, which is a count of how many observations from the
 #'  class is in the test set.
 #'
-#'  A nested tibble with the \strong{predictions} and targets.
+#'  A nested \code{tibble} with the \strong{predictions} and targets.
 #'
-#'  A list of \strong{ROC} curve objects.
+#'  A \code{list} of \strong{ROC} curve objects.
 #'
-#'  A nested tibble with the multiclass \strong{confusion matrix}.
+#'  A nested \code{tibble} with the multiclass \strong{confusion matrix}.
 #'
-#'  Specified \strong{family}.
+#'  A nested \strong{Process} information object with information
+#'  about the evaluation.
 #'
 #'  Name of \strong{dependent} variable.
 #'
@@ -439,7 +443,7 @@
 #'   #, parallel = TRUE  # Uncomment
 #' )
 #' }
-#' @importFrom stats runif rnorm terms IQR median predict sd
+#' @importFrom stats runif rnorm terms IQR median predict sd reformulate
 baseline <- function(test_data,
                      dependent_col,
                      family,
@@ -581,6 +585,12 @@ baseline <- function(test_data,
         ": ", paste(unaccepted_metrics, collapse = ", "), "."
       ))
     }
+
+    # Enable Accuracy if not otherwise specified
+    if (checkmate::test_string(x = metrics, pattern = "^all$")) {
+      metrics <- list("all" = TRUE)
+    }
+    metrics <- add_metric_if_not_specified(metrics, "Accuracy", value=TRUE, check_all=TRUE)
 
     return(
       create_binomial_baseline_evaluations(

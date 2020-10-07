@@ -13,6 +13,7 @@ plot_confusion_matrix(
   add_normalized = TRUE,
   add_row_percentages = TRUE,
   add_col_percentages = TRUE,
+  diag_percentages_only = FALSE,
   add_arrows = TRUE,
   add_zero_shading = TRUE,
   counts_on_top = FALSE,
@@ -34,7 +35,7 @@ plot_confusion_matrix(
 )
 }
 \arguments{
-\item{conf_matrix}{Confusion matrix tibble with each combination of
+\item{conf_matrix}{Confusion matrix \code{tibble} with each combination of
 targets and predictions along with their counts.
 
  E.g. for a binary classification:
@@ -52,7 +53,7 @@ targets and predictions along with their counts.
 
  \strong{Note}: If you supply the results from \code{\link[cvms:evaluate]{evaluate()}}
  or \code{\link[cvms:confusion_matrix]{confusion_matrix()}} directly,
- the confusion matrix tibble is extracted automatically, if possible.}
+ the confusion matrix \code{tibble} is extracted automatically, if possible.}
 
 \item{targets_col}{Name of column with target levels.}
 
@@ -75,6 +76,8 @@ add to the middle of the tiles. (Logical)}
  i.e. how big a part of its column the tile makes up. (Logical)
 
  By default, the row percentage is placed at the bottom of the tile.}
+
+\item{diag_percentages_only}{Whether to only have row and column percentages in the diagonal tiles. (Logical)}
 
 \item{add_arrows}{Add the arrows to the row and col percentages. (Logical)
 
@@ -107,16 +110,16 @@ be vertical instead of horizontal. (Logical)}
 
  Can be set for each font individually via the \code{font_*} arguments.}
 
-\item{font_counts}{List of font settings for the counts.
+\item{font_counts}{\code{list} of font settings for the counts.
 Can be provided with \code{\link[cvms:font]{font()}}.}
 
-\item{font_normalized}{List of font settings for the normalized counts.
+\item{font_normalized}{\code{list} of font settings for the normalized counts.
 Can be provided with \code{\link[cvms:font]{font()}}.}
 
-\item{font_row_percentages}{List of font settings for the row percentages.
+\item{font_row_percentages}{\code{list} of font settings for the row percentages.
 Can be provided with \code{\link[cvms:font]{font()}}.}
 
-\item{font_col_percentages}{List of font settings for the column percentages.
+\item{font_col_percentages}{\code{list} of font settings for the column percentages.
 Can be provided with \code{\link[cvms:font]{font()}}.}
 
 \item{arrow_size}{Size of arrow icons. (Numeric)
@@ -135,7 +138,7 @@ Can be provided with \code{\link[cvms:font]{font()}}.}
 \item{tile_border_linetype}{Linetype for the tile borders. Passed as \emph{\code{linetype}} to
 \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.}
 
-\item{darkness}{How dark the darkest colors should be, between 0 and 1, where 1 is darkest.
+\item{darkness}{How dark the darkest colors should be, between \code{0} and \code{1}, where \code{1} is darkest.
 
  Technically, a lower value increases the upper limit in
  \code{\link[ggplot2:scale_fill_distiller]{ggplot2::scale_fill_distiller}}.}
@@ -158,7 +161,7 @@ A \code{ggplot2} object representing a confusion matrix. Color intensity depends
  Creates a \code{\link[ggplot2:ggplot]{ggplot2}} object representing a confusion matrix with counts,
  overall percentages, row percentages and column percentages.
 
- The confusion matrix can be created with \code{\link[cvms:evaluate]{evaluate()}}. See \code{Examples}.
+ The confusion matrix can be created with \code{\link[cvms:evaluate]{evaluate()}}. See \code{`Examples`}.
 }
 \details{
 Inspired by Antoine Sachet's answer at https://stackoverflow.com/a/53612391/11832955
@@ -251,7 +254,9 @@ plot_confusion_matrix(eval[["Confusion Matrix"]][[1]]) +
 \seealso{
 Other plotting functions: 
 \code{\link{font}()},
-\code{\link{plot_metric_density}()}
+\code{\link{plot_metric_density}()},
+\code{\link{plot_probabilities_ecdf}()},
+\code{\link{plot_probabilities}()}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

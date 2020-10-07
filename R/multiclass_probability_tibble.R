@@ -8,12 +8,12 @@
 #' @description
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("maturing")}
 #'
-#'  Generate a tibble with random numbers containing one column per specified class.
+#'  Generate a \code{tibble} with random numbers containing one column per specified class.
 #'  When the softmax function is applied, the numbers become probabilities that sum to \code{1} row-wise.
 #'  Optionally, add columns with targets and predicted classes.
-#' @param num_classes The number of classes. Also the number of columns in the tibble.
-#' @param num_observations The number of observations. Also the number of rows in the tibble.
-#' @param apply_softmax Whether to apply the softmax function row-wise. This will transform the
+#' @param num_classes The number of classes. Also the number of columns in the \code{tibble}.
+#' @param num_observations The number of observations. Also the number of rows in the \code{tibble}.
+#' @param apply_softmax Whether to apply the \code{softmax} function row-wise. This will transform the
 #'  numbers to probabilities that sum to \code{1} row-wise.
 #' @param add_targets Whether to add a column with randomly selected target classes. (Logical)
 #' @param add_predicted_classes Whether to add a column with the predicted classes. (Logical)

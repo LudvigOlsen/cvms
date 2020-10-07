@@ -380,7 +380,6 @@ validate_list <- function(train_data,
       preprocess_params <- validated_folds[["preprocess_parameters"]]
       nested_preprocess_params <- preprocess_params %>%
         dplyr::group_nest() %>%
-        # legacy_nest(seq_len(ncol(preprocess_params))) %>%
         dplyr::pull(.data$data)
 
       # Extract whether the model was NULL or not

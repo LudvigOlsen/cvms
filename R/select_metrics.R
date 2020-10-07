@@ -4,15 +4,15 @@
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("maturing")}
 #'
 #'  When reporting results, we might not want all
-#'  the nested tibbles and process information columns.
+#'  the nested \code{tibble}s and process information columns.
 #'  This function selects the evaluation metrics and model formulas only.
 #'
-#'  If an expected column is not in the \code{results} tibble, it is simply ignored.
+#'  If an expected column is not in the \code{`results`} \code{tibble}, it is simply ignored.
 #' @return
-#'  The results tibble with only the metric and model definition columns.
+#'  The results \code{tibble} with only the metric and model definition columns.
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
-#' @param results Results tibble. E.g. from
+#' @param results Results \code{tibble}. E.g. from
 #'  \code{\link[cvms:cross_validate]{cross_validate()}} or \code{\link[cvms:evaluate]{evaluate()}}.
 #' @param include_definitions Whether to include the \code{Dependent},
 #'  \code{Fixed} and (possibly) \code{Random} and \code{HParams} columns. (Logical)

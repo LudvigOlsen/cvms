@@ -3,11 +3,11 @@
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
 #'
 #'  Summarizes all numeric columns. Counts the \code{NA}s and \code{Inf}s in the columns.
-#' @param data Data frame with numeric columns to summarize.
+#' @param data \code{data.frame} with numeric columns to summarize.
 #' @param cols Names of columns to summarize. Non-numeric columns are ignored. (Character)
 #' @param na.rm Whether to remove \code{NA}s before summarizing. (Logical)
 #' @param inf.rm Whether to remove \code{Inf}s before summarizing. (Logical)
-#' @return Tibble where each row is a descriptor of the column.
+#' @return \code{tibble} where each row is a descriptor of the column.
 #'
 #'  The \strong{Measure} column contains the name of the descriptor.
 #'

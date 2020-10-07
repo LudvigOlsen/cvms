@@ -28,7 +28,7 @@
 #'  When a side \emph{only} contains a \code{NULL}, it is kept. Otherwise \code{NULL}s are removed.
 #'
 #'  An intercept (\code{1}) will only be kept if there are no variables on that side of the formula.
-#' @param data Data frame. Used to extract variables when the formula contains a "\code{.}".
+#' @param data \code{data.frame}. Used to extract variables when the formula contains a "\code{.}".
 #' @param string_out Whether to return as a string. (Logical)
 #' @examples
 #' # Attach cvms

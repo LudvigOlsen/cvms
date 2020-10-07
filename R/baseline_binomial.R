@@ -96,7 +96,6 @@ create_binomial_baseline_evaluations <- function(test_data,
     }
   ) %>% dplyr::bind_rows() %>% # Works with nested tibbles (ldply doesn't seem to)
     dplyr::mutate(
-      Family = "binomial",
       Dependent = dependent_col
     )
 

@@ -58,7 +58,6 @@ test_that("binomial glm model works with cross_validate_fn()", {
   expect_equal(CVbinomlist$Folds, c(4, 4))
   expect_equal(CVbinomlist$`Fold Columns`, c(1, 1))
   expect_equal(CVbinomlist$`Convergence Warnings`, c(0, 0))
-  expect_equal(CVbinomlist$Family, c("binomial", "binomial"))
   expect_equal(CVbinomlist$Dependent, c("diagnosis", "diagnosis"))
   expect_equal(CVbinomlist$Fixed, c("score", "age"))
 
@@ -69,7 +68,7 @@ test_that("binomial glm model works with cross_validate_fn()", {
     colnames(CVbinomlist$Predictions[[1]]),
     c("Fold Column", "Fold", "Observation", "Target", "Prediction", "Predicted Class")
   )
-  expect_equal(sum(CVbinomlist$ROC[[1]]$.folds$sensitivities), 17.7222222222222, tolerance = 1e-5)
+  expect_equal(sum(CVbinomlist$ROC[[1]]$.folds$sensitivities), 18.5, tolerance = 1e-5)
   expect_equal(nrow(CVbinomlist$Predictions[[1]]), 30)
   expect_equal(
     CVbinomlist$`Warnings and Messages`[[1]],
@@ -83,16 +82,29 @@ test_that("binomial glm model works with cross_validate_fn()", {
 
   expect_equal(
     colnames(CVbinomlist),
-    c(
-      "Fixed", "Balanced Accuracy", "F1", "Sensitivity", "Specificity", "Pos Pred Value",
+    c("Fixed", "Balanced Accuracy", "F1", "Sensitivity", "Specificity", "Pos Pred Value",
       "Neg Pred Value", "AUC", "Lower CI", "Upper CI", "Kappa", "MCC",
       "Detection Rate", "Detection Prevalence", "Prevalence", "AIC",
       "AICc", "BIC", "Predictions", "ROC", "Confusion Matrix", "Results",
       "Coefficients", "Folds", "Fold Columns", "Convergence Warnings",
-      "Other Warnings", "Warnings and Messages", "Positive Class",
-      "Family", "Dependent"
+      "Other Warnings", "Warnings and Messages", "Process", "Dependent"
     )
   )
+
+  expect_true(
+    as.character(CVbinomlist$Process[[1]]) %in%
+    paste0("---\nProcess Information\n---\nTarget column: target\nPredi",
+           "ction column: prediction\nFamily / type: Binomial\nClasses: ",
+           "0, 1\nPositive class: 0\nCutoff: 0.5\nProbabilities are of c",
+           "lass: 1\nProbabilities < 0.5 are considered: 0\nProbabilitie",
+           "s >= 0.5 are considered: 1\nLocale used when sorting class l",
+           "evels (LC_ALL): \n  ",
+           c("en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
+             "C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
+             Sys.getlocale()),
+           "\nTarget counts: total=30, 0=12, 1=18\n",
+           "Probability summary: mean: 0.585, median: 0.669, range: [0.0",
+           "91, 0.932], SD: 0.272, IQR: 0.426\n---"))
 
 
   # Check error when no model_fn is provided
@@ -389,7 +401,6 @@ test_that("gaussian lm model works with cross_validate_fn()", {
   expect_equal(CVed$Folds, 4)
   expect_equal(CVed$`Fold Columns`, 1)
   expect_equal(CVed$`Convergence Warnings`, 0)
-  expect_equal(CVed$Family, "gaussian")
   expect_equal(CVed$Dependent, "score")
   expect_equal(CVed$Fixed, "diagnosis")
   expect_equal(
@@ -408,7 +419,7 @@ test_that("gaussian lm model works with cross_validate_fn()", {
     "NRMSE(AVG)", "RSE", "RRSE", "RAE", "RMSLE", "MALE", "MAPE",
     "MSE", "TAE", "TSE", "r2m", "r2c", "AIC", "AICc", "BIC", "Predictions",
     "Results", "Coefficients", "Folds", "Fold Columns", "Convergence Warnings",
-    "Other Warnings", "Warnings and Messages", "Family", "Dependent"
+    "Other Warnings", "Warnings and Messages", "Process", "Dependent"
     )
   )
 
@@ -621,7 +632,6 @@ test_that("binomial glm model with preprocess_fn works with cross_validate_fn()"
   expect_equal(CVbinomlist_prep_once$Folds, c(12, 12))
   expect_equal(CVbinomlist_prep_once$`Fold Columns`, c(3, 3))
   expect_equal(CVbinomlist_prep_once$`Convergence Warnings`, c(0, 0))
-  expect_equal(CVbinomlist_prep_once$Family, c("binomial", "binomial"))
   expect_equal(CVbinomlist_prep_once$Dependent, c("diagnosis", "diagnosis"))
   expect_equal(CVbinomlist_prep_once$Fixed, c("score", "age"))
 
@@ -742,7 +752,6 @@ test_that("binomial svm models from e1071 work with cross_validate_fn()", {
   expect_equal(CVbinomlist$Folds, c(4, 4))
   expect_equal(CVbinomlist$`Fold Columns`, c(1, 1))
   expect_equal(CVbinomlist$`Convergence Warnings`, c(0, 0))
-  expect_equal(CVbinomlist$Family, c("binomial", "binomial"))
   expect_equal(CVbinomlist$Dependent, c("diagnosis", "diagnosis"))
   expect_equal(CVbinomlist$Fixed, c("score", "age"))
 
@@ -762,27 +771,26 @@ test_that("binomial svm models from e1071 work with cross_validate_fn()", {
       "levels"
     )
   )
-  expect_equal(CVbinomlist$ROC[[1]]$.folds$sensitivities,
-    c(
-      1, 1, 1, 1, 1, 1, 0.944444444444444, 0.888888888888889, 0.888888888888889,
-      0.888888888888889, 0.833333333333333, 0.833333333333333, 0.777777777777778,
-      0.666666666666667, 0.611111111111111, 0.555555555555556, 0.5,
-      0.444444444444444, 0.388888888888889, 0.388888888888889, 0.388888888888889,
-      0.333333333333333, 0.277777777777778, 0.222222222222222, 0.222222222222222,
-      0.166666666666667, 0.111111111111111, 0.0555555555555556, 0
-    ),
+  expect_equal(
+    CVbinomlist$ROC[[1]]$.folds$sensitivities,
+    c(1, 1, 1, 1, 0.916666666666667, 0.833333333333333, 0.833333333333333,
+    0.833333333333333, 0.833333333333333, 0.75, 0.666666666666667,
+    0.666666666666667, 0.666666666666667, 0.666666666666667, 0.666666666666667,
+    0.666666666666667, 0.666666666666667, 0.666666666666667, 0.583333333333333,
+    0.583333333333333, 0.5, 0.416666666666667, 0.416666666666667,
+    0.416666666666667, 0.333333333333333, 0.25, 0.166666666666667,
+    0.0833333333333333, 0),
     tolerance = 1e-5
   )
-  expect_equal(CVbinomlist$ROC[[1]]$.folds$specificities,
-    c(
-      0, 0.0833333333333333, 0.166666666666667, 0.25, 0.333333333333333,
-      0.416666666666667, 0.416666666666667, 0.416666666666667, 0.5,
-      0.583333333333333, 0.583333333333333, 0.666666666666667, 0.666666666666667,
-      0.666666666666667, 0.666666666666667, 0.666666666666667, 0.666666666666667,
-      0.666666666666667, 0.666666666666667, 0.75, 0.833333333333333,
-      0.833333333333333, 0.833333333333333, 0.833333333333333, 0.916666666666667,
-      1, 1, 1, 1
-    ),
+  expect_equal(
+    CVbinomlist$ROC[[1]]$.folds$specificities,
+    c(0, 0.0555555555555556, 0.111111111111111, 0.166666666666667,
+    0.222222222222222, 0.222222222222222, 0.277777777777778, 0.333333333333333,
+    0.388888888888889, 0.388888888888889, 0.388888888888889, 0.444444444444444,
+    0.5, 0.555555555555556, 0.611111111111111, 0.666666666666667,
+    0.777777777777778, 0.833333333333333, 0.833333333333333, 0.888888888888889,
+    0.888888888888889, 0.888888888888889, 0.944444444444444, 1, 1,
+    1, 1, 1, 1),
     tolerance = 1e-5
   )
   expect_equal(nrow(CVbinomlist$Predictions[[1]]), 30)
@@ -834,7 +842,7 @@ test_that("gaussian svm models from e1071 work with cross_validate_fn()", {
     c("Fixed", "RMSE", "MAE", "NRMSE(IQR)", "RRSE", "RAE", "RMSLE",
     "Predictions", "Results", "Coefficients", "Folds", "Fold Columns",
     "Convergence Warnings", "Other Warnings", "Warnings and Messages",
-    "Family", "Dependent")
+    "Process", "Dependent")
   )
   expect_equal(CVed$RMSE, 18.01026, tolerance = 1e-5)
   expect_equal(CVed$MAE, 15.27778, tolerance = 1e-5)
@@ -845,7 +853,6 @@ test_that("gaussian svm models from e1071 work with cross_validate_fn()", {
   expect_equal(CVed$Folds, 4)
   expect_equal(CVed$`Fold Columns`, 1)
   expect_equal(CVed$`Convergence Warnings`, 0)
-  expect_equal(CVed$Family, "gaussian")
   expect_equal(CVed$Dependent, "score")
   expect_equal(CVed$Fixed, "diagnosis")
 
@@ -1013,7 +1020,6 @@ test_that("gaussian svm models with hparams and preprocessing work with cross_va
   expect_equal(CVed$Folds, rep(4, 5))
   expect_equal(CVed$`Fold Columns`, rep(1, 5))
   expect_equal(CVed$`Convergence Warnings`, rep(0, 5))
-  expect_equal(CVed$Family, rep("gaussian", 5))
   expect_equal(CVed$Dependent, rep("score", 5))
   expect_equal(CVed$Fixed, rep("diagnosis", 5))
 
@@ -1216,7 +1222,6 @@ test_that("binomial naiveBayes models from e1071 work with cross_validate_fn()",
   expect_equal(CVbinomlist$Folds, c(4, 4))
   expect_equal(CVbinomlist$`Fold Columns`, c(1, 1))
   expect_equal(CVbinomlist$`Convergence Warnings`, c(0, 0))
-  expect_equal(CVbinomlist$Family, c("binomial", "binomial"))
   expect_equal(CVbinomlist$Dependent, c("diagnosis", "diagnosis"))
   expect_equal(CVbinomlist$Fixed, c("score", "age"))
 
@@ -1300,7 +1305,6 @@ test_that("binomial nnet models work with cross_validate_fn()", {
   expect_equal(CVbinomlist$Folds, c(4, 4))
   expect_equal(CVbinomlist$`Fold Columns`, c(1, 1))
   expect_equal(CVbinomlist$`Convergence Warnings`, c(0, 0))
-  expect_equal(CVbinomlist$Family, c("binomial", "binomial"))
   expect_equal(CVbinomlist$Dependent, c("diagnosis", "diagnosis"))
   expect_equal(CVbinomlist$Fixed, c("score", "age"))
 
@@ -1316,42 +1320,38 @@ test_that("binomial nnet models work with cross_validate_fn()", {
     )
   )
   expect_equal(nrow(CVbinomlist$Predictions[[1]]), 30)
-  expect_equal(CVbinomlist$ROC[[1]]$.folds$direction, "<")
+  expect_equal(CVbinomlist$ROC[[1]]$.folds$direction, ">")
   expect_equal(as.numeric(CVbinomlist$ROC[[1]]$.folds$auc), 0.6111111, tolerance = 1e-5)
-  expect_equal(CVbinomlist$ROC[[1]]$.folds$thresholds,
-    c(
-      -Inf, 8.48402440378548e-07, 9.16581800969544e-05, 0.000182091056054732,
-      0.000182363624985208, 0.000182649770463709, 0.0877260312252673,
-      0.299068543231709, 0.425185694307719, 0.479254602781408, 0.532506217663556,
-      0.539323658984721, 0.546642253280643, 0.564646428023567, 0.58403993602655,
-      0.59060162523757, 0.594430000088956, 0.613459083405036, 0.63368526859679,
-      0.63661340313648, 0.646432602162526, 0.66064998851649, 0.66782162508638,
-      0.674808670406118, 0.840014561587637, 0.999952406924702, 0.999985574696044,
-      Inf
-    ),
+  expect_equal(
+    CVbinomlist$ROC[[1]]$.folds$thresholds,
+    c(Inf, 0.999985574696044, 0.999952406924702, 0.840014561587637,
+    0.674808670406118, 0.66782162508638, 0.66064998851649, 0.646432602162526,
+    0.63661340313648, 0.63368526859679, 0.613459083405036, 0.594430000088956,
+    0.59060162523757, 0.58403993602655, 0.564646428023567, 0.546642253280643,
+    0.539323658984721, 0.532506217663556, 0.479254602781408, 0.425185694307719,
+    0.299068543231709, 0.0877260312252673, 0.000182649770463709,
+    0.000182363624985208, 0.000182091056054732, 9.16581800969544e-05,
+    8.48402440378548e-07, -Inf),
     tolerance = 1e-5
   )
-  expect_equal(CVbinomlist$ROC[[1]]$.folds$sensitivities,
-    c(
-      1, 1, 1, 1, 0.944444444444444, 0.888888888888889, 0.888888888888889,
-      0.888888888888889, 0.833333333333333, 0.777777777777778, 0.722222222222222,
-      0.666666666666667, 0.611111111111111, 0.611111111111111, 0.555555555555556,
-      0.5, 0.444444444444444, 0.444444444444444, 0.388888888888889,
-      0.388888888888889, 0.333333333333333, 0.277777777777778, 0.277777777777778,
-      0.277777777777778, 0.277777777777778, 0.277777777777778, 0.222222222222222,
-      0
-    ),
+  expect_equal(
+    CVbinomlist$ROC[[1]]$.folds$sensitivities,
+    c(1, 1, 1, 0.916666666666667, 0.833333333333333, 0.75, 0.666666666666667,
+    0.666666666666667, 0.666666666666667, 0.583333333333333, 0.583333333333333,
+    0.5, 0.5, 0.5, 0.5, 0.416666666666667, 0.416666666666667, 0.416666666666667,
+    0.416666666666667, 0.416666666666667, 0.416666666666667, 0.333333333333333,
+    0.25, 0.25, 0.25, 0.166666666666667, 0.0833333333333333, 0),
     tolerance = 1e-5
   )
-  expect_equal(CVbinomlist$ROC[[1]]$.folds$specificities,
-    c(
-      0, 0.0833333333333333, 0.166666666666667, 0.25, 0.25, 0.25,
-      0.333333333333333, 0.416666666666667, 0.416666666666667, 0.416666666666667,
-      0.416666666666667, 0.416666666666667, 0.416666666666667, 0.5,
-      0.5, 0.5, 0.5, 0.583333333333333, 0.583333333333333, 0.666666666666667,
-      0.666666666666667, 0.666666666666667, 0.75, 0.833333333333333,
-      0.916666666666667, 1, 1, 1
-    ),
+  expect_equal(
+    CVbinomlist$ROC[[1]]$.folds$specificities,
+    c(0, 0.222222222222222, 0.277777777777778, 0.277777777777778,
+    0.277777777777778, 0.277777777777778, 0.277777777777778, 0.333333333333333,
+    0.388888888888889, 0.388888888888889, 0.444444444444444, 0.444444444444444,
+    0.5, 0.555555555555556, 0.611111111111111, 0.611111111111111,
+    0.666666666666667, 0.722222222222222, 0.777777777777778, 0.833333333333333,
+    0.888888888888889, 0.888888888888889, 0.888888888888889, 0.944444444444444,
+    1, 1, 1, 1),
     tolerance = 1e-5
   )
 
@@ -1367,8 +1367,7 @@ test_that("binomial nnet models work with cross_validate_fn()", {
 
   expect_equal(
     CVbinomlist$Predictions[[1]]$Prediction,
-    c(
-      0.680095458717956, 0.635540210902409, 1.27010565974986e-06,
+    c(0.680095458717956, 0.635540210902409, 1.27010565974986e-06,
       1, 0.631830326291172, 0.655178608954501, 0.666121368078478, 0.669521882094281,
       4.26699221007237e-07, 1, 0.637686595370551, 0.427503656454022,
       0.999971149392087, 0.580648781236971, 0.422867732161415, 0.999933664457318,
@@ -1419,7 +1418,6 @@ test_that("gaussian nnet models work with cross_validate_fn()", {
   expect_equal(CVed$Folds, 4)
   expect_equal(CVed$`Fold Columns`, 1)
   expect_equal(CVed$`Convergence Warnings`, 0)
-  expect_equal(CVed$Family, "gaussian")
   expect_equal(CVed$Dependent, "score")
   expect_equal(CVed$Fixed, "diagnosis")
 
@@ -1523,7 +1521,6 @@ test_that("multinomial nnet models work with cross_validate_fn()", {
   expect_equal(CVmultinomlist$Folds, c(4, 4))
   expect_equal(CVmultinomlist$`Fold Columns`, c(1, 1))
   expect_equal(CVmultinomlist$`Convergence Warnings`, c(0, 0))
-  expect_equal(CVmultinomlist$Family, c("multinomial", "multinomial"))
   expect_equal(CVmultinomlist$Dependent, c("target", "target"))
   expect_equal(CVmultinomlist$Fixed, c("predictor_1+predictor_2+predictor_3", "predictor_1"))
 
@@ -1553,7 +1550,7 @@ test_that("multinomial nnet models work with cross_validate_fn()", {
       "Threat Score", "Weighted Threat Score", "AIC", "AICc", "BIC",
       "Predictions", "Confusion Matrix", "Results", "Class Level Results",
       "Coefficients", "Folds", "Fold Columns", "Convergence Warnings",
-      "Other Warnings", "Warnings and Messages", "Family", "Dependent"
+      "Other Warnings", "Warnings and Messages", "Process", "Dependent"
     )
   )
 
@@ -1836,14 +1833,13 @@ test_that("binomial randomForest models work with cross_validate_fn()", {
   expect_equal(CVbinomlist$Folds, c(4, 4))
   expect_equal(CVbinomlist$`Fold Columns`, c(1, 1))
   expect_equal(CVbinomlist$`Convergence Warnings`, c(0, 0))
-  expect_equal(CVbinomlist$Family, c("binomial", "binomial"))
   expect_equal(CVbinomlist$Dependent, c("diagnosis", "diagnosis"))
   expect_equal(CVbinomlist$Fixed, c("score", "age"))
 
   # Enter sub tibbles
   expect_is(CVbinomlist$Predictions[[1]], "tbl_df")
   expect_is(CVbinomlist$ROC[[1]]$.folds, "roc")
-  expect_equal(CVbinomlist$ROC[[1]]$.folds$direction, "<")
+  expect_equal(CVbinomlist$ROC[[1]]$.folds$direction, ">")
   expect_equal(as.numeric(CVbinomlist$ROC[[1]]$.folds$auc), 0.648148148148148,
                tolerance = ifelse(.Platform$OS.type == "unix", 1e-5, 1e-2)) # windows compatibility
   expect_equal(
@@ -1978,7 +1974,6 @@ test_that("multinomial randomForest models work with cross_validate_fn()", {
   expect_equal(CVmultinomlist$Folds, c(4, 4))
   expect_equal(CVmultinomlist$`Fold Columns`, c(1, 1))
   expect_equal(CVmultinomlist$`Convergence Warnings`, c(0, 0))
-  expect_equal(CVmultinomlist$Family, c("multinomial", "multinomial"))
   expect_equal(CVmultinomlist$Dependent, c("target", "target"))
   expect_equal(CVmultinomlist$Fixed, c("predictor_1+predictor_2+predictor_3", "predictor_1"))
 
@@ -2029,7 +2024,7 @@ test_that("multinomial randomForest models work with cross_validate_fn()", {
       "Kappa", "MCC", "Detection Rate", "Detection Prevalence", "Prevalence",
       "Predictions", "Confusion Matrix", "Results", "Class Level Results",
       "Coefficients", "Folds", "Fold Columns", "Convergence Warnings",
-      "Other Warnings", "Warnings and Messages", "Family", "Dependent"
+      "Other Warnings", "Warnings and Messages", "Process", "Dependent"
     )
   )
 
@@ -2115,7 +2110,6 @@ test_that("gaussian randomForest models work with cross_validate_fn()", {
   expect_equal(CVed$Folds, 4)
   expect_equal(CVed$`Fold Columns`, 1)
   expect_equal(CVed$`Convergence Warnings`, 0)
-  expect_equal(CVed$Family, "gaussian")
   expect_equal(CVed$Dependent, "score")
   expect_equal(CVed$Fixed, "diagnosis")
 
@@ -2395,7 +2389,7 @@ test_that("binomial glm model with metrics list works with cross_validate_fn()",
       "Detection Prevalence", "Prevalence", "AIC", "AICc", "BIC", "Predictions",
       "ROC", "Confusion Matrix", "Results", "Coefficients", "Folds",
       "Fold Columns", "Convergence Warnings", "Other Warnings", "Warnings and Messages",
-      "Positive Class", "Family", "Dependent"
+      "Process", "Dependent"
     )
   )
 })
@@ -2437,7 +2431,7 @@ test_that("gaussian lm model with metrics list works with cross_validate_fn()", 
     c("Fixed", "MAE", "NRMSE(IQR)", "RRSE", "RAE", "RMSLE", "r2c",
     "AIC", "AICc", "BIC", "Predictions", "Results", "Coefficients",
     "Folds", "Fold Columns", "Convergence Warnings", "Other Warnings",
-    "Warnings and Messages", "Family", "Dependent")
+    "Warnings and Messages", "Process", "Dependent")
   )
 })
 
@@ -2498,7 +2492,7 @@ test_that("multinomial nnet model with metrics list works with cross_validate_fn
       "Kappa", "MCC", "Detection Rate", "Detection Prevalence", "Prevalence",
       "Predictions", "Confusion Matrix", "Results", "Class Level Results", "Coefficients",
       "Folds", "Fold Columns", "Convergence Warnings", "Other Warnings",
-      "Warnings and Messages", "Family", "Dependent"
+      "Warnings and Messages", "Process", "Dependent"
     )
   )
 
@@ -2592,7 +2586,6 @@ test_that("binomial random predictions work with cross_validate_fn()", {
   expect_equal(CVrandom$Folds, c(4, 4))
   expect_equal(CVrandom$`Fold Columns`, c(1, 1))
   expect_equal(CVrandom$`Convergence Warnings`, c(0, 0))
-  expect_equal(CVrandom$Family, c("binomial", "binomial"))
   expect_equal(CVrandom$Dependent, c("diagnosis", "diagnosis"))
   expect_equal(CVrandom$Fixed, c("score", "age"))
 
@@ -2636,43 +2629,40 @@ test_that("binomial random predictions work with cross_validate_fn()", {
       "levels"
     )
   )
-  expect_equal(CVrandom$ROC[[1]]$.folds$direction, "<")
-  expect_equal(CVrandom$ROC[[1]]$.folds$thresholds,
-    c(
-      -Inf, 0.015738278045319, 0.0244654030539095, 0.0578450820175931,
-      0.0933510899776593, 0.108683879952878, 0.137825432349928, 0.176372073940001,
-      0.205349709256552, 0.224021246074699, 0.237385168555193, 0.247873432002962,
-      0.26268216711469, 0.314905963721685, 0.375657401280478, 0.398409646586515,
-      0.423670300748199, 0.453490617917851, 0.463453618925996, 0.468184761935845,
-      0.471038468647748, 0.479620903264731, 0.495692970696837, 0.539321022573858,
-      0.578289209399372, 0.656093266210519, 0.745043152943254, 0.781334373983555,
-      0.817583099356852, 0.885025866678916, Inf
-    ),
+  expect_equal(CVrandom$ROC[[1]]$.folds$direction, ">")
+  expect_equal(
+    CVrandom$ROC[[1]]$.folds$thresholds,
+    c(Inf, 0.885025866678916, 0.817583099356852, 0.781334373983555,
+    0.745043152943254, 0.656093266210519, 0.578289209399372, 0.539321022573858,
+    0.495692970696837, 0.479620903264731, 0.471038468647748, 0.468184761935845,
+    0.463453618925996, 0.453490617917851, 0.423670300748199, 0.398409646586515,
+    0.375657401280478, 0.314905963721685, 0.26268216711469, 0.247873432002962,
+    0.237385168555193, 0.224021246074699, 0.205349709256552, 0.176372073940001,
+    0.137825432349928, 0.108683879952878, 0.0933510899776593, 0.0578450820175931,
+    0.0244654030539095, 0.015738278045319, -Inf),
     tolerance = 1e-5
   )
-  expect_equal(CVrandom$ROC[[1]]$.folds$sensitivities,
-    c(
-      1, 1, 1, 0.944444444444444, 0.888888888888889, 0.888888888888889,
-      0.888888888888889, 0.833333333333333, 0.777777777777778, 0.722222222222222,
-      0.722222222222222, 0.666666666666667, 0.611111111111111, 0.611111111111111,
-      0.555555555555556, 0.555555555555556, 0.5, 0.444444444444444,
-      0.444444444444444, 0.444444444444444, 0.444444444444444, 0.388888888888889,
-      0.388888888888889, 0.333333333333333, 0.277777777777778, 0.277777777777778,
-      0.222222222222222, 0.166666666666667, 0.111111111111111, 0.0555555555555556,
-      0
-    ),
+  expect_equal(
+    CVrandom$ROC[[1]]$.folds$sensitivities,
+    c(1, 1, 1, 1, 1, 1, 0.916666666666667, 0.916666666666667, 0.916666666666667,
+    0.833333333333333, 0.833333333333333, 0.75, 0.666666666666667,
+    0.583333333333333, 0.583333333333333, 0.583333333333333, 0.5,
+    0.5, 0.416666666666667, 0.416666666666667, 0.416666666666667,
+    0.333333333333333, 0.333333333333333, 0.333333333333333, 0.333333333333333,
+    0.25, 0.166666666666667, 0.166666666666667, 0.166666666666667,
+    0.0833333333333333, 0),
     tolerance = 1e-5
   )
-  expect_equal(CVrandom$ROC[[1]]$.folds$specificities,
-    c(
-      0, 0.0833333333333333, 0.166666666666667, 0.166666666666667,
-      0.166666666666667, 0.25, 0.333333333333333, 0.333333333333333,
-      0.333333333333333, 0.333333333333333, 0.416666666666667, 0.416666666666667,
-      0.416666666666667, 0.5, 0.5, 0.583333333333333, 0.583333333333333,
-      0.583333333333333, 0.666666666666667, 0.75, 0.833333333333333,
-      0.833333333333333, 0.916666666666667, 0.916666666666667, 0.916666666666667,
-      1, 1, 1, 1, 1, 1
-    ),
+  expect_equal(
+    CVrandom$ROC[[1]]$.folds$specificities,
+    c(0, 0.0555555555555556, 0.111111111111111, 0.166666666666667,
+    0.222222222222222, 0.277777777777778, 0.277777777777778, 0.333333333333333,
+    0.388888888888889, 0.388888888888889, 0.444444444444444, 0.444444444444444,
+    0.444444444444444, 0.444444444444444, 0.5, 0.555555555555556,
+    0.555555555555556, 0.611111111111111, 0.611111111111111, 0.666666666666667,
+    0.722222222222222, 0.722222222222222, 0.777777777777778, 0.833333333333333,
+    0.888888888888889, 0.888888888888889, 0.888888888888889, 0.944444444444444,
+    1, 1, 1),
     tolerance = 1e-5
   )
 
@@ -2755,7 +2745,6 @@ test_that("gaussian random predictions work with cross_validate_fn()", {
   expect_equal(CVed$Folds, 4)
   expect_equal(CVed$`Fold Columns`, 1)
   expect_equal(CVed$`Convergence Warnings`, 0)
-  expect_equal(CVed$Family, "gaussian")
   expect_equal(CVed$Dependent, "score")
   expect_equal(CVed$Fixed, "diagnosis")
   expect_equal(
@@ -2767,6 +2756,22 @@ test_that("gaussian random predictions work with cross_validate_fn()", {
     row.names = c(NA, 0L), class = c("tbl_df", "tbl", "data.frame")
     )
   )
+
+  expect_true(
+    as.character(CVed$Process[[1]]) %in%
+    paste0("---\nProcess Information\n---\nTarget column: target\nPredi",
+           "ction column: prediction\nFamily / type: Gaussian\nTarget su",
+           "mmary: mean: 38.767, median: 35, range: [10, 81], SD: 19.294",
+           ", IQR: 28\nPrediction summary: mean: 40.132, median: 39.269,",
+           " range: [10.803, 69.514], SD: 16.338, IQR: 26.201\nLocale (L",
+           "C_ALL): \n  ",
+           c("en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
+             "C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
+             Sys.getlocale()),
+           "\n---")
+  )
+
+
 })
 
 test_that("multinomial random predictions work with cross_validate_fn()", {
@@ -2821,7 +2826,7 @@ test_that("multinomial random predictions work with cross_validate_fn()", {
       "MCC", "Detection Rate", "Detection Prevalence", "Prevalence",
       "Predictions", "Confusion Matrix", "Results", "Class Level Results",
       "Coefficients", "Folds", "Fold Columns", "Convergence Warnings",
-      "Other Warnings", "Warnings and Messages", "Family", "Dependent"
+      "Other Warnings", "Warnings and Messages", "Process", "Dependent"
     )
   )
 
@@ -2839,7 +2844,6 @@ test_that("multinomial random predictions work with cross_validate_fn()", {
   expect_equal(CVmultinomlist$Folds, c(4, 4))
   expect_equal(CVmultinomlist$`Fold Columns`, c(1, 1))
   expect_equal(CVmultinomlist$`Convergence Warnings`, c(0, 0))
-  expect_equal(CVmultinomlist$Family, c("multinomial", "multinomial"))
   expect_equal(CVmultinomlist$Dependent, c("target", "target"))
   expect_equal(CVmultinomlist$Fixed, c("predictor_1+predictor_2+predictor_3", "predictor_1"))
 
@@ -3538,10 +3542,6 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     0,
     tolerance = 1e-5)
   expect_equal(
-    output_12059[["Family"]],
-    "gaussian",
-    fixed = TRUE)
-  expect_equal(
     output_12059[["Dependent"]],
     "score",
     fixed = TRUE)
@@ -3555,14 +3555,14 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     c("Fixed", "RMSE", "MAE", "NRMSE(IQR)", "RRSE", "RAE", "RMSLE",
       "Predictions", "Results", "Coefficients", "Preprocess", "Folds",
       "Fold Columns", "Convergence Warnings", "Other Warnings", "Warnings and Messages",
-      "Family", "HParams", "Dependent", "Random"),
+      "Process", "HParams", "Dependent", "Random"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_12059),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", ifelse(is_dplyr_1(), "vctrs_list_of", "list"),
+      "integer", "integer", "list", "list", ifelse(is_dplyr_1(), "vctrs_list_of", "list"),
       "character", "character"),
     fixed = TRUE)
   # Testing column types
@@ -3570,7 +3570,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_types(output_12059),
     c("character", "double", "double", "double", "double", "double",
       "double", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", "list", "character",
+      "integer", "integer", "list", "list", "list", "character",
       "character"),
     fixed = TRUE)
   # Testing dimensions
@@ -4491,10 +4491,6 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     0,
     tolerance = 1e-5)
   expect_equal(
-    output_11079[["Family"]],
-    "gaussian",
-    fixed = TRUE)
-  expect_equal(
     output_11079[["Dependent"]],
     "score",
     fixed = TRUE)
@@ -4508,14 +4504,14 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     c("Fixed", "RMSE", "MAE", "NRMSE(IQR)", "RRSE", "RAE", "RMSLE",
       "Predictions", "Results", "Coefficients", "Folds", "Fold Columns",
       "Convergence Warnings", "Other Warnings", "Warnings and Messages",
-      "Family", "HParams", "Dependent", "Random"),
+      "Process", "HParams", "Dependent", "Random"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_11079),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "list", "list", "list", "integer", "integer", "integer",
-      "integer", "list", "character", ifelse(is_dplyr_1(), "vctrs_list_of", "list"), "character",
+      "integer", "list", "list", ifelse(is_dplyr_1(), "vctrs_list_of", "list"), "character",
       "character"),
     fixed = TRUE)
   # Testing column types
@@ -4523,7 +4519,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_types(output_11079),
     c("character", "double", "double", "double", "double", "double",
       "double", "list", "list", "list", "integer", "integer", "integer",
-      "integer", "list", "character", "list", "character", "character"),
+      "integer", "list", "list", "list", "character", "character"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
@@ -4681,10 +4677,6 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     0,
     tolerance = 1e-5)
   expect_equal(
-    output_18209[["Family"]],
-    "gaussian",
-    fixed = TRUE)
-  expect_equal(
     output_18209[["Dependent"]],
     "score",
     fixed = TRUE)
@@ -4698,14 +4690,14 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     c("Fixed", "RMSE", "MAE", "NRMSE(IQR)", "RRSE", "RAE", "RMSLE",
       "Predictions", "Results", "Coefficients", "Preprocess", "Folds",
       "Fold Columns", "Convergence Warnings", "Other Warnings", "Warnings and Messages",
-      "Family", "HParams", "Dependent", "Random"),
+      "Process", "HParams", "Dependent", "Random"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_18209),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", ifelse(is_dplyr_1(), "vctrs_list_of", "list"),
+      "integer", "integer", "list", "list", ifelse(is_dplyr_1(), "vctrs_list_of", "list"),
       "character", "character"),
     fixed = TRUE)
   # Testing column types
@@ -4713,7 +4705,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_types(output_18209),
     c("character", "double", "double", "double", "double", "double",
       "double", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", "list", "character",
+      "integer", "integer", "list", "list", "list", "character",
       "character"),
     fixed = TRUE)
   # Testing dimensions
@@ -5224,10 +5216,6 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     0,
     tolerance = 1e-5)
   expect_equal(
-    output_12447[["Family"]],
-    "gaussian",
-    fixed = TRUE)
-  expect_equal(
     output_12447[["Dependent"]],
     "score",
     fixed = TRUE)
@@ -5241,14 +5229,14 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     c("Fixed", "RMSE", "MAE", "NRMSE(IQR)", "RRSE", "RAE", "RMSLE",
       "Predictions", "Results", "Coefficients", "Preprocess", "Folds",
       "Fold Columns", "Convergence Warnings", "Other Warnings", "Warnings and Messages",
-      "Family", "HParams", "Dependent", "Random"),
+      "Process", "HParams", "Dependent", "Random"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_12447),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", ifelse(is_dplyr_1(), "vctrs_list_of", "list"),
+      "integer", "integer", "list", "list", ifelse(is_dplyr_1(), "vctrs_list_of", "list"),
       "character", "character"),
     fixed = TRUE)
   # Testing column types
@@ -5256,7 +5244,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_types(output_12447),
     c("character", "double", "double", "double", "double", "double",
       "double", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", "list", "character",
+      "integer", "integer", "list", "list", "list", "character",
       "character"),
     fixed = TRUE)
   # Testing dimensions
@@ -5380,10 +5368,6 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     0,
     tolerance = 1e-5)
   expect_equal(
-    output_10994[["Family"]],
-    "gaussian",
-    fixed = TRUE)
-  expect_equal(
     output_10994[["Dependent"]],
     "score",
     fixed = TRUE)
@@ -5397,14 +5381,14 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     c("Fixed", "RMSE", "MAE", "NRMSE(IQR)", "RRSE", "RAE", "RMSLE",
       "Predictions", "Results", "Coefficients", "Preprocess", "Folds",
       "Fold Columns", "Convergence Warnings", "Other Warnings", "Warnings and Messages",
-      "Family", "HParams", "Dependent", "Random"),
+      "Process", "HParams", "Dependent", "Random"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_10994),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", ifelse(is_dplyr_1(), "vctrs_list_of", "list"),
+      "integer", "integer", "list", "list", ifelse(is_dplyr_1(), "vctrs_list_of", "list"),
       "character", "character"),
     fixed = TRUE)
   # Testing column types
@@ -5412,7 +5396,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_types(output_10994),
     c("character", "double", "double", "double", "double", "double",
       "double", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", "list", "character",
+      "integer", "integer", "list", "list", "list", "character",
       "character"),
     fixed = TRUE)
   # Testing dimensions
@@ -5606,10 +5590,6 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     0,
     tolerance = 1e-5)
   expect_equal(
-    output_14068[["Family"]],
-    "gaussian",
-    fixed = TRUE)
-  expect_equal(
     output_14068[["Dependent"]],
     "score",
     fixed = TRUE)
@@ -5623,14 +5603,14 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     c("Fixed", "RMSE", "MAE", "NRMSE(IQR)", "RRSE", "RAE", "RMSLE",
       "Predictions", "Results", "Coefficients", "Preprocess", "Folds",
       "Fold Columns", "Convergence Warnings", "Other Warnings", "Warnings and Messages",
-      "Family", "HParams", "Dependent", "Random"),
+      "Process", "HParams", "Dependent", "Random"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_14068),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", ifelse(is_dplyr_1(), "vctrs_list_of", "list"),
+      "integer", "integer", "list", "list", ifelse(is_dplyr_1(), "vctrs_list_of", "list"),
       "character", "character"),
     fixed = TRUE)
   # Testing column types
@@ -5638,7 +5618,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_types(output_14068),
     c("character", "double", "double", "double", "double", "double",
       "double", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", "list", "character",
+      "integer", "integer", "list", "list", "list", "character",
       "character"),
     fixed = TRUE)
   # Testing dimensions
@@ -5727,10 +5707,6 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     0,
     tolerance = 1e-5)
   expect_equal(
-    output_19128[["Family"]],
-    "gaussian",
-    fixed = TRUE)
-  expect_equal(
     output_19128[["Dependent"]],
     "score",
     fixed = TRUE)
@@ -5744,14 +5720,14 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     c("Fixed", "RMSE", "MAE", "NRMSE(IQR)", "RRSE", "RAE", "RMSLE",
       "Predictions", "Results", "Coefficients", "Preprocess", "Folds",
       "Fold Columns", "Convergence Warnings", "Other Warnings", "Warnings and Messages",
-      "Family", "HParams", "Dependent", "Random"),
+      "Process", "HParams", "Dependent", "Random"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_19128),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", ifelse(is_dplyr_1(), "vctrs_list_of", "list"),
+      "integer", "integer", "list", "list", ifelse(is_dplyr_1(), "vctrs_list_of", "list"),
       "character", "character"),
     fixed = TRUE)
   # Testing column types
@@ -5759,7 +5735,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_types(output_19128),
     c("character", "double", "double", "double", "double", "double",
       "double", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", "list", "character",
+      "integer", "integer", "list", "list", "list", "character",
       "character"),
     fixed = TRUE)
   # Testing dimensions
@@ -5918,10 +5894,6 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     0,
     tolerance = 1e-5)
   expect_equal(
-    output_13323[["Family"]],
-    "gaussian",
-    fixed = TRUE)
-  expect_equal(
     output_13323[["Dependent"]],
     "score",
     fixed = TRUE)
@@ -5935,14 +5907,14 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     c("Fixed", "RMSE", "MAE", "NRMSE(IQR)", "RRSE", "RAE", "RMSLE",
       "Predictions", "Results", "Coefficients", "Preprocess", "Folds",
       "Fold Columns", "Convergence Warnings", "Other Warnings", "Warnings and Messages",
-      "Family", "HParams", "Dependent", "Random"),
+      "Process", "HParams", "Dependent", "Random"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_13323),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", ifelse(is_dplyr_1(), "vctrs_list_of", "list"),
+      "integer", "integer", "list", "list", ifelse(is_dplyr_1(), "vctrs_list_of", "list"),
       "character", "character"),
     fixed = TRUE)
   # Testing column types
@@ -5950,7 +5922,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_types(output_13323),
     c("character", "double", "double", "double", "double", "double",
       "double", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", "list", "character",
+      "integer", "integer", "list", "list", "list", "character",
       "character"),
     fixed = TRUE)
   # Testing dimensions
@@ -6074,10 +6046,6 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     0,
     tolerance = 1e-5)
   expect_equal(
-    output_12580[["Family"]],
-    "gaussian",
-    fixed = TRUE)
-  expect_equal(
     output_12580[["Dependent"]],
     "score",
     fixed = TRUE)
@@ -6091,14 +6059,14 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     c("Fixed", "RMSE", "MAE", "NRMSE(IQR)", "RRSE", "RAE", "RMSLE",
       "Predictions", "Results", "Coefficients", "Preprocess", "Folds",
       "Fold Columns", "Convergence Warnings", "Other Warnings", "Warnings and Messages",
-      "Family", "HParams", "Dependent", "Random"),
+      "Process", "HParams", "Dependent", "Random"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_12580),
     c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
       "numeric", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", ifelse(is_dplyr_1(), "vctrs_list_of", "list"),
+      "integer", "integer", "list", "list", ifelse(is_dplyr_1(), "vctrs_list_of", "list"),
       "character", "character"),
     fixed = TRUE)
   # Testing column types
@@ -6106,7 +6074,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
     xpectr::element_types(output_12580),
     c("character", "double", "double", "double", "double", "double",
       "double", "list", "list", "list", "list", "integer", "integer",
-      "integer", "integer", "list", "character", "list", "character",
+      "integer", "integer", "list", "list", "list", "character",
       "character"),
     fixed = TRUE)
   # Testing dimensions

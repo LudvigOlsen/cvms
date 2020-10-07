@@ -51,14 +51,14 @@ A function with the following form:
  They can either be used directly or be starting points.
 
  The examples use \code{\link[recipes:recipe]{recipes}},
- but you can also use caret::preProcess() or
+ but you can also use \code{caret::preProcess()} or
  similar functions.
 
  In these examples, the preprocessing will only affect the numeric predictors.
 
  You may prefer to hardcode a formula like \code{"y ~ ."} (where
  \code{y} is your dependent variable) as that will allow you to set
- \strong{preprocess_one} to \code{TRUE} in \code{\link[cvms:cross_validate_fn]{cross_validate_fn()}}
+ \strong{`preprocess_one`} to \code{TRUE} in \code{\link[cvms:cross_validate_fn]{cross_validate_fn()}}
  and \code{\link[cvms:validate_fn]{validate_fn()}} and save time.
 }
 \seealso{

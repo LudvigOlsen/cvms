@@ -7,12 +7,12 @@
 #'  Select the columns that define the models, such as the formula terms
 #'  and hyperparameters.
 #'
-#'  If an expected column is not in the \code{results} tibble, it is simply ignored.
+#'  If an expected column is not in the \code{`results`} \code{tibble}, it is simply ignored.
 #' @return
-#'  The model definition columns from the results tibble.
+#'  The model definition columns from the results \code{tibble}.
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
-#' @param results Results tibble. E.g. from
+#' @param results Results \code{tibble}. E.g. from
 #'  \code{\link[cvms:cross_validate]{cross_validate()}} or \code{\link[cvms:evaluate]{evaluate()}}.
 #' @param unnest_hparams Whether to unnest the \code{HParams} column. (Logical)
 #' @param additional_includes Names of additional columns to select. (Character)

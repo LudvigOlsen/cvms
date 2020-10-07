@@ -124,6 +124,16 @@ evaluate_predictions_gaussian <- function(data,
     }
   }
 
+  # Add process information
+  avg_results[["Process"]] <- list(
+    process_info_gaussian(
+      data = data,
+      targets_col = targets_col,
+      prediction_cols = predictions_col,
+      id_col = model_specifics[["for_process"]][["id_col"]]
+    )
+  )
+
   avg_results
 }
 

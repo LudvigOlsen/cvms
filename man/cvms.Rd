@@ -10,7 +10,7 @@ Perform baseline evaluations on your test set. Generate model formulas by combin
 Evaluate predictions from an external model.
 }
 \details{
-Returns results in a tibble for easy comparison, reporting and further analysis.
+Returns results in a \code{tibble} for easy comparison, reporting and further analysis.
 
 The main functions are:
 \code{\link[cvms:cross_validate]{cross_validate()}},

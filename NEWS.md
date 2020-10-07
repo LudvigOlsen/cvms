@@ -1,5 +1,28 @@
 
-# cvms 1.0.2.9000
+# cvms 1.1.0
+
+* In `plot_confusion_matrix()`, adds option to only have row and column percentages in the diagonal tiles. Thanks to [@xgirouxb ](https://github.com/LudvigOlsen/cvms/issues/12) for the idea.
+
+* Adds `Process` information to output with the settings used. Adds transparency. It has a custom print method, making it easy to read. Underneath it is a list, why all information is available using `$` or similar. In most cases, the `Family` information has been moved into the `Process` object. Thanks to [@daviddalpiaz](https://github.com/LudvigOlsen/cvms/issues/13) for notifying me of the need for more transparency.
+
+* In outputs, the `Family` information is (in most cases) moved into the new `Process` object.
+
+* In `binomial` `evaluate()` and `baseline()`, `Accuracy` is now enabled by default. It is still disabled in `cross_validate*()` functions to guide users away from using it as the main criterion for model selection (as it is well known to many but can be quite bad in cases with imbalanced datasets.)
+
+* Fixes: In binomial evaluation, the probabilities are now properly of the second class alphabetically.
+When the target column was a factor where the levels were not in alphabetical order, the second level in that order was used. The levels are now sorted before extraction. Thanks to [@daviddalpiaz](https://github.com/LudvigOlsen/cvms/issues/13) for finding the bug.
+
+* Fixes: In *grouped* multinomial evaluation, when predictions are classes and there are different sets of classes per group, only the classes in the subset are used.
+
+* Fixes: Bug in `ROC` direction parameter being set wrong when `positive` is numeric. In regression tests, the `AUC` scores were *not* impacted.
+
+* Fixes: 2-class `multinomial` evaluation returns all expected metrics.
+
+* In multinomial evaluation, the `Class Level Results` are sorted by the `Class`.
+
+* Imports `broom.mixed` to allow tidying of coefficients from `lme4::lmer` models.
+
+* Exports `process_info_binomial()`, `process_info_multinomial()`, `process_info_gaussian()` constructors to ensure the various methods are available. They are not necessarily intended for external use.
 
 # cvms 1.0.2
 

@@ -4,7 +4,7 @@
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
 #'  Finds the data points that, overall, were the most challenging to predict,
 #'  based on a prediction metric.
-#' @param data Data frame with predictions, targets and observation IDs.
+#' @param data \code{data.frame} with predictions, targets and observation IDs.
 #'  Can be grouped by \code{\link[dplyr:group_by]{dplyr::group_by()}}.
 #'
 #'  Predictions can be passed as values, predicted classes or predicted probabilities:
@@ -12,7 +12,7 @@
 #'  \strong{N.B.} Adds \code{\link[base:.Machine]{.Machine$double.eps}} to all probabilities to avoid \code{log(0)}.
 #'
 #'  \subsection{Multinomial}{
-#'  When \code{type} is \code{"multinomial"}, the predictions can be passed in one of two formats.
+#'  When \code{`type`} is \code{"multinomial"}, the predictions can be passed in one of two formats.
 #'
 #'  \subsection{Probabilities (Preferable)}{
 #'
@@ -42,7 +42,7 @@
 #'  }
 #'  }
 #'  \subsection{Binomial}{
-#'  When \code{type} is \code{"binomial"}, the predictions can be passed in one of two formats.
+#'  When \code{`type`} is \code{"binomial"}, the predictions can be passed in one of two formats.
 #'
 #'  \subsection{Probabilities (Preferable)}{
 #'  One column with the \strong{probability of class being
@@ -70,7 +70,7 @@
 #'  }
 #'  }
 #'  \subsection{Gaussian}{
-#'  When \code{type} is \code{"gaussian"}, the predictions should be passed as
+#'  When \code{`type`} is \code{"gaussian"}, the predictions should be passed as
 #'  one column with the predicted values. E.g.:
 #'
 #'  \tabular{rrrrr}{
@@ -83,7 +83,7 @@
 #'
 #' @param obs_id_col Name of column with observation IDs. This will be used to aggregate
 #'  the performance of each observation.
-#' @param target_col Name of column with the true classes/values in \code{data}.
+#' @param target_col Name of column with the true classes/values in \code{`data`}.
 #' @param prediction_cols Name(s) of column(s) with the predictions.
 #' @param type Type of task used to get the predictions:
 #'
@@ -92,11 +92,11 @@
 #'  \code{"binomial"} for binary classification.
 #'
 #'  \code{"multinomial"} for multiclass classification.
-#' @param threshold Threshold to filter observations by. Depends on \code{type} and \code{threshold_is}.
+#' @param threshold Threshold to filter observations by. Depends on \code{`type`} and \code{`threshold_is`}.
 #'
 #'  The \code{threshold} can either be a \strong{percentage} or a \strong{score}.
 #'  For percentages, a lower \code{threshold}
-#'  returns fewer observations. For scores, this depends on \code{type}.
+#'  returns fewer observations. For scores, this depends on \code{`type`}.
 #'
 #'  \subsection{Gaussian}{
 #'  \subsection{threshold_is "percentage"}{
@@ -122,7 +122,7 @@
 #'
 #'  }
 #'  }
-#' @param threshold_is Either \code{"score"} or \code{"percentage"}. See \code{threshold}.
+#' @param threshold_is Either \code{"score"} or \code{"percentage"}. See \code{`threshold`}.
 #' @param metric The metric to use. If \code{NULL},
 #'  the default metric depends on the format of the prediction columns.
 #'
@@ -143,8 +143,8 @@
 #'  }
 #' @param cutoff Threshold for predicted classes. (Numeric)
 #'
-#'  \strong{N.B. Binomial only}.
-#' @return Data frame with the most challenging observations and their metrics.
+#'  N.B. \strong{Binomial only}.
+#' @return \code{data.frame} with the most challenging observations and their metrics.
 #'
 #'  \code{`>=` / `<=`} denotes the threshold as score.
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
@@ -520,7 +520,7 @@ check_prediction_cols <- function(data,
       assert_collection$push("prediction columns contained NAs (missing data).")
       checkmate::reportAssertions(assert_collection)
     }
-    if (any(round(rowSums(data_preds), digits = 5) != 1)) {
+    if (!rows_sum_to(data_preds, sum_to = 1, digits = 5)) {
       assert_collection$push(
         paste0("when 'prediction_cols' has length > 1, prediction columns m",
                "ust sum to 1 row-wise."))

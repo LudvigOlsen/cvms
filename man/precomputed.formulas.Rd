@@ -5,7 +5,7 @@
 \alias{precomputed.formulas}
 \title{Precomputed formulas}
 \format{
-A data frame with 259,358 rows and 5 variables:
+A \code{data.frame} with \code{259,358} rows and \code{5} variables:
 \describe{
   \item{formula_}{combination of fixed effects, separated by "\code{+}" and "\code{*}"}
   \item{max_interaction_size}{maximum interaction size in the formula, up to \code{3}}

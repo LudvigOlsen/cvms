@@ -9,5 +9,3 @@ There were no ERRORs or WARNINGs. There was 1 NOTE when `rsvg` was not installed
 ## Downstream dependencies
 There are currently no downstream dependencies.
 
-## Release notes
-Please be aware, that the performance drop in the upcoming `dplyr v1.0.0` for `summarize()` and similar functions seem to have a big impact on `cvms`, and that this might affect the testing time significantly. Given that the `tidyverse` folks intend to fix this in `v1.1.0` (as I understand it), I will not be skipping more unittests on CRAN unless specifically requested by CRAN.

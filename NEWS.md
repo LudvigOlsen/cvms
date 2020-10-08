@@ -1,4 +1,7 @@
 
+# cvms 1.1.0.9000
+
+
 # cvms 1.1.0
 
 * In `plot_confusion_matrix()`, adds option to only have row and column percentages in the diagonal tiles. Thanks to [@xgirouxb ](https://github.com/LudvigOlsen/cvms/issues/12) for the idea.

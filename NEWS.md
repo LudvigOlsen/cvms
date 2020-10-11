@@ -1,6 +1,7 @@
 
 # cvms 1.1.0.9000
 
+* In `binomial` `most_challenging()`, the probabilities are now properly of the second class alphabetically.
 
 # cvms 1.1.0
 

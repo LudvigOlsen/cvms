@@ -57,6 +57,9 @@
 #'   ... \tab ...}
 #'  }
 #'
+#'  Note: At the alphabetical ordering of the class labels, they are of type \code{character},
+#'  why e.g. \code{100} would come before \code{7}.
+#'
 #'  \subsection{Classes}{
 #'
 #'  A single column of type \code{character} with the predicted classes. E.g.:

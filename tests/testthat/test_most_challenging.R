@@ -3779,131 +3779,17 @@ test_that("prepare_predictions() works", {
   # Testing prepare_predictions_df(data = binom_data, pr...
   # Changed from baseline: target_col = "ID"
   xpectr::set_test_seed(42)
-  # Assigning output
-  output_19148 <- prepare_predictions_df(data = binom_data, prediction_cols = "Prediction", target_col = "ID", cutoff = 0.5, type = "binomial")
-  # Testing class
+  # Testing side effects
+  # Assigning side effects
+  side_effects_14577 <- xpectr::capture_side_effects(prepare_predictions_df(data = binom_data, prediction_cols = "Prediction", target_col = "ID", cutoff = 0.5, type = "binomial"), reset_seed = TRUE)
   expect_equal(
-    class(output_19148),
-    c("tbl_df", "tbl", "data.frame"),
-    fixed = TRUE)
-  # Testing column values
-  expect_equal(
-    xpectr::smpl(output_19148[["Classifier"]], n = 30),
-    c("e1071_svm", "e1071_svm", "e1071_svm", "e1071_svm", "e1071_svm",
-      "e1071_svm", "randomForest", "randomForest", "randomForest",
-      "randomForest", "randomForest", "randomForest", "randomForest",
-      "randomForest", "randomForest", "nnet_multinom", "nnet_multinom",
-      "nnet_multinom", "nnet_multinom", "nnet_multinom", "nnet_multinom",
-      "nnet_multinom", "nnet_multinom", "nnet_multinom", "nnet_multinom",
-      "nnet_multinom", "nnet_multinom", "nnet_multinom", "nnet_multinom",
-      "nnet_multinom"),
+    xpectr::strip(side_effects_14577[['error']]),
+    xpectr::strip("The target column must maximally contain 2 levels."),
     fixed = TRUE)
   expect_equal(
-    xpectr::smpl(output_19148[["Fold Column"]], n = 30),
-    c(".folds_1", ".folds_1", ".folds_2", ".folds_2", ".folds_3", ".folds_3",
-      ".folds_1", ".folds_1", ".folds_1", ".folds_1", ".folds_2",
-      ".folds_2", ".folds_2", ".folds_3", ".folds_3", ".folds_1",
-      ".folds_1", ".folds_1", ".folds_1", ".folds_2", ".folds_2",
-      ".folds_2", ".folds_2", ".folds_2", ".folds_3", ".folds_3",
-      ".folds_3", ".folds_3", ".folds_3", ".folds_3"),
+    xpectr::strip(side_effects_14577[['error_class']]),
+    xpectr::strip(c("simpleError", "error", "condition")),
     fixed = TRUE)
-  expect_equal(
-    xpectr::smpl(output_19148[["Fold"]], n = 30),
-    c(4, 5, 1, 1, 1, 3, 1, 4, 5, 5, 1, 3, 4, 4, 4, 1, 2, 3, 4, 2, 2,
-      3, 4, 5, 1, 1, 2, 2, 3, 4),
-    tolerance = 1e-4)
-  expect_equal(
-    xpectr::smpl(output_19148[["ID"]], n = 30),
-    structure(c(11L, 24L, 21L, 30L, 28L, 24L, 28L, 3L, 23L, 24L, 30L,
-      27L, 15L, 12L, 22L, 21L, 2L, 15L, 19L, 19L, 26L, 25L, 24L, 29L,
-      8L, 28L, 1L, 15L, 2L, 9L), .Label = c("1", "2", "3", "4", "5",
-      "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16",
-      "17", "18", "19", "20", "21", "22", "23", "24", "25", "26",
-      "27", "28", "29", "30", "31", "32", "33", "34", "35", "36",
-      "37", "38", "39", "40", "41", "42", "43", "44", "45", "46",
-      "47", "48", "49", "50", "51", "52", "53", "54", "55", "56",
-      "57", "58", "59", "60"), class = "factor"))
-  expect_equal(
-    xpectr::smpl(output_19148[["Target"]], n = 30),
-    c("A", "B", "B", "B", "B", "B", "B", "A", "B", "B", "B", "B", "A",
-      "A", "B", "B", "A", "A", "B", "B", "B", "B", "B", "B", "A",
-      "B", "A", "A", "A", "A"),
-    fixed = TRUE)
-  expect_equal(
-    xpectr::smpl(output_19148[["A"]], n = 30),
-    c(0.36393, 0.12083, 0.26534, 0.21885, 0.22152, 0.1307, 0.22, 0.506,
-      0.22, 0.024, 0.216, 0.442, 0.43, 0.304, 0.28, 0, 0.24051, 0.8486,
-      0.48301, 0.28305, 0, 0.06542, 0.00564, 0.82806, 0.54858, 0.00413,
-      0, 0.76432, 0.1525, 0),
-    tolerance = 1e-4)
-  expect_equal(
-    xpectr::smpl(output_19148[["Prediction"]], n = 30),
-    c(0.14688, 0.38609, 0.41055, 0.27878, 0.37519, 0.37871, 0.494, 0.128,
-      0.524, 0.486, 0.13, 0.312, 0.06, 0.23, 0.294, 1, 0.64448, 0.0137,
-      0.24638, 0.59286, 1, 0.33989, 0.22409, 0.02586, 0.0214, 0.95377,
-      0, 0.12655, 0.78244, 1),
-    tolerance = 1e-4)
-  expect_equal(
-    xpectr::smpl(output_19148[["C"]], n = 30),
-    c(0.1632, 0.16882, 0.08189, 0.20212, 0.06586, 0.18908, 0.002, 0.21,
-      0.094, 0.152, 0.216, 0.21, 0.43, 0.036, 0.136, 0, 0, 0.05804,
-      0.05163, 0.05449, 0, 0.04494, 0.00041, 0, 0.29328, 0.00066,
-      1, 0, 0.01395, 0),
-    tolerance = 1e-4)
-  expect_equal(
-    xpectr::smpl(output_19148[["D"]], n = 30),
-    c(0.32598, 0.32426, 0.24222, 0.30025, 0.33743, 0.30151, 0.284, 0.156,
-      0.162, 0.338, 0.438, 0.036, 0.08, 0.43, 0.29, 0, 0.115, 0.07967,
-      0.21899, 0.06961, 0, 0.54975, 0.76986, 0.14607, 0.13674, 0.04144,
-      0, 0.10913, 0.05111, 0),
-    tolerance = 1e-4)
-  expect_equal(
-    xpectr::smpl(output_19148[["Predicted Class"]], n = 30),
-    c("A", "B", "B", "D", "B", "B", "B", "A", "B", "B", "D", "A", "A",
-      "D", "B", "B", "B", "A", "A", "B", "B", "D", "D", "A", "A",
-      "B", "C", "A", "B", "B"),
-    fixed = TRUE)
-  expect_equal(
-    xpectr::smpl(output_19148[["predicted_class"]], n = 30),
-    c("22", "1", "7", "8", "9", "20", "10", "23", "2", "5", "11", "23",
-      "26", "27", "29", "2", "2", "22", "29", "2", "2", "25", "3",
-      "9", "11", "2", "16", "18", "2", "2"),
-    fixed = TRUE)
-  expect_equal(
-    xpectr::smpl(output_19148[["probability_of_target"]], n = 30),
-    c(0.85312, 0.61391, 0.58945, 0.72122, 0.62481, 0.62129, 0.506, 0.872,
-      0.476, 0.514, 0.87, 0.688, 0.94, 0.77, 0.706, 0, 0.64448, 0.9863,
-      0.75362, 0.40714, 0, 0.66011, 0.77591, 0.97414, 0.9786, 0.04623,
-      1, 0.87345, 0.78244, 0),
-    tolerance = 1e-4)
-  # Testing column names
-  expect_equal(
-    names(output_19148),
-    c("Classifier", "Fold Column", "Fold", "ID", "Target", "A", "Prediction",
-      "C", "D", "Predicted Class", "predicted_class", "probability_of_target"),
-    fixed = TRUE)
-  # Testing column classes
-  expect_equal(
-    xpectr::element_classes(output_19148),
-    c("character", "character", "integer", "factor", "character", "numeric",
-      "numeric", "numeric", "numeric", "character", "character", "numeric"),
-    fixed = TRUE)
-  # Testing column types
-  expect_equal(
-    xpectr::element_types(output_19148),
-    c("character", "character", "integer", "integer", "character", "double",
-      "double", "double", "double", "character", "character", "double"),
-    fixed = TRUE)
-  # Testing dimensions
-  expect_equal(
-    dim(output_19148),
-    c(270L, 12L))
-  # Testing group keys
-  expect_equal(
-    colnames(dplyr::group_keys(output_19148)),
-    character(0),
-    fixed = TRUE)
-  ## Finished testing 'prepare_predictions_df(data = binom_data, pr...'
 
   # Testing prepare_predictions_df(data = binom_data, pr...
   # Changed from baseline: target_col = "A"
@@ -4033,7 +3919,7 @@ test_that("prepare_predictions() works", {
   side_effects_15603 <- xpectr::capture_side_effects(prepare_predictions_df(data = binom_data, prediction_cols = "Prediction", target_col = "Target", cutoff = 0.5, type = "multinomial"), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_15603[['error']]),
-    xpectr::strip("1 assertions failed:\n * when 'type' is 'multinomial' and prediction_cols has length 1, 'data[[prediction_cols]]' must have type\n * 'character'."),
+    xpectr::strip("1 assertions failed:\n * when 'type' is 'multinomial' and prediction_cols has length 1, 'data[[prediction_cols]]' must have\n * type 'character'."),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_15603[['error_class']]),

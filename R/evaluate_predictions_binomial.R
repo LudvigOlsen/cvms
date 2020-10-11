@@ -56,7 +56,7 @@ evaluate_predictions_binomial <- function(data,
   if (!na_in_targets && !na_in_predictions) {
     if (is.null(cat_levels)) {
       # Find the levels in the categorical target variable
-      cat_levels <- sort(levels_as_characters(data[[targets_col]]))
+      cat_levels <- levels_as_characters(data[[targets_col]], sort_levels=TRUE)
       if (length(cat_levels) < 2){
         stop("found less than 2 levels in the target column.")
       }
@@ -71,7 +71,7 @@ evaluate_predictions_binomial <- function(data,
     if (is.null(predicted_class_col)) {
       predicted_class_col <- create_tmp_name(data, "predicted_class")
       data[[predicted_class_col]] <- ifelse(data[[predictions_col]] < model_specifics[["cutoff"]],
-        cat_levels[1], cat_levels[2]
+        cat_levels[[1]], cat_levels[[2]]
       )
     }
 

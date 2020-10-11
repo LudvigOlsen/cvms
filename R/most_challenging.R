@@ -555,11 +555,14 @@ prepare_predictions <- function(data,
   )
 
   if (type == "binomial"){
-    cat_levels <- levels_as_characters(data[[target_col]])
+    cat_levels <- levels_as_characters(data[[target_col]], drop_unused = TRUE, sort_levels=TRUE)
     if (length(cat_levels) < 2) {
-      stop(paste0("found less than 2 levels in the target column."))
+      stop(paste0("Found less than 2 levels in the target column."))
     }
-    positive <- cat_levels[2]
+    if (length(cat_levels) > 2) {
+      stop("The target column must maximally contain 2 levels.")
+    }
+    positive <- cat_levels[[2]]
   }
 
   # For gaussian

@@ -3,6 +3,9 @@
 
 * In `binomial` `most_challenging()`, the probabilities are now properly of the second class alphabetically.
 
+* In `plot_confusion_matrix()`, adds argument `class_order` for manually setting the order of the classes
+in the facets.
+
 # cvms 1.1.0
 
 * In `plot_confusion_matrix()`, adds option to only have row and column percentages in the diagonal tiles. Thanks to [@xgirouxb ](https://github.com/LudvigOlsen/cvms/issues/12) for the idea.

@@ -9,6 +9,7 @@ plot_confusion_matrix(
   targets_col = "Target",
   predictions_col = "Prediction",
   counts_col = "N",
+  class_order = NULL,
   add_counts = TRUE,
   add_normalized = TRUE,
   add_row_percentages = TRUE,
@@ -61,6 +62,9 @@ targets and predictions along with their counts.
 
 \item{counts_col}{Name of column with a count for each combination
 of the target and prediction levels.}
+
+\item{class_order}{Names of the classes in \code{`conf_matrix`} in the desired order.
+When \code{NULL}, the classes are ordered alphabetically.}
 
 \item{add_counts}{Add the counts to the middle of the tiles. (Logical)}
 

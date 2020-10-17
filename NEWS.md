@@ -1,6 +1,10 @@
 
 # cvms 1.1.0.9000
 
+* In `binomial` `most_challenging()`, the probabilities are now properly of the second class alphabetically.
+
+* In `plot_confusion_matrix()`, adds argument `class_order` for manually setting the order of the classes
+in the facets.
 
 # cvms 1.1.0
 

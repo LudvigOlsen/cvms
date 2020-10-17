@@ -52,8 +52,8 @@
 #'  When \code{`type`} is \code{"binomial"}, the predictions can be passed in one of two formats.
 #'
 #'  \subsection{Probabilities (Preferable)}{
-#'  One column with the probability of class being
-#'  the second class alphabetically
+#'  One column with the \strong{probability of class being
+#'  the second class alphabetically}
 #'  (1 if classes are 0 and 1). E.g.:
 #'
 #'  \tabular{rrrrr}{
@@ -63,6 +63,9 @@
 #'   0.375 \tab 0\cr
 #'   ... \tab ...}
 #'  }
+#'
+#'  Note: At the alphabetical ordering of the class labels, they are of type \code{character},
+#'  why e.g. \code{100} would come before \code{7}.
 #'
 #'  \subsection{Classes}{
 #'

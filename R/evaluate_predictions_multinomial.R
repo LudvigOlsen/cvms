@@ -97,7 +97,7 @@ evaluate_predictions_multinomial <- function(data,
     data[[targets_col]] <- as.character(data[[targets_col]])
 
     # Find the levels in the categorical target variable
-    cat_levels_in_targets_col <- levels_as_characters(data[[targets_col]])
+    cat_levels_in_targets_col <- levels_as_characters(data[[targets_col]], sort_levels=TRUE)
     pred_col_classes <- colnames(predicted_probabilities)
 
     # Find classes that are not in targets and were never predicted (always 0.0 probability)

@@ -39,6 +39,8 @@
 #' @param predictions_col Name of column with prediction levels.
 #' @param counts_col Name of column with a count for each combination
 #'  of the target and prediction levels.
+#' @param class_order Names of the classes in \code{`conf_matrix`} in the desired order.
+#'  When \code{NULL}, the classes are ordered alphabetically.
 #' @param add_counts Add the counts to the middle of the tiles. (Logical)
 #' @param add_normalized Normalize the counts to percentages and
 #'  add to the middle of the tiles. (Logical)
@@ -198,6 +200,7 @@ plot_confusion_matrix <- function(conf_matrix,
                                   targets_col = "Target",
                                   predictions_col = "Prediction",
                                   counts_col = "N",
+                                  class_order = NULL,
                                   add_counts = TRUE,
                                   add_normalized = TRUE,
                                   add_row_percentages = TRUE,
@@ -249,6 +252,7 @@ plot_confusion_matrix <- function(conf_matrix,
   checkmate::assert_string(x = tile_border_linetype, na.ok = TRUE, add = assert_collection)
   checkmate::assert_string(x = tile_border_color, na.ok = TRUE, add = assert_collection)
   checkmate::assert_string(x = palette, na.ok = TRUE, null.ok = TRUE, add = assert_collection)
+  checkmate::assert_character(x = class_order, null.ok = TRUE, any.missing = FALSE, add = assert_collection)
 
   # Flag
   checkmate::assert_flag(x = add_counts, add = assert_collection)
@@ -306,6 +310,17 @@ plot_confusion_matrix <- function(conf_matrix,
     subset.of = available_font_settings,
     add = assert_collection
   )
+
+  if (!is.null(class_order)){
+    classes_in_data <- unique(conf_matrix[[targets_col]])
+    if (length(classes_in_data) != length(class_order) ||
+        length(setdiff(classes_in_data, class_order)) != 0){
+      assert_collection$push(
+        "when 'class_order' is specified, it must contain the same levels as 'conf_matrix'.")
+    }
+  } else {
+    class_order <- sort(unique(conf_matrix[[targets_col]]))
+  }
 
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
@@ -397,8 +412,8 @@ plot_confusion_matrix <- function(conf_matrix,
 
   # Extract needed columns
   cm <- tibble::tibble(
-    "Target" = factor(as.character(conf_matrix[[targets_col]])),
-    "Prediction" = factor(as.character(conf_matrix[[predictions_col]])),
+    "Target" = factor(as.character(conf_matrix[[targets_col]]), levels = class_order),
+    "Prediction" = factor(as.character(conf_matrix[[predictions_col]]), levels = class_order),
     "N" = as.integer(conf_matrix[[counts_col]])
   )
   cm[["Normalized"]] <- 100 * (cm[["N"]] / sum(cm[["N"]]))

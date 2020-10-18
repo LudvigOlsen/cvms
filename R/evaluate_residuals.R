@@ -19,8 +19,8 @@
 #' @export
 #' @family evaluation functions
 #' @param data \code{data.frame} with predictions and targets.
-#' @param targets_col Name of the column with the true values in \code{`data`}.
-#' @param predictions_col Name of column with the predicted values in \code{`data`}.
+#' @param target_col Name of the column with the true values in \code{`data`}.
+#' @param prediction_col Name of column with the predicted values in \code{`data`}.
 #' @param metrics \code{list} for enabling/disabling metrics.
 #'
 #'   E.g. \code{list("RMSE" = FALSE)} would disable \code{RMSE}.
@@ -74,12 +74,12 @@
 #'
 #' evaluate_residuals(
 #'   data = data,
-#'   targets_col = "targets",
-#'   predictions_col = "predictions"
+#'   target_col = "targets",
+#'   prediction_col = "predictions"
 #' )
 evaluate_residuals <- function(data,
-                               targets_col,
-                               predictions_col,
+                               target_col,
+                               prediction_col,
                                metrics = list()) {
   if (checkmate::test_string(x = metrics, pattern = "^all$")) {
     metrics <- list("all" = TRUE)
@@ -88,12 +88,12 @@ evaluate_residuals <- function(data,
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
   checkmate::assert_data_frame(x = data, min.rows = 1, min.cols = 2, add = assert_collection)
-  checkmate::assert_string(x = predictions_col, add = assert_collection)
-  checkmate::assert_string(x = targets_col, add = assert_collection)
+  checkmate::assert_string(x = prediction_col, add = assert_collection)
+  checkmate::assert_string(x = target_col, add = assert_collection)
   checkmate::reportAssertions(assert_collection)
   checkmate::assert_names(
     x = colnames(data),
-    must.include = c(predictions_col, targets_col),
+    must.include = c(prediction_col, target_col),
     what = "colnames"
   )
   checkmate::assert_list(
@@ -113,16 +113,16 @@ evaluate_residuals <- function(data,
 
   call_evaluate_residuals(
     data = data,
-    targets_col = targets_col,
-    predictions_col = predictions_col,
+    target_col = target_col,
+    prediction_col = prediction_col,
     metrics = metrics,
     return_nas = FALSE
   )
 }
 
 call_evaluate_residuals <- function(data,
-                                    targets_col,
-                                    predictions_col,
+                                    target_col,
+                                    prediction_col,
                                     metrics,
                                     allow_col_nas = TRUE,
                                     return_nas = FALSE) {
@@ -132,8 +132,8 @@ call_evaluate_residuals <- function(data,
 
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
-  checkmate::assert_numeric(data[[targets_col]], any.missing = allow_col_nas, add = assert_collection)
-  checkmate::assert_numeric(data[[predictions_col]], any.missing = allow_col_nas, add = assert_collection)
+  checkmate::assert_numeric(data[[target_col]], any.missing = allow_col_nas, add = assert_collection)
+  checkmate::assert_numeric(data[[prediction_col]], any.missing = allow_col_nas, add = assert_collection)
   checkmate::assert_character(metrics, any.missing = FALSE, add = assert_collection)
   checkmate::assert_flag(return_nas, add = assert_collection)
   checkmate::reportAssertions(assert_collection)
@@ -151,8 +151,8 @@ call_evaluate_residuals <- function(data,
   metrics_per_group <- data %>%
     dplyr::group_by_at(colnames(grouping_keys)) %>%
     dplyr::summarize(m = list(residual_metrics(
-      !!as.name(predictions_col),
-      !!as.name(targets_col),
+      !!as.name(prediction_col),
+      !!as.name(target_col),
       return_nas = return_nas
     ))) %>%
     legacy_unnest()

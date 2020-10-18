@@ -91,6 +91,7 @@ Currently supports regression (`'gaussian'`), binary classification (`'binomial'
 |`plot_confusion_matrix()` |Plot a confusion matrix |
 |`plot_metric_density()`   |Create a density plot for a metric column |
 |`font()` |Set font settings for plotting functions (currently only `plot_confusion_matrix()`) |
+|`sum_tile_settings()` |Set settings for sum tiles in `plot_confusion_matrix()` |
 
 
 ### Custom functions
@@ -136,17 +137,7 @@ cvms:::render_toc("README.Rmd")
 > Check `NEWS.md` for the full list of changes.
 >
 
-* Version `1.0.0` contained **multiple breaking changes**. Please see `NEWS.md`. (13th of April 2020)
-
-* `cv_plot()` has been removed.
-
-* In `cross_validate()` and `validate()`, the `models` argument is renamed to `formulas` and the `model_verbose` argument is renamed to `verbose`. Further, the `link` argument is hard-deprecated and will throw an error if used.
-
-* `Multinomial AUC` is now calculated with `pROC::multiclass.roc`.
-
-* `cross_validate_fn()` and `validate_fn()` now take the `preprocess_fn`, `preprocess_once`, and `hyperparameters` arguments. The `predict_type` argument has been removed.
-
-* `cross_validate_fn()` and `validate_fn()` are added. (Cross-)validate custom model functions.
+* Version `1.2.0` contained **multiple breaking changes**. Please see `NEWS.md`. (18th of October 2020)
 
 
 ## Installation
@@ -276,7 +267,7 @@ CV2 %>% select(10:15) %>% kable()
 CV2$`Confusion Matrix`[[1]] %>% kable()
 
 # Plot confusion matrix
-plot_confusion_matrix(CV2$`Confusion Matrix`[[1]])
+plot_confusion_matrix(CV2$`Confusion Matrix`[[1]], add_sums = TRUE)
 
 ```
 

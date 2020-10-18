@@ -217,7 +217,7 @@ create_multinomial_baseline_evaluations <- function(test_data,
     ) %>%
       dplyr::bind_rows(all_or_nothing_evaluations(
         test_data = test_data,
-        targets_col = dependent_col,
+        target_col = dependent_col,
         current_class = cl,
         reps = reps,
         metrics = all_or_nothing_metrics
@@ -332,14 +332,14 @@ create_multinomial_baseline_evaluations <- function(test_data,
 }
 
 
-all_or_nothing_evaluations <- function(test_data, targets_col, current_class, reps, metrics = list()) {
+all_or_nothing_evaluations <- function(test_data, target_col, current_class, reps, metrics = list()) {
   num_targets <- nrow(test_data)
 
   local_tmp_target_var <- create_tmp_name(test_data, "all_or_nothing_targets")
   local_tmp_predicted_probability_all_1_var <- create_tmp_name(test_data, "all_1_predicted_probability")
   local_tmp_predicted_probability_all_0_var <- create_tmp_name(test_data, "all_0_predicted_probability")
 
-  test_data[[local_tmp_target_var]] <- factor(ifelse(test_data[[targets_col]] == current_class, 1, 0))
+  test_data[[local_tmp_target_var]] <- factor(ifelse(test_data[[target_col]] == current_class, 1, 0))
   test_data[[local_tmp_predicted_probability_all_1_var]] <- rep(0.999999, num_targets)
   test_data[[local_tmp_predicted_probability_all_0_var]] <- rep(0.000001, num_targets)
   pred_cols <- c(

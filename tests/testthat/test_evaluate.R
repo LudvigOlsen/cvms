@@ -4238,8 +4238,8 @@ test_that("evaluate() and evaluate_residuals() has same metric values", {
     metrics = "all")
 
   resid_eval <- evaluate_residuals(
-    df, predictions_col = "prediction",
-    targets_col = "target",
+    df, prediction_col = "prediction",
+    target_col = "target",
     metrics = "all")
 
   # same order of metrics
@@ -4372,7 +4372,7 @@ test_that("the different prediction formats work properly in Gaussian evaluate()
   side_effects_12861 <- xpectr::capture_side_effects(evaluate(data = gauss, target_col = "Target_1_chr", prediction_cols = "Prediction_1", type = "gaussian", id_col = NULL, id_method = "mean", metrics = list(all = FALSE, RMSE = TRUE)), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_12861[['error']]),
-    xpectr::strip("1 assertions failed:\n * Variable 'data[[targets_col]]': Must be of type 'numeric', not 'character'."),
+    xpectr::strip("1 assertions failed:\n * Variable 'data[[target_col]]': Must be of type 'numeric', not 'character'."),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_12861[['error_class']]),
@@ -4387,7 +4387,7 @@ test_that("the different prediction formats work properly in Gaussian evaluate()
   side_effects_18304 <- xpectr::capture_side_effects(evaluate(data = gauss, target_col = "Target_1_fct", prediction_cols = "Prediction_1", type = "gaussian", id_col = NULL, id_method = "mean", metrics = list(all = FALSE, RMSE = TRUE)), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_18304[['error']]),
-    xpectr::strip("1 assertions failed:\n * Variable 'data[[targets_col]]': Must be of type 'numeric', not 'factor'."),
+    xpectr::strip("1 assertions failed:\n * Variable 'data[[target_col]]': Must be of type 'numeric', not 'factor'."),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_18304[['error_class']]),
@@ -4497,7 +4497,7 @@ test_that("the different prediction formats work properly in Gaussian evaluate()
   side_effects_11346 <- xpectr::capture_side_effects(evaluate(data = gauss, target_col = "Target_1", prediction_cols = "Prediction_1_chr", type = "gaussian", id_col = NULL, id_method = "mean", metrics = list(all = FALSE, RMSE = TRUE)), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_11346[['error']]),
-    xpectr::strip("1 assertions failed:\n * Variable 'data[[predictions_col]]': Must be of type 'numeric', not 'character'."),
+    xpectr::strip("1 assertions failed:\n * Variable 'data[[prediction_col]]': Must be of type 'numeric', not 'character'."),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_11346[['error_class']]),
@@ -4512,7 +4512,7 @@ test_that("the different prediction formats work properly in Gaussian evaluate()
   side_effects_16569 <- xpectr::capture_side_effects(evaluate(data = gauss, target_col = "Target_1", prediction_cols = "Prediction_1_fct", type = "gaussian", id_col = NULL, id_method = "mean", metrics = list(all = FALSE, RMSE = TRUE)), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_16569[['error']]),
-    xpectr::strip("1 assertions failed:\n * Variable 'data[[predictions_col]]': Must be of type 'numeric', not 'factor'."),
+    xpectr::strip("1 assertions failed:\n * Variable 'data[[prediction_col]]': Must be of type 'numeric', not 'factor'."),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_16569[['error_class']]),

@@ -1,9 +1,9 @@
 # Functions for nesting predictions
 
 nest_predictions <- function(data,
-                             predictions_col,
+                             prediction_col,
                              predicted_class_col = NULL,
-                             targets_col,
+                             target_col,
                              model_was_null_col,
                              type,
                              id_col,
@@ -19,9 +19,9 @@ nest_predictions <- function(data,
     # Nest predictions and targets
     predictions_nested <- nesting_predictions(
       data = data,
-      predictions_col = predictions_col,
+      prediction_col = prediction_col,
       predicted_class_col = predicted_class_col,
-      targets_col = targets_col,
+      target_col = target_col,
       id_col = id_col,
       id_method = id_method,
       stds_col = stds_col,
@@ -42,10 +42,10 @@ nest_predictions <- function(data,
 
 
 nesting_predictions <- function(data,
-                                predictions_col,
+                                prediction_col,
                                 predicted_class_col = NULL,
                                 # not used
-                                targets_col,
+                                target_col,
                                 id_col,
                                 id_method,
                                 stds_col,
@@ -55,8 +55,8 @@ nesting_predictions <- function(data,
   predictions_for_nesting <- tibble::tibble(
     "Fold Column" = data[[fold_info_cols[["fold_column"]]]],
     "Fold" = data[[fold_info_cols[["rel_fold"]]]],
-    "Target" = data[[targets_col]],
-    "Prediction" = data[[predictions_col]]
+    "Target" = data[[target_col]],
+    "Prediction" = data[[prediction_col]]
   )
 
   if (!is.null(stds_col))

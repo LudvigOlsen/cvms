@@ -1,8 +1,8 @@
 # Evaluates single model object
 # and extracts information like coefficients
 internal_evaluate_predictions <- function(data,
-                                          predictions_col,
-                                          targets_col,
+                                          prediction_col,
+                                          target_col,
                                           model_was_null_col,
                                           type,
                                           fold_info_cols = list(
@@ -35,8 +35,8 @@ internal_evaluate_predictions <- function(data,
 
   eval_pred_fn(
     data = data,
-    predictions_col = predictions_col,
-    targets_col = targets_col,
+    prediction_col = prediction_col,
+    target_col = target_col,
     model_was_null_col = model_was_null_col,
     id_col = id_col,
     id_method = id_method,

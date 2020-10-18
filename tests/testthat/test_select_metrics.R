@@ -1536,8 +1536,8 @@ test_that("select_metrics() works with output from evaluate_residuals", {
   res_gauss <-
     evaluate_residuals(
       musicians,
-      predictions_col = "Drums",
-      targets_col = "Guitar",
+      prediction_col = "Drums",
+      target_col = "Guitar",
       metrics = "all"
     )
 

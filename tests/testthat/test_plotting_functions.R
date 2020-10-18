@@ -66,7 +66,7 @@ test_that("plot_confusion_matrix() returns expected plots", {
 
   expect_equal(
     p1$mapping,
-    structure(list(x = ~ .data$Target, y = ~ .data$Prediction, fill = ~ .data$N),
+    structure(list(x = ~ .data$Target, y = ~ .data$Prediction, fill = ~ .data$Intensity),
       class = "uneval"
     )
   )
@@ -175,7 +175,7 @@ test_that("plot_confusion_matrix() with multiclass conf mat returns expected plo
 
   expect_equal(
     p1$mapping,
-    structure(list(x = ~ .data$Target, y = ~ .data$Prediction, fill = ~ .data$N),
+    structure(list(x = ~ .data$Target, y = ~ .data$Prediction, fill = ~ .data$Intensity),
       class = "uneval"
     )
   )
@@ -234,6 +234,141 @@ test_that("plot_confusion_matrix() with multiclass conf mat returns expected plo
   )
 
 })
+
+
+test_that("plot_confusion_matrix() with sum tiles, class order, and intensity_by percentage", {
+
+  if (!requireNamespace("rsvg", quietly = TRUE) ||
+      !requireNamespace("ggimage", quietly = TRUE)) {
+    testthat::skip("missing 'rsvg' and/or 'ggimage'.")
+  }
+  if (!requireNamespace("ggnewscale", quietly = TRUE)) {
+    testthat::skip("missing 'ggnewscale'.")
+  }
+
+    # Note: These are just initial tests
+  # There's probably a high number of errors it won't catch
+
+  # TODO Check out https://github.com/r-lib/vdiffr
+  # It may make testing easier and better
+
+  xpectr::set_test_seed(1)
+  targets <- c(0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 2, 2, 2, 2, 2, 2)
+  predictions <- c(1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 2, 2, 1, 2)
+
+  # Create confusion matrix with default metrics
+  cm <- confusion_matrix(targets, predictions)
+  conf_mat <- cm[["Confusion Matrix"]][[1]]
+  conf_mat[["N"]] <- round(conf_mat[["N"]] * 100 + runif(n = nrow(conf_mat), 0, 100))
+
+  p1 <- plot_confusion_matrix(conf_mat, add_sums = TRUE,
+                              class_order = c("0", "2", "1"),
+                              intensity_by = "normalized",
+                              sums_settings = sum_tile_settings(tc_tile_border_color = "red"))
+
+  expect_equal(p1$data$Target,
+               structure(c(2L, 2L, 2L, 4L, 4L, 4L, 3L, 3L, 3L, 2L, 3L, 4L, 1L,
+               1L, 1L, 1L), .Label = c("\u2211", "0", "2", "1"), class = "factor"))
+  expect_equal(p1$data$Prediction,
+               structure(c(2L, 4L, 3L, 2L, 4L, 3L, 2L, 4L, 3L, 1L, 1L, 1L, 2L,
+               3L, 4L, 1L), .Label = c("\u2211", "0", "2", "1"), class = "factor"))
+  expect_equal(p1$data$N, c(427L, 237L, 57L, 291L, 420L, 90L, 194L, 266L, 363L,
+                            721L, 823L, 801L, 912L, 510L, 923L, 2345L))
+  expect_equal(p1$data$N_text,
+               as.character(c(427L, 237L, 57L, 291L, 420L, 90L, 194L, 266L,
+                              363L, 721L, 823L, 801L, 912L, 510L, 923L, "")))
+  expect_equal(p1$data$Normalized,
+               c(18.2089552238806, 10.1066098081023, 2.43070362473348, 12.409381663113,
+               17.910447761194, 3.83795309168444, 8.272921108742, 11.3432835820896,
+               15.4797441364606, 30.7462686567164, 35.0959488272921, 34.1577825159915,
+               38.8912579957356, 21.7484008528785, 39.3603411513859, 100))
+  expect_equal(p1$data$Normalized_text,
+               c("18.2%", "10.1%", "2.4%", "12.4%", "17.9%", "3.8%", "8.3%",
+               "11.3%", "15.5%", "30.7%", "35.1%", "34.2%", "38.9%", "21.7%",
+               "39.4%", "2345"))
+  expect_equal(p1$data$Class_N,
+               c(721L, 721L, 721L, 801L, 801L, 801L, 823L, 823L, 823L, NA, NA,
+               NA, NA, NA, NA, NA))
+  expect_equal(p1$data$Class_Percentage,
+               c(59.2233009708738, 32.871012482663, 7.90568654646325, 36.3295880149813,
+               52.4344569288389, 11.2359550561798, 23.5722964763062, 32.3207776427704,
+               44.1069258809235, NA, NA, NA, NA, NA, NA, NA))
+  expect_equal(p1$data$Class_Percentage_text,
+               c("59.2%", "32.9%", "7.9%", "36.3%", "52.4%", "11.2%", "23.6%",
+               "32.3%", "44.1%", "", "", "", "", "", "", ""))
+  expect_equal(p1$data$Prediction_N,
+               c(912L, 923L, 510L, 912L, 923L, 510L, 912L, 923L, 510L, NA, NA,
+               NA, NA, NA, NA, NA))
+  expect_equal(p1$data$Prediction_Percentage,
+               c(46.8201754385965, 25.6771397616468, 11.1764705882353, 31.9078947368421,
+               45.5037919826652, 17.6470588235294, 21.2719298245614, 28.819068255688,
+               71.1764705882353, NA, NA, NA, NA, NA, NA, NA))
+  expect_equal(p1$data$Prediction_Percentage_text,
+               c("46.8%", "25.7%", "11.2%", "31.9%", "45.5%", "17.6%", "21.3%",
+               "28.8%", "71.2%", "", "", "", "", "", "", ""))
+
+  expect_equal(length(p1$layers), 15)
+  expect_equal(
+    sapply(p1$layers, function(x) class(x$geom)[1]),
+    c("NewGeomTile", "GeomTile", "GeomTile", "GeomText", "GeomText",
+    "GeomText", "GeomText", "GeomText", "GeomText", "GeomText", "GeomText",
+    "GeomImage", "GeomImage", "GeomImage", "GeomImage"))
+  expect_equal(
+    p1$labels,
+    list(x = "Target", y = "Prediction", fill_new = "Normalized",
+        label = "N", fill = "Intensity", image = "down_icon")
+  )
+
+  # It's the normalized data (percentages)
+  expect_equal(
+    p1$scales$scales[[1]]$limits,
+    c(0, 140)
+  )
+
+  expect_equal(
+    p1$scales$scales[[3]]$limits,
+    c("1", "2", "0", "\u2211")
+  )
+
+  expect_equal(
+    p1$mapping,
+    structure(list(x = ~ .data$Target, y = ~ .data$Prediction, fill_new = ~ .data$Intensity),
+              class = "uneval"
+    )
+  )
+
+  expect_true(!p1$guides$fill[[1]])
+
+  # Set zero
+
+  conf_mat[["N"]][[3]] <- 0
+
+  p2 <- plot_confusion_matrix(conf_mat, add_sums = TRUE,
+                        class_order = c("0", "2", "1"),
+                        intensity_by = "normalized",
+                        sums_settings = sum_tile_settings(tc_tile_border_color = "red"))
+
+  expect_equal(length(p2$layers), 16)
+  expect_equal(
+    sapply(p2$layers, function(x) class(x$geom)[1]),
+    c("NewGeomTile", "GeomTile", "GeomTile", "GeomImage", "GeomText",
+    "GeomText", "GeomText", "GeomText", "GeomText", "GeomText", "GeomText",
+    "GeomText", "GeomImage", "GeomImage", "GeomImage", "GeomImage"
+    )
+  )
+  expect_equal(
+    p2$labels,
+    list(
+      x = "Target", y = "Prediction",
+      fill_new = "Normalized",
+      label = "N",
+      fill = "Intensity",
+      image = "image_skewed_lines"
+    )
+  )
+
+})
+
 
 
 test_that("testing diag_percentages_only argument", {

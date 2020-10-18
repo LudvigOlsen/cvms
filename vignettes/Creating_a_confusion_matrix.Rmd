@@ -179,6 +179,17 @@ Let's plot the multiclass confusion matrix:
 plot_confusion_matrix(conf_mat$`Confusion Matrix`[[1]])
 ```
 
+# Adding sum tiles
+
+If we are interested in the *overall* distribution of predictions and targets, we can add a column to the right side of the plot with the row sums and a row at the bottom with the column sums. We refer to these as the *sum tiles*.
+
+```{r}
+plot_confusion_matrix(conf_mat$`Confusion Matrix`[[1]],
+                      add_sums = TRUE)
+```
+
+The tile in the corner contains the total count of data points.
+
 # Tweaking `plot_confusion_matrix()`
 
 Let's explore how we can tweak the plot. 
@@ -209,23 +220,39 @@ plot_confusion_matrix(conf_mat$`Confusion Matrix`[[1]],
                       palette = "Greens")
 ```
 
+When we have the sum tiles enabled, we can change the label to `Total`, add a border around the total count tile and change the palette responsible for the color of the sum tiles. Here we use `sum_tile_settings()` to quickly choose the settings we want:
+
+```{r}
+plot_confusion_matrix(
+  conf_mat$`Confusion Matrix`[[1]],
+  add_sums = TRUE,
+  sums_settings = sum_tile_settings(
+    palette = "Oranges",
+    label = "Total",
+    tc_tile_border_color = "black"
+  )
+)
+```
+
+
 Finally, let's try tweaking the font settings for the counts. For this, we use the `font()` helper function. 
 
 Let's disable all the percentages and make the counts big, red and angled 45 degrees:
 
 ```{r}
-plot_confusion_matrix(conf_mat$`Confusion Matrix`[[1]],
-                      font_counts = font(size = 10,
-                                         angle = 45,
-                                         color = "red"),
-                      add_normalized = FALSE,
-                      add_col_percentages = FALSE,
-                      add_row_percentages = FALSE
-                      )
+plot_confusion_matrix(
+  conf_mat$`Confusion Matrix`[[1]],
+  font_counts = font(
+    size = 10,
+    angle = 45,
+    color = "red"
+  ),
+  add_normalized = FALSE,
+  add_col_percentages = FALSE,
+  add_row_percentages = FALSE
+)
 ```
 
 We could have chosen those settings as the defaults, but chose against it with a coin flip!
 
 Now you know how to create and plot a confusion matrix with `cvms`.
-
-

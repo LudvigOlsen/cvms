@@ -266,12 +266,12 @@ test_that("plot_confusion_matrix() with sum tiles, class order, and intensity_by
                               intensity_by = "normalized",
                               sums_settings = sum_tile_settings(tc_tile_border_color = "red"))
 
-  expect_equal(p1$data$Target, structure(c(1L, 1L, 1L, 2L, 2L, 2L, 3L, 3L, 3L),
-                                         .Label = c("0", "1", "2"), class = "factor"
-  ))
+  expect_equal(p1$data$Target,
+               structure(c(2L, 2L, 2L, 4L, 4L, 4L, 3L, 3L, 3L, 2L, 3L, 4L, 1L,
+               1L, 1L, 1L), .Label = c("\u2211", "0", "2", "1"), class = "factor"))
   expect_equal(p1$data$Prediction,
                structure(c(2L, 4L, 3L, 2L, 4L, 3L, 2L, 4L, 3L, 1L, 1L, 1L, 2L,
-               3L, 4L, 1L), .Label = c("∑", "0", "2", "1"), class = "factor"))
+               3L, 4L, 1L), .Label = c("\u2211", "0", "2", "1"), class = "factor"))
   expect_equal(p1$data$N, c(427L, 237L, 57L, 291L, 420L, 90L, 194L, 266L, 363L,
                             721L, 823L, 801L, 912L, 510L, 923L, 2345L))
   expect_equal(p1$data$N_text,
@@ -327,12 +327,12 @@ test_that("plot_confusion_matrix() with sum tiles, class order, and intensity_by
 
   expect_equal(
     p1$scales$scales[[3]]$limits,
-    c("1", "2", "0", "∑")
+    c("1", "2", "0", "\u2211")
   )
 
   expect_equal(
     p1$mapping,
-    structure(list(x = ~ .data$Target, y = ~ .data$Prediction, fill = ~ .data$Intensity),
+    structure(list(x = ~ .data$Target, y = ~ .data$Prediction, fill_new = ~ .data$Intensity),
               class = "uneval"
     )
   )
@@ -361,7 +361,8 @@ test_that("plot_confusion_matrix() with sum tiles, class order, and intensity_by
     list(
       x = "Target", y = "Prediction",
       fill_new = "Normalized",
-      fill = "Intensity", label = "N",
+      label = "N",
+      fill = "Intensity",
       image = "image_skewed_lines"
     )
   )

@@ -33,12 +33,12 @@ sum_tile_settings(
 
 \item{label}{The label to use for the sum column and the sum row.}
 
-\item{font_color}{Color of the text in the tiles with the column and row sums.}
-
 \item{tc_tile_fill, tile_fill}{Specific background color for the tiles. Passed as \emph{\code{`fill`}} to
 \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.
 
  If specified, the \code{`palette`} is ignored.}
+
+\item{tc_font_color, font_color}{Color of the text in the tiles with the column and row sums.}
 
 \item{tc_tile_border_color, tile_border_color}{Color of the tile borders. Passed as \emph{\code{`colour`}} to
 \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.}

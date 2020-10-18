@@ -127,7 +127,7 @@ preprocess_numeric <- function(vec, settings, rm_zero_text=FALSE) {
 #'
 #'  Note: When \code{`tile_fill`} is specified, the \code{`palette`} is \strong{ignored}.
 #' @param label The label to use for the sum column and the sum row.
-#' @param font_color Color of the text in the tiles with the column and row sums.
+#' @param tc_font_color,font_color Color of the text in the tiles with the column and row sums.
 #' @param tc_tile_fill,tile_fill Specific background color for the tiles. Passed as \emph{\code{`fill`}} to
 #' \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.
 #'
@@ -174,7 +174,7 @@ update_sum_tile_settings <- function(settings, defaults, initial_vals = NULL) {
   backup_defaults <-
     sum_tile_settings(
       palette = "Greens",
-      label = "∑",
+      label = "\u2211",
       tile_fill = NULL,
       font_color = NULL,
       tile_border_color = NA,

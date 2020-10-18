@@ -1,7 +1,7 @@
 evaluate_predictions_binomial <- function(data,
-                                          predictions_col,
+                                          prediction_col,
                                           predicted_class_col = NULL,
-                                          targets_col,
+                                          target_col,
                                           model_was_null_col,
                                           id_col,
                                           id_method,
@@ -34,8 +34,8 @@ evaluate_predictions_binomial <- function(data,
   unique_fold_cols <- unique(fold_and_fold_col[["fold_column"]])
 
   # Check if there are NAs in predictions or targets
-  na_in_predictions <- contains_na(data[[predictions_col]])
-  na_in_targets <- contains_na(data[[targets_col]])
+  na_in_predictions <- contains_na(data[[prediction_col]])
+  na_in_targets <- contains_na(data[[target_col]])
 
   # Warn if NA in predictions
   if (isTRUE(na_in_predictions)) {
@@ -56,7 +56,7 @@ evaluate_predictions_binomial <- function(data,
   if (!na_in_targets && !na_in_predictions) {
     if (is.null(cat_levels)) {
       # Find the levels in the categorical target variable
-      cat_levels <- levels_as_characters(data[[targets_col]], sort_levels=TRUE)
+      cat_levels <- levels_as_characters(data[[target_col]], sort_levels=TRUE)
       if (length(cat_levels) < 2){
         stop("found less than 2 levels in the target column.")
       }
@@ -70,7 +70,7 @@ evaluate_predictions_binomial <- function(data,
     # If it wasn't passed by parent function
     if (is.null(predicted_class_col)) {
       predicted_class_col <- create_tmp_name(data, "predicted_class")
-      data[[predicted_class_col]] <- ifelse(data[[predictions_col]] < model_specifics[["cutoff"]],
+      data[[predicted_class_col]] <- ifelse(data[[prediction_col]] < model_specifics[["cutoff"]],
         cat_levels[[1]], cat_levels[[2]]
       )
     }
@@ -92,9 +92,9 @@ evaluate_predictions_binomial <- function(data,
     # will always return NULL
     predictions_nested <- nest_predictions(
       data = data,
-      predictions_col = predictions_col,
+      prediction_col = prediction_col,
       predicted_class_col = predicted_class_col,
-      targets_col = targets_col,
+      target_col = target_col,
       model_was_null_col = model_was_null_col,
       type = "binomial",
       id_col = id_col,
@@ -109,7 +109,7 @@ evaluate_predictions_binomial <- function(data,
     # Create confusion matrices
     confusion_matrices_list <- binomial_eval_confusion_matrices(
       data = data,
-      targets_col = targets_col,
+      target_col = target_col,
       predicted_class_col = predicted_class_col,
       unique_fold_cols = unique_fold_cols,
       cat_levels = cat_levels,
@@ -124,8 +124,8 @@ evaluate_predictions_binomial <- function(data,
       # Create ROC curves
       roc_curves_list <- binomial_eval_roc_curves(
         data = data,
-        targets_col = targets_col,
-        predictions_col = predictions_col,
+        target_col = target_col,
+        prediction_col = prediction_col,
         unique_fold_cols = unique_fold_cols,
         cat_levels = cat_levels,
         positive = positive,
@@ -158,8 +158,8 @@ evaluate_predictions_binomial <- function(data,
     results[["Process"]] <- list(
       process_info_binomial(
         data = data,
-        targets_col = targets_col,
-        prediction_cols = predictions_col,
+        target_col = target_col,
+        prediction_cols = prediction_col,
         id_col = model_specifics[["for_process"]][["id_col"]],
         cat_levels = cat_levels,
         positive = positive,
@@ -177,7 +177,7 @@ evaluate_predictions_binomial <- function(data,
 
 
 binomial_eval_confusion_matrices <- function(data,
-                                             targets_col,
+                                             target_col,
                                              predicted_class_col,
                                              unique_fold_cols,
                                              cat_levels,
@@ -203,7 +203,7 @@ binomial_eval_confusion_matrices <- function(data,
     # Create confusion matrix and add to list
     fcol_conf_mat <- list("x" = fit_confusion_matrix(
       predicted_classes = fcol_data[[predicted_class_col]],
-      targets = fcol_data[[targets_col]],
+      targets = fcol_data[[target_col]],
       cat_levels = cat_levels,
       positive = positive,
       fold_col = fold_col,
@@ -228,7 +228,7 @@ binomial_eval_confusion_matrices <- function(data,
   )
 }
 
-binomial_eval_roc_curves <- function(data, targets_col, predictions_col,
+binomial_eval_roc_curves <- function(data, target_col, prediction_col,
                                      unique_fold_cols, cat_levels,
                                      positive, fold_info_cols,
                                      include_fold_columns) {
@@ -252,8 +252,8 @@ binomial_eval_roc_curves <- function(data, targets_col, predictions_col,
 
     # Create ROC curve and add to list
     fcol_roc_curve <- list("x" = fit_roc_curve(
-      predicted_probabilities = fcol_data[[predictions_col]],
-      targets = fcol_data[[targets_col]],
+      predicted_probabilities = fcol_data[[prediction_col]],
+      targets = fcol_data[[target_col]],
       levels = roc_cat_levels,
       direction = roc_direction
     ))

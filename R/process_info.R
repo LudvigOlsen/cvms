@@ -17,7 +17,7 @@
 #' Used internally.
 #'
 #' @param data Data frame.
-#' @param targets_col Name of target column.
+#' @param target_col Name of target column.
 #' @param prediction_cols Names of prediction columns.
 #' @param pred_class_col Name of predicted classes column.
 #' @param id_col Name of ID column.
@@ -32,12 +32,12 @@
 #' @return List with relevant information.
 #' @export
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
-process_info_binomial <- function(data, targets_col, prediction_cols, id_col, cat_levels, positive, cutoff, locale=NULL){
+process_info_binomial <- function(data, target_col, prediction_cols, id_col, cat_levels, positive, cutoff, locale=NULL){
   if (is.null(locale)) locale <- Sys.getlocale(category="LC_ALL")
-  target_summary <- describe_categorical(data[[targets_col]], classes=cat_levels)
+  target_summary <- describe_categorical(data[[target_col]], classes=cat_levels)
   predictions_summary <- describe_numeric(data[[prediction_cols]])
   l <- list(
-    "Target Column" = targets_col,
+    "Target Column" = target_col,
     "Prediction Column" = prediction_cols,
     "ID Column" = id_col,
     "Family" = "Binomial",
@@ -92,7 +92,7 @@ as.character.process_info_binomial <- function(x, ...){
 #'@export
 process_info_multinomial <- function(
   data,
-  targets_col,
+  target_col,
   prediction_cols,
   pred_class_col,
   id_col,
@@ -100,10 +100,10 @@ process_info_multinomial <- function(
   apply_softmax,
   locale = NULL) {
   if (is.null(locale)) locale <- Sys.getlocale(category="LC_ALL")
-  target_summary <- describe_categorical(data[[targets_col]], classes=cat_levels)
+  target_summary <- describe_categorical(data[[target_col]], classes=cat_levels)
   predicted_class_summary <- describe_categorical(data[[pred_class_col]], classes=cat_levels)
   l <- list(
-    "Target Column" = targets_col,
+    "Target Column" = target_col,
     "Prediction Columns" = prediction_cols,
     "ID Column" = id_col,
     "Family" = "Multinomial",
@@ -159,12 +159,12 @@ as.character.process_info_multinomial <- function(x, ...){
 
 #'@rdname process_info_binomial
 #'@export
-process_info_gaussian <- function(data, targets_col, prediction_cols, id_col, locale=NULL){
+process_info_gaussian <- function(data, target_col, prediction_cols, id_col, locale=NULL){
   if (is.null(locale)) locale <- Sys.getlocale(category="LC_ALL")
-  target_summary <- describe_numeric(data[[targets_col]])
+  target_summary <- describe_numeric(data[[target_col]])
   predictions_summary <- describe_numeric(data[[prediction_cols]])
   l <- list(
-    "Target Column" = targets_col,
+    "Target Column" = target_col,
     "Prediction Column" = prediction_cols,
     "ID Column" = id_col,
     "Family" = "Gaussian",

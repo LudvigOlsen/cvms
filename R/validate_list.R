@@ -388,8 +388,8 @@ validate_list <- function(train_data,
       # Evaluate the predictions
       prediction_evaluation <- internal_evaluate_predictions(
         data = predictions_and_targets,
-        predictions_col = "prediction",
-        targets_col = "target",
+        prediction_col = "prediction",
+        target_col = "target",
         model_was_null_col = "model_was_null",
         type = family,
         fold_info_cols = fold_info_cols,

@@ -1,6 +1,6 @@
 evaluate_predictions_multinomial <- function(data,
-                                             predictions_col,
-                                             targets_col,
+                                             prediction_col,
+                                             target_col,
                                              model_was_null_col,
                                              id_col,
                                              id_method,
@@ -22,27 +22,27 @@ evaluate_predictions_multinomial <- function(data,
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
   checkmate::assert_data_frame(x = data, min.cols = 2, add = assert_collection)
-  checkmate::assert_string(x = predictions_col, add = assert_collection)
+  checkmate::assert_string(x = prediction_col, add = assert_collection)
   checkmate::assert_string(x = stds_col, null.ok = TRUE, add = assert_collection)
   if (model_specifics[["positive"]] != 2) {
     assert_collection$push("'positive' must be 2 for multinomial evaluation.")
   }
   checkmate::reportAssertions(assert_collection)
   checkmate::assert_names(x = names(data),
-                          must.include = c(predictions_col, targets_col),
+                          must.include = c(prediction_col, target_col),
                           type = "unique",
                           add = assert_collection)
-  checkmate::assert_list(x = data[[predictions_col]], add = assert_collection)
+  checkmate::assert_list(x = data[[prediction_col]], add = assert_collection)
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
 
   predicted_probabilities <- tryCatch({
-    dplyr::bind_rows(data[[predictions_col]])
+    dplyr::bind_rows(data[[prediction_col]])
     }, error = function(e) {
       stop(
         paste0(
-          "Could not bind the specified 'predictions_col': ",
-          predictions_col,
+          "Could not bind the specified 'prediction_col': ",
+          prediction_col,
           ". Got error: ",
           e
         )
@@ -62,7 +62,7 @@ evaluate_predictions_multinomial <- function(data,
 
   # Check if there are NAs in predictions or targets
   na_in_predictions <- contains_na(predicted_probabilities)
-  na_in_targets <- contains_na(data[[targets_col]])
+  na_in_targets <- contains_na(data[[target_col]])
 
   # Warn if NA in predictions
   if (isTRUE(na_in_predictions)) {
@@ -94,15 +94,15 @@ evaluate_predictions_multinomial <- function(data,
   if (!na_in_targets && !na_in_predictions) {
 
     # Convert target column to type character
-    data[[targets_col]] <- as.character(data[[targets_col]])
+    data[[target_col]] <- as.character(data[[target_col]])
 
     # Find the levels in the categorical target variable
-    cat_levels_in_targets_col <- levels_as_characters(data[[targets_col]], sort_levels=TRUE)
+    cat_levels_in_target_col <- levels_as_characters(data[[target_col]], sort_levels=TRUE)
     pred_col_classes <- colnames(predicted_probabilities)
 
     # Find classes that are not in targets and were never predicted (always 0.0 probability)
-    classes_not_in_targets_col <- setdiff(pred_col_classes, cat_levels_in_targets_col)
-    missing_classes <- purrr::map(.x = classes_not_in_targets_col, .f = ~{
+    classes_not_in_target_col <- setdiff(pred_col_classes, cat_levels_in_target_col)
+    missing_classes <- purrr::map(.x = classes_not_in_target_col, .f = ~{
       if (all(predicted_probabilities[[.x]] == 0.0))
         .x
     }) %>% unlist(recursive = TRUE)
@@ -110,7 +110,7 @@ evaluate_predictions_multinomial <- function(data,
     # Remove those 'missing' classes
     classes <- sort(setdiff(pred_col_classes, missing_classes))
     if (length(missing_classes) > 0){
-      data[[predictions_col]] <- purrr::map(.x = data[[predictions_col]], .f = ~{
+      data[[prediction_col]] <- purrr::map(.x = data[[prediction_col]], .f = ~{
         base_deselect(.x, cols = missing_classes)
       })
     }
@@ -122,7 +122,7 @@ evaluate_predictions_multinomial <- function(data,
     # The following errors if there are classes in target
     # that does not have a probability column
 
-    if (length(setdiff(cat_levels_in_targets_col, classes)) != 0) {
+    if (length(setdiff(cat_levels_in_target_col, classes)) != 0) {
       stop(paste0(
         "The column names in the nested predicted probabilities ",
         "do not match the class names in the dependent column."
@@ -153,7 +153,7 @@ evaluate_predictions_multinomial <- function(data,
       # Also calculates MCC and Overall Accuracy
       fcol_confusion_matrix <- tryCatch({
         call_confusion_matrix(
-          targets = fcol_data[[targets_col]],
+          targets = fcol_data[[target_col]],
           predictions = fcol_data[["predicted_class"]],
           c_levels = classes,
           metrics = metrics,
@@ -169,14 +169,14 @@ evaluate_predictions_multinomial <- function(data,
 
         # Extract and prepare probabilities
         fcol_probabilities <- as.data.frame(
-          dplyr::bind_rows(fcol_data[[predictions_col]])
+          dplyr::bind_rows(fcol_data[[prediction_col]])
         )
 
         # Calculate multiclass ROC
         roc <- pROC::multiclass.roc(
-          response = fcol_data[[targets_col]],
+          response = fcol_data[[target_col]],
           predictor = fcol_probabilities,
-          levels = cat_levels_in_targets_col
+          levels = cat_levels_in_target_col
         )
         fcol_confusion_matrix[["ROC"]] <- list(roc)
         fcol_confusion_matrix[["AUC"]] <- as.numeric(pROC::auc(roc))
@@ -194,9 +194,9 @@ evaluate_predictions_multinomial <- function(data,
     # will always return NULL
     predictions_nested <- nest_predictions(
       data = data,
-      predictions_col = predictions_col,
+      prediction_col = prediction_col,
       predicted_class_col = "predicted_class",
-      targets_col = targets_col,
+      target_col = target_col,
       model_was_null_col = model_was_null_col,
       type = "multinomial",
       id_col = id_col,
@@ -213,8 +213,8 @@ evaluate_predictions_multinomial <- function(data,
     local_tmp_predicted_probability_var <- create_tmp_name(data, "one_vs_all_predicted_probability")
     local_tmp_predicted_class_var <- create_tmp_name(data, "one_vs_all_predicted_class")
 
-    # Count how many times each class are in the targets_col
-    support <- create_support_object(data[[targets_col]])
+    # Count how many times each class are in the target_col
+    support <- create_support_object(data[[target_col]])
 
     # Find the metrics to calculate in one-vs-all
     one_vs_all_metrics <- setdiff(metrics, c("AUC", "Lower CI", "Upper CI", "MCC"))
@@ -226,7 +226,7 @@ evaluate_predictions_multinomial <- function(data,
       # Create temporary columns with
       # one-vs-all targets and predictions
       data[[local_tmp_target_var]] <- factor(
-        ifelse(data[[targets_col]] == classes[[cl]], 1, 0)
+        ifelse(data[[target_col]] == classes[[cl]], 1, 0)
       )
       data[[local_tmp_predicted_probability_var]] <- predicted_probabilities[[cl]]
       data[[local_tmp_predicted_class_var]] <- factor(
@@ -244,9 +244,9 @@ evaluate_predictions_multinomial <- function(data,
       # Perform binomial evaluation
       evaluate_predictions_binomial(
         data = data,
-        predictions_col = local_tmp_predicted_probability_var,
+        prediction_col = local_tmp_predicted_probability_var,
         predicted_class_col = local_tmp_predicted_class_var,
-        targets_col = local_tmp_target_var,
+        target_col = local_tmp_target_var,
         id_col=NULL,
         model_was_null_col = model_was_null_col,
         cat_levels = levels(factor(c(0, 1))),
@@ -422,7 +422,7 @@ evaluate_predictions_multinomial <- function(data,
     overall_results[["Process"]] <- list(
       process_info_multinomial(
         data = data,
-        targets_col = targets_col,
+        target_col = target_col,
         prediction_cols = classes,
         pred_class_col = "predicted_class",
         id_col = id_col,
@@ -463,7 +463,7 @@ argmax <- function(data) {
   purrr::pmap_dbl(data, .f = argmax_row)
 }
 
-# Counts how many times each class are in the targets_col
+# Counts how many times each class are in the target_col
 create_support_object <- function(targets) {
   support <- data.frame(table(targets), stringsAsFactors = F)
   colnames(support) <- c("Class", "Support")

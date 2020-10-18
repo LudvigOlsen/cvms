@@ -1,10 +1,24 @@
 
 # cvms 1.1.0.9000
 
+* Breaking change: * In `plot_confusion_matrix()`, the `targets_col` and `predictions_col` arguments have been renamed to `target_col` and `prediction_col` to be consistent with `evaluate()`.
+
+* Breaking change: * In `evaluate_residuals()`, the `targets_col` and `predictions_col` arguments have been renamed to `target_col` and `prediction_col` to be consistent with `evaluate()`.
+
+* Breaking change: * In `process_info_gaussian/binomial/multinomial()`, the `targets_col` argument have been renamed to `target_col` to be consistent with `evaluate()`.
+
 * In `binomial` `most_challenging()`, the probabilities are now properly of the second class alphabetically.
 
 * In `plot_confusion_matrix()`, adds argument `class_order` for manually setting the order of the classes
 in the facets.
+
+* In `plot_confusion_matrix()`, tiles with a count of `0` no longer has text in the tile by default.
+This adds the `rm_zero_percentages` (for column/row percentage) and `rm_zero_text` (for counts and normalized) arguments. 
+
+* In `plot_confusion_matrix()`, adds optional sum tiles. Enabling this (`add_sums = TRUE`) adds an extra column and
+an extra row with the sums. The corner tile contains the total count. This adds the `add_sums` and `sums_settings` arguments. A `sum_tile_settings()` function has been added to control the appearance of these tiles.
+
+* In `plot_confusion_matrix()`, adds option (`intensity_by`) to set the color intensity of the tiles to the overall percentages (`normalized`). 
 
 # cvms 1.1.0
 

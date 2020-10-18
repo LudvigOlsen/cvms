@@ -10,8 +10,8 @@ test_that("evaluate_residuals() have expected output", {
   # xpectr::gxs_function(fn = evaluate_residuals,
   #                      args_values = list(
   #                        data = list(df, dplyr::group_by(df, .data$grp), NA, 2, tibble::tibble()),
-  #                        predictions_col = list("p", "t", "k", NA, 2),
-  #                        targets_col = list("t", "p", "k", NA, 2),
+  #                        prediction_col = list("p", "t", "k", NA, 2),
+  #                        target_col = list("t", "p", "k", NA, 2),
   #                        metrics = list(list("all" = TRUE), 4, NA)
   #                      ), indentation = 2)
 
@@ -22,7 +22,7 @@ test_that("evaluate_residuals() have expected output", {
   # Testing evaluate_residuals(data = df, predictions_co...
   xpectr::set_test_seed(42)
   # Assigning output
-  output_11848 <- evaluate_residuals(data = df, predictions_col = "p", targets_col = "t", metrics = list(all = TRUE))
+  output_11848 <- evaluate_residuals(data = df, prediction_col = "p", target_col = "t", metrics = list(all = TRUE))
   # Testing class
   expect_equal(
     class(output_11848),
@@ -124,7 +124,7 @@ test_that("evaluate_residuals() have expected output", {
   # Changed from baseline: data = dplyr::group_b...
   xpectr::set_test_seed(42)
   # Assigning output
-  output_17023 <- evaluate_residuals(data = dplyr::group_by(df, .data$grp), predictions_col = "p", targets_col = "t", metrics = list(all = TRUE))
+  output_17023 <- evaluate_residuals(data = dplyr::group_by(df, .data$grp), prediction_col = "p", target_col = "t", metrics = list(all = TRUE))
   # Testing class
   expect_equal(
     class(output_17023),
@@ -231,7 +231,7 @@ test_that("evaluate_residuals() have expected output", {
   xpectr::set_test_seed(42)
   # Testing side effects
   # Assigning side effects
-  side_effects_15733 <- xpectr::capture_side_effects(evaluate_residuals(data = NA, predictions_col = "p", targets_col = "t", metrics = list(all = TRUE)), reset_seed = TRUE)
+  side_effects_15733 <- xpectr::capture_side_effects(evaluate_residuals(data = NA, prediction_col = "p", target_col = "t", metrics = list(all = TRUE)), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_15733[['error']]),
     xpectr::strip("1 assertions failed:\n * Variable 'data': Must be of type 'data.frame', not 'logical'."),
@@ -241,12 +241,12 @@ test_that("evaluate_residuals() have expected output", {
     xpectr::strip(c("simpleError", "error", "condition")),
     fixed = TRUE)
 
-  # Testing evaluate_residuals(data = 2, predictions_col...
+  # Testing evaluate_residuals(data = 2, prediction_col...
   # Changed from baseline: data = 2
   xpectr::set_test_seed(42)
   # Testing side effects
   # Assigning side effects
-  side_effects_11680 <- xpectr::capture_side_effects(evaluate_residuals(data = 2, predictions_col = "p", targets_col = "t", metrics = list(all = TRUE)), reset_seed = TRUE)
+  side_effects_11680 <- xpectr::capture_side_effects(evaluate_residuals(data = 2, prediction_col = "p", target_col = "t", metrics = list(all = TRUE)), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_11680[['error']]),
     xpectr::strip("1 assertions failed:\n * Variable 'data': Must be of type 'data.frame', not 'double'."),
@@ -261,7 +261,7 @@ test_that("evaluate_residuals() have expected output", {
   xpectr::set_test_seed(42)
   # Testing side effects
   # Assigning side effects
-  side_effects_19438 <- xpectr::capture_side_effects(evaluate_residuals(data = tibble::tibble(), predictions_col = "p", targets_col = "t", metrics = list(all = TRUE)), reset_seed = TRUE)
+  side_effects_19438 <- xpectr::capture_side_effects(evaluate_residuals(data = tibble::tibble(), prediction_col = "p", target_col = "t", metrics = list(all = TRUE)), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_19438[['error']]),
     xpectr::strip("1 assertions failed:\n * Variable 'data': Must have at least 1 rows, but has 0 rows."),
@@ -276,7 +276,7 @@ test_that("evaluate_residuals() have expected output", {
   xpectr::set_test_seed(42)
   # Testing side effects
   # Assigning side effects
-  side_effects_19434 <- xpectr::capture_side_effects(evaluate_residuals(data = NULL, predictions_col = "p", targets_col = "t", metrics = list(all = TRUE)), reset_seed = TRUE)
+  side_effects_19434 <- xpectr::capture_side_effects(evaluate_residuals(data = NULL, prediction_col = "p", target_col = "t", metrics = list(all = TRUE)), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_19434[['error']]),
     xpectr::strip("1 assertions failed:\n * Variable 'data': Must be of type 'data.frame', not 'NULL'."),
@@ -287,10 +287,10 @@ test_that("evaluate_residuals() have expected output", {
     fixed = TRUE)
 
   # Testing evaluate_residuals(data = df, predictions_co...
-  # Changed from baseline: predictions_col = "t"
+  # Changed from baseline: prediction_col = "t"
   xpectr::set_test_seed(42)
   # Assigning output
-  output_11291 <- evaluate_residuals(data = df, predictions_col = "t", targets_col = "t", metrics = list(all = TRUE))
+  output_11291 <- evaluate_residuals(data = df, prediction_col = "t", target_col = "t", metrics = list(all = TRUE))
   # Testing class
   expect_equal(
     class(output_11291),
@@ -389,11 +389,11 @@ test_that("evaluate_residuals() have expected output", {
     fixed = TRUE)
 
   # Testing evaluate_residuals(data = df, predictions_co...
-  # Changed from baseline: predictions_col = "k"
+  # Changed from baseline: prediction_col = "k"
   xpectr::set_test_seed(42)
   # Testing side effects
   # Assigning side effects
-  side_effects_18334 <- xpectr::capture_side_effects(evaluate_residuals(data = df, predictions_col = "k", targets_col = "t", metrics = list(all = TRUE)), reset_seed = TRUE)
+  side_effects_18334 <- xpectr::capture_side_effects(evaluate_residuals(data = df, prediction_col = "k", target_col = "t", metrics = list(all = TRUE)), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_18334[['error']]),
     xpectr::strip("Assertion on 'colnames(data)' failed: Must include the elements {k,t}."),
@@ -404,14 +404,14 @@ test_that("evaluate_residuals() have expected output", {
     fixed = TRUE)
 
   # Testing evaluate_residuals(data = df, predictions_co...
-  # Changed from baseline: predictions_col = NA
+  # Changed from baseline: prediction_col = NA
   xpectr::set_test_seed(42)
   # Testing side effects
   # Assigning side effects
-  side_effects_14680 <- xpectr::capture_side_effects(evaluate_residuals(data = df, predictions_col = NA, targets_col = "t", metrics = list(all = TRUE)), reset_seed = TRUE)
+  side_effects_14680 <- xpectr::capture_side_effects(evaluate_residuals(data = df, prediction_col = NA, target_col = "t", metrics = list(all = TRUE)), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_14680[['error']]),
-    xpectr::strip("1 assertions failed:\n * Variable 'predictions_col': May not be NA."),
+    xpectr::strip("1 assertions failed:\n * Variable 'prediction_col': May not be NA."),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_14680[['error_class']]),
@@ -419,14 +419,14 @@ test_that("evaluate_residuals() have expected output", {
     fixed = TRUE)
 
   # Testing evaluate_residuals(data = df, predictions_co...
-  # Changed from baseline: predictions_col = 2
+  # Changed from baseline: prediction_col = 2
   xpectr::set_test_seed(42)
   # Testing side effects
   # Assigning side effects
-  side_effects_15499 <- xpectr::capture_side_effects(evaluate_residuals(data = df, predictions_col = 2, targets_col = "t", metrics = list(all = TRUE)), reset_seed = TRUE)
+  side_effects_15499 <- xpectr::capture_side_effects(evaluate_residuals(data = df, prediction_col = 2, target_col = "t", metrics = list(all = TRUE)), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_15499[['error']]),
-    xpectr::strip("1 assertions failed:\n * Variable 'predictions_col': Must be of type 'string', not 'double'."),
+    xpectr::strip("1 assertions failed:\n * Variable 'prediction_col': Must be of type 'string', not 'double'."),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_15499[['error_class']]),
@@ -434,14 +434,14 @@ test_that("evaluate_residuals() have expected output", {
     fixed = TRUE)
 
   # Testing evaluate_residuals(data = df, predictions_co...
-  # Changed from baseline: predictions_col = NULL
+  # Changed from baseline: prediction_col = NULL
   xpectr::set_test_seed(42)
   # Testing side effects
   # Assigning side effects
-  side_effects_15526 <- xpectr::capture_side_effects(evaluate_residuals(data = df, predictions_col = NULL, targets_col = "t", metrics = list(all = TRUE)), reset_seed = TRUE)
+  side_effects_15526 <- xpectr::capture_side_effects(evaluate_residuals(data = df, prediction_col = NULL, target_col = "t", metrics = list(all = TRUE)), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_15526[['error']]),
-    xpectr::strip("1 assertions failed:\n * Variable 'predictions_col': Must be of type 'string', not 'NULL'."),
+    xpectr::strip("1 assertions failed:\n * Variable 'prediction_col': Must be of type 'string', not 'NULL'."),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_15526[['error_class']]),
@@ -449,11 +449,11 @@ test_that("evaluate_residuals() have expected output", {
     fixed = TRUE)
 
   # Testing evaluate_residuals(data = df, predictions_co...
-  # Changed from baseline: targets_col = "k"
+  # Changed from baseline: target_col = "k"
   xpectr::set_test_seed(42)
   # Testing side effects
   # Assigning side effects
-  side_effects_12388 <- xpectr::capture_side_effects(evaluate_residuals(data = df, predictions_col = "p", targets_col = "k", metrics = list(all = TRUE)), reset_seed = TRUE)
+  side_effects_12388 <- xpectr::capture_side_effects(evaluate_residuals(data = df, prediction_col = "p", target_col = "k", metrics = list(all = TRUE)), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_12388[['error']]),
     xpectr::strip("Assertion on 'colnames(data)' failed: Must include the elements {p,k}."),
@@ -464,14 +464,14 @@ test_that("evaluate_residuals() have expected output", {
     fixed = TRUE)
 
   # Testing evaluate_residuals(data = df, predictions_co...
-  # Changed from baseline: targets_col = NA
+  # Changed from baseline: target_col = NA
   xpectr::set_test_seed(42)
   # Testing side effects
   # Assigning side effects
-  side_effects_17605 <- xpectr::capture_side_effects(evaluate_residuals(data = df, predictions_col = "p", targets_col = NA, metrics = list(all = TRUE)), reset_seed = TRUE)
+  side_effects_17605 <- xpectr::capture_side_effects(evaluate_residuals(data = df, prediction_col = "p", target_col = NA, metrics = list(all = TRUE)), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_17605[['error']]),
-    xpectr::strip("1 assertions failed:\n * Variable 'targets_col': May not be NA."),
+    xpectr::strip("1 assertions failed:\n * Variable 'target_col': May not be NA."),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_17605[['error_class']]),
@@ -479,14 +479,14 @@ test_that("evaluate_residuals() have expected output", {
     fixed = TRUE)
 
   # Testing evaluate_residuals(data = df, predictions_co...
-  # Changed from baseline: targets_col = 2
+  # Changed from baseline: target_col = 2
   xpectr::set_test_seed(42)
   # Testing side effects
   # Assigning side effects
-  side_effects_11808 <- xpectr::capture_side_effects(evaluate_residuals(data = df, predictions_col = "p", targets_col = 2, metrics = list(all = TRUE)), reset_seed = TRUE)
+  side_effects_11808 <- xpectr::capture_side_effects(evaluate_residuals(data = df, prediction_col = "p", target_col = 2, metrics = list(all = TRUE)), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_11808[['error']]),
-    xpectr::strip("1 assertions failed:\n * Variable 'targets_col': Must be of type 'string', not 'double'."),
+    xpectr::strip("1 assertions failed:\n * Variable 'target_col': Must be of type 'string', not 'double'."),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_11808[['error_class']]),
@@ -494,10 +494,10 @@ test_that("evaluate_residuals() have expected output", {
     fixed = TRUE)
 
   # Testing evaluate_residuals(data = df, predictions_co...
-  # Changed from baseline: targets_col = "p"
+  # Changed from baseline: target_col = "p"
   xpectr::set_test_seed(42)
   # Assigning output
-  output_14052 <- evaluate_residuals(data = df, predictions_col = "p", targets_col = "p", metrics = list(all = TRUE))
+  output_14052 <- evaluate_residuals(data = df, prediction_col = "p", target_col = "p", metrics = list(all = TRUE))
   # Testing class
   expect_equal(
     class(output_14052),
@@ -596,14 +596,14 @@ test_that("evaluate_residuals() have expected output", {
     fixed = TRUE)
 
   # Testing evaluate_residuals(data = df, predictions_co...
-  # Changed from baseline: targets_col = NULL
+  # Changed from baseline: target_col = NULL
   xpectr::set_test_seed(42)
   # Testing side effects
   # Assigning side effects
-  side_effects_18535 <- xpectr::capture_side_effects(evaluate_residuals(data = df, predictions_col = "p", targets_col = NULL, metrics = list(all = TRUE)), reset_seed = TRUE)
+  side_effects_18535 <- xpectr::capture_side_effects(evaluate_residuals(data = df, prediction_col = "p", target_col = NULL, metrics = list(all = TRUE)), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_18535[['error']]),
-    xpectr::strip("1 assertions failed:\n * Variable 'targets_col': Must be of type 'string', not 'NULL'."),
+    xpectr::strip("1 assertions failed:\n * Variable 'target_col': Must be of type 'string', not 'NULL'."),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_18535[['error_class']]),
@@ -615,7 +615,7 @@ test_that("evaluate_residuals() have expected output", {
   xpectr::set_test_seed(42)
   # Testing side effects
   # Assigning side effects
-  side_effects_19763 <- xpectr::capture_side_effects(evaluate_residuals(data = df, predictions_col = "p", targets_col = "t", metrics = 4), reset_seed = TRUE)
+  side_effects_19763 <- xpectr::capture_side_effects(evaluate_residuals(data = df, prediction_col = "p", target_col = "t", metrics = 4), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_19763[['error']]),
     xpectr::strip("1 assertions failed:\n * Variable 'metrics': Must be of type 'list', not 'double'."),
@@ -630,7 +630,7 @@ test_that("evaluate_residuals() have expected output", {
   xpectr::set_test_seed(42)
   # Testing side effects
   # Assigning side effects
-  side_effects_12258 <- xpectr::capture_side_effects(evaluate_residuals(data = df, predictions_col = "p", targets_col = "t", metrics = NA), reset_seed = TRUE)
+  side_effects_12258 <- xpectr::capture_side_effects(evaluate_residuals(data = df, prediction_col = "p", target_col = "t", metrics = NA), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_12258[['error']]),
     xpectr::strip("1 assertions failed:\n * Variable 'metrics': Must be of type 'list', not 'logical'."),
@@ -645,7 +645,7 @@ test_that("evaluate_residuals() have expected output", {
   xpectr::set_test_seed(42)
   # Testing side effects
   # Assigning side effects
-  side_effects_14448 <- xpectr::capture_side_effects(evaluate_residuals(data = df, predictions_col = "p", targets_col = "t", metrics = NULL), reset_seed = TRUE)
+  side_effects_14448 <- xpectr::capture_side_effects(evaluate_residuals(data = df, prediction_col = "p", target_col = "t", metrics = NULL), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_14448[['error']]),
     xpectr::strip("1 assertions failed:\n * Variable 'metrics': Must be of type 'list', not 'NULL'."),
@@ -669,8 +669,8 @@ test_that("evaluate_residuals() have expected output", {
 
   ungrouped_res <- evaluate_residuals(
     data = df,
-    targets_col = "t",
-    predictions_col = "p",
+    target_col = "t",
+    prediction_col = "p",
     metrics = "all"
   )
 
@@ -698,8 +698,8 @@ test_that("evaluate_residuals() have expected output", {
 
   grouped_res <- evaluate_residuals(
     df %>% dplyr::group_by(grp),
-    targets_col = "t",
-    predictions_col = "p",
+    target_col = "t",
+    prediction_col = "p",
     metrics = "all"
   )
 
@@ -830,8 +830,8 @@ test_that("call_evaluate_residuals() creates NA results correcly", {
 
   expect_equal(
     call_evaluate_residuals(
-      data = df, targets_col = "t",
-      predictions_col = "p",
+      data = df, target_col = "t",
+      prediction_col = "p",
       metrics = c("RMSE", "MAE", "TSE", "NRMSE(RNG)", "NRMSE(IQR)"),
       return_nas = TRUE
     ),
@@ -841,8 +841,8 @@ test_that("call_evaluate_residuals() creates NA results correcly", {
   expect_equal(
     call_evaluate_residuals(
       data = df %>% dplyr::group_by(grp),
-      targets_col = "t",
-      predictions_col = "p",
+      target_col = "t",
+      prediction_col = "p",
       metrics = c("RMSE", "MAE", "TSE", "NRMSE(RNG)", "NRMSE(IQR)"),
       return_nas = TRUE
     ),

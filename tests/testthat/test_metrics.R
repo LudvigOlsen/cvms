@@ -812,7 +812,7 @@ test_that("evaluate_residuals() metrics work", {
   targets <- rnorm(100)
   preds <- rnorm(100)
   df <- data.frame(t = targets, p = preds)
-  results <- evaluate_residuals(df, predictions_col = "p", targets_col = "t", metrics = "all")
+  results <- evaluate_residuals(df, prediction_col = "p", target_col = "t", metrics = "all")
 
 
   ## Testing 'results'                                                      ####
@@ -1024,8 +1024,8 @@ test_that("evaluate_residuals() metrics work", {
   targets <- runif(100, min = 45, max = 97)
   preds <- runif(100, min = 54, max = 120)
   df <- data.frame(t = targets, p = preds)
-  results <- evaluate_residuals(df, predictions_col = "p",
-                                targets_col = "t", metrics = "all")
+  results <- evaluate_residuals(df, prediction_col = "p",
+                                target_col = "t", metrics = "all")
 
   # RMSE
   expect_equal(results$RMSE, rmse_(targets, preds), tolerance = 1e-3)

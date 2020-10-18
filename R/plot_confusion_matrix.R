@@ -38,8 +38,8 @@
 #'  \strong{Note}: If you supply the results from \code{\link[cvms:evaluate]{evaluate()}}
 #'  or \code{\link[cvms:confusion_matrix]{confusion_matrix()}} directly,
 #'  the confusion matrix \code{tibble} is extracted automatically, if possible.
-#' @param targets_col Name of column with target levels.
-#' @param predictions_col Name of column with prediction levels.
+#' @param target_col Name of column with target levels.
+#' @param prediction_col Name of column with prediction levels.
 #' @param counts_col Name of column with a count for each combination
 #'  of the target and prediction levels.
 #' @param class_order Names of the classes in \code{`conf_matrix`} in the desired order.
@@ -219,8 +219,8 @@
 #'   ggplot2::labs(x = "True", y = "Guess")
 #' }
 plot_confusion_matrix <- function(conf_matrix,
-                                  targets_col = "Target",
-                                  predictions_col = "Prediction",
+                                  target_col = "Target",
+                                  prediction_col = "Prediction",
                                   counts_col = "N",
                                   class_order = NULL,
                                   add_sums = FALSE,
@@ -273,8 +273,8 @@ plot_confusion_matrix <- function(conf_matrix,
     add = assert_collection
   )
   # String
-  checkmate::assert_string(x = targets_col, min.chars = 1, add = assert_collection)
-  checkmate::assert_string(x = predictions_col, min.chars = 1, add = assert_collection)
+  checkmate::assert_string(x = target_col, min.chars = 1, add = assert_collection)
+  checkmate::assert_string(x = prediction_col, min.chars = 1, add = assert_collection)
   checkmate::assert_string(x = counts_col, min.chars = 1, add = assert_collection)
   checkmate::assert_string(x = tile_border_linetype, na.ok = TRUE, add = assert_collection)
   checkmate::assert_string(x = tile_border_color, na.ok = TRUE, add = assert_collection)
@@ -317,7 +317,7 @@ plot_confusion_matrix <- function(conf_matrix,
   # Names
   checkmate::assert_names(
     x = colnames(conf_matrix),
-    must.include = c(targets_col, predictions_col, counts_col),
+    must.include = c(target_col, prediction_col, counts_col),
     add = assert_collection
   )
   available_font_settings <- names(font())
@@ -348,14 +348,14 @@ plot_confusion_matrix <- function(conf_matrix,
   )
 
   if (!is.null(class_order)){
-    classes_in_data <- unique(conf_matrix[[targets_col]])
+    classes_in_data <- unique(conf_matrix[[target_col]])
     if (length(classes_in_data) != length(class_order) ||
         length(setdiff(classes_in_data, class_order)) != 0){
       assert_collection$push(
         "when 'class_order' is specified, it must contain the same levels as 'conf_matrix'.")
     }
   } else {
-    class_order <- sort(unique(conf_matrix[[targets_col]]))
+    class_order <- sort(unique(conf_matrix[[target_col]]))
   }
 
   if (!is.null(sums_settings[["palette"]]) &&
@@ -471,8 +471,8 @@ plot_confusion_matrix <- function(conf_matrix,
 
   # Extract needed columns
   cm <- tibble::tibble(
-    "Target" = factor(as.character(conf_matrix[[targets_col]]), levels = class_order),
-    "Prediction" = factor(as.character(conf_matrix[[predictions_col]]), levels = class_order),
+    "Target" = factor(as.character(conf_matrix[[target_col]]), levels = class_order),
+    "Prediction" = factor(as.character(conf_matrix[[prediction_col]]), levels = class_order),
     "N" = as.integer(conf_matrix[[counts_col]])
   )
   cm <- calculate_normalized(cm)

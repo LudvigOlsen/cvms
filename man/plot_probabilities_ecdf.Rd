@@ -51,6 +51,8 @@ plot_probabilities_ecdf(
  As created with the various validation functions in \code{cvms}, like
  \code{\link[cvms:cross_validate_fn]{cross_validate_fn()}}.}
 
+\item{target_col}{Name of column with target levels.}
+
 \item{probability_cols}{Name of columns with predicted probabilities.
 
  For \strong{binary} classification, this should be \strong{one column} with the probability of the

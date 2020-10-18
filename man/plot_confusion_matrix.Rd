@@ -6,8 +6,8 @@
 \usage{
 plot_confusion_matrix(
   conf_matrix,
-  targets_col = "Target",
-  predictions_col = "Prediction",
+  target_col = "Target",
+  prediction_col = "Prediction",
   counts_col = "N",
   class_order = NULL,
   add_sums = FALSE,
@@ -61,9 +61,9 @@ targets and predictions along with their counts.
  or \code{\link[cvms:confusion_matrix]{confusion_matrix()}} directly,
  the confusion matrix \code{tibble} is extracted automatically, if possible.}
 
-\item{targets_col}{Name of column with target levels.}
+\item{target_col}{Name of column with target levels.}
 
-\item{predictions_col}{Name of column with prediction levels.}
+\item{prediction_col}{Name of column with prediction levels.}
 
 \item{counts_col}{Name of column with a count for each combination
 of the target and prediction levels.}

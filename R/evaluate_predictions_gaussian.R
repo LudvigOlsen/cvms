@@ -1,6 +1,6 @@
 evaluate_predictions_gaussian <- function(data,
-                                          predictions_col,
-                                          targets_col,
+                                          prediction_col,
+                                          target_col,
                                           model_was_null_col,
                                           id_col,
                                           id_method,
@@ -29,8 +29,8 @@ evaluate_predictions_gaussian <- function(data,
   # will always return NULL
   predictions_nested <- nest_predictions(
     data = data,
-    predictions_col = predictions_col,
-    targets_col = targets_col,
+    prediction_col = prediction_col,
+    target_col = target_col,
     model_was_null_col = model_was_null_col,
     type = "gaussian",
     id_col = id_col,
@@ -53,8 +53,8 @@ evaluate_predictions_gaussian <- function(data,
   # Calculate residual errors
   results_per_fold <- call_evaluate_residuals(
     data = data,
-    targets_col = targets_col,
-    predictions_col = predictions_col,
+    target_col = target_col,
+    prediction_col = prediction_col,
     metrics = metrics,
     return_nas = any(data[[model_was_null_col]])
   )
@@ -128,8 +128,8 @@ evaluate_predictions_gaussian <- function(data,
   avg_results[["Process"]] <- list(
     process_info_gaussian(
       data = data,
-      targets_col = targets_col,
-      prediction_cols = predictions_col,
+      target_col = target_col,
+      prediction_cols = prediction_col,
       id_col = model_specifics[["for_process"]][["id_col"]]
     )
   )

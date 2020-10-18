@@ -14,7 +14,7 @@
 \usage{
 process_info_binomial(
   data,
-  targets_col,
+  target_col,
   prediction_cols,
   id_col,
   cat_levels,
@@ -29,7 +29,7 @@ process_info_binomial(
 
 process_info_multinomial(
   data,
-  targets_col,
+  target_col,
   prediction_cols,
   pred_class_col,
   id_col,
@@ -42,13 +42,7 @@ process_info_multinomial(
 
 \method{as.character}{process_info_multinomial}(x, ...)
 
-process_info_gaussian(
-  data,
-  targets_col,
-  prediction_cols,
-  id_col,
-  locale = NULL
-)
+process_info_gaussian(data, target_col, prediction_cols, id_col, locale = NULL)
 
 \method{print}{process_info_gaussian}(x, ...)
 
@@ -57,7 +51,7 @@ process_info_gaussian(
 \arguments{
 \item{data}{Data frame.}
 
-\item{targets_col}{Name of target column.}
+\item{target_col}{Name of target column.}
 
 \item{prediction_cols}{Names of prediction columns.}
 

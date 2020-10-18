@@ -108,8 +108,8 @@ We can now plot it with `plot_confusion_matrix()`:
 
 ```{r}
 plot_confusion_matrix(cfm, 
-                      targets_col = "target", 
-                      predictions_col = "prediction",
+                      target_col = "target", 
+                      prediction_col = "prediction",
                       counts_col = "n")
 ```
 

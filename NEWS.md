@@ -1,4 +1,6 @@
 
+# cvms 1.2.0.9000
+
 # cvms 1.2.0
 
 * Breaking change: In `plot_confusion_matrix()`, the `targets_col` and `predictions_col` arguments have been renamed to `target_col` and `prediction_col` to be consistent with `evaluate()`.

@@ -10,15 +10,19 @@ plot_confusion_matrix(
   predictions_col = "Prediction",
   counts_col = "N",
   class_order = NULL,
+  add_sums = FALSE,
   add_counts = TRUE,
   add_normalized = TRUE,
   add_row_percentages = TRUE,
   add_col_percentages = TRUE,
   diag_percentages_only = FALSE,
-  add_arrows = TRUE,
+  rm_zero_percentages = TRUE,
+  rm_zero_text = TRUE,
   add_zero_shading = TRUE,
+  add_arrows = TRUE,
   counts_on_top = FALSE,
   palette = "Blues",
+  intensity_by = "counts",
   theme_fn = ggplot2::theme_minimal,
   place_x_axis_above = TRUE,
   rotate_y_text = TRUE,
@@ -32,6 +36,7 @@ plot_confusion_matrix(
   tile_border_color = NA,
   tile_border_size = 0.1,
   tile_border_linetype = "solid",
+  sums_settings = sum_tile_settings(),
   darkness = 0.8
 )
 }
@@ -66,6 +71,12 @@ of the target and prediction levels.}
 \item{class_order}{Names of the classes in \code{`conf_matrix`} in the desired order.
 When \code{NULL}, the classes are ordered alphabetically.}
 
+\item{add_sums}{Add tiles with the row/column sums. Also adds a total count tile. (Logical)
+
+ The appearance of these tiles can be specified in \code{`sums_settings`}.
+
+ Note: Adding the sum tiles with a palette requires the \code{ggnewscale} package.}
+
 \item{add_counts}{Add the counts to the middle of the tiles. (Logical)}
 
 \item{add_normalized}{Normalize the counts to percentages and
@@ -83,23 +94,31 @@ add to the middle of the tiles. (Logical)}
 
 \item{diag_percentages_only}{Whether to only have row and column percentages in the diagonal tiles. (Logical)}
 
-\item{add_arrows}{Add the arrows to the row and col percentages. (Logical)
+\item{rm_zero_percentages}{Whether to remove row and column percentages when the count is \code{0}. (Logical)}
 
- Note: Adding the arrows requires the \code{rsvg} and \code{ggimage} packages.}
+\item{rm_zero_text}{Whether to remove counts and normalized percentages when the count is \code{0}. (Logical)}
 
 \item{add_zero_shading}{Add image of skewed lines to zero-tiles. (Logical)
 
  Note: Adding the zero-shading requires the \code{rsvg} and \code{ggimage} packages.}
 
+\item{add_arrows}{Add the arrows to the row and col percentages. (Logical)
+
+ Note: Adding the arrows requires the \code{rsvg} and \code{ggimage} packages.}
+
 \item{counts_on_top}{Switch the counts and normalized counts,
 such that the counts are on top. (Logical)}
 
-\item{palette}{Color scheme. Passed directly to \code{palette} in
+\item{palette}{Color scheme. Passed directly to \code{`palette`} in
  \code{\link[ggplot2:scale_fill_distiller]{ggplot2::scale_fill_distiller}}.
 
  Try these palettes: \code{"Greens"}, \code{"Oranges"},
  \code{"Greys"}, \code{"Purples"}, \code{"Reds"},
  as well as the default \code{"Blues"}.}
+
+\item{intensity_by}{The measure that should control the color intensity of the tiles.
+Either \code{`counts`} or \code{`normalized`}. For the latter, the color limits become
+\code{0-100}, why the intensities can better be compared across plots.}
 
 \item{theme_fn}{The \code{ggplot2} theme function to apply.}
 
@@ -133,14 +152,17 @@ Can be provided with \code{\link[cvms:font]{font()}}.}
 
 \item{arrow_nudge_from_text}{Distance from the percentage text to the arrow. (Numeric)}
 
-\item{tile_border_color}{Color of the tile borders. Passed as \emph{\code{colour}} to
+\item{tile_border_color}{Color of the tile borders. Passed as \emph{\code{`colour`}} to
 \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.}
 
-\item{tile_border_size}{Size of the tile borders. Passed as \emph{\code{size}} to
+\item{tile_border_size}{Size of the tile borders. Passed as \emph{\code{`size`}} to
 \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.}
 
-\item{tile_border_linetype}{Linetype for the tile borders. Passed as \emph{\code{linetype}} to
+\item{tile_border_linetype}{Linetype for the tile borders. Passed as \emph{\code{`linetype`}} to
 \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.}
+
+\item{sums_settings}{A list of settings for the appearance of the sum tiles.
+Can be provided with \code{\link[cvms:sum_tile_settings]{sum_tile_settings()}}.}
 
 \item{darkness}{How dark the darkest colors should be, between \code{0} and \code{1}, where \code{1} is darkest.
 
@@ -148,7 +170,8 @@ Can be provided with \code{\link[cvms:font]{font()}}.}
  \code{\link[ggplot2:scale_fill_distiller]{ggplot2::scale_fill_distiller}}.}
 }
 \value{
-A \code{ggplot2} object representing a confusion matrix. Color intensity depends on the counts.
+A \code{ggplot2} object representing a confusion matrix.
+ Color intensity depends on either the counts (default) or the overall percentages.
 
  By default, each tile has the normalized count
  (overall percentage) and count in the middle, the
@@ -163,9 +186,13 @@ A \code{ggplot2} object representing a confusion matrix. Color intensity depends
 \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
 
  Creates a \code{\link[ggplot2:ggplot]{ggplot2}} object representing a confusion matrix with counts,
- overall percentages, row percentages and column percentages.
+ overall percentages, row percentages and column percentages. An extra row and column with sum tiles and the
+ total count can be added.
 
  The confusion matrix can be created with \code{\link[cvms:evaluate]{evaluate()}}. See \code{`Examples`}.
+
+ While this function is intended to be very flexible (hence the large number of arguments),
+ the defaults should work in most cases for most users. See the \code{Examples}.
 }
 \details{
 Inspired by Antoine Sachet's answer at https://stackoverflow.com/a/53612391/11832955
@@ -180,10 +207,10 @@ library(ggplot2)
 
 # Create targets and predictions data frame
 data <- data.frame(
-  "target" = c("A", "B", "A", "B", "A", "B",
-               "A", "B", "A", "B", "A", "B"),
-  "prediction" = c("B", "B", "A", "A", "A", "B",
-                   "B", "B", "A", "B", "A", "A"),
+  "target" = c("A", "B", "A", "B", "A", "B", "A", "B",
+               "A", "B", "A", "B", "A", "B", "A", "A"),
+  "prediction" = c("B", "B", "A", "A", "A", "B", "B", "B",
+                   "B", "B", "A", "B", "A", "A", "A", "A"),
   stringsAsFactors = FALSE
 )
 
@@ -203,6 +230,9 @@ eval[["Confusion Matrix"]][[1]]
 plot_confusion_matrix(eval[["Confusion Matrix"]][[1]])
 # Plot first confusion matrix in evaluate() output
 plot_confusion_matrix(eval)
+
+# Add sum tiles
+plot_confusion_matrix(eval, add_sums = TRUE)
 
 # Three (or more) classes
 
@@ -232,6 +262,9 @@ plot_confusion_matrix(eval[["Confusion Matrix"]][[1]])
 # Plot first confusion matrix in evaluate() output
 plot_confusion_matrix(eval)
 
+# Add sum tiles
+plot_confusion_matrix(eval, add_sums = TRUE)
+
 # Counts only
 plot_confusion_matrix(
   eval[["Confusion Matrix"]][[1]],
@@ -260,7 +293,8 @@ Other plotting functions:
 \code{\link{font}()},
 \code{\link{plot_metric_density}()},
 \code{\link{plot_probabilities_ecdf}()},
-\code{\link{plot_probabilities}()}
+\code{\link{plot_probabilities}()},
+\code{\link{sum_tile_settings}()}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

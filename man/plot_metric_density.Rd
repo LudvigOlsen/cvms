@@ -97,7 +97,8 @@ Other plotting functions:
 \code{\link{font}()},
 \code{\link{plot_confusion_matrix}()},
 \code{\link{plot_probabilities_ecdf}()},
-\code{\link{plot_probabilities}()}
+\code{\link{plot_probabilities}()},
+\code{\link{sum_tile_settings}()}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

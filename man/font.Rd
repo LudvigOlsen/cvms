@@ -31,6 +31,9 @@ font(
 
 \item{suffix}{A string suffix.}
 }
+\value{
+List of settings.
+}
 \description{
 \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
 
@@ -43,7 +46,8 @@ Other plotting functions:
 \code{\link{plot_confusion_matrix}()},
 \code{\link{plot_metric_density}()},
 \code{\link{plot_probabilities_ecdf}()},
-\code{\link{plot_probabilities}()}
+\code{\link{plot_probabilities}()},
+\code{\link{sum_tile_settings}()}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

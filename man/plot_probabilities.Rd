@@ -318,7 +318,8 @@ Other plotting functions:
 \code{\link{font}()},
 \code{\link{plot_confusion_matrix}()},
 \code{\link{plot_metric_density}()},
-\code{\link{plot_probabilities_ecdf}()}
+\code{\link{plot_probabilities_ecdf}()},
+\code{\link{sum_tile_settings}()}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

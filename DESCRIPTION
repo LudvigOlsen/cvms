@@ -47,6 +47,7 @@ Suggests:
     e1071 (>= 1.7-2),
     furrr,
     ggimage (>= 0.2.8),
+    ggnewscale (>= 0.4.3),
     groupdata2 (>= 1.3.0),
     knitr,
     nnet (>= 7.3-12),

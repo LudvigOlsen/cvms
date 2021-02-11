@@ -1,6 +1,8 @@
 
 # cvms 1.2.0.9000
 
+* Fixes bug in `plot_confusion_matrix()`, where tiles with a count > 0 but a rounded percentage of 0 did not have the percentage text. Only tiles with a count of 0 should now be without text.
+
 # cvms 1.2.0
 
 * Breaking change: In `plot_confusion_matrix()`, the `targets_col` and `predictions_col` arguments have been renamed to `target_col` and `prediction_col` to be consistent with `evaluate()`.

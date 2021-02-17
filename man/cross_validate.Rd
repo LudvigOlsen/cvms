@@ -26,7 +26,7 @@ cross_validate(
 \arguments{
 \item{data}{\code{data.frame}.
 
- Must include grouping factor for identifying folds
+ Must include one or more grouping factors for identifying folds
   - as made with \code{\link[groupdata2:fold]{groupdata2::fold()}}.}
 
 \item{formulas}{Model formulas as strings. (Character)

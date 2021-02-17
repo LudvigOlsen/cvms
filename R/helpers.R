@@ -308,12 +308,12 @@ create_folds_map <- function(data, fold_cols) {
     tibble::enframe(name = "fold_col", value = "num_folds")
 
   # Create ranges
-  first_start <- folds_map$num_folds[[1]]
   folds_map <- folds_map %>%
     dplyr::mutate(
       end_ = cumsum(.data$num_folds),
-      start_ = .data$end_ - (first_start - 1)
+      start_ = rearrr::roll_elements_vec(end_, n=-1) + 1
     )
+  folds_map[1, "start_"] <- 1
 
   # Calculate number of folds
   n_folds <- sum(folds_map$num_folds)
@@ -321,11 +321,12 @@ create_folds_map <- function(data, fold_cols) {
   # Expand ranges to long format
   folds_map_expanded <-
     plyr::ldply(seq_len(length(fold_cols)), function(fold_column) {
+      current_fold_map <- folds_map[fold_column,] %>% unlist()
       data.frame(
         "fold_col_idx" = fold_column,
         "fold_col_name" = factor(fold_cols[[fold_column]]),
-        abs_fold = c(folds_map[["start_"]][[fold_column]]:folds_map[["end_"]][[fold_column]]),
-        rel_fold = c(1:folds_map[["num_folds"]][[fold_column]]),
+        abs_fold = current_fold_map[["start_"]]:current_fold_map[["end_"]],
+        rel_fold = seq_len(current_fold_map[["num_folds"]]),
         stringsAsFactors = FALSE
       )
     }) %>% dplyr::as_tibble()

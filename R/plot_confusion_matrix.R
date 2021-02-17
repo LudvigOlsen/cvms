@@ -479,7 +479,12 @@ plot_confusion_matrix <- function(conf_matrix,
 
   # Prepare text versions of the numerics
   cm[["N_text"]] <- preprocess_numeric(cm[["N"]], font_counts, rm_zero_text = rm_zero_text)
-  cm[["Normalized_text"]] <- preprocess_numeric(cm[["Normalized"]], font_normalized, rm_zero_text = rm_zero_text)
+  cm[["Normalized_text"]] <- preprocess_numeric(
+    cm[["Normalized"]],
+    font_normalized,
+    rm_zero_text = rm_zero_text,
+    rm_zeroes_post_rounding = FALSE # Only remove where N==0
+  )
 
   # Set color intensity metric
   cm <- set_intensity(cm, intensity_by)

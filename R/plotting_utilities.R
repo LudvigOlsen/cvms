@@ -86,14 +86,25 @@ update_font_setting <- function(settings, defaults, initial_vals = NULL) {
   )
 }
 
-preprocess_numeric <- function(vec, settings, rm_zero_text=FALSE) {
+preprocess_numeric <- function(vec, settings, rm_zero_text=FALSE, rm_zeroes_post_rounding=TRUE) {
+
+  # Find the pre-rounding 0s
+  is_zero <- vec == 0
+
   # Don't round if digits is negative
   if (settings[["digits"]] >= 0) {
     vec <- round(vec, settings[["digits"]])
   }
   out <- paste0(settings[["prefix"]], vec, settings[["suffix"]])
+
+  # Remove text for zeroes
+  # Potentially including elements zero after rounding
   if (isTRUE(rm_zero_text)){
-    out[vec == 0] <- ""
+    if (isTRUE(rm_zeroes_post_rounding)){
+      out[vec == 0] <- ""
+    } else {
+      out[is_zero] <- ""
+    }
   }
   out
 }

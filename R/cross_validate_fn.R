@@ -210,7 +210,7 @@
 #'  \subsection{Shared across families}{
 #'
 #'  A nested \code{tibble} with \strong{coefficients} of the models from all iterations. The coefficients
-#'  are extracted from the model object with \code{\link[broom:tidy]{broom::tidy()}} or
+#'  are extracted from the model object with \code{\link[parameters:model_parameters]{parameters::model_parameters()}} or
 #'  \code{\link[stats:coef]{coef()}} (with some restrictions on the output).
 #'  If these attempts fail, a default coefficients \code{tibble} filled with \code{NA}s is returned.
 #'

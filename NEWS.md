@@ -1,6 +1,8 @@
 
 # cvms 1.2.1.9000
 
+* In order to reduce number of dependencies, the package relies on tidiers from `parameters`, instead of `broom` and `broom.mixed`.
+
 # cvms 1.2.1
 
 * Fixes bug in `plot_confusion_matrix()`, where tiles with a count > 0 but a rounded percentage of 0 did not have the percentage text. Only tiles with a count of 0 should now be without text.

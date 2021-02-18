@@ -2,7 +2,7 @@
 # fold_info contains the fold and fold column for each model
 get_nested_model_coefficients <- function(model,
                                           # The datasets need to be available in the
-                                          # environment when using broom::tidy
+                                          # environment when using parameters::model_parameters
                                           train_data = NULL,
                                           test_data = NULL,
                                           fold_info = NULL,
@@ -31,10 +31,13 @@ get_nested_model_coefficients <- function(model,
 
   coefs_tidy <- tryCatch(
     {
-      broom.mixed::tidy(model, effects = c("fixed")) # Custom tidy methods?
+      # Custom tidy methods?
+      parameters::model_parameters(model) %>%
+        parameters::standardize_names(style = "broom") %>%
+        tibble::as_tibble()
     },
     error = function(e) {
-      # If broom::tidy wasn't implemented for the model type
+      # If parameters::model_parameters wasn't implemented for the model type
       # let's grab the coefficients manually if possible
 
       if (grepl("Error: No tidy method for objects of class",

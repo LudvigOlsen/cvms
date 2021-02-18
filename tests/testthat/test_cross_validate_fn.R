@@ -916,9 +916,12 @@ test_that("gaussian svm models with hparams and preprocessing work with cross_va
     )
   }
 
-  # broom::tidy(svm_model_fn(train_data = dat, formula = as.formula("score~diagnosis", train_data = NULL),
-  #              hyperparameters = list(
-  #                "kernel" = "linear", "cost" = 10)))
+  # parameters::model_parameters(
+  #   svm_model_fn(train_data = dat, formula = as.formula("score~diagnosis", train_data = NULL),
+  #              hyperparameters = list("kernel" = "linear", "cost" = 10))) %>%
+  #   parameters::standardize_names(style = "broom") %>%
+  #   tibble::as_tibble()
+
 
   svm_predict_fn <- function(test_data, model, formula, hyperparameters, train_data = NULL) {
     warning("This is a predict_fn warning")
@@ -1425,7 +1428,7 @@ test_that("gaussian nnet models work with cross_validate_fn()", {
     colnames(CVed$Coefficients[[1]]),
     c(
       "Fold Column", "Fold", "term",
-      "estimate", "p.value"
+      "estimate", "std.error" ,  "statistic", "p.value"
     )
   )
   expect_equal(

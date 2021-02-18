@@ -97,7 +97,7 @@ basic_table <- table(d_binomial)
 basic_table
 ```
 
-In order to plot it with `ggplot2`, we convert it to a data frame with `broom::tidy()`:
+In order to plot it with `ggplot2`, we convert it to a data frame with `parameters::model_parameters()`:
 
 ```{r}
 cfm <- tidy(basic_table)

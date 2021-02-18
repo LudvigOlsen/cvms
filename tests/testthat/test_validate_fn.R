@@ -862,23 +862,18 @@ test_that("fuzz testing validate_fn()", {
   # Assigning side effects
   side_effects_16417 <- xpectr::capture_side_effects(validate_fn(train_data = dat_ready, formulas = "diagnosis~score+(1|session)", type = "binomial", model_fn = glm_model_fn, predict_fn = glm_predict_fn, test_data = NULL, preprocess_fn = glm_preprocess_fn, preprocess_once = FALSE, hyperparameters = hparams, partitions_col = ".partitions", cutoff = 0.5, positive = 2, metrics = list(all = FALSE, Accuracy = TRUE, Sensitivity = TRUE), rm_nc = FALSE, parallel = FALSE, verbose = FALSE), reset_seed = TRUE)
 
-  # for xpectr::strip(side_effects_16417[['warnings']]), I see
-  # c("validatefn prediction from a rankdeficient fit may be misleadingForFormula diagnosisscore1sessionFold column partitionsFold 2",
-  #   "Model matrix is rank deficient Parameters 1 sessionTRUE were not estimable",
-  #   "validatefn prediction from a rankdeficient fit may be misleadingForFormula diagnosisscore1sessionFold column partitionsFold 2",
-  #   "Model matrix is rank deficient Parameters 1 sessionTRUE were not estimable",
-  #   "validatefn prediction from a rankdeficient fit may be misleadingForFormula diagnosisscore1sessionFold column partitionsFold 2",
-  #   "Model matrix is rank deficient Parameters 1 sessionTRUE were not estimable",
-  #   "validatefn prediction from a rankdeficient fit may be misleadingForFormula diagnosisscore1sessionFold column partitionsFold 2",
-  #   "Model matrix is rank deficient Parameters 1 sessionTRUE were not estimable"
-  # )
 
   expect_equal(
     xpectr::strip(side_effects_16417[['warnings']]),
-    xpectr::strip(c("---\nvalidate_fn(): prediction from a rank-deficient fit may be misleading\nFor:\nFormula: diagnosis~score+(1|session)\nFold column: .partitions\nFold: 2\n",
-      "---\nvalidate_fn(): prediction from a rank-deficient fit may be misleading\nFor:\nFormula: diagnosis~score+(1|session)\nFold column: .partitions\nFold: 2\n",
-      "---\nvalidate_fn(): prediction from a rank-deficient fit may be misleading\nFor:\nFormula: diagnosis~score+(1|session)\nFold column: .partitions\nFold: 2\n",
-      "---\nvalidate_fn(): prediction from a rank-deficient fit may be misleading\nFor:\nFormula: diagnosis~score+(1|session)\nFold column: .partitions\nFold: 2\n")),
+    xpectr::strip(c("validatefn prediction from a rankdeficient fit may be misleadingForFormula diagnosisscore1sessionFold column partitionsFold 2",
+                      "Model matrix is rank deficient Parameters 1 sessionTRUE were not estimable",
+                      "validatefn prediction from a rankdeficient fit may be misleadingForFormula diagnosisscore1sessionFold column partitionsFold 2",
+                      "Model matrix is rank deficient Parameters 1 sessionTRUE were not estimable",
+                      "validatefn prediction from a rankdeficient fit may be misleadingForFormula diagnosisscore1sessionFold column partitionsFold 2",
+                      "Model matrix is rank deficient Parameters 1 sessionTRUE were not estimable",
+                      "validatefn prediction from a rankdeficient fit may be misleadingForFormula diagnosisscore1sessionFold column partitionsFold 2",
+                      "Model matrix is rank deficient Parameters 1 sessionTRUE were not estimable"
+    )),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_16417[['messages']]),

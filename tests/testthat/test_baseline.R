@@ -1168,8 +1168,6 @@ test_that("gaussian evaluations of random effects models are correct in baseline
     )
   )
   expect_equal(all_coeffs$Repetition, 1:10)
-  # `parameters::model_parameters` returns only fixed effects anyway
-  # expect_equal(all_coeffs$effect, rep("fixed", 10))
   expect_equal(all_coeffs$estimate,
     c(
       29.4482246187172, 34.039741354335, 40.9321844272457, 29.7091048995076,

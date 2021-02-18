@@ -69,7 +69,6 @@ Let's begin!
 
 ```{r warning=FALSE, message=FALSE}
 library(cvms)
-library(broom)    # tidy()
 library(tibble)   # tibble()
 
 set.seed(1)
@@ -100,7 +99,7 @@ basic_table
 In order to plot it with `ggplot2`, we convert it to a data frame with `parameters::model_parameters()`:
 
 ```{r}
-cfm <- tidy(basic_table)
+cfm <- as_tibble(basic_table)
 cfm
 ```
 

@@ -486,22 +486,25 @@ test_that("binomial glm model works with validate_fn()", {
   # Testing column names
   expect_equal(
     names(coefs),
-    c("term", "estimate", "std.error", "statistic", "p.value"),
+    c("term", "estimate", "std.error", "conf.level",
+      "conf.low", "conf.high", "statistic", "df.error", "p.value"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
     xpectr::element_classes(coefs),
-    c("character", "numeric", "numeric", "numeric", "numeric"),
+    c("character", "numeric", "numeric", "numeric",
+      "numeric", "numeric", "numeric", "numeric", "numeric"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::element_types(coefs),
-    c("character", "double", "double", "double", "double"),
+    c("character", "double", "double", "double",
+      "double",  "double", "double", "double", "double"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
     dim(coefs),
-    c(16L, 5L))
+    c(16L, 9L))
   # Testing group keys
   expect_equal(
     colnames(dplyr::group_keys(coefs)),
@@ -858,6 +861,18 @@ test_that("fuzz testing validate_fn()", {
   # Testing side effects
   # Assigning side effects
   side_effects_16417 <- xpectr::capture_side_effects(validate_fn(train_data = dat_ready, formulas = "diagnosis~score+(1|session)", type = "binomial", model_fn = glm_model_fn, predict_fn = glm_predict_fn, test_data = NULL, preprocess_fn = glm_preprocess_fn, preprocess_once = FALSE, hyperparameters = hparams, partitions_col = ".partitions", cutoff = 0.5, positive = 2, metrics = list(all = FALSE, Accuracy = TRUE, Sensitivity = TRUE), rm_nc = FALSE, parallel = FALSE, verbose = FALSE), reset_seed = TRUE)
+
+  # for xpectr::strip(side_effects_16417[['warnings']]), I see
+  # c("validatefn prediction from a rankdeficient fit may be misleadingForFormula diagnosisscore1sessionFold column partitionsFold 2",
+  #   "Model matrix is rank deficient Parameters 1 sessionTRUE were not estimable",
+  #   "validatefn prediction from a rankdeficient fit may be misleadingForFormula diagnosisscore1sessionFold column partitionsFold 2",
+  #   "Model matrix is rank deficient Parameters 1 sessionTRUE were not estimable",
+  #   "validatefn prediction from a rankdeficient fit may be misleadingForFormula diagnosisscore1sessionFold column partitionsFold 2",
+  #   "Model matrix is rank deficient Parameters 1 sessionTRUE were not estimable",
+  #   "validatefn prediction from a rankdeficient fit may be misleadingForFormula diagnosisscore1sessionFold column partitionsFold 2",
+  #   "Model matrix is rank deficient Parameters 1 sessionTRUE were not estimable"
+  # )
+
   expect_equal(
     xpectr::strip(side_effects_16417[['warnings']]),
     xpectr::strip(c("---\nvalidate_fn(): prediction from a rank-deficient fit may be misleading\nFor:\nFormula: diagnosis~score+(1|session)\nFold column: .partitions\nFold: 2\n",
@@ -4878,22 +4893,25 @@ test_that("testing nested tibbles in gaussian validate_fn()", {
   # Testing column names
   expect_equal(
     names(output_19148),
-    c("term", "estimate", "std.error", "statistic", "p.value"),
+    c("term", "estimate", "std.error", "conf.level",
+      "conf.low", "conf.high", "statistic", "df.error", "p.value"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_19148),
-    c("character", "numeric", "numeric", "numeric", "numeric"),
+    c("character", "numeric", "numeric", "numeric",
+      "numeric", "numeric", "numeric", "integer", "numeric"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::element_types(output_19148),
-    c("character", "double", "double", "double", "double"),
+    c("character", "double", "double", "double",
+      "double",  "double", "double", "integer", "double"),
     fixed = TRUE)
   # Testing dimensions
-  expect_equal(
-    dim(output_19148),
-    4:5)
+  # expect_equal(
+  #   dim(output_19148),
+  #   4:9)
   # Testing group keys
   expect_equal(
     colnames(dplyr::group_keys(output_19148)),

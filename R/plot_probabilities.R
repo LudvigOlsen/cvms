@@ -855,8 +855,7 @@ add_id_aggregates <- function(data, group_col, obs_id_col, of_col, prob_of_col,
   } else if (order == "ascending") {
     arrange_fn <- function(data, col){dplyr::arrange(data, !!as.name(col), .by_group = TRUE)}
   } else if (order == "centered") {
-    stop("Not yet implemented.")
-    #arrange_fn <- function(data, col){rearrr::center_max(data = data, col = col)}
+    arrange_fn <- function(data, col){rearrr::center_max(data = data, col = col)}
   } else if (order == "identity") {
     arrange_fn <- function(data, col){data %>% dplyr::ungroup()}
   }
@@ -917,15 +916,4 @@ add_id_aggregates <- function(data, group_col, obs_id_col, of_col, prob_of_col,
 
   data
 }
-
-# # TODO Is this a reasonable approach to calculating CIs?
-# Naaaaaaah doesn't seem so. Not without a lot more data points at least
-# calc_lower_ci <- function(vec, level = .95){
-#   quantile(vec, probs = 1-(level)/2)
-# }
-#
-# calc_upper_ci <- function(vec, level = .95){
-#   quantile(vec, probs = 1-(1-level)/2)
-# }
-#
 

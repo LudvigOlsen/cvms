@@ -858,7 +858,10 @@ test_that("gaussian svm models from e1071 work with cross_validate_fn()", {
 
   expect_equal(
     colnames(CVed$Coefficients[[1]]),
-    c("Fold Column", "Fold", "term", "estimate", "p.value")
+    c(
+      "Fold Column", "Fold", "term",
+      "estimate", "std.error" ,  "statistic", "p.value"
+    )
   )
   expect_equal(
     CVed$Coefficients[[1]]$term,

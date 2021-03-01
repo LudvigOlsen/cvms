@@ -40,10 +40,7 @@ get_nested_model_coefficients <- function(model,
       # If parameters::model_parameters wasn't implemented for the model type
       # let's grab the coefficients manually if possible
 
-      if (grepl("Error: No tidy method for objects of class",
-        as.character(e),
-        ignore.case = TRUE
-      )) {
+      if (grepl("error", as.character(e), ignore.case = TRUE)) {
         # Try to extract coefficients
         coefs <- tryCatch(
           {

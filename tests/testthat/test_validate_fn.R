@@ -2181,8 +2181,10 @@ test_that("fuzz testing gaussian lm model with validate_fn()",{
   expect_equal(
     xpectr::strip(side_effects_15190[['warnings']]),
     xpectr::strip(
-      c("---\nvalidate_fn(): prediction from a rank-deficient fit may be misleading\nFor:\nFormula: score ~ diagnosis + (1|session)\nFold column: .partitions\nFold: 2\n",
-        "---\nvalidate_fn(): prediction from a rank-deficient fit may be misleading\nFor:\nFormula: score ~ diagnosis + (1|session)\nFold column: .partitions\nFold: 2\n"
+      c("validatefn prediction from a rankdeficient fit may be misleadingForFormula score diagnosis 1sessionFold column partitionsFold 2",
+        "Model matrix is rank deficient Parameters 1 sessionTRUE were not estimable",
+        "validatefn prediction from a rankdeficient fit may be misleadingForFormula score diagnosis 1sessionFold column partitionsFold 2",
+        "Model matrix is rank deficient Parameters 1 sessionTRUE were not estimable"
       )),
     fixed = TRUE)
   expect_equal(

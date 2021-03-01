@@ -1,7 +1,9 @@
 
 # cvms 1.2.1.9000
 
-* In order to reduce number of dependencies, the package relies on tidiers from `parameters`, instead of `broom` and `broom.mixed`.
+* In order to reduce dependencies, model coefficients are now tidied with the `parameters` package instead of `broom` and `broom.mixed`. Thanks to @IndrajeetPatil for the contributions.
+
+* In `cross_validate()` and `cross_validate_fn()`, fold columns can now have a varying number of folds in repeated cross-validation. Struggling to choose a number of folds? Average over multiple settings.
 
 # cvms 1.2.1
 

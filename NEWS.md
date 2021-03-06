@@ -1,5 +1,5 @@
 
-# cvms 1.2.1.9000
+# cvms 1.2.2
 
 * In `cross_validate()` and `cross_validate_fn()`, fold columns can now have a varying number of folds in repeated cross-validation. Struggling to choose a number of folds? Average over multiple settings.
 

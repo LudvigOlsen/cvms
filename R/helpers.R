@@ -311,7 +311,7 @@ create_folds_map <- function(data, fold_cols) {
   folds_map <- folds_map %>%
     dplyr::mutate(
       end_ = cumsum(.data$num_folds),
-      start_ = rearrr::roll_elements_vec(end_, n=-1) + 1
+      start_ = rearrr::roll_elements_vec(.data$end_, n=-1) + 1
     )
   folds_map[1, "start_"] <- 1
 

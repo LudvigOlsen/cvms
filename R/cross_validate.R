@@ -39,6 +39,8 @@
 #'  with \code{\link[stats:lm]{lm()}} / \code{\link[lme4:lmer]{lme4::lmer()}}
 #'  and \strong{\code{"binomial"}} for binary classification
 #'  with \code{\link[stats:glm]{glm()}} / \code{\link[lme4:glmer]{lme4::glmer()}}.
+#'
+#'  See \code{\link[cvms:cross_validate_fn]{cross_validate_fn()}} for use with other model functions.
 #' @param control Construct control structures for mixed model fitting
 #'  (with \code{\link[lme4:lmer]{lme4::lmer()}} or \code{\link[lme4:glmer]{lme4::glmer()}}).
 #'  See \code{\link[lme4:lmerControl]{lme4::lmerControl}} and
@@ -364,6 +366,15 @@ cross_validate <- function(
     )
     verbose <- model_verbose
   }
+
+  # This function does not accept 'multinomial'
+  checkmate::assert_choice(
+    x = family,
+    choices = c(
+      "gaussian",
+      "binomial"
+    )
+  )
 
   call_cross_validate(
     data = data,

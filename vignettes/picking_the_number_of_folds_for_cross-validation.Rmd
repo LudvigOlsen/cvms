@@ -1,0 +1,549 @@
+---
+title: "Multiple-k: Picking the number of folds for cross-validation"
+author: 
+  - "Ludvig Renbo Olsen"
+date: "`r Sys.Date()`"
+abstract: |
+  In this vignette, we try different numbers of folds in cross-validation and assess the differences.
+  To make our results robust to this choice, we average the results of different settings.
+  The functions of interest are `cross_validate_fn()` and `groupdata2::fold()`.
+  &nbsp;  
+  &nbsp;  
+  Contact the author at r-pkgs@ludvigolsen.dk
+  &nbsp;  
+  &nbsp;  
+  
+output: 
+  rmarkdown::html_vignette:
+    css: 
+    - !expr system.file("rmarkdown/templates/html_vignette/resources/vignette.css", package = "rmarkdown")
+    - styles.css
+    fig_width: 6
+    fig_height: 4
+    toc: yes
+    number_sections: no
+  rmarkdown::pdf_document:
+    highlight: tango
+    number_sections: yes
+    toc: yes
+    toc_depth: 4
+vignette: >
+  %\VignetteIndexEntry{picking_the_number_of_folds_for_cross-validation}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/vignette_pick_k-",
+  dpi = 92,
+  fig.retina = 2
+)
+```
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+rerun_analysis <- FALSE
+save_analysis <- FALSE
+
+if (isTRUE(rerun_analysis)){
+  library(doParallel)
+  doParallel::registerDoParallel(6)
+}
+```
+
+
+# Introduction
+
+When performing cross-validation, it is common to use 10 folds. Why? It is the common thing to do of course!
+Not 9 or 11, but 10, and sometimes 5, and sometimes n-1 folds (i.e. leave-one-out cross-validation). 
+
+While having a standard setting means one less thing to worry about, let's spend a few minutes discussing this choice. Whether it is reasonable comes down to the context of course, but here are some general thoughts on the topic.
+
+A higher `k` (number of folds) means that each model is trained on a larger training set and tested on a smaller test fold. In theory, this should lead to a *lower* prediction error as the models see more of the available data. 
+
+A lower `k` instead means that the model is trained on a smaller training set and tested on a larger test fold. Here, the potential for the data distribution in the test fold to differ from the training set is bigger, and we should thus expect a *higher* prediction error *on average*.
+
+In the plot below, some generated data has been split into 10 and 3 folds respectively. When `k=3`, a single fold with a highly different distribution from the other two folds can have a big impact on the prediction error. When `k=10`, a few of the folds differ greatly as well, but on average, the model will be closer to the model that overall reduces the prediction error the most.
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+
+library(cvms)
+library(dplyr)
+library(ggplot2)
+library(groupdata2)
+
+generate_data <- function(num_points = 35, seed = 3) {
+  xpectr::set_test_seed(seed)
+  intuition_df <- data.frame("x" = runif(num_points))
+  intuition_df <- intuition_df %>%
+    dplyr::mutate(
+      y = 1.5 * rnorm(num_points) * runif(num_points) + 1.2 * x + 1.5 * x ^ 2 + 2.8 * x ^ 3) %>%
+    groupdata2::fold(k = c(3, 10), num_fold_cols = 2) %>%
+    dplyr::mutate(`k = 3` = as.character(.folds_1),
+                  `k = 10` = as.character(.folds_2)) %>%
+    tidyr::gather(key = "Fold Column", value = "Fold", 5:6) %>%
+    dplyr::mutate(Fold = factor(Fold))
+  
+  intuition_cv <- cross_validate(
+    intuition_df,
+    formulas = "y ~ x",
+    family = "gaussian",
+    fold_cols = paste0(".folds_", 1:2)
+  )$Results[[1]] %>%
+    dplyr::group_by(`Fold Column`) %>%
+    dplyr::summarise(RMSE = mean(RMSE),
+                     MAE = mean(MAE))
+
+  list(intuition_df, intuition_cv)
+}
+
+# Largest difference at: 2
+# for (i in 1:100){
+#   out <- generate_data(num_points=35, seed=i)  
+#   print(i)
+#   print(out[[2]])
+# }
+
+out <- generate_data(num_points=35, seed=2)  
+res <- out[[2]]
+res[["Fold Column"]] <- c("k = 3", "k = 10")
+res[["RMSE"]] <- paste0("RMSE: ", round(res[["RMSE"]], digits = 3))
+  
+out[[1]] %>% 
+  ggplot(aes(x=x, y=y, color = Fold)) + 
+  geom_point() +
+  stat_smooth(method = "lm", se = FALSE, alpha=0.5, size=0.3) +
+  facet_wrap(`Fold Column` ~ .) + 
+  geom_text(data=res, aes(label = RMSE, color = NULL),x=0.75, y=-1) +
+  theme_minimal() +
+  labs(caption = paste0(
+    "Generated data split into 10 and 3 folds respectively.",
+    "\nLines are optimal linear models for each fold.",
+    "\nRMSE (Root Mean Square Error) is for a cross-validated linear model (higher is worse).",
+    "\nIn k=3, the third fold differs from the others, impacting the prediction negatively.",
+    "\nIn k=10, most folds are similar and the two 'outlier' folds don't impact the average error too much."
+    )
+  )
+
+```
+
+Note that it took me many tries to find the right random seed that made my point the most clear for this example, so don't expect this picture to be the case always.
+
+If we run this random generation of data 100 times, cross-validate a linear model (`y ~ x`) on each dataset, and then average the RMSE (Root Mean Square Error) and MAE (Mean Absolute Error) from the cross-validations, we get the following results:
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+if (isTRUE(rerun_analysis)){
+  bootstrapped <- plyr::ldply(1:100, function(i) generate_data(num_points=35, seed=i)[[2]])
+  bootstrapped <- bootstrapped %>% 
+    dplyr::mutate(`Fold Column` = dplyr::case_when(
+      `Fold Column` == ".folds_1" ~ "k = 3",
+      `Fold Column` == ".folds_2" ~ "k = 10",
+      TRUE ~ `Fold Column`
+    ))
+  if (isTRUE(save_analysis)){
+    save(bootstrapped, file="inst/vignette_data/bootstrapped_cv_picking_k.rda")      
+  }
+} else {
+  bootstrapped_file_path <- cvms:::get_vignette_data_path("bootstrapped_cv_picking_k.rda")
+  load(bootstrapped_file_path)
+}
+
+bootstrapped %>% 
+  dplyr::group_by(`Fold Column`) %>% 
+  dplyr::summarise_all(mean)
+  
+```
+
+This supports, that (*on average*) the prediction error should be lower with a larger `k`. Let's see a boxplot of the simulations as well:
+
+```{r  echo=FALSE, warning=FALSE, message=FALSE}
+bootstrapped %>% 
+  ggplot(aes(x = `Fold Column`, y=RMSE)) +
+  geom_boxplot() + 
+  theme_minimal()
+
+```
+
+So... Why not always use the highest possible number of folds? 
+
+A higher number of folds means training a lot more models, which can be computationally heavy and time-consuming. So finding a lower `k` that yields a similar prediction error most of the time, can be very useful. For the rest of this vignette, we won't go in-depth with such limited-resources scenarios though.
+
+## Does it matter?
+
+We might consider whether this even matters? If the goal of our cross-validation is to compare a set of models and then choose the best one, what matters the most is whether the same model would be picked with different settings of `k`. But how can we make sure that the same model is selected without trying multiple settings? And if it is not, which result do we choose (without cherry-picking)?
+
+An approach to minimizing the effect of `k` on our model selection could be to to run the cross-validation with multiple `k`s and then average the results. In general, repeated cross-validation is a great choice when possible, as it is more robust to the random fold splits. In the next section, we will run repeated cross-validation with different `k` settings and plot the results.
+
+# Multiple-k repeated cross-validation
+
+Our goal here is two-fold: 
+
+1) Try multiple values of `k` (different numbers of folds) and see the effect on the prediction error.
+
+2) Repeat each scenario multiple times to get more robust results.
+
+Whereas the previous section used a regression example (continuous y-variable), we will now perform multiclass classification on the `iris` dataset. This fairly well-known dataset has three species of iris flowers with 50 flowers from each. 
+
+First, we attach the needed packages and set a random seed:
+
+```{r warning=FALSE, message=FALSE}
+library(cvms)  # version >= 1.2.2 
+library(groupdata2)  # version >= 1.4.1
+library(dplyr)
+library(ggplot2)
+
+xpectr::set_test_seed(1)
+```
+
+As the fold creation and cross-validation will take some time to run, we can enable parallelization to speed up the processes:
+
+```{r eval=FALSE}
+# Enable parallelization
+library(doParallel)
+doParallel::registerDoParallel(6)
+
+```
+
+Now, we load the data and convert it to a `tibble`:
+
+```{r}
+# Load iris
+data("iris")
+
+# Convert iris to a tibble
+iris <- dplyr::as_tibble(iris)
+iris
+```
+
+Let's quickly count the rows per species, to ensure everything is in order:
+
+```{r}
+iris %>% 
+  dplyr::count(Species)
+
+```
+
+## Creating folds
+
+When creating the folds, we would like to balance them such that the distribution of the species are similar in all the folds. In `groupdata2::fold()`, this is possible with the `cat_col` argument. This also ensures that there's at least 1 of each species in each fold. By using it, our maximum number of folds becomes 50. The lowest number of folds we can *meaningfully* generate is technically 2, but that seems unlikely in practice, so we will set our lower limit at 3 (arbitrary yes, but I get to choose here!). We pick 10 `k`s in that range using the `seq()` function. To make it repeated cross-validation, we then repeat each of the settings 3 times: 
+
+```{r}
+# Generate sequence of `k` settings in the 3-50 range
+fold_counts <- round(seq(from = 3, to = 50, length.out = 10))
+# Repeat each 3 times
+fold_counts <- rep(fold_counts, each = 3) 
+
+fold_counts
+
+```
+
+We pass this sequence of counts to the `k` argument in `groupdata2::fold()`. We must also set the `num_fold_cols` argument to match the length of our sequence. As explained previously, we set `cat_col = "Species"` to ensure a balanced distribution of the species in all folds. Finally, we enable parallelization to speed up things:
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+if (isTRUE(rerun_analysis)){
+  data <- iris %>% 
+    groupdata2::fold(
+      k = fold_counts, 
+      cat_col = "Species", 
+      num_fold_cols = length(fold_counts),  # Must match the length of `k` 
+      parallel = TRUE
+    )
+  if (isTRUE(save_analysis)){
+    save(data, file="inst/vignette_data/folded_iris_picking_k.rda")      
+  }
+} else {
+  data_file_path <- cvms:::get_vignette_data_path("folded_iris_picking_k.rda")
+  load(data_file_path)
+}
+
+```
+
+```{r eval=FALSE}
+data <- iris %>% 
+  groupdata2::fold(
+    k = fold_counts, 
+    cat_col = "Species", 
+    num_fold_cols = length(fold_counts),  # Must match the length of `k` 
+    parallel = TRUE
+  )
+
+```
+
+```{r}
+data
+```
+
+We see that the `.folds_*` columns have been added with the fold identifiers. We will need the names of the generated fold columns in a second, so here's my favorite approach to generating them, using `paste0()`:
+
+```{r}
+# Quick way to generate the names of the fold columns
+fold_columns <- paste0(".folds_", seq_along(fold_counts))
+fold_columns
+```
+
+`groupdata2` has the tool `summarize_group_cols()` for inspecting the generated fold columns (and factors in general). We can use this to assure ourselves that the right number of folds were created in each of the fold columns:
+
+```{r}
+fold_stats <- groupdata2::summarize_group_cols(
+    data = data,
+    group_cols = fold_columns
+  ) %>% 
+  rename(`Fold Column` = `Group Column`)
+
+# View fold column statistics
+# We only look at one fold column per `k` setting
+fold_stats %>% 
+  dplyr::group_by(`Num Groups`) %>% 
+  dplyr::filter(dplyr::row_number() == 1) %>% 
+  knitr::kable()
+```
+
+## Performing cross-validation
+
+We will use the `e1071::svm()` Support Vector Machine model function. To use this with `cross_validate_fn()`, we can use the included `model_fn` and `predict_fn` functions. We also specify the `kernel` and `cost` hyperparameters. 
+
+For more elaborate examples of `cross_validate_fn()`, see [here](cross_validating_custom.html).
+
+```{r}
+# To use the e1071::svm() model function
+# we specify the model and predict functions
+model_fn <- cvms::model_functions("svm_multinomial")
+predict_fn <- cvms::predict_functions("svm_multinomial")
+
+# Specify hyperparameters
+hyperparameters <- list('kernel' = 'radial', 'cost' = 10)
+```
+
+We define an (arbitrary) set of formulas to cross-validate:
+
+```{r}
+formulas <- c(
+  "Species ~ Sepal.Length + Sepal.Width",
+  "Species ~ Petal.Length + Petal.Width",
+  "Species ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width",
+  "Species ~ Sepal.Length * Sepal.Width + Petal.Length * Petal.Width"
+)
+```
+
+Now, we are ready to run the cross-validation! We pass our data, formulas, functions, hyperparameters and fold column names to `cross_validate_fn()` and specify that the type of task is multiclass classification (i.e. `multinomial`). We also enable parallelization.
+
+NOTE: This number of fold columns and formulas requires fitting *3180* model instances. That can take a few minutes to run, depending on your computer. Unfortunately, I have not found a way to include a progress bar when running in parallel, but that is definitely on the wish list!
+
+```{r echo=FALSE}
+if (isTRUE(rerun_analysis)){
+  cv <- cross_validate_fn(
+    data = data,
+    formulas = formulas,
+    type = "multinomial",
+    model_fn = model_fn,
+    predict_fn = predict_fn,
+    hyperparameters = hyperparameters,
+    fold_cols = fold_columns,
+    parallel = TRUE
+  )
+  if (isTRUE(save_analysis)){
+    save(cv, file="inst/vignette_data/cv_iris_picking_k.rda")      
+  }
+} else {
+  cv_file_path <- cvms:::get_vignette_data_path("cv_iris_picking_k.rda")
+  load(cv_file_path)
+}
+```
+
+```{r eval=FALSE}
+cv <- cross_validate_fn(
+  data = data,
+  formulas = formulas,
+  type = "multinomial",
+  model_fn = model_fn,
+  predict_fn = predict_fn,
+  hyperparameters = hyperparameters,
+  fold_cols = fold_columns,
+  parallel = TRUE
+)
+
+```
+
+```{r}
+cv
+
+```
+
+Above, we see the averaged results from all the fold columns. The last model formula seems to have performed the best as it has the highest `Overall Accuracy`, `Balanced Accuracy`, `F1`, and so on. If what we wanted to do, was to average the results with different settings of `k` (to make our evaluation more robust to that choice), we could stop now. Instead, we will have a look at the results from the different settings of `k`. 
+
+## Inspecting the effect of `k` 
+
+There's a list of nested tibbles (data frame) in the cross-validation output called `Results`. This has the results from each fold column. Let's extract it and format it a bit.
+
+Note: In regression tasks, the `Results` tibbles would have the results from *each fold*, for each fold column, but in classification we gather the predictions from all folds within a fold column, before evaluation.
+
+```{r}
+# Extract the fold column results
+# This is a list of data frames (one per formula)
+fold_column_results <- cv$Results
+```
+
+As this is currently a list of tibbles (one for each formula), we first name it by the model formulas and then combine the tibbles to a single data frame with `dplyr::bind_rows()`.
+
+```{r}
+# Set names of each data frame to its respective formula
+names(fold_column_results) <- cv$Fixed
+
+# Combine the data frames
+# Create a Formula column from the names
+fold_column_results <- fold_column_results %>% 
+  dplyr::bind_rows(.id = "Formula")
+```
+
+We now have a single tibble where a new column (`Formula`) specifies what model the results came from. When plotting, the full model formula strings are a bit long though, so let's convert them to something shorter:
+
+```{r}
+# Make the formula string prettier for plotting
+# Sepal -> S; Petal -> P; Width -> W; Length -> L
+fold_column_results <- fold_column_results %>% 
+  dplyr::mutate(
+    Formula = gsub(
+      x = Formula,
+      pattern = "[^SPWL+*]",
+      replacement = ""
+    )
+  )
+```
+
+This leaves us with the following data frame:
+
+```{r}
+fold_column_results
+
+```
+
+Currently, we lack the number of folds for each of the fold columns. We have those stored in the fold column statistics we looked at in the beginning (`fold_stats`), so let's add them with `dplyr::left_join()`:
+
+```{r}
+# Select the `Num Groups` column and rename to `Num Folds`
+fold_counts_df <- fold_stats %>% 
+  dplyr::select(`Fold Column`, `Num Groups`) %>% 
+  dplyr::rename(`Num Folds` = `Num Groups`)
+
+# Add the counts with a join
+fold_column_results <- fold_counts_df %>% 
+  dplyr::left_join(fold_column_results, by = "Fold Column")
+
+fold_column_results
+
+```
+
+We further add a column for telling us which repetition of the `k` setting, we're in. This is done with the `l_starts` method in `groupdata2::group()`, which automatically starts a new group every time the value of a column changes. So `c(".folds_1", ".folds_1", ".folds_2", ".folds_2")` would give `c(1, 1, 2, 2)`. As we group the data frame by the number of folds, these group indices start over for each setting of `k`. Note though, that this assumes that the `Fold Column` is sorted correctly. We should also remember to remove the grouping in the end, if we don't need it in the following step.
+
+```{r message=FALSE, warning=FALSE}
+# Add a column for indicating the repetition of the `k` setting
+fold_column_results <- fold_column_results %>% 
+  dplyr::group_by(`Num Folds`) %>% 
+  groupdata2::group(n = 'auto',
+                    method = 'l_starts',
+                    starts_col = "Fold Column",
+                    col_name = "Repetition") %>% 
+  dplyr::ungroup()
+
+# Inspect the columns relevant to this
+fold_column_results %>% 
+  dplyr::select(`Fold Column`, `Num Folds`, Formula, Repetition) %>% 
+  head(20) %>% 
+  knitr::kable()
+```
+
+To plot the average lines for each formula, we calculate the average `Balanced Accuracy` for each formula, for each number of folds:
+
+```{r}
+avg_balanced_acc <- fold_column_results %>%
+  dplyr::group_by(`Num Folds`, Formula) %>%
+  dplyr::summarise(`Balanced Accuracy` = mean(`Balanced Accuracy`))
+
+avg_balanced_acc
+```
+
+With the data all ready, we will plot the effect of `k` on the `Balanced Accuracy` metric. Feel free to plot one of the other metrics as well!
+
+```{r}
+# Plot the balanced accuracy by the number of folds
+# We add jitter to the points to separate overlapping points slightly
+fold_column_results %>% 
+  ggplot(aes(x = `Num Folds`, y = `Balanced Accuracy`, 
+             color = Formula)) +
+  geom_point(aes(shape = Repetition), size = 1,
+             position = position_jitter(h = 0.0, w = 0.6)) + 
+  geom_line(data = avg_balanced_acc) +
+  theme_minimal()
+
+```
+
+For this dataset, the ranking of the models seems somewhat stable, although the `PL+PW` and `SL+SW+PL+PW` models are so close that there's no guarantee it wouldn't switch their ranking at times. The variation in the three points at each `k` setting (for each formula), shows why repeated cross-validation is a good idea when possible. Without it, the random split can have a much bigger effect on the results (and potentially model ranking). By relying on the average of `k` settings and repetitions, our results are more robust to fluctuations in the results.
+
+If you don't want to run all these models always (e.g. in production), running this analysis at the beginning (and perhaps once in a while, in case of data drift) might help you check whether the choice of `k` makes a difference with your type of data.
+
+### Class level results
+
+Finally, let's have a look at the **class level** fold column results. These are from one-vs-all evaluations. The cross-validation output has a nested tibble called `Class Level Results`, which further has a nested tibble (`Results`) with the fold column results. That's a lot of nested tibbles, I know... :-)
+
+We extract the results for the best model (`Sepal.Length * Sepal.Width + Petal.Length * Petal.Width`):
+
+```{r}
+# Extract class level fold column results for the best model
+# It is a list of tibbles (one for each species) 
+# so we concatenate them to a single tibble with bind_rows()
+class_level_fold_results <- cv$`Class Level Results`[[4]]$Results %>% 
+  dplyr::bind_rows()
+
+# Add the Num Folds counts
+class_level_fold_results <- fold_counts_df %>% 
+  dplyr::left_join(class_level_fold_results, by = "Fold Column")
+
+class_level_fold_results
+
+```
+
+Again, we add the repetition column, using the `l_starts` method in `groupdata2::group()`.
+
+```{r}
+# Add a column for indicating the repetition of the `k` setting
+class_level_fold_results <- class_level_fold_results %>% 
+  dplyr::group_by(`Num Folds`) %>% 
+  groupdata2::group(n = 'auto',
+                    method = 'l_starts',
+                    starts_col = "Fold Column",
+                    col_name = "Repetition") %>% 
+  dplyr::ungroup()
+
+# Inspect the columns relevant to this
+class_level_fold_results %>% 
+  dplyr::select(`Fold Column`, `Num Folds`, Class, Repetition)
+```
+
+To plot the average lines for each formula, we calculate the average `Balanced Accuracy` for each class, for each number of folds:
+
+```{r}
+class_level_avg_balanced_acc <- class_level_fold_results %>%
+  dplyr::group_by(`Num Folds`, Class) %>%
+  dplyr::summarise(`Balanced Accuracy` = mean(`Balanced Accuracy`))
+
+class_level_avg_balanced_acc
+```
+
+We plot the `Balanced Accuracy` by the number of folds:
+
+```{r}
+# Plot the balanced accuracy by the number of folds
+# We add jitter to the points to separate overlapping points slightly
+class_level_fold_results  %>% 
+  ggplot(aes(x = `Num Folds`, y = `Balanced Accuracy`, 
+             color = Class)) +
+  geom_point(aes(shape = Repetition), size = 1, 
+             position = position_jitter(h = 0.0, w = 0.6)) + 
+  geom_line(data = class_level_avg_balanced_acc) +
+  theme_minimal()
+
+```
+

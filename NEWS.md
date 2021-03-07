@@ -3,6 +3,10 @@
 
 * In `cross_validate()` and `cross_validate_fn()`, fold columns can now have a varying number of folds in repeated cross-validation. Struggling to choose a number of folds? Average over multiple settings.
 
+* In the `Class Level Results` in multinomial evaluations, the nested `Confusion Matrix` and `Results` tibbles are now named with their class to ease extraction and further work with these tibbles. The `Results` tibble further gets a `Class` column. This information might be redundant, but might make life easier.
+
+* Adds vignette: `Multiple-k: Picking the number of folds for cross-validation`. Feedback would be great!
+
 # cvms 1.2.1
 
 * Fixes bug in `plot_confusion_matrix()`, where tiles with a count > 0 but a rounded percentage of 0 did not have the percentage text. Only tiles with a count of 0 should now be without text.

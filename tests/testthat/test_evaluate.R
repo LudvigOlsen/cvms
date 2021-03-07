@@ -2428,7 +2428,7 @@ test_that("specific multinomial predictions yield correct results in evaluate()"
     evals$`Class Level Results`[[1]]$`Confusion Matrix`[[1]],
     structure(list(
       .groups = c(1L, 1L, 1L, 1L),
-      Class = c(1L, 1L, 1L, 1L),
+      Class = c("1", "1", "1", "1"),
       Prediction = c("0", "1", "0", "1"),
       Target = c("0", "0", "1", "1"),
       Pos_0 = c("TP", "FN", "FP", "TN"),
@@ -4185,9 +4185,10 @@ test_that("evaluate() and confusion_matrix() has same metric values", {
     type = "multinomial",
     metrics = "all")
 
-  cfm_multinom <- confusion_matrix(df_multinom$target,
-                                df_multinom$prediction,
-                                metrics = "all")
+  cfm_multinom <- confusion_matrix(
+    df_multinom$target,
+    df_multinom$prediction,
+    metrics = "all")
 
   # same order of metrics
   shared_cols <- intersect(colnames(eval_multinom), colnames(cfm_multinom))
@@ -6444,8 +6445,7 @@ test_that("testing 2-class multinomial evaluation works", {
   # Testing column values
   expect_equal(
     output_19148[["Class"]],
-    c(1, 1, 1, 1),
-    tolerance = 1e-4)
+    c("class_1", "class_1", "class_1", "class_1"))
   expect_equal(
     output_19148[["Prediction"]],
     c("0", "1", "0", "1"),
@@ -6474,13 +6474,13 @@ test_that("testing 2-class multinomial evaluation works", {
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_19148),
-    c("integer", "character", "character", "character", "character",
+    c("character", "character", "character", "character", "character",
       "integer"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::element_types(output_19148),
-    c("integer", "character", "character", "character", "character",
+    c("character", "character", "character", "character", "character",
       "integer"),
     fixed = TRUE)
   # Testing dimensions

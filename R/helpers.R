@@ -1012,3 +1012,15 @@ is_dplyr_1 <- function() {
   v$major >= 1 || (v$minor == 8 && v$patch == 99 && v$dev >= 9003)
 }
 
+
+#   __________________ #< c81899b8b0c5f3ca7b82357ec5cc52d2 ># __________________
+#   Get vignette data                                                       ####
+
+get_vignette_data_path <- function(file_name, inst_dir = "vignette_data", pgk_name = "cvms") {
+  dir_path <- system.file(inst_dir, package = pgk_name)
+  file_path <- paste0(dir_path, "/", file_name)
+  if (file.exists(file_path))
+    return(file_path)
+  warning(paste0("Could not find file: ", file_path))
+  invisible()
+}

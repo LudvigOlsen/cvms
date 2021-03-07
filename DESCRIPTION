@@ -49,7 +49,7 @@ Suggests:
     furrr,
     ggimage (>= 0.2.8),
     ggnewscale (>= 0.4.3),
-    groupdata2 (>= 1.3.0),
+    groupdata2 (>= 1.4.1),
     knitr,
     nnet (>= 7.3-12),
     randomForest (>= 4.6-14),

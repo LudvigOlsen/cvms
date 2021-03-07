@@ -49,8 +49,9 @@ rerun_analysis <- FALSE
 save_analysis <- FALSE
 
 if (isTRUE(rerun_analysis)){
-  library(doParallel)
-  doParallel::registerDoParallel(6)
+  # Uncomment temporarily!!
+  # library(doParallel)
+  # doParallel::registerDoParallel(6)
 }
 ```
 
@@ -69,7 +70,6 @@ A lower `k` instead means that the model is trained on a smaller training set an
 In the plot below, some generated data has been split into 10 and 3 folds respectively. When `k=3`, a single fold with a highly different distribution from the other two folds can have a big impact on the prediction error. When `k=10`, a few of the folds differ greatly as well, but on average, the model will be closer to the model that overall reduces the prediction error the most.
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
-
 library(cvms)
 library(dplyr)
 library(ggplot2)
@@ -202,8 +202,9 @@ As the fold creation and cross-validation will take some time to run, we can ena
 
 ```{r eval=FALSE}
 # Enable parallelization
-library(doParallel)
-doParallel::registerDoParallel(6)
+# NOTE: Uncomment to run
+# library(doParallel)
+# doParallel::registerDoParallel(6)
 
 ```
 

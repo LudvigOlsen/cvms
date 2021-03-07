@@ -42,7 +42,9 @@ cross_validate(
  Currently supports \strong{\code{"gaussian"}} for linear regression
  with \code{\link[stats:lm]{lm()}} / \code{\link[lme4:lmer]{lme4::lmer()}}
  and \strong{\code{"binomial"}} for binary classification
- with \code{\link[stats:glm]{glm()}} / \code{\link[lme4:glmer]{lme4::glmer()}}.}
+ with \code{\link[stats:glm]{glm()}} / \code{\link[lme4:glmer]{lme4::glmer()}}.
+
+ See \code{\link[cvms:cross_validate_fn]{cross_validate_fn()}} for use with other model functions.}
 
 \item{fold_cols}{Name(s) of grouping factor(s) for identifying folds. (Character)
 

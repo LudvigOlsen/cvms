@@ -2577,8 +2577,8 @@ test_that("the expected errors are thrown by cross_validate()", {
     positive = 1
   )),
   xpectr::strip(paste0(
-    "1 assertions failed:\n * Variable 'family': Must be element",
-    " of set\n * {'gaussian','binomial','multinomial'}, but is 'f",
+    "Assertion on 'family' failed: Must be element",
+    " of set\n * {'gaussian','binomial'}, but is 'f",
     "dsfs'."
   )),
   fixed = TRUE

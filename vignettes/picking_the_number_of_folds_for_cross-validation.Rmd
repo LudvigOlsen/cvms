@@ -4,7 +4,8 @@ author:
   - "Ludvig Renbo Olsen"
 date: "`r Sys.Date()`"
 abstract: |
-  In this vignette, we try different numbers of folds in cross-validation and assess the differences.
+  When performing cross-validation, we tend to go with the common 10 folds.
+  In this vignette, we try different numbers of folds and assess the differences.
   To make our results robust to this choice, we average the results of different settings.
   The functions of interest are `cross_validate_fn()` and `groupdata2::fold()`.
   &nbsp;  
@@ -59,15 +60,15 @@ if (isTRUE(rerun_analysis)){
 # Introduction
 
 When performing cross-validation, it is common to use 10 folds. Why? It is the common thing to do of course!
-Not 9 or 11, but 10, and sometimes 5, and sometimes n-1 folds (i.e. leave-one-out cross-validation). 
+Not 9 or 11, but 10, and sometimes 5, and sometimes n-1 folds (i.e. leave-one-out cross-validation).
 
-While having a standard setting means one less thing to worry about, let's spend a few minutes discussing this choice. Whether it is reasonable comes down to the context of course, but here are some general thoughts on the topic.
+While having a standard setting means one less thing to worry about, let's spend a few minutes discussing this choice. Whether it is reasonable comes down to the context of course, but these are some general thoughts on the topic:
 
-A higher `k` (number of folds) means that each model is trained on a larger training set and tested on a smaller test fold. In theory, this should lead to a *lower* prediction error as the models see more of the available data. 
+ - A higher `k` (number of folds) means that each model is trained on a larger training set and tested on a smaller test fold. In theory, this should lead to a *lower* prediction error as the models see more of the available data.
 
-A lower `k` instead means that the model is trained on a smaller training set and tested on a larger test fold. Here, the potential for the data distribution in the test fold to differ from the training set is bigger, and we should thus expect a *higher* prediction error *on average*.
+ - A lower `k` instead means that the model is trained on a smaller training set and tested on a larger test fold. Here, the potential for the data distribution in the test fold to differ from the training set is bigger, and we should thus expect a *higher* prediction error *on average*.
 
-In the plot below, some generated data has been split into 10 and 3 folds respectively. When `k=3`, a single fold with a highly different distribution from the other two folds can have a big impact on the prediction error. When `k=10`, a few of the folds differ greatly as well, but on average, the model will be closer to the model that overall reduces the prediction error the most.
+In the plot below, some generated data has been split into 10 and 3 folds respectively. When `k=3`, a single fold with a highly different distribution from the other two folds can have a big impact on the prediction error. When `k=10`, a few of the folds differ greatly as well, but on average, the model will be closer to the model that overall reduces the prediction error the most:
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 library(cvms)
@@ -122,17 +123,15 @@ out[[1]] %>%
   labs(caption = paste0(
     "Generated data split into 10 and 3 folds respectively.",
     "\nLines are optimal linear models for each fold.",
-    "\nRMSE (Root Mean Square Error) is for a cross-validated linear model (higher is worse).",
-    "\nIn k=3, the third fold differs from the others, impacting the prediction negatively.",
-    "\nIn k=10, most folds are similar and the two 'outlier' folds don't impact the average error too much."
+    "\nRMSE (Root Mean Square Error) is for a cross-validated linear model (higher = worse).",
+    "\nIn k=3, the third fold differs, impacting the prediction negatively.",
+    "\nIn k=10, the two 'outlier' folds don't impact the average error too much."
     )
   )
 
 ```
 
-Note that it took me many tries to find the right random seed that made my point the most clear for this example, so don't expect this picture to be the case always.
-
-If we run this random generation of data 100 times, cross-validate a linear model (`y ~ x`) on each dataset, and then average the RMSE (Root Mean Square Error) and MAE (Mean Absolute Error) from the cross-validations, we get the following results:
+Note that this picture changes with different random seeds. If we instead run this random generation of data 100 times, cross-validate a linear model (`y ~ x`) on each dataset, and then average the RMSE (Root Mean Square Error) and MAE (Mean Absolute Error) from the cross-validations, we get the following results:
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 if (isTRUE(rerun_analysis)){
@@ -185,7 +184,7 @@ Our goal here is two-fold:
 
 2) Repeat each scenario multiple times to get more robust results.
 
-Whereas the previous section used a regression example (continuous y-variable), we will now perform multiclass classification on the `iris` dataset. This fairly well-known dataset has three species of iris flowers with 50 flowers from each. 
+Whereas the previous section used a regression example (continuous y-variable), we will now perform multiclass classification on the `iris` dataset. This fairly well-known dataset has three species of iris flowers with 50 flowers from each. The predictors are length and width measurements of the sepal and petal.
 
 First, we attach the needed packages and set a random seed:
 
@@ -219,7 +218,7 @@ iris <- dplyr::as_tibble(iris)
 iris
 ```
 
-Let's quickly count the rows per species, to ensure everything is in order:
+We count the rows per species, to ensure everything is in order:
 
 ```{r}
 iris %>% 
@@ -227,9 +226,12 @@ iris %>%
 
 ```
 
+
 ## Creating folds
 
-When creating the folds, we would like to balance them such that the distribution of the species are similar in all the folds. In `groupdata2::fold()`, this is possible with the `cat_col` argument. This also ensures that there's at least 1 of each species in each fold. By using it, our maximum number of folds becomes 50. The lowest number of folds we can *meaningfully* generate is technically 2, but that seems unlikely in practice, so we will set our lower limit at 3 (arbitrary yes, but I get to choose here!). We pick 10 `k`s in that range using the `seq()` function. To make it repeated cross-validation, we then repeat each of the settings 3 times: 
+When creating the folds, we would like to balance them such that the distribution of the species are similar in all the folds. In `groupdata2::fold()`, this is possible with the `cat_col` argument. This also ensures that there's at least 1 of each species in each fold. By using it, our maximum number of folds becomes 50. The lowest number of folds we can *meaningfully* generate is technically 2, but that seems unlikely in practice, so we will set our lower limit at 3 (arbitrary yes, but I get to choose here!). We pick 10 `k`s in that range using the `seq()` function. 
+
+As we are interested in comparing the results at each `k` setting, we repeat each of the settings 3 times to have more robustness towards the randomness when splitting. You might want to increase this to 10 repetitions, but that increases running time too much for this tutorial. If you are only interested in the average results, you might not need to repeat each setting, as the multiple settings of `k` becomes a kind of repeated cross-validation in itself.
 
 ```{r}
 # Generate sequence of `k` settings in the 3-50 range
@@ -281,6 +283,7 @@ We see that the `.folds_*` columns have been added with the fold identifiers. We
 
 ```{r}
 # Quick way to generate the names of the fold columns
+# Note: `seq_along()` is equal to `1:length(fold_counts)`
 fold_columns <- paste0(".folds_", seq_along(fold_counts))
 fold_columns
 ```
@@ -345,6 +348,7 @@ if (isTRUE(rerun_analysis)){
     fold_cols = fold_columns,
     parallel = TRUE
   )
+  cv$Predictions <- "Removed to save memory"
   if (isTRUE(save_analysis)){
     save(cv, file="inst/vignette_data/cv_iris_picking_k.rda")      
   }
@@ -373,13 +377,13 @@ cv
 
 ```
 
-Above, we see the averaged results from all the fold columns. The last model formula seems to have performed the best as it has the highest `Overall Accuracy`, `Balanced Accuracy`, `F1`, and so on. If what we wanted to do, was to average the results with different settings of `k` (to make our evaluation more robust to that choice), we could stop now. Instead, we will have a look at the results from the different settings of `k`. 
+Above, we see the averaged results from all the fold columns. The last model formula seems to have performed the best as it has the highest `Overall Accuracy`, `Balanced Accuracy`, `F1`, and so on. If what we wanted to do, was to average the results with different settings of `k` (to make our evaluation more robust to that choice), we could stop now. Here, we will have a look at the results from the different settings of `k`. 
 
 ## Inspecting the effect of `k` 
 
-There's a list of nested tibbles (data frame) in the cross-validation output called `Results`. This has the results from each fold column. Let's extract it and format it a bit.
+There's a list of nested tibbles (data frames) in the cross-validation output called `Results`. This has the results from each fold column. Let's extract it and format it a bit.
 
-Note: In regression tasks, the `Results` tibbles would have the results from *each fold*, for each fold column, but in classification we gather the predictions from all folds within a fold column, before evaluation.
+Note: In regression tasks, the `Results` tibbles would have the results from *each fold*, from each fold column, but in classification we gather the predictions from all folds within a fold column before evaluation.
 
 ```{r}
 # Extract the fold column results
@@ -437,7 +441,7 @@ fold_column_results
 
 ```
 
-We further add a column for telling us which repetition of the `k` setting, we're in. This is done with the `l_starts` method in `groupdata2::group()`, which automatically starts a new group every time the value of a column changes. So `c(".folds_1", ".folds_1", ".folds_2", ".folds_2")` would give `c(1, 1, 2, 2)`. As we group the data frame by the number of folds, these group indices start over for each setting of `k`. Note though, that this assumes that the `Fold Column` is sorted correctly. We should also remember to remove the grouping in the end, if we don't need it in the following step.
+We further add a column for telling us which repetition of the `k` setting, we're in. This is done with the `l_starts` method in `groupdata2::group()`, which automatically starts a new group every time the value of a column changes. So `c(".folds_1", ".folds_1", ".folds_2", ".folds_2")` would give `c(1, 1, 2, 2)`. By grouping the data frame by the number of folds, these group indices start over for each setting of `k`. Note though, that this assumes that the `Fold Column` is sorted correctly. We should also remember to remove the grouping in the end, if we don't need it in the following step.
 
 ```{r message=FALSE, warning=FALSE}
 # Add a column for indicating the repetition of the `k` setting
@@ -456,7 +460,7 @@ fold_column_results %>%
   knitr::kable()
 ```
 
-To plot the average lines for each formula, we calculate the average `Balanced Accuracy` for each formula, for each number of folds:
+To plot the average lines for each formula, we calculate the average `Balanced Accuracy` for each formula, for each "number of folds":
 
 ```{r}
 avg_balanced_acc <- fold_column_results %>%
@@ -466,7 +470,7 @@ avg_balanced_acc <- fold_column_results %>%
 avg_balanced_acc
 ```
 
-With the data all ready, we will plot the effect of `k` on the `Balanced Accuracy` metric. Feel free to plot one of the other metrics as well!
+With the data ready, we plot the effect of `k` on the `Balanced Accuracy` metric. Feel free to plot one of the other metrics as well!
 
 ```{r}
 # Plot the balanced accuracy by the number of folds

@@ -34,7 +34,7 @@ Imports:
     lifecycle,
     lme4 (>= 1.1-23),
     MuMIn (>= 1.43.17),
-    parameters (>= 0.12.0),
+    parameters (>= 0.13.0),
     plyr,
     pROC (>= 1.16.0),
     purrr,

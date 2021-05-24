@@ -51,8 +51,8 @@ If we have two classes (0, 1), we have these 4 possible combinations of predicti
 | Target | Prediction | Called\* |
 |:-------|:-----------|:-------|
 |0|0| True Negative  |
-|0|1| False Negative |
-|1|0| False Positive |
+|0|1| False Positive |
+|1|0| False Negative |
 |1|1| True Positive  |
 
 \* Given that `1` is the *positive* class.

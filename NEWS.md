@@ -7,7 +7,7 @@
 
 * In the `Class Level Results` in multinomial evaluations, the nested `Confusion Matrix` and `Results` tibbles are now named with their class to ease extraction and further work with these tibbles. The `Results` tibble further gets a `Class` column. This information might be redundant, but could make life easier.
 
-* Adds vignette: `Multiple-k: Picking the number of folds for cross-validation`. Feedback would be great!
+* Adds vignette: `Multiple-k: Picking the number of folds for cross-validation`.
 
 # cvms 1.2.1
 

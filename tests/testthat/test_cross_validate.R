@@ -2148,8 +2148,9 @@ test_that("preprocessing works with binomial mixed models in cross_validate()", 
   # No preprocessing
   expect_equal(CVbinomlist_no_preprocessing$`Balanced Accuracy`, c(0.8611111), tolerance = 1e-3)
   expect_equal(CVbinomlist_no_preprocessing$Coefficients[[1]]$estimate,
-    c(8.3579464874966, -0.193892587463713, 55.2463242203065, -1.33929033061194,
-      7.64561163963771, -0.168532399577982),
+               c(8.3579464874966, -0.193892587463713, 2.81255078275366, 1, 55.2463242203065,
+               -1.33929033061194, 53.1381999808447, 1, 7.64561163963771, -0.168532399577982,
+               2.68897250187443, 1),
     tolerance = 1e-6
   )
   expect_equal(CVbinomlist_no_preprocessing$Predictions[[1]]$Prediction,
@@ -2186,10 +2187,9 @@ test_that("preprocessing works with binomial mixed models in cross_validate()", 
   # Standardize
   expect_equal(CVbinomlist_standardize$`Balanced Accuracy`, c(0.8611111), tolerance = 1e-3)
   expect_equal(CVbinomlist_standardize$Coefficients[[1]]$estimate,
-    c(
-      0.722270851420555, -3.56049245923584, 3.90685791812926, -26.3414459230668,
-      1.14775661484688, -3.2610246203655
-    ),
+               c(0.722270851420555, -3.56049245923584, 2.81254774249312, 1,
+               3.90685791812926, -26.3414459230668, 53.1381599664327, 1, 1.14775661484688,
+               -3.2610246203655, 2.68898875394687, 1),
     tolerance = 1e-6
   )
   expect_equal(CVbinomlist_standardize$Predictions[[1]]$Prediction,
@@ -2225,10 +2225,9 @@ test_that("preprocessing works with binomial mixed models in cross_validate()", 
   # Scale
   expect_equal(CVbinomlist_scale$`Balanced Accuracy`, c(0.8611111), tolerance = 1e-3)
   expect_equal(CVbinomlist_scale$Coefficients[[1]]$estimate,
-    c(
-      8.35794641518746, -3.56048970107377, 55.2462927019219, -26.3414369433445,
-      7.64561182809043, -3.26101498104044
-    ),
+               c(8.35794641518746, -3.56048970107377, 2.81255070401071, 1, 55.2462927019219,
+               -26.3414369433445, 53.1381485501194, 1, 7.64561182809043, -3.26101498104044,
+               2.6889727017439, 1),
     tolerance = 1e-6
   )
   expect_equal(CVbinomlist_scale$Predictions[[1]]$Prediction,
@@ -2264,10 +2263,9 @@ test_that("preprocessing works with binomial mixed models in cross_validate()", 
   # Center
   expect_equal(CVbinomlist_center$`Balanced Accuracy`, c(0.8611111), tolerance = 1e-3)
   expect_equal(CVbinomlist_center$Coefficients[[1]]$estimate,
-    c(
-      0.722270851499559, -0.193892736123874, 3.90685679177423, -1.33929005889398,
-      1.14775662092732, -0.168532902834402
-    ),
+               c(0.722270851499559, -0.193892736123874, 2.81254774327143, 1,
+               3.90685679177423, -1.33929005889398, 53.1381319242869, 1, 1.14775662092732,
+               -0.168532902834402, 2.6889888039097, 1),
     tolerance = 1e-6
   )
   expect_equal(CVbinomlist_center$Predictions[[1]]$Prediction,
@@ -2303,10 +2301,9 @@ test_that("preprocessing works with binomial mixed models in cross_validate()", 
   # Range
   expect_equal(CVbinomlist_range$`Balanced Accuracy`, c(0.8611111), tolerance = 1e-3)
   expect_equal(CVbinomlist_range$Coefficients[[1]]$estimate,
-    c(
-      6.22513139971877, -12.9908044682518, 41.8533992397597, -95.0895775189958,
-      5.9602950441032, -11.9658077360469
-    ),
+               c(6.22513139971877, -12.9908044682518, 2.81255450568456, 1, 41.8533992397597,
+               -95.0895775189958, 53.1381034729376, 1, 5.9602950441032, -11.9658077360469,
+               2.68897631778515, 1),
     tolerance = 1e-6
   )
   expect_equal(CVbinomlist_range$Predictions[[1]]$Prediction,
@@ -3657,37 +3654,53 @@ test_that("varying number of folds in repeated cv with cross_validate()", {
   # Testing values
   expect_equal(
     CV$Coefficients,
-    list(structure(list(`Fold Column` = c(".folds_1", ".folds_1", ".folds_1",
-      ".folds_1", ".folds_2", ".folds_2", ".folds_2", ".folds_2",
-      ".folds_2", ".folds_2", ".folds_3", ".folds_3", ".folds_3",
-      ".folds_3", ".folds_3", ".folds_3", ".folds_3", ".folds_3"),
-      Fold = c(1L, 1L, 2L, 2L, 1L, 1L, 2L, 2L, 3L, 3L, 1L, 1L, 2L,
-          2L, 3L, 3L, 4L, 4L), term = c("(Intercept)", "diagnosis",
-          "(Intercept)", "diagnosis", "(Intercept)", "diagnosis",
-          "(Intercept)", "diagnosis", "(Intercept)", "diagnosis",
-          "(Intercept)", "diagnosis", "(Intercept)", "diagnosis",
-          "(Intercept)", "diagnosis", "(Intercept)", "diagnosis"),
-      estimate = c(48.6666666666667, -14.2121212121212, 51.6666666666667,
-          -26.952380952381, 54.375, -24.175, 47.5714285714286, -22.1714285714286,
-          50.4444444444444, -14.3535353535354, 49.125, -19.0073529411765,
-          52.2222222222222, -29.5972222222222, 50.5, -18.9705882352941,
-          51.6666666666667, -16.0833333333333), std.error = c(8.41855414379772,
-          9.49740995414852, 6.21405764952783, 9.39477209901097, 6.10243657425927,
-          7.55651524308974, 5.15115732323402, 6.71628744224089, 6.01599273599761,
-          8.1119629503789, 5.86007109036599, 7.1063800232963, 5.42520220176549,
-          7.90852326457585, 5.39137655673118, 6.79449349609756, 5.45953571418165,
-          7.22228688680003), statistic = c(5.78088182785179, -1.49642073794164,
-          8.31448138730939, -2.86887011928883, 8.91037528015606, -3.19922599535646,
-          9.23509525846942, -3.30114349067095, 8.38505740583801, -1.76942812009082,
-          8.38300410395395, -2.67468850228473, 9.62585730080767, -3.74244612199539,
-          9.36681002868373, -2.79205333645399, 9.46356418778573, -2.22690313821906),
-      p.value = c(8.73044693341471e-05, 0.160375077413601, 8.71744764220858e-07,
-          0.0123802797806211, 1.40309391631771e-08, 0.00431125235564896,
-          1.40863068775986e-07, 0.00484752749572593, 1.2467032478442e-07,
-          0.0937616722887625, 1.90501051336518e-08, 0.0135331351313378,
-          8.2329274043691e-08, 0.00196103615278914, 1.18033672582856e-09,
-          0.0098923901197315, 1.26960822180091e-08, 0.038244411370448)),
-      row.names = c(NA, -18L), class = c("tbl_df", "tbl", "data.frame"))))
+    list(structure(list(`Fold Column` = c(".folds_1", ".folds_1",
+    ".folds_1", ".folds_1", ".folds_2", ".folds_2", ".folds_2", ".folds_2",
+    ".folds_2", ".folds_2", ".folds_3", ".folds_3", ".folds_3", ".folds_3",
+    ".folds_3", ".folds_3", ".folds_3", ".folds_3"), Fold = c(1L,
+    1L, 2L, 2L, 1L, 1L, 2L, 2L, 3L, 3L, 1L, 1L, 2L, 2L, 3L, 3L, 4L,
+    4L), term = c("(Intercept)", "diagnosis", "(Intercept)", "diagnosis",
+    "(Intercept)", "diagnosis", "(Intercept)", "diagnosis", "(Intercept)",
+    "diagnosis", "(Intercept)", "diagnosis", "(Intercept)", "diagnosis",
+    "(Intercept)", "diagnosis", "(Intercept)", "diagnosis"), estimate = c(48.6666666666667,
+    -14.2121212121212, 51.6666666666667, -26.952380952381, 54.375,
+    -24.175, 47.5714285714286, -22.1714285714286, 50.4444444444444,
+    -14.3535353535354, 49.125, -19.0073529411765, 52.2222222222222,
+    -29.5972222222222, 50.5, -18.9705882352941, 51.6666666666667,
+    -16.0833333333333), std.error = c(8.41855414379772, 9.49740995414852,
+    6.21405764952783, 9.39477209901097, 6.10243657425927, 7.55651524308974,
+    5.15115732323402, 6.71628744224089, 6.01599273599761, 8.1119629503789,
+    5.86007109036599, 7.1063800232963, 5.42520220176549, 7.90852326457585,
+    5.39137655673118, 6.79449349609756, 5.45953571418165, 7.22228688680003
+    ), conf.level = c(0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95,
+    0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95),
+        conf.low = c(30.324212890912, -34.9051998688293, 38.3388385420056,
+        -47.1021630863613, 41.6842884135979, -39.8896337174252, 36.5919966357145,
+        -36.4868563880417, 37.8053127114571, -31.3961371056051, 37.0025193413177,
+        -33.7080200588983, 40.6586774546993, -46.4538405405513, 39.3962521290018,
+        -32.9641095369386, 40.2397270909832, -31.1997535152435),
+        conf.high = c(67.0091204424213, 6.48095744458683, 64.9944947913278,
+        -6.80259881840061, 67.0657115864021, -8.46036628257483, 58.5508605071426,
+        -7.85600075481539, 63.0835761774318, 2.6890663985344, 61.2474806586823,
+        -4.30668582345469, 63.7857669897452, -12.7406039038931, 61.6037478709982,
+        -4.97706693364964, 63.0936062423501, -0.966913151423173),
+        statistic = c(5.78088182785179, -1.49642073794164, 8.31448138730939,
+        -2.86887011928883, 8.91037528015606, -3.19922599535646, 9.23509525846942,
+        -3.30114349067095, 8.38505740583801, -1.76942812009082, 8.38300410395395,
+        -2.67468850228473, 9.62585730080767, -3.74244612199539, 9.36681002868373,
+        -2.79205333645399, 9.46356418778573, -2.22690313821906),
+        df.error = c(12L, 12L, 14L, 14L, 21L, 21L, 15L, 15L, 18L,
+        18L, 23L, 23L, 15L, 15L, 25L, 25L, 19L, 19L), p.value = c(8.73044693341471e-05,
+        0.160375077413601, 8.71744764220858e-07, 0.0123802797806211,
+        1.40309391631771e-08, 0.00431125235564896, 1.40863068775986e-07,
+        0.00484752749572593, 1.2467032478442e-07, 0.0937616722887625,
+        1.90501051336518e-08, 0.0135331351313378, 8.2329274043691e-08,
+        0.00196103615278914, 1.18033672582856e-09, 0.0098923901197315,
+        1.26960822180091e-08, 0.038244411370448)), row.names = c(NA,
+    -18L), sigma = 14.5813635033272, residual_df = 12, pretty_names = c(`(Intercept)` = "(Intercept)",
+    diagnosis = "diagnosis"), ci = 0.95, verbose = TRUE, exponentiate = FALSE, ordinal_model = FALSE, linear_model = TRUE, mixed_model = FALSE, n_obs = 14L, model_class = "lm", bootstrap = FALSE, iterations = 1000, ignore_group = TRUE, ran_pars = TRUE, show_summary = FALSE, title = "", weighted_nobs = 14, model_formula = "score ~ diagnosis", coefficient_name = "Coefficient", zi_coefficient_name = "Log-Odds", digits = 2, ci_digits = 2, p_digits = 3, footer_digits = 3, object_name = "model", class = c("tbl_df",
+    "tbl", "data.frame")))
+    )
   # Testing names
   expect_equal(
     names(CV$Coefficients),
@@ -3700,7 +3713,7 @@ test_that("varying number of folds in repeated cv with cross_validate()", {
   # Testing sum of element lengths
   expect_equal(
     sum(xpectr::element_lengths(CV$Coefficients)),
-    7L)
+    11L)
   ## Finished testing 'CV$Coefficients'                                     ####
 
 

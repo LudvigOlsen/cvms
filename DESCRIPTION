@@ -1,6 +1,6 @@
 Package: cvms
 Title: Cross-Validation for Model Selection
-Version: 1.2.2
+Version: 1.2.9000
 Authors@R: 
     c(person(given = "Ludvig Renbo",
              family = "Olsen",

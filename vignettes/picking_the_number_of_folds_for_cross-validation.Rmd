@@ -309,7 +309,7 @@ fold_stats %>%
 
 We will use the `e1071::svm()` Support Vector Machine model function. To use this with `cross_validate_fn()`, we can use the included `model_fn` and `predict_fn` functions. We also specify the `kernel` and `cost` hyperparameters. 
 
-For more elaborate examples of `cross_validate_fn()`, see [here](cross_validating_custom.html).
+For more elaborate examples of `cross_validate_fn()`, see [here](cross_validating_custom_functions.html).
 
 ```{r}
 # To use the e1071::svm() model function

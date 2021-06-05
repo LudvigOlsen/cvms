@@ -1132,11 +1132,13 @@ test_that("binomial models work with repeated cross_validate()", {
 
   expect_equal(
     colnames(CVbinomlist$Coefficients[[1]]),
-    c("Fold Column", "Fold", "term", "estimate", "std.error", "statistic", "p.value")
+    c("Fold Column", "Fold", "term", "estimate", "std.error", "conf.level",
+      "conf.low", "conf.high", "statistic", "df.error", "p.value")
   )
   expect_equal(
     colnames(CVbinomlist$Coefficients[[2]]),
-    c("Fold Column", "Fold", "term", "estimate", "std.error", "statistic", "p.value")
+    c("Fold Column", "Fold", "term", "estimate", "std.error", "conf.level",
+      "conf.low", "conf.high", "statistic", "df.error", "p.value")
   )
   expect_equal(
     CVbinomlist$Coefficients[[1]]$p.value,
@@ -1283,7 +1285,8 @@ test_that("binomial models work with positive as.character in cross_validate()",
     REML = FALSE, verbose = FALSE, positive = "B"
   )
 
-  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]), c("Fold Column", "Prediction", "Target", "Pos_B", "Pos_E", "N"))
+  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]),
+               c("Fold Column", "Prediction", "Target", "Pos_B", "Pos_E", "N"))
   expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(16, 2, 5, 7, 15, 3, 5, 7))
   expect_equal(CVbinomlist$F1, c(0.8049933, 0.5384615), tolerance = 1e-3)
 
@@ -1293,7 +1296,8 @@ test_that("binomial models work with positive as.character in cross_validate()",
     REML = FALSE, verbose = FALSE, positive = 1
   )
 
-  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]), c("Fold Column", "Prediction", "Target", "Pos_B", "Pos_E", "N"))
+  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]),
+               c("Fold Column", "Prediction", "Target", "Pos_B", "Pos_E", "N"))
   expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(16, 2, 5, 7, 15, 3, 5, 7))
   expect_equal(CVbinomlist$F1, c(0.8049933, 0.5384615), tolerance = 1e-3)
 
@@ -1303,7 +1307,8 @@ test_that("binomial models work with positive as.character in cross_validate()",
     REML = FALSE, verbose = FALSE, positive = 2
   )
 
-  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]), c("Fold Column", "Prediction", "Target", "Pos_B", "Pos_E", "N"))
+  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]),
+               c("Fold Column", "Prediction", "Target", "Pos_B", "Pos_E", "N"))
   expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(16, 2, 5, 7, 15, 3, 5, 7))
   expect_equal(CVbinomlist$F1, c(0.6515152, NA), tolerance = 1e-3)
 
@@ -1334,7 +1339,8 @@ test_that("binomial models work with positive as.character in cross_validate()",
     positive = 1
   )
 
-  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]), c("Fold Column", "Prediction", "Target", "Pos_B", "Pos_E", "N"))
+  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]),
+               c("Fold Column", "Prediction", "Target", "Pos_B", "Pos_E", "N"))
   expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(7, 5, 2, 16, 7, 5, 3, 15))
   expect_equal(CVbinomlist$F1, c(0.6515152, NA), tolerance = 1e-3)
 
@@ -1344,7 +1350,8 @@ test_that("binomial models work with positive as.character in cross_validate()",
     REML = FALSE, verbose = FALSE, positive = "E"
   )
 
-  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]), c("Fold Column", "Prediction", "Target", "Pos_B", "Pos_E", "N"))
+  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]),
+               c("Fold Column", "Prediction", "Target", "Pos_B", "Pos_E", "N"))
   expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(7, 5, 2, 16, 7, 5, 3, 15))
   expect_equal(CVbinomlist$F1, c(0.8049933, 0.5384615), tolerance = 1e-3)
 
@@ -1354,7 +1361,8 @@ test_that("binomial models work with positive as.character in cross_validate()",
     REML = FALSE, verbose = FALSE, positive = "B"
   )
 
-  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]), c("Fold Column", "Prediction", "Target", "Pos_B", "Pos_E", "N"))
+  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]),
+               c("Fold Column", "Prediction", "Target", "Pos_B", "Pos_E", "N"))
   expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(7, 5, 2, 16, 7, 5, 3, 15))
   expect_equal(CVbinomlist$F1, c(0.6515152, NA), tolerance = 1e-3)
 
@@ -1364,7 +1372,8 @@ test_that("binomial models work with positive as.character in cross_validate()",
     REML = FALSE, verbose = FALSE, positive = 1
   )
 
-  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]), c("Fold Column", "Prediction", "Target", "Pos_B", "Pos_E", "N"))
+  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]),
+               c("Fold Column", "Prediction", "Target", "Pos_B", "Pos_E", "N"))
   expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(7, 5, 2, 16, 7, 5, 3, 15))
   expect_equal(CVbinomlist$F1, c(0.6515152, NA), tolerance = 1e-3)
 
@@ -1374,7 +1383,8 @@ test_that("binomial models work with positive as.character in cross_validate()",
     REML = FALSE, verbose = FALSE, positive = 2
   )
 
-  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]), c("Fold Column", "Prediction", "Target", "Pos_B", "Pos_E", "N"))
+  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]),
+               c("Fold Column", "Prediction", "Target", "Pos_B", "Pos_E", "N"))
   expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(7, 5, 2, 16, 7, 5, 3, 15))
   expect_equal(CVbinomlist$F1, c(0.8049933, 0.5384615), tolerance = 1e-3)
 
@@ -1449,7 +1459,8 @@ test_that("gaussian models work with repeated cross_validate()", {
   expect_equal(unique(CVgausslist$Predictions[[1]]$`Fold Column`), c(".folds_1", ".folds_2"))
   expect_equal(
     colnames(CVgausslist$Coefficients[[1]]),
-    c("Fold Column", "Fold", "term", "estimate", "std.error", "statistic", "p.value")
+    c("Fold Column", "Fold", "term", "estimate", "std.error", "conf.level",
+      "conf.low", "conf.high", "statistic", "df.error", "p.value")
   )
   expect_equal(
     CVgausslist$Coefficients[[1]]$p.value,
@@ -1645,7 +1656,9 @@ test_that("preprocessing works with binomial models in cross_validate()", {
   )
 
   # No preprocessing
-  expect_equal(CVbinomlist_no_preprocessing$`Balanced Accuracy`, c(0.7361111, 0.3333333), tolerance = 1e-3)
+  expect_equal(CVbinomlist_no_preprocessing$`Balanced Accuracy`,
+               c(0.7361111, 0.3333333),
+               tolerance = 1e-3)
   expect_equal(CVbinomlist_no_preprocessing$Coefficients[[1]]$estimate,
     c(
       3.19756037998759, -0.0678513281319974, 3.34308245247553, -0.0729927574874602,

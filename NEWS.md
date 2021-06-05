@@ -1,6 +1,8 @@
 
 # cvms 1.2.2
 
+* In order to reduce dependencies, model coefficients are now tidied with the `parameters` package instead of `broom` and `broom.mixed`. Thanks to @IndrajeetPatil for the contributions.
+
 * In `cross_validate()` and `cross_validate_fn()`, fold columns can now have a varying number of folds in repeated cross-validation. Struggling to choose a number of folds? Average over multiple settings.
 
 * In the `Class Level Results` in multinomial evaluations, the nested `Confusion Matrix` and `Results` tibbles are now named with their class to ease extraction and further work with these tibbles. The `Results` tibble further gets a `Class` column. This information might be redundant, but could make life easier.

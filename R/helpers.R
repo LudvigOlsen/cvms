@@ -979,8 +979,6 @@ empty_tile_percentages <- function(data){
 # Never used, but removes R CMD check NOTEs
 rcmd_import_handler <- function() {
   lifecycle::deprecate_soft()
-  broom.mixed::tidy()
-  broom::tidy()
 }
 
 

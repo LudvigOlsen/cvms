@@ -69,7 +69,8 @@ evaluate_model_object <- function(model,
           train_data = train_data,
           test_data = test_data,
           fold_info = fold_info,
-          include_fold_columns = include_fold_columns
+          include_fold_columns = include_fold_columns,
+          caller = model_specifics[["caller"]]
         )
       },
       error = function(e) {

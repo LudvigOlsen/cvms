@@ -15,36 +15,29 @@ run_prediction_process <- function(test_data,
   for (cta in cols_to_add_to_test){test_data[[cta]] <- NA}
   for (cta in cols_to_add_to_train){train_data[[cta]] <- NA}
 
-  prediction_process <- tryCatch(
-    {
-      purrr::map(.x = 1, .f = purrr::quietly(function(.x) {
-        run_predict_fn(
-          test_data = test_data,
-          train_data = train_data,
-          model = model,
-          model_formula = model_formula,
-          y_col = y_col,
-          user_predict_fn = user_predict_fn,
-          model_specifics = model_specifics
-        )
-      }))
-    },
-    error = function(e) {
-      stop(
-        create_message(
-          m = e,
-          caller = model_specifics[["caller"]],
-          formula = model_formula,
-          fold_col = fold_info[["fold_column"]],
-          fold = fold_info[["rel_fold"]]
-        )
+  prediction_process <- run_quietly(
+    fn = run_predict_fn,
+    test_data = test_data,
+    train_data = train_data,
+    model = model,
+    model_formula = model_formula,
+    y_col = y_col,
+    user_predict_fn = user_predict_fn,
+    model_specifics = model_specifics,
+    msg_context_fn = function(m){
+      create_message(
+        m = m,
+        caller = model_specifics[["caller"]],
+        formula = model_formula,
+        fold_col = fold_info[["fold_column"]],
+        fold = fold_info[["rel_fold"]]
       )
     }
   )
 
-  predictions <- prediction_process[[1]][["result"]]
-  warnings <- prediction_process[[1]][["warnings"]]
-  messages <- prediction_process[[1]][["messages"]]
+  predictions <- prediction_process[["result"]]
+  warnings <- prediction_process[["warnings"]]
+  messages <- prediction_process[["messages"]]
 
   # Create tibble with warnings and messages
   warnings_and_messages <- create_warnings_and_messages_tibble(
@@ -53,35 +46,20 @@ run_prediction_process <- function(test_data,
     fn = "predict_fn"
   )
 
+  message_creator <- function(m){
+    create_message(
+      m = m,
+      caller = model_specifics[["caller"]],
+      formula = model_formula,
+      fold_col = fold_info[["fold_column"]],
+      fold = fold_info[["rel_fold"]]
+    )
+  }
+
   # Message the caught messages to the user
-  for (m in messages) {
-
-    # purrr::quietly adds \n to end of messages, which we're not interested in here
-    m <- gsub("\\\n$", "", m)
-
-    message(
-      create_message(
-        m = m,
-        caller = model_specifics[["caller"]],
-        formula = model_formula,
-        fold_col = fold_info[["fold_column"]],
-        fold = fold_info[["rel_fold"]]
-      )
-    )
-  }
-
+  throw_messages(messages = messages, msg_context_fn = message_creator)
   # Throw the caught warnings
-  for (w in warnings) {
-    warning(
-      create_message(
-        m = w,
-        caller = model_specifics[["caller"]],
-        formula = model_formula,
-        fold_col = fold_info[["fold_column"]],
-        fold = fold_info[["rel_fold"]]
-      )
-    )
-  }
+  throw_warnings(warnings = warnings, msg_context_fn = message_creator)
 
   return(
     list(

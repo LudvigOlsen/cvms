@@ -51,8 +51,8 @@ If we have two classes (0, 1), we have these 4 possible combinations of predicti
 | Target | Prediction | Called\* |
 |:-------|:-----------|:-------|
 |0|0| True Negative  |
-|0|1| False Negative |
-|1|0| False Positive |
+|0|1| False Positive |
+|1|0| False Negative |
 |1|1| True Positive  |
 
 \* Given that `1` is the *positive* class.
@@ -69,7 +69,6 @@ Let's begin!
 
 ```{r warning=FALSE, message=FALSE}
 library(cvms)
-library(broom)    # tidy()
 library(tibble)   # tibble()
 
 set.seed(1)
@@ -97,10 +96,10 @@ basic_table <- table(d_binomial)
 basic_table
 ```
 
-In order to plot it with `ggplot2`, we convert it to a data frame with `broom::tidy()`:
+In order to plot it with `ggplot2`, we convert it to a data frame with `parameters::model_parameters()`:
 
 ```{r}
-cfm <- tidy(basic_table)
+cfm <- as_tibble(basic_table)
 cfm
 ```
 

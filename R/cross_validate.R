@@ -21,7 +21,7 @@
 #' @family validation functions
 #' @param data \code{data.frame}.
 #'
-#'  Must include grouping factor for identifying folds
+#'  Must include one or more grouping factors for identifying folds
 #'   - as made with \code{\link[groupdata2:fold]{groupdata2::fold()}}.
 #' @param formulas Model formulas as strings. (Character)
 #'
@@ -39,6 +39,8 @@
 #'  with \code{\link[stats:lm]{lm()}} / \code{\link[lme4:lmer]{lme4::lmer()}}
 #'  and \strong{\code{"binomial"}} for binary classification
 #'  with \code{\link[stats:glm]{glm()}} / \code{\link[lme4:glmer]{lme4::glmer()}}.
+#'
+#'  See \code{\link[cvms:cross_validate_fn]{cross_validate_fn()}} for use with other model functions.
 #' @param control Construct control structures for mixed model fitting
 #'  (with \code{\link[lme4:lmer]{lme4::lmer()}} or \code{\link[lme4:glmer]{lme4::glmer()}}).
 #'  See \code{\link[lme4:lmerControl]{lme4::lmerControl}} and
@@ -364,6 +366,15 @@ cross_validate <- function(
     )
     verbose <- model_verbose
   }
+
+  # This function does not accept 'multinomial'
+  checkmate::assert_choice(
+    x = family,
+    choices = c(
+      "gaussian",
+      "binomial"
+    )
+  )
 
   call_cross_validate(
     data = data,

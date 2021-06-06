@@ -916,9 +916,12 @@ test_that("gaussian svm models with hparams and preprocessing work with cross_va
     )
   }
 
-  # broom::tidy(svm_model_fn(train_data = dat, formula = as.formula("score~diagnosis", train_data = NULL),
-  #              hyperparameters = list(
-  #                "kernel" = "linear", "cost" = 10)))
+  # parameters::model_parameters(
+  #   svm_model_fn(train_data = dat, formula = as.formula("score~diagnosis", train_data = NULL),
+  #              hyperparameters = list("kernel" = "linear", "cost" = 10))) %>%
+  #   parameters::standardize_names(style = "broom") %>%
+  #   tibble::as_tibble()
+
 
   svm_predict_fn <- function(test_data, model, formula, hyperparameters, train_data = NULL) {
     warning("This is a predict_fn warning")
@@ -2290,14 +2293,14 @@ test_that("binomial tidymodels work with cross_validate_fn()", {
   #
   # library(tidymodels)
   #
-  # tidyrf_model_fn <- function(train_data, formula){
+  # tidyrf_model_fn <- function(train_data, formula, hyperparameters){
   #
   #   rand_forest(trees = 100, mode = "classification") %>%
   #     set_engine("randomForest") %>%
   #     fit(formula, data = train_data)
   # }
   #
-  # tidyrf_predict_fn <- function(test_data, model, formula = NULL){
+  # tidyrf_predict_fn <- function(test_data, model, formula, hyperparameters, train_data){
   #   stats::predict(object = model, new_data = test_data, type = "prob")[[2]]
   # }
   #
@@ -2330,17 +2333,14 @@ test_that("binomial tidymodels work with cross_validate_fn()", {
   # expect_equal(CVbinomlist$Folds, c(4,4))
   # expect_equal(CVbinomlist$`Fold Columns`, c(1,1))
   # expect_equal(CVbinomlist$`Convergence Warnings`, c(0,0))
-  # expect_equal(CVbinomlist$Family, c('binomial','binomial'))
   # expect_equal(CVbinomlist$Dependent, c('diagnosis','diagnosis'))
   # expect_equal(CVbinomlist$Fixed, c('score','age'))
   #
   # # Enter sub tibbles
   # expect_is(CVbinomlist$Predictions[[1]], "tbl_df")
-  # expect_is(CVbinomlist$ROC[[1]], "tbl_df")
-  # expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("Fold Column","Fold","Target","Prediction","Predicted Class"))
-  # expect_equal(colnames(CVbinomlist$ROC[[1]]), c("Sensitivities","Specificities"))
-  # expect_equal(nrow(CVbinomlist$Predictions[[1]]),30)
-  # expect_equal(nrow(CVbinomlist$ROC[[1]]),23)
+  # expect_is(CVbinomlist$ROC[[1]], "list")
+  # expect_equal(colnames(CVbinomlist$Predictions[[1]]), c("Fold Column","Fold","Observation","Target","Prediction","Predicted Class"))
+  # expect_equal(nrow(CVbinomlist$Predictions[[1]]), 30)
 })
 
 # Metrics list arg
@@ -4233,7 +4233,7 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
   }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_13403[['error']]),
-    xpectr::strip("---\ncross_validate_fn(): Error in run_predict_fn(test_data = test_data, train_data = train_data, : cross_validate_fn(): predictions were NULL.\n\nFor:\nFormula: score ~ diagnosis + (1|session)\nFold column: .folds\nFold: 1\n"),
+    xpectr::strip("---\ncross_validate_fn(): Error in fn(...): cross_validate_fn(): predictions were NULL.\n\nFor:\nFormula: score ~ diagnosis + (1|session)\nFold column: .folds\nFold: 1\n"),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_13403[['error_class']]),

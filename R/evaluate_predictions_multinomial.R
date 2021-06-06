@@ -271,7 +271,8 @@ evaluate_predictions_multinomial <- function(data,
     one_vs_all_evaluations[["Process"]] <- NULL
 
     # Move Support column
-    one_vs_all_evaluations <- reposition_column(one_vs_all_evaluations,
+    one_vs_all_evaluations <- reposition_column(
+      one_vs_all_evaluations,
       "Support",
       .after = tail(
         intersect(metrics, colnames(one_vs_all_evaluations)),
@@ -284,6 +285,25 @@ evaluate_predictions_multinomial <- function(data,
       , c("Class", setdiff(colnames(one_vs_all_evaluations), "Class"))
     ]
 
+    # Set names for results within the one_vs_all_evaluations
+    # to their class for easier `bind_rows()` extraction
+    names(one_vs_all_evaluations[["Results"]]) <- one_vs_all_evaluations[["Class"]]
+    names(one_vs_all_evaluations[["Confusion Matrix"]]) <- one_vs_all_evaluations[["Class"]]
+
+    # Add Class column to class level fold results
+    one_vs_all_evaluations[["Results"]] <- purrr::map2(
+      .x = one_vs_all_evaluations[["Results"]],
+      .y = one_vs_all_evaluations[["Class"]],
+      .f = ~{tibble::add_column(.x, "Class"=.y, .before = names(.x)[[1]])}
+    )
+
+    # Set correct Class in class level confusion matrices
+    one_vs_all_evaluations[["Confusion Matrix"]] <- purrr::map2(
+      .x = one_vs_all_evaluations[["Confusion Matrix"]],
+      .y = one_vs_all_evaluations[["Class"]],
+      .f = ~{.x[["Class"]] <- .y; .x}
+    )
+
     # Calculate overall metrics per fold column and average them:
     # 1. Extract the fold column results from each one-vs-all
     # 2. Use those to calculate the overall metrics per fold column (Becomes 'Results' tibble in overall results)
@@ -291,7 +311,8 @@ evaluate_predictions_multinomial <- function(data,
 
     # Extract the metrics for calculating (weighted) averages
     metrics_only <- one_vs_all_evaluations[["Results"]] %>%
-      dplyr::bind_rows()
+      dplyr::bind_rows() %>%
+      base_deselect("Class")
 
     # Values to use in na.rm
     if (isTRUE(both_keep_and_remove_NAs)) {

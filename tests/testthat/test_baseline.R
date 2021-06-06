@@ -765,8 +765,8 @@ test_that("gaussian evaluations are correct in baseline()", {
   expect_equal(
     colnames(all_coeffs),
     c(
-      "Repetition", "term", "estimate", "std.error", "statistic",
-      "p.value"
+      "Repetition", "term", "estimate", "std.error", "conf.level",
+      "conf.low", "conf.high", "statistic", "df.error", "p.value"
     )
   )
   expect_equal(all_coeffs$Repetition, 1:10)
@@ -1066,28 +1066,37 @@ test_that("gaussian evaluations of random effects models are correct in baseline
   all_coeffs <- dplyr::bind_rows(gaussian_baseline_reval$Coefficients)
   expect_equal(
     colnames(all_coeffs),
-    c("Repetition", "effect", "term", "estimate", "std.error", "statistic","p.value")
+    c("Repetition", "term", "estimate", "std.error", "conf.level",
+    "conf.low", "conf.high", "statistic", "df.error", "p.value",
+    "effect", "group")
   )
-  expect_equal(all_coeffs$Repetition, 1:10)
-  expect_equal(all_coeffs$effect, rep("fixed", 10))
+  expect_equal(all_coeffs$Repetition,
+               rep(1:10, each=3))
+  expect_equal(all_coeffs$effect, rep(c("fixed", "random", "random"), 10))
   expect_equal(all_coeffs$estimate,
-    c(
-      29.4482246187172, 34.039741354335, 40.9321844272457, 29.7091048995076,
-      31.6380887585632, 37.7282592375317, 34.1782347165533, 35.9506799949463,
-      36.3068983754988, 27.2041030958495
-    ),
+               c(29.448320414682, 8.66773499255345, 2.85266607588976, 34.0397419731725,
+                 8.18275194225866, 3.09284411325023, 40.9321845278933, 11.2433483971341,
+                 3.93557261308798, 29.7089680727668, 7.25112356261845, 2.46719883356218,
+                 31.6380887585632, 11.084838927661, 2.6311266007917, 37.728259057112,
+                 16.9392428108762, 3.3370317875517, 34.1782347165533, 9.41796059777521,
+                 3.17030286751515, 35.9506800071366, 15.6924548409849, 3.58063202216037,
+                 36.3068983520242, 17.5015478374056, 3.57266115767527, 27.2041030958495,
+                 9.30371462237022, 2.56678108444756),
     tolerance = 1e-3
   )
   expect_equal(all_coeffs$std.error,
-    c(
-      7.15564449282046, 5.53120659588499, 8.97275372070671, 4.96123227269955,
-      7.05688044109226, 10.2739018309621, 6.56119887646549, 9.73185796300383,
-      10.7798478381932, 5.86883171896131
-    ),
+               c(7.15631722940088, NA, NA, 5.53120433851552, NA, NA, 8.97275334846771,
+                 NA, NA, 4.96158288390545, NA, NA, 7.05688044109226, NA, NA, 10.2738954220409,
+                 NA, NA, 6.56119887646549, NA, NA, 9.73185625725408, NA, NA, 10.7798459436058,
+                 NA, NA, 5.86883171896131, NA, NA),
     tolerance = 1e-3
   )
   expect_equal(all_coeffs$p.value,
-    rep(NA, 10),
+               c(3.87161819694556e-05, NA, NA, 7.54914828688298e-10, NA, NA,
+               5.07094526547668e-06, NA, NA, 2.12697832372717e-09, NA, NA, 7.3498625848197e-06,
+               NA, NA, 0.000240429200818553, NA, NA, 1.89713063976539e-07, NA,
+               NA, 0.000220646452348298, NA, NA, 0.000757059867139061, NA, NA,
+               3.56329935880527e-06, NA, NA),
     tolerance = 1e-3
   )
 })
@@ -1254,28 +1263,36 @@ test_that("gaussian evaluations of random effects models are correct with REML F
   all_coeffs <- dplyr::bind_rows(gaussian_baseline_reval$Coefficients)
   expect_equal(
     colnames(all_coeffs),
-    c("Repetition", "effect", "term", "estimate", "std.error", "statistic", "p.value")
+    c("Repetition", "term", "estimate", "std.error", "conf.level",
+    "conf.low", "conf.high", "statistic", "df.error", "p.value",
+    "effect", "group")
   )
-  expect_equal(all_coeffs$Repetition, 1:10)
-  expect_equal(all_coeffs$effect, rep("fixed", 10))
+  expect_equal(all_coeffs$Repetition, rep(1:10, each=3))
+  expect_equal(all_coeffs$effect, rep(c("fixed", "random", "random"), 10))
   expect_equal(all_coeffs$estimate,
-    c(
-      29.0475640591351, 34.3203425052484, 41.2416418477926, 29.944216654405,
-      31.7864586462034, 37.6658072225419, 34.3377960494584, 35.9622550910097,
-      36.2791461299582, 27.1152376447763
-    ),
+               c(29.0475640591351, 4.78805067395418, 2.85848064527876, 34.3203425052484,
+               6.21610245128159, 3.08581878489538, 41.2416418477926, 7.63520273043572,
+               3.90335530586415, 29.944216654405, 5.55015329501717, 2.44579938544077,
+               31.7864586462034, 8.81967332544671, 2.6148458232952, 37.6658053504421,
+               13.507841067307, 3.33610165010913, 34.3377963597152, 7.26130224858831,
+               3.1510031011958, 35.9622553083379, 12.4590458864045, 3.57689494576837,
+               36.2791995906471, 13.8766160799253, 3.57017868387434, 27.1152373207373,
+               7.22274028972924, 2.56657151559299),
     tolerance = 1e-3
   )
   expect_equal(all_coeffs$std.error,
-    c(
-      5.0066788799575, 4.58125952668684, 7.415753419446, 4.1185058577398,
-      5.86297959144672, 8.4064394096518, 5.47687440034061, 8.01519324303267,
-      8.84195558284918, 4.79166575929533
-    ),
+               c(5.0066788799575, NA, NA, 4.58125952668684, NA, NA, 7.415753419446,
+               NA, NA, 4.1185058577398, NA, NA, 5.86297959144672, NA, NA, 8.40640786916794,
+               NA, NA, 5.47687326593859, NA, NA, 8.01516995833046, NA, NA, 8.84393766449,
+               NA, NA, 4.79166391324045, NA, NA),
     tolerance = 1e-3
   )
   expect_equal(all_coeffs$p.value,
-    rep(NA, 10),
+               c(6.5621286650191e-09, NA, NA, 6.81093757913974e-14, NA, NA,
+               2.67687111118478e-08, NA, NA, 3.57760483693459e-13, NA, NA, 5.90832451985905e-08,
+               NA, NA, 7.44312441563641e-06, NA, NA, 3.61980275402386e-10, NA,
+               NA, 7.23097426899678e-06, NA, NA, 4.09320613887302e-05, NA, NA,
+               1.52403644886954e-08, NA, NA),
     tolerance = 1e-3
   )
 })

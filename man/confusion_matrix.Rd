@@ -186,6 +186,7 @@ The following formulas are used for calculating the metrics:
  \code{Kappa = (p_observed - p_expected) / (1 - p_expected)}
 }
 \examples{
+\donttest{
 # Attach cvms
 library(cvms)
 
@@ -220,6 +221,7 @@ cm <- confusion_matrix(targets, predictions,
   metrics = list("Weighted Accuracy" = TRUE)
 )
 cm
+}
 }
 \seealso{
 Other evaluation functions: 

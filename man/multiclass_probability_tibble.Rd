@@ -44,7 +44,7 @@ as no other arguments are supplied.}
 \examples{
 # Attach cvms
 library(cvms)
-
+\donttest{
 # Create a tibble with 5 classes and 10 observations
 # Apply softmax to make sure the probabilities sum to 1
 multiclass_probability_tibble(
@@ -82,6 +82,7 @@ multiclass_probability_tibble(
   apply_softmax = TRUE,
   FUN = rcertain
 )
+}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

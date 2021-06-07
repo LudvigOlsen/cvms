@@ -133,7 +133,6 @@ test_that("Metrics work for glm in validate()", {
     list_out = FALSE
   )
 
-
   validated <- validate(
     train_data = dat, formulas = "diagnosis~age",
     partitions_col = ".partitions", family = "binomial",

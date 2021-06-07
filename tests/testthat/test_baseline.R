@@ -2,6 +2,7 @@ library(cvms)
 context("baseline()")
 
 test_that("binomial evaluations are correct in baseline()", {
+
   xpectr::set_test_seed(1)
   binom_baseline <- baseline(
     test_data = participant.scores,
@@ -617,6 +618,7 @@ test_that("binomial evaluations are correct in baseline()", {
 })
 
 test_that("gaussian evaluations are correct in baseline()", {
+
   xpectr::set_test_seed(2)
   # set.seed(1)
   dat <- groupdata2::partition(participant.scores, p = 0.6, list_out = TRUE)
@@ -3048,7 +3050,6 @@ test_that("multinomial evaluations are correct in baseline()", {
 test_that("baseline() throws expected errors", {
 
   # Binomial
-
   xpectr::set_test_seed(1)
 
   # cutoff
@@ -3339,6 +3340,7 @@ test_that("baseline() throws expected errors", {
   "The dependent column must maximally contain 2 levels.",
   fixed = T
   )
+
 })
 
 test_that("multinomial baseline() works when test_data contains columns with names of the classes", {
@@ -3367,6 +3369,7 @@ test_that("multinomial baseline() works when test_data contains columns with nam
     c(0.317714964773788, 0.338624338624339, 0.397326649958229),
     tolerance = 1e-5
   )
+
 })
 
 test_that("multinomial baseline() summarizes correctly with imbalanced dataset", {

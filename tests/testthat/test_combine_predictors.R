@@ -2,6 +2,7 @@ library(cvms)
 context("combine_predictors()")
 
 test_that("predictors are properly combined with combine_predictors()", {
+
   dep <- "y"
   fx <- c("a", "b", "c", "d")
   rfx <- "(1|e)"
@@ -126,7 +127,6 @@ test_that("predictors are properly combined with combine_predictors()", {
   #   tidyr::crossing(combed_fx, ops_)
 })
 
-
 test_that("interchangeable predictors are properly combined with combine_predictors()", {
 
   # testthat::skip(message = "Skipping check for CRAN release due to r_hub failure")
@@ -231,6 +231,7 @@ test_that("interchangeable predictors are properly combined with combine_predict
 })
 
 test_that("fixed effect replacements works with combine_predictors()", {
+
   model_formulas_lower <- combine_predictors(
     dependent = "Price",
     fixed_effects = tolower(c(
@@ -274,6 +275,7 @@ test_that("fixed effect replacements works with combine_predictors()", {
     "Price ~ Cylinder * Doors + Mileage", "Price ~ Cylinder * Mileage + Doors",
     "Price ~ Cylinder + Doors * Mileage", "Price ~ Cylinder + Doors + Mileage"
   ))
+
 })
 
 test_that("the expected errors are thrown by combine_predictors()", {

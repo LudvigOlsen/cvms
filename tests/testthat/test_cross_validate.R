@@ -6,23 +6,6 @@ context("cross_validate()")
 # This will allow me to see if something changes, but it shouldn't give false confidence.
 
 
-# test_that("binomial models work with cross_validate()",{
-#
-#   # Load data and fold it
-#   xpectr::set_test_seed(1)
-#   dat <- groupdata2::fold(participant.scores, k = 4,
-#                           num_fold_cols = 3,
-#                           cat_col = 'diagnosis',
-#                           id_col = 'participant')
-#
-#   CVbinomlist <- cross_validate(dat,
-#                                 formulas = c("diagnosis~score", "diagnosis~age"),
-#                                 fold_cols = c('.folds_1','.folds_2','.folds_3'),
-#                                 family = 'binomial',
-#                                 REML = FALSE, verbose = FALSE,
-#                                 positive = 1 )
-# })
-
 test_that("binomial models work with cross_validate()", {
 
   # Load data and fold it
@@ -148,7 +131,7 @@ test_that("binomial models work with cross_validate()", {
 
 test_that("binomial models checks that dependent variable is numeric with cross_validate()", {
 
-  # skip_test_if_old_R_version()
+  testthat::skip_on_cran()
 
   # Load data and fold it
   xpectr::set_test_seed(7)
@@ -158,8 +141,6 @@ test_that("binomial models checks that dependent variable is numeric with cross_
     id_col = "participant"
   ) %>%
     dplyr::mutate(diagnosis = factor(diagnosis))
-
-  # dat %>% str()
 
   CVbinomlist <- cross_validate(dat,
     formulas = c("diagnosis~score", "diagnosis~age"),
@@ -257,11 +238,12 @@ test_that("binomial models checks that dependent variable is numeric with cross_
     row.names = integer(0L), class = c("tbl_df", "tbl", "data.frame")
     )
   )
+
 })
 
-test_that("binomial models work with cross_validate()", {
+test_that("binomial mixed models work with cross_validate()", {
 
-  # skip_test_if_old_R_version()
+  testthat::skip_on_cran()
 
   # Load data and fold it
   xpectr::set_test_seed(20)
@@ -270,7 +252,6 @@ test_that("binomial models work with cross_validate()", {
     cat_col = "diagnosis",
     id_col = "participant"
   )
-
 
   CVbinomlistrand <- cross_validate(dat,
     formulas = c("diagnosis~score + (1|session)", "diagnosis~age"),
@@ -389,11 +370,10 @@ test_that("binomial models work with cross_validate()", {
     row.names = integer(0L), class = c("tbl_df", "tbl", "data.frame")
     )
   )
+
 })
 
 test_that("gaussian model with cross_validate()", {
-
-  # skip_test_if_old_R_version()
 
   # Load data and fold it
   xpectr::set_test_seed(1)
@@ -557,11 +537,10 @@ test_that("gaussian model with cross_validate()", {
              "C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8",
              Sys.getlocale()),
            "\n---"))
+
 })
 
 test_that("gaussian mixed models with cross_validate()", {
-
-  # skip_test_if_old_R_version()
 
   # Load data and fold it
   xpectr::set_test_seed(1)
@@ -953,6 +932,8 @@ test_that("model using dot in formula ( y ~ . ) works with cross_validate()", {
   # We wish to test if using the dot "y~." method in the model formula
   # correctly leaves out .folds column.
 
+  testthat::skip_on_cran()
+
   # Load data and fold it
   xpectr::set_test_seed(1)
   dat <- groupdata2::fold(participant.scores,
@@ -985,6 +966,8 @@ test_that("model using dot in formula ( y ~ . ) works with cross_validate()", {
 
 test_that("model using inline functions in formulas works with cross_validate()", {
 
+  testthat::skip_on_cran()
+
   # Load data and fold it
   xpectr::set_test_seed(1)
   dat <- groupdata2::fold(participant.scores,
@@ -995,15 +978,18 @@ test_that("model using inline functions in formulas works with cross_validate()"
 
   # Expect no warnings
   # https://stackoverflow.com/questions/22003306/is-there-something-in-testthat-like-expect-no-warnings
-  expect_warning(cv1 <- cross_validate(dat,
-                                formulas = c("diagnosis~log(score)",
-                                             "diagnosis~log(score) + (1|session)"),
-                                fold_cols = ".folds", family = "binomial",
-                                REML = FALSE, verbose = FALSE
-  ),
-  regexp = NA
+  expect_warning(
+    cv1 <- cross_validate(
+      dat,
+      formulas = c("diagnosis~log(score)",
+                   "diagnosis~log(score) + (1|session)"),
+      fold_cols = ".folds",
+      family = "binomial",
+      REML = FALSE,
+      verbose = FALSE
+    ),
+    regexp = NA
   )
-
 
   # Testing values
   expect_equal(cv1$Fixed, c("log(score)", "log(score)"), fixed = TRUE)
@@ -1025,6 +1011,7 @@ test_that("model using inline functions in formulas works with cross_validate()"
   expect_equal(cv2$Fixed, c("log(age)", "log(age)"), fixed = TRUE)
   expect_equal(cv2$Random, c(NA, "(1|session)"), fixed = TRUE)
   expect_equal(cv2$RMSE, c(20.67139, 15.19049), tolerance = 1e-4)
+
 })
 
 test_that("binomial models work with repeated cross_validate()", {
@@ -1244,9 +1231,9 @@ test_that("binomial models work with repeated cross_validate()", {
   )
 })
 
-test_that("binomial models work with positive as.character in cross_validate()", {
+test_that("binomial models work with `positive` as.character in cross_validate()", {
 
-  # skip_test_if_old_R_version()
+  testthat::skip_on_cran()
 
   # Load data and fold it
   xpectr::set_test_seed(2)
@@ -1258,65 +1245,82 @@ test_that("binomial models work with positive as.character in cross_validate()",
   ) %>%
     dplyr::mutate(diagnosis = factor(ifelse(diagnosis == 0, "E", "B")))
 
-  CVbinomlist <- cross_validate(dat,
-    formulas = c("diagnosis~score", "diagnosis~age"),
-    fold_cols = c(".folds_1", ".folds_2"), family = "binomial",
-    REML = FALSE, verbose = FALSE,
+  # Positive == 1
+  CVbinomlist <- cross_validate(
+    dat,
+    formulas = c("diagnosis~score"),
+    fold_cols = c(".folds_1"),
+    family = "binomial",
+    REML = FALSE,
+    verbose = FALSE,
     positive = 1
   )
 
+  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]),
+               c("Fold Column", "Prediction", "Target", "Pos_B", "Pos_E", "N"))
+  expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(16, 2, 5, 7))
+  expect_equal(CVbinomlist$F1, 0.8205, tolerance = 1e-3)
+  expect_equal(CVbinomlist$Sensitivity, 0.8888, tolerance = 1e-3)
+
+  # Positive == 2
+  CVbinomlist <- cross_validate(
+    dat,
+    formulas = c("diagnosis~score"),
+    fold_cols = c(".folds_1"),
+    family = "binomial",
+    REML = FALSE,
+    verbose = FALSE,
+    positive = 2
+  )
+
   expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]), c("Fold Column", "Prediction", "Target", "Pos_B", "Pos_E", "N"))
-  expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(16, 2, 5, 7, 15, 3, 5, 7))
-  expect_equal(CVbinomlist$F1, c(0.8049933, 0.5384615), tolerance = 1e-3)
+  expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(16, 2, 5, 7))
+  expect_equal(CVbinomlist$F1, 0.6666, tolerance = 1e-3)
+  expect_equal(CVbinomlist$Sensitivity, 0.5833, tolerance = 1e-3)
 
-  CVbinomlist <- cross_validate(dat,
-    formulas = c("diagnosis~score", "diagnosis~age"),
-    fold_cols = c(".folds_1", ".folds_2"), family = "binomial",
-    REML = FALSE, verbose = FALSE, positive = "E"
+  # Positive == E (#2 alphabetically)
+  CVbinomlist <- cross_validate(
+    dat,
+    formulas = c("diagnosis~score"),
+    fold_cols = c(".folds_1"),
+    family = "binomial",
+    REML = FALSE,
+    verbose = FALSE,
+    positive = "E"
   )
 
   expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]), c("Fold Column", "Prediction", "Target", "Pos_B", "Pos_E", "N"))
-  expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(16, 2, 5, 7, 15, 3, 5, 7))
-  expect_equal(CVbinomlist$F1, c(0.6515152, NA), tolerance = 1e-3)
+  expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(16, 2, 5, 7))
+  expect_equal(CVbinomlist$F1, 0.6666, tolerance = 1e-3)
+  expect_equal(CVbinomlist$Sensitivity, 0.5833, tolerance = 1e-3)
 
-  CVbinomlist <- cross_validate(dat,
-    formulas = c("diagnosis~score", "diagnosis~age"),
-    fold_cols = c(".folds_1", ".folds_2"), family = "binomial",
-    REML = FALSE, verbose = FALSE, positive = "B"
+  # Positive == B (#1 alphabetically)
+  CVbinomlist <- cross_validate(
+    dat,
+    formulas = c("diagnosis~score"),
+    fold_cols = c(".folds_1"),
+    family = "binomial",
+    REML = FALSE,
+    verbose = FALSE,
+    positive = "B"
   )
 
   expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]),
                c("Fold Column", "Prediction", "Target", "Pos_B", "Pos_E", "N"))
-  expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(16, 2, 5, 7, 15, 3, 5, 7))
-  expect_equal(CVbinomlist$F1, c(0.8049933, 0.5384615), tolerance = 1e-3)
+  expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(16, 2, 5, 7))
+  expect_equal(CVbinomlist$F1, c(0.8205), tolerance = 1e-3)
+  expect_equal(CVbinomlist$Sensitivity, 0.8888, tolerance = 1e-3)
 
-  CVbinomlist <- cross_validate(dat,
-    formulas = c("diagnosis~score", "diagnosis~age"),
-    fold_cols = c(".folds_1", ".folds_2"), family = "binomial",
-    REML = FALSE, verbose = FALSE, positive = 1
-  )
-
-  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]),
-               c("Fold Column", "Prediction", "Target", "Pos_B", "Pos_E", "N"))
-  expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(16, 2, 5, 7, 15, 3, 5, 7))
-  expect_equal(CVbinomlist$F1, c(0.8049933, 0.5384615), tolerance = 1e-3)
-
-  CVbinomlist <- cross_validate(dat,
-    formulas = c("diagnosis~score", "diagnosis~age"),
-    fold_cols = c(".folds_1", ".folds_2"), family = "binomial",
-    REML = FALSE, verbose = FALSE, positive = 2
-  )
-
-  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]),
-               c("Fold Column", "Prediction", "Target", "Pos_B", "Pos_E", "N"))
-  expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(16, 2, 5, 7, 15, 3, 5, 7))
-  expect_equal(CVbinomlist$F1, c(0.6515152, NA), tolerance = 1e-3)
-
+  # Positive == C (not in dependent)
   expect_error(
-    cross_validate(dat,
-      formulas = c("diagnosis~score", "diagnosis~age"),
-      fold_cols = c(".folds_1", ".folds_2"), family = "binomial",
-      REML = FALSE, verbose = FALSE, positive = "C"
+    cross_validate(
+      dat,
+      formulas = c("diagnosis~score"),
+      fold_cols = c(".folds_1"),
+      family = "binomial",
+      REML = FALSE,
+      verbose = FALSE,
+      positive = "C"
     ),
     "When 'positive' is a character, it must correspond to a factor level in the dependent variable.\n'positive' is C and levels are B and E."
   )
@@ -1332,62 +1336,21 @@ test_that("binomial models work with positive as.character in cross_validate()",
   ) %>%
     dplyr::mutate(diagnosis = factor(ifelse(diagnosis == 0, "B", "E")))
 
-  CVbinomlist <- cross_validate(dat,
-    formulas = c("diagnosis~score", "diagnosis~age"),
-    fold_cols = c(".folds_1", ".folds_2"), family = "binomial",
-    REML = FALSE, verbose = FALSE,
+  CVbinomlist <- cross_validate(
+    dat,
+    formulas = c("diagnosis~score"),
+    fold_cols = c(".folds_1"),
+    family = "binomial",
+    REML = FALSE,
+    verbose = FALSE,
     positive = 1
   )
 
   expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]),
                c("Fold Column", "Prediction", "Target", "Pos_B", "Pos_E", "N"))
-  expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(7, 5, 2, 16, 7, 5, 3, 15))
-  expect_equal(CVbinomlist$F1, c(0.6515152, NA), tolerance = 1e-3)
-
-  CVbinomlist <- cross_validate(dat,
-    formulas = c("diagnosis~score", "diagnosis~age"),
-    fold_cols = c(".folds_1", ".folds_2"), family = "binomial",
-    REML = FALSE, verbose = FALSE, positive = "E"
-  )
-
-  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]),
-               c("Fold Column", "Prediction", "Target", "Pos_B", "Pos_E", "N"))
-  expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(7, 5, 2, 16, 7, 5, 3, 15))
-  expect_equal(CVbinomlist$F1, c(0.8049933, 0.5384615), tolerance = 1e-3)
-
-  CVbinomlist <- cross_validate(dat,
-    formulas = c("diagnosis~score", "diagnosis~age"),
-    fold_cols = c(".folds_1", ".folds_2"), family = "binomial",
-    REML = FALSE, verbose = FALSE, positive = "B"
-  )
-
-  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]),
-               c("Fold Column", "Prediction", "Target", "Pos_B", "Pos_E", "N"))
-  expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(7, 5, 2, 16, 7, 5, 3, 15))
-  expect_equal(CVbinomlist$F1, c(0.6515152, NA), tolerance = 1e-3)
-
-  CVbinomlist <- cross_validate(dat,
-    formulas = c("diagnosis~score", "diagnosis~age"),
-    fold_cols = c(".folds_1", ".folds_2"), family = "binomial",
-    REML = FALSE, verbose = FALSE, positive = 1
-  )
-
-  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]),
-               c("Fold Column", "Prediction", "Target", "Pos_B", "Pos_E", "N"))
-  expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(7, 5, 2, 16, 7, 5, 3, 15))
-  expect_equal(CVbinomlist$F1, c(0.6515152, NA), tolerance = 1e-3)
-
-  CVbinomlist <- cross_validate(dat,
-    formulas = c("diagnosis~score", "diagnosis~age"),
-    fold_cols = c(".folds_1", ".folds_2"), family = "binomial",
-    REML = FALSE, verbose = FALSE, positive = 2
-  )
-
-  expect_equal(colnames(CVbinomlist$`Confusion Matrix`[[1]]),
-               c("Fold Column", "Prediction", "Target", "Pos_B", "Pos_E", "N"))
-  expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(7, 5, 2, 16, 7, 5, 3, 15))
-  expect_equal(CVbinomlist$F1, c(0.8049933, 0.5384615), tolerance = 1e-3)
-
+  expect_equal(CVbinomlist$`Confusion Matrix`[[1]]$N, c(7, 5, 2, 16))
+  expect_equal(CVbinomlist$F1, 0.6666, tolerance = 1e-3)
+  expect_equal(CVbinomlist$Sensitivity, 0.5833, tolerance = 1e-3)
 
   expect_equal(
     CVbinomlist$`Warnings and Messages`[[1]],
@@ -1398,11 +1361,10 @@ test_that("binomial models work with positive as.character in cross_validate()",
     row.names = integer(0L), class = c("tbl_df", "tbl", "data.frame")
     )
   )
+
 })
 
 test_that("gaussian models work with repeated cross_validate()", {
-
-  # skip_test_if_old_R_version()
 
   # Load data and fold it
   xpectr::set_test_seed(1)
@@ -1542,7 +1504,6 @@ test_that("gaussian models work with repeated cross_validate()", {
   )
 })
 
-# TODO Check preprocessing with random effects as well!
 test_that("preprocessing works with binomial models in cross_validate()", {
 
   testthat::skip_on_cran()
@@ -1557,7 +1518,7 @@ test_that("preprocessing works with binomial models in cross_validate()", {
 
   CVbinomlist_no_preprocessing <- cross_validate(
     dat,
-    formulas = c("diagnosis~score", "diagnosis~age"),
+    formulas = c("diagnosis~score"),
     fold_cols = ".folds", family = "binomial",
     REML = FALSE, verbose = FALSE,
     positive = 1
@@ -1565,7 +1526,7 @@ test_that("preprocessing works with binomial models in cross_validate()", {
 
   CVbinomlist_standardize <- cross_validate(
     dat,
-    formulas = c("diagnosis~score", "diagnosis~age"),
+    formulas = c("diagnosis~score"),
     fold_cols = ".folds", family = "binomial",
     preprocessing = "standardize",
     REML = FALSE, verbose = FALSE,
@@ -1574,7 +1535,7 @@ test_that("preprocessing works with binomial models in cross_validate()", {
 
   CVbinomlist_center <- cross_validate(
     dat,
-    formulas = c("diagnosis~score", "diagnosis~age"),
+    formulas = c("diagnosis~score"),
     fold_cols = ".folds", family = "binomial",
     preprocessing = "center",
     REML = FALSE, verbose = FALSE,
@@ -1583,7 +1544,7 @@ test_that("preprocessing works with binomial models in cross_validate()", {
 
   CVbinomlist_scale <- cross_validate(
     dat,
-    formulas = c("diagnosis~score", "diagnosis~age"),
+    formulas = c("diagnosis~score"),
     fold_cols = ".folds", family = "binomial",
     preprocessing = "scale",
     REML = FALSE, verbose = FALSE,
@@ -1592,7 +1553,7 @@ test_that("preprocessing works with binomial models in cross_validate()", {
 
   CVbinomlist_range <- cross_validate(
     dat,
-    formulas = c("diagnosis~score", "diagnosis~age"),
+    formulas = c("diagnosis~score"),
     fold_cols = ".folds", family = "binomial",
     preprocessing = "range",
     REML = FALSE, verbose = FALSE,
@@ -1606,7 +1567,7 @@ test_that("preprocessing works with binomial models in cross_validate()", {
 
   expect_error(
     xpectr::strip_msg(cross_validate(dat,
-    formulas = c("diagnosis~score", "diagnosis~age"),
+    formulas = c("diagnosis~score"),
     fold_cols = ".folds", family = "binomial",
     preprocessing = "standardization",
     REML = FALSE, verbose = FALSE,
@@ -1657,19 +1618,12 @@ test_that("preprocessing works with binomial models in cross_validate()", {
 
   # No preprocessing
   expect_equal(CVbinomlist_no_preprocessing$`Balanced Accuracy`,
-               c(0.7361111, 0.3333333),
+               c(0.7361111),
                tolerance = 1e-3)
   expect_equal(CVbinomlist_no_preprocessing$Coefficients[[1]]$estimate,
     c(
       3.19756037998759, -0.0678513281319974, 3.34308245247553, -0.0729927574874602,
       4.14788399490261, -0.0972715556624782, 2.49701032610746, -0.0536164806074169
-    ),
-    tolerance = 1e-6
-  )
-  expect_equal(CVbinomlist_no_preprocessing$Coefficients[[2]]$estimate,
-    c(
-      -2.31297492899443, 0.100335811507117, 1.7302557200586, -0.050812829705776,
-      -1.16399460049258, 0.0626171124232321, 0.613751298912592, -0.0111166003849735
     ),
     tolerance = 1e-6
   )
@@ -1686,29 +1640,11 @@ test_that("preprocessing works with binomial models in cross_validate()", {
     ),
     tolerance = 1e-6
   )
-  expect_equal(CVbinomlist_no_preprocessing$Predictions[[2]]$Prediction,
-    c(
-      0.710491235215637, 0.710491235215637, 0.710491235215637, 0.44870042677685,
-      0.44870042677685, 0.44870042677685, 0.636813564574957, 0.636813564574957,
-      0.636813564574957, 0.671284217511584, 0.671284217511584, 0.671284217511584,
-      0.388244841966772, 0.388244841966772, 0.388244841966772, 0.724119218089194,
-      0.724119218089194, 0.724119218089194, 0.698413191776537, 0.698413191776537,
-      0.698413191776537, 0.593946106206426, 0.593946106206426, 0.593946106206426,
-      0.577764489649215, 0.577764489649215, 0.577764489649215, 0.566880950613583,
-      0.566880950613583, 0.566880950613583
-    ),
-    tolerance = 1e-6
-  )
-
 
   # Standardize
   expect_equal(
     colnames(CVbinomlist_standardize$Preprocess[[1]]),
     c("Fold Column", "Fold", "Measure", "score")
-  )
-  expect_equal(
-    colnames(CVbinomlist_standardize$Preprocess[[2]]),
-    c("Fold Column", "Fold", "Measure", "age")
   )
   expect_equal(CVbinomlist_standardize$Preprocess[[1]]$score,
     c(
@@ -1721,25 +1657,11 @@ test_that("preprocessing works with binomial models in cross_validate()", {
     rep(c("Mean", "SD"), 4),
     tolerance = 1e-3
   )
-  expect_equal(CVbinomlist_standardize$Preprocess[[2]]$age,
-    c(
-      28.875, 7.39160805002656, 28.2857142857143, 5.12974518999587,
-      27.25, 7.51953976389975, 29.2857142857143, 7.93185260290972
-    ),
-    tolerance = 1e-3
-  )
-  expect_equal(CVbinomlist_standardize$`Balanced Accuracy`, c(0.7361111, 0.3333333), tolerance = 1e-3)
+  expect_equal(CVbinomlist_standardize$`Balanced Accuracy`, c(0.7361111), tolerance = 1e-3)
   expect_equal(CVbinomlist_standardize$Coefficients[[1]]$estimate,
     c(
       0.636172743004689, -1.26831728018262, 0.333000167516465, -1.43925444529707,
       0.617737120651834, -1.88975620249066, 0.337032107351522, -1.041339564784
-    ),
-    tolerance = 1e-6
-  )
-  expect_equal(CVbinomlist_standardize$Coefficients[[2]]$estimate,
-    c(
-      0.584221628273588, 0.741642992041957, 0.292978536952361, -0.260656868773284,
-      0.542321713040495, 0.470851866767076, 0.288193716209797, -0.0881752356990601
     ),
     tolerance = 1e-6
   )
@@ -1756,28 +1678,11 @@ test_that("preprocessing works with binomial models in cross_validate()", {
     ),
     tolerance = 1e-6
   )
-  expect_equal(CVbinomlist_standardize$Predictions[[2]]$Prediction,
-    c(
-      0.710491235215637, 0.710491235215637, 0.710491235215637, 0.44870042677685,
-      0.44870042677685, 0.44870042677685, 0.636813564574957, 0.636813564574957,
-      0.636813564574957, 0.671284217511584, 0.671284217511584, 0.671284217511584,
-      0.388244841966772, 0.388244841966772, 0.388244841966772, 0.724119218089194,
-      0.724119218089194, 0.724119218089194, 0.698413191776537, 0.698413191776537,
-      0.698413191776537, 0.593946106206426, 0.593946106206426, 0.593946106206426,
-      0.577764489649215, 0.577764489649215, 0.577764489649215, 0.566880950613583,
-      0.566880950613583, 0.566880950613583
-    ),
-    tolerance = 1e-6
-  )
 
   # Scale
   expect_equal(
     colnames(CVbinomlist_scale$Preprocess[[1]]),
     c("Fold Column", "Fold", "Measure", "score")
-  )
-  expect_equal(
-    colnames(CVbinomlist_scale$Preprocess[[2]]),
-    c("Fold Column", "Fold", "Measure", "age")
   )
   expect_equal(CVbinomlist_scale$Preprocess[[1]]$score,
     c(
@@ -1790,25 +1695,12 @@ test_that("preprocessing works with binomial models in cross_validate()", {
     rep(c("SD"), 4),
     tolerance = 1e-3
   )
-  expect_equal(CVbinomlist_scale$Preprocess[[2]]$age,
-    c(
-      7.39160805002656, 5.12974518999587,
-      7.51953976389975, 7.93185260290972
-    ),
-    tolerance = 1e-3
-  )
-  expect_equal(CVbinomlist_scale$`Balanced Accuracy`, c(0.7361111, 0.3333333), tolerance = 1e-3)
+
+  expect_equal(CVbinomlist_scale$`Balanced Accuracy`, c(0.7361111), tolerance = 1e-3)
   expect_equal(CVbinomlist_scale$Coefficients[[1]]$estimate,
     c(
       3.19756037998759, -1.26831728018262, 3.34308245247554, -1.43925444529707,
       4.14788399490261, -1.88975620249067, 2.49701032610746, -1.041339564784
-    ),
-    tolerance = 1e-6
-  )
-  expect_equal(CVbinomlist_scale$Coefficients[[2]]$estimate,
-    c(
-      -2.31297492899443, 0.741642992041957, 1.7302557200586, -0.260656868773284,
-      -1.16399460049259, 0.470851866767077, 0.61375129891259, -0.0881752356990586
     ),
     tolerance = 1e-6
   )
@@ -1825,28 +1717,11 @@ test_that("preprocessing works with binomial models in cross_validate()", {
     ),
     tolerance = 1e-6
   )
-  expect_equal(CVbinomlist_scale$Predictions[[2]]$Prediction,
-    c(
-      0.710491235215637, 0.710491235215637, 0.710491235215637, 0.44870042677685,
-      0.44870042677685, 0.44870042677685, 0.636813564574957, 0.636813564574957,
-      0.636813564574957, 0.671284217511584, 0.671284217511584, 0.671284217511584,
-      0.388244841966772, 0.388244841966772, 0.388244841966772, 0.724119218089194,
-      0.724119218089194, 0.724119218089194, 0.698413191776537, 0.698413191776537,
-      0.698413191776537, 0.593946106206426, 0.593946106206426, 0.593946106206426,
-      0.577764489649215, 0.577764489649215, 0.577764489649215, 0.566880950613583,
-      0.566880950613583, 0.566880950613583
-    ),
-    tolerance = 1e-6
-  )
 
   # Center
   expect_equal(
     colnames(CVbinomlist_center$Preprocess[[1]]),
     c("Fold Column", "Fold", "Measure", "score")
-  )
-  expect_equal(
-    colnames(CVbinomlist_center$Preprocess[[2]]),
-    c("Fold Column", "Fold", "Measure", "age")
   )
   expect_equal(CVbinomlist_center$Preprocess[[1]]$score,
     c(
@@ -1859,26 +1734,12 @@ test_that("preprocessing works with binomial models in cross_validate()", {
     rep(c("Mean"), 4),
     tolerance = 1e-3
   )
-  expect_equal(CVbinomlist_center$Preprocess[[2]]$age,
-    c(
-      28.875, 28.2857142857143,
-      27.25, 29.2857142857143
-    ),
-    tolerance = 1e-3
-  )
-  expect_equal(CVbinomlist_center$`Balanced Accuracy`, c(0.7361111, 0.3333333), tolerance = 1e-3)
+  expect_equal(CVbinomlist_center$`Balanced Accuracy`, c(0.7361111), tolerance = 1e-3)
   expect_equal(CVbinomlist_center$Coefficients[[1]]$estimate,
     c(
       0.636172743004689, -0.0678513281319975, 0.333000167516464,
       -0.0729927574874603, 0.617737120651835, -0.0972715556624782,
       0.337032107351522, -0.0536164806074169
-    ),
-    tolerance = 1e-6
-  )
-  expect_equal(CVbinomlist_center$Coefficients[[2]]$estimate,
-    c(
-      0.584221628273588, 0.100335811507118, 0.292978536952361, -0.0508128297057761,
-      0.542321713040494, 0.0626171124232322, 0.288193716209797, -0.0111166003849736
     ),
     tolerance = 1e-6
   )
@@ -1895,28 +1756,11 @@ test_that("preprocessing works with binomial models in cross_validate()", {
     ),
     tolerance = 1e-6
   )
-  expect_equal(CVbinomlist_center$Predictions[[2]]$Prediction,
-    c(
-      0.710491235215637, 0.710491235215637, 0.710491235215637, 0.44870042677685,
-      0.44870042677685, 0.44870042677685, 0.636813564574957, 0.636813564574957,
-      0.636813564574957, 0.671284217511584, 0.671284217511584, 0.671284217511584,
-      0.388244841966772, 0.388244841966772, 0.388244841966772, 0.724119218089194,
-      0.724119218089194, 0.724119218089194, 0.698413191776537, 0.698413191776537,
-      0.698413191776537, 0.593946106206426, 0.593946106206426, 0.593946106206426,
-      0.577764489649215, 0.577764489649215, 0.577764489649215, 0.566880950613583,
-      0.566880950613583, 0.566880950613583
-    ),
-    tolerance = 1e-6
-  )
 
   # Range
   expect_equal(
     colnames(CVbinomlist_range$Preprocess[[1]]),
     c("Fold Column", "Fold", "Measure", "score")
-  )
-  expect_equal(
-    colnames(CVbinomlist_range$Preprocess[[2]]),
-    c("Fold Column", "Fold", "Measure", "age")
   )
   expect_equal(CVbinomlist_range$Preprocess[[1]]$score,
     c(10, 78, 14, 81, 10, 81, 10, 81),
@@ -1926,22 +1770,11 @@ test_that("preprocessing works with binomial models in cross_validate()", {
     rep(c("Min", "Max"), 4),
     tolerance = 1e-3
   )
-  expect_equal(CVbinomlist_range$Preprocess[[2]]$age,
-    c(20, 43, 21, 34, 20, 43, 20, 43),
-    tolerance = 1e-3
-  )
-  expect_equal(CVbinomlist_range$`Balanced Accuracy`, c(0.736111111111111, 0.416666666666667), tolerance = 1e-3)
+  expect_equal(CVbinomlist_range$`Balanced Accuracy`, c(0.736111111111111), tolerance = 1e-3)
   expect_equal(CVbinomlist_range$Coefficients[[1]]$estimate,
     c(
       2.51904709866762, -4.61389031297583, 2.3211838476511, -4.89051475165984,
       3.17516843827782, -6.90628045203595, 1.96084552003329, -3.8067701231266
-    ),
-    tolerance = 1e-6
-  )
-  expect_equal(CVbinomlist_range$Coefficients[[2]]$estimate,
-    c(
-      -0.306258698852079, 2.3077236646637, 0.663186296237301, -0.660566786175088,
-      0.0883476479720599, 1.44019358573434, 0.391419291213123, -0.255681808854391
     ),
     tolerance = 1e-6
   )
@@ -1958,20 +1791,6 @@ test_that("preprocessing works with binomial models in cross_validate()", {
     ),
     tolerance = 1e-6
   )
-  expect_equal(CVbinomlist_range$Predictions[[2]]$Prediction,
-    c(
-      0.710491235215637, 0.710491235215637, 0.710491235215637, 0.44870042677685,
-      0.44870042677685, 0.44870042677685, 0.636813564574957, 0.636813564574957,
-      0.636813564574957, 0.65997578207063, 0.65997578207063, 0.65997578207063,
-      0.500654877141082, 0.500654877141082, 0.500654877141082, 0.724119218089194,
-      0.724119218089194, 0.724119218089194, 0.698413191776537, 0.698413191776537,
-      0.698413191776537, 0.593946106206426, 0.593946106206426, 0.593946106206426,
-      0.577764489649215, 0.577764489649215, 0.577764489649215, 0.566880950613583,
-      0.566880950613583, 0.566880950613583
-    ),
-    tolerance = 1e-6
-  )
-
 
   expect_equal(
     CVbinomlist_no_preprocessing$Predictions[[1]]$Prediction,
@@ -2012,17 +1831,18 @@ test_that("preprocessing works with binomial models in cross_validate()", {
   # predictions_ranged <- predict(glm_ranged, newdata = train_test$ranged$test)
 
 
-  expect_equal(CVbinomlist_no_preprocessing$AUC, c(0.7615741, 0.1666667), tolerance = 1e-3)
-  expect_equal(CVbinomlist_standardize$AUC, c(0.7615741, 0.1666667), tolerance = 1e-3)
-  expect_equal(CVbinomlist_scale$AUC, c(0.7615741, 0.1666667), tolerance = 1e-3)
-  expect_equal(CVbinomlist_center$AUC, c(0.7615741, 0.1666667), tolerance = 1e-3)
-  expect_equal(CVbinomlist_range$AUC, c(0.7615741, 0.1666667), tolerance = 1e-3)
+  expect_equal(CVbinomlist_no_preprocessing$AUC, c(0.7615741), tolerance = 1e-3)
+  expect_equal(CVbinomlist_standardize$AUC, c(0.7615741), tolerance = 1e-3)
+  expect_equal(CVbinomlist_scale$AUC, c(0.7615741), tolerance = 1e-3)
+  expect_equal(CVbinomlist_center$AUC, c(0.7615741), tolerance = 1e-3)
+  expect_equal(CVbinomlist_range$AUC, c(0.7615741), tolerance = 1e-3)
 
-  expect_equal(CVbinomlist_no_preprocessing$MCC, c(0.5048268, -0.4082483), tolerance = 1e-3)
-  expect_equal(CVbinomlist_standardize$MCC, c(0.5048268, -0.4082483), tolerance = 1e-3)
-  expect_equal(CVbinomlist_scale$MCC, c(0.5048268, -0.4082483), tolerance = 1e-3)
-  expect_equal(CVbinomlist_center$MCC, c(0.5048268, -0.4082483), tolerance = 1e-3)
-  expect_equal(CVbinomlist_range$MCC, c(0.504826790279024, -0.272165526975909), tolerance = 1e-3) # Why is this different?
+  expect_equal(CVbinomlist_no_preprocessing$MCC, c(0.5048268), tolerance = 1e-3)
+  expect_equal(CVbinomlist_standardize$MCC, c(0.5048268), tolerance = 1e-3)
+  expect_equal(CVbinomlist_scale$MCC, c(0.5048268), tolerance = 1e-3)
+  expect_equal(CVbinomlist_center$MCC, c(0.5048268), tolerance = 1e-3)
+  expect_equal(CVbinomlist_range$MCC, c(0.504826790279024), tolerance = 1e-3) # Why is this different?
+
 })
 
 test_that("preprocessing works with binomial mixed models in cross_validate()", {
@@ -3301,7 +3121,7 @@ test_that("binomial models with metrics list work with cross_validate()", {
   )
 
   CVbinomlist <- cross_validate(dat,
-    formulas = c("diagnosis~score", "diagnosis~age"),
+    formulas = c("diagnosis~score"),
     fold_cols = ".folds", family = "binomial",
     REML = FALSE,
     metrics = list(
@@ -3327,11 +3147,11 @@ test_that("binomial models with metrics list work with cross_validate()", {
     )
   )
 
-  expect_equal(CVbinomlist$Accuracy, c(0.766666666666667, 0.4), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Balanced Accuracy`, c(0.7361111, 0.3333333), tolerance = 1e-3)
+  expect_equal(CVbinomlist$Accuracy, c(0.766666666666667), tolerance = 1e-3)
+  expect_equal(CVbinomlist$`Balanced Accuracy`, c(0.7361111), tolerance = 1e-3)
 
   expect_error(cross_validate(dat,
-    formulas = c("diagnosis~score", "diagnosis~age"),
+    formulas = c("diagnosis~score"),
     fold_cols = ".folds", family = "binomial",
     REML = FALSE,
     metrics = list(
@@ -3347,7 +3167,7 @@ test_that("binomial models with metrics list work with cross_validate()", {
   )
   expect_error(
     xpectr::strip_msg(cross_validate(dat,
-    formulas = c("diagnosis~score", "diagnosis~age"),
+    formulas = c("diagnosis~score"),
     fold_cols = ".folds", family = "binomial",
     REML = FALSE,
     metrics = list(
@@ -3421,6 +3241,7 @@ test_that("gaussian models with metrics list work with cross_validate()", {
 })
 
 test_that("varying number of folds in repeated cv with cross_validate()", {
+
   xpectr::set_test_seed(1)
   dat <- participant.scores
   dat$.folds_1 <- factor(sample(c(1,2), size = nrow(dat), replace = TRUE))
@@ -3435,7 +3256,6 @@ test_that("varying number of folds in repeated cv with cross_validate()", {
     REML = FALSE,
     verbose = FALSE
   )
-
 
   ## Testing 'CV'                                                           ####
   ## Initially generated by xpectr

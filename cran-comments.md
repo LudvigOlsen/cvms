@@ -8,3 +8,4 @@ There were no ERRORs or WARNINGs. There was 1 NOTE when `rsvg` was not installed
 ## Downstream dependencies
 There are currently no downstream dependencies.
 
+* I reduced the number of tests that run on CRAN with `testthat::skip_on_cran()`.

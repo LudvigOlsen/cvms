@@ -1,4 +1,6 @@
 
+# cvms 1.3.0.9000
+
 # cvms 1.3.0
 
 * In order to reduce dependencies, model coefficients are now tidied with the `parameters` package instead of `broom` and `broom.mixed`. Thanks to @IndrajeetPatil for the contributions.

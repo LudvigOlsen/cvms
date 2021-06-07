@@ -3,6 +3,7 @@ context("choosing metrics")
 
 test_that("gaussian_metrics()", {
 
+
   # Load data and fold it
   xpectr::set_test_seed(1)
 
@@ -753,7 +754,7 @@ test_that("binomial_metrics()", {
 
 })
 
-test_that("binomial_metrics()", {
+test_that("multinomial_metrics()", {
 
   # Load data and fold it
   xpectr::set_test_seed(1)

@@ -11,14 +11,6 @@ test_that("binomial glm model works with cross_validate_fn()", {
     id_col = "participant"
   )
 
-  # Not used atm.
-  dat2 <- groupdata2::fold(participant.scores,
-    k = 4,
-    num_fold_cols = 3,
-    cat_col = "diagnosis",
-    id_col = "participant"
-  )
-
   glm_model_fn <- function(train_data, formula, hyperparameters) {
     glm(formula = formula, data = train_data, family = "binomial")
   }
@@ -106,13 +98,14 @@ test_that("binomial glm model works with cross_validate_fn()", {
            "Probability summary: mean: 0.585, median: 0.669, range: [0.0",
            "91, 0.932], SD: 0.272, IQR: 0.426\n---"))
 
+  testthat::skip_on_cran() ### <-
 
   # Check error when no model_fn is provided
   expect_error(
     xpectr::strip_msg(cross_validate_fn(dat,
     model_fn = NULL,
     predict_fn = glm_predict_fn,
-    formulas = c("diagnosis~score", "diagnosis~age"),
+    formulas = c("diagnosis~score"),
     fold_cols = ".folds", type = "binomial"
   )),
   xpectr::strip(paste0(
@@ -127,7 +120,7 @@ test_that("binomial glm model works with cross_validate_fn()", {
     xpectr::strip_msg(cross_validate_fn(dat,
     model_fn = glm_model_fn,
     predict_fn = NULL,
-    formulas = c("diagnosis~score", "diagnosis~age"),
+    formulas = c("diagnosis~score"),
     fold_cols = ".folds", type = "binomial"
   )),
   xpectr::strip(paste0(
@@ -142,7 +135,7 @@ test_that("binomial glm model works with cross_validate_fn()", {
     xpectr::strip_msg(cross_validate_fn(dat,
     model_fn = 3,
     predict_fn = glm_predict_fn,
-    formulas = c("diagnosis~score", "diagnosis~age"),
+    formulas = c("diagnosis~score"),
     fold_cols = ".folds", type = "binomial"
   )),
   xpectr::strip(paste0(
@@ -157,7 +150,7 @@ test_that("binomial glm model works with cross_validate_fn()", {
     xpectr::strip_msg(cross_validate_fn(dat,
     model_fn = glm_model_fn,
     predict_fn = 3,
-    formulas = c("diagnosis~score", "diagnosis~age"),
+    formulas = c("diagnosis~score"),
     fold_cols = ".folds", type = "binomial"
   )),
     xpectr::strip(paste0(
@@ -209,7 +202,7 @@ test_that("binomial glm model works with cross_validate_fn()", {
 
   expect_error(cross_validate_fn(dat,
     model_fn = glm_model_fn,
-    formulas = c("diagnosis~score", "diagnosis~age"),
+    formulas = c("diagnosis~score"),
     fold_cols = ".folds",
     predict_fn = wrong_predict_fn,
     type = "binomial"
@@ -225,7 +218,7 @@ test_that("binomial glm model works with cross_validate_fn()", {
 
   expect_error(cross_validate_fn(dat,
     model_fn = glm_model_fn,
-    formulas = c("diagnosis~score", "diagnosis~age"),
+    formulas = c("diagnosis~score"),
     fold_cols = ".folds",
     predict_fn = function(test_data, model, formula = NULL,
                           hyperparameters = NULL, train_data = NULL) {
@@ -238,7 +231,7 @@ test_that("binomial glm model works with cross_validate_fn()", {
   )
   expect_error(cross_validate_fn(dat,
     model_fn = glm_model_fn,
-    formulas = c("diagnosis~score", "diagnosis~age"),
+    formulas = c("diagnosis~score"),
     fold_cols = ".folds",
     predict_fn = function(test_data, model, formula = NULL,
                           hyperparameters = NULL, train_data = NULL) {
@@ -257,7 +250,7 @@ test_that("binomial glm model works with cross_validate_fn()", {
   expect_error(
     xpectr::strip_msg(cross_validate_fn(dat,
     model_fn = glm_model_fn,
-    formulas = c("diagnosis~score", "diagnosis~age"),
+    formulas = c("diagnosis~score"),
     fold_cols = ".folds",
     predict_fn = NULL,
     type = "binomial"
@@ -270,7 +263,7 @@ test_that("binomial glm model works with cross_validate_fn()", {
   )
   expect_error(cross_validate_fn(dat,
     model_fn = glm_model_fn,
-    formulas = c("diagnosis~score", "diagnosis~age"),
+    formulas = c("diagnosis~score"),
     fold_cols = ".folds",
     predict_fn = function(test_data, model, formula = NULL,
                           hyperparameters = NULL,
@@ -284,7 +277,7 @@ test_that("binomial glm model works with cross_validate_fn()", {
   )
   expect_error(cross_validate_fn(dat,
     model_fn = glm_model_fn,
-    formulas = c("diagnosis~score", "diagnosis~age"),
+    formulas = c("diagnosis~score"),
     fold_cols = ".folds",
     predict_fn = function(test_data, model, formula = NULL,
                           hyperparameters = NULL,
@@ -298,7 +291,7 @@ test_that("binomial glm model works with cross_validate_fn()", {
   )
   expect_error(cross_validate_fn(dat,
     model_fn = glm_model_fn,
-    formulas = c("diagnosis~score", "diagnosis~age"),
+    formulas = c("diagnosis~score"),
     fold_cols = ".folds",
     predict_fn = function(test_data, model, formula = NULL,
                           hyperparameters = NULL, train_data = NULL) {
@@ -317,7 +310,7 @@ test_that("binomial glm model works with cross_validate_fn()", {
   expect_error(
     xpectr::strip_msg(cross_validate_fn(dat,
     model_fn = glm_model_fn,
-    formulas = c("diagnosis~score", "diagnosis~age"),
+    formulas = c("diagnosis~score"),
     fold_cols = ".folds",
     predict_fn = function(t_data, model, formula = NULL,
                           hyperparameters = NULL, train_data = NULL) {
@@ -351,6 +344,7 @@ test_that("binomial glm model works with cross_validate_fn()", {
       )
     )
   )
+
 })
 
 test_that("gaussian lm model works with cross_validate_fn()", {
@@ -458,16 +452,19 @@ test_that("gaussian lm model works with cross_validate_fn()", {
     warnings_and_messages$Message,
     rep("prediction from a rank-deficient fit may be misleading", 8)
   )
+
 })
 
 test_that("binomial glm model with preprocess_fn works with cross_validate_fn()", {
 
   testthat::skip_on_cran()
 
+  # Note we use multiple formulas and fold columns
+  # to check the difference when enabling preprocess_once
+
   # Load data and fold it
   xpectr::set_test_seed(1)
 
-  # Not used atm.
   dat <- groupdata2::fold(participant.scores,
     k = 4,
     num_fold_cols = 3,
@@ -714,9 +711,6 @@ test_that("binomial svm models from e1071 work with cross_validate_fn()", {
   svm_model_fn <- model_functions("svm_binomial")
   svm_predict_fn <- predict_functions("svm_binomial")
 
-  # m <- svm_model_fn(dat, as.formula("diagnosis~score"), hyperparameters = hparams)
-  # svm_predict_fn(dat, m, NULL, NULL)
-
   hparams <- list(
     "kernel" = "linear",
     "cost" = 10
@@ -725,35 +719,149 @@ test_that("binomial svm models from e1071 work with cross_validate_fn()", {
   CVbinomlist <- cross_validate_fn(dat,
     model_fn = svm_model_fn,
     predict_fn = svm_predict_fn,
-    formulas = c("diagnosis~score", "diagnosis~age"),
+    formulas = c("diagnosis~score"),
     fold_cols = ".folds", type = "binomial",
     hyperparameters = hparams,
     positive = 1
   )
 
-  if(.Platform$OS.type == "unix"){
-    # Fails on windows, probably e1071::svm is compiled a bit differently there
-    # Perhaps it's pROC, as the other metrics don't fail
-    expect_equal(CVbinomlist$AUC, c(0.733796296296296, 0.479166666666667), tolerance = 1e-5)
-    expect_equal(CVbinomlist$`Lower CI`, c(0.528997365284296, 0.241598686439125), tolerance = 1e-5)
-    expect_equal(CVbinomlist$`Upper CI`, c(0.938595227308296, 0.716734646894208), tolerance = 1e-5)
-  }
-  expect_equal(CVbinomlist$Kappa, c(0.393939393939394, -0.0869565217391305), tolerance = 1e-5)
-  expect_equal(CVbinomlist$Sensitivity, c(0.416666666666667, 0.25), tolerance = 1e-5)
-  expect_equal(CVbinomlist$Specificity, c(0.944444444444444, 0.666666666666667), tolerance = 1e-5)
-  expect_equal(CVbinomlist$`Pos Pred Value`, c(0.833333333333333, 0.333333333333333), tolerance = 1e-5)
-  expect_equal(CVbinomlist$`Neg Pred Value`, c(0.708333333333333, 0.571428571428571), tolerance = 1e-5)
-  expect_equal(CVbinomlist$F1, c(0.555555555555556, 0.285714285714286), tolerance = 1e-5)
-  expect_equal(CVbinomlist$Prevalence, c(0.4, 0.4), tolerance = 1e-5)
-  expect_equal(CVbinomlist$`Detection Rate`, c(0.166666666666667, 0.1), tolerance = 1e-5)
-  expect_equal(CVbinomlist$`Detection Prevalence`, c(0.2, 0.3), tolerance = 1e-5)
-  expect_equal(CVbinomlist$`Balanced Accuracy`, c(0.680555555555556, 0.458333333333333), tolerance = 1e-5)
-  expect_equal(CVbinomlist$MCC, c(0.442268981335852, -0.0890870806374748), tolerance = 1e-5)
-  expect_equal(CVbinomlist$Folds, c(4, 4))
-  expect_equal(CVbinomlist$`Fold Columns`, c(1, 1))
-  expect_equal(CVbinomlist$`Convergence Warnings`, c(0, 0))
-  expect_equal(CVbinomlist$Dependent, c("diagnosis", "diagnosis"))
-  expect_equal(CVbinomlist$Fixed, c("score", "age"))
+
+  ## Testing 'CVbinomlist'                                                  ####
+  ## Initially generated by xpectr
+  xpectr::set_test_seed(42)
+  # Testing class
+  expect_equal(
+    class(CVbinomlist),
+    c("tbl_df", "tbl", "data.frame"),
+    fixed = TRUE)
+  # Testing column values
+  expect_equal(
+    CVbinomlist[["Fixed"]],
+    "score",
+    fixed = TRUE)
+  expect_equal(
+    CVbinomlist[["Balanced Accuracy"]],
+    0.73611,
+    tolerance = 1e-4)
+  expect_equal(
+    CVbinomlist[["F1"]],
+    0.66667,
+    tolerance = 1e-4)
+  expect_equal(
+    CVbinomlist[["Sensitivity"]],
+    0.58333,
+    tolerance = 1e-4)
+  expect_equal(
+    CVbinomlist[["Specificity"]],
+    0.88889,
+    tolerance = 1e-4)
+  expect_equal(
+    CVbinomlist[["Pos Pred Value"]],
+    0.77778,
+    tolerance = 1e-4)
+  expect_equal(
+    CVbinomlist[["Neg Pred Value"]],
+    0.7619,
+    tolerance = 1e-4)
+  expect_equal(
+    CVbinomlist[["AUC"]],
+    0.78009,
+    tolerance = 1e-4)
+  expect_equal(
+    CVbinomlist[["Lower CI"]],
+    0.60589,
+    tolerance = 1e-4)
+  expect_equal(
+    CVbinomlist[["Upper CI"]],
+    0.95429,
+    tolerance = 1e-4)
+  expect_equal(
+    CVbinomlist[["Kappa"]],
+    0.49275,
+    tolerance = 1e-4)
+  expect_equal(
+    CVbinomlist[["MCC"]],
+    0.50483,
+    tolerance = 1e-4)
+  expect_equal(
+    CVbinomlist[["Detection Rate"]],
+    0.23333,
+    tolerance = 1e-4)
+  expect_equal(
+    CVbinomlist[["Detection Prevalence"]],
+    0.3,
+    tolerance = 1e-4)
+  expect_equal(
+    CVbinomlist[["Prevalence"]],
+    0.4,
+    tolerance = 1e-4)
+  expect_equal(
+    CVbinomlist[["Folds"]],
+    4,
+    tolerance = 1e-4)
+  expect_equal(
+    CVbinomlist[["Fold Columns"]],
+    1,
+    tolerance = 1e-4)
+  expect_equal(
+    CVbinomlist[["Convergence Warnings"]],
+    0,
+    tolerance = 1e-4)
+  expect_equal(
+    CVbinomlist[["Other Warnings"]],
+    0,
+    tolerance = 1e-4)
+  expect_equal(
+    CVbinomlist[["Dependent"]],
+    "diagnosis",
+    fixed = TRUE)
+  # Testing column names
+  expect_equal(
+    names(CVbinomlist),
+    c("Fixed", "Balanced Accuracy", "F1", "Sensitivity", "Specificity",
+      "Pos Pred Value", "Neg Pred Value", "AUC", "Lower CI", "Upper CI",
+      "Kappa", "MCC", "Detection Rate", "Detection Prevalence", "Prevalence",
+      "Predictions", "ROC", "Confusion Matrix", "Results", "Coefficients",
+      "Folds", "Fold Columns", "Convergence Warnings", "Other Warnings",
+      "Warnings and Messages", "Process", "HParams", "Dependent"),
+    fixed = TRUE)
+  # Testing column classes
+  expect_equal(
+    xpectr::element_classes(CVbinomlist),
+    c("character", "numeric", "numeric", "numeric", "numeric", "numeric",
+      "numeric", "numeric", "numeric", "numeric", "numeric", "numeric",
+      "numeric", "numeric", "numeric", "list", "list", "list", "list",
+      "list", "integer", "integer", "integer", "integer", "list",
+      "list", "vctrs_list_of", "character"),
+    fixed = TRUE)
+  # Testing column types
+  expect_equal(
+    xpectr::element_types(CVbinomlist),
+    c("character", "double", "double", "double", "double", "double",
+      "double", "double", "double", "double", "double", "double",
+      "double", "double", "double", "list", "list", "list", "list",
+      "list", "integer", "integer", "integer", "integer", "list",
+      "list", "list", "character"),
+    fixed = TRUE)
+  # Testing dimensions
+  expect_equal(
+    dim(CVbinomlist),
+    c(1L, 28L))
+  # Testing group keys
+  expect_equal(
+    colnames(dplyr::group_keys(CVbinomlist)),
+    character(0),
+    fixed = TRUE)
+  ## Finished testing 'CVbinomlist'                                         ####
+
+
+  # if(.Platform$OS.type == "unix"){
+  #   # Fails on windows, probably e1071::svm is compiled a bit differently there
+  #   # Perhaps it's pROC, as the other metrics don't fail
+  #   expect_equal(CVbinomlist$AUC, c(0.733796296296296), tolerance = 1e-5)
+  #   expect_equal(CVbinomlist$`Lower CI`, c(0.528997365284296), tolerance = 1e-5)
+  #   expect_equal(CVbinomlist$`Upper CI`, c(0.938595227308296), tolerance = 1e-5)
+  # }
 
   # Enter sub tibbles
   expect_is(CVbinomlist$Predictions[[1]], "tbl_df")
@@ -773,24 +881,23 @@ test_that("binomial svm models from e1071 work with cross_validate_fn()", {
   )
   expect_equal(
     CVbinomlist$ROC[[1]]$.folds$sensitivities,
-    c(1, 1, 1, 1, 0.916666666666667, 0.833333333333333, 0.833333333333333,
-    0.833333333333333, 0.833333333333333, 0.75, 0.666666666666667,
-    0.666666666666667, 0.666666666666667, 0.666666666666667, 0.666666666666667,
-    0.666666666666667, 0.666666666666667, 0.666666666666667, 0.583333333333333,
-    0.583333333333333, 0.5, 0.416666666666667, 0.416666666666667,
-    0.416666666666667, 0.333333333333333, 0.25, 0.166666666666667,
-    0.0833333333333333, 0),
+    c(1, 1, 1, 1, 1, 1, 0.916666666666667, 0.833333333333333, 0.833333333333333,
+    0.833333333333333, 0.833333333333333, 0.833333333333333, 0.833333333333333,
+    0.75, 0.666666666666667, 0.583333333333333, 0.583333333333333,
+    0.583333333333333, 0.583333333333333, 0.583333333333333, 0.5,
+    0.416666666666667, 0.416666666666667, 0.333333333333333, 0.333333333333333,
+    0.25, 0.166666666666667, 0.0833333333333333, 0),
     tolerance = 1e-5
   )
   expect_equal(
     CVbinomlist$ROC[[1]]$.folds$specificities,
     c(0, 0.0555555555555556, 0.111111111111111, 0.166666666666667,
-    0.222222222222222, 0.222222222222222, 0.277777777777778, 0.333333333333333,
-    0.388888888888889, 0.388888888888889, 0.388888888888889, 0.444444444444444,
-    0.5, 0.555555555555556, 0.611111111111111, 0.666666666666667,
-    0.777777777777778, 0.833333333333333, 0.833333333333333, 0.888888888888889,
-    0.888888888888889, 0.888888888888889, 0.944444444444444, 1, 1,
-    1, 1, 1, 1),
+    0.222222222222222, 0.277777777777778, 0.333333333333333, 0.333333333333333,
+    0.388888888888889, 0.444444444444444, 0.5, 0.611111111111111,
+    0.666666666666667, 0.666666666666667, 0.666666666666667, 0.666666666666667,
+    0.722222222222222, 0.777777777777778, 0.833333333333333, 0.888888888888889,
+    0.888888888888889, 0.888888888888889, 0.944444444444444, 0.944444444444444,
+    1, 1, 1, 1, 1),
     tolerance = 1e-5
   )
   expect_equal(nrow(CVbinomlist$Predictions[[1]]), 30)

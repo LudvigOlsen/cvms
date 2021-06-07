@@ -164,6 +164,7 @@
 #'  }
 #'  }
 #' @examples
+#' \donttest{
 #' # Attach cvms
 #' library(cvms)
 #'
@@ -198,6 +199,7 @@
 #'   metrics = list("Weighted Accuracy" = TRUE)
 #' )
 #' cm
+#' }
 confusion_matrix <- function(targets,
                              predictions,
                              metrics = list(),

@@ -2,7 +2,7 @@ library(cvms)
 context("evaluate()")
 
 test_that("multinomial evaluations are correct in evaluate()", {
-  #### ####
+
   xpectr::set_test_seed(1)
   random_probabilities <- multiclass_probability_tibble(
     num_classes = 5,
@@ -829,7 +829,7 @@ test_that("multinomial evaluations are correct in evaluate()", {
 })
 
 test_that("multinomial evaluations with one predicted class column is correctly unpacked in evaluate()", {
-  #### ####
+
   xpectr::set_test_seed(1)
   random_probabilities <- multiclass_probability_tibble(
     num_classes = 5,
@@ -1824,7 +1824,7 @@ test_that("multinomial evaluations with one predicted class column is correctly 
 })
 
 test_that("nested tibbles are correctly added to grouped multinomial results in evaluate()", {
-  #### ####
+
   xpectr::set_test_seed(1)
   random_probabilities <- multiclass_probability_tibble(
     num_classes = 3,
@@ -1914,7 +1914,7 @@ test_that("nested tibbles are correctly added to grouped multinomial results in 
 })
 
 test_that("nested tibbles are correctly added to grouped binomial results in evaluate()", {
-  #### ####
+
   xpectr::set_test_seed(1)
   random_probabilities <- multiclass_probability_tibble(
     num_classes = 1,
@@ -3842,6 +3842,8 @@ test_that("evaluate() treats dfs and tbls the same", {
 test_that("evaluate() works with wines dataset", {
   xpectr::set_test_seed(1)
 
+  testthat::skip_on_cran()
+
   # Load wines dataset
   w <- wines
   varieties <- unique(as.character(w$Variety))
@@ -4054,7 +4056,6 @@ test_that("evaluate() works with wines dataset", {
     ),
     tolerance = 1e-4
   )
-
 
   # Check that these All_x evaluations are the same in baseline()
 
@@ -6554,7 +6555,6 @@ test_that("testing 2-class multinomial evaluation works", {
 
 })
 
-
 test_that("testing different number of classes in grouped multinomial evaluate()", {
 
   xpectr::set_test_seed(42)
@@ -6714,7 +6714,6 @@ test_that("testing different number of classes in grouped multinomial evaluate()
 
 })
 
-
 # commented out ####
 # test_that("profiling",{
 #
@@ -6734,4 +6733,3 @@ test_that("testing different number of classes in grouped multinomial evaluate()
 #
 #
 # })
-

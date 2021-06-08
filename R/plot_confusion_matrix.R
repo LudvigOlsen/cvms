@@ -660,7 +660,7 @@ plot_confusion_matrix <- function(conf_matrix,
       limits = color_limits
     ) +
     # Remove the guide
-    ggplot2::guides(fill = F) +
+    ggplot2::guides(fill = "none") +
     ggplot2::theme(
       # Rotate y-axis text
       axis.text.y = ggplot2::element_text(

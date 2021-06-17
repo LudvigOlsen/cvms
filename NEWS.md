@@ -1,5 +1,7 @@
 
-# cvms 1.3.0.9000
+# cvms 1.3.1
+
+* Replaces deprecated uses of `ggplot2` functions. Now compatible with `ggplot2 3.3.4`.
 
 # cvms 1.3.0
 

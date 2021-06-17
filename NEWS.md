@@ -1,4 +1,8 @@
 
+# cvms 1.3.1
+
+* Replaces deprecated uses of `ggplot2` functions. Now compatible with `ggplot2 3.3.4`.
+
 # cvms 1.3.0
 
 * In order to reduce dependencies, model coefficients are now tidied with the `parameters` package instead of `broom` and `broom.mixed`. Thanks to @IndrajeetPatil for the contributions.

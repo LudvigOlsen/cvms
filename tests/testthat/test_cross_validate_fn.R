@@ -1371,6 +1371,7 @@ test_that("binomial nnet models work with cross_validate_fn()", {
   testthat::skip_on_os("windows")
   testthat::skip_on_os("linux")
   testthat::skip_on_os("solaris")
+  testthat::skip_on_os("mac")
   # Tested on both platforms on travis as well
   # Local test is a mix of ubuntu and mac derived results/predictions
   # so wouldn't run perfectly on either

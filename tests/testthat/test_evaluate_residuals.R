@@ -455,8 +455,8 @@ test_that("evaluate_residuals() have expected output", {
   # Assigning side effects
   side_effects_12388 <- xpectr::capture_side_effects(evaluate_residuals(data = df, prediction_col = "p", target_col = "k", metrics = list(all = TRUE)), reset_seed = TRUE)
   expect_match(
-    xpectr::strip(side_effects_12388[['error']]),
-    xpectr::strip("must include the elements {p,k}."),
+    xpectr::strip(side_effects_12388[['error']], lowercase = TRUE),
+    xpectr::strip("must include the elements {p,k}.", lowercase = TRUE),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_12388[['error_class']]),

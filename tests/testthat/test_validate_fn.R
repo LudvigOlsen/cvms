@@ -1286,9 +1286,9 @@ test_that("fuzz testing validate_fn()", {
   # Testing side effects
   # Assigning side effects
   side_effects_19400 <- xpectr::capture_side_effects(validate_fn(train_data = dat_ready, formulas = "diagnosis~score", type = "binomial", model_fn = identity, predict_fn = glm_predict_fn, test_data = NULL, preprocess_fn = glm_preprocess_fn, preprocess_once = FALSE, hyperparameters = hparams, partitions_col = ".partitions", cutoff = 0.5, positive = 2, metrics = list(all = FALSE, Accuracy = TRUE, Sensitivity = TRUE), rm_nc = FALSE, parallel = FALSE, verbose = FALSE), reset_seed = TRUE)
-  expect_equal(
-    xpectr::strip(side_effects_19400[['error']]),
-    xpectr::strip("1 assertions failed:\n * Variable 'model_fn argument names': Must be a identical to\n * (train_data,formula,hyperparameters)."),
+  expect_match(
+    xpectr::strip(side_effects_19400[['error']], lowercase = TRUE),
+    xpectr::strip("Must be a identical to\n * (train_data,formula,hyperparameters).", lowercase = TRUE), # model_fn argument names
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_19400[['error_class']]),
@@ -1346,9 +1346,9 @@ test_that("fuzz testing validate_fn()", {
   # Testing side effects
   # Assigning side effects
   side_effects_15603 <- xpectr::capture_side_effects(validate_fn(train_data = dat_ready, formulas = "diagnosis~score", type = "binomial", model_fn = glm_model_fn, predict_fn = identity, test_data = NULL, preprocess_fn = glm_preprocess_fn, preprocess_once = FALSE, hyperparameters = hparams, partitions_col = ".partitions", cutoff = 0.5, positive = 2, metrics = list(all = FALSE, Accuracy = TRUE, Sensitivity = TRUE), rm_nc = FALSE, parallel = FALSE, verbose = FALSE), reset_seed = TRUE)
-  expect_equal(
-    xpectr::strip(side_effects_15603[['error']]),
-    xpectr::strip("1 assertions failed:\n * Variable 'predict_fn argument names': Must be a identical to\n * (test_data,model,formula,hyperparameters,train_data)."),
+  expect_match(
+    xpectr::strip(side_effects_15603[['error']], lowercase = TRUE),
+    xpectr::strip("must be a identical to\n * (test_data,model,formula,hyperparameters,train_data).", lowercase = TRUE), # predict_fn argument names
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_15603[['error_class']]),
@@ -1406,9 +1406,9 @@ test_that("fuzz testing validate_fn()", {
   # Testing side effects
   # Assigning side effects
   side_effects_19466 <- xpectr::capture_side_effects(validate_fn(train_data = dat_ready, formulas = "diagnosis~score", type = "binomial", model_fn = glm_model_fn, predict_fn = glm_predict_fn, test_data = NULL, preprocess_fn = identity, preprocess_once = FALSE, hyperparameters = hparams, partitions_col = ".partitions", cutoff = 0.5, positive = 2, metrics = list(all = FALSE, Accuracy = TRUE, Sensitivity = TRUE), rm_nc = FALSE, parallel = FALSE, verbose = FALSE), reset_seed = TRUE)
-  expect_equal(
-    xpectr::strip(side_effects_19466[['error']]),
-    xpectr::strip("1 assertions failed:\n * Variable 'preprocess_fn argument names': Must be a identical to\n * (train_data,test_data,formula,hyperparameters)."),
+  expect_match(
+    xpectr::strip(side_effects_19466[['error']], lowercase = TRUE),
+    xpectr::strip("must be a identical to\n * (train_data,test_data,formula,hyperparameters).", lowercase = TRUE), # preprocess_fn argument names
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_19466[['error_class']]),
@@ -2558,9 +2558,9 @@ test_that("fuzz testing gaussian lm model with validate_fn()",{
   # Testing side effects
   # Assigning side effects
   side_effects_14622 <- xpectr::capture_side_effects(validate_fn(train_data = dat_ready, formulas = "score ~ diagnosis", type = "gaussian", model_fn = identity, predict_fn = lm_predict_fn, test_data = NULL, preprocess_fn = NULL, preprocess_once = FALSE, hyperparameters = list(a = c(1, 2), b = c(2)), partitions_col = ".partitions", metrics = list(all = FALSE, RMSE = TRUE), rm_nc = FALSE, parallel = FALSE, verbose = FALSE), reset_seed = TRUE)
-  expect_equal(
-    xpectr::strip(side_effects_14622[['error']]),
-    xpectr::strip("1 assertions failed:\n * Variable 'model_fn argument names': Must be a identical to\n * (train_data,formula,hyperparameters)."),
+  expect_match(
+    xpectr::strip(side_effects_14622[['error']], lowercase = TRUE),
+    xpectr::strip("Must be a identical to\n * (train_data,formula,hyperparameters).", lowercase = TRUE), # model_fn argument names
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_14622[['error_class']]),
@@ -2603,9 +2603,9 @@ test_that("fuzz testing gaussian lm model with validate_fn()",{
   # Testing side effects
   # Assigning side effects
   side_effects_11174 <- xpectr::capture_side_effects(validate_fn(train_data = dat_ready, formulas = "score ~ diagnosis", type = "gaussian", model_fn = lm_model_fn, predict_fn = identity, test_data = NULL, preprocess_fn = NULL, preprocess_once = FALSE, hyperparameters = list(a = c(1, 2), b = c(2)), partitions_col = ".partitions", metrics = list(all = FALSE, RMSE = TRUE), rm_nc = FALSE, parallel = FALSE, verbose = FALSE), reset_seed = TRUE)
-  expect_equal(
-    xpectr::strip(side_effects_11174[['error']]),
-    xpectr::strip("1 assertions failed:\n * Variable 'predict_fn argument names': Must be a identical to\n * (test_data,model,formula,hyperparameters,train_data)."),
+  expect_match(
+    xpectr::strip(side_effects_11174[['error']], lowercase = TRUE),
+    xpectr::strip("Must be a identical to\n * (test_data,model,formula,hyperparameters,train_data).", lowercase = TRUE), # predict_fn argument names
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_11174[['error_class']]),
@@ -3416,9 +3416,9 @@ test_that("fuzz testing multinomial nnet model with validate_fn()", {
   # Testing side effects
   # Assigning side effects
   side_effects_19400 <- xpectr::capture_side_effects(validate_fn(train_data = data_mc, formulas = "target ~ predictor_1 + predictor_2 + predictor_3", type = "multinomial", model_fn = identity, predict_fn = multinom_predict_fn, test_data = NULL, preprocess_fn = NULL, preprocess_once = FALSE, hyperparameters = hparams, partitions_col = ".partitions", metrics = list(all = FALSE, MCC = TRUE, Accuracy = TRUE, Sensitivity = TRUE), rm_nc = FALSE, parallel = FALSE, verbose = FALSE), reset_seed = TRUE)
-  expect_equal(
-    xpectr::strip(side_effects_19400[['error']]),
-    xpectr::strip("1 assertions failed:\n * Variable 'model_fn argument names': Must be a identical to\n * (train_data,formula,hyperparameters)."),
+  expect_match(
+    xpectr::strip(side_effects_19400[['error']], lowercase = TRUE),
+    xpectr::strip("Must be a identical to\n * (train_data,formula,hyperparameters).", lowercase = TRUE), # model_fn argument names
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_19400[['error_class']]),
@@ -3446,9 +3446,9 @@ test_that("fuzz testing multinomial nnet model with validate_fn()", {
   # Testing side effects
   # Assigning side effects
   side_effects_11174 <- xpectr::capture_side_effects(validate_fn(train_data = data_mc, formulas = "target ~ predictor_1 + predictor_2 + predictor_3", type = "multinomial", model_fn = multinom_model_fn, predict_fn = identity, test_data = NULL, preprocess_fn = NULL, preprocess_once = FALSE, hyperparameters = hparams, partitions_col = ".partitions", metrics = list(all = FALSE, MCC = TRUE, Accuracy = TRUE, Sensitivity = TRUE), rm_nc = FALSE, parallel = FALSE, verbose = FALSE), reset_seed = TRUE)
-  expect_equal(
-    xpectr::strip(side_effects_11174[['error']]),
-    xpectr::strip("1 assertions failed:\n * Variable 'predict_fn argument names': Must be a identical to\n * (test_data,model,formula,hyperparameters,train_data)."),
+  expect_match(
+    xpectr::strip(side_effects_11174[['error']], lowercase = TRUE),
+    xpectr::strip("Must be a identical to\n * (test_data,model,formula,hyperparameters,train_data).", lowercase = TRUE), # predict_fn argument names
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_11174[['error_class']]),
@@ -3592,9 +3592,9 @@ test_that("fuzz testing multinomial nnet model with validate_fn()", {
   # Testing side effects
   # Assigning side effects
   side_effects_19466 <- xpectr::capture_side_effects(validate_fn(train_data = data_mc, formulas = "target ~ predictor_1 + predictor_2 + predictor_3", type = "multinomial", model_fn = multinom_model_fn, predict_fn = multinom_predict_fn, test_data = NULL, preprocess_fn = identity, preprocess_once = FALSE, hyperparameters = hparams, partitions_col = ".partitions", metrics = list(all = FALSE, MCC = TRUE, Accuracy = TRUE, Sensitivity = TRUE), rm_nc = FALSE, parallel = FALSE, verbose = FALSE), reset_seed = TRUE)
-  expect_equal(
-    xpectr::strip(side_effects_19466[['error']]),
-    xpectr::strip("1 assertions failed:\n * Variable 'preprocess_fn argument names': Must be a identical to\n * (train_data,test_data,formula,hyperparameters)."),
+  expect_match(
+    xpectr::strip(side_effects_19466[['error']], lowercase = TRUE),
+    xpectr::strip("Must be a identical to\n * (train_data,test_data,formula,hyperparameters).", lowercase = TRUE), # preprocess_fn argument names
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_19466[['error_class']]),

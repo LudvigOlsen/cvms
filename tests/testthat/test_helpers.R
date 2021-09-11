@@ -17,9 +17,8 @@ test_that("Helper count_convergence_warnings() works", {
   expect_error(
     xpectr::strip_msg(count_convergence_warnings(c(
       "Yes", "No", "No", "Yes", "No", "Lol", "Nay"
-    ))),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'unique(convergences)': M",
-                         "ust be a subset of set {Yes,No}.")),
+    )), lowercase = TRUE),
+    xpectr::strip(paste0("must be a subset of set {Yes,No}."), lowercase = TRUE),
     fixed = T
   )
 })

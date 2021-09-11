@@ -186,9 +186,8 @@ test_that("softmax() works", {
   # Testing softmax(data = df, cols = "l4", axis = "r")
   # Testing side effects
   expect_error(
-    xpectr::strip_msg(softmax(data = df, cols = "l4", axis = "r")),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'colnames(data)': Must inc",
-           "lude the elements {l4}.")),
+    xpectr::strip_msg(softmax(data = df, cols = "l4", axis = "r"), lowercase = TRUE),
+    xpectr::strip("Must include the elements {l4}.", lowercase = TRUE), # colnames(data)
     fixed = TRUE)
 
   # Testing softmax(data = df, cols = c("l1", "l2", "l3"),...

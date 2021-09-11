@@ -394,9 +394,9 @@ test_that("evaluate_residuals() have expected output", {
   # Testing side effects
   # Assigning side effects
   side_effects_18334 <- xpectr::capture_side_effects(evaluate_residuals(data = df, prediction_col = "k", target_col = "t", metrics = list(all = TRUE)), reset_seed = TRUE)
-  expect_equal(
-    xpectr::strip(side_effects_18334[['error']]),
-    xpectr::strip("Assertion on 'colnames(data)' failed: Must include the elements {k,t}."),
+  expect_match(
+    xpectr::strip(side_effects_18334[['error']], lowercase = TRUE),
+    xpectr::strip("must include the elements {k,t}.", lowercase = TRUE),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_18334[['error_class']]),
@@ -454,9 +454,9 @@ test_that("evaluate_residuals() have expected output", {
   # Testing side effects
   # Assigning side effects
   side_effects_12388 <- xpectr::capture_side_effects(evaluate_residuals(data = df, prediction_col = "p", target_col = "k", metrics = list(all = TRUE)), reset_seed = TRUE)
-  expect_equal(
+  expect_match(
     xpectr::strip(side_effects_12388[['error']]),
-    xpectr::strip("Assertion on 'colnames(data)' failed: Must include the elements {p,k}."),
+    xpectr::strip("must include the elements {p,k}."),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_12388[['error_class']]),

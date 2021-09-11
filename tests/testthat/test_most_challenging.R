@@ -1692,9 +1692,8 @@ test_that("exceeds_threshold() works", {
   # Testing exceeds_threshold(data = df, threshold = 0.3, ...
   # Testing side effects
   expect_error(
-    xpectr::strip_msg(exceeds_threshold(data = df, threshold = 0.3, threshold_is = "percentage", metric_name = "no", maximize = TRUE, grouping_keys = data.frame())),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'colnames(data)': Must inc",
-           "lude the elements {no}.")),
+    xpectr::strip_msg(exceeds_threshold(data = df, threshold = 0.3, threshold_is = "percentage", metric_name = "no", maximize = TRUE, grouping_keys = data.frame()), lowercase = TRUE),
+    xpectr::strip("must include the elements {no}.", lowercase = TRUE),
     fixed = TRUE)
 
   # Testing exceeds_threshold(data = df, threshold = 0.3, ...
@@ -1708,9 +1707,8 @@ test_that("exceeds_threshold() works", {
   # Testing exceeds_threshold(data = df, threshold = 0.3, ...
   # Testing side effects
   expect_error(
-    xpectr::strip_msg(exceeds_threshold(data = df, threshold = 0.3, threshold_is = "percentage", metric_name = 3, maximize = TRUE, grouping_keys = data.frame())),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'colnames(data)': Must inc",
-           "lude the elements {3}.")),
+    xpectr::strip_msg(exceeds_threshold(data = df, threshold = 0.3, threshold_is = "percentage", metric_name = 3, maximize = TRUE, grouping_keys = data.frame()), lowercase = TRUE),
+    xpectr::strip("must include the elements {3}.", lowercase = TRUE), # colnames(data)
     fixed = TRUE)
 
   # Testing exceeds_threshold(data = df, threshold = 0.3, ...
@@ -2160,9 +2158,8 @@ test_that("exceeds_threshold() works", {
   # Testing exceeds_threshold(data = df, threshold = 7, th...
   # Testing side effects
   expect_error(
-    xpectr::strip_msg(exceeds_threshold(data = df, threshold = 7, threshold_is = "score", metric_name = 3, maximize = TRUE, grouping_keys = data.frame())),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'colnames(data)': Must inc",
-           "lude the elements {3}.")),
+    xpectr::strip_msg(exceeds_threshold(data = df, threshold = 7, threshold_is = "score", metric_name = 3, maximize = TRUE, grouping_keys = data.frame()), lowercase = TRUE),
+    xpectr::strip("Must include the elements {3}.", lowercase = TRUE), # colnames(data)
     fixed = TRUE)
 
   # Testing exceeds_threshold(data = df, threshold = 7, th...
@@ -2429,9 +2426,8 @@ test_that("exceeds_threshold() works", {
   # Testing exceeds_threshold(data = df, threshold = 7, th...
   # Testing side effects
   expect_error(
-    xpectr::strip_msg(exceeds_threshold(data = df, threshold = 7, threshold_is = "score", metric_name = "no", maximize = TRUE, grouping_keys = data.frame())),
-    xpectr::strip(paste0("1 assertions failed:\n * Variable 'colnames(data)': Must inc",
-           "lude the elements {no}.")),
+    xpectr::strip_msg(exceeds_threshold(data = df, threshold = 7, threshold_is = "score", metric_name = "no", maximize = TRUE, grouping_keys = data.frame()), lowercase = TRUE),
+    xpectr::strip("Must include the elements {no}.", lowercase = TRUE), # colnames(data)
     fixed = TRUE)
 
   # Testing exceeds_threshold(data = df, threshold = 7, th...

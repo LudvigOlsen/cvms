@@ -1010,6 +1010,11 @@ is_dplyr_1 <- function() {
   v$major >= 1 || (v$minor == 8 && v$patch == 99 && v$dev >= 9003)
 }
 
+is_checkmate_v2_1 <- function(){
+  v <- get_pkg_version("checkmate")
+  v$major == 2 && v$minor >= 1
+}
+
 
 #   __________________ #< c81899b8b0c5f3ca7b82357ec5cc52d2 ># __________________
 #   Get vignette data                                                       ####

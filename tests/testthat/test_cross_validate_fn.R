@@ -308,22 +308,28 @@ test_that("binomial glm model works with cross_validate_fn()", {
   fixed = TRUE
   )
   expect_error(
-    xpectr::strip_msg(cross_validate_fn(dat,
-    model_fn = glm_model_fn,
-    formulas = c("diagnosis~score"),
-    fold_cols = ".folds",
-    predict_fn = function(t_data, model, formula = NULL,
-                          hyperparameters = NULL, train_data = NULL) {
-      NULL
-    },
-    type = "binomial"
-  )),
-    xpectr::strip(paste0(
-      "1 assertions failed:\n* Variable 'predict_fn argument names'",
-      ": Must be a identical to\n* (test_data,model,formula,hyper",
-      "parameters)."
-  )),
-  fixed = TRUE
+    xpectr::strip_msg(
+      cross_validate_fn(
+        dat,
+        model_fn = glm_model_fn,
+        formulas = c("diagnosis~score"),
+        fold_cols = ".folds",
+        predict_fn = function(t_data,
+                              model,
+                              formula = NULL,
+                              hyperparameters = NULL,
+                              train_data = NULL) {
+          NULL
+        },
+        type = "binomial"
+      ),
+      lowercase = TRUE
+    ),
+    xpectr::strip(
+      "must be a identical to\n* (test_data,model,formula,hyperparameters).",
+      lowercase = TRUE
+    ),
+    fixed = TRUE
   )
 
   expect_equal(
@@ -4066,9 +4072,9 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
           dplyr::bind_cols(dplyr::bind_rows(means, sds))
       list(train = train_data, test = test_data, parameters = tidy_parameters)
   }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
-  expect_equal(
-    xpectr::strip(side_effects_12121[['error']]),
-    xpectr::strip("1 assertions failed:\n * Variable 'model_fn argument names': Must be a identical to\n * (train_data,formula,hyperparameters)."),
+  expect_match(
+    xpectr::strip(side_effects_12121[['error']], lowercase=TRUE),
+    xpectr::strip("must be a identical to\n * (train_data,formula,hyperparameters).", lowercase=TRUE),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_12121[['error_class']]),
@@ -4199,9 +4205,9 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
         dplyr::bind_cols(dplyr::bind_rows(means, sds))
       list(train = train_data, test = test_data, parameters = tidy_parameters)
     }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
-  expect_equal(
-    xpectr::strip(side_effects_19148[['error']]),
-    xpectr::strip("1 assertions failed:\n * Variable 'model_fn argument names': Must be a identical to\n * (train_data,formula,hyperparameters)."),
+  expect_match(
+    xpectr::strip(side_effects_19148[['error']], lowercase=TRUE),
+    xpectr::strip("must be a identical to\n * (train_data,formula,hyperparameters)."),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_19148[['error_class']]),
@@ -4230,9 +4236,9 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
           dplyr::bind_cols(dplyr::bind_rows(means, sds))
       list(train = train_data, test = test_data, parameters = tidy_parameters)
   }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
-  expect_equal(
-    xpectr::strip(side_effects_10133[['error']]),
-    xpectr::strip("1 assertions failed:\n * Variable 'model_fn': Must be a function, not 'NULL'."),
+  expect_match(
+    xpectr::strip(side_effects_10133[['error']], lowercase=TRUE),
+    xpectr::strip("must be a function, not 'NULL'.", lowercase=TRUE),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_10133[['error_class']]),
@@ -4265,9 +4271,9 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
           dplyr::bind_cols(dplyr::bind_rows(means, sds))
       list(train = train_data, test = test_data, parameters = tidy_parameters)
   }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
-  expect_equal(
-    xpectr::strip(side_effects_13823[['error']]),
-    xpectr::strip("1 assertions failed:\n * Variable 'predict_fn argument names': Must be a identical to (test_data,model,formula,hyperparameters,train_data)."),
+  expect_match(
+    xpectr::strip(side_effects_13823[['error']], lowercase=TRUE),
+    xpectr::strip("must be a identical to (test_data,model,formula,hyperparameters,train_data).", lowercase=TRUE),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_13823[['error_class']]),
@@ -4304,9 +4310,9 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
       list(train = train_data, test = test_data, parameters = tidy_parameters)
     }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE)
     , reset_seed = TRUE)
-  expect_equal(
-    xpectr::strip(side_effects_19148[['error']]),
-    xpectr::strip("1 assertions failed:\n * Variable 'predict_fn argument names': Must be a identical to (test_data,model,formula,hyperparameters,train_data)."),
+  expect_match(
+    xpectr::strip(side_effects_19148[['error']], lowercase=TRUE),
+    xpectr::strip("must be a identical to (test_data,model,formula,hyperparameters,train_data).", lowercase=TRUE),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_19148[['error_class']]),
@@ -4458,9 +4464,9 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
   }, preprocess_fn = function(train_data, test_data, formula) {
       list(train = train_data, test = test_data, parameters = NULL)
   }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
-  expect_equal(
-    xpectr::strip(side_effects_11862[['error']]),
-    xpectr::strip("1 assertions failed:\n * Variable 'preprocess_fn argument names': Must be a identical to\n * (train_data,test_data,formula,hyperparameters)."),
+  expect_match(
+    xpectr::strip(side_effects_11862[['error']], lowercase=TRUE),
+    xpectr::strip("must be a identical to\n * (train_data,test_data,formula,hyperparameters).", lowercase=TRUE),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_11862[['error_class']]),
@@ -4482,9 +4488,9 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
   }, preprocess_fn = function(train_data, test_data, formula, hyperparameters, xx) {
       list(train = train_data, test = test_data, parameters = NULL)
   }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
-  expect_equal(
-    xpectr::strip(side_effects_18273[['error']]),
-    xpectr::strip("1 assertions failed:\n * Variable 'preprocess_fn argument names': Must be a identical to\n * (train_data,test_data,formula,hyperparameters)."),
+  expect_match(
+    xpectr::strip(side_effects_18273[['error']], lowercase = TRUE),
+    xpectr::strip("must be a identical to\n * (train_data,test_data,formula,hyperparameters).", lowercase = TRUE),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_18273[['error_class']]),

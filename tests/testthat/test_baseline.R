@@ -3269,10 +3269,13 @@ test_that("baseline() throws expected errors", {
       paste0(
         "2 assertions failed:\n * Variable 'colnames(test_data)': ",
         ifelse(is_checkmate_v2_1(), "Names", ""),
-        " Must include the elements {xxx}.\n * Variable 'colnames(train_",
+        " Must include the elements {xxx} ",
+        ifelse(is_checkmate_v2_1(), "but is missing elements {xxx}", ""),
+        "\n * Variable 'colnames(train_",
         "data)': ",
         ifelse(is_checkmate_v2_1(), "Names", ""),
-        " Must include the elements {xxx}."
+        " Must include the elements {xxx} ",
+        ifelse(is_checkmate_v2_1(), "but is missing elements {xxx}", "")
       ),
       lowercase = TRUE
     ),

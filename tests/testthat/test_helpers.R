@@ -18,7 +18,9 @@ test_that("Helper count_convergence_warnings() works", {
     xpectr::strip_msg(count_convergence_warnings(c(
       "Yes", "No", "No", "Yes", "No", "Lol", "Nay"
     )), lowercase = TRUE),
-    xpectr::strip(paste0("must be a subset of set {Yes,No}."), lowercase = TRUE),
+    xpectr::strip(paste0("must be a subset of ",
+                         ifelse(!is_checkmate_v2_1(), " set", ""),
+                         " {Yes,No}."), lowercase = TRUE),
     fixed = T
   )
 })

@@ -1,5 +1,7 @@
 
-# cvms 1.3.1.9000
+# cvms 1.3.2
+
+* Prepares package for `checkmate 2.1.0`.
 
 # cvms 1.3.1
 

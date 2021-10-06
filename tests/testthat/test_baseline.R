@@ -3254,33 +3254,47 @@ test_that("baseline() throws expected errors", {
   fixed = T
   )
 
-  expect_error(baseline(
-    train_data = participant.scores,
-    test_data = participant.scores,
-    dependent_col = "xxx",
-    n = 10,
-    family = "gaussian"
-  ),
-  paste0(
-    "2 assertions failed:\n * Variable 'colnames(test_data)': Mu",
-    "st include the elements {xxx}.\n * Variable 'colnames(train_",
-    "data)': Must include the elements {xxx}."
-  ),
-  fixed = T
+  expect_error(
+    xpectr::strip_msg(
+      baseline(
+        train_data = participant.scores,
+        test_data = participant.scores,
+        dependent_col = "xxx",
+        n = 10,
+        family = "gaussian"
+      ),
+      lowercase = TRUE
+    ),
+    xpectr::strip(
+      paste0(
+        "2 assertions failed:\n * Variable 'colnames(test_data)': ",
+        ifelse(is_checkmate_v2_1(), "Names", ""),
+        " Must include the elements {xxx} ",
+        ifelse(is_checkmate_v2_1(), "but is missing elements {xxx}", ""),
+        "\n * Variable 'colnames(train_",
+        "data)': ",
+        ifelse(is_checkmate_v2_1(), "Names", ""),
+        " Must include the elements {xxx} ",
+        ifelse(is_checkmate_v2_1(), "but is missing elements {xxx}", "")
+      ),
+      lowercase = TRUE
+    ),
+    fixed = T
   )
 
-  expect_error(baseline(
-    train_data = participant.scores,
-    test_data = dplyr::select(participant.scores, -.data$score),
-    dependent_col = "score",
-    n = 10,
-    family = "gaussian"
-  ),
-  paste0(
-    "1 assertions failed:\n * Variable 'colnames(test_data)': Mu",
-    "st include the elements {score}."
-  ),
-  fixed = T
+  expect_error(
+    xpectr::strip_msg(
+      baseline(
+        train_data = participant.scores,
+        test_data = dplyr::select(participant.scores,-.data$score),
+        dependent_col = "score",
+        n = 10,
+        family = "gaussian"
+      ),
+      lowercase = TRUE
+    ),
+    xpectr::strip(paste0("must include the elements {score}."), lowercase = TRUE),
+    fixed = T
   )
 
   expect_equal(

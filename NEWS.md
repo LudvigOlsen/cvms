@@ -1,5 +1,7 @@
 
-# cvms 1.3.2.9000
+# cvms 1.3.3
+
+* Prepares for `parameters 0.16.0`.
 
 # cvms 1.3.2
 

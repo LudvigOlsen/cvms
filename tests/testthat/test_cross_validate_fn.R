@@ -1009,6 +1009,8 @@ test_that("gaussian svm models from e1071 work with cross_validate_fn()", {
   expect_equal(CVed$Dependent, "score")
   expect_equal(CVed$Fixed, "diagnosis")
 
+  testthat::skip("parameters:: does not currently support e1071::svm")
+
   expect_equal(
     colnames(CVed$Coefficients[[1]]),
     c("Fold Column", "Fold", "term", "estimate", "p.value")
@@ -1577,6 +1579,8 @@ test_that("gaussian nnet models work with cross_validate_fn()", {
   expect_equal(CVed$`Convergence Warnings`, 0)
   expect_equal(CVed$Dependent, "score")
   expect_equal(CVed$Fixed, "diagnosis")
+
+  testthat::skip("parameters:: does not currently support nnet::nnet")
 
   expect_equal(
     colnames(CVed$Coefficients[[1]]),

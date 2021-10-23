@@ -1015,9 +1015,9 @@ is_checkmate_v2_1 <- function(){
   v$major >= 2 && v$minor >= 1
 }
 
-is_parameters_v0_16_or_above <- function(){
+is_parameters_v0_15_or_above <- function(){
   v <- get_pkg_version("parameters")
-  v$major >= 1 || v$minor > 15
+  v$major >= 1 || v$minor >= 15
 }
 
 #   __________________ #< c81899b8b0c5f3ca7b82357ec5cc52d2 ># __________________

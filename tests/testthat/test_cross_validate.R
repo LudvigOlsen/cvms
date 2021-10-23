@@ -3472,7 +3472,7 @@ test_that("varying number of folds in repeated cv with cross_validate()", {
     CV$Coefficients,
     type = "list")
   # Testing values
-  if (isTRUE(is_parameters_v0_16_or_above())){
+  if (isTRUE(is_parameters_v0_15_or_above())){
     expect_equal(CV$Coefficients,
                list(
                  structure(

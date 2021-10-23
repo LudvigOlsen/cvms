@@ -16,6 +16,8 @@ downloads](https://cranlogs.r-pkg.org/badges/cvms)](https://cran.r-project.org/p
 version](https://img.shields.io/badge/R%3E%3D-3.5-6666ff.svg)](https://cran.r-project.org/)
 [![Codecov test
 coverage](https://codecov.io/gh/ludvigolsen/cvms/branch/master/graph/badge.svg)](https://codecov.io/gh/ludvigolsen/cvms?branch=master)
+![GitHub Actions CI
+status](https://github.com/ludvigolsen/cvms/actions/workflows/R-check.yaml/badge.svg?branch=master)
 [![AppVeyor build
 status](https://ci.appveyor.com/api/projects/status/github/LudvigOlsen/cvms?branch=master&svg=true)](https://ci.appveyor.com/project/LudvigOlsen/cvms)
 [![DOI](https://zenodo.org/badge/71063931.svg)](https://zenodo.org/badge/latestdoi/71063931)
@@ -251,9 +253,9 @@ CV1 <- cross_validate(
 # Show results
 CV1
 #> # A tibble: 1 × 21
-#>   Fixed      RMSE   MAE `NRMSE(IQR)`  RRSE   RAE RMSLE   AIC  AICc   BIC Predictions
-#>   <chr>     <dbl> <dbl>        <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <list>     
-#> 1 diagnosis  16.4  13.8        0.937 0.900 0.932 0.474  195.  196.  198. <tibble [3…
+#>   Fixed  RMSE   MAE `NRMSE(IQR)`  RRSE   RAE RMSLE   AIC  AICc   BIC Predictions
+#>   <chr> <dbl> <dbl>        <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <list>     
+#> 1 diag…  16.4  13.8        0.937 0.900 0.932 0.474  195.  196.  198. <tibble [3…
 #> # … with 10 more variables: Results <list>, Coefficients <list>, Folds <int>,
 #> #   Fold Columns <int>, Convergence Warnings <int>,
 #> #   Singular Fit Messages <int>, Other Warnings <int>,
@@ -434,10 +436,10 @@ CV3 <- cross_validate(
 # Show results
 CV3
 #> # A tibble: 2 × 21
-#>   Fixed      RMSE   MAE `NRMSE(IQR)`  RRSE   RAE RMSLE   AIC  AICc   BIC Predictions
-#>   <chr>     <dbl> <dbl>        <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <list>     
-#> 1 diagnosis  16.4  13.8        0.937 0.900 0.932 0.474  195.  196.  198. <tibble [3…
-#> 2 age        22.4  18.9        1.35  1.23  1.29  0.618  201.  202.  204. <tibble [3…
+#>   Fixed  RMSE   MAE `NRMSE(IQR)`  RRSE   RAE RMSLE   AIC  AICc   BIC Predictions
+#>   <chr> <dbl> <dbl>        <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <list>     
+#> 1 diag…  16.4  13.8        0.937 0.900 0.932 0.474  195.  196.  198. <tibble [3…
+#> 2 age    22.4  18.9        1.35  1.23  1.29  0.618  201.  202.  204. <tibble [3…
 #> # … with 10 more variables: Results <list>, Coefficients <list>, Folds <int>,
 #> #   Fold Columns <int>, Convergence Warnings <int>,
 #> #   Singular Fit Messages <int>, Other Warnings <int>,
@@ -458,10 +460,10 @@ CV4 <- cross_validate(
 # Show results
 CV4
 #> # A tibble: 2 × 22
-#>   Fixed      RMSE   MAE `NRMSE(IQR)`  RRSE   RAE RMSLE   AIC  AICc   BIC Predictions
-#>   <chr>     <dbl> <dbl>        <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <list>     
-#> 1 diagnosis  7.95  6.41        0.438 0.432 0.428 0.226  176.  178.  180. <tibble [3…
-#> 2 age       17.5  16.2         1.08  0.953 1.11  0.480  194.  196.  198. <tibble [3…
+#>   Fixed  RMSE   MAE `NRMSE(IQR)`  RRSE   RAE RMSLE   AIC  AICc   BIC Predictions
+#>   <chr> <dbl> <dbl>        <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <list>     
+#> 1 diag…  7.95  6.41        0.438 0.432 0.428 0.226  176.  178.  180. <tibble [3…
+#> 2 age   17.5  16.2         1.08  0.953 1.11  0.480  194.  196.  198. <tibble [3…
 #> # … with 11 more variables: Results <list>, Coefficients <list>, Folds <int>,
 #> #   Fold Columns <int>, Convergence Warnings <int>,
 #> #   Singular Fit Messages <int>, Other Warnings <int>,
@@ -926,12 +928,12 @@ predictions %>%
 #> * Fold -> Fold...1
 #> * Fold -> Fold...3
 #> # A tibble: 4 × 20
-#>    Fold `Balanced Accuracy` Accuracy    F1 Sensitivity Specificity `Pos Pred Value`
-#>   <int>               <dbl>    <dbl> <dbl>       <dbl>       <dbl>            <dbl>
-#> 1     1               0.833    0.833 0.857       1           0.667             0.75
-#> 2     2               0.667    0.778 0.857       1           0.333             0.75
-#> 3     3               0.833    0.833 0.857       1           0.667             0.75
-#> 4     4               0.667    0.667 0.727       0.667       0.667             0.8 
+#>    Fold `Balanced Accur… Accuracy    F1 Sensitivity Specificity `Pos Pred Value`
+#>   <int>            <dbl>    <dbl> <dbl>       <dbl>       <dbl>            <dbl>
+#> 1     1            0.833    0.833 0.857       1           0.667             0.75
+#> 2     2            0.667    0.778 0.857       1           0.333             0.75
+#> 3     3            0.833    0.833 0.857       1           0.667             0.75
+#> 4     4            0.667    0.667 0.727       0.667       0.667             0.8 
 #> # … with 13 more variables: Neg Pred Value <dbl>, AUC <dbl>, Lower CI <dbl>,
 #> #   Upper CI <dbl>, Kappa <dbl>, MCC <dbl>, Detection Rate <dbl>,
 #> #   Detection Prevalence <dbl>, Prevalence <dbl>, Predictions <list>,
@@ -1156,23 +1158,23 @@ multiclass_baseline <- baseline_multinomial(
 # Summarized metrics
 multiclass_baseline$summarized_metrics
 #> # A tibble: 15 × 13
-#>    Measure     `Overall Accura… `Balanced Accur…       F1 Sensitivity Specificity
-#>    <chr>                  <dbl>            <dbl>    <dbl>       <dbl>       <dbl>
-#>  1 Mean                  0.330            0.497    0.324       0.329       0.665 
-#>  2 Median                0.333            0.496    0.325       0.330       0.659 
-#>  3 SD                    0.0823           0.0662   0.0760      0.0904      0.0445
-#>  4 IQR                   0.108            0.0897   0.0987      0.123       0.0669
-#>  5 Max                   0.5              0.664    0.499       0.556       0.773 
-#>  6 Min                   0.133            0.352    0.131       0.137       0.562 
-#>  7 NAs                   0                0       10           0           0     
-#>  8 INFs                  0                0        0           0           0     
-#>  9 CL_Max               NA                0.770    0.688       0.833       0.933 
-#> 10 CL_Min               NA                0.286    0.0870      0           0.286 
-#> 11 CL_NAs               NA                0       10           0           0     
-#> 12 CL_INFs              NA                0        0           0           0     
-#> 13 All_class_1           0.3              0.5    NaN           0.333       0.667 
-#> 14 All_class_2           0.5              0.5    NaN           0.333       0.667 
-#> 15 All_class_3           0.2              0.5    NaN           0.333       0.667 
+#>    Measure   `Overall Accura… `Balanced Accura…       F1 Sensitivity Specificity
+#>    <chr>                <dbl>             <dbl>    <dbl>       <dbl>       <dbl>
+#>  1 Mean                0.330             0.497    0.324       0.329       0.665 
+#>  2 Median              0.333             0.496    0.325       0.330       0.659 
+#>  3 SD                  0.0823            0.0662   0.0760      0.0904      0.0445
+#>  4 IQR                 0.108             0.0897   0.0987      0.123       0.0669
+#>  5 Max                 0.5               0.664    0.499       0.556       0.773 
+#>  6 Min                 0.133             0.352    0.131       0.137       0.562 
+#>  7 NAs                 0                 0       10           0           0     
+#>  8 INFs                0                 0        0           0           0     
+#>  9 CL_Max             NA                 0.770    0.688       0.833       0.933 
+#> 10 CL_Min             NA                 0.286    0.0870      0           0.286 
+#> 11 CL_NAs             NA                 0       10           0           0     
+#> 12 CL_INFs            NA                 0        0           0           0     
+#> 13 All_clas…           0.3               0.5    NaN           0.333       0.667 
+#> 14 All_clas…           0.5               0.5    NaN           0.333       0.667 
+#> 15 All_clas…           0.2               0.5    NaN           0.333       0.667 
 #> # … with 7 more variables: Pos Pred Value <dbl>, Neg Pred Value <dbl>,
 #> #   Kappa <dbl>, MCC <dbl>, Detection Rate <dbl>, Detection Prevalence <dbl>,
 #> #   Prevalence <dbl>
@@ -1210,18 +1212,18 @@ multiclass_baseline$summarized_class_level_results %>%
 # are available as well
 multiclass_baseline$random_evaluations
 #> # A tibble: 100 × 18
-#>    Repetition `Overall Accuracy` `Balanced Accuracy`      F1 Sensitivity Specificity
-#>         <int>              <dbl>               <dbl>   <dbl>       <dbl>       <dbl>
-#>  1          1              0.2                 0.401 NaN           0.207       0.594
-#>  2          2              0.233               0.427   0.239       0.252       0.602
-#>  3          3              0.433               0.564   0.410       0.415       0.712
-#>  4          4              0.367               0.529   0.352       0.356       0.702
-#>  5          5              0.167               0.394   0.161       0.189       0.600
-#>  6          6              0.333               0.496   0.314       0.319       0.673
-#>  7          7              0.4                 0.534   0.359       0.363       0.705
-#>  8          8              0.467               0.608   0.462       0.485       0.731
-#>  9          9              0.3                 0.476   0.286       0.296       0.655
-#> 10         10              0.267               0.430   0.261       0.259       0.602
+#>    Repetition `Overall Accurac… `Balanced Accur…      F1 Sensitivity Specificity
+#>         <int>             <dbl>            <dbl>   <dbl>       <dbl>       <dbl>
+#>  1          1             0.2              0.401 NaN           0.207       0.594
+#>  2          2             0.233            0.427   0.239       0.252       0.602
+#>  3          3             0.433            0.564   0.410       0.415       0.712
+#>  4          4             0.367            0.529   0.352       0.356       0.702
+#>  5          5             0.167            0.394   0.161       0.189       0.600
+#>  6          6             0.333            0.496   0.314       0.319       0.673
+#>  7          7             0.4              0.534   0.359       0.363       0.705
+#>  8          8             0.467            0.608   0.462       0.485       0.731
+#>  9          9             0.3              0.476   0.286       0.296       0.655
+#> 10         10             0.267            0.430   0.261       0.259       0.602
 #> # … with 90 more rows, and 12 more variables: Pos Pred Value <dbl>,
 #> #   Neg Pred Value <dbl>, Kappa <dbl>, MCC <dbl>, Detection Rate <dbl>,
 #> #   Detection Prevalence <dbl>, Prevalence <dbl>,

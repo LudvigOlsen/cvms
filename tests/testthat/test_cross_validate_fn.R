@@ -330,7 +330,7 @@ test_that("binomial glm model works with cross_validate_fn()", {
   expect_match(
     xpectr::strip(side_effects_12059[['error']], lowercase = TRUE),
     xpectr::strip(paste0("1 assertions failed:\n * Variable 'predict_fn argument name",
-                         "s': Argument names must be a identical to ",ifelse(is_checkmate_v2_1()," set ",""),
+                         "s': ", ifelse(is_checkmate_v2_1(), "Argument names ", ""), "must be a identical to ",ifelse(is_checkmate_v2_1()," set ",""),
                          "\n * {'test_data','model','formula','hyperparameters','train_data'}",
                          ifelse(is_checkmate_v2_1(), ", but is\n * {'t_data','model','formula','hyperparameters','train_data'}.","")), lowercase = TRUE),
     fixed = TRUE)
@@ -1009,8 +1009,6 @@ test_that("gaussian svm models from e1071 work with cross_validate_fn()", {
   expect_equal(CVed$Dependent, "score")
   expect_equal(CVed$Fixed, "diagnosis")
 
-  testthat::skip("parameters:: does not currently support e1071::svm")
-
   expect_equal(
     colnames(CVed$Coefficients[[1]]),
     c("Fold Column", "Fold", "term", "estimate", "p.value")
@@ -1579,8 +1577,6 @@ test_that("gaussian nnet models work with cross_validate_fn()", {
   expect_equal(CVed$`Convergence Warnings`, 0)
   expect_equal(CVed$Dependent, "score")
   expect_equal(CVed$Fixed, "diagnosis")
-
-  testthat::skip("parameters:: does not currently support nnet::nnet")
 
   expect_equal(
     colnames(CVed$Coefficients[[1]]),

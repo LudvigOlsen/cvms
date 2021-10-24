@@ -9,3 +9,4 @@
 ^CRAN-RELEASE$
 ^\.travis\.yml$
 ^appveyor\.yml$
+^\.github$

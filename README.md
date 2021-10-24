@@ -15,7 +15,7 @@ downloads](https://cranlogs.r-pkg.org/badges/cvms)](https://cran.r-project.org/p
 [![minimal R
 version](https://img.shields.io/badge/R%3E%3D-3.5-6666ff.svg)](https://cran.r-project.org/)
 [![Codecov test
-coverage](https://codecov.io/gh/ludvigolsen/cvms/branch/master/graph/badge.svg)](https://codecov.io/gh/ludvigolsen/cvms?branch=master)
+coverage](https://codecov.io/gh/ludvigolsen/cvms/branch/master/graph/badge.svg)](https://app.codecov.io/gh/ludvigolsen/cvms?branch=master)
 ![GitHub Actions CI
 status](https://github.com/ludvigolsen/cvms/actions/workflows/R-check.yaml/badge.svg?branch=master)
 [![AppVeyor build

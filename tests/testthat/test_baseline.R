@@ -3,6 +3,11 @@ context("baseline()")
 
 test_that("binomial evaluations are correct in baseline()", {
 
+  # We're too near the test time limit on CRAN
+  # So skipping this and relying on local and github actions
+  # to test this
+  testthat::skip_on_cran()
+
   xpectr::set_test_seed(1)
   binom_baseline <- baseline(
     test_data = participant.scores,
@@ -618,6 +623,11 @@ test_that("binomial evaluations are correct in baseline()", {
 })
 
 test_that("gaussian evaluations are correct in baseline()", {
+
+  # We're too near the test time limit on CRAN
+  # So skipping this and relying on local and github actions
+  # to test this
+  testthat::skip_on_cran()
 
   xpectr::set_test_seed(2)
   # set.seed(1)

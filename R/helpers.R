@@ -1012,9 +1012,13 @@ is_dplyr_1 <- function() {
 
 is_checkmate_v2_1 <- function(){
   v <- get_pkg_version("checkmate")
-  v$major == 2 && v$minor >= 1
+  v$major >= 2 && v$minor >= 1
 }
 
+is_parameters_v0_15_or_above <- function(){
+  v <- get_pkg_version("parameters")
+  v$major >= 1 || v$minor >= 15
+}
 
 #   __________________ #< c81899b8b0c5f3ca7b82357ec5cc52d2 ># __________________
 #   Get vignette data                                                       ####

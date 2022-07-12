@@ -1,5 +1,9 @@
 
-# cvms 1.3.3.9000
+# cvms 1.3.4
+
+* Fixes tests for CRAN.
+
+* Adds `merDeriv` as suggested package.
 
 # cvms 1.3.3
 

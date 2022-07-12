@@ -113,8 +113,8 @@ test_that("the expected output is returned from preprocess_functions() functions
   standardized_test[["diagnosis"]] <- (standardized_test[["diagnosis"]] - train_mean_diagnosis) / train_sd_diagnosis
 
   # Test
-  expect_identical(standardized_by_fn[["train"]], standardized_train)
-  expect_identical(standardized_by_fn[["test"]], standardized_test)
+  expect_equal(standardized_by_fn[["train"]], standardized_train)
+  expect_equal(standardized_by_fn[["test"]], standardized_test)
   expect_equal(
     standardized_by_fn[["parameters"]]$Measure,
     c("Mean", "SD")

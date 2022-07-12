@@ -38,7 +38,7 @@ Imports:
     plyr,
     pROC (>= 1.16.0),
     purrr,
-    rearrr (>= 0.3.0),
+    rearrr (>= 0.2.0),
     recipes (>= 0.1.13),
     rlang (>= 0.4.7),
     stats,
@@ -60,11 +60,11 @@ Suggests:
     rmarkdown,
     rsvg,
     testthat (>= 2.3.2),
-    xpectr (>= 0.4.1)
+    xpectr (>= 0.4.0)
 VignetteBuilder: 
     knitr
 RdMacros: 
     lifecycle
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.2
+RoxygenNote: 7.1.1

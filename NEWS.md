@@ -1,4 +1,8 @@
 
+# cvms 1.3.5
+
+* Fixes tests for CRAN.
+
 # cvms 1.3.4
 
 * Fixes tests for CRAN.

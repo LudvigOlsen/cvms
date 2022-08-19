@@ -1968,9 +1968,9 @@ test_that("preprocessing works with binomial mixed models in cross_validate()", 
   # No preprocessing
   expect_equal(CVbinomlist_no_preprocessing$`Balanced Accuracy`, c(0.8611111), tolerance = 1e-3)
   expect_equal(CVbinomlist_no_preprocessing$Coefficients[[1]]$estimate,
-               c(8.3579464874966, -0.193892587463713, 2.81255078275366, 1, 55.2463242203065,
-               -1.33929033061194, 53.1381999808447, 1, 7.64561163963771, -0.168532399577982,
-               2.68897250187443, 1),
+               c(8.3579464874966, -0.193892587463713, 2.81255078275366, 55.2463242203065,
+               -1.33929033061194, 53.1381999808447,  7.64561163963771, -0.168532399577982,
+               2.68897250187443),
     tolerance = 1e-6
   )
   expect_equal(CVbinomlist_no_preprocessing$Predictions[[1]]$Prediction,
@@ -2007,9 +2007,9 @@ test_that("preprocessing works with binomial mixed models in cross_validate()", 
   # Standardize
   expect_equal(CVbinomlist_standardize$`Balanced Accuracy`, c(0.8611111), tolerance = 1e-3)
   expect_equal(CVbinomlist_standardize$Coefficients[[1]]$estimate,
-               c(0.722270851420555, -3.56049245923584, 2.81254774249312, 1,
-               3.90685791812926, -26.3414459230668, 53.1381599664327, 1, 1.14775661484688,
-               -3.2610246203655, 2.68898875394687, 1),
+               c(0.722270851420555, -3.56049245923584, 2.81254774249312,
+               3.90685791812926, -26.3414459230668, 53.1381599664327, 1.14775661484688,
+               -3.2610246203655, 2.68898875394687),
     tolerance = 1e-4
   )
   expect_equal(CVbinomlist_standardize$Predictions[[1]]$Prediction,
@@ -2045,9 +2045,9 @@ test_that("preprocessing works with binomial mixed models in cross_validate()", 
   # Scale
   expect_equal(CVbinomlist_scale$`Balanced Accuracy`, c(0.8611111), tolerance = 1e-3)
   expect_equal(CVbinomlist_scale$Coefficients[[1]]$estimate,
-               c(8.35794641518746, -3.56048970107377, 2.81255070401071, 1, 55.2462927019219,
-               -26.3414369433445, 53.1381485501194, 1, 7.64561182809043, -3.26101498104044,
-               2.6889727017439, 1),
+               c(8.35794641518746, -3.56048970107377, 2.81255070401071, 55.2462927019219,
+               -26.3414369433445, 53.1381485501194, 7.64561182809043, -3.26101498104044,
+               2.6889727017439),
     tolerance = 1e-6
   )
   expect_equal(CVbinomlist_scale$Predictions[[1]]$Prediction,
@@ -2083,9 +2083,9 @@ test_that("preprocessing works with binomial mixed models in cross_validate()", 
   # Center
   expect_equal(CVbinomlist_center$`Balanced Accuracy`, c(0.8611111), tolerance = 1e-3)
   expect_equal(CVbinomlist_center$Coefficients[[1]]$estimate,
-               c(0.722270851499559, -0.193892736123874, 2.81254774327143, 1,
-               3.90685679177423, -1.33929005889398, 53.1381319242869, 1, 1.14775662092732,
-               -0.168532902834402, 2.6889888039097, 1),
+               c(0.722270851499559, -0.193892736123874, 2.81254774327143,
+               3.90685679177423, -1.33929005889398, 53.1381319242869, 1.14775662092732,
+               -0.168532902834402, 2.6889888039097),
     tolerance = 1e-4
   )
   expect_equal(CVbinomlist_center$Predictions[[1]]$Prediction,
@@ -2121,9 +2121,9 @@ test_that("preprocessing works with binomial mixed models in cross_validate()", 
   # Range
   expect_equal(CVbinomlist_range$`Balanced Accuracy`, c(0.8611111), tolerance = 1e-3)
   expect_equal(CVbinomlist_range$Coefficients[[1]]$estimate,
-               c(6.22513139971877, -12.9908044682518, 2.81255450568456, 1, 41.8533992397597,
-               -95.0895775189958, 53.1381034729376, 1, 5.9602950441032, -11.9658077360469,
-               2.68897631778515, 1),
+               c(6.22513139971877, -12.9908044682518, 2.81255450568456, 41.8533992397597,
+               -95.0895775189958, 53.1381034729376, 5.9602950441032, -11.9658077360469,
+               2.68897631778515),
     tolerance = 1e-6
   )
   expect_equal(CVbinomlist_range$Predictions[[1]]$Prediction,
@@ -2215,11 +2215,16 @@ test_that("that singular fit messages are caught, counted and messaged about in 
     xpectr::strip(c("\n---\ncross_validate(): Model failed to converge with max|grad| = 0.0281933 (tol = 0.002, component 1)\nNote: Convergence Warning\nFor:\nFormula: diagnosis~score+(1|participant)+(1|session)\nFold column: .folds\nFold: 3\nHyperparameters: REML : FALSE, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), restart_edge = FALSE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, \n    relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list(), tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE)), model_verbose : FALSE, family : binomial, is_special_fn : TRUE",
       "cross_validate(): predictions contained NA."), remove_numbers = TRUE),
     fixed = TRUE)
+  # TODO Add confidence intervals for random effects messages here
   expect_equal(
     xpectr::strip(side_effects_12059[['messages']]),
     xpectr::strip(c("---\ncross_validate(): boundary (singular) fit: see help('isSingular')\nNote: Boundary (Singular) Fit Message\nFor:\nFormula: diagnosis~score+(1|participant)+(1|session)\nFold column: .folds\nFold: 1\nHyperparameters: REML : FALSE, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), restart_edge = FALSE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, \n    relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list(), tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE)), model_verbose : FALSE, family : binomial, is_special_fn : TRUE\n\n",
+        "---\ncross_validate(): Confidence intervals for random effect parameters are currently not supported for\n  multiple grouping variables.\nFor:\nFold column: .folds\nFold: 1\n\n",
         "---\ncross_validate(): boundary (singular) fit: see help('isSingular')\nNote: Boundary (Singular) Fit Message\nFor:\nFormula: diagnosis~score+(1|participant)+(1|session)\nFold column: .folds\nFold: 2\nHyperparameters: REML : FALSE, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), restart_edge = FALSE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, \n    relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list(), tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE)), model_verbose : FALSE, family : binomial, is_special_fn : TRUE\n\n",
-        "---\ncross_validate(): boundary (singular) fit: see help('isSingular')\nNote: Boundary (Singular) Fit Message\nFor:\nFormula: diagnosis~score+(1|participant)+(1|session)\nFold column: .folds\nFold: 4\nHyperparameters: REML : FALSE, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), restart_edge = FALSE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, \n    relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list(), tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE)), model_verbose : FALSE, family : binomial, is_special_fn : TRUE\n\n")),
+        "---\ncross_validate(): Confidence intervals for random effect parameters are currently not supported for\n  multiple grouping variables.\nFor:\nFold column: .folds\nFold: 2\n\n",
+        "---\ncross_validate(): boundary (singular) fit: see help('isSingular')\nNote: Boundary (Singular) Fit Message\nFor:\nFormula: diagnosis~score+(1|participant)+(1|session)\nFold column: .folds\nFold: 4\nHyperparameters: REML : FALSE, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), restart_edge = FALSE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, \n    relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list(), tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE)), model_verbose : FALSE, family : binomial, is_special_fn : TRUE\n\n",
+        "---\ncross_validate(): Confidence intervals for random effect parameters are currently not supported for\n  multiple grouping variables.\nFor:\nFold column: .folds\nFold: 4\n\n"
+    )),
     fixed = TRUE)
   # Assigning output
   output_12059 <- xpectr::suppress_mw(cross_validate(
@@ -3473,7 +3478,8 @@ test_that("varying number of folds in repeated cv with cross_validate()", {
     type = "list")
   # Testing values
   if (utils::packageVersion("parameters") > "0.18.1") {
-    expect_equal(CV$Coefficients,
+    expect_equal(
+      CV$Coefficients,
       list(structure(list(
         `Fold Column` = c(
           ".folds_1", ".folds_1", ".folds_1", ".folds_1",
@@ -3528,15 +3534,53 @@ test_that("varying number of folds in repeated cv with cross_validate()", {
           9.62585730080767, -3.74244612199539, 9.36681002868373, -2.79205333645399,
           9.46356418778573, -2.22690313821906
         ),
-        df.error = c(12L, 12L, 14L, 14L, 21L, 21L, 15L, 15L, 18L, 18L, 23L, 23L, 15L, 15L, 25L, 25L, 19L, 19L),
+        df.error = c(
+          12L, 12L, 14L, 14L, 21L, 21L, 15L, 15L, 18L, 18L, 23L, 23L, 15L, 15L, 25L, 25L, 19L, 19L
+        ),
         p.value = c(
           8.73044693341471e-05, 0.160375077413601, 8.71744764220858e-07, 0.0123802797806211,
           1.40309391631771e-08, 0.00431125235564896, 1.40863068775986e-07, 0.00484752749572593,
           1.2467032478442e-07, 0.0937616722887625, 1.90501051336518e-08, 0.0135331351313378,
           8.2329274043691e-08, 0.00196103615278914, 1.18033672582856e-09, 0.0098923901197315,
           1.26960822180091e-08, 0.038244411370448
-        )
-      ))),
+        )),
+        class = c("tbl_df", "tbl", "data.frame"),
+        row.names = c(NA, -18L),
+        sigma = 14.5813635033272,
+        residual_df = 12,
+        pretty_names = c(`(Intercept)` = "(Intercept)",
+        diagnosis = "diagnosis"),
+        ci = 0.95,
+        ci_method = "Wald",
+        df_method = "Wald",
+        verbose = TRUE,
+        exponentiate = FALSE,
+        ordinal_model = FALSE,
+        linear_model = TRUE,
+        mixed_model = FALSE,
+        n_obs = 14L,
+        model_class = "lm",
+        bootstrap = FALSE,
+        iterations = 1000,
+        robust_vcov = FALSE,
+        ignore_group = TRUE,
+        ran_pars = TRUE,
+        show_summary = FALSE,
+        log_link = FALSE,
+        test_statistic = "t-statistic",
+        log_response = FALSE,
+        log_predictors = FALSE,
+        no_caption = TRUE,
+        title = "",
+        weighted_nobs = 14,
+        model_formula = "score ~ diagnosis",
+        coefficient_name = "Coefficient",
+        zi_coefficient_name = "Log-Odds",
+        digits = 2,
+        ci_digits = 2,
+        p_digits = 3,
+        footer_digits = 3,
+        object_name = "model")),
       tolerance = 1e-4,
       ignore_attr = TRUE
     )

@@ -2425,7 +2425,7 @@ test_that("the expected errors are thrown by cross_validate()", {
     link = "probit", REML = FALSE, verbose = FALSE,
     positive = 1
   ),
-  "The `link` argument of `cross_validate()` was deprecated in cvms 1.0.0 and is now defunct.",
+  "The `link` argument of `cross_validate()` was deprecated",
   fixed = TRUE
   ))
 

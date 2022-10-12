@@ -1,4 +1,14 @@
 
+# cvms 1.3.6.9000
+
+# cvms 1.3.6
+
+* Prepares for `parameters 0.19.0`. Thanks to @strengejacke.
+
+# cvms 1.3.5
+
+* Fixes tests for CRAN.
+
 # cvms 1.3.4
 
 * Fixes tests for CRAN.

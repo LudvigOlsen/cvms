@@ -2437,8 +2437,7 @@ test_that("the expected errors are thrown by cross_validate()", {
     REML = FALSE, verbose = FALSE,
     positive = 1
   ),
-  "The `models` argument of `cross_validate()` is deprecated as of cvms 1.0.0.
-Please use the `formulas` argument instead.",
+  "The `models` argument of `cross_validate()` is deprecated",
   fixed = TRUE
   )
   expect_warning(cross_validate(dat,
@@ -2447,8 +2446,7 @@ Please use the `formulas` argument instead.",
     REML = FALSE, model_verbose = FALSE,
     positive = 1
   ),
-  "The `model_verbose` argument of `cross_validate()` is deprecated as of cvms 1.0.0.
-Please use the `verbose` argument instead.",
+  "The `model_verbose` argument of `cross_validate()` is deprecated",
   fixed = TRUE
   )
 
@@ -3547,7 +3545,7 @@ test_that("varying number of folds in repeated cv with cross_validate()", {
       row.names = NULL,
       stringsAsFactors = FALSE
     )
-    
+
     expect_equal(out1, out2, check.attributes = FALSE, tolerance = 1e-3, ignore_attr = TRUE)
   }
 

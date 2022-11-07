@@ -1,4 +1,6 @@
 library(testthat)
 library(cvms)
 
-test_check("cvms")
+if (require("xpectr")) {
+  test_check("cvms")
+}

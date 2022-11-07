@@ -1082,7 +1082,7 @@ run_internal_evaluate_wrapper <- function(data,
   # Move Process last
   if ("Process" %in% colnames(results)){
     results <- results %>%
-      dplyr::relocate(.data$Process, .after = dplyr::last_col())
+      dplyr::relocate("Process", .after = dplyr::last_col())
   }
 
   # If na.rm != "both" and it contains the NAs_removed column

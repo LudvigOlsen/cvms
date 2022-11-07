@@ -3422,7 +3422,7 @@ test_that("gaussian evaluations are correct in evaluate()", {
 
   e1_e3 <- dplyr::bind_rows(e1, e3) %>%
     dplyr::mutate(fold_ = factor(1:2)) %>%
-    dplyr::select(.data$fold_, dplyr::everything())
+    dplyr::select("fold_", dplyr::everything())
   e1_e3$Predictions[[1]] <- e1_e3$Predictions[[1]] %>%
     dplyr::as_tibble() %>%
     tibble::add_column("fold_" = 1, .before = "Target")
@@ -6568,7 +6568,7 @@ test_that("testing different number of classes in grouped multinomial evaluate()
     ) %>%
       dplyr::mutate(TheGroup = paste0("gr", i))
   }) %>%
-    dplyr::select(`Predicted Class`, Target, TheGroup, dplyr::everything())
+    dplyr::select(`Predicted Class`, "Target", "TheGroup", dplyr::everything())
 
   # Different number of classes per group
   # Prediction col is the predicted class

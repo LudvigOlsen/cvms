@@ -1519,11 +1519,11 @@ test_that("multinomial evaluations are correct in baseline()", {
 
   xpectr::set_test_seed(1)
   targets_1 <- dplyr::sample_n(tibble::enframe(rep(1:3, each = 10), value = "targets_3"), 25) %>%
-    dplyr::select(-name)
+    dplyr::select(-"name")
   targets_2 <- dplyr::sample_n(tibble::enframe(rep(1:4, each = 10), value = "targets_4"), 25) %>%
-    dplyr::select(-name)
+    dplyr::select(-"name")
   targets_3 <- dplyr::sample_n(tibble::enframe(rep(1:5, each = 10), value = "targets_5"), 25) %>%
-    dplyr::select(-name)
+    dplyr::select(-"name")
 
   different_targets <- targets_1 %>%
     dplyr::bind_cols(targets_2, targets_3)
@@ -1543,7 +1543,7 @@ test_that("multinomial evaluations are correct in baseline()", {
   )
 
   multinom_baseline_summ <- multinom_baseline$summarized_metrics
-  multinom_baseline_class <- tidyr::unnest(multinom_baseline$summarized_class_level_results, .data$Results)
+  multinom_baseline_class <- tidyr::unnest(multinom_baseline$summarized_class_level_results, "Results")
   multinom_baseline_random_eval_summ <- multinom_baseline$random_evaluations
   multinom_baseline_random_eval_class <- dplyr::bind_rows(multinom_baseline$random_evaluations$`Class Level Results`)
 
@@ -2338,7 +2338,7 @@ test_that("multinomial evaluations are correct in baseline()", {
   )
 
   multinom_baseline_summ <- multinom_baseline_certain$summarized_metrics
-  multinom_baseline_class <- tidyr::unnest(multinom_baseline_certain$summarized_class_level_results, .data$Results)
+  multinom_baseline_class <- tidyr::unnest(multinom_baseline_certain$summarized_class_level_results, "Results")
   multinom_baseline_random_eval_summ <- multinom_baseline_certain$random_evaluations
   multinom_baseline_random_eval_class <- dplyr::bind_rows(multinom_baseline_certain$random_evaluations$`Class Level Results`)
 
@@ -3497,7 +3497,7 @@ test_that("baseline() throws expected errors", {
     xpectr::strip_msg(
       baseline(
         train_data = participant.scores,
-        test_data = dplyr::select(participant.scores,-.data$score),
+        test_data = dplyr::select(participant.scores,-"score"),
         dependent_col = "score",
         n = 10,
         family = "gaussian"
@@ -3646,7 +3646,7 @@ test_that("multinomial baseline() summarizes correctly with imbalanced dataset",
       dplyr::summarise_if(is.numeric, .f = list(
         ~ fn(., na.rm = TRUE)
       )) %>%
-      dplyr::select(-Repetition)
+      dplyr::select(-"Repetition")
   }
 
   rand_eval_means <- apply_descriptor(multiclass_baseline$random_evaluations, mean)

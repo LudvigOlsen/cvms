@@ -25,7 +25,7 @@ test_that("the correct grid is created with create_computation_grid()", {
   )
 
   grid_1.2 <- grid_1 %>%
-    dplyr::select(-.data$hparams) %>%
+    dplyr::select(-"hparams") %>%
     dplyr::bind_cols(dplyr::bind_rows(grid_1$hparams)) %>%
     dplyr::distinct()
 
@@ -87,7 +87,7 @@ test_that("the correct sampled grid is created with create_computation_grid()", 
 
 
   grid_1.2 <- grid_1 %>%
-    dplyr::select(-.data$hparams) %>%
+    dplyr::select(-"hparams") %>%
     dplyr::bind_cols(dplyr::bind_rows(grid_1$hparams)) %>%
     dplyr::distinct()
 
@@ -136,7 +136,7 @@ test_that("the correct sampled grid is created with create_computation_grid()", 
   )
 
   grid_2.2 <- grid_2 %>%
-    dplyr::select(-.data$hparams) %>%
+    dplyr::select(-"hparams") %>%
     dplyr::bind_cols(dplyr::bind_rows(grid_1$hparams)) %>%
     dplyr::distinct()
 

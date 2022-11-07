@@ -450,7 +450,7 @@ cross_validate_list <- function(data,
             fold_col_model_metrics_nested <- current_model_metrics %>%
               base_deselect(cols = "rel_fold") %>%
               dplyr::group_by(!!as.name(fold_info_cols[["fold_column"]])) %>%
-              tidyr::chop(cols = model_metric_names)
+              tidyr::chop(cols = dplyr::all_of(model_metric_names))
           } else {
             fold_col_model_metrics_nested <- plyr::ldply(model_metric_names, function(mn) {
               current_model_metrics %>%

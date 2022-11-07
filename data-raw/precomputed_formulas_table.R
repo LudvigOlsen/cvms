@@ -141,7 +141,7 @@ combine_predictors_build_formulas <- function(fixed_effects,
       ))
 
     interaction_combinations <- interaction_combinations %>%
-      dplyr::select(-fixed_effects) %>%
+      dplyr::select(-"fixed_effects") %>%
       dplyr::mutate(formula_ = furrr::future_pmap_chr(.[1:n_fixed_effects],
         paste_columns,
         collapse = " + "
@@ -182,7 +182,7 @@ combine_predictors_from_table <- function(n_fixed_effects,
       key_term = .data$left,
       compatible_term = .data$right
     ) %>%
-    dplyr::select(c(.data$key_term, .data$compatible_term))
+    dplyr::select("key_term", "compatible_term")
 
   if (isTRUE(add_all_NA_row)) {
     doubled_predictors_table <- doubled_predictors_table %>%

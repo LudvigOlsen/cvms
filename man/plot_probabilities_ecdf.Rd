@@ -193,7 +193,7 @@ library(dplyr)
 #   dplyr::rename(Probability = B) \%>\%
 #   dplyr::mutate(`Predicted Class` = ifelse(
 #     Probability > 0.5, "B", "A")) \%>\%
-#   dplyr::select(-c("A","C","D"))
+#   dplyr::select(-dplyr::all_of(c("A","C","D")))
 
 # Plot probabilities of predicted classes
 # From repeated cross-validation of three classifiers

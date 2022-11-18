@@ -707,7 +707,7 @@ most_challenging_classification <- function(data,
                                  grouping_keys = grouping_keys)
 
   to_return <- to_return %>%
-    dplyr::rename(`<=` = .data$Threshold)
+    dplyr::rename(`<=` = "Threshold")
 
   if (metric == "Accuracy"){
     to_return <- to_return %>%
@@ -792,7 +792,7 @@ most_challenging_gaussian <- function(data,
       !!!rlang::syms(colnames(grouping_keys)),
       dplyr::desc(.data$RMSE), dplyr::desc(.data$MAE)
     ) %>%
-    dplyr::rename(`>=` = .data$Threshold)
+    dplyr::rename(`>=` = "Threshold")
 }
 
 

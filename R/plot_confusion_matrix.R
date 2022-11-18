@@ -556,8 +556,8 @@ plot_confusion_matrix <- function(conf_matrix,
     # the sum column, sum row, and total counts tile
     column_sums[["Prediction"]] <- "Total"
     row_sums[["Target"]] <-  "Total"
-    column_sums <- dplyr::rename(column_sums, N = .data$Class_N)
-    row_sums <- dplyr::rename(row_sums, N = .data$Prediction_N)
+    column_sums <- dplyr::rename(column_sums, N = "Class_N")
+    row_sums <- dplyr::rename(row_sums, N = "Prediction_N")
     column_sums <- calculate_normalized(column_sums)
     row_sums <- calculate_normalized(row_sums)
     total_count <- dplyr::tibble(
@@ -647,7 +647,7 @@ plot_confusion_matrix <- function(conf_matrix,
     ) +
     ggplot2::geom_tile(
       colour = tile_border_color,
-      size = tile_border_size,
+      linewidth = tile_border_size,
       linetype = tile_border_linetype,
       show.legend = FALSE
     ) +
@@ -684,7 +684,7 @@ plot_confusion_matrix <- function(conf_matrix,
           data = cm[cm[["is_sum"]] & cm[["Target"]] != cm[["Prediction"]],],
           mapping = ggplot2::aes(fill = .data$Intensity),
           colour = sums_settings[["tile_border_color"]],
-          size = sums_settings[["tile_border_size"]],
+          linewidth = sums_settings[["tile_border_size"]],
           linetype = sums_settings[["tile_border_linetype"]],
           show.legend = FALSE
         ) +
@@ -699,7 +699,7 @@ plot_confusion_matrix <- function(conf_matrix,
           data = cm[cm[["is_sum"]] & cm[["Target"]] != cm[["Prediction"]],],
           fill = sums_settings[["tile_fill"]],
           colour = sums_settings[["tile_border_color"]],
-          size = sums_settings[["tile_border_size"]],
+          linewidth = sums_settings[["tile_border_size"]],
           linetype = sums_settings[["tile_border_linetype"]],
           show.legend = FALSE
         )
@@ -710,7 +710,7 @@ plot_confusion_matrix <- function(conf_matrix,
       ggplot2::geom_tile(
         data = cm[cm[["is_sum"]] & cm[["Target"]] == cm[["Prediction"]],],
         colour = sums_settings[["tc_tile_border_color"]],
-        size = sums_settings[["tc_tile_border_size"]],
+        linewidth = sums_settings[["tc_tile_border_size"]],
         linetype = sums_settings[["tc_tile_border_linetype"]],
         fill = sums_settings[["tc_tile_fill"]]
       )

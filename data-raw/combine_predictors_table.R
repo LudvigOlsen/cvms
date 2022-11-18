@@ -102,12 +102,12 @@ building_combine_predictors_table <- function(n_fixed_effects = 5, max_interacti
 
   allowed_crossings <- allowed_crossings %>%
     dplyr::mutate(side = c("left", "right")) %>%
-    dplyr::select(c(comparison, terms, side)) %>%
+    dplyr::select(dplyr::all_of(c(comparison, terms, side))) %>%
     tidyr::spread(key = side, value = terms) %>%
     dplyr::ungroup() %>%
     dplyr::inner_join(included_effects, by = "comparison") %>%
     dplyr::inner_join(max_num_interaction_terms, by = "comparison") %>%
-    dplyr::select(-comparison) %>%
+    dplyr::select(-"comparison") %>%
     dplyr::mutate(num_effects = rowSums(.[3:(n_fixed_effects + 2)])) %>%
     dplyr::arrange(left, right) %>%
     dplyr::distinct() %>%
@@ -130,7 +130,7 @@ building_combine_predictors_table <- function(n_fixed_effects = 5, max_interacti
 # plan(multiprocess)
 
 # combine_predictors_table_15_effects <- building_combine_predictors_table(15) %>%
-#   dplyr::select(-c(LETTERS[1:15]))
+#   dplyr::select(-dplyr::all_of(c(LETTERS[1:15])))
 # usethis::use_data(combine_predictors_table_15_effects,
 #                   internal=FALSE, overwrite = TRUE)
 

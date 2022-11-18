@@ -1,5 +1,9 @@
 
-# cvms 1.3.6.9000
+# cvms 1.3.7
+
+* Makes testing conditional on the availability of `xpectr`.
+
+* Fixes `tidyselect`-related warnings.
 
 # cvms 1.3.6
 

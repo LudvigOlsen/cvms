@@ -941,7 +941,7 @@ test_that("model using dot in formula ( y ~ . ) works with cross_validate()", {
     cat_col = "diagnosis",
     id_col = "participant"
   ) %>%
-    dplyr::select(-c(participant, session))
+    dplyr::select(-dplyr::all_of(c("participant", "session")))
 
   # Expect no warnings
   # https://stackoverflow.com/questions/22003306/is-there-something-in-testthat-like-expect-no-warnings

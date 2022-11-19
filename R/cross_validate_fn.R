@@ -546,8 +546,6 @@
 #'   tidyr::unnest(cols = "HParams") %>%
 #'   arrange(desc(`Balanced Accuracy`), desc(F1))
 #'
-#' } # closes `e1071` package check
-#'
 #' #
 #' # Use parallelization
 #' # The below examples show the speed gains when running in parallel
@@ -593,6 +591,8 @@
 #'     #, parallel = TRUE  # Uncomment
 #'   )
 #' })
+#'
+#' } # closes `e1071` package check
 #' }
 cross_validate_fn <- function(data,
                               formulas,

@@ -42,7 +42,8 @@ knitr::opts_chunk$set(
   comment = "#>",
   fig.path = "man/figures/vignette_cv_custom_fn-",
   dpi = 92,
-  fig.retina = 2
+  fig.retina = 2,
+  eval = requireNamespace("e1071") # Only evaluate chunks when e1071 is installed!
 )
 ```
 

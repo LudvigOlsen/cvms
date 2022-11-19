@@ -427,6 +427,9 @@
 #' # Training and evaluating a multinomial model with nnet
 #' #
 #'
+#' # Only run if `nnet` is installed
+#' if (requireNamespace("nnet", quietly = TRUE)){
+#'
 #' # Create a data frame with some predictors and a target column
 #' class_names <- paste0("class_", 1:4)
 #' data_for_nnet <- multiclass_probability_tibble(
@@ -467,6 +470,7 @@
 #'   prediction_cols = class_names,
 #'   type = "multinomial"
 #' )
+#' }
 #' }
 evaluate <- function(data,
                      target_col,

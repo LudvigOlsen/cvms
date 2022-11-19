@@ -367,6 +367,7 @@ test_that("multinomial model works with most_challenging()", {
   # TODO Save the data and cross-validation to disk
   # So we save time and can run on CRAN
   testthat::skip_on_cran()
+  testthat::skip_if_not_installed("nnet")
 
   # Load data and fold it
   xpectr::set_test_seed(1)

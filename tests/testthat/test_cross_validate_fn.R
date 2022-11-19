@@ -961,6 +961,7 @@ test_that("binomial svm models from e1071 work with cross_validate_fn()", {
 test_that("gaussian svm models from e1071 work with cross_validate_fn()", {
 
   testthat::skip_on_cran()
+  testthat::skip_if_not_installed("e1071")
 
   # Load data and fold it
   xpectr::set_test_seed(1)
@@ -1047,6 +1048,7 @@ test_that("gaussian svm models from e1071 work with cross_validate_fn()", {
 test_that("gaussian svm models with hparams and preprocessing work with cross_validate_fn()", {
 
   testthat::skip_on_cran()
+  testthat::skip_if_not_installed("e1071")
 
   # Load data and fold it
   xpectr::set_test_seed(1)
@@ -1298,6 +1300,7 @@ test_that("gaussian svm models with hparams and preprocessing work with cross_va
 test_that("binomial naiveBayes models from e1071 work with cross_validate_fn()", {
 
   testthat::skip_on_cran()
+  testthat::skip_if_not_installed("e1071")
 
   # Load data and fold it
   xpectr::set_test_seed(1)
@@ -1406,13 +1409,15 @@ test_that("binomial naiveBayes models from e1071 work with cross_validate_fn()",
 
 test_that("binomial nnet models work with cross_validate_fn()", {
 
+  testthat::skip_if_not_installed("nnet")
   testthat::skip_on_cran()
   # testthat::skip("mac and ubuntu give different warnings")
   testthat::skip_on_os("windows")
   testthat::skip_on_os("linux")
   testthat::skip_on_os("solaris")
   testthat::skip_on_os("mac")
-  # Tested on both platforms on travis as well
+
+  # Tested on both platforms in github action as well
   # Local test is a mix of ubuntu and mac derived results/predictions
   # so wouldn't run perfectly on either
 
@@ -1539,6 +1544,7 @@ test_that("binomial nnet models work with cross_validate_fn()", {
 test_that("gaussian nnet models work with cross_validate_fn()", {
 
   testthat::skip_on_cran()
+  testthat::skip_if_not_installed("nnet")
 
   # Load data and fold it
   xpectr::set_test_seed(4)
@@ -1628,6 +1634,8 @@ test_that("gaussian nnet models work with cross_validate_fn()", {
 })
 
 test_that("multinomial nnet models work with cross_validate_fn()", {
+
+  testthat::skip_if_not_installed("nnet")
 
   # Load data and fold it
   xpectr::set_test_seed(1)
@@ -1936,6 +1944,7 @@ test_that("multinomial nnet models work with cross_validate_fn()", {
 test_that("binomial randomForest models work with cross_validate_fn()", {
 
   testthat::skip_on_cran()
+  testthat::skip_if_not_installed("randomForest")
 
   # Load data and fold it
   xpectr::set_test_seed(1)
@@ -2044,6 +2053,7 @@ test_that("binomial randomForest models work with cross_validate_fn()", {
 test_that("multinomial randomForest models work with cross_validate_fn()", {
 
   testthat::skip_on_cran()
+  testthat::skip_if_not_installed("randomForest")
 
   # Load data and fold it
   xpectr::set_test_seed(1)
@@ -2230,6 +2240,7 @@ test_that("multinomial randomForest models work with cross_validate_fn()", {
 test_that("gaussian randomForest models work with cross_validate_fn()", {
 
   testthat::skip_on_cran()
+  testthat::skip_if_not_installed("randomForest")
 
   # Load data and fold it
   xpectr::set_test_seed(4)
@@ -2596,6 +2607,7 @@ test_that("gaussian lm model with metrics list works with cross_validate_fn()", 
 test_that("multinomial nnet model with metrics list works with cross_validate_fn()", {
 
   testthat::skip_on_cran()
+  testthat::skip_if_not_installed("nnet")
 
   # Load data and fold it
   xpectr::set_test_seed(1)

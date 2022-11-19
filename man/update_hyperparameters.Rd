@@ -59,14 +59,16 @@ update_hyperparameters(
 
 # 'cost' is required
 # throws error
-xpectr::capture_side_effects(
-  update_hyperparameters(
-    kernel = "linear",
-    "scale" = FALSE,
-    hyperparameters = hparams,
-    .required = "cost"
+if (requireNamespace("xpectr", quietly = TRUE)){
+  xpectr::capture_side_effects(
+    update_hyperparameters(
+      kernel = "linear",
+      "scale" = FALSE,
+      hyperparameters = hparams,
+      .required = "cost"
+    )
   )
-)
+}
 
 }
 }

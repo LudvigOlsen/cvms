@@ -5,13 +5,15 @@ output: github_document
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 ```{r, echo = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "man/figures/README-",
-  dpi = 92,
-  fig.retina = 2
-)
+if (requireNamespace("knitr", quietly = TRUE)){
+  knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>",
+    fig.path = "man/figures/README-",
+    dpi = 92,
+    fig.retina = 2
+  )
+}
 
 # Get minimum R requirement 
 dep <- as.vector(read.dcf('DESCRIPTION')[, 'Depends'])
@@ -169,7 +171,7 @@ library(cvms)
 library(groupdata2)   # fold() partition()
 library(knitr)        # kable()
 library(dplyr)        # %>% arrange()
-library(ggplot2)
+
 ```
 
 ## Load data
@@ -370,7 +372,7 @@ It is required to pass a model function and a predict function. Further, it is p
 Let's cross-validate a support-vector machine using the `svm()` function from the `e1071` package.
 First, we will create a model function. You can do anything you want inside it, as long as it takes the arguments `train_data`, `formula`, and `hyperparameters` and returns a fitted model object:
 
-```{r}
+```{r eval=requireNamespace("e1071")}
 # Create model function
 #
 # train_data : tibble with the training data
@@ -428,7 +430,7 @@ svm_predict_fn <- function(test_data, model, formula, hyperparameters, train_dat
 
 With these functions defined, we can cross-validate the support-vector machine:
 
-```{r}
+```{r eval=requireNamespace("e1071")}
 # Cross-validate svm_model_fn
 CV6 <- cross_validate_fn(
   data = data,
@@ -446,7 +448,7 @@ CV6
 
 Let's try with a naïve Bayes classifier as well. First, we will define the model function:
 
-```{r}
+```{r eval=requireNamespace("e1071")}
 # Create model function
 #
 # train_data : tibble with the training data
@@ -483,7 +485,7 @@ nb_predict_fn <- function(test_data, model, formula, hyperparameters, train_data
 
 With both functions specified, we are ready to cross-validate our naïve Bayes classifier:
 
-```{r}
+```{r eval=requireNamespace("e1071")}
 CV7 <- cross_validate_fn(
   data = data,
   model_fn = nb_model_fn,
@@ -502,7 +504,7 @@ If we wish to investigate why some observations are harder to predict than other
 
 Let's first extract the predictions from some of the cross-validation results:
 
-```{r}
+```{r eval=requireNamespace("e1071")}
 glm_predictions <- dplyr::bind_rows(CV5$Predictions, .id = "Model")
 svm_predictions <- dplyr::bind_rows(CV6$Predictions, .id = "Model")
 nb_predictions <- dplyr::bind_rows(CV7$Predictions, .id = "Model")
@@ -519,7 +521,7 @@ predictions
 
 Now, let's find the *overall most difficult to predict* observations. `most_challenging()` calculates the `Accuracy`, `MAE`, and `Cross-Entropy` for each prediction. We can then extract the observations with the ~20% highest `MAE` scores. Note that `most_challenging()` works with grouped data frames as well.
 
-```{r}
+```{r eval=requireNamespace("e1071")}
 challenging <- most_challenging(
   data = predictions,
   prediction_cols = "Prediction",
@@ -533,7 +535,7 @@ challenging
 
 We can then extract the difficult observations from the dataset. First, we add an index to the dataset. Then, we perform a right-join, to only get the rows that are in the `challenging` data frame.
 
-```{r}
+```{r eval=requireNamespace("e1071")}
 # Index with values 1:30
 data[["Observation"]] <- seq_len(nrow(data))
 

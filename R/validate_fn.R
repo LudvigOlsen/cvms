@@ -279,6 +279,9 @@
 #' # with known hyperparameters
 #' #
 #'
+#' # Only run if the `e1071` package is installed
+#' if (requireNamespace("e1071", quietly = TRUE)){
+#'
 #' # Create model function that returns a fitted model object
 #' # We use the hyperparameters arg to pass in the kernel and cost values
 #' # These will usually have been found with cross_validate_fn()
@@ -339,6 +342,7 @@
 #'   hyperparameters = svm_hparams,
 #'   partitions_col = ".partitions"
 #' )
+#' }  # closes `e1071` package check
 #' }
 validate_fn <- function(train_data,
                         formulas,

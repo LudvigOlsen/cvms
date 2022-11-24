@@ -72,76 +72,88 @@ model_functions <- function(name) {
       )
     }
   } else if (name == "svm_gaussian") {
-    model_fn <- function(train_data, formula, hyperparameters) {
+    if (requireNamespace("e1071", quietly = TRUE)){
+      model_fn <- function(train_data, formula, hyperparameters) {
 
-      # Optional hyperparameters:
-      #  - kernel (default: "radial")
-      #  - cost   (default: 1)
-      #  - scale  (default: FALSE)
+        # Optional hyperparameters:
+        #  - kernel (default: "radial")
+        #  - cost   (default: 1)
+        #  - scale  (default: FALSE)
 
-      # Set defaults for any missing hyperparameters
-      # Except for 'scale', these are the defaults in e1071::svm
-      hyperparameters <- cvms::update_hyperparameters(
-        kernel = "radial",
-        cost = 1,
-        scale = FALSE,
-        hyperparameters = hyperparameters
-      )
+        # Set defaults for any missing hyperparameters
+        # Except for 'scale', these are the defaults in e1071::svm
+        hyperparameters <- cvms::update_hyperparameters(
+          kernel = "radial",
+          cost = 1,
+          scale = FALSE,
+          hyperparameters = hyperparameters
+        )
 
-      e1071::svm(
-        formula = formula,
-        data = train_data,
-        kernel = hyperparameters[["kernel"]],
-        cost = hyperparameters[["cost"]],
-        scale = hyperparameters[["scale"]],
-        type = "eps-regression"
-      )
+        e1071::svm(
+          formula = formula,
+          data = train_data,
+          kernel = hyperparameters[["kernel"]],
+          cost = hyperparameters[["cost"]],
+          scale = hyperparameters[["scale"]],
+          type = "eps-regression"
+        )
+      }
+    } else {
+      stop("The package `e1071` was not available.")
     }
   } else if (name %in% c("svm_binomial", "svm_multinomial")) {
-    model_fn <- function(train_data, formula, hyperparameters) {
+    if (requireNamespace("e1071", quietly = TRUE)){
+      model_fn <- function(train_data, formula, hyperparameters) {
 
-      # Optional hyperparameters:
-      #  - kernel (default: "radial")
-      #  - cost   (default: 1)
-      #  - scale  (default: FALSE)
+        # Optional hyperparameters:
+        #  - kernel (default: "radial")
+        #  - cost   (default: 1)
+        #  - scale  (default: FALSE)
 
-      # Set defaults for any missing hyperparameters
-      # Except for 'scale', these are the defaults in e1071::svm
-      hyperparameters <- cvms::update_hyperparameters(
-        kernel = "radial",
-        cost = 1,
-        scale = FALSE,
-        hyperparameters = hyperparameters
-      )
+        # Set defaults for any missing hyperparameters
+        # Except for 'scale', these are the defaults in e1071::svm
+        hyperparameters <- cvms::update_hyperparameters(
+          kernel = "radial",
+          cost = 1,
+          scale = FALSE,
+          hyperparameters = hyperparameters
+        )
 
-      e1071::svm(
-        formula = formula,
-        data = train_data,
-        kernel = hyperparameters[["kernel"]],
-        cost = hyperparameters[["cost"]],
-        scale = hyperparameters[["scale"]],
-        type = "C-classification",
-        probability = TRUE
-      )
+        e1071::svm(
+          formula = formula,
+          data = train_data,
+          kernel = hyperparameters[["kernel"]],
+          cost = hyperparameters[["cost"]],
+          scale = hyperparameters[["scale"]],
+          type = "C-classification",
+          probability = TRUE
+        )
+      }
+    } else {
+      stop("The package `e1071` was not available.")
     }
   } else if (name == "naive_bayes") {
-    model_fn <- function(train_data, formula, hyperparameters) {
+    if (requireNamespace("e1071", quietly = TRUE)){
+      model_fn <- function(train_data, formula, hyperparameters) {
 
-      # Optional hyperparameters:
-      #  - laplace  (default: 0)
+        # Optional hyperparameters:
+        #  - laplace  (default: 0)
 
-      # Set defaults for any missing hyperparameters
-      # These are the defaults in e1071::naiveBayes
-      hyperparameters <- cvms::update_hyperparameters(
-        laplace = 0,
-        hyperparameters = hyperparameters
-      )
+        # Set defaults for any missing hyperparameters
+        # These are the defaults in e1071::naiveBayes
+        hyperparameters <- cvms::update_hyperparameters(
+          laplace = 0,
+          hyperparameters = hyperparameters
+        )
 
-      e1071::naiveBayes(
-        formula = formula,
-        data = train_data,
-        laplace = hyperparameters[["laplace"]]
-      )
+        e1071::naiveBayes(
+          formula = formula,
+          data = train_data,
+          laplace = hyperparameters[["laplace"]]
+        )
+      }
+    } else {
+      stop("The package `e1071` was not available.")
     }
   } else {
     stop(paste0("Could not find '", name, "'."))

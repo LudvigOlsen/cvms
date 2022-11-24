@@ -40,6 +40,7 @@ test_that("capture_fn()", {
 
 test_that("nnet gives same predictions on mac and ubuntu", {
   testthat::skip("mac and ubuntu give different warnings")
+  testthat::skip_if_not_installed("nnet")
   # Tested on both platforms on travis as well
   # Local test should run on mac as is
 

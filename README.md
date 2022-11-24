@@ -188,7 +188,6 @@ library(cvms)
 library(groupdata2)   # fold() partition()
 library(knitr)        # kable()
 library(dplyr)        # %>% arrange()
-library(ggplot2)
 ```
 
 ## Load data

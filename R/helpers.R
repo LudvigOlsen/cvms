@@ -981,6 +981,13 @@ rcmd_import_handler <- function() {
   lifecycle::deprecate_soft()
 }
 
+# Never used, but removes R CMD check NOTEs
+# Reason for import is to avoid making
+# the use of it conditional everywhere
+groupdata2_import_handler <- function() {
+  groupdata2::`%staircase%`(10, 2)
+}
+
 
 get_pkg_version <- function(pkg_name){
   vs <- unlist(packageVersion(pkg_name))

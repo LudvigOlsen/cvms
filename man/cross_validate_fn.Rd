@@ -547,6 +547,9 @@ cross_validate_fn(
 # with hyperparameter tuning
 #
 
+# Only run if the `e1071` package is installed
+if (requireNamespace("e1071", quietly = TRUE)){
+
 # Create model function that returns a fitted model object
 # We use the hyperparameters arg to pass in the kernel and cost values
 svm_model_fn <- function(train_data, formula, hyperparameters) {
@@ -616,7 +619,6 @@ cv \%>\%
   tidyr::unnest(cols = "HParams") \%>\%
   arrange(desc(`Balanced Accuracy`), desc(F1))
 
-
 #
 # Use parallelization
 # The below examples show the speed gains when running in parallel
@@ -662,6 +664,8 @@ system.time({
     #, parallel = TRUE  # Uncomment
   )
 })
+
+} # closes `e1071` package check
 }
 }
 \seealso{

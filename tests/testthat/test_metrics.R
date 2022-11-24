@@ -35,8 +35,10 @@ test_that("Metrics work for glm in validate()", {
   g <- pROC::roc(diagnosis ~ prob, data = test_data, direction = "<", levels = c(0, 1))
   expect_equal(validated$AUC, as.numeric(g$auc))
 
-  auc2 <- AUC::auc(AUC::roc(test_data$prob, factor(test_data$diagnosis)))
-  expect_equal(validated$AUC, auc2)
+  if (requireNamespace("AUC", quietly = TRUE)){
+    auc2 <- AUC::auc(AUC::roc(test_data$prob, factor(test_data$diagnosis)))
+    expect_equal(validated$AUC, auc2)
+  }
 
   # Confusion Matrix Metrics
 
@@ -92,8 +94,10 @@ test_that("Metrics work for glmer in validate()", {
   auc1 <- pROC::roc(diagnosis ~ prob, data = test_data, levels = c(0, 1), direction = "<")
   expect_equal(validated$AUC, as.numeric(auc1$auc))
 
-  auc2 <- AUC::auc(AUC::roc(test_data$prob, factor(test_data$diagnosis)))
-  expect_equal(validated$AUC, auc2)
+  if (requireNamespace("AUC", quietly = TRUE)){
+    auc2 <- AUC::auc(AUC::roc(test_data$prob, factor(test_data$diagnosis)))
+    expect_equal(validated$AUC, auc2)
+  }
 
 
   # Confusion Matrix metrics
@@ -155,9 +159,11 @@ test_that("Metrics work for glm in validate()", {
   )
   expect_equal(validated$AUC, as.numeric(g$auc))
 
-  roc_ <- AUC::roc(test_data$prob, factor(test_data$diagnosis))
-  auc2 <- AUC::auc(AUC::roc(test_data$prob, factor(test_data$diagnosis)))
-  expect_equal(validated$AUC, auc2) # TODO What is the actual underlying error here?
+  if (requireNamespace("AUC", quietly = TRUE)){
+    roc_ <- AUC::roc(test_data$prob, factor(test_data$diagnosis))
+    auc2 <- AUC::auc(AUC::roc(test_data$prob, factor(test_data$diagnosis)))
+    expect_equal(validated$AUC, auc2) # TODO What is the actual underlying error here?
+  }
 
   # Confusion matrix metrics
 
@@ -215,11 +221,13 @@ test_that("Metrics work for glmer in validate()", {
   auc1 <- pROC::roc(diagnosis ~ prob, data = test_data, direction = "<", levels = c(0, 1))
   expect_equal(validated$AUC, as.numeric(auc1$auc))
 
-  auc2 <- AUC::auc(AUC::roc(
-    test_data$prob,
-    factor(test_data$diagnosis, levels = levels(as.factor(train_data$diagnosis)))
-  ))
-  expect_equal(validated$AUC, auc2)
+  if (requireNamespace("AUC", quietly = TRUE)){
+    auc2 <- AUC::auc(AUC::roc(
+      test_data$prob,
+      factor(test_data$diagnosis, levels = levels(as.factor(train_data$diagnosis)))
+    ))
+    expect_equal(validated$AUC, auc2)
+  }
 
   # Confusion matrix metrics
 
@@ -292,116 +300,131 @@ test_that("Metrics work when 0 is positive class for glmer in validate()", {
   # PERFECT
 
   # With AUC::
-  AUC_auc_perfect <- AUC::auc(AUC::roc(
-    participant.scores$perfect_predicted_probability,
-    factor(participant.scores$diagnosis)
-  ))
-  AUC_auc_perfect_pos0 <- AUC::auc(AUC::roc(
-    1 - participant.scores$perfect_predicted_probability,
-    factor(1 - participant.scores$diagnosis)
-  ))
+  if (requireNamespace("AUC", quietly = TRUE)){
+    AUC_auc_perfect <- AUC::auc(AUC::roc(
+      participant.scores$perfect_predicted_probability,
+      factor(participant.scores$diagnosis)
+    ))
+    AUC_auc_perfect_pos0 <- AUC::auc(AUC::roc(
+      1 - participant.scores$perfect_predicted_probability,
+      factor(1 - participant.scores$diagnosis)
+    ))
 
-  expect_equal(AUC_auc_perfect, AUC_auc_perfect_pos0)
+    expect_equal(AUC_auc_perfect, AUC_auc_perfect_pos0)
 
-  # With pROC
-  pROC_auc_perfect <- as.numeric(pROC::roc(
-    response = participant.scores$diagnosis,
-    predictor = participant.scores$perfect_predicted_probability,
-    direction = "<", levels = c(0, 1)
-  )$auc)
+    # With pROC
+    pROC_auc_perfect <- as.numeric(pROC::roc(
+      response = participant.scores$diagnosis,
+      predictor = participant.scores$perfect_predicted_probability,
+      direction = "<", levels = c(0, 1)
+    )$auc)
 
-  pROC_auc_perfect_pos0 <- as.numeric(pROC::roc(
-    response = 1 - participant.scores$diagnosis,
-    predictor = 1 - participant.scores$perfect_predicted_probability,
-    direction = ">", levels = c(1, 0)
-  )$auc)
+    pROC_auc_perfect_pos0 <- as.numeric(pROC::roc(
+      response = 1 - participant.scores$diagnosis,
+      predictor = 1 - participant.scores$perfect_predicted_probability,
+      direction = ">", levels = c(1, 0)
+    )$auc)
 
-  expect_equal(pROC_auc_perfect, pROC_auc_perfect_pos0)
-  expect_equal(pROC_auc_perfect, AUC_auc_perfect)
-  expect_equal(AUC_auc_perfect_pos0, pROC_auc_perfect_pos0)
+    expect_equal(pROC_auc_perfect, pROC_auc_perfect_pos0)
+    expect_equal(pROC_auc_perfect, AUC_auc_perfect)
+    expect_equal(AUC_auc_perfect_pos0, pROC_auc_perfect_pos0)
+
+  }
 
   # FALSE NEGATIVES
 
   # With AUC
 
-  AUC_auc_false_negs <- AUC::auc(AUC::roc(
-    participant.scores$few_false_negs_predicted_probability,
-    factor(participant.scores$diagnosis)
-  ))
+  if (requireNamespace("AUC", quietly = TRUE)){
 
-  AUC_auc_false_negs_pos0 <- AUC::auc(AUC::roc(
-    1 - participant.scores$few_false_negs_predicted_probability,
-    factor(1 - participant.scores$diagnosis)
-  ))
+    AUC_auc_false_negs <- AUC::auc(AUC::roc(
+      participant.scores$few_false_negs_predicted_probability,
+      factor(participant.scores$diagnosis)
+    ))
 
-  expect_equal(AUC_auc_false_negs, AUC_auc_false_negs_pos0)
+    AUC_auc_false_negs_pos0 <- AUC::auc(AUC::roc(
+      1 - participant.scores$few_false_negs_predicted_probability,
+      factor(1 - participant.scores$diagnosis)
+    ))
+
+    expect_equal(AUC_auc_false_negs, AUC_auc_false_negs_pos0)
 
 
-  # With pROC
-  pROC_auc_false_negs <- as.numeric(pROC::roc(
-    response = participant.scores$diagnosis,
-    predictor = participant.scores$few_false_negs_predicted_probability,
-    direction = "<", levels = c(0, 1)
-  )$auc)
+    # With pROC
+    pROC_auc_false_negs <- as.numeric(pROC::roc(
+      response = participant.scores$diagnosis,
+      predictor = participant.scores$few_false_negs_predicted_probability,
+      direction = "<", levels = c(0, 1)
+    )$auc)
 
-  pROC_auc_false_negs_pos0 <- as.numeric(pROC::roc(
-    response = 1 - participant.scores$diagnosis,
-    predictor = 1 - participant.scores$few_false_negs_predicted_probability,
-    direction = ">", levels = c(1, 0)
-  )$auc)
+    pROC_auc_false_negs_pos0 <- as.numeric(pROC::roc(
+      response = 1 - participant.scores$diagnosis,
+      predictor = 1 - participant.scores$few_false_negs_predicted_probability,
+      direction = ">", levels = c(1, 0)
+    )$auc)
 
-  expect_equal(pROC_auc_false_negs, pROC_auc_false_negs_pos0)
-  expect_equal(pROC_auc_false_negs, AUC_auc_false_negs)
-  expect_equal(AUC_auc_false_negs_pos0, pROC_auc_false_negs_pos0)
+    expect_equal(pROC_auc_false_negs, pROC_auc_false_negs_pos0)
+    expect_equal(pROC_auc_false_negs, AUC_auc_false_negs)
+    expect_equal(AUC_auc_false_negs_pos0, pROC_auc_false_negs_pos0)
+
+  }
 
   # FALSE POSITIVES
 
   # With AUC
 
-  AUC_auc_false_pos <- AUC::auc(AUC::roc(
-    participant.scores$few_false_pos_predicted_probability,
-    factor(participant.scores$diagnosis)
-  ))
+  if (requireNamespace("AUC", quietly = TRUE)){
 
-  AUC_auc_false_pos_pos0 <- AUC::auc(AUC::roc(
-    1 - participant.scores$few_false_pos_predicted_probability,
-    factor(1 - participant.scores$diagnosis)
-  ))
+    AUC_auc_false_pos <- AUC::auc(AUC::roc(
+      participant.scores$few_false_pos_predicted_probability,
+      factor(participant.scores$diagnosis)
+    ))
 
-  expect_equal(AUC_auc_false_pos, AUC_auc_false_pos_pos0)
+    AUC_auc_false_pos_pos0 <- AUC::auc(AUC::roc(
+      1 - participant.scores$few_false_pos_predicted_probability,
+      factor(1 - participant.scores$diagnosis)
+    ))
 
-  # With pROC
-  pROC_auc_false_pos <- as.numeric(pROC::roc(
-    response = participant.scores$diagnosis,
-    predictor = participant.scores$few_false_pos_predicted_probability,
-    direction = "<", levels = c(0, 1)
-  )$auc)
+    expect_equal(AUC_auc_false_pos, AUC_auc_false_pos_pos0)
 
-  pROC_auc_false_pos_pos0 <- as.numeric(pROC::roc(
-    response = 1 - participant.scores$diagnosis,
-    predictor = 1 - participant.scores$few_false_pos_predicted_probability,
-    direction = ">", levels = c(1, 0)
-  )$auc)
+    # With pROC
+    pROC_auc_false_pos <- as.numeric(pROC::roc(
+      response = participant.scores$diagnosis,
+      predictor = participant.scores$few_false_pos_predicted_probability,
+      direction = "<", levels = c(0, 1)
+    )$auc)
 
-  expect_equal(pROC_auc_false_pos, pROC_auc_false_pos_pos0)
-  expect_equal(pROC_auc_false_pos, AUC_auc_false_pos)
-  expect_equal(AUC_auc_false_pos_pos0, pROC_auc_false_pos_pos0)
+    pROC_auc_false_pos_pos0 <- as.numeric(pROC::roc(
+      response = 1 - participant.scores$diagnosis,
+      predictor = 1 - participant.scores$few_false_pos_predicted_probability,
+      direction = ">", levels = c(1, 0)
+    )$auc)
+
+    expect_equal(pROC_auc_false_pos, pROC_auc_false_pos_pos0)
+    expect_equal(pROC_auc_false_pos, AUC_auc_false_pos)
+    expect_equal(AUC_auc_false_pos_pos0, pROC_auc_false_pos_pos0)
+
+  }
 
   # ALL WRONG
 
   # With AUC
 
-  AUC_auc_worst <- AUC::auc(AUC::roc(
-    participant.scores$worst_predicted_probability,
-    factor(participant.scores$diagnosis)
-  ))
+  if (requireNamespace("AUC", quietly = TRUE)){
 
-  AUC_auc_worst_pos0 <- AUC::auc(AUC::roc(
-    1 - participant.scores$worst_predicted_probability,
-    factor(1 - participant.scores$diagnosis)
-  ))
+    AUC_auc_worst <- AUC::auc(AUC::roc(
+      participant.scores$worst_predicted_probability,
+      factor(participant.scores$diagnosis)
+    ))
 
-  expect_equal(AUC_auc_worst, AUC_auc_worst_pos0)
+    AUC_auc_worst_pos0 <- AUC::auc(AUC::roc(
+      1 - participant.scores$worst_predicted_probability,
+      factor(1 - participant.scores$diagnosis)
+    ))
+
+    expect_equal(AUC_auc_worst, AUC_auc_worst_pos0)
+
+  }
 
   # With pROC
   pROC_auc_worst <- as.numeric(pROC::roc(
@@ -527,8 +550,10 @@ test_that("AUC works", {
   auc1 <- pROC::roc(obs ~ prob, data = pred_df, direction = "<", levels = c(0, 1))
   expect_equal(as.numeric(auc1$auc), 0.7615741, tolerance = 1e-3)
 
-  auc2 <- AUC::auc(AUC::roc(pred_df$prob, factor(pred_df$obs)))
-  expect_equal(auc2, 0.7615741, tolerance = 1e-3)
+  if (requireNamespace("AUC", quietly = TRUE)){
+    auc2 <- AUC::auc(AUC::roc(pred_df$prob, factor(pred_df$obs)))
+    expect_equal(auc2, 0.7615741, tolerance = 1e-3)
+  }
 
 })
 

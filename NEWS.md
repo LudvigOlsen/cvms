@@ -1,6 +1,8 @@
 
 # cvms 1.3.7.9000
 
+* In relevant contexts: Informs user *once* about the `positive` argument in `evaluate()` and `cross_validate*()` not affecting the interpretation of probabilities. I, myself, had forgotten about this in a project, so seems useful to remind us all about :-)
+
 # cvms 1.3.7
 
 * Makes testing conditional on the availability of `xpectr`.

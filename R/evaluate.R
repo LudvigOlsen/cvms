@@ -127,7 +127,7 @@
 #'  N.B. \strong{Multinomial models only}.
 #' @param cutoff Threshold for predicted classes. (Numeric)
 #'
-#' N.B. \strong{Binomial models only}.
+#'  N.B. \strong{Binomial models only}.
 #' @param positive Level from dependent variable to predict.
 #'  Either as character (\emph{preferable}) or level index (\code{1} or \code{2} - alphabetically).
 #'
@@ -139,9 +139,9 @@
 #'
 #'  Used when calculating confusion matrix metrics and creating \code{ROC} curves.
 #'
-#'  The \code{Positive Class} column in the output can be used to verify this setting.
+#'  The \code{Process} column in the output can be used to verify this setting.
 #'
-#'  N.B. Only affects the evaluation metrics.
+#'  N.B. Only affects the evaluation metrics. \strong{Does NOT affect what the probabilities are of (always the second class alphabetically).}
 #'
 #'  N.B. \strong{Binomial models only}.
 #' @param parallel Whether to run evaluations in parallel,

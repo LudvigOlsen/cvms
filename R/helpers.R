@@ -707,6 +707,15 @@ paste_line <- function (...) {
   paste(rlang::chr(...), collapse = "\n")
 }
 
+
+inform_about_positive_no_effect_on_probs <- function(positive){
+  inform_once(c(paste0("cvms::evaluate(type='binomial', positive='", positive, "', ):"), paste0(
+    "Please be aware that setting the `positive` argument ",
+    "does not change what the probabilities are of ",
+    "(second class alphabetically), only the confusion matrix-based metrics."
+  )), id="evaluate: The `positive` argument does not affect probabilities.")
+}
+
 #   __________________ #< 71c73c7cedb289ef6c3dd17503736847 ># __________________
 #   Convert to tibble                                                       ####
 

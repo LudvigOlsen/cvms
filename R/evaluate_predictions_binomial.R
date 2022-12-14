@@ -66,15 +66,6 @@ evaluate_predictions_binomial <- function(data,
       stop("The target column must maximally contain 2 levels.")
     }
 
-    # Create a column with the predicted class based on the chosen cutoff
-    # If it wasn't passed by parent function
-    if (is.null(predicted_class_col)) {
-      predicted_class_col <- create_tmp_name(data, "predicted_class")
-      data[[predicted_class_col]] <- ifelse(data[[prediction_col]] < model_specifics[["cutoff"]],
-        cat_levels[[1]], cat_levels[[2]]
-      )
-    }
-
     positive <- model_specifics[["positive"]]
     if (is.numeric(positive)) {
       positive <- cat_levels[positive]
@@ -84,6 +75,26 @@ evaluate_predictions_binomial <- function(data,
         "\n'positive' is ", positive, " and levels are ", paste(cat_levels, collapse = " and "), "."
       ))
     }
+
+    # Create a column with the predicted class based on the chosen cutoff
+    # If it wasn't passed by parent function
+    if (is.null(predicted_class_col)) {
+
+      # One may believe that setting the `positive` argument to the name
+      # of a class should mean that probabilities > `cutoff` would be
+      # considered that class, but this is not the case, so we
+      # make the user aware of this (once)
+      if (is.character(model_specifics[["positive"]]) && positive != cat_levels[[2]]){
+        inform_about_positive_no_effect_on_probs(positive=positive)
+      }
+
+      predicted_class_col <- create_tmp_name(data, "predicted_class")
+      data[[predicted_class_col]] <- ifelse(data[[prediction_col]] < model_specifics[["cutoff"]],
+        cat_levels[[1]], cat_levels[[2]]
+      )
+    }
+
+
 
     # Nest predictions and targets
     # Will be NA if any model_was_null is TRUE and

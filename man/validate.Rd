@@ -82,7 +82,7 @@ validate(
 
  Used when calculating confusion matrix metrics and creating \code{ROC} curves.
 
- The \code{Positive Class} column in the output can be used to verify this setting.
+ The \code{Process} column in the output can be used to verify this setting.
 
  N.B. Only affects evaluation metrics, not the model training or returned predictions.
 
@@ -90,21 +90,21 @@ validate(
 
 \item{metrics}{\code{list} for enabling/disabling metrics.
 
-  E.g. \code{list("RMSE" = FALSE)} would remove \code{RMSE} from the results,
-  and \code{list("Accuracy" = TRUE)} would add the regular \code{Accuracy} metric
-  to the classification results.
-  Default values (\code{TRUE}/\code{FALSE}) will be used for the remaining available metrics.
+ E.g. \code{list("RMSE" = FALSE)} would remove \code{RMSE} from the results,
+ and \code{list("Accuracy" = TRUE)} would add the regular \code{Accuracy} metric
+ to the classification results.
+ Default values (\code{TRUE}/\code{FALSE}) will be used for the remaining available metrics.
 
-  You can enable/disable all metrics at once by including
-  \code{"all" = TRUE/FALSE} in the \code{list}. This is done prior to enabling/disabling
-  individual metrics, why \code{list("all" = FALSE, "RMSE" = TRUE)}
-  would return only the \code{RMSE} metric.
+ You can enable/disable all metrics at once by including
+ \code{"all" = TRUE/FALSE} in the \code{list}. This is done prior to enabling/disabling
+ individual metrics, why \code{list("all" = FALSE, "RMSE" = TRUE)}
+ would return only the \code{RMSE} metric.
 
-  The \code{list} can be created with
-  \code{\link[cvms:gaussian_metrics]{gaussian_metrics()}} or
-  \code{\link[cvms:binomial_metrics]{binomial_metrics()}}.
+ The \code{list} can be created with
+ \code{\link[cvms:gaussian_metrics]{gaussian_metrics()}} or
+ \code{\link[cvms:binomial_metrics]{binomial_metrics()}}.
 
-  Also accepts the string \code{"all"}.}
+ Also accepts the string \code{"all"}.}
 
 \item{preprocessing}{Name of preprocessing to apply.
 

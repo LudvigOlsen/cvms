@@ -804,11 +804,11 @@ run_evaluate <- function(data,
       # considered that class, but this is not the case, so we
       # make the user aware of this (once)
       if (is.character(positive) && positive != sort(unique(as.character(data[[target_col]])))[[2]]){
-        inform_once(paste0(
-          "Binary Classification: Please be aware that setting the ",
-          "`positive` argument does not change what the probabilities are ",
-          "of (second class alphabetically)."
-        ))
+        inform_once(c(paste0("cvms::evaluate(type='binomial', positive='", positive, "', ):"), paste0(
+          "Please be aware that setting the `positive` argument ",
+          "does not change what the probabilities are of ",
+          "(second class alphabetically), only the confusion matrix-based metrics."
+        )), id="The `positive` argument does not affect probabilities.")
       }
     }
     checkmate::reportAssertions(assert_collection)

@@ -676,7 +676,36 @@ create_message <- function(m, caller, formula = NULL, fold_col = NULL, fold = NU
 }
 
 
+# From tidyselect:
+# https://github.com/r-lib/tidyselect/blob/2fab83639982d37fd94914210f771ab9cbd36b4b/R/utils.R#L281
+# inform_once(c("Main message", list("bullet1", "bullet2")), id="some ID")
+inform_env <- rlang::env()
+inform_once <- function(msg, id = msg) {
+  stopifnot(rlang::is_string(id))
 
+  if (rlang::env_has(inform_env, id)) {
+    return(invisible(NULL))
+  }
+  inform_env[[id]] <- TRUE
+
+  issue <- msg[[1]]
+  bullets <- msg[-1]
+
+  msg <- issue
+  if (length(bullets)) {
+    bullets <- rlang::format_error_bullets(bullets)
+    msg <- paste_line(msg, bullets)
+  }
+
+  rlang::inform(paste_line(
+    msg, "< This message is displayed once per session. >"
+  ))
+}
+
+# From tidyselect
+paste_line <- function (...) {
+  paste(rlang::chr(...), collapse = "\n")
+}
 
 #   __________________ #< 71c73c7cedb289ef6c3dd17503736847 ># __________________
 #   Convert to tibble                                                       ####

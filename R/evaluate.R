@@ -788,15 +788,28 @@ run_evaluate <- function(data,
                "t be either numeric or character."))
     }
 
-    if (is.numeric(data[[prediction_cols]]) && (
-        max(data[[prediction_cols]]) > 1 ||
-        min(data[[prediction_cols]]) < 0)) {
-      assert_collection$push(
-        paste0(
-          "When 'type' is 'binomial' and 'data[[prediction_cols]]' ",
-          "is numeric, the values in 'data[[prediction_cols]]' must be b",
-          "etween 0 and 1."
+    if (is.numeric(data[[prediction_cols]])){
+      if (max(data[[prediction_cols]]) > 1 ||
+          min(data[[prediction_cols]]) < 0) {
+        assert_collection$push(
+          paste0(
+            "When 'type' is 'binomial' and 'data[[prediction_cols]]' ",
+            "is numeric, the values in 'data[[prediction_cols]]' must be b",
+            "etween 0 and 1."
+          ))
+      }
+
+      # One may believe that setting the `positive` argument to the name
+      # of a class should mean that probabilities > `cutoff` would be
+      # considered that class, but this is not the case, so we
+      # make the user aware of this (once)
+      if (is.character(positive) && positive != sort(unique(as.character(data[[target_col]])))[[2]]){
+        inform_once(paste0(
+          "Binary Classification: Please be aware that setting the ",
+          "`positive` argument does not change what the probabilities are ",
+          "of (second class alphabetically)."
         ))
+      }
     }
     checkmate::reportAssertions(assert_collection)
 

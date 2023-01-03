@@ -164,7 +164,7 @@ set_metrics <- function(family, metrics_list = NULL, include_model_object_metric
         if (length(metrics_list) == 1) {
           metrics_list <- list()
         } else {
-          metrics_list <- metrics_list %>% purrr::list_modify("all" = NULL)
+          metrics_list <- metrics_list[names(metrics_list) != "all"]
         }
       }
 

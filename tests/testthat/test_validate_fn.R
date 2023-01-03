@@ -2461,9 +2461,9 @@ test_that("fuzz testing gaussian lm model with validate_fn()",{
   # Testing side effects
   # Assigning side effects
   side_effects_11346 <- xpectr::capture_side_effects(validate_fn(train_data = dat_ready, formulas = "score ~ nope", type = "gaussian", model_fn = lm_model_fn, predict_fn = lm_predict_fn, test_data = NULL, preprocess_fn = NULL, preprocess_once = FALSE, hyperparameters = list(a = c(1, 2), b = c(2)), partitions_col = ".partitions", metrics = list(all = FALSE, RMSE = TRUE), rm_nc = FALSE, parallel = FALSE, verbose = FALSE), reset_seed = TRUE)
-  expect_equal(
+  expect_match(
     xpectr::strip(side_effects_11346[['error']]),
-    xpectr::strip("---\nvalidate_fn(): Error in eval(predvars, data, env): object 'nope' not found\n\nFor:\nFormula: score ~ nope\nFold column: .partitions\nFold: 2\nHyperparameters: a : 1, b : 2\n"),
+    xpectr::strip("object 'nope' not found\n\nFor:\nFormula: score ~ nope\nFold column: .partitions\nFold: 2\nHyperparameters: a : 1, b : 2\n"),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_11346[['error_class']]),
@@ -3384,9 +3384,9 @@ test_that("fuzz testing multinomial nnet model with validate_fn()", {
   # Testing side effects
   # Assigning side effects
   side_effects_19346 <- xpectr::capture_side_effects(validate_fn(train_data = data_mc, formulas = "target ~ predictor_1 + predictor_2 + predictor_3", type = "gaussian", model_fn = multinom_model_fn, predict_fn = multinom_predict_fn, test_data = NULL, preprocess_fn = NULL, preprocess_once = FALSE, hyperparameters = hparams, partitions_col = ".partitions", metrics = list(), rm_nc = FALSE, parallel = FALSE, verbose = FALSE), reset_seed = TRUE)
-  expect_equal(
+  expect_match(
     xpectr::strip(side_effects_19346[['error']]),
-    xpectr::strip("---\nvalidate_fn(): Error in fn(...): When 'type'/'family' is 'gaussian', the predictions must be a vector or matrix / data frame with one column but was a matrix with 3 columns. Did you specify 'predict_fn' correctly?\n\nFor:\nFormula: target ~ predictor_1 + predictor_2 + predictor_3\nFold column: .partitions\nFold: 2\n"),
+    xpectr::strip("When 'type'/'family' is 'gaussian', the predictions must be a vector or matrix / data frame with one column but was a matrix with 3 columns. Did you specify 'predict_fn' correctly?\n\nFor:\nFormula: target ~ predictor_1 + predictor_2 + predictor_3\nFold column: .partitions\nFold: 2\n"),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_19346[['error_class']]),

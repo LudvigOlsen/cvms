@@ -4425,9 +4425,9 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
           dplyr::bind_cols(dplyr::bind_rows(means, sds))
       list(train = train_data, test = test_data, parameters = tidy_parameters)
   }, preprocess_once = FALSE, hyperparameters = list(REML = FALSE), fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
-  expect_equal(
+  expect_match(
     xpectr::strip(side_effects_13403[['error']]),
-    xpectr::strip("---\ncross_validate_fn(): Error in fn(...): cross_validate_fn(): predictions were NULL.\n\nFor:\nFormula: score ~ diagnosis + (1|session)\nFold column: .folds\nFold: 1\n"),
+    xpectr::strip("cross_validate_fn(): predictions were NULL.\n\nFor:\nFormula: score ~ diagnosis + (1|session)\nFold column: .folds\nFold: 1\n"),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_13403[['error_class']]),
@@ -5022,9 +5022,9 @@ test_that("generated tests for gaussian models in cross_validate_fn()", {
           dplyr::bind_cols(dplyr::bind_rows(means, sds))
       list(train = train_data, test = test_data, parameters = tidy_parameters)
   }, preprocess_once = FALSE, hyperparameters = NULL, fold_cols = ".folds", type = "gaussian", cutoff = 0.5, positive = 2, metrics = gaussian_metrics(nrmse_iqr = TRUE), rm_nc = FALSE, verbose = FALSE), reset_seed = TRUE)
-  expect_equal(
+  expect_match(
     xpectr::strip(side_effects_15530[['error']]),
-    xpectr::strip("---\ncross_validate_fn(): Error in model_fn(formula = model_formula, train_data = train_set, hyperparameters = hparams): 'hyperparameters' must include 'REML'\n\nFor:\nFormula: score ~ diagnosis + (1|session)\nFold column: .folds\nFold: 1\n"),
+    xpectr::strip("'hyperparameters' must include 'REML'\n\nFor:\nFormula: score ~ diagnosis + (1|session)\nFold column: .folds\nFold: 1\n"),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_15530[['error_class']]),

@@ -55,10 +55,15 @@
 #'
 #'  \subsection{Binomial}{
 #'  \code{vector} or one-column \code{matrix} / \code{data.frame} with probabilities (0-1)
-#'  of the second class, alphabetically.
+#'  \strong{of the second class, alphabetically}.
 #'  E.g.:
 #'
 #'  \code{c(0.3, 0.5, 0.1, 0.5)}
+#'
+#'  N.B. When unsure whether a model type produces probabilities based off
+#'  the alphabetic order of your classes, using 0 and 1 as classes in the
+#'  dependent variable instead of the class names should increase the chance of
+#'  getting probabilities of the right class.
 #'  }
 #'
 #'  \subsection{Gaussian}{

@@ -1,5 +1,9 @@
 
-# cvms 1.3.7.9000
+# cvms 1.3.8
+
+* In relevant contexts: Informs user *once* about the `positive` argument in `evaluate()` and `cross_validate*()` not affecting the interpretation of probabilities. I, myself, had forgotten about this in a project, so seems useful to remind us all about :-)
+
+* Fixes usage of the `"all"` name in `set_metrics()` after `purrr v1.0.0` update.
 
 # cvms 1.3.7
 

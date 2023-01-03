@@ -676,7 +676,45 @@ create_message <- function(m, caller, formula = NULL, fold_col = NULL, fold = NU
 }
 
 
+# From tidyselect:
+# https://github.com/r-lib/tidyselect/blob/2fab83639982d37fd94914210f771ab9cbd36b4b/R/utils.R#L281
+# inform_once(c("Main message", list("bullet1", "bullet2")), id="some ID")
+inform_env <- rlang::env()
+inform_once <- function(msg, id = msg) {
+  stopifnot(rlang::is_string(id))
 
+  if (rlang::env_has(inform_env, id)) {
+    return(invisible(NULL))
+  }
+  inform_env[[id]] <- TRUE
+
+  issue <- msg[[1]]
+  bullets <- msg[-1]
+
+  msg <- issue
+  if (length(bullets)) {
+    bullets <- rlang::format_error_bullets(bullets)
+    msg <- paste_line(msg, bullets)
+  }
+
+  rlang::inform(paste_line(
+    msg, "< This message is displayed once per session. >"
+  ))
+}
+
+# From tidyselect
+paste_line <- function (...) {
+  paste(rlang::chr(...), collapse = "\n")
+}
+
+
+inform_about_positive_no_effect_on_probs <- function(positive){
+  inform_once(c(paste0("cvms::evaluate(type='binomial', positive='", positive, "', ):"), paste0(
+    "Please be aware that setting the `positive` argument ",
+    "does not change what the probabilities are of ",
+    "(second class alphabetically), only the confusion matrix-based metrics."
+  )), id="evaluate: The `positive` argument does not affect probabilities.")
+}
 
 #   __________________ #< 71c73c7cedb289ef6c3dd17503736847 ># __________________
 #   Convert to tibble                                                       ####

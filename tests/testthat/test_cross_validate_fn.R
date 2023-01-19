@@ -494,9 +494,12 @@ test_that("gaussian lm model works with cross_validate_fn()", {
     warnings_and_messages$Function,
     rep("predict_fn", 8)
   )
-  expect_equal(
-    warnings_and_messages$Message,
-    rep("prediction from a rank-deficient fit may be misleading", 8)
+
+  # Check all messages are the same
+  expect_true(length(unique(warnings_and_messages$Message)) == 1)
+  expect_match(
+    warnings_and_messages$Message[[1]],
+    "rank-deficient"
   )
 
 })

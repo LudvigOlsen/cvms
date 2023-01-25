@@ -498,8 +498,8 @@ test_that("gaussian lm model works with cross_validate_fn()", {
   # Check all messages are the same
   expect_true(length(unique(warnings_and_messages$Message)) == 1)
   expect_match(
-    warnings_and_messages$Message[[1]],
-    "rank-deficient"
+    xpectr::strip(warnings_and_messages$Message[[1]]),
+    "rank[[:space:]]*deficient"
   )
 
 })

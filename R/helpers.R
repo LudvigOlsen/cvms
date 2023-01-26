@@ -375,6 +375,12 @@ skip_test_if_old_R_version <- function(min_R_version = "3.6") {
   }
 }
 
+skip_test_if_new_R_version <- function(max_major, max_minor) {
+  if (getRversion()$major > max_major || getRversion()$major == max_major && getRversion()$minor > max_minor) {
+    testthat::skip(message = paste0("Skipping test as R version is > ", max_major, ".", max_minor, "."))
+  }
+}
+
 
 #   __________________ #< 53855d1cfe9c14e0344914fd9330ac28 ># __________________
 #   Numeric argument checks                                                 ####

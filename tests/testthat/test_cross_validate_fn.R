@@ -465,6 +465,9 @@ test_that("gaussian lm model works with cross_validate_fn()", {
 
   # Error when formulas have random effects but lm model
 
+  # Skips if R version is 4.3 or above
+  skip_test_if_new_R_version(max_major=4, max_minor=2)
+
   # Cross-validate the model function
   warnings_and_messages <- dplyr::bind_rows(
     suppressWarnings(

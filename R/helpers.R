@@ -375,9 +375,19 @@ skip_test_if_old_R_version <- function(min_R_version = "3.6") {
   }
 }
 
-skip_test_if_new_R_version <- function(max_major, max_minor) {
-  if (getRversion()$major > max_major || getRversion()$major == max_major && getRversion()$minor > max_minor) {
-    testthat::skip(message = paste0("Skipping test as R version is > ", max_major, ".", max_minor, "."))
+is_newer_R_version <- function(max_major, max_minor) {
+  getRversion()$major > max_major ||
+    getRversion()$major == max_major && getRversion()$minor > max_minor
+}
+skip_test_if_newer_R_version <- function(max_major, max_minor) {
+  if (is_newer_R_version(max_major = max_major, max_minor = max_minor)) {
+    testthat::skip(message = paste0(
+      "Skipping test as R version is > ",
+      max_major,
+      ".",
+      max_minor,
+      "."
+    ))
   }
 }
 

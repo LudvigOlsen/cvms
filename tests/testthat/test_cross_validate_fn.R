@@ -465,6 +465,9 @@ test_that("gaussian lm model works with cross_validate_fn()", {
 
   # Error when formulas have random effects but lm model
 
+  # Skips if R version is 4.3 or above
+  skip_test_if_newer_R_version(max_major=4, max_minor=2)
+
   # Cross-validate the model function
   warnings_and_messages <- dplyr::bind_rows(
     suppressWarnings(
@@ -494,9 +497,12 @@ test_that("gaussian lm model works with cross_validate_fn()", {
     warnings_and_messages$Function,
     rep("predict_fn", 8)
   )
-  expect_equal(
-    warnings_and_messages$Message,
-    rep("prediction from a rank-deficient fit may be misleading", 8)
+
+  # Check all messages are the same
+  expect_true(length(unique(warnings_and_messages$Message)) == 1)
+  expect_match(
+    xpectr::strip(warnings_and_messages$Message[[1]]),
+    "rank[[:space:]]*deficient"
   )
 
 })

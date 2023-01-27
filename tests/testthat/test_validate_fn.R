@@ -1043,18 +1043,11 @@ test_that("fuzz testing validate_fn()", {
   # Testing side effects
   # Assigning side effects
   side_effects_16417 <- xpectr::capture_side_effects(validate_fn(train_data = dat_ready, formulas = "diagnosis~score+(1|session)", type = "binomial", model_fn = glm_model_fn, predict_fn = glm_predict_fn, test_data = NULL, preprocess_fn = glm_preprocess_fn, preprocess_once = FALSE, hyperparameters = hparams, partitions_col = ".partitions", cutoff = 0.5, positive = 2, metrics = list(all = FALSE, Accuracy = TRUE, Sensitivity = TRUE), rm_nc = FALSE, parallel = FALSE, verbose = FALSE), reset_seed = TRUE)
-  expect_equal(
-    xpectr::strip(side_effects_16417[['warnings']]),
-    xpectr::strip(c("validatefn prediction from a rankdeficient fit may be misleadingForFormula diagnosisscore1sessionFold column partitionsFold 2",
-                    "validatefn Model matrix is rank deficient Parameters 1 sessionTRUE were not estimableForFold column partitionsFold 2",
-                    "validatefn prediction from a rankdeficient fit may be misleadingForFormula diagnosisscore1sessionFold column partitionsFold 2",
-                    "validatefn Model matrix is rank deficient Parameters 1 sessionTRUE were not estimableForFold column partitionsFold 2",
-                    "validatefn prediction from a rankdeficient fit may be misleadingForFormula diagnosisscore1sessionFold column partitionsFold 2",
-                    "validatefn Model matrix is rank deficient Parameters 1 sessionTRUE were not estimableForFold column partitionsFold 2",
-                    "validatefn prediction from a rankdeficient fit may be misleadingForFormula diagnosisscore1sessionFold column partitionsFold 2",
-                    "validatefn Model matrix is rank deficient Parameters 1 sessionTRUE were not estimableForFold column partitionsFold 2"
-    )),
-    fixed = TRUE)
+  if (!is_newer_R_version(4,2)){
+    for (w in side_effects_16417[['warnings']]){
+      expect_match(xpectr::strip(w), "rank[[:space:]]*deficient", fixed=FALSE)
+    }
+  }
   expect_equal(
     xpectr::strip(side_effects_16417[['messages']]),
     xpectr::strip(character(0)),
@@ -1086,10 +1079,12 @@ test_that("fuzz testing validate_fn()", {
     output_16417[["Convergence Warnings"]],
     c(0, 0, 0, 0),
     tolerance = 1e-4)
-  expect_equal(
-    output_16417[["Other Warnings"]],
-    c(1, 1, 1, 1),
-    tolerance = 1e-4)
+  if (!is_newer_R_version(4,2)){
+    expect_equal( # Does not throw these warnings in 4.3
+      output_16417[["Other Warnings"]],
+      c(1, 1, 1, 1),
+      tolerance = 1e-4)
+  }
   expect_equal(
     output_16417[["Dependent"]],
     c("diagnosis", "diagnosis", "diagnosis", "diagnosis"),
@@ -2366,15 +2361,11 @@ test_that("fuzz testing gaussian lm model with validate_fn()",{
   # Testing side effects
   # Assigning side effects
   side_effects_15190 <- xpectr::capture_side_effects(validate_fn(train_data = dat_ready, formulas = "score ~ diagnosis + (1|session)", type = "gaussian", model_fn = lm_model_fn, predict_fn = lm_predict_fn, test_data = NULL, preprocess_fn = NULL, preprocess_once = FALSE, hyperparameters = list(a = c(1, 2), b = c(2)), partitions_col = ".partitions", metrics = list(all = FALSE, RMSE = TRUE), rm_nc = FALSE, parallel = FALSE, verbose = FALSE), reset_seed = TRUE)
-  expect_equal(
-    xpectr::strip(side_effects_15190[['warnings']]),
-    xpectr::strip(
-      c("validatefn prediction from a rankdeficient fit may be misleadingForFormula score diagnosis 1sessionFold column partitionsFold 2",
-      "validatefn Model matrix is rank deficient Parameters 1 sessionTRUE were not estimableForFold column partitionsFold 2",
-      "validatefn prediction from a rankdeficient fit may be misleadingForFormula score diagnosis 1sessionFold column partitionsFold 2",
-      "validatefn Model matrix is rank deficient Parameters 1 sessionTRUE were not estimableForFold column partitionsFold 2"
-      )),
-    fixed = TRUE)
+  if (!is_newer_R_version(4,2)){
+    for (w in side_effects_15190[['warnings']]){
+      expect_match(xpectr::strip(w), "rank[[:space:]]*deficient", fixed=FALSE)
+    }
+  }
   expect_equal(
     xpectr::strip(side_effects_15190[['messages']]),
     xpectr::strip(character(0)),
@@ -2399,10 +2390,12 @@ test_that("fuzz testing gaussian lm model with validate_fn()",{
     output_15190[["Convergence Warnings"]],
     c(0, 0),
     tolerance = 1e-4)
-  expect_equal(
-    output_15190[["Other Warnings"]],
-    c(1, 1),
-    tolerance = 1e-4)
+  if (!is_newer_R_version(4,2)){
+    expect_equal( # Does not throw these warnings in 4.3
+      output_15190[["Other Warnings"]],
+      c(1, 1),
+      tolerance = 1e-4)
+  }
   expect_equal(
     output_15190[["Dependent"]],
     c("score", "score"),

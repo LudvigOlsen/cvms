@@ -1,4 +1,10 @@
 
+# cvms 1.3.9.9000
+
+# cvms 1.3.9
+
+* Minor test fix.
+
 # cvms 1.3.8
 
 * In relevant contexts: Informs user *once* about the `positive` argument in `evaluate()` and `cross_validate*()` not affecting the interpretation of probabilities. I, myself, had forgotten about this in a project, so seems useful to remind us all about :-)

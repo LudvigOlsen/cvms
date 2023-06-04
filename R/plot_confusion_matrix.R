@@ -35,6 +35,10 @@
 #'  As created with the various evaluation functions in \code{cvms}, like
 #'  \code{\link[cvms:evaluate]{evaluate()}}.
 #'
+#'  An additional \code{`sub_col`} column (\code{character}) can be specified
+#'  as well. Its content will replace the bottom text (`counts` by default or
+#'  `normalized` when \code{`counts_on_top`} is enabled).
+#'
 #'  \strong{Note}: If you supply the results from \code{\link[cvms:evaluate]{evaluate()}}
 #'  or \code{\link[cvms:confusion_matrix]{confusion_matrix()}} directly,
 #'  the confusion matrix \code{tibble} is extracted automatically, if possible.
@@ -42,6 +46,13 @@
 #' @param prediction_col Name of column with prediction levels.
 #' @param counts_col Name of column with a count for each combination
 #'  of the target and prediction levels.
+#' @param sub_col Name of column with text to replace the bottom text
+#'  (`counts` by default or `normalized` when \code{`counts_on_top`} is enabled).
+#'
+#'  It simply replaces the text, so all settings will still be called
+#'  e.g. \code{`font_counts`} etc. When other settings make it so, that no
+#'  bottom text is displayed (e.g. \code{`add_counts` = FALSE}),
+#'  this text is not displayed either.
 #' @param class_order Names of the classes in \code{`conf_matrix`} in the desired order.
 #'  When \code{NULL}, the classes are ordered alphabetically.
 #' @param add_sums Add tiles with the row/column sums. Also adds a total count tile. (Logical)
@@ -218,10 +229,25 @@
 #' plot_confusion_matrix(eval[["Confusion Matrix"]][[1]]) +
 #'   ggplot2::labs(x = "True", y = "Guess")
 #' }
+#'
+#' # Replace the bottom tile text
+#' # with some information
+#' # First extract confusion matrix
+#' # Then add new column with text
+#' cm <- eval[["Confusion Matrix"]][[1]]
+#' cm[["Trials"]] <- c(
+#'   "(8/9)", "(3/9)", "(1/9)",
+#'   "(3/9)", "(7/9)", "(4/9)",
+#'   "(1/9)", "(2/9)", "(8/9)"
+#'  )
+#'
+#' # Now plot with the `sub_col` argument specified
+#' plot_confusion_matrix(cm, sub_col="Trials")
 plot_confusion_matrix <- function(conf_matrix,
                                   target_col = "Target",
                                   prediction_col = "Prediction",
                                   counts_col = "N",
+                                  sub_col = NULL,
                                   class_order = NULL,
                                   add_sums = FALSE,
                                   add_counts = TRUE,
@@ -276,6 +302,7 @@ plot_confusion_matrix <- function(conf_matrix,
   checkmate::assert_string(x = target_col, min.chars = 1, add = assert_collection)
   checkmate::assert_string(x = prediction_col, min.chars = 1, add = assert_collection)
   checkmate::assert_string(x = counts_col, min.chars = 1, add = assert_collection)
+  checkmate::assert_string(x = sub_col, min.chars = 1, add = assert_collection, null.ok = TRUE)
   checkmate::assert_string(x = tile_border_linetype, na.ok = TRUE, add = assert_collection)
   checkmate::assert_string(x = tile_border_color, na.ok = TRUE, add = assert_collection)
   checkmate::assert_string(x = palette, na.ok = TRUE, null.ok = TRUE, add = assert_collection)
@@ -616,6 +643,25 @@ plot_confusion_matrix <- function(conf_matrix,
     class_labels[class_labels == "Total"] <- sums_settings[["label"]]
     cm[["Target"]] <- factor(cm[["Target"]], levels = class_order, labels = class_labels)
     cm[["Prediction"]] <- factor(cm[["Prediction"]], levels = class_order, labels = class_labels)
+  }
+
+  # If sub column is specified
+
+  if (!is.null(sub_col)) {
+    # We overwrite the Normalized/N text with the sub column
+    if (isTRUE(big_counts)) {
+      text_removed <- cm[["Normalized_text"]] == ""
+      cm[["Normalized_text"]] <- ""
+      cm[seq_len(nrow(conf_matrix)), "Normalized_text"] <-
+        as.character(conf_matrix[[sub_col]])
+      cm[text_removed, "Normalized_text"] <- ""
+    } else {
+      text_removed <- cm[["N_text"]] == ""
+      cm[["N_text"]] <- ""
+      cm[seq_len(nrow(conf_matrix)), "N_text"] <-
+        as.character(conf_matrix[[sub_col]])
+      cm[text_removed, "N_text"] <- ""
+    }
   }
 
   # Remove percentages outside the diagonal

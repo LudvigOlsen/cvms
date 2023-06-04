@@ -450,11 +450,17 @@ plot_confusion_matrix <- function(conf_matrix,
 
   #### Update sum tile settings ####
 
-  if (palette == "Greens" && is.null(sums_settings[["palette"]]))
-    sums_settings[["palette"]] <- "Blues"
+  if (isTRUE(add_sums)) {
+    if (palette == "Greens" &&
+        is.null(sums_settings[["palette"]])) {
+      sums_settings[["palette"]] <- "Blues"
+    }
 
-  # Defaults are defined in update_sum_tile_settings()
-  sums_settings <- update_sum_tile_settings(sums_settings, defaults = list())
+    # Defaults are defined in update_sum_tile_settings()
+    sums_settings <-
+      update_sum_tile_settings(sums_settings, defaults = list())
+
+  }
 
   #### Prepare arrow images ####
 

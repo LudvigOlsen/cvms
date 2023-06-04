@@ -64,6 +64,7 @@ jobs:
             any::testthat
             any::knitr
             any::rmarkdown
+            any::xpectr
             MuMIn=?ignore-before-r=4.2.0
           needs: check
 

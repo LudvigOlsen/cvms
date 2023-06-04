@@ -54,6 +54,7 @@ R package for model evaluation and comparison.
 
 Currently supports regression (`'gaussian'`), binary classification (`'binomial'`), and (some functions only) multiclass classification (`'multinomial'`). Many of the functions allow **parallelization**, e.g. through the `doParallel` package.
 
+**NEW**: Our new [application](https://huggingface.co/spaces/ludvigolsen/plot_confusion_matrix) for plotting confusion matrices with `plot_confusion_matrix()` without any code is now available on [Huggingface Spaces](https://huggingface.co/spaces/ludvigolsen/plot_confusion_matrix).
 
 ### Main functions
 
@@ -90,7 +91,7 @@ Currently supports regression (`'gaussian'`), binary classification (`'binomial'
 
 | Function                 | Description                                                        |
 |:-------------------------|:-------------------------------------------------------------------|
-|`plot_confusion_matrix()` |Plot a confusion matrix |
+|`plot_confusion_matrix()` |Plot a confusion matrix (see also our [no-code application](https://huggingface.co/spaces/ludvigolsen/plot_confusion_matrix)) |
 |`plot_metric_density()`   |Create a density plot for a metric column |
 |`font()` |Set font settings for plotting functions (currently only `plot_confusion_matrix()`) |
 |`sum_tile_settings()` |Set settings for sum tiles in `plot_confusion_matrix()` |

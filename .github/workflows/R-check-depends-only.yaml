@@ -51,14 +51,13 @@ jobs:
       # current suggested dependencies and the minimum supported R version.
       # Update if anything out of date or not needed anymore.
       #
-      # `{EGAnet}` needs `{XML}`, and there are currently issues in downloading
-      # it for certain R versions. So just don't install it for now.
+      # Fails due to lack of rmarkdown
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           pak-version: devel
           extra-packages: |
             any::rcmdcheck
-            rmarkdown
             MuMIn=?ignore-before-r=4.2.0
           needs: check
 

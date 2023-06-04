@@ -299,7 +299,6 @@ plot_confusion_matrix(
 # Here we change the axis labels
 plot_confusion_matrix(evaluation[["Confusion Matrix"]][[1]]) +
   ggplot2::labs(x = "True", y = "Guess")
-}
 
 # Replace the bottom tile text
 # with some information
@@ -314,6 +313,8 @@ cm[["Trials"]] <- c(
 
 # Now plot with the `sub_col` argument specified
 plot_confusion_matrix(cm, sub_col="Trials")
+
+}
 }
 \seealso{
 Other plotting functions: 

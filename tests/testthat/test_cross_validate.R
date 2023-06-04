@@ -1034,9 +1034,18 @@ test_that("binomial models work with repeated cross_validate()", {
     positive = 1
   )
 
-  expect_equal(CVbinomlist$AUC, c(0.750, 0.2291667), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Lower CI`, c(0.5638021, 0.1037390), tolerance = 1e-3)
-  expect_equal(CVbinomlist$`Upper CI`, c(0.9361979, 0.3645035), tolerance = 1e-3)
+  # Some platforms give slightly different AUCs for the second model
+  # Possibly due to compilation differences affecting model probabilities?
+  # So for those we check each model differently with multiple acceptable results
+  expect_equal(CVbinomlist$AUC[[1]], 0.750, tolerance = 1e-3)
+  expect_true(round(CVbinomlist$AUC[[2]], 3) %in% c(0.229, 0.233))
+
+  expect_equal(CVbinomlist$`Lower CI`[[1]], 0.5638021, tolerance = 1e-3)
+  expect_true(round(CVbinomlist$`Lower CI`[[2]], 3) %in% c(0.104, 0.106))
+
+  expect_equal(CVbinomlist$`Upper CI`[[1]], 0.9361979, tolerance = 1e-3)
+  expect_true(round(CVbinomlist$`Upper CI`[[2]], 3) %in% c(0.365, 0.369))
+
   expect_equal(CVbinomlist$Kappa, c(0.4606625, -0.3043478), tolerance = 1e-3)
   expect_equal(CVbinomlist$Sensitivity, c(0.5833333, 0.1250000), tolerance = 1e-3)
   expect_equal(CVbinomlist$Specificity, c(0.8611111, 0.5833333), tolerance = 1e-3)

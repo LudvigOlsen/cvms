@@ -228,7 +228,7 @@ data <- data.frame(
 )
 
 # Evaluate predictions and create confusion matrix
-eval <- evaluate(
+evaluation <- evaluate(
   data = data,
   target_col = "target",
   prediction_cols = "prediction",
@@ -236,16 +236,16 @@ eval <- evaluate(
 )
 
 # Inspect confusion matrix tibble
-eval[["Confusion Matrix"]][[1]]
+evaluation[["Confusion Matrix"]][[1]]
 
 # Plot confusion matrix
 # Supply confusion matrix tibble directly
-plot_confusion_matrix(eval[["Confusion Matrix"]][[1]])
+plot_confusion_matrix(evaluation[["Confusion Matrix"]][[1]])
 # Plot first confusion matrix in evaluate() output
-plot_confusion_matrix(eval)
+plot_confusion_matrix(evaluation)
 
 # Add sum tiles
-plot_confusion_matrix(eval, add_sums = TRUE)
+plot_confusion_matrix(evaluation, add_sums = TRUE)
 
 # Three (or more) classes
 
@@ -259,7 +259,7 @@ data <- data.frame(
 )
 
 # Evaluate predictions and create confusion matrix
-eval <- evaluate(
+evaluation <- evaluate(
   data = data,
   target_col = "target",
   prediction_cols = "prediction",
@@ -267,20 +267,20 @@ eval <- evaluate(
 )
 
 # Inspect confusion matrix tibble
-eval[["Confusion Matrix"]][[1]]
+evaluation[["Confusion Matrix"]][[1]]
 
 # Plot confusion matrix
 # Supply confusion matrix tibble directly
-plot_confusion_matrix(eval[["Confusion Matrix"]][[1]])
+plot_confusion_matrix(evaluation[["Confusion Matrix"]][[1]])
 # Plot first confusion matrix in evaluate() output
-plot_confusion_matrix(eval)
+plot_confusion_matrix(evaluation)
 
 # Add sum tiles
-plot_confusion_matrix(eval, add_sums = TRUE)
+plot_confusion_matrix(evaluation, add_sums = TRUE)
 
 # Counts only
 plot_confusion_matrix(
-  eval[["Confusion Matrix"]][[1]],
+  evaluation[["Confusion Matrix"]][[1]],
   add_normalized = FALSE,
   add_row_percentages = FALSE,
   add_col_percentages = FALSE
@@ -289,7 +289,7 @@ plot_confusion_matrix(
 # Change color palette to green
 # Change theme to \code{theme_light}.
 plot_confusion_matrix(
-  eval[["Confusion Matrix"]][[1]],
+  evaluation[["Confusion Matrix"]][[1]],
   palette = "Greens",
   theme_fn = ggplot2::theme_light
 )
@@ -297,7 +297,7 @@ plot_confusion_matrix(
 # The output is a ggplot2 object
 # that you can add layers to
 # Here we change the axis labels
-plot_confusion_matrix(eval[["Confusion Matrix"]][[1]]) +
+plot_confusion_matrix(evaluation[["Confusion Matrix"]][[1]]) +
   ggplot2::labs(x = "True", y = "Guess")
 }
 
@@ -305,7 +305,7 @@ plot_confusion_matrix(eval[["Confusion Matrix"]][[1]]) +
 # with some information
 # First extract confusion matrix
 # Then add new column with text
-cm <- eval[["Confusion Matrix"]][[1]]
+cm <- evaluation[["Confusion Matrix"]][[1]]
 cm[["Trials"]] <- c(
   "(8/9)", "(3/9)", "(1/9)",
   "(3/9)", "(7/9)", "(4/9)",

@@ -6,7 +6,7 @@
 **Cross-Validation for Model Selection**  
 **Authors:** [Ludvig R. Olsen](http://ludvigolsen.dk/) (
 <r-pkgs@ludvigolsen.dk> ), Hugh Benjamin Zachariae <br/> **License:**
-[MIT](https://opensource.org/licenses/MIT) <br/> **Started:** October
+[MIT](https://opensource.org/license/mit/) <br/> **Started:** October
 2016
 
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/cvms)](https://cran.r-project.org/package=cvms)

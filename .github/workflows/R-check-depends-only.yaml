@@ -58,6 +58,7 @@ jobs:
           pak-version: devel
           extra-packages: |
             any::rcmdcheck
+            rmarkdown
             MuMIn=?ignore-before-r=4.2.0
           needs: check
 

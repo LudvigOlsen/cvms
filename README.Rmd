@@ -30,7 +30,7 @@ rvers <- substring(dep, 7, nchar(dep)-1)
 # cvms <a href='https://github.com/LudvigOlsen/cvms'><img src='man/figures/cvms_logo_242x280_250dpi.png' align="right" height="140" /></a>
 **Cross-Validation for Model Selection**  
 **Authors:** [Ludvig R. Olsen](http://ludvigolsen.dk/) ( r-pkgs@ludvigolsen.dk ), Hugh Benjamin Zachariae <br/>
-**License:** [MIT](https://opensource.org/licenses/MIT) <br/>
+**License:** [MIT](https://opensource.org/license/mit/) <br/>
 **Started:** October 2016 
 
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/cvms)](https://cran.r-project.org/package=cvms)

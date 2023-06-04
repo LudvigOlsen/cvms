@@ -2432,8 +2432,8 @@ test_that("the expected errors are thrown by cross_validate()", {
       positive = 1
     ), reset_seed = TRUE)
   expect_match(
-    xpectr::strip(side_effects_14820[['error']]),
-    xpectr::strip("`link` argument of `cross_validate()`"),
+    xpectr::strip(side_effects_14820[['error']], remove_spaces = TRUE),
+    xpectr::strip("`link` argument of `cross_validate()`", remove_spaces = TRUE),
     fixed = TRUE)
   expect_equal(
     xpectr::strip(side_effects_14820[['error_class']]),

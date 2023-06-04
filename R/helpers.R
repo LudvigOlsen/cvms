@@ -975,10 +975,10 @@ set_arrows <- function(cm, place_x_axis_above, icons,
                        empty_path = get_figure_path("empty_square.svg")){
 
   # Get the extreme levels
-  max_prediction_level <- max(as.character(levels(cm[["Prediction"]])))
-  min_prediction_level <- min(as.character(levels(cm[["Prediction"]])))
-  max_target_level <- max(as.character(levels(cm[["Target"]])))
-  min_target_level <- min(as.character(levels(cm[["Target"]])))
+  max_prediction_level <- tail(as.character(levels(cm[["Prediction"]])), 1)
+  min_prediction_level <- head(as.character(levels(cm[["Prediction"]])), 1)
+  max_target_level <- tail(as.character(levels(cm[["Target"]])), 1)
+  min_target_level <- head(as.character(levels(cm[["Target"]])), 1)
 
   # Set arrow icon names for all tiles
   cm[["right_icon"]] <- icons[["right"]]

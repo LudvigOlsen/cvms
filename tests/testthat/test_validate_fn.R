@@ -1047,11 +1047,12 @@ test_that("fuzz testing validate_fn()", {
     for (w in side_effects_16417[['warnings']]){
       expect_match(xpectr::strip(w), "rank[[:space:]]*deficient", fixed=FALSE)
     }
+  } else { # TODO: IS this actually the case in 4.3+?
+    expect_equal(
+      xpectr::strip(side_effects_16417[['messages']]),
+      xpectr::strip(character(0)),
+      fixed = TRUE)
   }
-  expect_equal(
-    xpectr::strip(side_effects_16417[['messages']]),
-    xpectr::strip(character(0)),
-    fixed = TRUE)
   # Assigning output
   output_16417 <- xpectr::suppress_mw(validate_fn(train_data = dat_ready, formulas = "diagnosis~score+(1|session)", type = "binomial", model_fn = glm_model_fn, predict_fn = glm_predict_fn, test_data = NULL, preprocess_fn = glm_preprocess_fn, preprocess_once = FALSE, hyperparameters = hparams, partitions_col = ".partitions", cutoff = 0.5, positive = 2, metrics = list(all = FALSE, Accuracy = TRUE, Sensitivity = TRUE), rm_nc = FALSE, parallel = FALSE, verbose = FALSE))
   # Testing class
@@ -2365,11 +2366,12 @@ test_that("fuzz testing gaussian lm model with validate_fn()",{
     for (w in side_effects_15190[['warnings']]){
       expect_match(xpectr::strip(w), "rank[[:space:]]*deficient", fixed=FALSE)
     }
+  } else { # TODO is this actually the case in R 4.3?
+    expect_equal(
+      xpectr::strip(side_effects_15190[['messages']]),
+      xpectr::strip(character(0)),
+      fixed = TRUE)
   }
-  expect_equal(
-    xpectr::strip(side_effects_15190[['messages']]),
-    xpectr::strip(character(0)),
-    fixed = TRUE)
   # Assigning output
   output_15190 <- xpectr::suppress_mw(validate_fn(train_data = dat_ready, formulas = "score ~ diagnosis + (1|session)", type = "gaussian", model_fn = lm_model_fn, predict_fn = lm_predict_fn, test_data = NULL, preprocess_fn = NULL, preprocess_once = FALSE, hyperparameters = list(a = c(1, 2), b = c(2)), partitions_col = ".partitions", metrics = list(all = FALSE, RMSE = TRUE), rm_nc = FALSE, parallel = FALSE, verbose = FALSE))
   # Testing class

@@ -1,6 +1,13 @@
 
 # cvms 1.3.9.9000
 
+* In `plot_confusion_matrix()`, adds `sub_col` argument for passing in text to replace
+the bottom text (`counts` by default).
+
+* In `plot_confusion_matrix()`, fixes direction of arrows when `class_order` is specified.
+
+* In `update_hyperparameters()`, allows `hyperparameters` argument to be `NULL`. Thanks [@ggrothendieck](https://github.com/LudvigOlsen/cvms/issues/30) for reporting the issue.
+
 # cvms 1.3.9
 
 * Minor test fix.

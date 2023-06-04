@@ -9,6 +9,7 @@ plot_confusion_matrix(
   target_col = "Target",
   prediction_col = "Prediction",
   counts_col = "N",
+  sub_col = NULL,
   class_order = NULL,
   add_sums = FALSE,
   add_counts = TRUE,
@@ -57,6 +58,10 @@ targets and predictions along with their counts.
  As created with the various evaluation functions in \code{cvms}, like
  \code{\link[cvms:evaluate]{evaluate()}}.
 
+ An additional \code{`sub_col`} column (\code{character}) can be specified
+ as well. Its content will replace the bottom text (`counts` by default or
+ `normalized` when \code{`counts_on_top`} is enabled).
+
  \strong{Note}: If you supply the results from \code{\link[cvms:evaluate]{evaluate()}}
  or \code{\link[cvms:confusion_matrix]{confusion_matrix()}} directly,
  the confusion matrix \code{tibble} is extracted automatically, if possible.}
@@ -67,6 +72,14 @@ targets and predictions along with their counts.
 
 \item{counts_col}{Name of column with a count for each combination
 of the target and prediction levels.}
+
+\item{sub_col}{Name of column with text to replace the bottom text
+ (`counts` by default or `normalized` when \code{`counts_on_top`} is enabled).
+
+ It simply replaces the text, so all settings will still be called
+ e.g. \code{`font_counts`} etc. When other settings make it so, that no
+ bottom text is displayed (e.g. \code{`add_counts` = FALSE}),
+ this text is not displayed either.}
 
 \item{class_order}{Names of the classes in \code{`conf_matrix`} in the desired order.
 When \code{NULL}, the classes are ordered alphabetically.}
@@ -287,6 +300,20 @@ plot_confusion_matrix(
 plot_confusion_matrix(eval[["Confusion Matrix"]][[1]]) +
   ggplot2::labs(x = "True", y = "Guess")
 }
+
+# Replace the bottom tile text
+# with some information
+# First extract confusion matrix
+# Then add new column with text
+cm <- eval[["Confusion Matrix"]][[1]]
+cm[["Trials"]] <- c(
+  "(8/9)", "(3/9)", "(1/9)",
+  "(3/9)", "(7/9)", "(4/9)",
+  "(1/9)", "(2/9)", "(8/9)"
+ )
+
+# Now plot with the `sub_col` argument specified
+plot_confusion_matrix(cm, sub_col="Trials")
 }
 \seealso{
 Other plotting functions: 

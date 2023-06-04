@@ -70,6 +70,9 @@ update_hyperparameters <- function(..., hyperparameters, .required = NULL){
 
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
+  if (is.null(hyperparameters)){
+    hyperparameters <- list()
+  }
   checkmate::assert(
     checkmate::check_list(hyperparameters, names = "unique"),
     checkmate::check_data_frame(hyperparameters, col.names = "unique", nrows = 1)

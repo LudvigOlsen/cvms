@@ -1,5 +1,5 @@
 
-# cvms 1.3.9.9000
+# cvms 1.4.0
 
 * In `plot_confusion_matrix()`, adds `sub_col` argument for passing in text to replace
 the bottom text (`counts` by default).

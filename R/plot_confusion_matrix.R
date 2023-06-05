@@ -392,6 +392,13 @@ plot_confusion_matrix <- function(conf_matrix,
       "'palette' and 'sums_settings[['palette']]' cannot be the same palette.")
   }
 
+  # Check that N are (>= 0)
+  checkmate::assert_numeric(
+    x = conf_matrix[[counts_col]],
+    lower = 0,
+    add = assert_collection
+  )
+
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
 

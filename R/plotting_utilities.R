@@ -88,8 +88,8 @@ update_font_setting <- function(settings, defaults, initial_vals = NULL) {
 
 preprocess_numeric <- function(vec, settings, rm_zero_text=FALSE, rm_zeroes_post_rounding=TRUE) {
 
-  # Find the pre-rounding 0s
-  is_zero <- vec == 0
+  # Find the pre-rounding 0s or NaNs
+  is_zero <- vec == 0 | is.na(vec)
 
   # Don't round if digits is negative
   if (settings[["digits"]] >= 0) {
@@ -101,7 +101,7 @@ preprocess_numeric <- function(vec, settings, rm_zero_text=FALSE, rm_zeroes_post
   # Potentially including elements zero after rounding
   if (isTRUE(rm_zero_text)){
     if (isTRUE(rm_zeroes_post_rounding)){
-      out[vec == 0] <- ""
+      out[vec == 0 | is.na(vec)] <- ""
     } else {
       out[is_zero] <- ""
     }
@@ -228,7 +228,11 @@ get_figure_path <- function(fig_name, inst_dir = "images", pgk_name = "cvms") {
 
 
 calculate_normalized <- function(data){
-  data[["Normalized"]] <- 100 * (data[["N"]] / sum(data[["N"]]))
+  sum_ <- sum(data[["N"]])
+  if (sum_ == 0){
+    sum_ <- 1
+  }
+  data[["Normalized"]] <- 100 * (data[["N"]] / sum_)
   data
 }
 

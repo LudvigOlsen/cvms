@@ -1,11 +1,15 @@
 
 # cvms 1.4.0.9000
 
-* In `plot_confusion_matrix()`, fixes bug when `add_sums = TRUE` and `counts_on_top = TRUE`.
+## `plot_confusion_matrix()`:
 
-* In `plot_confusion_matrix()`, raises error for negative counts.
+* Fixes bug when `add_sums = TRUE` and `counts_on_top = TRUE`.
 
-* In `plot_confusion_matrix()`, fixes zero-division when all counts are 0.
+* Raises error for negative counts.
+
+* Fixes zero-division when all counts are 0.
+
+* Sets palette colors to lowest value when all counts are 0.
 
 # cvms 1.4.0
 

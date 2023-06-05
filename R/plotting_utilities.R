@@ -250,6 +250,10 @@ get_intensity_range <- function(data, intensity_by){
   if (intensity_by == "counts"){
     min_intensity <- min(data$N)
     max_intensity <- max(data$N)
+    if (min_intensity == max_intensity && min_intensity == 0){
+      # When all are 0, make sure all get lowest value in palette
+      max_intensity <- 1
+    }
   } else {
     min_intensity <- 0
     max_intensity <- 100

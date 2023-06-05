@@ -605,7 +605,11 @@ plot_confusion_matrix <- function(conf_matrix,
     sum_data[["Normalized_text"]] <- preprocess_numeric(sum_data[["Normalized"]], font_normalized)
 
     # Set total counts tile text
-    sum_data[nrow(sum_data), "N_text"] <- ifelse(isTRUE(counts_on_top), sum_data[nrow(sum_data), "N"], "")
+    sum_data[nrow(sum_data), "N_text"] <- ifelse(
+      isTRUE(counts_on_top),
+      as.character(sum_data[nrow(sum_data), "N"]),
+      ""
+    )
     sum_data[nrow(sum_data), "Normalized_text"] <- ifelse(
       isTRUE(counts_on_top), "", paste0(sum_data[nrow(sum_data), "N"]))
 

@@ -1,4 +1,8 @@
 
+# cvms 1.4.0.9000
+
+* In `plot_confusion_matrix()`, fixes bug when `add_sums = TRUE` and `counts_on_top = TRUE`.
+
 # cvms 1.4.0
 
 * In `plot_confusion_matrix()`, adds `sub_col` argument for passing in text to replace

@@ -130,8 +130,15 @@ such that the counts are on top. (Logical)}
  as well as the default \code{"Blues"}.}
 
 \item{intensity_by}{The measure that should control the color intensity of the tiles.
-Either \code{`counts`} or \code{`normalized`}. For the latter, the color limits become
-\code{0-100}, why the intensities can better be compared across plots.}
+ Either \code{`counts`}, \code{`normalized`} or one of \code{`log counts`,
+ `log2 counts`, `log10 counts`, `arcsinh counts`}.
+
+ For `normalized`, the color limits become \code{0-100}, why the intensities
+ can better be compared across plots.
+
+ For the `log*` and `arcsinh` versions, the log/arcsinh transformed counts are used.
+ \strong{Note}: In `log*` transformed counts, 0-counts are set to `0`, why they
+ won't be distinguishable from 1-counts.}
 
 \item{theme_fn}{The \code{ggplot2} theme function to apply.}
 

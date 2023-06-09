@@ -3,6 +3,11 @@
 
 ## `plot_confusion_matrix()`:
 
+* Adds option to set `intensity_by` to a log/arcsinh transformed version of the counts. 
+This adds the options `"log counts"`, `"log2 counts"`, `"log10 counts"`, `"arcsinh counts"` 
+to the `intensity_by` argument.
+
+
 * Fixes bug when `add_sums = TRUE` and `counts_on_top = TRUE`.
 
 * Raises error for negative counts.

@@ -93,8 +93,15 @@
 #' @param font_col_percentages \code{list} of font settings for the column percentages.
 #'  Can be provided with \code{\link[cvms:font]{font()}}.
 #' @param intensity_by The measure that should control the color intensity of the tiles.
-#'  Either \code{`counts`} or \code{`normalized`}. For the latter, the color limits become
-#'  \code{0-100}, why the intensities can better be compared across plots.
+#'  Either \code{`counts`}, \code{`normalized`} or one of \code{`log counts`,
+#'  `log2 counts`, `log10 counts`, `arcsinh counts`}.
+#'
+#'  For `normalized`, the color limits become \code{0-100}, why the intensities
+#'  can better be compared across plots.
+#'
+#'  For the `log*` and `arcsinh` versions, the log/arcsinh transformed counts are used.
+#'  \strong{Note}: In `log*` transformed counts, 0-counts are set to `0`, why they
+#'  won't be distinguishable from 1-counts.
 #' @param arrow_size Size of arrow icons. (Numeric)
 #'
 #'  Is divided by \code{sqrt(nrow(conf_matrix))} and passed on
@@ -371,7 +378,7 @@ plot_confusion_matrix <- function(conf_matrix,
   )
   checkmate::assert_names(
     x = intensity_by,
-    subset.of = c("counts", "normalized"),
+    subset.of = c("counts", "normalized", "log counts", "log2 counts", "log10 counts", "arcsinh counts"),
     add = assert_collection
   )
 
@@ -391,6 +398,13 @@ plot_confusion_matrix <- function(conf_matrix,
     assert_collection$push(
       "'palette' and 'sums_settings[['palette']]' cannot be the same palette.")
   }
+
+  # Check that N are (>= 0)
+  checkmate::assert_numeric(
+    x = conf_matrix[[counts_col]],
+    lower = 0,
+    add = assert_collection
+  )
 
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####

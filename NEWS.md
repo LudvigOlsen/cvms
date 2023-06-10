@@ -1,7 +1,19 @@
 
-# cvms 1.4.0.9000
+# cvms 1.4.1
 
-* In `plot_confusion_matrix()`, fixes bug when `add_sums = TRUE` and `counts_on_top = TRUE`.
+## `plot_confusion_matrix()`:
+
+* Adds option to set `intensity_by` to a log/arcsinh transformed version of the counts. 
+This adds the options `"log counts"`, `"log2 counts"`, `"log10 counts"`, `"arcsinh counts"` 
+to the `intensity_by` argument.
+
+* Fixes bug when `add_sums = TRUE` and `counts_on_top = TRUE`.
+
+* Raises error for negative counts.
+
+* Fixes zero-division when all counts are 0.
+
+* Sets palette colors to lowest value when all counts are 0.
 
 # cvms 1.4.0
 

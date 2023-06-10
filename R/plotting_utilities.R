@@ -88,8 +88,8 @@ update_font_setting <- function(settings, defaults, initial_vals = NULL) {
 
 preprocess_numeric <- function(vec, settings, rm_zero_text=FALSE, rm_zeroes_post_rounding=TRUE) {
 
-  # Find the pre-rounding 0s
-  is_zero <- vec == 0
+  # Find the pre-rounding 0s or NaNs
+  is_zero <- vec == 0 | is.na(vec)
 
   # Don't round if digits is negative
   if (settings[["digits"]] >= 0) {
@@ -101,7 +101,7 @@ preprocess_numeric <- function(vec, settings, rm_zero_text=FALSE, rm_zeroes_post
   # Potentially including elements zero after rounding
   if (isTRUE(rm_zero_text)){
     if (isTRUE(rm_zeroes_post_rounding)){
-      out[vec == 0] <- ""
+      out[vec == 0 | is.na(vec)] <- ""
     } else {
       out[is_zero] <- ""
     }
@@ -228,14 +228,31 @@ get_figure_path <- function(fig_name, inst_dir = "images", pgk_name = "cvms") {
 
 
 calculate_normalized <- function(data){
-  data[["Normalized"]] <- 100 * (data[["N"]] / sum(data[["N"]]))
+  sum_ <- sum(data[["N"]])
+  if (sum_ == 0){
+    sum_ <- 1
+  }
+  data[["Normalized"]] <- 100 * (data[["N"]] / sum_)
   data
 }
 
-set_intensity <- function(data, intensity_by){
-  if (intensity_by == "counts") {
-    data[["Intensity"]] <- data[["N"]]
-  } else {
+set_intensity <- function(data, intensity_by) {
+  if (grepl("counts", intensity_by)) {
+    counts <- data[["N"]]
+
+    if (intensity_by == "log counts") {
+      counts[counts != 0] <- log(counts[counts != 0])
+    } else if (intensity_by == "log2 counts") {
+      counts[counts != 0] <- log2(counts[counts != 0])
+    } else if (intensity_by == "log10 counts") {
+      counts[counts != 0] <- log10(counts[counts != 0])
+    } else if (intensity_by == "arcsinh counts") {
+      counts <- asinh(counts)
+    }
+
+    data[["Intensity"]] <- counts
+
+  } else if (intensity_by == "normalized") {
     data[["Intensity"]] <- data[["Normalized"]]
   }
   data
@@ -243,9 +260,13 @@ set_intensity <- function(data, intensity_by){
 
 get_intensity_range <- function(data, intensity_by){
   # Get min and max intensity scores
-  if (intensity_by == "counts"){
-    min_intensity <- min(data$N)
-    max_intensity <- max(data$N)
+  if (grepl("counts", intensity_by) ){
+    min_intensity <- min(data$Intensity)
+    max_intensity <- max(data$Intensity)
+    if (min_intensity == max_intensity && min_intensity == 0){
+      # When all are 0, make sure all get lowest value in palette
+      max_intensity <- 1
+    }
   } else {
     min_intensity <- 0
     max_intensity <- 100

@@ -117,6 +117,10 @@
 #'  Try these palettes: \code{"Greens"}, \code{"Oranges"},
 #'  \code{"Greys"}, \code{"Purples"}, \code{"Reds"},
 #'  as well as the default \code{"Blues"}.
+#'
+#'  Alternatively, pass a named list with limits of a custom gradient as e.g.
+#'  \code{`list("low"="#B1F9E8", "high"="#239895")`}. These are passed to
+#'  \code{\link[ggplot2:scale_fill_gradient]{ggplot2::scale_fill_gradient}}.
 #' @param tile_border_color Color of the tile borders. Passed as \emph{\code{`colour`}} to
 #' \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.
 #' @param tile_border_size Size of the tile borders. Passed as \emph{\code{`size`}} to
@@ -313,9 +317,20 @@ plot_confusion_matrix <- function(conf_matrix,
   checkmate::assert_string(x = sub_col, min.chars = 1, add = assert_collection, null.ok = TRUE)
   checkmate::assert_string(x = tile_border_linetype, na.ok = TRUE, add = assert_collection)
   checkmate::assert_string(x = tile_border_color, na.ok = TRUE, add = assert_collection)
-  checkmate::assert_string(x = palette, na.ok = TRUE, null.ok = TRUE, add = assert_collection)
   checkmate::assert_string(x = intensity_by, add = assert_collection)
   checkmate::assert_character(x = class_order, null.ok = TRUE, any.missing = FALSE, add = assert_collection)
+
+  checkmate::assert(
+    checkmate::check_string(x = palette, na.ok = TRUE, null.ok = TRUE),
+    checkmate::check_list(x = palette, types = "character", names = "unique")
+  )
+  if (is.list(palette)){
+    checkmate::assert_names(
+      x = names(palette),
+      must.include = c("high", "low"),
+      add = assert_collection
+    )
+  }
 
   # Flag
   checkmate::assert_flag(x = add_sums, add = assert_collection)
@@ -393,10 +408,27 @@ plot_confusion_matrix <- function(conf_matrix,
     class_order <- sort(unique(conf_matrix[[target_col]]))
   }
 
-  if (!is.null(sums_settings[["palette"]]) &&
-      palette == sums_settings[["palette"]]){
-    assert_collection$push(
-      "'palette' and 'sums_settings[['palette']]' cannot be the same palette.")
+  # Check `sum_settings` `palette`
+  if (!is.null(sums_settings[["palette"]])) {
+    checkmate::assert(
+      checkmate::check_string(x = sums_settings[["palette"]], na.ok = TRUE),
+      checkmate::check_list(
+        x = sums_settings[["palette"]],
+        types = "character",
+        names = "unique"
+      )
+    )
+    if (is.list(sums_settings[["palette"]])) {
+      checkmate::assert_names(
+        x = names(sums_settings[["palette"]]),
+        must.include = c("high", "low"),
+        add = assert_collection
+      )
+    }
+
+    if (palettes_are_equal(palette, sums_settings[["palette"]])) {
+      assert_collection$push("'palette' and 'sums_settings[['palette']]' cannot be the same palette.")
+    }
   }
 
   # Check that N are (>= 0)
@@ -493,7 +525,9 @@ plot_confusion_matrix <- function(conf_matrix,
   #### Update sum tile settings ####
 
   if (isTRUE(add_sums)) {
-    if (palette == "Greens" &&
+
+    if (!is.list(palette) &&
+        palette == "Greens" &&
         is.null(sums_settings[["palette"]])) {
       sums_settings[["palette"]] <- "Blues"
     }
@@ -723,13 +757,23 @@ plot_confusion_matrix <- function(conf_matrix,
       show.legend = FALSE
     ) +
     theme_fn() +
-    ggplot2::coord_equal() +
-    # Add fill colors that differ by N
-    ggplot2::scale_fill_distiller(
-      palette = palette,
-      direction = 1,
-      limits = color_limits
-    ) +
+    ggplot2::coord_equal()
+
+
+  # Add fill colors that differ by N
+  if (is.list(palette)) {
+    pl <- pl +
+      ggplot2::scale_fill_gradient(low = palette[["low"]],
+                                   high = palette[["high"]],
+                                   limits = color_limits)
+  } else {
+    pl <- pl +
+      ggplot2::scale_fill_distiller(palette = palette,
+                                    direction = 1,
+                                    limits = color_limits)
+  }
+
+  pl <- pl +
     # Remove the guide
     ggplot2::guides(fill = "none") +
     ggplot2::theme(
@@ -758,12 +802,20 @@ plot_confusion_matrix <- function(conf_matrix,
           linewidth = sums_settings[["tile_border_size"]],
           linetype = sums_settings[["tile_border_linetype"]],
           show.legend = FALSE
-        ) +
-        ggplot2::scale_fill_distiller(
-          palette = sums_settings[["palette"]],
-          direction = 1,
-          limits = sums_color_limits
         )
+
+      if (is.list(sums_settings[["palette"]])) {
+        pl <- pl +
+          ggplot2::scale_fill_gradient(low = sums_settings[["palette"]][["low"]],
+                                       high = sums_settings[["palette"]][["high"]],
+                                       limits = sums_color_limits)
+      } else {
+        pl <- pl +
+          ggplot2::scale_fill_distiller(palette = sums_settings[["palette"]],
+                                        direction = 1,
+                                        limits = sums_color_limits)
+      }
+
     } else {
       pl <- pl +
         ggplot2::geom_tile(

@@ -127,7 +127,11 @@ such that the counts are on top. (Logical)}
 
  Try these palettes: \code{"Greens"}, \code{"Oranges"},
  \code{"Greys"}, \code{"Purples"}, \code{"Reds"},
- as well as the default \code{"Blues"}.}
+ as well as the default \code{"Blues"}.
+
+ Alternatively, pass a named list with limits of a custom gradient as e.g.
+ \code{`list("low"="#B1F9E8", "high"="#239895")`}. These are passed to
+ \code{\link[ggplot2:scale_fill_gradient]{ggplot2::scale_fill_gradient}}.}
 
 \item{intensity_by}{The measure that should control the color intensity of the tiles.
  Either \code{`counts`}, \code{`normalized`} or one of \code{`log counts`,

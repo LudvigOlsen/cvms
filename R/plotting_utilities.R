@@ -136,6 +136,10 @@ preprocess_numeric <- function(vec, settings, rm_zero_text=FALSE, rm_zeroes_post
 #'  Try these palettes: \code{"Greens"}, \code{"Oranges"}, \code{"Greys"},
 #'  \code{"Purples"}, \code{"Reds"}, and \code{"Blues"}.
 #'
+#'  Alternatively, pass a named list with limits of a custom gradient as e.g.
+#'  \code{`list("low"="#e9e1fc", "high"="#BE94E6")`}. These are passed to
+#'  \code{\link[ggplot2:scale_fill_gradient]{ggplot2::scale_fill_gradient}}.
+#'
 #'  Note: When \code{`tile_fill`} is specified, the \code{`palette`} is \strong{ignored}.
 #' @param label The label to use for the sum column and the sum row.
 #' @param tc_font_color,font_color Color of the text in the tiles with the column and row sums.
@@ -204,6 +208,25 @@ update_sum_tile_settings <- function(settings, defaults, initial_vals = NULL) {
     backup_defaults = backup_defaults,
     initial_vals = initial_vals
   )
+}
+
+sort_palette <- function(palette){
+  if (is.character(palette))
+    return(sort(palette))
+  palette[order(names(palette))]
+}
+
+palettes_are_equal <- function(p1, p2) {
+  p1 <- sort_palette(p1)
+  p2 <- sort_palette(p2)
+  if (is.list(p1)) {
+    if (!is.list(p2))
+      return(FALSE)
+    if (!all(names(p1) == names(p2)))
+      return(FALSE)
+    return(identical(c(p1[["low"]], p1[["high"]]), c(p2[["low"]], p2[["high"]])))
+  }
+  p1 == p2
 }
 
 

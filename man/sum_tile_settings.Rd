@@ -29,6 +29,10 @@ sum_tile_settings(
  Try these palettes: \code{"Greens"}, \code{"Oranges"}, \code{"Greys"},
  \code{"Purples"}, \code{"Reds"}, and \code{"Blues"}.
 
+ Alternatively, pass a named list with limits of a custom gradient as e.g.
+ \code{`list("low"="#e9e1fc", "high"="#BE94E6")`}. These are passed to
+ \code{\link[ggplot2:scale_fill_gradient]{ggplot2::scale_fill_gradient}}.
+
  Note: When \code{`tile_fill`} is specified, the \code{`palette`} is \strong{ignored}.}
 
 \item{label}{The label to use for the sum column and the sum row.}

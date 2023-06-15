@@ -1,6 +1,8 @@
 
 # cvms 1.4.1.9000
 
+* In `plot_confusion_matrix`, arrow size now takes `add_sums` into account.
+
 * In `plot_confusion_matrix(palette=, sums_settings(palette=))`, tile color 
 palettes can now be a custom gradient. Simply supply a named list with hex 
 colors for "low" and "high" (e.g. `list("low"="#B1F9E8", "high"="#239895")`).

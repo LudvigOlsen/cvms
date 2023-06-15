@@ -547,7 +547,7 @@ plot_confusion_matrix <- function(conf_matrix,
                       "right" = get_figure_path("caret_forward_sharp.svg"))
 
   # Scale arrow size
-  arrow_size <- arrow_size / sqrt(nrow(conf_matrix))
+  arrow_size <- arrow_size / sqrt(nrow(conf_matrix) + as.integer(isTRUE(add_sums)))
 
   #### Prepare dataset ####
 

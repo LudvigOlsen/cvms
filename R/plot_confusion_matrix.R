@@ -868,7 +868,13 @@ plot_confusion_matrix <- function(conf_matrix,
       isTRUE(add_3d_effect)){
     pl <- pl + ggimage::geom_image(
       ggplot2::aes(image = .data$image_3d),
-      by = "width", size = 1.0 / sqrt(nrow(cm)) - 0.02,
+      by = "width",
+      # TODO: Size changes by number of classes and doesn't fit with the
+      # squares always which simply isn't useful
+      # So either we find the perfect scaling factor (the -0.01 thing here
+      # but the current doesn't work)
+      # or ggimage needs to be fixed
+      size = 1.0 / sqrt(nrow(cm)) - 0.01 - (0.01 * as.integer(nrow(cm) <= 3)),
       nudge_x = 0.001, nudge_y = -0.001
     )
   }

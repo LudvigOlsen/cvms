@@ -210,7 +210,7 @@ update_sum_tile_settings <- function(settings, defaults, initial_vals = NULL) {
   )
 }
 
-sort_palette <- function(palette){
+sort_palette <- function(palette) {
   if (is.character(palette))
     return(sort(palette))
   palette[order(names(palette))]

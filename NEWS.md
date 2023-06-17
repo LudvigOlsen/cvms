@@ -1,5 +1,5 @@
 
-# cvms 1.4.1.9000
+# cvms 1.4.2
 
 * In `plot_confusion_matrix`, arrow size now takes `add_sums` into account.
 

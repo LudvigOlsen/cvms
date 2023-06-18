@@ -24,6 +24,8 @@ plot_confusion_matrix(
   counts_on_top = FALSE,
   palette = "Blues",
   intensity_by = "counts",
+  intensity_lims = NULL,
+  intensity_beyond_lims = "truncate",
   theme_fn = ggplot2::theme_minimal,
   place_x_axis_above = TRUE,
   rotate_y_text = TRUE,
@@ -137,12 +139,23 @@ such that the counts are on top. (Logical)}
  Either \code{`counts`}, \code{`normalized`} or one of \code{`log counts`,
  `log2 counts`, `log10 counts`, `arcsinh counts`}.
 
- For `normalized`, the color limits become \code{0-100}, why the intensities
+ For `normalized`, the color limits become \code{0-100} (except when
+ \code{`intensity_lims`} are specified), why the intensities
  can better be compared across plots.
 
  For the `log*` and `arcsinh` versions, the log/arcsinh transformed counts are used.
+
  \strong{Note}: In `log*` transformed counts, 0-counts are set to `0`, why they
  won't be distinguishable from 1-counts.}
+
+\item{intensity_lims}{A specific range of values for the color intensity of
+ the tiles. Given as a numeric vector with \code{c(min, max)}.
+
+ This allows having the same intensity scale across plots for better comparison
+ of prediction sets.}
+
+\item{intensity_beyond_lims}{What to do with values beyond the
+\code{`intensity_lims`}. One of \code{"truncate", "grey"}.}
 
 \item{theme_fn}{The \code{ggplot2} theme function to apply.}
 
@@ -217,6 +230,12 @@ A \code{ggplot2} object representing a confusion matrix.
 
  While this function is intended to be very flexible (hence the large number of arguments),
  the defaults should work in most cases for most users. See the \code{Examples}.
+
+ \strong{NEW}: Our
+ \href{https://huggingface.co/spaces/ludvigolsen/plot_confusion_matrix}{
+ \strong{Plot Confusion Matrix} web application}
+ allows using this function without code. Select from multiple design templates
+ or make your own.
 }
 \details{
 Inspired by Antoine Sachet's answer at https://stackoverflow.com/a/53612391/11832955

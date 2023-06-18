@@ -317,11 +317,22 @@ plot_confusion_matrix(
 )
 
 # Change color palette to green
-# Change theme to \code{theme_light}.
+# Change theme to `theme_light`.
 plot_confusion_matrix(
   evaluation[["Confusion Matrix"]][[1]],
   palette = "Greens",
   theme_fn = ggplot2::theme_light
+)
+
+# Change colors palette to custom gradient
+# with a different gradient for sum tiles
+plot_confusion_matrix(
+  evaluation[["Confusion Matrix"]][[1]],
+  palette = list("low" = "#B1F9E8", "high" = "#239895"),
+  sums_settings = sum_tile_settings(
+    palette = list("low" = "#e9e1fc", "high" = "#BE94E6")
+  ),
+  add_sums = TRUE
 )
 
 # The output is a ggplot2 object

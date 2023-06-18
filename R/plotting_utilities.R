@@ -136,6 +136,10 @@ preprocess_numeric <- function(vec, settings, rm_zero_text=FALSE, rm_zeroes_post
 #'  Try these palettes: \code{"Greens"}, \code{"Oranges"}, \code{"Greys"},
 #'  \code{"Purples"}, \code{"Reds"}, and \code{"Blues"}.
 #'
+#'  Alternatively, pass a named list with limits of a custom gradient as e.g.
+#'  \code{`list("low"="#e9e1fc", "high"="#BE94E6")`}. These are passed to
+#'  \code{\link[ggplot2:scale_fill_gradient]{ggplot2::scale_fill_gradient}}.
+#'
 #'  Note: When \code{`tile_fill`} is specified, the \code{`palette`} is \strong{ignored}.
 #' @param label The label to use for the sum column and the sum row.
 #' @param tc_font_color,font_color Color of the text in the tiles with the column and row sums.
@@ -149,6 +153,7 @@ preprocess_numeric <- function(vec, settings, rm_zero_text=FALSE, rm_zeroes_post
 #' \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.
 #' @param tc_tile_border_linetype,tile_border_linetype Linetype for the tile borders. Passed as \emph{\code{`linetype`}} to
 #' \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.
+#' @inheritParams plot_confusion_matrix
 #' @return List of settings.
 sum_tile_settings <- function(palette = NULL,
                               label = NULL,
@@ -161,7 +166,10 @@ sum_tile_settings <- function(palette = NULL,
                               tc_font_color = NULL,
                               tc_tile_border_color = NULL,
                               tc_tile_border_size = NULL,
-                              tc_tile_border_linetype = NULL) {
+                              tc_tile_border_linetype = NULL,
+                              intensity_by = NULL,
+                              intensity_lims = NULL,
+                              intensity_beyond_lims = NULL) {
   list(
     "palette" = palette,
     "label" = label,
@@ -174,7 +182,10 @@ sum_tile_settings <- function(palette = NULL,
     "tc_font_color" = tc_font_color,
     "tc_tile_border_color" = tc_tile_border_color,
     "tc_tile_border_size" = tc_tile_border_size,
-    "tc_tile_border_linetype" = tc_tile_border_linetype
+    "tc_tile_border_linetype" = tc_tile_border_linetype,
+    "intensity_by"= intensity_by,
+    "intensity_lims" = intensity_lims,
+    "intensity_beyond_lims" = intensity_beyond_lims
   )
 }
 
@@ -195,7 +206,10 @@ update_sum_tile_settings <- function(settings, defaults, initial_vals = NULL) {
       tc_font_color = NULL,
       tc_tile_border_color = NA,
       tc_tile_border_size = 0.1,
-      tc_tile_border_linetype = "solid"
+      tc_tile_border_linetype = "solid",
+      intensity_by = NULL,
+      intensity_lims = NULL,
+      intensity_beyond_lims = NULL
     )
 
   update_settings_object(
@@ -204,6 +218,25 @@ update_sum_tile_settings <- function(settings, defaults, initial_vals = NULL) {
     backup_defaults = backup_defaults,
     initial_vals = initial_vals
   )
+}
+
+sort_palette <- function(palette) {
+  if (is.character(palette))
+    return(sort(palette))
+  palette[order(names(palette))]
+}
+
+palettes_are_equal <- function(p1, p2) {
+  p1 <- sort_palette(p1)
+  p2 <- sort_palette(p2)
+  if (is.list(p1)) {
+    if (!is.list(p2))
+      return(FALSE)
+    if (!all(names(p1) == names(p2)))
+      return(FALSE)
+    return(identical(c(p1[["low"]], p1[["high"]]), c(p2[["low"]], p2[["high"]])))
+  }
+  p1 == p2
 }
 
 
@@ -258,25 +291,42 @@ set_intensity <- function(data, intensity_by) {
   data
 }
 
-get_intensity_range <- function(data, intensity_by){
+get_intensity_range <- function(data, intensity_by, intensity_lims) {
   # Get min and max intensity scores
-  if (grepl("counts", intensity_by) ){
-    min_intensity <- min(data$Intensity)
-    max_intensity <- max(data$Intensity)
-    if (min_intensity == max_intensity && min_intensity == 0){
+  if (!is.null(intensity_lims)) {
+    min_intensity <- as.double(intensity_lims[[1]])
+    max_intensity <- as.double(intensity_lims[[2]])
+  } else if (grepl("counts", intensity_by)) {
+    min_intensity <- as.double(min(data$Intensity))
+    max_intensity <- as.double(max(data$Intensity))
+    if (min_intensity == max_intensity && min_intensity == 0) {
       # When all are 0, make sure all get lowest value in palette
       max_intensity <- 1
     }
   } else {
-    min_intensity <- 0
-    max_intensity <- 100
+    min_intensity <- 0.
+    max_intensity <- 100.
   }
   range_intensity <- max_intensity - min_intensity
-  list(
-    "min" = min_intensity,
-    "max" = max_intensity,
-    "range" = range_intensity
-  )
+  list("min" = min_intensity,
+       "max" = max_intensity,
+       "range" = range_intensity)
+}
+
+handle_beyond_intensity_limits <- function(intensities, intensity_range, intensity_beyond_lims){
+  if (intensity_beyond_lims == "truncate"){
+    dplyr::case_when(
+      intensities > intensity_range[["max"]] ~ intensity_range[["max"]],
+      intensities < intensity_range[["min"]] ~ intensity_range[["min"]],
+      TRUE ~ intensities
+    )
+  } else {
+    dplyr::case_when(
+      intensities > intensity_range[["max"]] ~ Inf,
+      intensities < intensity_range[["min"]] ~ -Inf,
+      TRUE ~ intensities
+    )
+  }
 }
 
 get_color_limits <- function(intensity_measures, darkness){

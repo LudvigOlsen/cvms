@@ -942,16 +942,15 @@ plot_confusion_matrix <- function(conf_matrix,
   if (isTRUE(use_ggimage) &&
       isTRUE(add_3d_effect)) {
     num_rows_ <- ceiling(sqrt(nrow(cm)))
-    class_to_size_subtract <- 0.043 / 2 ^ (num_rows_ - 2)
-    class_to_size_subtract <- dplyr::case_when(
-      num_rows_ >= 5 ~ class_to_size_subtract + 0.002,
-      TRUE ~ class_to_size_subtract
-    )
+    overlay_size_subtract <- 0.043 / 2 ^ (num_rows_ - 2)
+    overlay_size_subtract <-
+      dplyr::case_when(num_rows_ >= 5 ~ overlay_size_subtract + 0.002,
+                       TRUE ~ overlay_size_subtract)
 
     pl <- pl + ggimage::geom_image(
       ggplot2::aes(image = .data$image_3d),
       by = "width",
-      size = 1.0 / num_rows_ - class_to_size_subtract
+      size = 1.0 / num_rows_ - overlay_size_subtract
     )
   }
 

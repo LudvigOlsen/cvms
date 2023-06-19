@@ -83,7 +83,8 @@
 #' @param add_zero_shading Add image of skewed lines to zero-tiles. (Logical)
 #'
 #'  Note: Adding the zero-shading requires the \code{rsvg} and \code{ggimage} packages.
-#' @param add_3d_effect Add tile overlay with a very slight 3D effect.
+#' @param amount_3d_effect Amount of 3D effect (tile overlay) to add.
+#'  Passed as whole number from `0` (no effect) up to 5 (greatest effect).
 #'  This helps separate tiles with the same intensities.
 #'
 #'  Note: The overlay may not fit the tiles in many-class cases that haven't been tested.
@@ -301,7 +302,7 @@ plot_confusion_matrix <- function(conf_matrix,
                                   rm_zero_percentages = TRUE,
                                   rm_zero_text = TRUE,
                                   add_zero_shading = TRUE,
-                                  add_3d_effect = FALSE,
+                                  amount_3d_effect = 1,
                                   add_arrows = TRUE,
                                   counts_on_top = FALSE,
                                   palette = "Blues",
@@ -385,7 +386,9 @@ plot_confusion_matrix <- function(conf_matrix,
   checkmate::assert_flag(x = diag_percentages_only, add = assert_collection)
   checkmate::assert_flag(x = rm_zero_percentages, add = assert_collection)
   checkmate::assert_flag(x = rm_zero_text, add = assert_collection)
-  checkmate::assert_flag(x = add_3d_effect, add = assert_collection)
+  checkmate::assert_choice(x = amount_3d_effect,
+                           choices = 0:5,
+                           add = assert_collection)
 
   # Function
   checkmate::assert_function(x = theme_fn, add = assert_collection)
@@ -658,12 +661,6 @@ plot_confusion_matrix <- function(conf_matrix,
                                          get_figure_path("empty_square.svg"))
   }
 
-  if (isTRUE(use_ggimage) &&
-      isTRUE(add_3d_effect)){
-    # Add image path with slight 3D effect
-    cm[["image_3d"]] <- get_figure_path("square_overlay.png")
-  }
-
   # Calculate column sums
   if (isTRUE(add_col_percentages) || isTRUE(add_sums)) {
     column_sums <- cm %>%
@@ -784,6 +781,17 @@ plot_confusion_matrix <- function(conf_matrix,
     class_labels[class_labels == "Total"] <- sums_settings[["label"]]
     cm[["Target"]] <- factor(cm[["Target"]], levels = class_order, labels = class_labels)
     cm[["Prediction"]] <- factor(cm[["Prediction"]], levels = class_order, labels = class_labels)
+  }
+
+  # Assign 3D effect image
+  if (isTRUE(use_ggimage) &&
+      amount_3d_effect > 0){
+    # Add image path with slight 3D effect
+    if (FALSE){  # Debugging
+      cm[["image_3d"]] <- get_figure_path("square_overlay_bordered.png")
+    } else {
+      cm[["image_3d"]] <- get_figure_path(paste0("square_overlay_", amount_3d_effect, ".png"))
+    }
   }
 
   # If sub column is specified
@@ -940,7 +948,7 @@ plot_confusion_matrix <- function(conf_matrix,
   #### Add 3D effect ####
 
   if (isTRUE(use_ggimage) &&
-      isTRUE(add_3d_effect)) {
+      amount_3d_effect > 0) {
     num_rows_ <- ceiling(sqrt(nrow(cm)))
     overlay_size_subtract <- 0.043 / 2 ^ (num_rows_ - 2)
     overlay_size_subtract <-

@@ -20,7 +20,7 @@ plot_confusion_matrix(
   rm_zero_percentages = TRUE,
   rm_zero_text = TRUE,
   add_zero_shading = TRUE,
-  add_3d_effect = FALSE,
+  amount_3d_effect = 1,
   add_arrows = TRUE,
   counts_on_top = FALSE,
   palette = "Blues",
@@ -118,7 +118,8 @@ add to the middle of the tiles. (Logical)}
 
  Note: Adding the zero-shading requires the \code{rsvg} and \code{ggimage} packages.}
 
-\item{add_3d_effect}{Add tile overlay with a very slight 3D effect.
+\item{amount_3d_effect}{Amount of 3D effect (tile overlay) to add.
+ Passed as whole number from `0` (no effect) up to 5 (greatest effect).
  This helps separate tiles with the same intensities.
 
  Note: The overlay may not fit the tiles in many-class cases that haven't been tested.

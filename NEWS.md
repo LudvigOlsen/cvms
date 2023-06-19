@@ -1,9 +1,8 @@
 
 # cvms 1.5.0.9000
 
-* In `plot_confusion_matrix()`, adds optional 3D tile effect which helps separate
-tiles with the same count. Turned off by default. Not tested in all many-class 
-scenarios.
+* Breaking: In `plot_confusion_matrix()`, adds slight 3D tile effect to help 
+separate tiles with the same count. Not tested in all many-class scenarios.
 
 # cvms 1.5.0
 

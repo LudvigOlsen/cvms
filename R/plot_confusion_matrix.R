@@ -83,6 +83,11 @@
 #' @param add_zero_shading Add image of skewed lines to zero-tiles. (Logical)
 #'
 #'  Note: Adding the zero-shading requires the \code{rsvg} and \code{ggimage} packages.
+#' @param add_3d_effect Add tile overlay with a very slight 3D effect.
+#'  This helps separate tiles with the same intensities.
+#'
+#'  Note: The overlay may not fit the tiles in many-class cases that haven't been tested.
+#'  If the boxes do not overlap properly, simply turn it off.
 #' @param diag_percentages_only Whether to only have row and column percentages in the diagonal tiles. (Logical)
 #' @param rm_zero_percentages Whether to remove row and column percentages when the count is \code{0}. (Logical)
 #' @param rm_zero_text Whether to remove counts and normalized percentages when the count is \code{0}. (Logical)
@@ -296,6 +301,7 @@ plot_confusion_matrix <- function(conf_matrix,
                                   rm_zero_percentages = TRUE,
                                   rm_zero_text = TRUE,
                                   add_zero_shading = TRUE,
+                                  add_3d_effect = FALSE,
                                   add_arrows = TRUE,
                                   counts_on_top = FALSE,
                                   palette = "Blues",
@@ -379,6 +385,7 @@ plot_confusion_matrix <- function(conf_matrix,
   checkmate::assert_flag(x = diag_percentages_only, add = assert_collection)
   checkmate::assert_flag(x = rm_zero_percentages, add = assert_collection)
   checkmate::assert_flag(x = rm_zero_text, add = assert_collection)
+  checkmate::assert_flag(x = add_3d_effect, add = assert_collection)
 
   # Function
   checkmate::assert_function(x = theme_fn, add = assert_collection)
@@ -649,6 +656,12 @@ plot_confusion_matrix <- function(conf_matrix,
     cm[["image_skewed_lines"]] <- ifelse(cm[["N"]] == 0,
                                          get_figure_path("skewed_lines.svg"),
                                          get_figure_path("empty_square.svg"))
+  }
+
+  if (isTRUE(use_ggimage) &&
+      isTRUE(add_3d_effect)){
+    # Add image path with slight 3D effect
+    cm[["image_3d"]] <- get_figure_path("square_overlay.png")
   }
 
   # Calculate column sums
@@ -922,6 +935,24 @@ plot_confusion_matrix <- function(conf_matrix,
     pl <- pl + ggimage::geom_image(
       ggplot2::aes(image = .data$image_skewed_lines),
       by = "height", size = 0.90 / sqrt(nrow(cm)))
+  }
+
+  #### Add 3D effect ####
+
+  if (isTRUE(use_ggimage) &&
+      isTRUE(add_3d_effect)) {
+    num_rows_ <- ceiling(sqrt(nrow(cm)))
+    class_to_size_subtract <- 0.043 / 2 ^ (num_rows_ - 2)
+    class_to_size_subtract <- dplyr::case_when(
+      num_rows_ >= 5 ~ class_to_size_subtract + 0.002,
+      TRUE ~ class_to_size_subtract
+    )
+
+    pl <- pl + ggimage::geom_image(
+      ggplot2::aes(image = .data$image_3d),
+      by = "width",
+      size = 1.0 / num_rows_ - class_to_size_subtract
+    )
   }
 
   #### Add numbers to plot ####

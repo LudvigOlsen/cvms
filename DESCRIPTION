@@ -58,7 +58,7 @@ Suggests:
     covr (>= 3.3.1),
     e1071 (>= 1.7-2),
     furrr,
-    ggimage (>= 0.2.8),
+    ggimage (>= 0.3.3),
     ggnewscale (>= 0.4.3),
     knitr,
     merDeriv (>= 0.2-4),

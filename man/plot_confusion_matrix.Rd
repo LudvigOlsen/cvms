@@ -20,6 +20,7 @@ plot_confusion_matrix(
   rm_zero_percentages = TRUE,
   rm_zero_text = TRUE,
   add_zero_shading = TRUE,
+  add_3d_effect = FALSE,
   add_arrows = TRUE,
   counts_on_top = FALSE,
   palette = "Blues",
@@ -116,6 +117,12 @@ add to the middle of the tiles. (Logical)}
 \item{add_zero_shading}{Add image of skewed lines to zero-tiles. (Logical)
 
  Note: Adding the zero-shading requires the \code{rsvg} and \code{ggimage} packages.}
+
+\item{add_3d_effect}{Add tile overlay with a very slight 3D effect.
+ This helps separate tiles with the same intensities.
+
+ Note: The overlay may not fit the tiles in many-class cases that haven't been tested.
+ If the boxes do not overlap properly, simply turn it off.}
 
 \item{add_arrows}{Add the arrows to the row and col percentages. (Logical)
 

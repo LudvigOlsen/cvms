@@ -86,8 +86,8 @@
 #' @param add_3d_effect Add tile overlay with a very slight 3D effect.
 #'  This helps separate tiles with the same intensities.
 #'
-#'  Note: Due to some image distortion issues in \code{`ggimage`}, this
-#'  may not work properly in all cases.
+#'  Note: The overlay may not fit the tiles in many-class cases that haven't been tested.
+#'  If the boxes do not overlap properly, simply turn it off.
 #' @param diag_percentages_only Whether to only have row and column percentages in the diagonal tiles. (Logical)
 #' @param rm_zero_percentages Whether to remove row and column percentages when the count is \code{0}. (Logical)
 #' @param rm_zero_text Whether to remove counts and normalized percentages when the count is \code{0}. (Logical)
@@ -301,7 +301,7 @@ plot_confusion_matrix <- function(conf_matrix,
                                   rm_zero_percentages = TRUE,
                                   rm_zero_text = TRUE,
                                   add_zero_shading = TRUE,
-                                  add_3d_effect = TRUE,
+                                  add_3d_effect = FALSE,
                                   add_arrows = TRUE,
                                   counts_on_top = FALSE,
                                   palette = "Blues",
@@ -940,17 +940,18 @@ plot_confusion_matrix <- function(conf_matrix,
   #### Add 3D effect ####
 
   if (isTRUE(use_ggimage) &&
-      isTRUE(add_3d_effect)){
+      isTRUE(add_3d_effect)) {
+    num_rows_ <- ceiling(sqrt(nrow(cm)))
+    class_to_size_subtract <- 0.043 / 2 ^ (num_rows_ - 2)
+    class_to_size_subtract <- dplyr::case_when(
+      num_rows_ >= 5 ~ class_to_size_subtract + 0.002,
+      TRUE ~ class_to_size_subtract
+    )
+
     pl <- pl + ggimage::geom_image(
       ggplot2::aes(image = .data$image_3d),
       by = "width",
-      # TODO: Size changes by number of classes and doesn't fit with the
-      # squares always which simply isn't useful
-      # So either we find the perfect scaling factor (the -0.01 thing here
-      # but the current doesn't work)
-      # or ggimage needs to be fixed
-      size = 1.0 / sqrt(nrow(cm)) - 0.01 - (0.01 * as.integer(nrow(cm) <= 3)),
-      nudge_x = 0.001, nudge_y = -0.001
+      size = 1.0 / num_rows_ - class_to_size_subtract
     )
   }
 

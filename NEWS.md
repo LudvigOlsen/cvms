@@ -1,9 +1,30 @@
 
-# cvms 1.4.1.9000
+# cvms 1.5.0.9000
 
-* In `plot_confusion_matrix(palette=, sums_settings(palette=))`, tile color 
+# cvms 1.5.0
+
+## `plot_confusion_matrix()`:
+
+ * NEW: We created a [**Plot Confusion Matrix** *web application*](https://huggingface.co/spaces/ludvigolsen/plot_confusion_matrix)!
+It allows using `plot_confusion_matrix()` without code. Select from multiple 
+design templates or make your own.
+
+* For `(palette=, sums_settings(palette=))` arguments, tile color 
 palettes can now be a custom gradient. Simply supply a named list with hex 
 colors for "low" and "high" (e.g. `list("low"="#B1F9E8", "high"="#239895")`).
+
+* Adds `intensity_by`, `intensity_lims`, and `intensity_beyond_lims`
+arguments to `sum_tile_settings()` to allow setting them separately
+for sum tiles.
+
+* Adds `intensity_lims` argument which allows setting a custom 
+range for the tile color intensities. Makes it easier to 
+compare plots for different prediction sets.
+
+* Adds `intensity_beyond_lims` for specifying how to handle counts / percentages
+outside the specified `intensity_lims`. Default is to truncate the intensities.
+
+* Fixes bug where arrow size was not taking `add_sums` into account.
 
 # cvms 1.4.1
 

@@ -153,6 +153,7 @@ preprocess_numeric <- function(vec, settings, rm_zero_text=FALSE, rm_zeroes_post
 #' \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.
 #' @param tc_tile_border_linetype,tile_border_linetype Linetype for the tile borders. Passed as \emph{\code{`linetype`}} to
 #' \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.
+#' @inheritParams plot_confusion_matrix
 #' @return List of settings.
 sum_tile_settings <- function(palette = NULL,
                               label = NULL,
@@ -165,7 +166,10 @@ sum_tile_settings <- function(palette = NULL,
                               tc_font_color = NULL,
                               tc_tile_border_color = NULL,
                               tc_tile_border_size = NULL,
-                              tc_tile_border_linetype = NULL) {
+                              tc_tile_border_linetype = NULL,
+                              intensity_by = NULL,
+                              intensity_lims = NULL,
+                              intensity_beyond_lims = NULL) {
   list(
     "palette" = palette,
     "label" = label,
@@ -178,7 +182,10 @@ sum_tile_settings <- function(palette = NULL,
     "tc_font_color" = tc_font_color,
     "tc_tile_border_color" = tc_tile_border_color,
     "tc_tile_border_size" = tc_tile_border_size,
-    "tc_tile_border_linetype" = tc_tile_border_linetype
+    "tc_tile_border_linetype" = tc_tile_border_linetype,
+    "intensity_by"= intensity_by,
+    "intensity_lims" = intensity_lims,
+    "intensity_beyond_lims" = intensity_beyond_lims
   )
 }
 
@@ -199,7 +206,10 @@ update_sum_tile_settings <- function(settings, defaults, initial_vals = NULL) {
       tc_font_color = NULL,
       tc_tile_border_color = NA,
       tc_tile_border_size = 0.1,
-      tc_tile_border_linetype = "solid"
+      tc_tile_border_linetype = "solid",
+      intensity_by = NULL,
+      intensity_lims = NULL,
+      intensity_beyond_lims = NULL
     )
 
   update_settings_object(
@@ -210,7 +220,7 @@ update_sum_tile_settings <- function(settings, defaults, initial_vals = NULL) {
   )
 }
 
-sort_palette <- function(palette){
+sort_palette <- function(palette) {
   if (is.character(palette))
     return(sort(palette))
   palette[order(names(palette))]
@@ -281,25 +291,42 @@ set_intensity <- function(data, intensity_by) {
   data
 }
 
-get_intensity_range <- function(data, intensity_by){
+get_intensity_range <- function(data, intensity_by, intensity_lims) {
   # Get min and max intensity scores
-  if (grepl("counts", intensity_by) ){
-    min_intensity <- min(data$Intensity)
-    max_intensity <- max(data$Intensity)
-    if (min_intensity == max_intensity && min_intensity == 0){
+  if (!is.null(intensity_lims)) {
+    min_intensity <- as.double(intensity_lims[[1]])
+    max_intensity <- as.double(intensity_lims[[2]])
+  } else if (grepl("counts", intensity_by)) {
+    min_intensity <- as.double(min(data$Intensity))
+    max_intensity <- as.double(max(data$Intensity))
+    if (min_intensity == max_intensity && min_intensity == 0) {
       # When all are 0, make sure all get lowest value in palette
       max_intensity <- 1
     }
   } else {
-    min_intensity <- 0
-    max_intensity <- 100
+    min_intensity <- 0.
+    max_intensity <- 100.
   }
   range_intensity <- max_intensity - min_intensity
-  list(
-    "min" = min_intensity,
-    "max" = max_intensity,
-    "range" = range_intensity
-  )
+  list("min" = min_intensity,
+       "max" = max_intensity,
+       "range" = range_intensity)
+}
+
+handle_beyond_intensity_limits <- function(intensities, intensity_range, intensity_beyond_lims){
+  if (intensity_beyond_lims == "truncate"){
+    dplyr::case_when(
+      intensities > intensity_range[["max"]] ~ intensity_range[["max"]],
+      intensities < intensity_range[["min"]] ~ intensity_range[["min"]],
+      TRUE ~ intensities
+    )
+  } else {
+    dplyr::case_when(
+      intensities > intensity_range[["max"]] ~ Inf,
+      intensities < intensity_range[["min"]] ~ -Inf,
+      TRUE ~ intensities
+    )
+  }
 }
 
 get_color_limits <- function(intensity_measures, darkness){

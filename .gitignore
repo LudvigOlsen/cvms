@@ -7,4 +7,4 @@ revdep/checks\.noindex
 revdep/library
 revdep/library\.noindex
 
-inst/.DS_Store
+*.DS_Store

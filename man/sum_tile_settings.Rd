@@ -16,7 +16,10 @@ sum_tile_settings(
   tc_font_color = NULL,
   tc_tile_border_color = NULL,
   tc_tile_border_size = NULL,
-  tc_tile_border_linetype = NULL
+  tc_tile_border_linetype = NULL,
+  intensity_by = NULL,
+  intensity_lims = NULL,
+  intensity_beyond_lims = NULL
 )
 }
 \arguments{
@@ -52,6 +55,28 @@ sum_tile_settings(
 
 \item{tc_tile_border_linetype, tile_border_linetype}{Linetype for the tile borders. Passed as \emph{\code{`linetype`}} to
 \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.}
+
+\item{intensity_by}{The measure that should control the color intensity of the tiles.
+ Either \code{`counts`}, \code{`normalized`} or one of \code{`log counts`,
+ `log2 counts`, `log10 counts`, `arcsinh counts`}.
+
+ For `normalized`, the color limits become \code{0-100} (except when
+ \code{`intensity_lims`} are specified), why the intensities
+ can better be compared across plots.
+
+ For the `log*` and `arcsinh` versions, the log/arcsinh transformed counts are used.
+
+ \strong{Note}: In `log*` transformed counts, 0-counts are set to `0`, why they
+ won't be distinguishable from 1-counts.}
+
+\item{intensity_lims}{A specific range of values for the color intensity of
+ the tiles. Given as a numeric vector with \code{c(min, max)}.
+
+ This allows having the same intensity scale across plots for better comparison
+ of prediction sets.}
+
+\item{intensity_beyond_lims}{What to do with values beyond the
+\code{`intensity_lims`}. One of \code{"truncate", "grey"}.}
 }
 \value{
 List of settings.

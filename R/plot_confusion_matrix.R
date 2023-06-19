@@ -16,6 +16,12 @@
 #'
 #'  While this function is intended to be very flexible (hence the large number of arguments),
 #'  the defaults should work in most cases for most users. See the \code{Examples}.
+#'
+#'  \strong{NEW}: Our
+#'  \href{https://huggingface.co/spaces/ludvigolsen/plot_confusion_matrix}{
+#'  \strong{Plot Confusion Matrix} web application}
+#'  allows using this function without code. Select from multiple design templates
+#'  or make your own.
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
 #' @family plotting functions
@@ -101,12 +107,21 @@
 #'  Either \code{`counts`}, \code{`normalized`} or one of \code{`log counts`,
 #'  `log2 counts`, `log10 counts`, `arcsinh counts`}.
 #'
-#'  For `normalized`, the color limits become \code{0-100}, why the intensities
+#'  For `normalized`, the color limits become \code{0-100} (except when
+#'  \code{`intensity_lims`} are specified), why the intensities
 #'  can better be compared across plots.
 #'
 #'  For the `log*` and `arcsinh` versions, the log/arcsinh transformed counts are used.
+#'
 #'  \strong{Note}: In `log*` transformed counts, 0-counts are set to `0`, why they
 #'  won't be distinguishable from 1-counts.
+#' @param intensity_lims A specific range of values for the color intensity of
+#'  the tiles. Given as a numeric vector with \code{c(min, max)}.
+#'
+#'  This allows having the same intensity scale across plots for better comparison
+#'  of prediction sets.
+#' @param intensity_beyond_lims What to do with values beyond the
+#'  \code{`intensity_lims`}. One of \code{"truncate", "grey"}.
 #' @param arrow_size Size of arrow icons. (Numeric)
 #'
 #'  Is divided by \code{sqrt(nrow(conf_matrix))} and passed on
@@ -232,11 +247,22 @@
 #' )
 #'
 #' # Change color palette to green
-#' # Change theme to \code{theme_light}.
+#' # Change theme to `theme_light`.
 #' plot_confusion_matrix(
 #'   evaluation[["Confusion Matrix"]][[1]],
 #'   palette = "Greens",
 #'   theme_fn = ggplot2::theme_light
+#' )
+#'
+#' # Change colors palette to custom gradient
+#' # with a different gradient for sum tiles
+#' plot_confusion_matrix(
+#'   evaluation[["Confusion Matrix"]][[1]],
+#'   palette = list("low" = "#B1F9E8", "high" = "#239895"),
+#'   sums_settings = sum_tile_settings(
+#'     palette = list("low" = "#e9e1fc", "high" = "#BE94E6")
+#'   ),
+#'   add_sums = TRUE
 #' )
 #'
 #' # The output is a ggplot2 object
@@ -280,6 +306,8 @@ plot_confusion_matrix <- function(conf_matrix,
                                   counts_on_top = FALSE,
                                   palette = "Blues",
                                   intensity_by = "counts",
+                                  intensity_lims = NULL,
+                                  intensity_beyond_lims = "truncate",
                                   theme_fn = ggplot2::theme_minimal,
                                   place_x_axis_above = TRUE,
                                   rotate_y_text = TRUE,
@@ -323,8 +351,14 @@ plot_confusion_matrix <- function(conf_matrix,
   checkmate::assert_string(x = sub_col, min.chars = 1, add = assert_collection, null.ok = TRUE)
   checkmate::assert_string(x = tile_border_linetype, na.ok = TRUE, add = assert_collection)
   checkmate::assert_string(x = tile_border_color, na.ok = TRUE, add = assert_collection)
-  checkmate::assert_string(x = intensity_by, add = assert_collection)
   checkmate::assert_character(x = class_order, null.ok = TRUE, any.missing = FALSE, add = assert_collection)
+  checkmate::assert_string(x = intensity_by, add = assert_collection)
+  checkmate::assert_string(x = intensity_beyond_lims, add = assert_collection)
+  checkmate::assert_choice(x = intensity_beyond_lims, choices = c("truncate", "grey"), add = assert_collection)
+  checkmate::assert_string(x = sums_settings[["intensity_by"]], null.ok = TRUE, add = assert_collection)
+  checkmate::assert_string(x = sums_settings[["intensity_beyond_lims"]], null.ok = TRUE, add = assert_collection)
+  checkmate::assert_choice(x = sums_settings[["intensity_beyond_lims"]], choices = c("truncate", "grey"), null.ok = TRUE, add = assert_collection)
+
 
   checkmate::assert(
     checkmate::check_string(x = palette, na.ok = TRUE, null.ok = TRUE),
@@ -362,6 +396,16 @@ plot_confusion_matrix <- function(conf_matrix,
   checkmate::assert_number(x = arrow_size, lower = 0, add = assert_collection)
   checkmate::assert_number(x = arrow_nudge_from_text, lower = 0, add = assert_collection)
   checkmate::assert_count(x = digits, add = assert_collection)
+  checkmate::assert_numeric(
+    x = intensity_lims,
+    len = 2,
+    null.ok = TRUE,
+    any.missing = FALSE,
+    unique = TRUE,
+    sorted = TRUE,
+    finite = TRUE,
+    add = assert_collection
+  )
 
   # List
   checkmate::assert_list(x = font_counts, names = "named", add = assert_collection)
@@ -403,6 +447,13 @@ plot_confusion_matrix <- function(conf_matrix,
     subset.of = c("counts", "normalized", "log counts", "log2 counts", "log10 counts", "arcsinh counts"),
     add = assert_collection
   )
+  if (!is.null(sums_settings[["intensity_by"]])){
+    checkmate::assert_names(
+      x = sums_settings[["intensity_by"]],
+      subset.of = c("counts", "normalized", "log counts", "log2 counts", "log10 counts", "arcsinh counts"),
+      add = assert_collection
+    )
+  }
 
   if (!is.null(class_order)){
     classes_in_data <- unique(conf_matrix[[target_col]])
@@ -540,8 +591,10 @@ plot_confusion_matrix <- function(conf_matrix,
     }
 
     # Defaults are defined in update_sum_tile_settings()
-    sums_settings <-
-      update_sum_tile_settings(sums_settings, defaults = list())
+    sums_settings <- update_sum_tile_settings(
+      settings = sums_settings,
+      defaults = list()
+    )
 
   }
 
@@ -554,7 +607,7 @@ plot_confusion_matrix <- function(conf_matrix,
                       "right" = get_figure_path("caret_forward_sharp.svg"))
 
   # Scale arrow size
-  arrow_size <- arrow_size / sqrt(nrow(conf_matrix))
+  arrow_size <- arrow_size / sqrt(nrow(conf_matrix) + as.integer(isTRUE(add_sums)))
 
   #### Prepare dataset ####
 
@@ -582,7 +635,15 @@ plot_confusion_matrix <- function(conf_matrix,
   # We need to do this before adding sums
   intensity_measures <- get_intensity_range(
     data = cm,
-    intensity_by = intensity_by
+    intensity_by = intensity_by,
+    intensity_lims = intensity_lims
+  )
+
+  # Handle intensities outside of the allow range¨
+  cm$Intensity <- handle_beyond_intensity_limits(
+    intensities = cm$Intensity,
+    intensity_range = intensity_measures,
+    intensity_beyond_lims = intensity_beyond_lims
   )
 
   # Add icons depending on where the tile will be in the image
@@ -674,14 +735,28 @@ plot_confusion_matrix <- function(conf_matrix,
     sum_data[nrow(sum_data), "Normalized_text"] <- ifelse(
       isTRUE(counts_on_top), "", paste0(sum_data[nrow(sum_data), "N"]))
 
+    sums_intensity_by <- sums_settings[["intensity_by"]]
+    if (is.null(sums_intensity_by)) sums_intensity_by <- intensity_by
+
+    sums_intensity_beyond_lims <- sums_settings[["intensity_beyond_lims"]]
+    if (is.null(sums_intensity_beyond_lims)) sums_intensity_beyond_lims <- intensity_beyond_lims
+
     # Set color intensity metric
-    sum_data <- set_intensity(sum_data, intensity_by)
+    sum_data <- set_intensity(sum_data, sums_intensity_by)
 
     # Get min and max intensity scores and their range
     # We need to do this before adding sum_data
     sums_intensity_measures <- get_intensity_range(
       data = head(sum_data, nrow(sum_data) - 1),
-      intensity_by = intensity_by
+      intensity_by = sums_intensity_by,
+      intensity_lims = sums_settings[["intensity_lims"]]
+    )
+
+    # Handle intensities outside of the allow range
+    sum_data[1:(nrow(sum_data) - 1), "Intensity"] <- handle_beyond_intensity_limits(
+      intensities = sum_data[1:(nrow(sum_data) - 1), "Intensity"]$Intensity,
+      intensity_range=sums_intensity_measures,
+      intensity_beyond_lims=sums_intensity_beyond_lims
     )
 
     # Get color limits
@@ -760,7 +835,7 @@ plot_confusion_matrix <- function(conf_matrix,
     ggplot2::labs(
       x = "Target",
       y = "Prediction",
-      fill = ifelse(intensity_by == "counts", "N", "Normalized"),
+      fill = ifelse(grepl("counts", intensity_by), "N", "Normalized"),
       label = "N"
     ) +
     ggplot2::geom_tile(

@@ -84,7 +84,7 @@
 #'
 #'  Note: Adding the zero-shading requires the \code{rsvg} and \code{ggimage} packages.
 #' @param amount_3d_effect Amount of 3D effect (tile overlay) to add.
-#'  Passed as whole number from `0` (no effect) up to 5 (greatest effect).
+#'  Passed as whole number from \code{0} (no effect) up to \code{6} (biggest effect).
 #'  This helps separate tiles with the same intensities.
 #'
 #'  Note: The overlay may not fit the tiles in many-class cases that haven't been tested.
@@ -387,7 +387,7 @@ plot_confusion_matrix <- function(conf_matrix,
   checkmate::assert_flag(x = rm_zero_percentages, add = assert_collection)
   checkmate::assert_flag(x = rm_zero_text, add = assert_collection)
   checkmate::assert_choice(x = amount_3d_effect,
-                           choices = 0:5,
+                           choices = 0:6,
                            add = assert_collection)
 
   # Function

@@ -1,5 +1,16 @@
 
-# cvms 1.5.0.9000
+# cvms 1.6.0
+
+## `plot_confusion_matrix()`:
+
+* Breaking: Adds slight 3D tile effect to help separate tiles with the same count. 
+Not tested in all many-class scenarios.
+
+* Fixes image sizing (arrows and zero-shading) when there are different
+numbers of unique classes in targets and predictions.
+
+* Fixes bug with `class_order` argument when there are different
+numbers of unique classes in targets and predictions.
 
 # cvms 1.5.0
 

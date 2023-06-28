@@ -40,17 +40,17 @@ test_that("plot_confusion_matrix() returns expected plots", {
   expect_equal(p1$data$Prediction_Percentage_text, c("66.7%", "33.3%", "33.3%", "66.7%"))
 
 
-  expect_equal(length(p1$layers), 9)
+  expect_equal(length(p1$layers), 10)
   expect_equal(
     sapply(p1$layers, function(x) class(x$geom)[1]),
-    c("GeomTile", "GeomText", "GeomText", "GeomText", "GeomText",
+    c("GeomTile", "GeomImage", "GeomText", "GeomText", "GeomText", "GeomText",
       "GeomImage", "GeomImage", "GeomImage", "GeomImage")
   )
   expect_equal(
     p1$labels,
     list(
       x = "Target", y = "Prediction",
-      fill = "N", label = "N", image = "down_icon"
+      fill = "N", label = "N", image = "image_3d"
     )
   )
 
@@ -149,17 +149,17 @@ test_that("plot_confusion_matrix() with multiclass conf mat returns expected plo
     "71.2%"
   ))
 
-  expect_equal(length(p1$layers), 9)
+  expect_equal(length(p1$layers), 10)
   expect_equal(
     sapply(p1$layers, function(x) class(x$geom)[1]),
-    c("GeomTile", "GeomText", "GeomText", "GeomText", "GeomText",
+    c("GeomTile", "GeomImage", "GeomText", "GeomText", "GeomText", "GeomText",
       "GeomImage", "GeomImage", "GeomImage", "GeomImage")
   )
   expect_equal(
     p1$labels,
     list(
       x = "Target", y = "Prediction",
-      fill = "N", label = "N", image = "down_icon"
+      fill = "N", label = "N", image = "image_3d"
     )
   )
 
@@ -188,11 +188,11 @@ test_that("plot_confusion_matrix() with multiclass conf mat returns expected plo
 
   p2 <- plot_confusion_matrix(conf_mat)
 
-  expect_equal(length(p2$layers), 10)
+  expect_equal(length(p2$layers), 11)
   expect_equal(
     sapply(p2$layers, function(x) class(x$geom)[1]),
-    c("GeomTile", "GeomImage", "GeomText", "GeomText", "GeomText", "GeomText",
-      "GeomImage", "GeomImage", "GeomImage", "GeomImage")
+    c("GeomTile", "GeomImage", "GeomImage", "GeomText", "GeomText", "GeomText",
+      "GeomText", "GeomImage", "GeomImage", "GeomImage", "GeomImage")
   )
   expect_equal(
     p2$labels,
@@ -218,10 +218,10 @@ test_that("plot_confusion_matrix() with multiclass conf mat returns expected plo
 
   p3 <- plot_confusion_matrix(cm)
 
-  expect_equal(length(p3$layers), 10)
+  expect_equal(length(p3$layers), 11)
   expect_equal(
     sapply(p3$layers, function(x) class(x$geom)[1]),
-    c("GeomTile", "GeomImage", "GeomText", "GeomText", "GeomText", "GeomText",
+    c("GeomTile", "GeomImage", "GeomImage", "GeomText", "GeomText", "GeomText", "GeomText",
       "GeomImage", "GeomImage", "GeomImage", "GeomImage")
   )
   expect_equal(
@@ -246,7 +246,7 @@ test_that("plot_confusion_matrix() with sum tiles, class order, and intensity_by
     testthat::skip("missing 'ggnewscale'.")
   }
 
-    # Note: These are just initial tests
+  # Note: These are just initial tests
   # There's probably a high number of errors it won't catch
 
   # TODO Check out https://github.com/r-lib/vdiffr
@@ -307,16 +307,16 @@ test_that("plot_confusion_matrix() with sum tiles, class order, and intensity_by
                c("46.8%", "25.7%", "11.2%", "31.9%", "45.5%", "17.6%", "21.3%",
                "28.8%", "71.2%", "", "", "", "", "", "", ""))
 
-  expect_equal(length(p1$layers), 15)
+  expect_equal(length(p1$layers), 16)
   expect_equal(
     sapply(p1$layers, function(x) class(x$geom)[1]),
-    c("NewGeomTile", "GeomTile", "GeomTile", "GeomText", "GeomText",
+    c("NewGeomTile", "GeomTile", "GeomTile", "GeomImage", "GeomText", "GeomText",
     "GeomText", "GeomText", "GeomText", "GeomText", "GeomText", "GeomText",
     "GeomImage", "GeomImage", "GeomImage", "GeomImage"))
   expect_equal(
     p1$labels,
     list(x = "Target", y = "Prediction", fill_new = "Normalized",
-        label = "N", fill = "Intensity", image = "down_icon")
+        label = "N", fill = "Intensity", image = "image_3d")
   )
 
   # It's the normalized data (percentages)
@@ -348,10 +348,10 @@ test_that("plot_confusion_matrix() with sum tiles, class order, and intensity_by
                         intensity_by = "normalized",
                         sums_settings = sum_tile_settings(tc_tile_border_color = "red"))
 
-  expect_equal(length(p2$layers), 16)
+  expect_equal(length(p2$layers), 17)
   expect_equal(
     sapply(p2$layers, function(x) class(x$geom)[1]),
-    c("NewGeomTile", "GeomTile", "GeomTile", "GeomImage", "GeomText",
+    c("NewGeomTile", "GeomTile", "GeomTile","GeomImage", "GeomImage", "GeomText",
     "GeomText", "GeomText", "GeomText", "GeomText", "GeomText", "GeomText",
     "GeomText", "GeomImage", "GeomImage", "GeomImage", "GeomImage"
     )

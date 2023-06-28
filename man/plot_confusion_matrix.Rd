@@ -20,6 +20,7 @@ plot_confusion_matrix(
   rm_zero_percentages = TRUE,
   rm_zero_text = TRUE,
   add_zero_shading = TRUE,
+  amount_3d_effect = 1,
   add_arrows = TRUE,
   counts_on_top = FALSE,
   palette = "Blues",
@@ -45,7 +46,7 @@ plot_confusion_matrix(
 }
 \arguments{
 \item{conf_matrix}{Confusion matrix \code{tibble} with each combination of
-targets and predictions along with their counts.
+ targets and predictions along with their counts.
 
  E.g. for a binary classification:
 
@@ -84,7 +85,9 @@ of the target and prediction levels.}
  this text is not displayed either.}
 
 \item{class_order}{Names of the classes in \code{`conf_matrix`} in the desired order.
-When \code{NULL}, the classes are ordered alphabetically.}
+When \code{NULL}, the classes are ordered alphabetically.
+Note that the entire set of unique classes from both \code{`target_col`}
+and \code{`prediction_col`} must be specified.}
 
 \item{add_sums}{Add tiles with the row/column sums. Also adds a total count tile. (Logical)
 
@@ -116,6 +119,13 @@ add to the middle of the tiles. (Logical)}
 \item{add_zero_shading}{Add image of skewed lines to zero-tiles. (Logical)
 
  Note: Adding the zero-shading requires the \code{rsvg} and \code{ggimage} packages.}
+
+\item{amount_3d_effect}{Amount of 3D effect (tile overlay) to add.
+ Passed as whole number from \code{0} (no effect) up to \code{6} (biggest effect).
+ This helps separate tiles with the same intensities.
+
+ Note: The overlay may not fit the tiles in many-class cases that haven't been tested.
+ If the boxes do not overlap properly, simply turn it off.}
 
 \item{add_arrows}{Add the arrows to the row and col percentages. (Logical)
 

@@ -46,7 +46,7 @@ plot_confusion_matrix(
 }
 \arguments{
 \item{conf_matrix}{Confusion matrix \code{tibble} with each combination of
-targets and predictions along with their counts.
+ targets and predictions along with their counts.
 
  E.g. for a binary classification:
 
@@ -85,7 +85,9 @@ of the target and prediction levels.}
  this text is not displayed either.}
 
 \item{class_order}{Names of the classes in \code{`conf_matrix`} in the desired order.
-When \code{NULL}, the classes are ordered alphabetically.}
+When \code{NULL}, the classes are ordered alphabetically.
+Note that the entire set of unique classes from both \code{`target_col`}
+and \code{`prediction_col`} must be specified.}
 
 \item{add_sums}{Add tiles with the row/column sums. Also adds a total count tile. (Logical)
 

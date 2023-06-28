@@ -26,7 +26,7 @@
 #' @export
 #' @family plotting functions
 #' @param conf_matrix Confusion matrix \code{tibble} with each combination of
-#' targets and predictions along with their counts.
+#'  targets and predictions along with their counts.
 #'
 #'  E.g. for a binary classification:
 #'
@@ -61,6 +61,8 @@
 #'  this text is not displayed either.
 #' @param class_order Names of the classes in \code{`conf_matrix`} in the desired order.
 #'  When \code{NULL}, the classes are ordered alphabetically.
+#'  Note that the entire set of unique classes from both \code{`target_col`}
+#'  and \code{`prediction_col`} must be specified.
 #' @param add_sums Add tiles with the row/column sums. Also adds a total count tile. (Logical)
 #'
 #'  The appearance of these tiles can be specified in \code{`sums_settings`}.
@@ -458,15 +460,22 @@ plot_confusion_matrix <- function(conf_matrix,
     )
   }
 
-  if (!is.null(class_order)){
-    classes_in_data <- unique(conf_matrix[[target_col]])
+  if (!is.null(class_order)) {
+    classes_in_data <- unique(c(
+      conf_matrix[[target_col]],
+      conf_matrix[[prediction_col]]
+    ))
     if (length(classes_in_data) != length(class_order) ||
-        length(setdiff(classes_in_data, class_order)) != 0){
+        length(setdiff(classes_in_data, class_order)) != 0) {
       assert_collection$push(
-        "when 'class_order' is specified, it must contain the same levels as 'conf_matrix'.")
+        "when 'class_order' is specified, it must contain the same levels as 'conf_matrix'."
+      )
     }
   } else {
-    class_order <- sort(unique(conf_matrix[[target_col]]))
+    class_order <- sort(unique(
+      c(conf_matrix[[target_col]],
+        conf_matrix[[prediction_col]])
+    ))
   }
 
   # Check `sum_settings` `palette`
@@ -601,23 +610,12 @@ plot_confusion_matrix <- function(conf_matrix,
 
   }
 
-  #### Prepare arrow images ####
-
-  # Arrow icons
-  arrow_icons <- list("up" = get_figure_path("caret_up_sharp.svg"),
-                      "down" = get_figure_path("caret_down_sharp.svg"),
-                      "left" = get_figure_path("caret_back_sharp.svg"),
-                      "right" = get_figure_path("caret_forward_sharp.svg"))
-
-  # Scale arrow size
-  arrow_size <- arrow_size / sqrt(nrow(conf_matrix) + as.integer(isTRUE(add_sums)))
-
   #### Prepare dataset ####
 
   # Extract needed columns
   cm <- tibble::tibble(
-    "Target" = factor(as.character(conf_matrix[[target_col]]), levels = class_order),
-    "Prediction" = factor(as.character(conf_matrix[[prediction_col]]), levels = class_order),
+    "Target" = factor(as.character(conf_matrix[[target_col]]), levels = class_order[class_order %in% unique(conf_matrix[[target_col]])]),
+    "Prediction" = factor(as.character(conf_matrix[[prediction_col]]), levels = class_order[class_order %in% unique(conf_matrix[[prediction_col]])]),
     "N" = as.integer(conf_matrix[[counts_col]])
   )
   cm <- calculate_normalized(cm)
@@ -648,6 +646,18 @@ plot_confusion_matrix <- function(conf_matrix,
     intensity_range = intensity_measures,
     intensity_beyond_lims = intensity_beyond_lims
   )
+
+  # Calculate number of tiles to size by
+  num_predict_classes <- length(unique(cm[["Prediction"]])) + as.integer(isTRUE(add_sums))
+
+  # Arrow icons
+  arrow_icons <- list("up" = get_figure_path("caret_up_sharp.svg"),
+                      "down" = get_figure_path("caret_down_sharp.svg"),
+                      "left" = get_figure_path("caret_back_sharp.svg"),
+                      "right" = get_figure_path("caret_forward_sharp.svg"))
+
+  # Scaling arrow size
+  arrow_size <- arrow_size / num_predict_classes
 
   # Add icons depending on where the tile will be in the image
   cm <- set_arrows(cm, place_x_axis_above = place_x_axis_above,
@@ -772,15 +782,23 @@ plot_confusion_matrix <- function(conf_matrix,
       cm[cm[["Target"]] == "Total" | cm[["Prediction"]] == "Total",])
 
     # Set class order and labels
-    if (isTRUE(place_x_axis_above)){
+    if (isTRUE(place_x_axis_above)) {
       class_order <- c("Total", class_order)
     } else {
       class_order <- c(class_order, "Total")
     }
     class_labels <- class_order
     class_labels[class_labels == "Total"] <- sums_settings[["label"]]
-    cm[["Target"]] <- factor(cm[["Target"]], levels = class_order, labels = class_labels)
-    cm[["Prediction"]] <- factor(cm[["Prediction"]], levels = class_order, labels = class_labels)
+    cm[["Target"]] <- factor(
+      cm[["Target"]],
+      levels = class_order[class_order %in% unique(cm[["Target"]])],
+      labels = class_labels
+    )
+    cm[["Prediction"]] <- factor(
+      cm[["Prediction"]],
+      levels = class_order[class_order %in% unique(cm[["Prediction"]])],
+      labels = class_labels
+    )
   }
 
   # Assign 3D effect image
@@ -942,14 +960,14 @@ plot_confusion_matrix <- function(conf_matrix,
       any(cm[["N"]] == 0)){
     pl <- pl + ggimage::geom_image(
       ggplot2::aes(image = .data$image_skewed_lines),
-      by = "height", size = 0.90 / sqrt(nrow(cm)))
+      by = "height", size = 0.90 / num_predict_classes)
   }
 
   #### Add 3D effect ####
 
   if (isTRUE(use_ggimage) &&
       amount_3d_effect > 0) {
-    num_rows_ <- ceiling(sqrt(nrow(cm)))
+    num_rows_ <- num_predict_classes
     overlay_size_subtract <- 0.043 / 2 ^ (num_rows_ - 2)
     overlay_size_subtract <-
       dplyr::case_when(num_rows_ >= 5 ~ overlay_size_subtract + 0.002,

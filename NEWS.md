@@ -1,6 +1,8 @@
 
 # cvms 1.6.0.9000
 
+* `plot_confusion_matrix()` now shows total count when `add_normalized=FALSE`. Thanks [@JianWang2016](https://github.com/LudvigOlsen/cvms/issues/36) for reporting the issue. 
+
 # cvms 1.6.0
 
 ## `plot_confusion_matrix()`:

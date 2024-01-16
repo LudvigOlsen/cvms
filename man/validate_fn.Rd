@@ -340,8 +340,8 @@ like the number of model instances to fit. (Logical)}
  a \strong{Class Level Results} \code{tibble} containing the same metrics as the binomial results
  described above (excluding \code{MCC}, \code{AUC}, \code{Lower CI} and \code{Upper CI}),
  along with a count of the class in the target column (\strong{\code{Support}}).
- These metrics are used to calculate the macro metrics. The nested class level results
- \code{tibble} is also included in the output \code{tibble},
+ These metrics are used to calculate the \strong{macro-averaged} metrics.
+ The nested class level results \code{tibble} is also included in the output \code{tibble},
  and could be reported along with the macro and overall metrics.
 
  The output \code{tibble} contains the macro and overall metrics.
@@ -350,6 +350,9 @@ like the number of model instances to fit. (Logical)}
  (note: does not remove \code{NA}s before averaging).
  In addition to these, it also includes the \strong{\code{Overall Accuracy}} and
  the multiclass \strong{\code{MCC}}.
+
+ \strong{Note:} \strong{\code{Balanced Accuracy}} is the macro-averaged metric,
+ \emph{not} the macro sensitivity as sometimes used!
 
  Other available metrics (disabled by default, see \code{metrics}):
  \strong{\code{Accuracy}},

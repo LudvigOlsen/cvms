@@ -298,6 +298,7 @@ binomial_metrics <- function(all = NULL,
 #'  use (\code{all = FALSE, accuracy = TRUE}) to get only the Accuracy metric.
 #' @inheritParams binomial_metrics
 #' @param overall_accuracy \code{Overall Accuracy} (Default: TRUE)
+#' @param balanced_accuracy \code{Macro Balanced Accuracy} (Default: TRUE)
 #' @param w_balanced_accuracy \code{Weighted Balanced Accuracy} (Default: FALSE)
 #' @param w_accuracy \code{Weighted Accuracy} (Default: FALSE)
 #' @param w_f1 \code{Weighted F1} (Default: FALSE)

@@ -54,7 +54,7 @@ multinomial_metrics(
 
 \item{overall_accuracy}{\code{Overall Accuracy} (Default: TRUE)}
 
-\item{balanced_accuracy}{\code{Balanced Accuracy} (Default: TRUE)}
+\item{balanced_accuracy}{\code{Macro Balanced Accuracy} (Default: TRUE)}
 
 \item{w_balanced_accuracy}{\code{Weighted Balanced Accuracy} (Default: FALSE)}
 

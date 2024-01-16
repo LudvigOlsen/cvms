@@ -245,6 +245,9 @@ baseline(
  It is possible to enable multiclass \strong{AUC} as well, which has been
  disabled by default as it is slow to calculate when there's a large set of classes.
 
+ Since we use macro-averaging, \strong{\code{Balanced Accuracy}} is the macro-averaged
+ metric, \emph{not} the macro sensitivity as sometimes used.
+
  Note: we also refer to the \emph{one-vs-all evaluations} as the \emph{class level results}.
 
  ....................................................................

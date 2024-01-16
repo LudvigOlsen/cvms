@@ -210,6 +210,15 @@
 #' # Add sum tiles
 #' plot_confusion_matrix(evaluation, add_sums = TRUE)
 #'
+#' # Add labels to diagonal row and column percentages
+#' # This example assumes "B" is the positive class
+#' # but you could write anything as prefix to the percentages
+#' plot_confusion_matrix(
+#'     evaluation,
+#'     font_row_percentages = font(prefix=c("NPV = ", "", "", "PPV = ")),
+#'     font_col_percentages = font(prefix=c("Spec = ", "", "", "Sens = "))
+#' )
+#'
 #' # Three (or more) classes
 #'
 #' # Create targets and predictions data frame

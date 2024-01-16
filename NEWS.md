@@ -3,6 +3,8 @@
 
 * `plot_confusion_matrix()` now shows total count when `add_normalized=FALSE`. Thanks [@JianWang2016](https://github.com/LudvigOlsen/cvms/issues/36) for reporting the issue. 
 
+* Makes it more clear in the documentation that the `Balanced Accuracy` metric in multiclass classification is the *macro-averaged* metric, not the average recall metric that is sometimes used.
+
 # cvms 1.6.0
 
 ## `plot_confusion_matrix()`:

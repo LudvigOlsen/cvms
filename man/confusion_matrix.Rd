@@ -226,8 +226,8 @@ cm
 \seealso{
 Other evaluation functions: 
 \code{\link{binomial_metrics}()},
-\code{\link{evaluate_residuals}()},
 \code{\link{evaluate}()},
+\code{\link{evaluate_residuals}()},
 \code{\link{gaussian_metrics}()},
 \code{\link{multinomial_metrics}()}
 }

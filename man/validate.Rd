@@ -348,8 +348,8 @@ validate(
 }
 \seealso{
 Other validation functions: 
-\code{\link{cross_validate_fn}()},
 \code{\link{cross_validate}()},
+\code{\link{cross_validate_fn}()},
 \code{\link{validate_fn}()}
 }
 \author{

@@ -380,8 +380,8 @@ plot_confusion_matrix(cm, sub_col="Trials")
 Other plotting functions: 
 \code{\link{font}()},
 \code{\link{plot_metric_density}()},
-\code{\link{plot_probabilities_ecdf}()},
 \code{\link{plot_probabilities}()},
+\code{\link{plot_probabilities_ecdf}()},
 \code{\link{sum_tile_settings}()}
 }
 \author{

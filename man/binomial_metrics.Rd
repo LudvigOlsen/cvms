@@ -109,8 +109,8 @@ binomial_metrics(balanced_accuracy = FALSE)
 \seealso{
 Other evaluation functions: 
 \code{\link{confusion_matrix}()},
-\code{\link{evaluate_residuals}()},
 \code{\link{evaluate}()},
+\code{\link{evaluate_residuals}()},
 \code{\link{gaussian_metrics}()},
 \code{\link{multinomial_metrics}()}
 }

@@ -42,13 +42,9 @@ set to `NULL` for it to be included.
 }
 \section{Usage}{
 
-Just drop in a chunk where you want the toc to appear (set `echo=FALSE`):
+Just drop in a \strong{chunk} where you want the toc to appear (set `echo=FALSE`):
 
-    # Table of Contents
-
-    ```{r echo=FALSE}
-    render_toc("/path/to/the/file.Rmd")
-    ```
+ render_toc("/path/to/the/file.Rmd")
 }
 
 \keyword{internal}

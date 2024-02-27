@@ -4,9 +4,9 @@
 # cvms <a href='https://github.com/LudvigOlsen/cvms'><img src='man/figures/cvms_logo_242x280_250dpi.png' align="right" height="140" /></a>
 
 **Cross-Validation for Model Selection**  
-**Authors:** [Ludvig R. Olsen](http://ludvigolsen.dk/) (
+**Authors:** [Ludvig R. Olsen](https://www.ludvigolsen.dk/) (
 <r-pkgs@ludvigolsen.dk> ), Hugh Benjamin Zachariae <br/> **License:**
-[MIT](https://opensource.org/license/mit/) <br/> **Started:** October
+[MIT](https://opensource.org/license/mit) <br/> **Started:** October
 2016
 
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/cvms)](https://cran.r-project.org/package=cvms)
@@ -790,7 +790,7 @@ predictions
 Now, let’s find the *overall most difficult to predict* observations.
 `most_challenging()` calculates the `Accuracy`, `MAE`, and
 `Cross-Entropy` for each prediction. We can then extract the
-observations with the \~20% highest `MAE` scores. Note that
+observations with the ~20% highest `MAE` scores. Note that
 `most_challenging()` works with grouped data frames as well.
 
 ``` r

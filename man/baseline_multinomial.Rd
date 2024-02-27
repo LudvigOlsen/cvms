@@ -262,9 +262,9 @@ baseline_multinomial(
 }
 \seealso{
 Other baseline functions: 
+\code{\link{baseline}()},
 \code{\link{baseline_binomial}()},
-\code{\link{baseline_gaussian}()},
-\code{\link{baseline}()}
+\code{\link{baseline_gaussian}()}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

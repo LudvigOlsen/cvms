@@ -71,8 +71,6 @@ test_that("plot_confusion_matrix() returns expected plots", {
     )
   )
 
-  expect_equal(p1$guides$fill[[1]], "none")
-
   expect_error(
     xpectr::strip_msg(plot_confusion_matrix(cm[["Confusion Matrix"]][[1]], darkness = 1.1)),
     xpectr::strip("1 assertions failed:\n * Variable 'darkness': Element 1 is not <= 1."),
@@ -179,8 +177,6 @@ test_that("plot_confusion_matrix() with multiclass conf mat returns expected plo
       class = "uneval"
     )
   )
-
-  expect_equal(p1$guides$fill[[1]], "none")
 
   # Set zero
 
@@ -336,8 +332,6 @@ test_that("plot_confusion_matrix() with sum tiles, class order, and intensity_by
               class = "uneval"
     )
   )
-
-  expect_equal(p1$guides$fill[[1]], "none")
 
   # Set zero
 

@@ -15,13 +15,9 @@
 #' set to `NULL` for it to be included.
 #'
 #' @section Usage:
-#' Just drop in a chunk where you want the toc to appear (set `echo=FALSE`):
+#' Just drop in a \strong{chunk} where you want the toc to appear (set `echo=FALSE`):
 #'
-#'     # Table of Contents
-#'
-#'     ```{r echo=FALSE}
-#'     render_toc("/path/to/the/file.Rmd")
-#'     ```
+#'  render_toc("/path/to/the/file.Rmd")
 #' @keywords internal
 #' @param filename Name of RMarkdown or Markdown document
 #' @param toc_header_name The table of contents header name. If specified, any
@@ -31,11 +27,11 @@
 #'   prior to the first header at the base_level are dropped silently.
 #' @param toc_depth Maximum depth for TOC, relative to base_level. Default is
 #'   `toc_depth = 3`, which results in a TOC of at most 3 levels.
-render_toc <- function(
-                       filename,
+render_toc <- function(filename,
                        toc_header_name = "Table of Contents",
                        base_level = NULL,
                        toc_depth = 3) {
+
   x <- readLines(filename, warn = FALSE)
   x <- gsub("<a.*<img.*a>", "", x) # My addition, remove links with images in
   x <- paste(x, collapse = "\n")

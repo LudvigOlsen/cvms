@@ -19,9 +19,13 @@
 #'
 #'     # Table of Contents
 #'
-#'     ```{r echo=FALSE}
-#'     render_toc("/path/to/the/file.Rmd")
-#'     ```
+#'     # # Uncomment and use the following
+#'
+#'     # ```{r echo=FALSE}
+#'
+#'     # render_toc("/path/to/the/file.Rmd")
+#'
+#'     # ```
 #' @keywords internal
 #' @param filename Name of RMarkdown or Markdown document
 #' @param toc_header_name The table of contents header name. If specified, any

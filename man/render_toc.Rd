@@ -46,9 +46,13 @@ Just drop in a chunk where you want the toc to appear (set `echo=FALSE`):
 
     # Table of Contents
 
-    ```{r echo=FALSE}
-    render_toc("/path/to/the/file.Rmd")
-    ```
+    # # Uncomment and use the following
+
+    # ```{r echo=FALSE}
+
+    # render_toc("/path/to/the/file.Rmd")
+
+    # ```
 }
 
 \keyword{internal}

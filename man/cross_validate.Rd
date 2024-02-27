@@ -361,8 +361,8 @@ cross_validate(
 \seealso{
 Other validation functions: 
 \code{\link{cross_validate_fn}()},
-\code{\link{validate_fn}()},
-\code{\link{validate}()}
+\code{\link{validate}()},
+\code{\link{validate_fn}()}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

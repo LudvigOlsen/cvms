@@ -1,4 +1,6 @@
 
+# cvms 1.6.1.9000
+
 # cvms 1.6.1
 
 * Removes defunct tests after `ggplot2` update.

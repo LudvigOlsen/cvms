@@ -59,7 +59,7 @@ Suggests:
     e1071 (>= 1.7-2),
     furrr,
     ggimage (>= 0.3.3),
-    ggnewscale (>= 0.4.3),
+    ggnewscale (>= 0.5.0),
     knitr,
     merDeriv (>= 0.2-4),
     nnet (>= 7.3-12),

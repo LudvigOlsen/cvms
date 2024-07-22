@@ -208,7 +208,9 @@
 #' plot_confusion_matrix(evaluation)
 #'
 #' # Add sum tiles
+#' \dontrun{
 #' plot_confusion_matrix(evaluation, add_sums = TRUE)
+#' }
 #'
 #' # Add labels to diagonal row and column percentages
 #' # This example assumes "B" is the positive class
@@ -248,7 +250,9 @@
 #' plot_confusion_matrix(evaluation)
 #'
 #' # Add sum tiles
+#' \dontrun{
 #' plot_confusion_matrix(evaluation, add_sums = TRUE)
+#' }
 #'
 #' # Counts only
 #' plot_confusion_matrix(

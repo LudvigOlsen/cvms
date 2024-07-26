@@ -272,6 +272,7 @@
 #'
 #' # Change colors palette to custom gradient
 #' # with a different gradient for sum tiles
+#' \dontrun{
 #' plot_confusion_matrix(
 #'   evaluation[["Confusion Matrix"]][[1]],
 #'   palette = list("low" = "#B1F9E8", "high" = "#239895"),
@@ -280,6 +281,7 @@
 #'   ),
 #'   add_sums = TRUE
 #' )
+#' }
 #'
 #' # The output is a ggplot2 object
 #' # that you can add layers to

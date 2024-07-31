@@ -1,4 +1,6 @@
 
+# cvms 1.6.2.9000
+
 # cvms 1.6.2
 
 * Fixes tests after changes to `ggnewscale`. Thanks [@eliocamp](https://github.com/LudvigOlsen/cvms/pull/39) for the PR.

@@ -4532,45 +4532,54 @@ test_that("testing nested tibbles in multinomial validate_fn()", {
     fixed = TRUE)
   # Testing column values
   expect_equal(
-    output_19148[["term"]],
-    c(NA, NA))
+    output_19148[["RowName"]],
+    c("class_2", "class_3", "class_2", "class_3"),
+    fixed = TRUE)
   expect_equal(
-    output_19148[["estimate"]],
-    c(NA, NA))
+    output_19148[["(Intercept)"]],
+    c(0.13991, 0.18849, 0.13991, 0.18849),
+    tolerance = 1e-4)
   expect_equal(
-    output_19148[["std.error"]],
-    c(NA, NA))
+    output_19148[["predictor_1"]],
+    c(3.21067, -3.86798, 3.21067, -3.86798),
+    tolerance = 1e-4)
   expect_equal(
-    output_19148[["statistic"]],
-    c(NA, NA))
+    output_19148[["predictor_2"]],
+    c(-0.39609, 1.25989, -0.39609, 1.25989),
+    tolerance = 1e-4)
+  expect_equal(
+    output_19148[["predictor_3"]],
+    c(-2.67468, 2.79658, -2.67468, 2.79658),
+    tolerance = 1e-4)
   expect_equal(
     output_19148[["p.value"]],
-    c(NA, NA))
+    c(NA, NA, NA, NA))
   # Testing column names
   expect_equal(
     names(output_19148),
-    c("term", "estimate", "std.error", "statistic", "p.value"),
+    c("RowName", "(Intercept)", "predictor_1", "predictor_2", "predictor_3",
+      "p.value"),
     fixed = TRUE)
   # Testing column classes
   expect_equal(
     xpectr::element_classes(output_19148),
-    c("logical", "logical", "logical", "logical", "logical"),
+    c("character", "numeric", "numeric", "numeric", "numeric", "logical"),
     fixed = TRUE)
   # Testing column types
   expect_equal(
     xpectr::element_types(output_19148),
-    c("logical", "logical", "logical", "logical", "logical"),
+    c("character", "double", "double", "double", "double", "logical"),
     fixed = TRUE)
   # Testing dimensions
   expect_equal(
     dim(output_19148),
-    c(2L, 5L))
+    c(4L, 6L))
   # Testing group keys
   expect_equal(
     colnames(dplyr::group_keys(output_19148)),
     character(0),
     fixed = TRUE)
-  ## Finished testing 'dplyr::bind_rows(vld_multinomial$Coefficients)'      ####
+  ## Finished testing 'output_19148'                                          ####
 
 
   ## Testing 'dplyr::bind_rows(vld_multinomial$`Class Leve...'              ####

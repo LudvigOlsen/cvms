@@ -45,7 +45,7 @@ Imports:
     plyr,
     pROC (>= 1.16.0),
     purrr,
-    rearrr (>= 0.3.0),
+    rearrr (>= 0.3.4),
     recipes (>= 0.1.13),
     rlang (>= 0.4.7),
     stats,

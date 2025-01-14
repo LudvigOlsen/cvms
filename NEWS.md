@@ -1,4 +1,6 @@
 
+# cvms 1.6.3.9000
+
 # cvms 1.6.3
 
 * Fixes extraction of `nnet::multinom` coefficients after change in `parameters`. Thanks [@strengejacke](https://github.com/LudvigOlsen/cvms/issues/41) for reporting the issue.

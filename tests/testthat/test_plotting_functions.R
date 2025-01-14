@@ -309,10 +309,13 @@ test_that("plot_confusion_matrix() with sum tiles, class order, and intensity_by
     c("NewGeomTile", "GeomTile", "GeomTile", "GeomImage", "GeomText", "GeomText",
     "GeomText", "GeomText", "GeomText", "GeomText", "GeomText", "GeomText",
     "GeomImage", "GeomImage", "GeomImage", "GeomImage"))
+
+  labels <- p1$labels
+  attributes(labels$fill_ggnewscale_1) <- NULL
   expect_equal(
-    p1$labels,
-    list(x = "Target", y = "Prediction", fill_new = "Normalized",
-        label = "N", fill = "Intensity", image = "image_3d")
+    labels,
+    list(x = "Target", y = "Prediction", fill_ggnewscale_1 = "Normalized",
+        label = "N", fill = "Intensity", image = "image_3d"),
   )
 
   # It's the normalized data (percentages)
@@ -328,7 +331,7 @@ test_that("plot_confusion_matrix() with sum tiles, class order, and intensity_by
 
   expect_equal(
     p1$mapping,
-    structure(list(x = ~ .data$Target, y = ~ .data$Prediction, fill_new = ~ .data$Intensity),
+    structure(list(x = ~ .data$Target, y = ~ .data$Prediction, fill_ggnewscale_1 = ~ .data$Intensity),
               class = "uneval"
     )
   )
@@ -350,11 +353,14 @@ test_that("plot_confusion_matrix() with sum tiles, class order, and intensity_by
     "GeomText", "GeomImage", "GeomImage", "GeomImage", "GeomImage"
     )
   )
+
+  labels <- p2$labels
+  attributes(labels$fill_ggnewscale_1) <- NULL
   expect_equal(
-    p2$labels,
+    labels,
     list(
       x = "Target", y = "Prediction",
-      fill_new = "Normalized",
+      fill_ggnewscale_1 = "Normalized",
       label = "N",
       fill = "Intensity",
       image = "image_skewed_lines"

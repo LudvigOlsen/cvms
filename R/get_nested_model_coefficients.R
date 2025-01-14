@@ -93,8 +93,16 @@ get_nested_model_coefficients <- function(model,
         )
 
         # If successful, manually create tidy tibble
-        if ((length(coefs) == 1 && !is.na(coefs)) ||
-          length(coefs) > 1) {
+        if (is.data.frame(coefs) || is.matrix(coefs) && !is.null(colnames(coefs))) {
+          if (!is.null(rownames(coefs))){
+            coefs <- tibble::as_tibble(coefs, rownames = "RowName")
+          } else {
+            coefs <- tibble::as_tibble(coefs)
+          }
+          return(coefs)
+        }
+        else if ((length(coefs) == 1 && !is.na(coefs)) ||
+                 length(coefs) > 1) {
           terms <- names(coefs)
           return(tibble::tibble(term = terms, estimate = coefs))
 

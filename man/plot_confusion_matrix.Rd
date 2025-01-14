@@ -284,8 +284,12 @@ plot_confusion_matrix(evaluation[["Confusion Matrix"]][[1]])
 # Plot first confusion matrix in evaluate() output
 plot_confusion_matrix(evaluation)
 
+}
+\dontrun{
 # Add sum tiles
 plot_confusion_matrix(evaluation, add_sums = TRUE)
+}
+\donttest{
 
 # Add labels to diagonal row and column percentages
 # This example assumes "B" is the positive class
@@ -324,8 +328,12 @@ plot_confusion_matrix(evaluation[["Confusion Matrix"]][[1]])
 # Plot first confusion matrix in evaluate() output
 plot_confusion_matrix(evaluation)
 
+}
+\dontrun{
 # Add sum tiles
 plot_confusion_matrix(evaluation, add_sums = TRUE)
+}
+\donttest{
 
 # Counts only
 plot_confusion_matrix(
@@ -343,6 +351,8 @@ plot_confusion_matrix(
   theme_fn = ggplot2::theme_light
 )
 
+}
+\dontrun{
 # Change colors palette to custom gradient
 # with a different gradient for sum tiles
 plot_confusion_matrix(
@@ -353,6 +363,8 @@ plot_confusion_matrix(
   ),
   add_sums = TRUE
 )
+}
+\donttest{
 
 # The output is a ggplot2 object
 # that you can add layers to

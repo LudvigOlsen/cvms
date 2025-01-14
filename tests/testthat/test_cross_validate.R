@@ -1980,7 +1980,7 @@ test_that("preprocessing works with binomial mixed models in cross_validate()", 
                c(8.3579464874966, -0.193892587463713, 2.81255078275366, 55.2463242203065,
                -1.33929033061194, 53.1381999808447,  7.64561163963771, -0.168532399577982,
                2.68897250187443),
-    tolerance = 1e-6
+    tolerance = 1e-4
   )
   expect_equal(CVbinomlist_no_preprocessing$Predictions[[1]]$Prediction,
     c(

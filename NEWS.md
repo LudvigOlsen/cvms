@@ -1,6 +1,8 @@
 
 # cvms 1.6.3.9000
 
+* Fixes error when the input to `plot_confusion_matrix()` has been filtered (for asymmetrical plotting) and `add_sums=TRUE` and/or `diag_percentages_only=TRUE`. Thanks [@jwang-lilly](https://github.com/LudvigOlsen/cvms/issues/37) for reporting. 
+
 # cvms 1.6.3
 
 * Fixes extraction of `nnet::multinom` coefficients after change in `parameters`. Thanks [@strengejacke](https://github.com/LudvigOlsen/cvms/issues/41) for reporting the issue.

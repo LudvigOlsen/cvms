@@ -808,17 +808,21 @@ plot_confusion_matrix <- function(conf_matrix,
     } else {
       class_order <- c(class_order, "Total")
     }
-    class_labels <- class_order
-    class_labels[class_labels == "Total"] <- sums_settings[["label"]]
+
+    class_labels_target <- class_order[class_order %in% c("Total", unique(cm[["Target"]]))]
+    class_labels_pred <- class_order[class_order %in% c("Total", unique(cm[["Prediction"]]))]
+    class_labels_target[class_labels_target == "Total"] <- sums_settings[["label"]]
+    class_labels_pred[class_labels_pred == "Total"] <- sums_settings[["label"]]
+
     cm[["Target"]] <- factor(
       cm[["Target"]],
       levels = class_order[class_order %in% unique(cm[["Target"]])],
-      labels = class_labels
+      labels = class_labels_target
     )
     cm[["Prediction"]] <- factor(
       cm[["Prediction"]],
       levels = class_order[class_order %in% unique(cm[["Prediction"]])],
-      labels = class_labels
+      labels = class_labels_pred
     )
   }
 
@@ -854,8 +858,8 @@ plot_confusion_matrix <- function(conf_matrix,
 
   # Remove percentages outside the diagonal
   if (isTRUE(diag_percentages_only)) {
-    cm[cm[["Target"]] != cm[["Prediction"]],] <- empty_tile_percentages(
-      cm[cm[["Target"]] != cm[["Prediction"]],])
+    cm[as.character(cm[["Target"]]) != as.character(cm[["Prediction"]]),] <- empty_tile_percentages(
+      cm[as.character(cm[["Target"]]) != as.character(cm[["Prediction"]]),])
   }
   if (isTRUE(rm_zero_percentages)){
     # Remove percentages when the count is 0
@@ -931,7 +935,7 @@ plot_confusion_matrix <- function(conf_matrix,
       pl <- pl +
         ggnewscale::new_scale_fill() +
         ggplot2::geom_tile(
-          data = cm[cm[["is_sum"]] & cm[["Target"]] != cm[["Prediction"]],],
+          data = cm[cm[["is_sum"]] & as.character(cm[["Target"]]) != as.character(cm[["Prediction"]]),],
           mapping = ggplot2::aes(fill = .data$Intensity),
           colour = sums_settings[["tile_border_color"]],
           linewidth = sums_settings[["tile_border_size"]],
@@ -954,7 +958,7 @@ plot_confusion_matrix <- function(conf_matrix,
     } else {
       pl <- pl +
         ggplot2::geom_tile(
-          data = cm[cm[["is_sum"]] & cm[["Target"]] != cm[["Prediction"]],],
+          data = cm[cm[["is_sum"]] & as.character(cm[["Target"]]) !=as.character(cm[["Prediction"]]),],
           fill = sums_settings[["tile_fill"]],
           colour = sums_settings[["tile_border_color"]],
           linewidth = sums_settings[["tile_border_size"]],
@@ -966,7 +970,7 @@ plot_confusion_matrix <- function(conf_matrix,
     # Add special total count tile
     pl <- pl +
       ggplot2::geom_tile(
-        data = cm[cm[["is_sum"]] & cm[["Target"]] == cm[["Prediction"]],],
+        data = cm[cm[["is_sum"]] & as.character(cm[["Target"]]) == as.character(cm[["Prediction"]]),],
         colour = sums_settings[["tc_tile_border_color"]],
         linewidth = sums_settings[["tc_tile_border_size"]],
         linetype = sums_settings[["tc_tile_border_linetype"]],
@@ -1039,7 +1043,7 @@ plot_confusion_matrix <- function(conf_matrix,
       # Add count labels to middle of sum tiles
       pl <- pl +
         text_geom(
-          data = cm[cm[["is_sum"]] & cm[["Target"]] != cm[["Prediction"]], ],
+          data = cm[cm[["is_sum"]] & as.character(cm[["Target"]]) != as.character(cm[["Prediction"]]), ],
           ggplot2::aes(label = .data$N_text),
           color = tmp_color
         )
@@ -1047,7 +1051,7 @@ plot_confusion_matrix <- function(conf_matrix,
       # Add count label to middle of total count tile
       pl <- pl +
         text_geom(
-          data = cm[cm[["is_sum"]] & cm[["Target"]] == cm[["Prediction"]], ],
+          data = cm[cm[["is_sum"]] & as.character(cm[["Target"]]) == as.character(cm[["Prediction"]]), ],
           ggplot2::aes(label = .data$N_text),
           color = tmp_tc_color
         )
@@ -1091,7 +1095,7 @@ plot_confusion_matrix <- function(conf_matrix,
       # Add percentage labels to middle of sum tiles
       pl <- pl +
         text_geom(
-          data = cm[cm[["is_sum"]] & cm[["Target"]] != cm[["Prediction"]], ],
+          data = cm[cm[["is_sum"]] & as.character(cm[["Target"]]) != as.character(cm[["Prediction"]]), ],
           ggplot2::aes(label = .data$Normalized_text),
           color = tmp_color
         )
@@ -1099,7 +1103,7 @@ plot_confusion_matrix <- function(conf_matrix,
       # Add percentage label to middle of total count tile
       pl <- pl +
         text_geom(
-          data = cm[cm[["is_sum"]] & cm[["Target"]] == cm[["Prediction"]], ],
+          data = cm[cm[["is_sum"]] & as.character(cm[["Target"]]) == as.character(cm[["Prediction"]]), ],
           ggplot2::aes(label = .data$Normalized_text),
           color = tmp_tc_color
         )

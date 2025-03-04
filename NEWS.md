@@ -1,5 +1,5 @@
 
-# cvms 1.6.3.9000
+# cvms 1.6.4
 
 * Fixes error when the input to `plot_confusion_matrix()` has been filtered (for asymmetrical plotting) and `add_sums=TRUE` and/or `diag_percentages_only=TRUE`. Thanks [@jwang-lilly](https://github.com/LudvigOlsen/cvms/issues/37) for reporting. 
 

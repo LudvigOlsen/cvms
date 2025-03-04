@@ -48,68 +48,68 @@ Spaces](https://huggingface.co/spaces/ludvigolsen/plot_confusion_matrix).
 
 ### Main functions
 
-| Function                                                                                      | Description                                                         |
-|:----------------------------------------------------------------------------------------------|:--------------------------------------------------------------------|
-| `cross_validate()`                                                                            | Cross-validate linear models with `lm()`/`lmer()`/`glm()`/`glmer()` |
-| `cross_validate_fn()`                                                                         | Cross-validate a custom model function                              |
-| `validate()`                                                                                  | Validate linear models with (`lm`/`lmer`/`glm`/`glmer`)             |
-| `validate_fn()`                                                                               | Validate a custom model function                                    |
-| `evaluate()`                                                                                  | Evaluate predictions with a large set of metrics                    |
-| `baseline()`</br>`baseline_gaussian()`</br>`baseline_binomial()`</br>`baseline_multinomial()` | Perform baseline evaluations of a dataset                           |
+| Function | Description |
+|:---|:---|
+| `cross_validate()` | Cross-validate linear models with `lm()`/`lmer()`/`glm()`/`glmer()` |
+| `cross_validate_fn()` | Cross-validate a custom model function |
+| `validate()` | Validate linear models with (`lm`/`lmer`/`glm`/`glmer`) |
+| `validate_fn()` | Validate a custom model function |
+| `evaluate()` | Evaluate predictions with a large set of metrics |
+| `baseline()`</br>`baseline_gaussian()`</br>`baseline_binomial()`</br>`baseline_multinomial()` | Perform baseline evaluations of a dataset |
 
 ### Evaluation utilities
 
-| Function               | Description                                                     |
-|:-----------------------|:----------------------------------------------------------------|
-| `confusion_matrix()`   | Create a confusion matrix from predictions and targets          |
-| `evaluate_residuals()` | Evaluate residuals from a regression task                       |
-| `most_challenging()`   | Find the observations that were the most challenging to predict |
-| `summarize_metrics()`  | Summarize numeric columns with a set of descriptors             |
+| Function | Description |
+|:---|:---|
+| `confusion_matrix()` | Create a confusion matrix from predictions and targets |
+| `evaluate_residuals()` | Evaluate residuals from a regression task |
+| `most_challenging()` | Find the observations that were the most challenging to predict |
+| `summarize_metrics()` | Summarize numeric columns with a set of descriptors |
 
 ### Formula utilities
 
-| Function                 | Description                                             |
-|:-------------------------|:--------------------------------------------------------|
-| `combine_predictors()`   | Generate model formulas from a list of predictors       |
-| `reconstruct_formulas()` | Extract formulas from output tibble                     |
-| `simplify_formula()`     | Remove inline functions with more from a formula object |
+| Function | Description |
+|:---|:---|
+| `combine_predictors()` | Generate model formulas from a list of predictors |
+| `reconstruct_formulas()` | Extract formulas from output tibble |
+| `simplify_formula()` | Remove inline functions with more from a formula object |
 
 ### Plotting utilities
 
-| Function                  | Description                                                                                                                   |
-|:--------------------------|:------------------------------------------------------------------------------------------------------------------------------|
+| Function | Description |
+|:---|:---|
 | `plot_confusion_matrix()` | Plot a confusion matrix (see also our [no-code application](https://huggingface.co/spaces/ludvigolsen/plot_confusion_matrix)) |
-| `plot_metric_density()`   | Create a density plot for a metric column                                                                                     |
-| `font()`                  | Set font settings for plotting functions (currently only `plot_confusion_matrix()`)                                           |
-| `sum_tile_settings()`     | Set settings for sum tiles in `plot_confusion_matrix()`                                                                       |
+| `plot_metric_density()` | Create a density plot for a metric column |
+| `font()` | Set font settings for plotting functions (currently only `plot_confusion_matrix()`) |
+| `sum_tile_settings()` | Set settings for sum tiles in `plot_confusion_matrix()` |
 
 ### Custom functions
 
-| Function                   | Description                                            |
-|:---------------------------|:-------------------------------------------------------|
-| `model_functions()`        | Example model functions for `cross_validate_fn()`      |
-| `predict_functions()`      | Example predict functions for `cross_validate_fn()`    |
-| `preprocess_functions()`   | Example preprocess functions for `cross_validate_fn()` |
-| `update_hyperparameters()` | Manage hyperparameters in custom model functions       |
+| Function | Description |
+|:---|:---|
+| `model_functions()` | Example model functions for `cross_validate_fn()` |
+| `predict_functions()` | Example predict functions for `cross_validate_fn()` |
+| `preprocess_functions()` | Example preprocess functions for `cross_validate_fn()` |
+| `update_hyperparameters()` | Manage hyperparameters in custom model functions |
 
 ### Other utilities
 
-| Function                                                                    | Description                                              |
-|:----------------------------------------------------------------------------|:---------------------------------------------------------|
-| `select_metrics()`                                                          | Select the metric columns from the output                |
-| `select_definitions()`                                                      | Select the model-defining columns from the output        |
+| Function | Description |
+|:---|:---|
+| `select_metrics()` | Select the metric columns from the output |
+| `select_definitions()` | Select the model-defining columns from the output |
 | `gaussian_metrics()`<br />`binomial_metrics()`<br />`multinomial_metrics()` | Create list of metrics for the common `metrics` argument |
-| `multiclass_probability_tibble()`                                           | Generate a multiclass probability tibble                 |
+| `multiclass_probability_tibble()` | Generate a multiclass probability tibble |
 
 ### Datasets
 
-| Name                       | Description                                                                               |
-|:---------------------------|:------------------------------------------------------------------------------------------|
-| `participant.scores`       | Made-up experiment data with 10 participants and two diagnoses                            |
-| `wines`                    | A list of wine varieties in an approximately Zipfian distribution                         |
-| `musicians`                | Made-up data on 60 musicians in 4 groups for multiclass classification                    |
-| `predicted.musicians`      | Predictions by 3 classifiers of the 4 classes in the `musicians` dataset                  |
-| `precomputed.formulas`     | Fixed effect combinations for model formulas with/without two- and three-way interactions |
+| Name | Description |
+|:---|:---|
+| `participant.scores` | Made-up experiment data with 10 participants and two diagnoses |
+| `wines` | A list of wine varieties in an approximately Zipfian distribution |
+| `musicians` | Made-up data on 60 musicians in 4 groups for multiclass classification |
+| `predicted.musicians` | Predictions by 3 classifiers of the 4 classes in the `musicians` dataset |
+| `precomputed.formulas` | Fixed effect combinations for model formulas with/without two- and three-way interactions |
 | `compatible.formula.terms` | 162,660 pairs of compatible terms for building model formulas with up to 15 fixed effects |
 
 ## Table of Contents
@@ -271,9 +271,9 @@ CV1
 CV1 %>% select_metrics() %>% kable()
 ```
 
-| Fixed     |     RMSE |      MAE | NRMSE(IQR) |      RRSE |      RAE |     RMSLE |      AIC |     AICc |      BIC | Dependent |
-|:----------|---------:|---------:|-----------:|----------:|---------:|----------:|---------:|---------:|---------:|:----------|
-| diagnosis | 16.35261 | 13.75772 |  0.9373575 | 0.9004745 | 0.932284 | 0.4736577 | 194.6218 | 195.9276 | 197.9556 | score     |
+| Fixed | RMSE | MAE | NRMSE(IQR) | RRSE | RAE | RMSLE | AIC | AICc | BIC | Dependent |
+|:---|---:|---:|---:|---:|---:|---:|---:|---:|---:|:---|
+| diagnosis | 16.35261 | 13.75772 | 0.9373575 | 0.9004745 | 0.932284 | 0.4736577 | 194.6218 | 195.9276 | 197.9556 | score |
 
 ``` r
 
@@ -307,12 +307,12 @@ CV1$Predictions[[1]] %>% head() %>% kable()
 CV1$Results[[1]] %>% kable()
 ```
 
-| Fold Column | Fold |     RMSE |      MAE | NRMSE(IQR) |      RRSE |       RAE |     RMSLE |      AIC |     AICc |      BIC |
-|:------------|-----:|---------:|---------:|-----------:|----------:|----------:|----------:|---------:|---------:|---------:|
-| .folds      |    1 | 12.56760 | 10.72222 |  0.6793295 | 0.7825928 | 0.7845528 | 0.3555080 | 209.9622 | 211.1622 | 213.4963 |
-| .folds      |    2 | 16.60767 | 14.77778 |  1.0379796 | 1.0090512 | 1.1271186 | 0.5805901 | 182.8739 | 184.2857 | 186.0075 |
-| .folds      |    3 | 15.97355 | 12.87037 |  1.2528275 | 0.7954799 | 0.8644279 | 0.4767100 | 207.9074 | 209.1074 | 211.4416 |
-| .folds      |    4 | 20.26162 | 16.66049 |  0.7792933 | 1.0147739 | 0.9530367 | 0.4818228 | 177.7436 | 179.1554 | 180.8772 |
+| Fold Column | Fold | RMSE | MAE | NRMSE(IQR) | RRSE | RAE | RMSLE | AIC | AICc | BIC |
+|:---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| .folds | 1 | 12.56760 | 10.72222 | 0.6793295 | 0.7825928 | 0.7845528 | 0.3555080 | 209.9622 | 211.1622 | 213.4963 |
+| .folds | 2 | 16.60767 | 14.77778 | 1.0379796 | 1.0090512 | 1.1271186 | 0.5805901 | 182.8739 | 184.2857 | 186.0075 |
+| .folds | 3 | 15.97355 | 12.87037 | 1.2528275 | 0.7954799 | 0.8644279 | 0.4767100 | 207.9074 | 209.1074 | 211.4416 |
+| .folds | 4 | 20.26162 | 16.66049 | 0.7792933 | 1.0147739 | 0.9530367 | 0.4818228 | 177.7436 | 179.1554 | 180.8772 |
 
 ``` r
 
@@ -322,16 +322,16 @@ CV1$Results[[1]] %>% kable()
 CV1$Coefficients[[1]] %>% kable()
 ```
 
-| Fold Column | Fold | term        |  estimate | std.error | conf.level |  conf.low | conf.high | statistic | df.error |   p.value |
-|:------------|-----:|:------------|----------:|----------:|-----------:|----------:|----------:|----------:|---------:|----------:|
-| .folds      |    1 | (Intercept) |  51.00000 |  5.901264 |       0.95 |  38.76153 | 63.238472 |  8.642216 |       22 | 0.0000000 |
-| .folds      |    1 | diagnosis   | -20.33333 |  7.464574 |       0.95 | -35.81391 | -4.852754 | -2.723978 |       22 | 0.0123925 |
-| .folds      |    2 | (Intercept) |  53.33333 |  5.718886 |       0.95 |  41.36357 | 65.303099 |  9.325826 |       19 | 0.0000000 |
-| .folds      |    2 | diagnosis   | -19.66667 |  7.565375 |       0.95 | -35.50118 | -3.832156 | -2.599563 |       19 | 0.0176016 |
-| .folds      |    3 | (Intercept) |  49.77778 |  5.653977 |       0.95 |  38.05215 | 61.503408 |  8.804030 |       22 | 0.0000000 |
-| .folds      |    3 | diagnosis   | -18.77778 |  7.151778 |       0.95 | -33.60966 | -3.945899 | -2.625610 |       22 | 0.0154426 |
-| .folds      |    4 | (Intercept) |  49.55556 |  5.061304 |       0.95 |  38.96212 | 60.148986 |  9.791065 |       19 | 0.0000000 |
-| .folds      |    4 | diagnosis   | -22.30556 |  6.695476 |       0.95 | -36.31935 | -8.291764 | -3.331437 |       19 | 0.0035077 |
+| Fold Column | Fold | term | estimate | std.error | conf.level | conf.low | conf.high | statistic | df.error | p.value |
+|:---|---:|:---|---:|---:|---:|---:|---:|---:|---:|---:|
+| .folds | 1 | (Intercept) | 51.00000 | 5.901264 | 0.95 | 38.76153 | 63.238472 | 8.642216 | 22 | 0.0000000 |
+| .folds | 1 | diagnosis | -20.33333 | 7.464574 | 0.95 | -35.81391 | -4.852754 | -2.723978 | 22 | 0.0123925 |
+| .folds | 2 | (Intercept) | 53.33333 | 5.718886 | 0.95 | 41.36357 | 65.303099 | 9.325826 | 19 | 0.0000000 |
+| .folds | 2 | diagnosis | -19.66667 | 7.565375 | 0.95 | -35.50118 | -3.832156 | -2.599563 | 19 | 0.0176016 |
+| .folds | 3 | (Intercept) | 49.77778 | 5.653977 | 0.95 | 38.05215 | 61.503408 | 8.804030 | 22 | 0.0000000 |
+| .folds | 3 | diagnosis | -18.77778 | 7.151778 | 0.95 | -33.60966 | -3.945899 | -2.625610 | 22 | 0.0154426 |
+| .folds | 4 | (Intercept) | 49.55556 | 5.061304 | 0.95 | 38.96212 | 60.148986 | 9.791065 | 19 | 0.0000000 |
+| .folds | 4 | diagnosis | -22.30556 | 6.695476 | 0.95 | -36.31935 | -8.291764 | -3.331437 | 19 | 0.0035077 |
 
 ``` r
 
@@ -341,8 +341,8 @@ CV1 %>% select(14:19, 21) %>% kable()
 ```
 
 | Folds | Fold Columns | Convergence Warnings | Singular Fit Messages | Other Warnings | Warnings and Messages | Dependent |
-|------:|-------------:|---------------------:|----------------------:|---------------:|:----------------------|:----------|
-|     4 |            1 |                    0 |                     0 |              0 |                       | score     |
+|---:|---:|---:|---:|---:|:---|:---|
+| 4 | 1 | 0 | 0 | 0 |  | score |
 
 ``` r
 
@@ -391,9 +391,9 @@ CV2
 CV2 %>% select(1:9) %>% kable(digits = 5)
 ```
 
-| Fixed | Balanced Accuracy |      F1 | Sensitivity | Specificity | Pos Pred Value | Neg Pred Value |     AUC | Lower CI |
-|:------|------------------:|--------:|------------:|------------:|---------------:|---------------:|--------:|---------:|
-| score |           0.73611 | 0.82051 |     0.88889 |     0.58333 |         0.7619 |        0.77778 | 0.76852 |  0.59627 |
+| Fixed | Balanced Accuracy | F1 | Sensitivity | Specificity | Pos Pred Value | Neg Pred Value | AUC | Lower CI |
+|:---|---:|---:|---:|---:|---:|---:|---:|---:|
+| score | 0.73611 | 0.82051 | 0.88889 | 0.58333 | 0.7619 | 0.77778 | 0.76852 | 0.59627 |
 
 ``` r
 CV2 %>% select(10:15) %>% kable()
@@ -562,12 +562,12 @@ CV5
 CV5$Results[[1]] %>% select(1:8) %>% kable()
 ```
 
-| Fold Column | Balanced Accuracy |        F1 | Sensitivity | Specificity | Pos Pred Value | Neg Pred Value |       AUC |
-|:------------|------------------:|----------:|------------:|------------:|---------------:|---------------:|----------:|
-| .folds_1    |         0.7361111 | 0.8205128 |   0.8888889 |   0.5833333 |      0.7619048 |      0.7777778 | 0.7685185 |
-| .folds_2    |         0.7361111 | 0.8205128 |   0.8888889 |   0.5833333 |      0.7619048 |      0.7777778 | 0.7777778 |
-| .folds_3    |         0.7083333 | 0.7894737 |   0.8333333 |   0.5833333 |      0.7500000 |      0.7000000 | 0.7476852 |
-| .folds_4    |         0.7361111 | 0.8205128 |   0.8888889 |   0.5833333 |      0.7619048 |      0.7777778 | 0.7662037 |
+| Fold Column | Balanced Accuracy | F1 | Sensitivity | Specificity | Pos Pred Value | Neg Pred Value | AUC |
+|:---|---:|---:|---:|---:|---:|---:|---:|
+| .folds_1 | 0.7361111 | 0.8205128 | 0.8888889 | 0.5833333 | 0.7619048 | 0.7777778 | 0.7685185 |
+| .folds_2 | 0.7361111 | 0.8205128 | 0.8888889 | 0.5833333 | 0.7619048 | 0.7777778 | 0.7777778 |
+| .folds_3 | 0.7083333 | 0.7894737 | 0.8333333 | 0.5833333 | 0.7500000 | 0.7000000 | 0.7476852 |
+| .folds_4 | 0.7361111 | 0.8205128 | 0.8888889 | 0.5833333 | 0.7619048 | 0.7777778 | 0.7662037 |
 
 ## Cross-validating custom model functions
 
@@ -832,14 +832,14 @@ challenging <- data %>%
 challenging %>% kable()
 ```
 
-| participant | age | diagnosis | score | session | Observation | Correct | Incorrect |  Accuracy |       MAE | Cross Entropy |       \<= |
-|:------------|----:|----------:|------:|--------:|------------:|--------:|----------:|----------:|----------:|--------------:|----------:|
-| 10          |  32 |         0 |    29 |       1 |           1 |       1 |        11 | 0.0833333 | 0.7333863 |      1.390259 | 0.6145233 |
-| 2           |  23 |         0 |    24 |       1 |           4 |       0 |        12 | 0.0000000 | 0.7832189 |      1.664472 | 0.6145233 |
-| 4           |  21 |         0 |    35 |       1 |           7 |       0 |        12 | 0.0000000 | 0.6896729 |      1.218275 | 0.6145233 |
-| 9           |  34 |         0 |    33 |       1 |          10 |       0 |        12 | 0.0000000 | 0.7735253 |      1.568240 | 0.6145233 |
-| 5           |  32 |         1 |    54 |       2 |          20 |       1 |        11 | 0.0833333 | 0.7419556 |      1.497591 | 0.6145233 |
-| 5           |  32 |         1 |    62 |       3 |          21 |       1 |        11 | 0.0833333 | 0.8199538 |      2.097782 | 0.6145233 |
+| participant | age | diagnosis | score | session | Observation | Correct | Incorrect | Accuracy | MAE | Cross Entropy | \<= |
+|:---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 10 | 32 | 0 | 29 | 1 | 1 | 1 | 11 | 0.0833333 | 0.7333863 | 1.390259 | 0.6145233 |
+| 2 | 23 | 0 | 24 | 1 | 4 | 0 | 12 | 0.0000000 | 0.7832189 | 1.664472 | 0.6145233 |
+| 4 | 21 | 0 | 35 | 1 | 7 | 0 | 12 | 0.0000000 | 0.6896729 | 1.218275 | 0.6145233 |
+| 9 | 34 | 0 | 33 | 1 | 10 | 0 | 12 | 0.0000000 | 0.7735253 | 1.568240 | 0.6145233 |
+| 5 | 32 | 1 | 54 | 2 | 20 | 1 | 11 | 0.0833333 | 0.7419556 | 1.497591 | 0.6145233 |
+| 5 | 32 | 1 | 62 | 3 | 21 | 1 | 11 | 0.0833333 | 0.8199538 | 2.097782 | 0.6145233 |
 
 Note: You may have to scroll to the right in the table.
 

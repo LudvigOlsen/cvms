@@ -1,6 +1,6 @@
 Package: cvms
 Title: Cross-Validation for Model Selection
-Version: 1.6.3.9000
+Version: 1.6.4
 Authors@R: 
     c(person(given = "Ludvig Renbo",
              family = "Olsen",
@@ -45,7 +45,7 @@ Imports:
     plyr,
     pROC (>= 1.16.0),
     purrr,
-    rearrr (>= 0.3.4),
+    rearrr (>= 0.3.5),
     recipes (>= 0.1.13),
     rlang (>= 0.4.7),
     stats,
@@ -67,7 +67,7 @@ Suggests:
     rmarkdown,
     rsvg,
     testthat (>= 2.3.2),
-    xpectr (>= 0.4.1)
+    xpectr (>= 0.4.4)
 VignetteBuilder: 
     knitr
 RdMacros: 

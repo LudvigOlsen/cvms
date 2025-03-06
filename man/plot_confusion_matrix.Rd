@@ -146,12 +146,17 @@ such that the counts are on top. (Logical)}
  \code{\link[ggplot2:scale_fill_gradient]{ggplot2::scale_fill_gradient}}.}
 
 \item{intensity_by}{The measure that should control the color intensity of the tiles.
- Either \code{`counts`}, \code{`normalized`} or one of \code{`log counts`,
- `log2 counts`, `log10 counts`, `arcsinh counts`}.
+ Either \code{`counts`}, \code{`normalized`}, \code{`row_percentages`}, \code{`col_percentages`},
+ or one of \code{`log counts`, `log2 counts`, `log10 counts`, `arcsinh counts`}.
 
- For `normalized`, the color limits become \code{0-100} (except when
- \code{`intensity_lims`} are specified), why the intensities
- can better be compared across plots.
+ For `normalized`, `row_percentages`, and `col_percentages`, the color limits
+ become \code{0-100} (except when \code{`intensity_lims`} are specified),
+ why the intensities can better be compared across plots.
+
+ \strong{Note}: When \code{`add_sums=TRUE`}, the `row_percentages` and `col_percentages`
+ options are only available for the main tiles. A separate intensity metric
+ must be specified for the sum tiles (e.g., via
+ \code{`sums_settings = sum_tile_settings(intensity_by='normalized')`}).
 
  For the `log*` and `arcsinh` versions, the log/arcsinh transformed counts are used.
 

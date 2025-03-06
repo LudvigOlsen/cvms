@@ -107,12 +107,17 @@
 #' @param font_col_percentages \code{list} of font settings for the column percentages.
 #'  Can be provided with \code{\link[cvms:font]{font()}}.
 #' @param intensity_by The measure that should control the color intensity of the tiles.
-#'  Either \code{`counts`}, \code{`normalized`} or one of \code{`log counts`,
-#'  `log2 counts`, `log10 counts`, `arcsinh counts`}.
+#'  Either \code{`counts`}, \code{`normalized`}, \code{`row_percentages`}, \code{`col_percentages`},
+#'  or one of \code{`log counts`, `log2 counts`, `log10 counts`, `arcsinh counts`}.
 #'
-#'  For `normalized`, the color limits become \code{0-100} (except when
-#'  \code{`intensity_lims`} are specified), why the intensities
-#'  can better be compared across plots.
+#'  For `normalized`, `row_percentages`, and `col_percentages`, the color limits
+#'  become \code{0-100} (except when \code{`intensity_lims`} are specified),
+#'  why the intensities can better be compared across plots.
+#'
+#'  \strong{Note}: When \code{`add_sums=TRUE`}, the `row_percentages` and `col_percentages`
+#'  options are only available for the main tiles. A separate intensity metric
+#'  must be specified for the sum tiles (e.g., via
+#'  \code{`sums_settings = sum_tile_settings(intensity_by='normalized')`}).
 #'
 #'  For the `log*` and `arcsinh` versions, the log/arcsinh transformed counts are used.
 #'
@@ -470,13 +475,13 @@ plot_confusion_matrix <- function(conf_matrix,
   )
   checkmate::assert_names(
     x = intensity_by,
-    subset.of = c("counts", "normalized", "log counts", "log2 counts", "log10 counts", "arcsinh counts"),
+    subset.of = c("counts", "normalized", "row_percentages", "col_percentages", "log counts", "log2 counts", "log10 counts", "arcsinh counts"),
     add = assert_collection
   )
   if (!is.null(sums_settings[["intensity_by"]])){
     checkmate::assert_names(
       x = sums_settings[["intensity_by"]],
-      subset.of = c("counts", "normalized", "log counts", "log2 counts", "log10 counts", "arcsinh counts"),
+      subset.of = c("counts", "normalized", "row_percentages", "col_percentages", "log counts", "log2 counts", "log10 counts", "arcsinh counts"),
       add = assert_collection
     )
   }
@@ -650,48 +655,6 @@ plot_confusion_matrix <- function(conf_matrix,
     rm_zeroes_post_rounding = FALSE # Only remove where N==0
   )
 
-  # Set color intensity metric
-  cm <- set_intensity(cm, intensity_by)
-
-  # Get min and max intensity scores and their range
-  # We need to do this before adding sums
-  intensity_measures <- get_intensity_range(
-    data = cm,
-    intensity_by = intensity_by,
-    intensity_lims = intensity_lims
-  )
-
-  # Handle intensities outside of the allow range¨
-  cm$Intensity <- handle_beyond_intensity_limits(
-    intensities = cm$Intensity,
-    intensity_range = intensity_measures,
-    intensity_beyond_lims = intensity_beyond_lims
-  )
-
-  # Calculate number of tiles to size by
-  num_predict_classes <- length(unique(cm[["Prediction"]])) + as.integer(isTRUE(add_sums))
-
-  # Arrow icons
-  arrow_icons <- list("up" = get_figure_path("caret_up_sharp.svg"),
-                      "down" = get_figure_path("caret_down_sharp.svg"),
-                      "left" = get_figure_path("caret_back_sharp.svg"),
-                      "right" = get_figure_path("caret_forward_sharp.svg"))
-
-  # Scaling arrow size
-  arrow_size <- arrow_size / num_predict_classes
-
-  # Add icons depending on where the tile will be in the image
-  cm <- set_arrows(cm, place_x_axis_above = place_x_axis_above,
-                   icons = arrow_icons)
-
-  if (isTRUE(use_ggimage) &&
-      isTRUE(add_zero_shading)){
-    # Add image path for skewed lines for when there's an N=0
-    cm[["image_skewed_lines"]] <- ifelse(cm[["N"]] == 0,
-                                         get_figure_path("skewed_lines.svg"),
-                                         get_figure_path("empty_square.svg"))
-  }
-
   # Calculate column sums
   if (isTRUE(add_col_percentages) || isTRUE(add_sums)) {
     column_sums <- cm %>%
@@ -730,6 +693,48 @@ plot_confusion_matrix <- function(conf_matrix,
       )
   }
 
+  # Set color intensity metric
+  cm <- set_intensity(cm, intensity_by)
+
+  # Get min and max intensity scores and their range
+  # We need to do this before adding sums
+  intensity_measures <- get_intensity_range(
+    data = cm,
+    intensity_by = intensity_by,
+    intensity_lims = intensity_lims
+  )
+
+  # Handle intensities outside of the allow range
+  cm$Intensity <- handle_beyond_intensity_limits(
+    intensities = cm$Intensity,
+    intensity_range = intensity_measures,
+    intensity_beyond_lims = intensity_beyond_lims
+  )
+
+  # Calculate number of tiles to size by
+  num_predict_classes <- length(unique(cm[["Prediction"]])) + as.integer(isTRUE(add_sums))
+
+  # Arrow icons
+  arrow_icons <- list("up" = get_figure_path("caret_up_sharp.svg"),
+                      "down" = get_figure_path("caret_down_sharp.svg"),
+                      "left" = get_figure_path("caret_back_sharp.svg"),
+                      "right" = get_figure_path("caret_forward_sharp.svg"))
+
+  # Scaling arrow size
+  arrow_size <- arrow_size / num_predict_classes
+
+  # Add icons depending on where the tile will be in the image
+  cm <- set_arrows(cm, place_x_axis_above = place_x_axis_above,
+                   icons = arrow_icons)
+
+  if (isTRUE(use_ggimage) &&
+      isTRUE(add_zero_shading)){
+    # Add image path for skewed lines for when there's an N=0
+    cm[["image_skewed_lines"]] <- ifelse(cm[["N"]] == 0,
+                                         get_figure_path("skewed_lines.svg"),
+                                         get_figure_path("empty_square.svg"))
+  }
+
   # Signal that current rows are not for the sum tiles
   cm[["is_sum"]] <- FALSE
 
@@ -765,6 +770,16 @@ plot_confusion_matrix <- function(conf_matrix,
 
     sums_intensity_by <- sums_settings[["intensity_by"]]
     if (is.null(sums_intensity_by)) sums_intensity_by <- intensity_by
+    if (sums_intensity_by %in% c("row_percentages", "col_percentages")) {
+      stop(
+        paste0(
+          "Cannot set intensities of sum tiles by `",
+          sums_intensity_by,
+          "`. Please specify a different intensity measure. ",
+          "E.g.: `sums_settings = sum_tile_settings(intensity_by='normalized')`"
+        )
+      )
+    }
 
     sums_intensity_beyond_lims <- sums_settings[["intensity_beyond_lims"]]
     if (is.null(sums_intensity_beyond_lims)) sums_intensity_beyond_lims <- intensity_beyond_lims

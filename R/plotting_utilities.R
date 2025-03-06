@@ -288,8 +288,14 @@ set_intensity <- function(data, intensity_by) {
   } else if (intensity_by == "normalized") {
     data[["Intensity"]] <- data[["Normalized"]]
   } else if (intensity_by == "row_percentages") {
+    if (!("Prediction_Percentage" %in% colnames(data))){
+      stop("Cannot set intensity by `row_percentages` when `add_row_percentages=FALSE`.")
+    }
     data[["Intensity"]] <- data[["Prediction_Percentage"]]
   } else if (intensity_by == "col_percentages") {
+    if (!("Class_Percentage" %in% colnames(data))){
+      stop("Cannot set intensity by `col_percentages` when `add_col_percentages=FALSE`.")
+    }
     data[["Intensity"]] <- data[["Class_Percentage"]]
   }
   data

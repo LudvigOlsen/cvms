@@ -1,7 +1,11 @@
 
-# cvms 1.6.3.9000
+# cvms 1.7.0
 
-* Fixes error when the input to `plot_confusion_matrix()` has been filtered (for asymmetrical plotting) and `add_sums=TRUE` and/or `diag_percentages_only=TRUE`. Thanks [@jwang-lilly](https://github.com/LudvigOlsen/cvms/issues/37) for reporting. 
+## `plot_confusion_matrix()`:
+
+* Adds option to set intensities of main tiles by `row_percentages` or `col_percentages`. Sum tiles cannot be set by these. Idea from [Elliot](https://stackoverflow.com/q/79258320).
+
+* Fixes error when the input has been filtered (for asymmetrical plotting) and `add_sums=TRUE` and/or `diag_percentages_only=TRUE`. Thanks [@jwang-lilly](https://github.com/LudvigOlsen/cvms/issues/37) for reporting. 
 
 # cvms 1.6.3
 

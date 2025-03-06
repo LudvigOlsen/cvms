@@ -107,12 +107,17 @@
 #' @param font_col_percentages \code{list} of font settings for the column percentages.
 #'  Can be provided with \code{\link[cvms:font]{font()}}.
 #' @param intensity_by The measure that should control the color intensity of the tiles.
-#'  Either \code{`counts`}, \code{`normalized`} or one of \code{`log counts`,
-#'  `log2 counts`, `log10 counts`, `arcsinh counts`}.
+#'  Either \code{`counts`}, \code{`normalized`}, \code{`row_percentages`}, \code{`col_percentages`},
+#'  or one of \code{`log counts`, `log2 counts`, `log10 counts`, `arcsinh counts`}.
 #'
-#'  For `normalized`, the color limits become \code{0-100} (except when
-#'  \code{`intensity_lims`} are specified), why the intensities
-#'  can better be compared across plots.
+#'  For `normalized`, `row_percentages`, and `col_percentages`, the color limits
+#'  become \code{0-100} (except when \code{`intensity_lims`} are specified),
+#'  why the intensities can better be compared across plots.
+#'
+#'  \strong{Note}: When \code{`add_sums=TRUE`}, the `row_percentages` and `col_percentages`
+#'  options are only available for the main tiles. A separate intensity metric
+#'  must be specified for the sum tiles (e.g., via
+#'  \code{`sums_settings = sum_tile_settings(intensity_by='normalized')`}).
 #'
 #'  For the `log*` and `arcsinh` versions, the log/arcsinh transformed counts are used.
 #'
@@ -750,8 +755,6 @@ plot_confusion_matrix <- function(conf_matrix,
     )
     sum_data <- dplyr::bind_rows(column_sums, row_sums, total_count)
 
-    print(sum_data)
-
     # Prepare text versions of the numerics
     sum_data[["N_text"]] <- preprocess_numeric(sum_data[["N"]], font_counts)
     sum_data[["Normalized_text"]] <- preprocess_numeric(sum_data[["Normalized"]], font_normalized)
@@ -767,6 +770,16 @@ plot_confusion_matrix <- function(conf_matrix,
 
     sums_intensity_by <- sums_settings[["intensity_by"]]
     if (is.null(sums_intensity_by)) sums_intensity_by <- intensity_by
+    if (sums_intensity_by %in% c("row_percentages", "col_percentages")) {
+      stop(
+        paste0(
+          "Cannot set intensities of sum tiles by `",
+          sums_intensity_by,
+          "`. Please specify a different intensity measure. ",
+          "E.g.: `sums_settings = sum_tile_settings(intensity_by='normalized')`"
+        )
+      )
+    }
 
     sums_intensity_beyond_lims <- sums_settings[["intensity_beyond_lims"]]
     if (is.null(sums_intensity_beyond_lims)) sums_intensity_beyond_lims <- intensity_beyond_lims

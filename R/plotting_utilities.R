@@ -287,6 +287,10 @@ set_intensity <- function(data, intensity_by) {
 
   } else if (intensity_by == "normalized") {
     data[["Intensity"]] <- data[["Normalized"]]
+  } else if (intensity_by == "row_percentages") {
+    data[["Intensity"]] <- data[["Prediction_Percentage"]]
+  } else if (intensity_by == "col_percentages") {
+    data[["Intensity"]] <- data[["Class_Percentage"]]
   }
   data
 }

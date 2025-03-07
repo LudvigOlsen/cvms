@@ -45,7 +45,7 @@ Imports:
     plyr,
     pROC (>= 1.16.0),
     purrr,
-    rearrr (>= 0.3.5),
+    rearrr (>= 0.3.4),
     recipes (>= 0.1.13),
     rlang (>= 0.4.7),
     stats,
@@ -67,7 +67,7 @@ Suggests:
     rmarkdown,
     rsvg,
     testthat (>= 2.3.2),
-    xpectr (>= 0.4.4)
+    xpectr (>= 0.4.3)
 VignetteBuilder: 
     knitr
 RdMacros: 

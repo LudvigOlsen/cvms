@@ -1,0 +1,724 @@
+---
+title: "Nested cross-validation with cvms"
+author: 
+  - "Ludvig Renbo Olsen"
+date: "`r Sys.Date()`"
+abstract: |
+  In this vignette, we use **nested cross-validation** to tune the hyperparameters 
+  of a **custom model function** with `cross_validate_fn()`.
+  
+  This is the second tutorial for using `cross_validate_fn()`. We recommend skimming ["Cross-validating custom model functions with cvms"](https://cran.r-project.org/web/packages/cvms/vignettes/cross_validating_custom_functions.html) before continuing. 
+  
+  Contact the author at r-pkgs@ludvigolsen.dk
+  
+  &nbsp;  
+  
+output: 
+  rmarkdown::html_vignette:
+    css: 
+    - !expr system.file("rmarkdown/templates/html_vignette/resources/vignette.css", package = "rmarkdown")
+    - styles.css
+    fig_width: 6
+    fig_height: 4
+    toc: yes
+    number_sections: no
+  rmarkdown::pdf_document:
+    highlight: tango
+    number_sections: yes
+    toc: yes
+    toc_depth: 4
+vignette: >
+  %\VignetteIndexEntry{nested_cross_validation}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/vignette_cv_nested-",
+  dpi = 92,
+  fig.retina = 2,
+  eval = requireNamespace("e1071") # Only evaluate chunks when e1071 is installed!
+)
+options(rmarkdown.html_vignette.check_title = FALSE)
+```
+
+# Introduction
+
+Where `cross_validate()` only allows us to cross-validate the `lm()`, `lmer()`, `glm()`, and `glmer()` model functions, `cross_validate_fn()` can cross-validate **any** model function that can be wrapped in a specific function and predict new data. This means, we can cross-validate *support-vector machines*, *neural networks*, *naïve Bayes*, etc., and compare them.
+
+As these model functions are all a bit different and return predictions in different formats, we need to wrap them in a specific set of functions that `cross_validate_fn()` knows how to deal with. That requires a bit more work than using `cross_validate()` but is very flexible.
+
+In this vignette, we will learn how to convert our model to a model function and associated predict function. After doing this once, you can save them in a separate R script and reuse them in future projects.
+
+Once you've completed this tutorial, you will be able to:
+
+* Convert your model to a model function and predict function.
+* Cross-validate your custom model function.
+* Tune the hyperparameters of your model.
+* Preprocess the training and test sets within the cross-validation.
+
+## Attach packages
+
+We start by attaching the needed packages and setting a random seed for reproducibility:
+
+```{r warning=FALSE, message=FALSE}
+library(cvms)
+library(groupdata2)    # fold()
+library(dplyr)
+library(knitr)         # kable() : formats the output as a table
+library(e1071)         # svm()
+
+set.seed(1)
+```
+
+We could enable *parallelization* to speed up the `fold()` and `cross_validate_fn()` functions. Uncomment the below and set `parallel = TRUE` when calling those functions.
+
+```{r}
+# Enable parallelization by uncommenting
+# library(doParallel)
+# registerDoParallel(4) # 4 cores
+```
+
+## Prepare data
+
+For the regression and binary classification examples, we will use the `participant.scores` dataset from `cvms`. It features 10 participants who partook in an incredibly fictional study with three sessions of a task. Some of the participants have the diagnosis **`1`** (sounds scary!) and they all got a score after each session.
+
+In order to use the data for cross-validation, we need to divide it into folds. For this we use the `fold()` function from `groupdata2`. We create 3 folds as it is a small dataset. With more data, it is common to use 10 folds (although that is a bit arbitrary).
+
+As the randomness in this data splitting process can influence the model comparison, we do it multiple times and average the results. This is called **repeated cross-validation**. By setting `num_fold_cols = 5`, `fold()` will create 5 *unique* fold columns. Unless your model takes a long time to fit, it's common to use 10-100 repetitions, but we pick 5 to speed up the process for this tutorial. Remember, that you can enable parallelization to utilize multiple CPU cores.
+
+By setting `cat_col = "diagnosis"`, we ensure a similar ratio of participants with and without the diagnosis in all the folds. 
+
+By setting `id_col = "participant"`, we ensure that all the rows belonging to a participant are put in the same fold. If we do not ensure this, we could be testing on a participant we also trained on, which is cheating! :) 
+
+```{r}
+# Prepare dataset
+data <- participant.scores
+data$diagnosis <- factor(data$diagnosis)
+
+# Create 5 fold columns with 3 folds each
+data <- fold(
+  data,
+  k = 3,
+  cat_col = "diagnosis",
+  id_col = "participant",
+  num_fold_cols = 5,
+  parallel = FALSE # set to TRUE to run in parallel
+)
+
+# Order by participant
+data <- data %>% 
+  dplyr::arrange(participant)
+
+# Look at the first 12 rows
+# Note: kable() just formats the table 
+data %>% head(12) %>% kable()
+
+```
+
+
+## Creating a model function
+
+A model function for `cross_validate_fn()` has the arguments `train_data`, `formula` and `hyperparameters`. We don't need to use all of them, but those are the inputs it will receive when called inside `cross_validate_fn()`. 
+
+To convert our model, we wrap it like this:
+
+```{r}
+svm_model_fn <- function(train_data, formula, hyperparameters) {
+  e1071::svm(
+    formula = formula,
+    data = train_data,
+    kernel = "linear",
+    cost = 10,
+    type = "eps-regression"
+  )
+}
+
+optim_model_fn <- function(train_data, formula, hyperparameters){
+    folded_train_data <- purrr::exec(groupdata2::fold, !!!fold_args, data=train_data)
+    
+    cross_validate_fn(train_data, formulas = formula, type = , model_fn = , predict_fn = ,preprocess_fn = ,preprocess_once = ,hyperparameters = ,
+                      fold_cols = , cutoff = ,positive = , metrics = , rm_nc = , parallel = ,verbose = )
+    
+  }
+
+```
+
+**Note**: In R, the last thing in a function is returned. This means we don't need to use `return()` in the above. Feel free to add it though.
+
+We can test the model function on the training set:
+
+```{r}
+# Try the model function
+# Due to "lazy evaluation" in R, we don't have to pass
+# the arguments that are not used inside the function
+m0 <- svm_model_fn(train_data = train_set, 
+                   formula = score ~ diagnosis + age + session)
+m0
+```
+
+
+## Creating a predict function
+
+The `predict()` function varies a bit for different models, so we need to supply a predict function that works with our model function and returns the predictions in the right format. Which format is correct depends on the kind of task we are performing. For regression (`'gaussian'`), the predictions should be a **single vector with the predicted values**.
+
+The predict function must have the arguments `test_data`, `model`, `formula`, `hyperparameters`, and `train_data`. Again, we don't need to use all of them inside the function, but they must be there.
+
+We can convert our `predict()` call to a predict function like so:
+
+```{r}
+svm_predict_fn <- function(test_data, model, formula, hyperparameters, train_data) {
+  predict(object = model,
+          newdata = test_data,
+          allow.new.levels = TRUE)
+}
+
+
+# Try the predict function
+svm_predict_fn(test_data = test_set, model = m0)
+
+```
+
+## Cross-validating the functions
+
+Now, we can cross-validate our model function! 
+
+We will cross-validate a couple of formulas at once. These are passed as strings and converted to formula objects internally. We also supply the dataset with the fold columns and the names of the fold columns (`".folds_1"`, `".folds_2"`, etc.). 
+
+```{r}
+cv_1 <- cross_validate_fn(
+  data = data,
+  formulas = c("score ~ diagnosis + age + session",
+               "score ~ diagnosis + age",
+               "score ~ diagnosis"),
+  type = "gaussian",
+  model_fn = svm_model_fn,
+  predict_fn = svm_predict_fn,
+  fold_cols = paste0(".folds_", 1:5),
+  parallel = FALSE # set to TRUE to run in parallel
+)
+
+cv_1
+
+```
+
+The first formula has the lowest Root Mean Square Error (`RMSE`). Before learning how to inspect the output, let's enable hyperparameters, so we can try different kernels and costs.
+
+# Passing hyperparameters
+
+Hyperparameters are settings for the model function that we can tweak to get better performance. The SVM model has multiple of these settings that we can play with, like the `kernel` and `cost` settings.
+
+The hyperparameters passed to the model function can be indexed with `[["name"]]`. This means we can get the kernel for the current model instance with `hyperparameters[["kernel"]]`. In case the user forgets to pass a kernel in the hyperparameters, we need to check if it's available though. Here's an example:
+
+```{r}
+svm_model_fn <- function(train_data, formula, hyperparameters) {
+  
+  # Required hyperparameters:
+  #  - kernel
+  #  - cost
+  if (!"kernel" %in% names(hyperparameters))
+    stop("'hyperparameters' must include 'kernel'")
+  if (!"cost" %in% names(hyperparameters))
+    stop("'hyperparameters' must include 'cost'")
+  
+  e1071::svm(
+    formula = formula,
+    data = train_data,
+    kernel = hyperparameters[["kernel"]],
+    cost = hyperparameters[["cost"]],
+    scale = FALSE,
+    type = "eps-regression"
+  )
+}
+
+# Try the model function
+svm_model_fn(
+  train_data = train_set,
+  formula = score ~ diagnosis + age + session,
+  hyperparameters = list(
+    "kernel" = "linear",
+    "cost" = 5
+  )
+)
+```
+
+## update_hyperparameters()
+
+When we have a lot of hyperparameters, we quickly get a lot of `if` statements for performing those checks. We may also wish to provide default values when a hyperparameter is not passed by the user. For this purpose, the `update_hyperparameters()` function is available. It checks that required hyperparameters are present and set default values for those that are *not required* and were not passed by the user.
+
+There are three parts to the inputs to `update_hyperparameters()`:
+
+1) The **default** hyperparameter values (*passed first*). E.g. if we wish to set the default for the `kernel` parameter to `"radial"`, we simply pass `kernel = "radial"`. When the user doesn't pass a `kernel` setting, this default value is used.
+
+2) The list of hyperparameters. Remember to name the argument when passing it, i.e.: `hyperparameters = hyperparameters`.
+
+3) The names of the **required** hyperparameters. If any of these are not in the hyperparameters, an error is thrown. Remember to name the argument when passing it, e.g.: `.required = c("cost", "scale")`.
+
+It returns the updated list of hyperparameters.
+
+Let's specify the model function such that `cost` **must** be passed, while `kernel` is **optional** and has the default value `"radial"`:
+
+```{r}
+svm_model_fn <- function(train_data, formula, hyperparameters) {
+  
+  # Required hyperparameters:
+  #  - cost
+  # Optional hyperparameters:
+  #  - kernel
+  
+  # 1) If 'cost' is not present in hyperparameters, throw error
+  # 2) If 'kernel' is not present in hyperparameters, set to "radial"
+  hyperparameters <- update_hyperparameters(
+    kernel = "radial",
+    hyperparameters = hyperparameters,
+    required = "cost"
+  )
+
+  e1071::svm(
+    formula = formula,
+    data = train_data,
+    kernel = hyperparameters[["kernel"]],
+    cost = hyperparameters[["cost"]],
+    type = "eps-regression"
+  )
+}
+```
+
+## Specifying hyperparameters for grid search
+
+In order to find the best combination of hyperparameters for our model, we can simply try all of them. This is called *grid search*.
+
+We specify the different values we wish to try per hyperparameter in a list of named vectors, like so:
+
+```{r}
+hparams <- list(
+  "kernel" = c("linear", "radial"),
+  "cost" = c(1, 5, 10)
+)
+```
+
+`cross_validate_fn()` will then cross-validate every combination of the values.
+
+If we want to randomly sample 4 of the combinations (e.g. to save time), we can pass `.n = 4` in the beginning of the list:
+
+```{r}
+hparams <- list(
+  ".n" = 4,
+  "kernel" = c("linear", "radial"),
+  "cost" = c(1, 5, 10)
+)
+```
+
+Alternatively, we can supply a data frame with the exact combinations we want. Each column should be a hyperparameter and each row a combination of the values to cross-validate. E.g.:
+
+```{r}
+df_hparams <- data.frame(
+  "kernel" = c("linear", "radial", "radial"),
+  "cost" = c(10, 1, 10)
+)
+
+df_hparams
+```
+
+We will use the `hparams` list.
+
+## Cross-validating hyperparameter combinations
+
+Now, we can cross-validate our hyperparameters:
+
+```{r}
+# Set seed for the sampling of the hyperparameter combinations
+set.seed(1)
+
+cv_2 <- cross_validate_fn(
+  data = data,
+  formulas = c("score ~ diagnosis + age + session",
+               "score ~ diagnosis"),
+  type = "gaussian",
+  model_fn = svm_model_fn,
+  predict_fn = svm_predict_fn,
+  hyperparameters = hparams,   # Pass the list of values to test
+  fold_cols = paste0(".folds_", 1:5)
+)
+
+cv_2
+```
+
+The output has a lot of information and can be a bit hard to read. The first thing, we wish to know, is which model performed the best. We will use the `RMSE` metric to determine this. Lower is better. 
+
+We order the data frame by the `RMSE` and use the `select_definitions()` function to extract the formulas and hyperparameters. To recognize the model after the sorting, we create a `Model ID` column and include it along with the `RMSE` column:
+
+```{r}
+cv_2 %>% 
+  # Create Model ID with values 1:8
+  dplyr::mutate(`Model ID` = 1:nrow(cv_2)) %>% 
+  # Order by RMSE
+  dplyr::arrange(RMSE) %>% 
+  # Extract formulas and hyperparameters
+  select_definitions(additional_includes = c("RMSE", "Model ID")) %>% 
+  # Pretty table
+  kable()
+```
+
+The best model uses `kernel = "linear"` and `cost = 1`. Our `Model ID` column tells us this was the first row in the output. We can use this to access the predictions, fold results, warnings, and more:
+
+```{r}
+# Extract fold results for the best model
+cv_2$Results[[1]] %>% kable()
+
+# Extract 10 predictions from the best model
+cv_2$Predictions[[1]] %>% head(10) %>% kable()
+
+```
+
+In a moment, we will go through a set of classification examples. First, we will learn to preprocess the dataset inside `cross_validate_fn()`.
+
+# Preprocessing within the cross-validation
+
+If we wish to preprocess the data, e.g. standardizing the numeric columns, we can do so **within** `cross_validate_fn()`.
+The point is to extract the preprocessing parameters (`mean`, `sd`, `min`, `max`, etc.) from the training data and apply the transformations to both the training data and test data. 
+
+`cvms` has built-in examples of preprocessing functions (see `?preprocess_functions()`). They use the `recipes` package and are good starting points for writing your own preprocess function.
+
+A preprocess function should have these arguments: `train_data`, `test_data`, `formula`, and `hyperparameters`. Again, we can choose to only use some of them. 
+
+It should return a named list with the preprocessed training data (`"train"`) and test data (`"test"`). We can also include a data frame with the preprocessing parameters we used (`"parameters"`), so we can extract those later from the `cross_validate_fn()` output.
+
+The form should be like this:
+
+```{r eval=FALSE}
+# NOTE: Don't run this
+preprocess_fn <- function(train_data, test_data, formula, hyperparameters) {
+  
+  # Do preprocessing
+  # Create data frame with applied preprocessing parameters
+  
+  # Return list with these names
+  list("train" = train_data,
+       "test" = test_data,
+       "parameters" = preprocess_parameters)
+}
+
+```
+
+Our preprocess function will standardize the `age` column:
+
+```{r}
+preprocess_fn <- function(train_data, test_data, formula, hyperparameters) {
+  
+  # Standardize the age column 
+  
+  # Get the mean and standard deviation from the train_data
+  mean_age <- mean(train_data[["age"]])
+  sd_age <- sd(train_data[["age"]])
+  
+  # Standardize both train_data and test_data
+  train_data[["age"]] <- (train_data[["age"]] - mean_age) / sd_age
+  test_data[["age"]] <- (test_data[["age"]] - mean_age) / sd_age
+  
+  # Create data frame with applied preprocessing parameters
+  preprocess_parameters <- data.frame(
+    "Measure" = c("Mean", "SD"),
+    "age" = c(mean_age, sd_age)
+  )
+  
+  # Return list with these names
+  list("train" = train_data,
+       "test" = test_data,
+       "parameters" = preprocess_parameters)
+}
+
+# Try the preprocess function
+prepped <- preprocess_fn(train_data = train_set, test_data = test_set)
+
+# Inspect preprocessed training set
+# Note that the age column has changed
+prepped$train %>% head(5) %>% kable()
+
+# Inspect preprocessing parameters
+prepped$parameters %>% kable()
+
+```
+
+Now, we add the preprocess function to our `cross_validate_fn()` call. We will only use the winning hyperparameters from the previous cross-validation, to save time:
+
+```{r}
+cv_3 <- cross_validate_fn(
+  data = data,
+  formulas = c("score ~ diagnosis + age + session",
+               "score ~ diagnosis"),
+  type = "gaussian",
+  model_fn = svm_model_fn,
+  predict_fn = svm_predict_fn,
+  preprocess_fn = preprocess_fn,
+  hyperparameters = list(
+    "kernel" = "linear",
+    "cost" = 1
+  ),
+  fold_cols = paste0(".folds_", 1:5)
+)
+
+cv_3
+
+```
+
+This didn't change the results but may do so in other contexts and for other model types.
+
+We can check the preprocessing parameters for the different folds:
+
+```{r}
+# Extract first 10 rows of the preprocess parameters
+# for the first and best model
+cv_3$Preprocess[[1]] %>% head(10) %>% kable()
+```
+
+As mentioned, `cvms` has a couple of preprocess functions available. Here's the code for the standardizer. If you haven't used the `recipes` package before, it might not be that easy to read, but it basically does the same as ours, just to every numeric predictor. If we were to use it, we would need to make sure that the `participant`, `diagnosis`, and (perhaps) `session` columns were factors, as they would otherwise be standardized as well. 
+
+```{r}
+# Get built-in preprocess function
+preprocess_functions("standardize")
+
+```
+
+Given that the preprocess function also receives the hyperparameters, we *could* write a preprocess function that gets the names of the columns to preprocess via the hyperparameters.
+
+Next, we will go through an example of cross-validating a custom binary classifier.
+
+# Binomial example
+
+For the binomial example, we will be predicting the `diagnosis` column with an SVM. For this, we need to tweak our functions a bit. First, we set `type = "C-classification"` and `probability = TRUE` in the `svm()` call. The first setting makes it perform classification instead of regression. The second allows us to extract the probabilities in our predict function. 
+
+This model function also works for multiclass classification, why we will reuse it for that in a moment.
+
+```{r}
+# SVM model function for classification 
+clf_svm_model_fn <- function(train_data, formula, hyperparameters) {
+
+  # Optional hyperparameters:
+  #  - kernel
+  #  - cost
+
+  # Update missing hyperparameters with default values
+  hyperparameters <- update_hyperparameters(
+    kernel = "radial",
+    cost = 1,
+    hyperparameters = hyperparameters
+  )
+
+  e1071::svm(
+    formula = formula,
+    data = train_data,
+    kernel = hyperparameters[["kernel"]],
+    cost = hyperparameters[["cost"]],
+    type = "C-classification",
+    probability = TRUE  # Must enable probability here
+  )
+}
+
+# Try the model function
+m1 <- clf_svm_model_fn(train_data = data, formula = diagnosis ~ score, 
+                       hyperparameters = list("kernel" = "linear"))
+m1
+
+```
+
+The predict function should return **the probability of the second class** (alphabetically). For the SVM, this is a bit tricky, but we will break it down in steps:
+
+1) We set `probability = TRUE` in the `predict()` call. This stores the probabilities as an *attribute* of the predictions. Note that this won't work if we forget to enable the probabilities in the model function!
+
+2) We **extract the probabilities** with `attr(predictions, "probabilities")`. 
+
+3) We **convert the probabilities to a tibble** (a kind of data frame) with `dplyr::as_tibble()`. 
+
+4) At this point, we have a tibble with two columns with the probabilities for each of the two classes. As we need the probability of the second class, we **select and return the second column** (probability of `diagnosis` being `1`).
+
+In most cases, the predict function will be simpler to write than this. The main take-away is that we predict the test set and extract the probabilities of the second class.
+
+```{r}
+# Predict function for binomial SVM
+bnml_svm_predict_fn <- function(test_data, model, formula, hyperparameters, train_data) {
+  # Predict test set
+  predictions <- predict(
+    object = model,
+    newdata = test_data,
+    allow.new.levels = TRUE,
+    probability = TRUE
+  )
+  
+  # Extract probabilities
+  probabilities <- dplyr::as_tibble(attr(predictions, "probabilities"))
+  
+  # Return second column
+  probabilities[[2]]
+}
+
+p1 <- bnml_svm_predict_fn(test_data = data, model = m1)
+p1    # Vector with probabilities that diagnosis is 1
+```
+
+Now, we can cross-validate the model function:
+
+```{r warning=FALSE}
+cv_4 <- cross_validate_fn(
+  data = data,
+  formulas = c("diagnosis ~ score",
+               "diagnosis ~ age"),
+  type = "binomial",
+  model_fn = clf_svm_model_fn,
+  predict_fn = bnml_svm_predict_fn,
+  hyperparameters = list(
+    "kernel" = c("linear", "radial"),
+    "cost" = c(1, 5, 10)
+  ),
+  fold_cols = paste0(".folds_", 1:5)
+)
+
+cv_4
+
+```
+
+Let's order the models by the `Balanced Accuracy` metric (in descending order) and extract the formulas and hyperparameters:
+
+```{r}
+cv_4 %>% 
+  dplyr::mutate(`Model ID` = 1:nrow(cv_4)) %>% 
+  dplyr::arrange(dplyr::desc(`Balanced Accuracy`)) %>% 
+  select_definitions(additional_includes = c("Balanced Accuracy", "F1", "MCC", "Model ID")) %>% 
+  kable()
+
+```
+
+Next, we will go through a short multiclass classification example.
+
+# Multinomial example
+
+For our multiclass classification example, we will use the `musicians` dataset from `cvms`. It has 60 musicians, grouped in four classes (`A`, `B`, `C`, `D`). The origins of the dataset is classified, so don't ask too many questions about it!
+
+Let's create **5 fold columns** with **5 folds** each. We set `cat_col = "Class"` to ensure a similar ratio of the classes in all the folds and `num_col = "Age"` to get a similar *average age* in the folds. The latter is not required but could be useful if we had an important hypothesis regarding age.
+
+We will not need the `id_col` as there is only one row per musician `ID`. 
+
+```{r}
+# Set seed for reproducibility
+set.seed(1)
+
+# Prepare dataset
+data_mc <- musicians
+data_mc[["ID"]] <- as.factor(data_mc[["ID"]])
+
+# Create 5 fold columns with 5 folds each
+data_mc <- fold(
+  data = data_mc,
+  k = 5,
+  cat_col = "Class",
+  num_col = "Age",
+  num_fold_cols = 5
+)
+
+data_mc %>% head(10) %>% kable()
+
+# You can use skimr to get a better overview of the dataset
+# Uncomment:
+# library(skimr) 
+# skimr::skim(data_mc)
+```
+
+As the model function from the binomial example also works with more than 2 classes, we only need to change the predict function. In `multinomial` classification, it should return a data frame with **one column per class** with the probabilities of that class. Hence, we copy the predict function from before and remove the `[[2]]` from the last line:
+
+```{r}
+# Predict function for multinomial SVM
+mc_svm_predict_fn <- function(test_data, model, formula, hyperparameters, train_data) {
+  predictions <- predict(
+    object = model,
+    newdata = test_data,
+    allow.new.levels = TRUE,
+    probability = TRUE
+  )
+  
+  # Extract probabilities
+  probabilities <- dplyr::as_tibble(attr(predictions, "probabilities"))
+  
+  # Return all columns
+  probabilities
+}
+
+```
+
+With this, we can cross-validate a few formulas for predicting the `Class`. Remember, that it's possible to run this in parallel!
+
+```{r}
+cv_5 <- cross_validate_fn(
+  data = data_mc,
+  formulas = c("Class ~ Age + Height",
+               "Class ~ Age + Height + Bass + Guitar + Keys + Vocals"),
+  type = "multinomial",
+  model_fn = clf_svm_model_fn,
+  predict_fn = mc_svm_predict_fn,
+  hyperparameters = list(
+    "kernel" = c("linear", "radial"),
+    "cost" = c(1, 5, 10)
+  ),
+  fold_cols = paste0(".folds_", 1:5)
+)
+
+cv_5
+
+```
+
+Let's order the results by the `Balanced Accuracy` metric and extract the formulas and hyperparameters:
+
+```{r}
+cv_5 %>% 
+  dplyr::mutate(`Model ID` = 1:nrow(cv_5)) %>% 
+  dplyr::arrange(dplyr::desc(`Balanced Accuracy`)) %>% 
+  select_definitions(additional_includes = c(
+    "Balanced Accuracy", "F1", "Model ID")) %>% 
+  kable()
+
+```
+
+In `multinomial` evaluation, we perform **one-vs-all** evaluations and average them (macro metrics). These evaluations are stored in the output as `Class Level Results`:
+
+```{r}
+# Extract Class Level Results for the best model
+cv_5$`Class Level Results`[[11]]
+
+```
+
+We also have the fold results:
+
+```{r}
+# Extract fold results for the best model
+cv_5$Results[[11]]
+
+```
+
+And a set of multiclass confusion matrices (one per fold column):
+
+```{r}
+# Extract multiclass confusion matrices for the best model
+# One per fold column
+cv_5$`Confusion Matrix`[[11]]
+
+```
+
+We can add these together (or average them) and plot the result:
+
+```{r fig.width=5.5, fig.height=5.5, fig.align='center'}
+# Sum the fold column confusion matrices
+# to one overall confusion matrix
+overall_confusion_matrix <- cv_5$`Confusion Matrix`[[11]] %>% 
+  dplyr::group_by(Prediction, Target) %>% 
+  dplyr::summarise(N = sum(N))
+
+overall_confusion_matrix %>% kable()
+
+# Plot the overall confusion matrix
+plot_confusion_matrix(overall_confusion_matrix, add_sums = TRUE)
+
+```
+
+This concludes the vignette. If elements are unclear or you need help to convert your model, you can leave feedback in a mail or in a GitHub issue :-)

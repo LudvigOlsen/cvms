@@ -3,6 +3,9 @@
 #   __________________ #< e5efa5aa075de36169902b4bf6e14ce8 ># __________________
 #   Plot a confusion matrix                                                 ####
 
+# TODO: Make dynamic font color option in sum tiles!
+# TODO: Implement the whiten_arrows option!
+
 
 #' @title Plot a confusion matrix
 #' @description
@@ -130,6 +133,16 @@
 #'  of prediction sets.
 #' @param intensity_beyond_lims What to do with values beyond the
 #'  \code{`intensity_lims`}. One of \code{"truncate", "grey"}.
+#' @param dynamic_font_colors A list of settings for using dynamic font colors
+#'  based on the value of the counts/normalized. Allows changing the font colors
+#'  when the background tiles are too dark, etc.
+#'  Can be provided with \code{\link[cvms:dynamic_font_color_settings]{dynamic_font_color_settings()}}.
+#'
+#'  Individual thresholds can be set for the different fonts/values via the
+#'  \code{`font_*`} arguments. Specifying colors in these arguments will overwrite
+#'  this argument (for the specific font only).
+#'
+#'  Specifying colors for specific fonts overrides the "all" values for those fonts.
 #' @param arrow_size Size of arrow icons. (Numeric)
 #'
 #'  Is divided by \code{sqrt(nrow(conf_matrix))} and passed on
@@ -345,6 +358,7 @@ plot_confusion_matrix <- function(conf_matrix,
                                   font_normalized = font(),
                                   font_row_percentages = font(),
                                   font_col_percentages = font(),
+                                  dynamic_font_colors = dynamic_font_color_settings(),
                                   arrow_size = 0.048,
                                   arrow_nudge_from_text = 0.065,
                                   tile_border_color = NA,
@@ -444,6 +458,7 @@ plot_confusion_matrix <- function(conf_matrix,
   checkmate::assert_list(x = font_row_percentages, names = "named", add = assert_collection)
   checkmate::assert_list(x = font_col_percentages, names = "named", add = assert_collection)
   checkmate::assert_list(x = sums_settings, names = "named", add = assert_collection)
+  checkmate::assert_list(x = dynamic_font_colors, names = "named", null.ok = TRUE, add = assert_collection)
   checkmate::reportAssertions(assert_collection)
 
   # Names
@@ -471,6 +486,11 @@ plot_confusion_matrix <- function(conf_matrix,
   checkmate::assert_names(
     x = names(font_col_percentages),
     subset.of = available_font_settings,
+    add = assert_collection
+  )
+  checkmate::assert_names(
+    x = names(dynamic_font_colors),
+    subset.of = names(dynamic_font_color_settings()),
     add = assert_collection
   )
   checkmate::assert_names(
@@ -562,8 +582,10 @@ plot_confusion_matrix <- function(conf_matrix,
   font_top_size <- 4.3
   font_bottom_size <- 2.8
   big_counts <- isTRUE(counts_on_top) || !isTRUE(add_normalized)
+  colors_specified <- list()
 
   # Font for counts
+  colors_specified[["counts"]] <- !is.null(font_counts[["color"]])
   font_counts <- update_font_setting(font_counts, defaults = list(
     "size" = ifelse(isTRUE(big_counts), font_top_size, font_bottom_size), "digits" = -1
   ), initial_vals = list(
@@ -577,6 +599,7 @@ plot_confusion_matrix <- function(conf_matrix,
   ))
 
   # Font for normalized counts
+  colors_specified[["normalized"]] <- !is.null(font_normalized[["color"]])
   font_normalized <- update_font_setting(font_normalized,
     defaults = list(
       "size" = ifelse(!isTRUE(big_counts), font_top_size, font_bottom_size),
@@ -594,6 +617,7 @@ plot_confusion_matrix <- function(conf_matrix,
   )
 
   # Font for row percentages
+  colors_specified[["row_percentages"]] <- !is.null(font_row_percentages[["color"]])
   font_row_percentages <- update_font_setting(font_row_percentages, defaults = list(
     "size" = 2.35, "prefix" = "",
     "suffix" = "%", "fontface" = "italic",
@@ -608,6 +632,7 @@ plot_confusion_matrix <- function(conf_matrix,
   ))
 
   # Font for column percentages
+  colors_specified[["col_percentages"]] <- !is.null(font_col_percentages[["color"]])
   font_col_percentages <- update_font_setting(font_col_percentages, defaults = list(
     "size" = 2.35, "prefix" = "",
     "suffix" = "%", "fontface" = "italic",
@@ -1022,106 +1047,122 @@ plot_confusion_matrix <- function(conf_matrix,
 
   #### Add numbers to plot ####
 
-  if (isTRUE(add_counts)) {
-    # Preset the arguments for the geom_text function to avoid repetition
-    text_geom <- purrr::partial(
-      ggplot2::geom_text,
-      size = font_counts[["size"]],
-      alpha = font_counts[["alpha"]],
-      nudge_x = font_counts[["nudge_x"]],
-      nudge_y = font_counts[["nudge_y"]],
-      angle = font_counts[["angle"]],
-      family = font_counts[["family"]],
-      fontface = font_counts[["fontface"]],
-      hjust = font_counts[["hjust"]],
-      vjust = font_counts[["vjust"]],
-      lineheight = font_counts[["lineheight"]]
+  all_dynamic_font_color_settings <- NULL
+  if (!is.null(dynamic_font_colors[["threshold"]])){
+    all_dynamic_font_color_settings <- c(
+      dynamic_font_colors,
+      value_col = ifelse(dynamic_font_colors[["by"]] == "counts", "N", "Normalized")
     )
+    all_dynamic_font_color_settings[["already_specified_for"]] <- colors_specified
+  }
+  print(all_dynamic_font_color_settings)
 
-    # Add count labels to middle of the regular tiles
-    pl <- pl +
-      text_geom(
-        data = cm[!cm[["is_sum"]], ],
-        ggplot2::aes(label = .data$N_text),
-        color = font_counts[["color"]]
-      )
+
+  if (isTRUE(add_counts)) {
+
+    pl <- add_geom_text(
+      pl=pl,
+      data=cm[!cm[["is_sum"]], ],
+      values_col="N",
+      values_label_col="N_text",
+      font_settings=font_counts,
+      all_dynamic_font_color_settings=all_dynamic_font_color_settings,
+      dynamic_font_name="counts"
+    )
 
     # Add count labels to middle of the sum tiles
     if (isTRUE(add_sums)){
-      tmp_color <- ifelse(is.null(sums_settings[["font_color"]]),
-                          font_counts[["color"]],
-                          sums_settings[["font_color"]])
-      tmp_tc_color <- ifelse(is.null(sums_settings[["tc_font_color"]]),
-                             font_counts[["color"]],
-                             sums_settings[["tc_font_color"]])
+
+      font_sums <- font_counts
+      font_sums[["color"]] <- ifelse(
+        is.null(sums_settings[["font_color"]]),
+        font_counts[["color"]],
+        sums_settings[["font_color"]]
+      )
 
       # Add count labels to middle of sum tiles
-      pl <- pl +
-        text_geom(
-          data = cm[cm[["is_sum"]] & as.character(cm[["Target"]]) != as.character(cm[["Prediction"]]), ],
-          ggplot2::aes(label = .data$N_text),
-          color = tmp_color
-        )
+      pl <- add_geom_text(
+        pl=pl,
+        data=cm[cm[["is_sum"]] & as.character(cm[["Target"]]) != as.character(cm[["Prediction"]]), ],
+        values_col="N",
+        values_label_col="N_text",
+        font_settings=font_sums
+      )
+
+      font_sum_tc <- font_counts
+      font_sum_tc[["color"]] <- ifelse(
+        is.null(sums_settings[["tc_font_color"]]),
+        font_counts[["color"]],
+        sums_settings[["tc_font_color"]]
+      )
 
       # Add count label to middle of total count tile
-      pl <- pl +
-        text_geom(
-          data = cm[cm[["is_sum"]] & as.character(cm[["Target"]]) == as.character(cm[["Prediction"]]), ],
-          ggplot2::aes(label = .data$N_text),
-          color = tmp_tc_color
-        )
+      # Add count labels to middle of sum tiles
+      pl <- add_geom_text(
+        pl=pl,
+        data = cm[cm[["is_sum"]] & as.character(cm[["Target"]]) == as.character(cm[["Prediction"]]), ],
+        values_col="N",
+        values_label_col="N_text",
+        font_settings=font_sum_tc
+      )
+
     }
+
   }
 
   if (isTRUE(add_normalized)) {
-    # Preset the arguments for the geom_text function to avoid repetition
-    text_geom <- purrr::partial(
-      ggplot2::geom_text,
-      size = font_normalized[["size"]],
-      alpha = font_normalized[["alpha"]],
-      nudge_x = font_normalized[["nudge_x"]],
-      nudge_y = font_normalized[["nudge_y"]],
-      angle = font_normalized[["angle"]],
-      family = font_normalized[["family"]],
-      fontface = font_normalized[["fontface"]],
-      hjust = font_normalized[["hjust"]],
-      vjust = font_normalized[["vjust"]],
-      lineheight = font_normalized[["lineheight"]]
-    )
 
     # Add percentage labels to middle of the regular tiles
-    pl <- pl +
-      text_geom(
-        data = cm[!cm[["is_sum"]], ],
-        ggplot2::aes(label = .data$Normalized_text),
-        color = font_normalized[["color"]]
-      )
+    # Add count label to middle of total count tile
+    # Add count labels to middle of sum tiles
+    pl <- add_geom_text(
+      pl=pl,
+      data = cm[!cm[["is_sum"]], ],
+      values_col="Normalized",
+      values_label_col="Normalized_text",
+      font_settings=font_normalized,
+      all_dynamic_font_color_settings=all_dynamic_font_color_settings,
+      dynamic_font_name="normalized"
+    )
 
     if (isTRUE(add_sums)){
+
       # Get font color for sum tiles
       # If not set, we use the same as for the other tiles
-      tmp_color <- ifelse(is.null(sums_settings[["font_color"]]),
-                          font_normalized[["color"]],
-                          sums_settings[["font_color"]])
-      tmp_tc_color <- ifelse(is.null(sums_settings[["tc_font_color"]]),
-                             font_normalized[["color"]],
-                             sums_settings[["tc_font_color"]])
+      font_normalized_sums <- font_normalized
+      font_normalized_sums[["color"]] <- ifelse(
+        is.null(sums_settings[["font_color"]]),
+        font_normalized[["color"]],
+        sums_settings[["font_color"]]
+      )
 
       # Add percentage labels to middle of sum tiles
-      pl <- pl +
-        text_geom(
-          data = cm[cm[["is_sum"]] & as.character(cm[["Target"]]) != as.character(cm[["Prediction"]]), ],
-          ggplot2::aes(label = .data$Normalized_text),
-          color = tmp_color
-        )
+      pl <- add_geom_text(
+        pl=pl,
+        data = cm[cm[["is_sum"]] & as.character(cm[["Target"]]) != as.character(cm[["Prediction"]]), ],
+        values_col="Normalized",
+        values_label_col="Normalized_text",
+        font_settings=font_normalized_sums
+      )
+
+      # Get font color for sum tiles
+      # If not set, we use the same as for the other tiles
+      font_normalized_tc <- font_normalized
+      font_normalized_tc[["color"]] <- ifelse(
+        is.null(sums_settings[["tc_font_color"]]),
+        font_normalized[["color"]],
+        sums_settings[["tc_font_color"]]
+      )
 
       # Add percentage label to middle of total count tile
-      pl <- pl +
-        text_geom(
-          data = cm[cm[["is_sum"]] & as.character(cm[["Target"]]) == as.character(cm[["Prediction"]]), ],
-          ggplot2::aes(label = .data$Normalized_text),
-          color = tmp_tc_color
-        )
+      pl <- add_geom_text(
+        pl=pl,
+        data = cm[cm[["is_sum"]] & as.character(cm[["Target"]]) == as.character(cm[["Prediction"]]), ],
+        values_col="Normalized",
+        values_label_col="Normalized_text",
+        font_settings=font_normalized_tc
+      )
+
     }
   }
 
@@ -1136,37 +1177,33 @@ plot_confusion_matrix <- function(conf_matrix,
 
   # Add row percentages
   if (isTRUE(add_row_percentages)) {
-    pl <- pl + ggplot2::geom_text(ggplot2::aes(label = .data$Prediction_Percentage_text),
-      size = font_row_percentages[["size"]],
-      color = font_row_percentages[["color"]],
-      alpha = font_row_percentages[["alpha"]],
-      nudge_x = font_row_percentages[["nudge_x"]],
-      nudge_y = font_row_percentages[["nudge_y"]],
-      angle = font_row_percentages[["angle"]],
-      family = font_row_percentages[["family"]],
-      fontface = font_row_percentages[["fontface"]],
-      hjust = font_row_percentages[["hjust"]],
-      vjust = font_row_percentages[["vjust"]],
-      lineheight = font_row_percentages[["lineheight"]]
+
+    # Add row percentage labels to tiles
+    pl <- add_geom_text(
+      pl=pl,
+      data=cm,
+      values_col="Prediction_Percentage",
+      values_label_col="Prediction_Percentage_text",
+      font_settings=font_row_percentages,
+      all_dynamic_font_color_settings=all_dynamic_font_color_settings,
+      dynamic_font_name="row_percentages"
     )
+
   }
 
   # Add column percentages
   if (isTRUE(add_col_percentages)) {
-    pl <- pl +
-      ggplot2::geom_text(ggplot2::aes(label = .data$Class_Percentage_text),
-        size = font_col_percentages[["size"]],
-        color = font_col_percentages[["color"]],
-        alpha = font_col_percentages[["alpha"]],
-        nudge_x = font_col_percentages[["nudge_x"]],
-        nudge_y = font_col_percentages[["nudge_y"]],
-        angle = font_col_percentages[["angle"]],
-        family = font_col_percentages[["family"]],
-        fontface = font_col_percentages[["fontface"]],
-        hjust = font_col_percentages[["hjust"]],
-        vjust = font_col_percentages[["vjust"]],
-        lineheight = font_col_percentages[["lineheight"]]
-      )
+
+    # Add column percentage labels to tiles
+    pl <- add_geom_text(
+      pl=pl,
+      data=cm,
+      values_col="Class_Percentage",
+      values_label_col="Class_Percentage_text",
+      font_settings=font_col_percentages,
+      all_dynamic_font_color_settings=all_dynamic_font_color_settings,
+      dynamic_font_name="col_percentages"
+    )
   }
 
   #### Add arrow icons ####

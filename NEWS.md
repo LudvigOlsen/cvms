@@ -1,6 +1,17 @@
 
 # cvms 1.7.0.9000
 
+## `plot_confusion_matrix()`:
+
+### Dynamic font settings: 
+
+* Adds `dynamic_font_colors` argument and the associated `dynamic_font_color_settings()` helper function for specifying colors below and above a given value threshold. This, for instance, allows changing the color of higher numbers when the tile background color is very dark. Also allows specifying white arrow icons below/above the threshold.
+
+* Most arguments in `font()` now also accepts a function that decides the setting based on the values (counts, normalized, etc.).
+This, for instance, allows changing the color or size of higher numbers.
+
+* The `font_color` and `tc_font_color` settings in `sum_tile_settings()` (or directly in `plot_confusion_matrix(sum_settings=list(...))`) now also accepts a function that decides the setting based on the values (counts, normalized, etc.).
+
 # cvms 1.7.0
 
 ## `plot_confusion_matrix()`:

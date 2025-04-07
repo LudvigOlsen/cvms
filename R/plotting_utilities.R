@@ -11,12 +11,21 @@
 #'
 #'  Creates a list of font settings for plotting with cvms plotting functions.
 #'
-#'  NOTE: This is very experimental and will likely change.
+#'  Some arguments can take either the value to use directly
+#'  OR a function that takes one argument (vector with the
+#'  values to set a font for; e.g., the counts, percentages, etc.)
+#'  and returns the value(s) to use for each element. Such a
+#'  function could for instance specify different font
+#'  colors for different background intensities.
+#'
+#'  NOTE: This is experimental and could change.
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
 #' @family plotting functions
-#' @param size,color,alpha,nudge_x,nudge_y,angle,family,fontface,hjust,vjust,lineheight As passed to
-#'  \code{\link[ggplot2:geom_text]{ggplot2::geom_text}}.
+#' @param size,color,alpha,nudge_x,nudge_y,angle,family,fontface,hjust,vjust,lineheight Either values directly passed to
+#'  \code{\link[ggplot2:geom_text]{ggplot2::geom_text}} or functions that take in the values (e.g., counts, percentages, etc.)
+#'  and returns a vector of values to pass to \code{\link[ggplot2:geom_text]{ggplot2::geom_text}} via
+#'  \code{aes()}.
 #' @param digits Number of digits to round to. If negative, no rounding will take place.
 #' @param prefix A string prefix.
 #' @param suffix A string suffix.
@@ -109,6 +118,112 @@ preprocess_numeric <- function(vec, settings, rm_zero_text=FALSE, rm_zeroes_post
   out
 }
 
+#' @title Create a list of dynamic font color settings for plots
+#' @description
+#'  \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
+#'
+#'  Creates a list of dynamic font color settings for plotting with cvms plotting functions.
+#'
+#'  NOTE: This is experimental and will likely change.
+#' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
+#' @export
+#' @family plotting functions
+#' @param threshold The threshold at which the color changes.
+#' @param by The value to check against \code{`threshold`}.
+#'  One of \{\code{`counts`}, \code{`normalized`}\}.
+#' @param all Set same color settings for all fonts at once.
+#'  Takes a character vector with two hex code strings (low, high).
+#'  Example: `c('#fff', '#000')`.
+#' @param counts,normalized,row_percentages,col_percentages Set color settings for the individual font.
+#'  Takes a character vector with two hex code strings (low, high).
+#'  Example: `c('#fff', '#000')`.
+#'
+#'  Specifying colors for specific fonts overrides the settings specified in
+#'  \code{`all`} (for those fonts only).
+#' @return List of settings.
+dynamic_font_color_settings <- function(threshold = NULL,
+                                        by = "counts",
+                                        all = NULL,
+                                        counts = NULL,
+                                        normalized = NULL,
+                                        row_percentages = NULL,
+                                        col_percentages = NULL,
+                                        whiten_arrows = NULL) {
+
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_number(x = threshold, null.ok = TRUE, add = assert_collection)
+  checkmate::assert_choice(
+    x = by,
+    choices = c("counts", "normalized"),
+    add = assert_collection
+  )
+  checkmate::assert_character(
+    x = all,
+    min.chars = 1,
+    len = 2,
+    any.missing = FALSE,
+    unique = TRUE,
+    null.ok = TRUE,
+    add = assert_collection
+  )
+  checkmate::assert_character(
+    x = counts,
+    min.chars = 1,
+    len = 2,
+    any.missing = FALSE,
+    unique = TRUE,
+    null.ok = TRUE,
+    add = assert_collection
+  )
+  checkmate::assert_character(
+    x = normalized,
+    min.chars = 1,
+    len = 2,
+    any.missing = FALSE,
+    unique = TRUE,
+    null.ok = TRUE,
+    add = assert_collection
+  )
+  checkmate::assert_character(
+    x = row_percentages,
+    min.chars = 1,
+    len = 2,
+    any.missing = FALSE,
+    unique = TRUE,
+    null.ok = TRUE,
+    add = assert_collection
+  )
+  checkmate::assert_character(
+    x = col_percentages,
+    min.chars = 1,
+    len = 2,
+    any.missing = FALSE,
+    unique = TRUE,
+    null.ok = TRUE,
+    add = assert_collection
+  )
+  checkmate::assert_choice(
+    x = whiten_arrows,
+    choices = c("below", "at_or_above"),
+    null.ok = TRUE,
+    add = assert_collection
+  )
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
+
+  list(
+    "threshold" = threshold,
+    "by" = by,
+    "all" = all,
+    "counts" = counts,
+    "normalized" = normalized,
+    "row_percentages" = row_percentages,
+    "col_percentages" = col_percentages,
+    "whiten_arrows" = whiten_arrows
+  )
+
+}
 
 ##  .................. #< 9aec0fe5634b9f4a907cfad120a085af ># ..................
 ##  Sum tile settings                                                       ####
@@ -372,3 +487,112 @@ update_settings_object <- function(settings, defaults, backup_defaults, initial_
 
   new_settings
 }
+
+
+# If setting is a function, call it on the values and the return the outputs
+# If setting is a values, return the value
+interpret_font_setting <- function(font_settings, arg_name, values) {
+
+  if (!(arg_name %in% names(font_settings))) {
+    stop(paste0("`", arg_name, "` not in the font settings."))
+  }
+
+  setting <- font_settings[[arg_name]]
+
+  # If a function, we call it on the values
+  # Otherwise it's assumed to be valid a value
+  if (is.function(setting)) {
+    setting <- setting(values)
+  }
+
+  setting
+}
+
+interpret_all_font_settings <- function(font_settings, values) {
+  purrr::map(names(font_settings), .f =  ~ {
+    interpret_font_setting(
+      font_settings = font_settings,
+      arg_name = .x,
+      values = values
+    )
+  }) %>% setNames(names(font_settings))
+}
+
+# TODO: Document and export!
+create_dynamic_font_setting <- function(low_color, high_color, threshold){
+  function(values){
+    ifelse(values >= threshold, high_color, low_color)
+  }
+}
+
+
+add_geom_text <- function(
+    pl,
+    data,
+    values_col,
+    values_label_col,
+    font_settings,
+    allowed_static_setting_names=c(
+      "size",
+      "alpha",
+      "nudge_x",
+      "nudge_y",
+      "angle",
+      "family",
+      "fontface",
+      "hjust",
+      "vjust",
+      "lineheight",
+      "color"
+    ),
+    add_settings = list(),
+    all_dynamic_font_color_settings=NULL,
+    dynamic_font_name=NULL
+) {
+  # Interpret font settings for counts
+  font_settings <- font_settings[names(font_settings) %in% allowed_static_setting_names]
+  font_interps <- interpret_all_font_settings(font_settings, data[[values_col]])
+
+  # Get dynamic font color settings for this font
+  if (!is.null(dynamic_font_name) &&
+
+      # Ensure it's not specified via `font_*`
+      !all_dynamic_font_color_settings[["already_specified_for"]][[dynamic_font_name]] &&
+
+      # Colors must be specified for 'all' or the specific font
+      !(is.null(all_dynamic_font_color_settings[["all"]]) &&
+      is.null(all_dynamic_font_color_settings[[dynamic_font_name]]))){
+
+    # Get colors for either the specific font
+    if (!is.null(all_dynamic_font_color_settings[[dynamic_font_name]])){
+      font_interps[["color"]] <- create_dynamic_font_setting(
+        all_dynamic_font_color_settings[[dynamic_font_name]][[1]],
+        all_dynamic_font_color_settings[[dynamic_font_name]][[2]],
+        threshold = all_dynamic_font_color_settings[["threshold"]]
+      )(data[[all_dynamic_font_color_settings[["value_col"]]]])
+
+    # Or from 'all' specification
+    } else if (!(is.null(all_dynamic_font_color_settings[["all"]]))){
+      font_interps[["color"]] <- create_dynamic_font_setting(
+        all_dynamic_font_color_settings[["all"]][[1]],
+        all_dynamic_font_color_settings[["all"]][[2]],
+        threshold = all_dynamic_font_color_settings[["threshold"]]
+      )(data[[all_dynamic_font_color_settings[["value_col"]]]])
+    }
+
+  }
+
+  # Add count labels to middle of the regular tiles
+  pl <- pl +
+    purrr::exec(
+      ggplot2::geom_text,
+      data = data,
+      mapping = ggplot2::aes(label = !!as.name(values_label_col)),
+      !!!font_interps,
+      !!!add_settings
+    )
+
+  pl
+
+}
+

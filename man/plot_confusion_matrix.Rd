@@ -35,6 +35,7 @@ plot_confusion_matrix(
   font_normalized = font(),
   font_row_percentages = font(),
   font_col_percentages = font(),
+  dynamic_font_colors = dynamic_font_color_settings(),
   arrow_size = 0.048,
   arrow_nudge_from_text = 0.065,
   tile_border_color = NA,
@@ -196,6 +197,17 @@ Can be provided with \code{\link[cvms:font]{font()}}.}
 
 \item{font_col_percentages}{\code{list} of font settings for the column percentages.
 Can be provided with \code{\link[cvms:font]{font()}}.}
+
+\item{dynamic_font_colors}{A list of settings for using dynamic font colors
+ based on the value of the counts/normalized. Allows changing the font colors
+ when the background tiles are too dark, etc.
+ Can be provided with \code{\link[cvms:dynamic_font_color_settings]{dynamic_font_color_settings()}}.
+
+ Individual thresholds can be set for the different fonts/values via the
+ \code{`font_*`} arguments. Specifying colors in these arguments will overwrite
+ this argument (for the specific font only).
+
+ Specifying colors for specific fonts overrides the "all" values for those fonts.}
 
 \item{arrow_size}{Size of arrow icons. (Numeric)
 
@@ -395,6 +407,7 @@ plot_confusion_matrix(cm, sub_col="Trials")
 }
 \seealso{
 Other plotting functions: 
+\code{\link{dynamic_font_color_settings}()},
 \code{\link{font}()},
 \code{\link{plot_metric_density}()},
 \code{\link{plot_probabilities}()},

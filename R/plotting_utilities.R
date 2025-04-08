@@ -22,10 +22,9 @@
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
 #' @family plotting functions
-#' @param size,color,alpha,nudge_x,nudge_y,angle,family,fontface,hjust,vjust,lineheight Either values directly passed to
-#'  \code{\link[ggplot2:geom_text]{ggplot2::geom_text}} or functions that take in the values (e.g., counts, percentages, etc.)
-#'  and returns a vector of values to pass to \code{\link[ggplot2:geom_text]{ggplot2::geom_text}} via
-#'  \code{aes()}.
+#' @param size,color,alpha,nudge_x,nudge_y,angle,family,fontface,hjust,vjust,lineheight Either the value to pass directly to
+#'  \code{\link[ggplot2:geom_text]{ggplot2::geom_text}} or a function that takes in the values (e.g., counts, percentages, etc.)
+#'  and returns a vector of values to pass to \code{\link[ggplot2:geom_text]{ggplot2::geom_text}}.
 #' @param digits Number of digits to round to. If negative, no rounding will take place.
 #' @param prefix A string prefix.
 #' @param suffix A string suffix.
@@ -122,7 +121,9 @@ preprocess_numeric <- function(vec, settings, rm_zero_text=FALSE, rm_zeroes_post
 #' @description
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
 #'
-#'  Creates a list of dynamic font color settings for plotting with cvms plotting functions.
+#'  Creates a list of dynamic font color settings for plotting with \code{cvms} plotting functions.
+#'
+#'  Specify separate colors below and above a given value threshold.
 #'
 #'  NOTE: This is experimental and will likely change.
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
@@ -133,13 +134,15 @@ preprocess_numeric <- function(vec, settings, rm_zero_text=FALSE, rm_zeroes_post
 #'  One of \{\code{`counts`}, \code{`normalized`}\}.
 #' @param all Set same color settings for all fonts at once.
 #'  Takes a character vector with two hex code strings (low, high).
-#'  Example: `c('#fff', '#000')`.
+#'  Example: `c('#000', '#fff')`.
 #' @param counts,normalized,row_percentages,col_percentages Set color settings for the individual font.
 #'  Takes a character vector with two hex code strings (low, high).
-#'  Example: `c('#fff', '#000')`.
+#'  Example: `c('#000', '#fff')`.
 #'
 #'  Specifying colors for specific fonts overrides the settings specified in
 #'  \code{`all`} (for those fonts only).
+#' @param invert_arrows String specifying when to invert the color of the arrow icons based on the threshold.
+#'  One of \{\code{`below`}, \code{`at_and_above`}\} (or \code{NULL} for no dynamical arrow colors).
 #' @return List of settings.
 dynamic_font_color_settings <- function(threshold = NULL,
                                         by = "counts",
@@ -148,7 +151,7 @@ dynamic_font_color_settings <- function(threshold = NULL,
                                         normalized = NULL,
                                         row_percentages = NULL,
                                         col_percentages = NULL,
-                                        whiten_arrows = NULL) {
+                                        invert_arrows = NULL) {
 
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
@@ -204,8 +207,8 @@ dynamic_font_color_settings <- function(threshold = NULL,
     add = assert_collection
   )
   checkmate::assert_choice(
-    x = whiten_arrows,
-    choices = c("below", "at_or_above"),
+    x = invert_arrows,
+    choices = c("below", "at_and_above"),
     null.ok = TRUE,
     add = assert_collection
   )
@@ -220,9 +223,16 @@ dynamic_font_color_settings <- function(threshold = NULL,
     "normalized" = normalized,
     "row_percentages" = row_percentages,
     "col_percentages" = col_percentages,
-    "whiten_arrows" = whiten_arrows
+    "invert_arrows" = invert_arrows
   )
 
+}
+
+# TODO: Document and export!
+create_dynamic_font_setting <- function(low_color, high_color, threshold){
+  function(values){
+    ifelse(values >= threshold, high_color, low_color)
+  }
 }
 
 ##  .................. #< 9aec0fe5634b9f4a907cfad120a085af ># ..................
@@ -257,7 +267,22 @@ dynamic_font_color_settings <- function(threshold = NULL,
 #'
 #'  Note: When \code{`tile_fill`} is specified, the \code{`palette`} is \strong{ignored}.
 #' @param label The label to use for the sum column and the sum row.
-#' @param tc_font_color,font_color Color of the text in the tiles with the column and row sums.
+#' @param font_counts_color,font_normalized_color Color of the text in the tiles with the column and row sums.
+#'  Either the value directly passed to \code{\link[ggplot2:geom_text]{ggplot2::geom_text}} or
+#'  a function that take in the values (e.g., counts, percentages, etc.)
+#'  and returns a vector of values to pass to \code{\link[ggplot2:geom_text]{ggplot2::geom_text}}.
+#' @param dynamic_font_colors A list of settings for using dynamic font colors
+#'  based on the value of the counts/normalized. Allows changing the font colors
+#'  when the background tiles are too dark, etc.
+#'  Can be provided with \code{\link[cvms:dynamic_font_color_settings]{
+#'  dynamic_font_color_settings(threshold =, by =, all =, counts =, normalized =)}}.
+#'
+#'  Individual thresholds can be set for the different fonts/values via the
+#'  \code{`font_*_color`} arguments. Specifying colors in these arguments will overwrite
+#'  this argument (for the specific font only).
+#'
+#'  Specifying colors for specific fonts overrides the "all" values for those fonts.
+#' @param tc_font_color Color of the text in the total count tile.
 #' @param tc_tile_fill,tile_fill Specific background color for the tiles. Passed as \emph{\code{`fill`}} to
 #' \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.
 #'
@@ -273,7 +298,9 @@ dynamic_font_color_settings <- function(threshold = NULL,
 sum_tile_settings <- function(palette = NULL,
                               label = NULL,
                               tile_fill = NULL,
-                              font_color = NULL,
+                              font_counts_color = NULL,
+                              font_normalized_color = NULL,
+                              dynamic_font_colors = dynamic_font_color_settings(),
                               tile_border_color = NULL,
                               tile_border_size = NULL,
                               tile_border_linetype = NULL,
@@ -284,12 +311,26 @@ sum_tile_settings <- function(palette = NULL,
                               tc_tile_border_linetype = NULL,
                               intensity_by = NULL,
                               intensity_lims = NULL,
-                              intensity_beyond_lims = NULL) {
+                              intensity_beyond_lims = NULL,
+                              font_color = deprecated()) {
+
+  # Check deprecated font color argument
+  if (!rlang::is_missing(font_color)) {
+    deprecate_warn(
+      "1.8.0", "cvms::sum_tile_settings(font_color =)",
+      "cvms::sum_tile_settings(font_counts_color=)"
+    )
+    font_counts_color <- font_color
+    font_normalized_color <- font_color
+  }
+
   list(
     "palette" = palette,
     "label" = label,
     "tile_fill" = tile_fill,
-    "font_color" = font_color,
+    "font_counts_color" = font_counts_color,
+    "font_normalized_color" = font_normalized_color,
+    "dynamic_font_colors" = dynamic_font_colors,
     "tile_border_color" = tile_border_color,
     "tile_border_size" = tile_border_size,
     "tile_border_linetype" = tile_border_linetype,
@@ -518,13 +559,6 @@ interpret_all_font_settings <- function(font_settings, values) {
   }) %>% setNames(names(font_settings))
 }
 
-# TODO: Document and export!
-create_dynamic_font_setting <- function(low_color, high_color, threshold){
-  function(values){
-    ifelse(values >= threshold, high_color, low_color)
-  }
-}
-
 
 add_geom_text <- function(
     pl,
@@ -557,7 +591,9 @@ add_geom_text <- function(
   if (!is.null(dynamic_font_name) &&
 
       # Ensure it's not specified via `font_*`
-      !all_dynamic_font_color_settings[["already_specified_for"]][[dynamic_font_name]] &&
+      # For sum tiles, we skip this check ("already_specified_for" is not in the list)
+      (!("already_specified_for" %in% names(all_dynamic_font_color_settings)) ||
+      !all_dynamic_font_color_settings[["already_specified_for"]][[dynamic_font_name]]) &&
 
       # Colors must be specified for 'all' or the specific font
       !(is.null(all_dynamic_font_color_settings[["all"]]) &&

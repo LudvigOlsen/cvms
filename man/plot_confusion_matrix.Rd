@@ -37,6 +37,7 @@ plot_confusion_matrix(
   font_col_percentages = font(),
   dynamic_font_colors = dynamic_font_color_settings(),
   arrow_size = 0.048,
+  arrow_color = "black",
   arrow_nudge_from_text = 0.065,
   tile_border_color = NA,
   tile_border_size = 0.1,
@@ -214,6 +215,8 @@ Can be provided with \code{\link[cvms:font]{font()}}.}
  Is divided by \code{sqrt(nrow(conf_matrix))} and passed on
  to \code{\link[ggimage:geom_icon]{ggimage::geom_icon()}}.}
 
+\item{arrow_color}{Color of arrow icons. One of \code{"black", "white"}.}
+
 \item{arrow_nudge_from_text}{Distance from the percentage text to the arrow. (Numeric)}
 
 \item{tile_border_color}{Color of the tile borders. Passed as \emph{\code{`colour`}} to
@@ -366,6 +369,25 @@ plot_confusion_matrix(
   evaluation[["Confusion Matrix"]][[1]],
   palette = "Greens",
   theme_fn = ggplot2::theme_light
+)
+
+# Dynamic font colors when background becomes too dark
+# Also inverts the arrow colors
+plot_confusion_matrix(
+  evaluation[["Confusion Matrix"]][[1]],
+  # Black and white theme
+  palette = list("low"="#ffffff", "high"="#000000"),
+  # Increase contrast
+  darkness = 1.0,
+  # Specify colors below and above threshold
+  dynamic_font_colors = dynamic_font_color_settings(
+    threshold = 30,
+    by = "normalized",
+    # Black at low values, white at high values
+    all = c('#000', '#fff'),
+    # White arrows above threshold
+    invert_arrows = "at_and_above"
+  )
 )
 
 }

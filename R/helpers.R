@@ -971,8 +971,12 @@ aapply <- function(fun, formula, ..., fixed = list()) {
 #   Set arrow icons for plot_confusion_matrix                               ####
 
 
-set_arrows <- function(cm, place_x_axis_above, icons,
-                       empty_path = get_figure_path("empty_square.svg")){
+set_arrows <- function(cm,
+                       place_x_axis_above,
+                       icons,
+                       arrow_color,
+                       all_dynamic_font_color_settings,
+                       empty_path = get_figure_path("empty_square.svg")) {
 
   # Get the extreme levels
   max_prediction_level <- tail(as.character(levels(cm[["Prediction"]])), 1)
@@ -985,6 +989,33 @@ set_arrows <- function(cm, place_x_axis_above, icons,
   cm[["left_icon"]] <- icons[["left"]]
   cm[["up_icon"]] <- icons[["up"]]
   cm[["down_icon"]] <- icons[["down"]]
+
+  # Whether to use white arrows (e.g., for dark backgrounds)
+  if(!is.null(all_dynamic_font_color_settings[["threshold"]]) &&
+     !is.null(all_dynamic_font_color_settings[["invert_arrows"]])){
+
+    inverted_color <- ifelse(arrow_color == "black", "white", "black")
+
+    at_or_above_threshold <- cm[[all_dynamic_font_color_settings[["value_col"]]]] >= all_dynamic_font_color_settings[["threshold"]]
+    if (all_dynamic_font_color_settings[["invert_arrows"]] == "below"){
+      color_name <- ifelse(!at_or_above_threshold, inverted_color, arrow_color)
+    } else {
+      color_name <- ifelse(at_or_above_threshold, inverted_color, arrow_color)
+    }
+
+    # Add suffices just before extension
+    # NOTE: Assumes information about the icon paths that were otherwise
+    # passed to the function, so perhaps this is a bit too hacky? Will
+    # work in practice though.
+    cm <- cm %>%
+      dplyr::mutate(
+        right_icon = stringr::str_replace_all(right_icon, paste0(arrow_color, "\\.svg$"), paste0(color_name, ".svg")),
+        left_icon = stringr::str_replace_all(left_icon, paste0(arrow_color, "\\.svg$"), paste0(color_name, ".svg")),
+        up_icon = stringr::str_replace_all(up_icon, paste0(arrow_color, "\\.svg$"), paste0(color_name, ".svg")),
+        down_icon = stringr::str_replace_all(down_icon, paste0(arrow_color, "\\.svg$"), paste0(color_name, ".svg")),
+      )
+
+  }
 
   # Remove arrows where Prediction is extreme level
   cm[cm[["Prediction"]] == max_prediction_level, "up_icon"] <- empty_path

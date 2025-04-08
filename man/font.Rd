@@ -22,10 +22,9 @@ font(
 )
 }
 \arguments{
-\item{size, color, alpha, nudge_x, nudge_y, angle, family, fontface, hjust, vjust, lineheight}{Either values directly passed to
-\code{\link[ggplot2:geom_text]{ggplot2::geom_text}} or functions that take in the values (e.g., counts, percentages, etc.)
-and returns a vector of values to pass to \code{\link[ggplot2:geom_text]{ggplot2::geom_text}} via
-\code{aes()}.}
+\item{size, color, alpha, nudge_x, nudge_y, angle, family, fontface, hjust, vjust, lineheight}{Either the value to pass directly to
+\code{\link[ggplot2:geom_text]{ggplot2::geom_text}} or a function that takes in the values (e.g., counts, percentages, etc.)
+and returns a vector of values to pass to \code{\link[ggplot2:geom_text]{ggplot2::geom_text}}.}
 
 \item{digits}{Number of digits to round to. If negative, no rounding will take place.}
 

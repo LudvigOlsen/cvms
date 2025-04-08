@@ -3,10 +3,6 @@
 #   __________________ #< e5efa5aa075de36169902b4bf6e14ce8 ># __________________
 #   Plot a confusion matrix                                                 ####
 
-# TODO: Make dynamic font color option in sum tiles!
-# TODO: Implement the whiten_arrows option!
-
-
 #' @title Plot a confusion matrix
 #' @description
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
@@ -147,6 +143,7 @@
 #'
 #'  Is divided by \code{sqrt(nrow(conf_matrix))} and passed on
 #'  to \code{\link[ggimage:geom_icon]{ggimage::geom_icon()}}.
+#' @param arrow_color Color of arrow icons. One of \code{"black", "white"}.
 #' @param arrow_nudge_from_text Distance from the percentage text to the arrow. (Numeric)
 #' @param digits Number of digits to round to (percentages only).
 #'  Set to a negative number for no rounding.
@@ -292,6 +289,25 @@
 #'   theme_fn = ggplot2::theme_light
 #' )
 #'
+#' # Dynamic font colors when background becomes too dark
+#' # Also inverts the arrow colors
+#' plot_confusion_matrix(
+#'   evaluation[["Confusion Matrix"]][[1]],
+#'   # Black and white theme
+#'   palette = list("low"="#ffffff", "high"="#000000"),
+#'   # Increase contrast
+#'   darkness = 1.0,
+#'   # Specify colors below and above threshold
+#'   dynamic_font_colors = dynamic_font_color_settings(
+#'     threshold = 30,
+#'     by = "normalized",
+#'     # Black at low values, white at high values
+#'     all = c('#000', '#fff'),
+#'     # White arrows above threshold
+#'     invert_arrows = "at_and_above"
+#'   )
+#' )
+#'
 #' }
 #' \dontrun{
 #' # Change colors palette to custom gradient
@@ -360,6 +376,7 @@ plot_confusion_matrix <- function(conf_matrix,
                                   font_col_percentages = font(),
                                   dynamic_font_colors = dynamic_font_color_settings(),
                                   arrow_size = 0.048,
+                                  arrow_color = "black",
                                   arrow_nudge_from_text = 0.065,
                                   tile_border_color = NA,
                                   tile_border_size = 0.1,
@@ -401,7 +418,7 @@ plot_confusion_matrix <- function(conf_matrix,
   checkmate::assert_string(x = sums_settings[["intensity_by"]], null.ok = TRUE, add = assert_collection)
   checkmate::assert_string(x = sums_settings[["intensity_beyond_lims"]], null.ok = TRUE, add = assert_collection)
   checkmate::assert_choice(x = sums_settings[["intensity_beyond_lims"]], choices = c("truncate", "grey"), null.ok = TRUE, add = assert_collection)
-
+  checkmate::assert_choice(x = arrow_color, choices = c("black", "white"),add = assert_collection)
 
   checkmate::assert(
     checkmate::check_string(x = palette, na.ok = TRUE, null.ok = TRUE),
@@ -545,6 +562,7 @@ plot_confusion_matrix <- function(conf_matrix,
     if (palettes_are_equal(palette, sums_settings[["palette"]])) {
       assert_collection$push("'palette' and 'sums_settings[['palette']]' cannot be the same palette.")
     }
+
   }
 
   # Check that N are (>= 0)
@@ -553,6 +571,16 @@ plot_confusion_matrix <- function(conf_matrix,
     lower = 0,
     add = assert_collection
   )
+
+  # Check deprecated font color argument
+  if (!is.null(sums_settings[["font_color"]])) {
+    deprecate_warn(
+      "1.8.0", "cvms::plot_confusion_matrix(sum_settings = 'list cannot contain `font_color=`')",
+      "sum_settings(font_counts_color=)"
+    )
+    sums_settings[["font_counts_color"]] <- sums_settings[["font_color"]]
+    sums_settings[["font_normalized_color"]] <- sums_settings[["font_color"]]
+  }
 
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
@@ -739,18 +767,35 @@ plot_confusion_matrix <- function(conf_matrix,
   # Calculate number of tiles to size by
   num_predict_classes <- length(unique(cm[["Prediction"]])) + as.integer(isTRUE(add_sums))
 
+  # Prepare dynamic font / arrow color settings
+  all_dynamic_font_color_settings <- NULL
+  if (!is.null(dynamic_font_colors[["threshold"]])){
+    all_dynamic_font_color_settings <- c(
+      dynamic_font_colors,
+      value_col = ifelse(dynamic_font_colors[["by"]] == "counts", "N", "Normalized")
+    )
+    all_dynamic_font_color_settings[["already_specified_for"]] <- colors_specified
+  }
+
   # Arrow icons
-  arrow_icons <- list("up" = get_figure_path("caret_up_sharp.svg"),
-                      "down" = get_figure_path("caret_down_sharp.svg"),
-                      "left" = get_figure_path("caret_back_sharp.svg"),
-                      "right" = get_figure_path("caret_forward_sharp.svg"))
+  arrow_icons <- list(
+    "up" = get_figure_path(paste0("caret_up_sharp_", arrow_color, ".svg")),
+    "down" = get_figure_path(paste0("caret_down_sharp_", arrow_color, ".svg")),
+    "left" = get_figure_path(paste0("caret_back_sharp_", arrow_color, ".svg")),
+    "right" = get_figure_path(paste0("caret_forward_sharp_", arrow_color, ".svg"))
+  )
 
   # Scaling arrow size
   arrow_size <- arrow_size / num_predict_classes
 
   # Add icons depending on where the tile will be in the image
-  cm <- set_arrows(cm, place_x_axis_above = place_x_axis_above,
-                   icons = arrow_icons)
+  cm <- set_arrows(
+    cm=cm,
+    place_x_axis_above = place_x_axis_above,
+    icons = arrow_icons,
+    arrow_color=arrow_color,
+    all_dynamic_font_color_settings=all_dynamic_font_color_settings
+  )
 
   if (isTRUE(use_ggimage) &&
       isTRUE(add_zero_shading)){
@@ -1047,17 +1092,6 @@ plot_confusion_matrix <- function(conf_matrix,
 
   #### Add numbers to plot ####
 
-  all_dynamic_font_color_settings <- NULL
-  if (!is.null(dynamic_font_colors[["threshold"]])){
-    all_dynamic_font_color_settings <- c(
-      dynamic_font_colors,
-      value_col = ifelse(dynamic_font_colors[["by"]] == "counts", "N", "Normalized")
-    )
-    all_dynamic_font_color_settings[["already_specified_for"]] <- colors_specified
-  }
-  print(all_dynamic_font_color_settings)
-
-
   if (isTRUE(add_counts)) {
 
     pl <- add_geom_text(
@@ -1074,11 +1108,21 @@ plot_confusion_matrix <- function(conf_matrix,
     if (isTRUE(add_sums)){
 
       font_sums <- font_counts
-      font_sums[["color"]] <- ifelse(
-        is.null(sums_settings[["font_color"]]),
-        font_counts[["color"]],
-        sums_settings[["font_color"]]
-      )
+      font_sums[["color"]] <- font_counts[["color"]]
+      sums_all_dynamic_font_color_settings <- NULL
+      if (!is.null(sums_settings[["font_counts_color"]])){
+        font_sums[["color"]] <- sums_settings[["font_counts_color"]]
+      } else if (!is.null(sums_settings[["dynamic_font_colors"]][["threshold"]])){
+        sums_all_dynamic_font_color_settings <- sums_settings[["dynamic_font_colors"]]
+        sums_all_dynamic_font_color_settings <- c(
+          sums_all_dynamic_font_color_settings,
+          value_col = ifelse(
+            sums_all_dynamic_font_color_settings[["by"]] == "counts",
+            "N",
+            "Normalized"
+          )
+        )
+      }
 
       # Add count labels to middle of sum tiles
       pl <- add_geom_text(
@@ -1086,7 +1130,9 @@ plot_confusion_matrix <- function(conf_matrix,
         data=cm[cm[["is_sum"]] & as.character(cm[["Target"]]) != as.character(cm[["Prediction"]]), ],
         values_col="N",
         values_label_col="N_text",
-        font_settings=font_sums
+        font_settings=font_sums,
+        all_dynamic_font_color_settings=sums_all_dynamic_font_color_settings,
+        dynamic_font_name="counts"
       )
 
       font_sum_tc <- font_counts
@@ -1130,11 +1176,21 @@ plot_confusion_matrix <- function(conf_matrix,
       # Get font color for sum tiles
       # If not set, we use the same as for the other tiles
       font_normalized_sums <- font_normalized
-      font_normalized_sums[["color"]] <- ifelse(
-        is.null(sums_settings[["font_color"]]),
-        font_normalized[["color"]],
-        sums_settings[["font_color"]]
-      )
+      font_normalized_sums[["color"]] <- font_normalized[["color"]]
+      norm_sums_all_dynamic_font_color_settings <- NULL
+      if (!is.null(sums_settings[["font_normalized_color"]])){
+        font_sums[["color"]] <- sums_settings[["font_normalized_color"]]
+      } else if (!is.null(sums_settings[["dynamic_font_colors"]][["threshold"]])){
+        norm_sums_all_dynamic_font_color_settings <- sums_settings[["dynamic_font_colors"]]
+        norm_sums_all_dynamic_font_color_settings <- c(
+          norm_sums_all_dynamic_font_color_settings,
+          value_col = ifelse(
+            norm_sums_all_dynamic_font_color_settings[["by"]] == "counts",
+            "N",
+            "Normalized"
+          )
+        )
+      }
 
       # Add percentage labels to middle of sum tiles
       pl <- add_geom_text(
@@ -1142,7 +1198,9 @@ plot_confusion_matrix <- function(conf_matrix,
         data = cm[cm[["is_sum"]] & as.character(cm[["Target"]]) != as.character(cm[["Prediction"]]), ],
         values_col="Normalized",
         values_label_col="Normalized_text",
-        font_settings=font_normalized_sums
+        font_settings=font_normalized_sums,
+        all_dynamic_font_color_settings=norm_sums_all_dynamic_font_color_settings,
+        dynamic_font_name="normalized"
       )
 
       # Get font color for sum tiles

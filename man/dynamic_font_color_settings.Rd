@@ -12,7 +12,7 @@ dynamic_font_color_settings(
   normalized = NULL,
   row_percentages = NULL,
   col_percentages = NULL,
-  whiten_arrows = NULL
+  invert_arrows = NULL
 )
 }
 \arguments{
@@ -23,14 +23,17 @@ One of \{\code{`counts`}, \code{`normalized`}\}.}
 
 \item{all}{Set same color settings for all fonts at once.
 Takes a character vector with two hex code strings (low, high).
-Example: `c('#fff', '#000')`.}
+Example: `c('#000', '#fff')`.}
 
 \item{counts, normalized, row_percentages, col_percentages}{Set color settings for the individual font.
  Takes a character vector with two hex code strings (low, high).
- Example: `c('#fff', '#000')`.
+ Example: `c('#000', '#fff')`.
 
  Specifying colors for specific fonts overrides the settings specified in
  \code{`all`} (for those fonts only).}
+
+\item{invert_arrows}{String specifying when to invert the color of the arrow icons based on the threshold.
+One of \{\code{`below`}, \code{`at_and_above`}\} (or \code{NULL} for no dynamical arrow colors).}
 }
 \value{
 List of settings.
@@ -38,7 +41,9 @@ List of settings.
 \description{
 \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
 
- Creates a list of dynamic font color settings for plotting with cvms plotting functions.
+ Creates a list of dynamic font color settings for plotting with \code{cvms} plotting functions.
+
+ Specify separate colors below and above a given value threshold.
 
  NOTE: This is experimental and will likely change.
 }

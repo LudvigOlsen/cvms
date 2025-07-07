@@ -1010,10 +1010,10 @@ set_arrows <- function(cm,
     # work in practice though.
     cm <- cm %>%
       dplyr::mutate(
-        right_icon = stringr::str_replace_all(right_icon, paste0(arrow_color, "\\.svg$"), paste0(color_name, ".svg")),
-        left_icon = stringr::str_replace_all(left_icon, paste0(arrow_color, "\\.svg$"), paste0(color_name, ".svg")),
-        up_icon = stringr::str_replace_all(up_icon, paste0(arrow_color, "\\.svg$"), paste0(color_name, ".svg")),
-        down_icon = stringr::str_replace_all(down_icon, paste0(arrow_color, "\\.svg$"), paste0(color_name, ".svg")),
+        right_icon = stringr::str_replace_all(.data$right_icon, paste0(arrow_color, "\\.svg$"), paste0(color_name, ".svg")),
+        left_icon = stringr::str_replace_all(.data$left_icon, paste0(arrow_color, "\\.svg$"), paste0(color_name, ".svg")),
+        up_icon = stringr::str_replace_all(.data$up_icon, paste0(arrow_color, "\\.svg$"), paste0(color_name, ".svg")),
+        down_icon = stringr::str_replace_all(.data$down_icon, paste0(arrow_color, "\\.svg$"), paste0(color_name, ".svg")),
       )
 
   }

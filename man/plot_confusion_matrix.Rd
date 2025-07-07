@@ -326,6 +326,25 @@ plot_confusion_matrix(
     font_col_percentages = font(prefix=c("Spec = ", "", "", "Sens = "))
 )
 
+# Dynamic font colors when background becomes too dark
+# Also inverts the arrow colors
+plot_confusion_matrix(
+  evaluation[["Confusion Matrix"]][[1]],
+  # Black and white theme
+  palette = list("low"="#ffffff", "high"="#000000"),
+  # Increase contrast
+  darkness = 1.0,
+  # Specify colors below and above threshold
+  dynamic_font_colors = dynamic_font_color_settings(
+    threshold = 30,
+    by = "normalized",
+    # Black at low values, white at high values
+    all = c('#000', '#fff'),
+    # White arrows above threshold
+    invert_arrows = "at_and_above"
+  )
+)
+
 # Three (or more) classes
 
 # Create targets and predictions data frame
@@ -375,25 +394,6 @@ plot_confusion_matrix(
   evaluation[["Confusion Matrix"]][[1]],
   palette = "Greens",
   theme_fn = ggplot2::theme_light
-)
-
-# Dynamic font colors when background becomes too dark
-# Also inverts the arrow colors
-plot_confusion_matrix(
-  evaluation[["Confusion Matrix"]][[1]],
-  # Black and white theme
-  palette = list("low"="#ffffff", "high"="#000000"),
-  # Increase contrast
-  darkness = 1.0,
-  # Specify colors below and above threshold
-  dynamic_font_colors = dynamic_font_color_settings(
-    threshold = 30,
-    by = "normalized",
-    # Black at low values, white at high values
-    all = c('#000', '#fff'),
-    # White arrows above threshold
-    invert_arrows = "at_and_above"
-  )
 )
 
 }

@@ -11,12 +11,20 @@
 #'
 #'  Creates a list of font settings for plotting with cvms plotting functions.
 #'
-#'  NOTE: This is very experimental and will likely change.
+#'  Some arguments can take either the value to use directly
+#'  OR a function that takes one argument (vector with the
+#'  values to set a font for; e.g., the counts, percentages, etc.)
+#'  and returns the value(s) to use for each element. Such a
+#'  function could for instance specify different font
+#'  colors for different background intensities.
+#'
+#'  NOTE: This is experimental and could change.
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
 #' @export
 #' @family plotting functions
-#' @param size,color,alpha,nudge_x,nudge_y,angle,family,fontface,hjust,vjust,lineheight As passed to
-#'  \code{\link[ggplot2:geom_text]{ggplot2::geom_text}}.
+#' @param size,color,alpha,nudge_x,nudge_y,angle,family,fontface,hjust,vjust,lineheight Either the value to pass directly to
+#'  \code{\link[ggplot2:geom_text]{ggplot2::geom_text}} or a function that takes in the values (e.g., counts, percentages, etc.)
+#'  and returns a vector of values to pass to \code{\link[ggplot2:geom_text]{ggplot2::geom_text}}.
 #' @param digits Number of digits to round to. If negative, no rounding will take place.
 #' @param prefix A string prefix.
 #' @param suffix A string suffix.
@@ -109,6 +117,123 @@ preprocess_numeric <- function(vec, settings, rm_zero_text=FALSE, rm_zeroes_post
   out
 }
 
+#' @title Create a list of dynamic font color settings for plots
+#' @description
+#'  \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
+#'
+#'  Creates a list of dynamic font color settings for plotting with \code{cvms} plotting functions.
+#'
+#'  Specify separate colors below and above a given value threshold.
+#'
+#'  NOTE: This is experimental and will likely change.
+#' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
+#' @export
+#' @family plotting functions
+#' @param threshold The threshold at which the color changes.
+#' @param by The value to check against \code{`threshold`}.
+#'  One of \{\code{`counts`}, \code{`normalized`}\}.
+#' @param all Set same color settings for all fonts at once.
+#'  Takes a character vector with two hex code strings (low, high).
+#'  Example: `c('#000', '#fff')`.
+#' @param counts,normalized,row_percentages,col_percentages Set color settings for the individual font.
+#'  Takes a character vector with two hex code strings (low, high).
+#'  Example: `c('#000', '#fff')`.
+#'
+#'  Specifying colors for specific fonts overrides the settings specified in
+#'  \code{`all`} (for those fonts only).
+#' @param invert_arrows String specifying when to invert the color of the arrow icons based on the threshold.
+#'  One of \{\code{`below`}, \code{`at_and_above`}\} (or \code{NULL} for no dynamical arrow colors).
+#' @return List of settings.
+dynamic_font_color_settings <- function(threshold = NULL,
+                                        by = "counts",
+                                        all = NULL,
+                                        counts = NULL,
+                                        normalized = NULL,
+                                        row_percentages = NULL,
+                                        col_percentages = NULL,
+                                        invert_arrows = NULL) {
+
+  # Check arguments ####
+  assert_collection <- checkmate::makeAssertCollection()
+  checkmate::assert_number(x = threshold, null.ok = TRUE, add = assert_collection)
+  checkmate::assert_choice(
+    x = by,
+    choices = c("counts", "normalized"),
+    add = assert_collection
+  )
+  checkmate::assert_character(
+    x = all,
+    min.chars = 1,
+    len = 2,
+    any.missing = FALSE,
+    unique = TRUE,
+    null.ok = TRUE,
+    add = assert_collection
+  )
+  checkmate::assert_character(
+    x = counts,
+    min.chars = 1,
+    len = 2,
+    any.missing = FALSE,
+    unique = TRUE,
+    null.ok = TRUE,
+    add = assert_collection
+  )
+  checkmate::assert_character(
+    x = normalized,
+    min.chars = 1,
+    len = 2,
+    any.missing = FALSE,
+    unique = TRUE,
+    null.ok = TRUE,
+    add = assert_collection
+  )
+  checkmate::assert_character(
+    x = row_percentages,
+    min.chars = 1,
+    len = 2,
+    any.missing = FALSE,
+    unique = TRUE,
+    null.ok = TRUE,
+    add = assert_collection
+  )
+  checkmate::assert_character(
+    x = col_percentages,
+    min.chars = 1,
+    len = 2,
+    any.missing = FALSE,
+    unique = TRUE,
+    null.ok = TRUE,
+    add = assert_collection
+  )
+  checkmate::assert_choice(
+    x = invert_arrows,
+    choices = c("below", "at_and_above"),
+    null.ok = TRUE,
+    add = assert_collection
+  )
+  checkmate::reportAssertions(assert_collection)
+  # End of argument checks ####
+
+  list(
+    "threshold" = threshold,
+    "by" = by,
+    "all" = all,
+    "counts" = counts,
+    "normalized" = normalized,
+    "row_percentages" = row_percentages,
+    "col_percentages" = col_percentages,
+    "invert_arrows" = invert_arrows
+  )
+
+}
+
+# TODO: Document and export!
+create_dynamic_font_setting <- function(low_color, high_color, threshold){
+  function(values){
+    ifelse(values >= threshold, high_color, low_color)
+  }
+}
 
 ##  .................. #< 9aec0fe5634b9f4a907cfad120a085af ># ..................
 ##  Sum tile settings                                                       ####
@@ -142,7 +267,22 @@ preprocess_numeric <- function(vec, settings, rm_zero_text=FALSE, rm_zeroes_post
 #'
 #'  Note: When \code{`tile_fill`} is specified, the \code{`palette`} is \strong{ignored}.
 #' @param label The label to use for the sum column and the sum row.
-#' @param tc_font_color,font_color Color of the text in the tiles with the column and row sums.
+#' @param font_counts_color,font_normalized_color Color of the text in the tiles with the column and row sums.
+#'  Either the value directly passed to \code{\link[ggplot2:geom_text]{ggplot2::geom_text}} or
+#'  a function that take in the values (e.g., counts, percentages, etc.)
+#'  and returns a vector of values to pass to \code{\link[ggplot2:geom_text]{ggplot2::geom_text}}.
+#' @param dynamic_font_colors A list of settings for using dynamic font colors
+#'  based on the value of the counts/normalized. Allows changing the font colors
+#'  when the background tiles are too dark, etc.
+#'  Can be provided with \code{\link[cvms:dynamic_font_color_settings]{
+#'  dynamic_font_color_settings(threshold =, by =, all =, counts =, normalized =)}}.
+#'
+#'  Individual thresholds can be set for the different fonts/values via the
+#'  \code{`font_*_color`} arguments. Specifying colors in these arguments will overwrite
+#'  this argument (for the specific font only).
+#'
+#'  Specifying colors for specific fonts overrides the "all" values for those fonts.
+#' @param tc_font_color Color of the text in the total count tile.
 #' @param tc_tile_fill,tile_fill Specific background color for the tiles. Passed as \emph{\code{`fill`}} to
 #' \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.
 #'
@@ -153,12 +293,15 @@ preprocess_numeric <- function(vec, settings, rm_zero_text=FALSE, rm_zeroes_post
 #' \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.
 #' @param tc_tile_border_linetype,tile_border_linetype Linetype for the tile borders. Passed as \emph{\code{`linetype`}} to
 #' \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.
+#' @param font_color Deprecated.
 #' @inheritParams plot_confusion_matrix
 #' @return List of settings.
 sum_tile_settings <- function(palette = NULL,
                               label = NULL,
                               tile_fill = NULL,
-                              font_color = NULL,
+                              font_counts_color = NULL,
+                              font_normalized_color = NULL,
+                              dynamic_font_colors = dynamic_font_color_settings(),
                               tile_border_color = NULL,
                               tile_border_size = NULL,
                               tile_border_linetype = NULL,
@@ -169,12 +312,26 @@ sum_tile_settings <- function(palette = NULL,
                               tc_tile_border_linetype = NULL,
                               intensity_by = NULL,
                               intensity_lims = NULL,
-                              intensity_beyond_lims = NULL) {
+                              intensity_beyond_lims = NULL,
+                              font_color = deprecated()) {
+
+  # Check deprecated font color argument
+  if (!rlang::is_missing(font_color)) {
+    deprecate_warn(
+      "1.8.0", "cvms::sum_tile_settings(font_color =)",
+      "cvms::sum_tile_settings(font_counts_color=)"
+    )
+    font_counts_color <- font_color
+    font_normalized_color <- font_color
+  }
+
   list(
     "palette" = palette,
     "label" = label,
     "tile_fill" = tile_fill,
-    "font_color" = font_color,
+    "font_counts_color" = font_counts_color,
+    "font_normalized_color" = font_normalized_color,
+    "dynamic_font_colors" = dynamic_font_colors,
     "tile_border_color" = tile_border_color,
     "tile_border_size" = tile_border_size,
     "tile_border_linetype" = tile_border_linetype,
@@ -371,4 +528,174 @@ update_settings_object <- function(settings, defaults, backup_defaults, initial_
   }
 
   new_settings
+}
+
+
+# If setting is a function, call it on the values and the return the outputs
+# If setting is a values, return the value
+interpret_font_setting <- function(font_settings, arg_name, values) {
+
+  if (!(arg_name %in% names(font_settings))) {
+    stop(paste0("`", arg_name, "` not in the font settings."))
+  }
+
+  setting <- font_settings[[arg_name]]
+
+  # If a function, we call it on the values
+  # Otherwise it's assumed to be valid a value
+  if (is.function(setting)) {
+    setting <- setting(values)
+  }
+
+  setting
+}
+
+interpret_all_font_settings <- function(font_settings, values) {
+  purrr::map(names(font_settings), .f =  ~ {
+    interpret_font_setting(
+      font_settings = font_settings,
+      arg_name = .x,
+      values = values
+    )
+  }) %>% setNames(names(font_settings))
+}
+
+
+add_geom_text <- function(
+    pl,
+    data,
+    values_col,
+    values_label_col,
+    font_settings,
+    allowed_static_setting_names=c(
+      "size",
+      "alpha",
+      "nudge_x",
+      "nudge_y",
+      "angle",
+      "family",
+      "fontface",
+      "hjust",
+      "vjust",
+      "lineheight",
+      "color"
+    ),
+    add_settings = list(),
+    all_dynamic_font_color_settings=NULL,
+    dynamic_font_name=NULL
+) {
+  # Interpret font settings for counts
+  font_settings <- font_settings[names(font_settings) %in% allowed_static_setting_names]
+  font_interps <- interpret_all_font_settings(font_settings, data[[values_col]])
+
+  # Get dynamic font color settings for this font
+  if (!is.null(dynamic_font_name) &&
+
+      # Ensure it's not specified via `font_*`
+      # For sum tiles, we skip this check ("already_specified_for" is not in the list)
+      (!("already_specified_for" %in% names(all_dynamic_font_color_settings)) ||
+      !all_dynamic_font_color_settings[["already_specified_for"]][[dynamic_font_name]]) &&
+
+      # Colors must be specified for 'all' or the specific font
+      !(is.null(all_dynamic_font_color_settings[["all"]]) &&
+      is.null(all_dynamic_font_color_settings[[dynamic_font_name]]))){
+
+    # Get colors for either the specific font
+    if (!is.null(all_dynamic_font_color_settings[[dynamic_font_name]])){
+      font_interps[["color"]] <- create_dynamic_font_setting(
+        all_dynamic_font_color_settings[[dynamic_font_name]][[1]],
+        all_dynamic_font_color_settings[[dynamic_font_name]][[2]],
+        threshold = all_dynamic_font_color_settings[["threshold"]]
+      )(data[[all_dynamic_font_color_settings[["value_col"]]]])
+
+    # Or from 'all' specification
+    } else if (!(is.null(all_dynamic_font_color_settings[["all"]]))){
+      font_interps[["color"]] <- create_dynamic_font_setting(
+        all_dynamic_font_color_settings[["all"]][[1]],
+        all_dynamic_font_color_settings[["all"]][[2]],
+        threshold = all_dynamic_font_color_settings[["threshold"]]
+      )(data[[all_dynamic_font_color_settings[["value_col"]]]])
+    }
+
+  }
+
+  # Add count labels to middle of the regular tiles
+  pl <- pl +
+    purrr::exec(
+      ggplot2::geom_text,
+      data = data,
+      mapping = ggplot2::aes(label = !!as.name(values_label_col)),
+      !!!font_interps,
+      !!!add_settings
+    )
+
+  pl
+
+}
+
+add_3d_overlay_geom <- function(pl, num_rows, amount_3d_effect, use_ggimage){
+  if (isTRUE(use_ggimage) &&
+      amount_3d_effect > 0) {
+    overlay_size_subtract <- 0.043 / 2 ^ (num_rows - 2)
+    overlay_size_subtract <-
+      dplyr::case_when(num_rows >= 5 ~ overlay_size_subtract + 0.002,
+        TRUE ~ overlay_size_subtract)
+
+    pl <- pl + ggimage::geom_image(
+      ggplot2::aes(image = .data$image_3d),
+      by = "width",
+      size = 1.0 / num_rows - overlay_size_subtract
+    )
+  }
+
+  pl
+}
+
+check_gg_image_packages <- function(add_arrows, add_zero_shading){
+  # When 'rsvg', 'ggimage' or 'ggnewscale' is missing
+  user_has_rsvg <- requireNamespace("rsvg", quietly = TRUE)
+  user_has_ggimage <- requireNamespace("ggimage", quietly = TRUE)
+  user_has_ggnewscale <- requireNamespace("ggnewscale", quietly = TRUE)
+  use_ggimage <- all(user_has_rsvg, user_has_ggimage)
+  if (!isTRUE(use_ggimage)){
+    if (!isTRUE(user_has_ggimage))
+      warning("'ggimage' is missing. Will not plot arrows and zero-shading.")
+    if (!isTRUE(user_has_rsvg))
+      warning("'rsvg' is missing. Will not plot arrows and zero-shading.")
+    add_arrows <- FALSE
+    add_zero_shading <- FALSE
+  }
+
+  list(
+    "user_has_rsvg" = user_has_rsvg,
+    "user_has_ggimage" = user_has_ggimage,
+    "user_has_ggnewscale" = user_has_ggnewscale,
+    "use_ggimage" = use_ggimage,
+    "add_arrows" = add_arrows,
+    "add_zero_shading" = add_zero_shading
+  )
+}
+
+make_arrow_paths <- function(arrow_color){
+  arrow_icons <- list(
+    "up" = get_figure_path(paste0("caret_up_sharp_", arrow_color, ".svg")),
+    "down" = get_figure_path(paste0("caret_down_sharp_", arrow_color, ".svg")),
+    "left" = get_figure_path(paste0("caret_back_sharp_", arrow_color, ".svg")),
+    "right" = get_figure_path(paste0("caret_forward_sharp_", arrow_color, ".svg"))
+  )
+  arrow_icons
+}
+
+add_3d_path <- function(cm, use_ggimage, amount_3d_effect){
+  # Assign 3D effect image
+  if (isTRUE(use_ggimage) &&
+      amount_3d_effect > 0){
+    # Add image path with slight 3D effect
+    if (FALSE){  # Debugging
+      cm[["image_3d"]] <- get_figure_path("square_overlay_bordered.png")
+    } else {
+      cm[["image_3d"]] <- get_figure_path(paste0("square_overlay_", amount_3d_effect, ".png"))
+    }
+  }
+  cm
 }

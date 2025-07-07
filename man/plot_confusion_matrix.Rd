@@ -35,7 +35,9 @@ plot_confusion_matrix(
   font_normalized = font(),
   font_row_percentages = font(),
   font_col_percentages = font(),
+  dynamic_font_colors = dynamic_font_color_settings(),
   arrow_size = 0.048,
+  arrow_color = "black",
   arrow_nudge_from_text = 0.065,
   tile_border_color = NA,
   tile_border_size = 0.1,
@@ -118,14 +120,20 @@ add to the middle of the tiles. (Logical)}
 
 \item{add_zero_shading}{Add image of skewed lines to zero-tiles. (Logical)
 
- Note: Adding the zero-shading requires the \code{rsvg} and \code{ggimage} packages.}
+ Note: Adding the zero-shading requires the \code{rsvg} and \code{ggimage} packages.
+
+ Note: For large confusion matrices, this can be very slow. Consider turning
+ off until the final plotting.}
 
 \item{amount_3d_effect}{Amount of 3D effect (tile overlay) to add.
  Passed as whole number from \code{0} (no effect) up to \code{6} (biggest effect).
  This helps separate tiles with the same intensities.
 
  Note: The overlay may not fit the tiles in many-class cases that haven't been tested.
- If the boxes do not overlap properly, simply turn it off.}
+ If the boxes do not overlap properly, simply turn it off.
+
+ Note: For large confusion matrices, this can be very slow. Consider turning
+ off until the final plotting.}
 
 \item{add_arrows}{Add the arrows to the row and col percentages. (Logical)
 
@@ -197,10 +205,23 @@ Can be provided with \code{\link[cvms:font]{font()}}.}
 \item{font_col_percentages}{\code{list} of font settings for the column percentages.
 Can be provided with \code{\link[cvms:font]{font()}}.}
 
+\item{dynamic_font_colors}{A list of settings for using dynamic font colors
+ based on the value of the counts/normalized. Allows changing the font colors
+ when the background tiles are too dark, etc.
+ Can be provided with \code{\link[cvms:dynamic_font_color_settings]{dynamic_font_color_settings()}}.
+
+ Individual thresholds can be set for the different fonts/values via the
+ \code{`font_*`} arguments. Specifying colors in these arguments will overwrite
+ this argument (for the specific font only).
+
+ Specifying colors for specific fonts overrides the "all" values for those fonts.}
+
 \item{arrow_size}{Size of arrow icons. (Numeric)
 
  Is divided by \code{sqrt(nrow(conf_matrix))} and passed on
  to \code{\link[ggimage:geom_icon]{ggimage::geom_icon()}}.}
+
+\item{arrow_color}{Color of arrow icons. One of \code{"black", "white"}.}
 
 \item{arrow_nudge_from_text}{Distance from the percentage text to the arrow. (Numeric)}
 
@@ -305,6 +326,25 @@ plot_confusion_matrix(
     font_col_percentages = font(prefix=c("Spec = ", "", "", "Sens = "))
 )
 
+# Dynamic font colors when background becomes too dark
+# Also inverts the arrow colors
+plot_confusion_matrix(
+  evaluation[["Confusion Matrix"]][[1]],
+  # Black and white theme
+  palette = list("low"="#ffffff", "high"="#000000"),
+  # Increase contrast
+  darkness = 1.0,
+  # Specify colors below and above threshold
+  dynamic_font_colors = dynamic_font_color_settings(
+    threshold = 30,
+    by = "normalized",
+    # Black at low values, white at high values
+    all = c('#000', '#fff'),
+    # White arrows above threshold
+    invert_arrows = "at_and_above"
+  )
+)
+
 # Three (or more) classes
 
 # Create targets and predictions data frame
@@ -395,6 +435,7 @@ plot_confusion_matrix(cm, sub_col="Trials")
 }
 \seealso{
 Other plotting functions: 
+\code{\link{dynamic_font_color_settings}()},
 \code{\link{font}()},
 \code{\link{plot_metric_density}()},
 \code{\link{plot_probabilities}()},

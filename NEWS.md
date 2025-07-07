@@ -1,4 +1,18 @@
 
+# cvms 1.8.0
+
+## `plot_confusion_matrix()`:
+
+* Adds `arrow_color` argument for choosing between black and white arrow icons.
+
+* Deprecates `font_color` argument in `sum_tile_settings()` in favor of `font_counts_color` and `font_normalized_color`.
+
+### Dynamic font settings: 
+
+* Adds `dynamic_font_colors` argument and the associated `dynamic_font_color_settings()` helper function for specifying colors below and above a given value threshold. This, for instance, allows changing the color of higher numbers when the tile background color is very dark. It also allows inverting colors of arrow icons below/above the threshold. The argument is also added to `sum_tile_settings()`.
+
+* Most arguments in `font()` (and the `font_*_color` arguments in `sum_tile_settings()`) now also accepts a function that decides the setting based on the values (counts, normalized, etc.).
+
 # cvms 1.7.0
 
 ## `plot_confusion_matrix()`:

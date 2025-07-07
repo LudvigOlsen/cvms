@@ -8,7 +8,9 @@ sum_tile_settings(
   palette = NULL,
   label = NULL,
   tile_fill = NULL,
-  font_color = NULL,
+  font_counts_color = NULL,
+  font_normalized_color = NULL,
+  dynamic_font_colors = dynamic_font_color_settings(),
   tile_border_color = NULL,
   tile_border_size = NULL,
   tile_border_linetype = NULL,
@@ -19,7 +21,8 @@ sum_tile_settings(
   tc_tile_border_linetype = NULL,
   intensity_by = NULL,
   intensity_lims = NULL,
-  intensity_beyond_lims = NULL
+  intensity_beyond_lims = NULL,
+  font_color = deprecated()
 )
 }
 \arguments{
@@ -40,12 +43,29 @@ sum_tile_settings(
 
 \item{label}{The label to use for the sum column and the sum row.}
 
+\item{font_counts_color, font_normalized_color}{Color of the text in the tiles with the column and row sums.
+Either the value directly passed to \code{\link[ggplot2:geom_text]{ggplot2::geom_text}} or
+a function that take in the values (e.g., counts, percentages, etc.)
+and returns a vector of values to pass to \code{\link[ggplot2:geom_text]{ggplot2::geom_text}}.}
+
+\item{dynamic_font_colors}{A list of settings for using dynamic font colors
+ based on the value of the counts/normalized. Allows changing the font colors
+ when the background tiles are too dark, etc.
+ Can be provided with \code{\link[cvms:dynamic_font_color_settings]{
+ dynamic_font_color_settings(threshold =, by =, all =, counts =, normalized =)}}.
+
+ Individual thresholds can be set for the different fonts/values via the
+ \code{`font_*_color`} arguments. Specifying colors in these arguments will overwrite
+ this argument (for the specific font only).
+
+ Specifying colors for specific fonts overrides the "all" values for those fonts.}
+
 \item{tc_tile_fill, tile_fill}{Specific background color for the tiles. Passed as \emph{\code{`fill`}} to
 \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.
 
  If specified, the \code{`palette`} is ignored.}
 
-\item{tc_font_color, font_color}{Color of the text in the tiles with the column and row sums.}
+\item{tc_font_color}{Color of the text in the total count tile.}
 
 \item{tc_tile_border_color, tile_border_color}{Color of the tile borders. Passed as \emph{\code{`colour`}} to
 \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.}
@@ -82,6 +102,8 @@ sum_tile_settings(
 
 \item{intensity_beyond_lims}{What to do with values beyond the
 \code{`intensity_lims`}. One of \code{"truncate", "grey"}.}
+
+\item{font_color}{Deprecated.}
 }
 \value{
 List of settings.
@@ -98,6 +120,7 @@ List of settings.
 }
 \seealso{
 Other plotting functions: 
+\code{\link{dynamic_font_color_settings}()},
 \code{\link{font}()},
 \code{\link{plot_confusion_matrix}()},
 \code{\link{plot_metric_density}()},

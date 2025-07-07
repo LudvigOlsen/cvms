@@ -22,8 +22,9 @@ font(
 )
 }
 \arguments{
-\item{size, color, alpha, nudge_x, nudge_y, angle, family, fontface, hjust, vjust, lineheight}{As passed to
-\code{\link[ggplot2:geom_text]{ggplot2::geom_text}}.}
+\item{size, color, alpha, nudge_x, nudge_y, angle, family, fontface, hjust, vjust, lineheight}{Either the value to pass directly to
+\code{\link[ggplot2:geom_text]{ggplot2::geom_text}} or a function that takes in the values (e.g., counts, percentages, etc.)
+and returns a vector of values to pass to \code{\link[ggplot2:geom_text]{ggplot2::geom_text}}.}
 
 \item{digits}{Number of digits to round to. If negative, no rounding will take place.}
 
@@ -39,10 +40,18 @@ List of settings.
 
  Creates a list of font settings for plotting with cvms plotting functions.
 
- NOTE: This is very experimental and will likely change.
+ Some arguments can take either the value to use directly
+ OR a function that takes one argument (vector with the
+ values to set a font for; e.g., the counts, percentages, etc.)
+ and returns the value(s) to use for each element. Such a
+ function could for instance specify different font
+ colors for different background intensities.
+
+ NOTE: This is experimental and could change.
 }
 \seealso{
 Other plotting functions: 
+\code{\link{dynamic_font_color_settings}()},
 \code{\link{plot_confusion_matrix}()},
 \code{\link{plot_metric_density}()},
 \code{\link{plot_probabilities}()},

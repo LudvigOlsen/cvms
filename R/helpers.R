@@ -971,14 +971,19 @@ aapply <- function(fun, formula, ..., fixed = list()) {
 #   Set arrow icons for plot_confusion_matrix                               ####
 
 
-set_arrows <- function(cm, place_x_axis_above, icons,
-                       empty_path = get_figure_path("empty_square.svg")){
+set_arrows <- function(cm,
+  col_names,
+  place_x_axis_above,
+  icons,
+  arrow_color,
+  all_dynamic_font_color_settings,
+  empty_path = get_figure_path("empty_square.svg")) {
 
   # Get the extreme levels
-  max_prediction_level <- tail(as.character(levels(cm[["Prediction"]])), 1)
-  min_prediction_level <- head(as.character(levels(cm[["Prediction"]])), 1)
-  max_target_level <- tail(as.character(levels(cm[["Target"]])), 1)
-  min_target_level <- head(as.character(levels(cm[["Target"]])), 1)
+  max_prediction_level <- tail(as.character(levels(cm[[col_names[[2]]]])), 1)
+  min_prediction_level <- head(as.character(levels(cm[[col_names[[2]]]])), 1)
+  max_target_level <- tail(as.character(levels(cm[[col_names[[1]]]])), 1)
+  min_target_level <- head(as.character(levels(cm[[col_names[[1]]]])), 1)
 
   # Set arrow icon names for all tiles
   cm[["right_icon"]] <- icons[["right"]]
@@ -986,17 +991,44 @@ set_arrows <- function(cm, place_x_axis_above, icons,
   cm[["up_icon"]] <- icons[["up"]]
   cm[["down_icon"]] <- icons[["down"]]
 
+  # Whether to use white arrows (e.g., for dark backgrounds)
+  if(!is.null(all_dynamic_font_color_settings[["threshold"]]) &&
+     !is.null(all_dynamic_font_color_settings[["invert_arrows"]])){
+
+    inverted_color <- ifelse(arrow_color == "black", "white", "black")
+
+    at_or_above_threshold <- cm[[all_dynamic_font_color_settings[["value_col"]]]] >= all_dynamic_font_color_settings[["threshold"]]
+    if (all_dynamic_font_color_settings[["invert_arrows"]] == "below"){
+      color_name <- ifelse(!at_or_above_threshold, inverted_color, arrow_color)
+    } else {
+      color_name <- ifelse(at_or_above_threshold, inverted_color, arrow_color)
+    }
+
+    # Add suffices just before extension
+    # NOTE: Assumes information about the icon paths that were otherwise
+    # passed to the function, so perhaps this is a bit too hacky? Will
+    # work in practice though.
+    cm <- cm %>%
+      dplyr::mutate(
+        right_icon = stringr::str_replace_all(.data$right_icon, paste0(arrow_color, "\\.svg$"), paste0(color_name, ".svg")),
+        left_icon = stringr::str_replace_all(.data$left_icon, paste0(arrow_color, "\\.svg$"), paste0(color_name, ".svg")),
+        up_icon = stringr::str_replace_all(.data$up_icon, paste0(arrow_color, "\\.svg$"), paste0(color_name, ".svg")),
+        down_icon = stringr::str_replace_all(.data$down_icon, paste0(arrow_color, "\\.svg$"), paste0(color_name, ".svg")),
+      )
+
+  }
+
   # Remove arrows where Prediction is extreme level
-  cm[cm[["Prediction"]] == max_prediction_level, "up_icon"] <- empty_path
-  cm[cm[["Prediction"]] == min_prediction_level, "down_icon"] <- empty_path
+  cm[cm[[col_names[[2]]]] == max_prediction_level, "up_icon"] <- empty_path
+  cm[cm[[col_names[[2]]]] == min_prediction_level, "down_icon"] <- empty_path
 
   # Remove arrows where Target is extreme level
   if (isTRUE(place_x_axis_above)){
-    cm[cm[["Target"]] == max_target_level, "left_icon"] <- empty_path
-    cm[cm[["Target"]] == min_target_level, "right_icon"] <- empty_path
+    cm[cm[[col_names[[1]]]] == max_target_level, "left_icon"] <- empty_path
+    cm[cm[[col_names[[1]]]] == min_target_level, "right_icon"] <- empty_path
   } else {
-    cm[cm[["Target"]] == max_target_level, "right_icon"] <- empty_path
-    cm[cm[["Target"]] == min_target_level, "left_icon"] <- empty_path
+    cm[cm[[col_names[[1]]]] == max_target_level, "right_icon"] <- empty_path
+    cm[cm[[col_names[[1]]]] == min_target_level, "left_icon"] <- empty_path
   }
 
   cm

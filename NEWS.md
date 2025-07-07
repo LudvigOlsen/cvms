@@ -1,5 +1,5 @@
 
-# cvms 1.7.0.9000
+# cvms 1.8.0
 
 ## `plot_confusion_matrix()`:
 

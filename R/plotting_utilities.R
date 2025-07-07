@@ -632,3 +632,69 @@ add_geom_text <- function(
 
 }
 
+add_3d_overlay_geom <- function(pl, num_rows, amount_3d_effect, use_ggimage){
+  if (isTRUE(use_ggimage) &&
+      amount_3d_effect > 0) {
+    overlay_size_subtract <- 0.043 / 2 ^ (num_rows - 2)
+    overlay_size_subtract <-
+      dplyr::case_when(num_rows >= 5 ~ overlay_size_subtract + 0.002,
+        TRUE ~ overlay_size_subtract)
+
+    pl <- pl + ggimage::geom_image(
+      ggplot2::aes(image = .data$image_3d),
+      by = "width",
+      size = 1.0 / num_rows - overlay_size_subtract
+    )
+  }
+
+  pl
+}
+
+check_gg_image_packages <- function(add_arrows, add_zero_shading){
+  # When 'rsvg', 'ggimage' or 'ggnewscale' is missing
+  user_has_rsvg <- requireNamespace("rsvg", quietly = TRUE)
+  user_has_ggimage <- requireNamespace("ggimage", quietly = TRUE)
+  user_has_ggnewscale <- requireNamespace("ggnewscale", quietly = TRUE)
+  use_ggimage <- all(user_has_rsvg, user_has_ggimage)
+  if (!isTRUE(use_ggimage)){
+    if (!isTRUE(user_has_ggimage))
+      warning("'ggimage' is missing. Will not plot arrows and zero-shading.")
+    if (!isTRUE(user_has_rsvg))
+      warning("'rsvg' is missing. Will not plot arrows and zero-shading.")
+    add_arrows <- FALSE
+    add_zero_shading <- FALSE
+  }
+
+  list(
+    "user_has_rsvg" = user_has_rsvg,
+    "user_has_ggimage" = user_has_ggimage,
+    "user_has_ggnewscale" = user_has_ggnewscale,
+    "use_ggimage" = use_ggimage,
+    "add_arrows" = add_arrows,
+    "add_zero_shading" = add_zero_shading
+  )
+}
+
+make_arrow_paths <- function(arrow_color){
+  arrow_icons <- list(
+    "up" = get_figure_path(paste0("caret_up_sharp_", arrow_color, ".svg")),
+    "down" = get_figure_path(paste0("caret_down_sharp_", arrow_color, ".svg")),
+    "left" = get_figure_path(paste0("caret_back_sharp_", arrow_color, ".svg")),
+    "right" = get_figure_path(paste0("caret_forward_sharp_", arrow_color, ".svg"))
+  )
+  arrow_icons
+}
+
+add_3d_path <- function(cm, use_ggimage, amount_3d_effect){
+  # Assign 3D effect image
+  if (isTRUE(use_ggimage) &&
+      amount_3d_effect > 0){
+    # Add image path with slight 3D effect
+    if (FALSE){  # Debugging
+      cm[["image_3d"]] <- get_figure_path("square_overlay_bordered.png")
+    } else {
+      cm[["image_3d"]] <- get_figure_path(paste0("square_overlay_", amount_3d_effect, ".png"))
+    }
+  }
+  cm
+}

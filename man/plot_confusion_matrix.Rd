@@ -120,14 +120,20 @@ add to the middle of the tiles. (Logical)}
 
 \item{add_zero_shading}{Add image of skewed lines to zero-tiles. (Logical)
 
- Note: Adding the zero-shading requires the \code{rsvg} and \code{ggimage} packages.}
+ Note: Adding the zero-shading requires the \code{rsvg} and \code{ggimage} packages.
+
+ Note: For large confusion matrices, this can be very slow. Consider turning
+ off until the final plotting.}
 
 \item{amount_3d_effect}{Amount of 3D effect (tile overlay) to add.
  Passed as whole number from \code{0} (no effect) up to \code{6} (biggest effect).
  This helps separate tiles with the same intensities.
 
  Note: The overlay may not fit the tiles in many-class cases that haven't been tested.
- If the boxes do not overlap properly, simply turn it off.}
+ If the boxes do not overlap properly, simply turn it off.
+
+ Note: For large confusion matrices, this can be very slow. Consider turning
+ off until the final plotting.}
 
 \item{add_arrows}{Add the arrows to the row and col percentages. (Logical)
 

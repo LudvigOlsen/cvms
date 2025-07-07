@@ -972,17 +972,18 @@ aapply <- function(fun, formula, ..., fixed = list()) {
 
 
 set_arrows <- function(cm,
-                       place_x_axis_above,
-                       icons,
-                       arrow_color,
-                       all_dynamic_font_color_settings,
-                       empty_path = get_figure_path("empty_square.svg")) {
+  col_names,
+  place_x_axis_above,
+  icons,
+  arrow_color,
+  all_dynamic_font_color_settings,
+  empty_path = get_figure_path("empty_square.svg")) {
 
   # Get the extreme levels
-  max_prediction_level <- tail(as.character(levels(cm[["Prediction"]])), 1)
-  min_prediction_level <- head(as.character(levels(cm[["Prediction"]])), 1)
-  max_target_level <- tail(as.character(levels(cm[["Target"]])), 1)
-  min_target_level <- head(as.character(levels(cm[["Target"]])), 1)
+  max_prediction_level <- tail(as.character(levels(cm[[col_names[[2]]]])), 1)
+  min_prediction_level <- head(as.character(levels(cm[[col_names[[2]]]])), 1)
+  max_target_level <- tail(as.character(levels(cm[[col_names[[1]]]])), 1)
+  min_target_level <- head(as.character(levels(cm[[col_names[[1]]]])), 1)
 
   # Set arrow icon names for all tiles
   cm[["right_icon"]] <- icons[["right"]]
@@ -1018,16 +1019,16 @@ set_arrows <- function(cm,
   }
 
   # Remove arrows where Prediction is extreme level
-  cm[cm[["Prediction"]] == max_prediction_level, "up_icon"] <- empty_path
-  cm[cm[["Prediction"]] == min_prediction_level, "down_icon"] <- empty_path
+  cm[cm[[col_names[[2]]]] == max_prediction_level, "up_icon"] <- empty_path
+  cm[cm[[col_names[[2]]]] == min_prediction_level, "down_icon"] <- empty_path
 
   # Remove arrows where Target is extreme level
   if (isTRUE(place_x_axis_above)){
-    cm[cm[["Target"]] == max_target_level, "left_icon"] <- empty_path
-    cm[cm[["Target"]] == min_target_level, "right_icon"] <- empty_path
+    cm[cm[[col_names[[1]]]] == max_target_level, "left_icon"] <- empty_path
+    cm[cm[[col_names[[1]]]] == min_target_level, "right_icon"] <- empty_path
   } else {
-    cm[cm[["Target"]] == max_target_level, "right_icon"] <- empty_path
-    cm[cm[["Target"]] == min_target_level, "left_icon"] <- empty_path
+    cm[cm[[col_names[[1]]]] == max_target_level, "right_icon"] <- empty_path
+    cm[cm[[col_names[[1]]]] == min_target_level, "left_icon"] <- empty_path
   }
 
   cm

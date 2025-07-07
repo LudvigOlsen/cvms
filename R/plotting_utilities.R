@@ -293,6 +293,7 @@ create_dynamic_font_setting <- function(low_color, high_color, threshold){
 #' \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.
 #' @param tc_tile_border_linetype,tile_border_linetype Linetype for the tile borders. Passed as \emph{\code{`linetype`}} to
 #' \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile}}.
+#' @param font_color Deprecated.
 #' @inheritParams plot_confusion_matrix
 #' @return List of settings.
 sum_tile_settings <- function(palette = NULL,

@@ -102,6 +102,8 @@ and returns a vector of values to pass to \code{\link[ggplot2:geom_text]{ggplot2
 
 \item{intensity_beyond_lims}{What to do with values beyond the
 \code{`intensity_lims`}. One of \code{"truncate", "grey"}.}
+
+\item{font_color}{Deprecated.}
 }
 \value{
 List of settings.

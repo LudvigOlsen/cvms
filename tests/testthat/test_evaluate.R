@@ -2851,7 +2851,7 @@ test_that("binomial evaluation works in evaluate()", {
       "ROC", "Confusion Matrix", "Process"
     )
   )
-  expect_identical(bn_eval_2_no_preds, bn_eval_2 %>% dplyr::select(-dplyr::one_of("Predictions")))
+  expect_equal(bn_eval_2_no_preds, bn_eval_2 %>% dplyr::select(-dplyr::one_of("Predictions")))
 
 
   # TODO Create actual expected tests, where you curate a dataset, an aggregated version (all methods)

@@ -53,15 +53,7 @@ test_that("binomial models work with cross_validate()", {
       "Target", "Prediction", "Predicted Class"
     )
   )
-  expect_equal(
-    names(CVbinomlist$ROC[[1]]$.folds),
-    c(
-      "percent", "sensitivities", "specificities", "thresholds",
-      "direction", "cases", "controls", "fun.sesp", "auc", "call",
-      "original.predictor", "original.response", "predictor", "response",
-      "levels"
-    )
-  )
+
   expect_equal(CVbinomlist$ROC[[1]]$.folds$levels, c("1", "0"))
   expect_equal(as.numeric(CVbinomlist$ROC[[1]]$.folds$auc), 0.761574074074074, tolerance = 1e-5)
   expect_equal(CVbinomlist$ROC[[1]]$.folds$direction, ">")
@@ -181,15 +173,7 @@ test_that("binomial models checks that dependent variable is numeric with cross_
   expect_equal(nrow(CVbinomlist$Predictions[[1]]), 30)
 
   expect_is(CVbinomlist$ROC[[1]]$.folds, "roc")
-  expect_equal(
-    names(CVbinomlist$ROC[[1]]$.folds),
-    c(
-      "percent", "sensitivities", "specificities", "thresholds",
-      "direction", "cases", "controls", "fun.sesp", "auc", "call",
-      "original.predictor", "original.response", "predictor", "response",
-      "levels"
-    )
-  )
+
   expect_equal(CVbinomlist$ROC[[1]]$.folds$levels, c("1", "0"))
   expect_equal(as.numeric(CVbinomlist$ROC[[1]]$.folds$auc), 0.747685185185185, tolerance = 1e-5)
   expect_equal(CVbinomlist$ROC[[1]]$.folds$direction, ">")
@@ -295,15 +279,7 @@ test_that("binomial mixed models work with cross_validate()", {
   expect_equal(nrow(CVbinomlistrand$Predictions[[1]]), 30)
 
   expect_is(CVbinomlistrand$ROC[[1]]$.folds, "roc")
-  expect_equal(
-    names(CVbinomlistrand$ROC[[1]]$.folds),
-    c(
-      "percent", "sensitivities", "specificities", "thresholds",
-      "direction", "cases", "controls", "fun.sesp", "auc", "call",
-      "original.predictor", "original.response", "predictor", "response",
-      "levels"
-    )
-  )
+
   expect_equal(CVbinomlistrand$ROC[[1]]$.folds$levels, c("1", "0"))
   expect_equal(as.numeric(CVbinomlistrand$ROC[[1]]$.folds$auc), 0.847222222222222, tolerance = 1e-5)
   expect_equal(CVbinomlistrand$ROC[[1]]$.folds$direction, ">")
@@ -348,15 +324,7 @@ test_that("binomial mixed models work with cross_validate()", {
   )
   expect_equal(nrow(CVbinomlistrand$Predictions[[2]]), 30)
   expect_is(CVbinomlistrand$ROC[[2]]$.folds, "roc")
-  expect_equal(
-    names(CVbinomlistrand$ROC[[2]]$.folds),
-    c(
-      "percent", "sensitivities", "specificities", "thresholds",
-      "direction", "cases", "controls", "fun.sesp", "auc", "call",
-      "original.predictor", "original.response", "predictor", "response",
-      "levels"
-    )
-  )
+
   expect_equal(CVbinomlistrand$ROC[[2]]$.folds$levels, c("1", "0"))
   expect_equal(as.numeric(CVbinomlistrand$ROC[[2]]$.folds$auc), 0.416666666666667)
   expect_equal(CVbinomlistrand$ROC[[2]]$.folds$direction, ">")

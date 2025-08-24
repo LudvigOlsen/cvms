@@ -267,7 +267,7 @@ A \code{ggplot2} object representing a confusion matrix.
  While this function is intended to be very flexible (hence the large number of arguments),
  the defaults should work in most cases for most users. See the \code{Examples}.
 
- \strong{NEW}: Our
+ \strong{Web-based}: Our
  \href{https://huggingface.co/spaces/ludvigolsen/plot_confusion_matrix}{
  \strong{Plot Confusion Matrix} web application}
  allows using this function without code. Select from multiple design templates

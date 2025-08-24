@@ -1,4 +1,12 @@
 
+# cvms 1.8.1
+
+* Removes unnecessary test of the `pROC` ROC curve contents. Thanks [@xrobin](https://github.com/LudvigOlsen/cvms/issues/43).
+
+* Fixes test for compatibility with `pROC 1.19.0.1`. Thanks [@xrobin](https://github.com/LudvigOlsen/cvms/pull/44). 
+
+* `plot_confusion_matrix()`: Fixes deprecation warning when enabling `add_sums=TRUE` without specifying non-default `sums_settings`. Thanks [@lucasxteixeira](https://github.com/LudvigOlsen/cvms/issues/45).
+
 # cvms 1.8.0
 
 ## `plot_confusion_matrix()`:

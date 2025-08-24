@@ -16,7 +16,7 @@
 #'  While this function is intended to be very flexible (hence the large number of arguments),
 #'  the defaults should work in most cases for most users. See the \code{Examples}.
 #'
-#'  \strong{NEW}: Our
+#'  \strong{Web-based}: Our
 #'  \href{https://huggingface.co/spaces/ludvigolsen/plot_confusion_matrix}{
 #'  \strong{Plot Confusion Matrix} web application}
 #'  allows using this function without code. Select from multiple design templates
@@ -579,7 +579,7 @@ plot_confusion_matrix <- function(conf_matrix,
   )
 
   # Check deprecated font color argument
-  if (!is.null(sums_settings[["font_color"]])) {
+  if ("font_color" %in% names(sums_settings)) {
     deprecate_warn(
       "1.8.0", "cvms::plot_confusion_matrix(sum_settings = 'list cannot contain `font_color=`')",
       "sum_settings(font_counts_color=)"

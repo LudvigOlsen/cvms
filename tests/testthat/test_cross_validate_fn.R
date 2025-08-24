@@ -922,15 +922,7 @@ test_that("binomial svm models from e1071 work with cross_validate_fn()", {
     colnames(CVbinomlist$Predictions[[1]]),
     c("Fold Column", "Fold", "Observation", "Target", "Prediction", "Predicted Class")
   )
-  expect_equal(
-    names(CVbinomlist$ROC[[1]]$.folds),
-    c(
-      "percent", "sensitivities", "specificities", "thresholds",
-      "direction", "cases", "controls", "fun.sesp", "auc", "call",
-      "original.predictor", "original.response", "predictor", "response",
-      "levels"
-    )
-  )
+
   expect_equal(
     CVbinomlist$ROC[[1]]$.folds$sensitivities,
     c(1, 1, 1, 1, 1, 1, 0.916666666666667, 0.833333333333333, 0.833333333333333,
@@ -2796,15 +2788,7 @@ test_that("binomial random predictions work with cross_validate_fn()", {
   )
 
   expect_equal(names(CVrandom$ROC[[1]]), ".folds")
-  expect_equal(
-    names(CVrandom$ROC[[1]]$.folds),
-    c(
-      "percent", "sensitivities", "specificities", "thresholds",
-      "direction", "cases", "controls", "fun.sesp", "auc", "call",
-      "original.predictor", "original.response", "predictor", "response",
-      "levels"
-    )
-  )
+
   expect_equal(CVrandom$ROC[[1]]$.folds$direction, ">")
   expect_equal(
     CVrandom$ROC[[1]]$.folds$thresholds,

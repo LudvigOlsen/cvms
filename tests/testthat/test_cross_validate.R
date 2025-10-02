@@ -2447,7 +2447,7 @@ test_that("the expected errors are thrown by cross_validate()", {
   expect_identical(
     xpectr::suppress_mw(
       cross_validate(
-        dplyr::sample_frac(dat, 0.2),
+        dplyr::sample_frac(dat, 0.25),
         formulas = c("diagnosis~score*age+(1|session)"),
         family = "gaussian",
         fold_cols = ".folds_1",

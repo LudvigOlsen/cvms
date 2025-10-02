@@ -197,6 +197,9 @@ cross_validate_list <- function(data,
   # Check that the fold column(s) is/are factor(s)
   check_fold_col_factor(data = data, fold_cols = fold_cols)
 
+  # Drop existing levels in fold columns
+  data <- data %>% dplyr::mutate(dplyr::across(dplyr::all_of(fold_cols), ~ droplevels(.)))
+
   # When using cross_validate() we need to extract a few hparams
   # Hyperparameters for REML, link, control, is_cross_validate
   special_hparams <- extract_special_fn_specific_hparams(

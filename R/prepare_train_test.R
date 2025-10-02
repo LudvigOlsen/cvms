@@ -271,7 +271,7 @@ run_preprocess_once <- function(data,
 
 subset_data <- function(data, fold_info, fold_cols) {
 
-  # Important to ensure it is character instead of factor
+  # Important to ensure colname is character instead of factor
   # As that will match the rel_fold with the level index column instead
   current_fold_column <- as.character(fold_info[["fold_column"]])
 
@@ -279,6 +279,13 @@ subset_data <- function(data, fold_info, fold_cols) {
   train_data <- data[as.integer(data[[current_fold_column]]) != fold_info[["rel_fold"]], ]
   # Create test set for this iteration
   test_data <- data[as.integer(data[[current_fold_column]]) == fold_info[["rel_fold"]], ]
+
+  # Ensure there are both train and test data
+  if (nrow(train_data) == 0) {
+    stop("Fold train/test split found no training data.")
+  } else if (nrow(test_data) == 0) {
+    stop("Fold train/test split found no test data.")
+  }
 
   # Remove folds column(s) from subsets, so we can use "y ~ ." method
   # when defining the model formula.

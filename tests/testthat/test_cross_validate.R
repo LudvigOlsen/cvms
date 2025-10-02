@@ -3609,3 +3609,147 @@ test_that("varying number of folds in repeated cv with cross_validate()", {
 
 })
 
+test_that("character fold IDs work", {
+  set.seed(1)
+
+  # Build a tiny compositional dataset with two families (V, J) that each sum to 1
+  # 3 folds (datasets) via 'dataset', all predictors vary (non-zero SD per fold)
+  mk_fold <- function(n, fold) {
+    V1 <- runif(n, 0.2, 0.8)
+    J1 <- runif(n, 0.1, 0.9)
+    age <- 40 + 10*V1 - 5*J1 + rnorm(n, 0, 1)   # any target
+    dplyr::tibble(dataset = fold, age, V1, J1)
+  }
+
+  df <- dplyr::bind_rows(
+    mk_fold(10, "A"),
+    mk_fold(10, "B"),
+    mk_fold(10, "C")
+  ) %>%
+    dplyr::mutate(dataset = factor(dataset))
+
+  out <- cross_validate(
+    "age ~ .",
+    data        = df,
+    family      = "gaussian",
+    fold_cols   = "dataset",    # leave-one-dataset-out internally
+    preprocessing = "standardize",  # scaling doesn't remove the linear constraints
+    parallel    = FALSE
+  )
+  expect_equal(out$Folds, 3)
+  expect_equal(out$Predictions[[1]] %>% dplyr::count(Fold) %>% dplyr::pull(n), c(10,10,10))
+
+})
+
+test_that("numeric non-sequential fold IDs work", {
+  set.seed(1)
+
+  # Build a tiny compositional dataset with two families (V, J) that each sum to 1
+  # 3 folds (datasets) via 'dataset', all predictors vary (non-zero SD per fold)
+  mk_fold <- function(n, fold) {
+    V1 <- runif(n, 0.2, 0.8)
+    J1 <- runif(n, 0.1, 0.9)
+    age <- 40 + 10*V1 - 5*J1 + rnorm(n, 0, 1)   # any target
+    dplyr::tibble(dataset = fold, age, V1, J1)
+  }
+
+  df <- dplyr::bind_rows(
+    mk_fold(10, 1),
+    mk_fold(10, 3),
+    mk_fold(10, 7)
+  ) %>%
+    dplyr::mutate(dataset = factor(dataset))
+
+  out <- cross_validate(
+    "age ~ .",
+    data        = df,
+    family      = "gaussian",
+    fold_cols   = "dataset",    # leave-one-dataset-out internally
+    preprocessing = "standardize",  # scaling doesn't remove the linear constraints
+    parallel    = FALSE
+  )
+  expect_equal(out$Folds, 3)
+  expect_equal(out$Predictions[[1]] %>% dplyr::count(Fold) %>% dplyr::pull(n), c(10,10,10))
+
+})
+
+test_that("singular model matrix give reasonable errors", {
+
+  set.seed(1)
+
+  # Build a tiny compositional dataset with two families (V, J) that each sum to 1
+  # 3 folds (datasets) via 'dataset', all predictors vary (non-zero SD per fold)
+  mk_fold <- function(n, fold) {
+    V1 <- runif(n, 0.2, 0.8)
+    V2 <- 1 - V1                     # exact linear combo within V-family
+    J1 <- runif(n, 0.1, 0.9)
+    J2 <- 1 - J1                     # exact linear combo within J-family
+    age <- 40 + 10*V1 - 5*J1 + rnorm(n, 0, 1)   # any target
+    dplyr::tibble(dataset = fold, age, V1, V2, J1, J2)
+  }
+
+  rank_check <- function(formula, data, fold_lab = "") {
+    mm <- model.matrix(as.formula(formula), data = data)
+    r  <- qr(mm)$rank
+    if (r < ncol(mm)) {
+      stop(
+        paste0(
+          "Rank-deficient model matrix in ",
+          fold_lab,
+          " (rank=",
+          r,
+          " < cols=",
+          ncol(mm),
+          "). ",
+          "Likely cause: compositional families + intercept. ",
+          "Drop one column per family or use '- 1' to remove intercept."
+        )
+      )
+    }
+  }
+
+  df <- dplyr::bind_rows(
+    mk_fold(10, "A"),
+    mk_fold(10, "B"),
+    mk_fold(10, "C")
+  ) %>%
+    dplyr::mutate(dataset = factor(dataset))
+
+  # Test that SDs are non-zero within each fold (so it's NOT a zero-variance issue)
+  expect_false((
+    df %>%
+      dplyr::group_by(dataset) %>%
+      dplyr::summarise(dplyr::across(c(V1, V2, J1, J2), sd)) %>% dplyr::select(-dataset) %>% unlist(recursive = T) %>% unname() == 0
+  ) %>% any()
+  )
+
+  # Base lm shows rank deficiency (one or more coefficients are NA)
+  fit <- lm(age ~ ., data = df %>% dplyr::select(-dataset))
+  # One of V1/V2 (and/or J1/J2) will be NA with intercept present
+  expect_equal(coef(fit) %>% is.na() %>% sum(), 2)
+
+  # cvms nested by dataset (LODO-style per dataset) will hit the same rank deficiency
+  expect_message(
+  cross_validate(
+    "age ~ .",                      # intercept present
+    data        = df %>% dplyr::select(age, V1, V2, J1, J2, dataset),
+    family      = "gaussian",
+    fold_cols   = "dataset",    # leave-one-dataset-out internally
+    preprocessing = "standardize",  # scaling doesn't remove the linear constraints
+    parallel    = FALSE
+  ), "rank deficient"
+  )
+
+  # cvms nested by dataset (LODO-style per dataset) will hit the same rank deficiency
+  expect_silent(
+    cross_validate(
+      "age ~ .",                      # intercept present
+      data        = df %>% dplyr::select(age, V1, J1, dataset),
+      family      = "gaussian",
+      fold_cols   = "dataset",    # leave-one-dataset-out internally
+      preprocessing = "standardize",  # scaling doesn't remove the linear constraints
+      parallel    = FALSE
+    )
+  )
+
+})

@@ -276,9 +276,9 @@ subset_data <- function(data, fold_info, fold_cols) {
   current_fold_column <- as.character(fold_info[["fold_column"]])
 
   # Create training set for this iteration
-  train_data <- data[data[[current_fold_column]] != fold_info[["rel_fold"]], ]
+  train_data <- data[as.integer(data[[current_fold_column]]) != fold_info[["rel_fold"]], ]
   # Create test set for this iteration
-  test_data <- data[data[[current_fold_column]] == fold_info[["rel_fold"]], ]
+  test_data <- data[as.integer(data[[current_fold_column]]) == fold_info[["rel_fold"]], ]
 
   # Remove folds column(s) from subsets, so we can use "y ~ ." method
   # when defining the model formula.

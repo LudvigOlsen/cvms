@@ -464,7 +464,7 @@ is_between_ <- function(x, a, b) {
 
 
 rows_sum_to <- function(data, sum_to = 1, digits = 5) {
-  !any(round(rowSums(data), digits = digits) != 1)
+  !any(round(rowSums(data), digits = digits) != sum_to)
 }
 
 

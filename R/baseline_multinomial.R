@@ -5,7 +5,6 @@ create_multinomial_baseline_evaluations <- function(test_data,
                                                     na.rm = TRUE,
                                                     random_generator_fn = runif,
                                                     parallel_ = FALSE) {
-
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
   checkmate::assert_flag(x = na.rm, add = assert_collection)
@@ -16,9 +15,11 @@ create_multinomial_baseline_evaluations <- function(test_data,
   metric_names <- set_metrics("multinomial", metrics_list = metrics)
 
   # If metric == "all", we'll convert it to the named list of logicals
-  if (!is.list(metrics) &&
-    is.character(metrics) &&
-    metrics == "all") {
+  if (
+    !is.list(metrics) &&
+      is.character(metrics) &&
+      metrics == "all"
+  ) {
     metrics <- as.list(rep(TRUE, length(metric_names)))
     names(metrics) <- metric_names
   }
@@ -62,7 +63,7 @@ create_multinomial_baseline_evaluations <- function(test_data,
       zero_probs_df <- do.call(data.frame, as.list(zero_probs))
       colnames(zero_probs_df) <- classes
       zero_probs_df %>%
-        dplyr::slice(rep(1:dplyr::n(), each = num_targets)) %>%
+        dplyr::slice(rep(seq_len(dplyr::n()), each = num_targets)) %>%
         dplyr::mutate_at(dplyr::vars(classes[[cl]]), ~ (1 - almost_zero))
     }) %>%
     split(f = factor(rep(1:num_classes, each = num_targets)))
@@ -167,9 +168,6 @@ create_multinomial_baseline_evaluations <- function(test_data,
     cols = "Class Level Results"
   )
 
-  evaluations_all_or_nothing_class_level_results <-
-    evaluations_all_or_nothing[["Class Level Results"]]
-
   evaluations_random_class_level_results <- evaluations_random_class_level_results %>%
     dplyr::bind_rows(.id = "Repetition") %>%
     dplyr::mutate(
@@ -186,7 +184,9 @@ create_multinomial_baseline_evaluations <- function(test_data,
     )
   evaluations_all_or_nothing_results <- evaluations_all_or_nothing_results[
     order(evaluations_all_or_nothing_results$All_class,
-          method = "radix"), ]
+      method = "radix"
+    ),
+  ]
 
   # Gather the evaluations in the correct form
 
@@ -210,7 +210,7 @@ create_multinomial_baseline_evaluations <- function(test_data,
     ]
     metric_cols_current_class[["Class"]] <- NULL
 
-    summarized_class_level_result <- summarize_metrics(
+    summarize_metrics(
       metric_cols_current_class,
       na.rm = TRUE,
       inf.rm = TRUE
@@ -234,11 +234,6 @@ create_multinomial_baseline_evaluations <- function(test_data,
   # Extract the metrics that we need to get entirely from the repetition results
   # such as Overall Accuracy
 
-  # Extract the metrics that we need to get from the repetition results
-  repetition_result_metrics <- setdiff(
-    colnames(metric_cols_results),
-    colnames(summarized_metrics_class_level)
-  )
 
   # Summarize the metrics
   summarized_repetitions <- metric_cols_results %>%
@@ -316,7 +311,8 @@ create_multinomial_baseline_evaluations <- function(test_data,
 
   # Nest the summarized class level results
   nested_class_level <- tibble::tibble("Class" = unlist(dplyr::group_keys(summarized_metrics_class_level),
-                                                        use.names = FALSE)) %>%
+    use.names = FALSE
+  )) %>%
     dplyr::left_join(
       summarized_metrics_class_level %>%
         dplyr::group_nest(.key = "Results", keep = FALSE),
@@ -376,7 +372,6 @@ all_or_nothing_evaluations <- function(test_data, target_col, current_class, rep
 # Note: I tried with pmap_dfr and a nest_row function
 # but it was a lot slower
 nest_rowwise <- function(data) {
-  n_cols <- ncol(data)
   tmp_index <- create_tmp_name(data)
   data[[tmp_index]] <- seq_len(nrow(data))
   data %>%

@@ -21,9 +21,11 @@
 #' library(cvms)
 #' library(dplyr)
 #'
-#' df <- data.frame("a" = c("a", "a", "a", "b", "b", "b", "c", "c", "c"),
-#'                  "b" = c(0.8, 0.6, 0.3, 0.2, 0.4, 0.5, 0.8, 0.1, 0.5),
-#'                  "c" = c(0.2, 0.3, 0.4, 0.6, 0.5, 0.8, 0.1, 0.8, 0.3))
+#' df <- data.frame(
+#'   "a" = c("a", "a", "a", "b", "b", "b", "c", "c", "c"),
+#'   "b" = c(0.8, 0.6, 0.3, 0.2, 0.4, 0.5, 0.8, 0.1, 0.5),
+#'   "c" = c(0.2, 0.3, 0.4, 0.6, 0.5, 0.8, 0.1, 0.8, 0.3)
+#' )
 #'
 #' # Summarize all numeric columns
 #' summarize_metrics(df)
@@ -31,7 +33,6 @@
 #' # Summarize column "b"
 #' summarize_metrics(df, cols = "b")
 summarize_metrics <- function(data, cols = NULL, na.rm = TRUE, inf.rm = TRUE) {
-
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
   checkmate::assert_data_frame(
@@ -50,8 +51,9 @@ summarize_metrics <- function(data, cols = NULL, na.rm = TRUE, inf.rm = TRUE) {
   checkmate::assert_flag(x = na.rm, add = assert_collection)
   checkmate::assert_flag(x = inf.rm, add = assert_collection)
   checkmate::reportAssertions(assert_collection)
-  if (dplyr::is_grouped_df(data))
+  if (dplyr::is_grouped_df(data)) {
     assert_collection$push("Currently, 'data' cannot be grouped.")
+  }
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
 
@@ -95,7 +97,7 @@ summarize_metrics <- function(data, cols = NULL, na.rm = TRUE, inf.rm = TRUE) {
   # Summarize metrics
   summarized_metrics <- dplyr::bind_rows(
     plyr::ldply(names(descriptors), function(descr) {
-      d_fn <- descriptors[[descr]]
+      d_fn <- descriptors[[descr]] # nolint: object_usage_linter.
       data %>%
         dplyr::summarize_all(.funs = list(~ d_fn(., na.rm = na.rm))) %>%
         dplyr::mutate(Measure = descr)
@@ -116,19 +118,20 @@ summarize_metrics <- function(data, cols = NULL, na.rm = TRUE, inf.rm = TRUE) {
 }
 
 replace_inf_with_na <- function(metric_cols) {
-
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
-  checkmate::assert_data_frame(x = metric_cols,
-                               types = "numeric",
-                               min.cols = 1,
-                               add = assert_collection)
+  checkmate::assert_data_frame(
+    x = metric_cols,
+    types = "numeric",
+    min.cols = 1,
+    add = assert_collection
+  )
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
 
   # Convert to tibble - required so
   # metric_cols_with_infs won't be numeric(0)
-  if (!tibble::is_tibble(metric_cols)){
+  if (!tibble::is_tibble(metric_cols)) {
     metric_cols <- dplyr::as_tibble(metric_cols)
   }
 

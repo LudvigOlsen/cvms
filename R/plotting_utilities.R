@@ -43,7 +43,6 @@ font <- function(size = NULL,
                  digits = NULL,
                  prefix = NULL,
                  suffix = NULL) {
-
   # TODO Could this inherit from ggplot2::element_text?
 
   list(
@@ -65,7 +64,6 @@ font <- function(size = NULL,
 }
 
 update_font_setting <- function(settings, defaults, initial_vals = NULL) {
-
   # If defaults not provided,
   # here are some reasonable backup defaults
   backup_defaults <-
@@ -94,8 +92,7 @@ update_font_setting <- function(settings, defaults, initial_vals = NULL) {
   )
 }
 
-preprocess_numeric <- function(vec, settings, rm_zero_text=FALSE, rm_zeroes_post_rounding=TRUE) {
-
+preprocess_numeric <- function(vec, settings, rm_zero_text = FALSE, rm_zeroes_post_rounding = TRUE) {
   # Find the pre-rounding 0s or NaNs
   is_zero <- vec == 0 | is.na(vec)
 
@@ -107,8 +104,8 @@ preprocess_numeric <- function(vec, settings, rm_zero_text=FALSE, rm_zeroes_post
 
   # Remove text for zeroes
   # Potentially including elements zero after rounding
-  if (isTRUE(rm_zero_text)){
-    if (isTRUE(rm_zeroes_post_rounding)){
+  if (isTRUE(rm_zero_text)) {
+    if (isTRUE(rm_zeroes_post_rounding)) {
       out[vec == 0 | is.na(vec)] <- ""
     } else {
       out[is_zero] <- ""
@@ -152,7 +149,6 @@ dynamic_font_color_settings <- function(threshold = NULL,
                                         row_percentages = NULL,
                                         col_percentages = NULL,
                                         invert_arrows = NULL) {
-
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
   checkmate::assert_number(x = threshold, null.ok = TRUE, add = assert_collection)
@@ -225,12 +221,11 @@ dynamic_font_color_settings <- function(threshold = NULL,
     "col_percentages" = col_percentages,
     "invert_arrows" = invert_arrows
   )
-
 }
 
 # TODO: Document and export!
-create_dynamic_font_setting <- function(low_color, high_color, threshold){
-  function(values){
+create_dynamic_font_setting <- function(low_color, high_color, threshold) {
+  function(values) {
     ifelse(values >= threshold, high_color, low_color)
   }
 }
@@ -314,7 +309,6 @@ sum_tile_settings <- function(palette = NULL,
                               intensity_lims = NULL,
                               intensity_beyond_lims = NULL,
                               font_color = deprecated()) {
-
   # Check deprecated font color argument
   if (!rlang::is_missing(font_color)) {
     deprecate_warn(
@@ -340,14 +334,13 @@ sum_tile_settings <- function(palette = NULL,
     "tc_tile_border_color" = tc_tile_border_color,
     "tc_tile_border_size" = tc_tile_border_size,
     "tc_tile_border_linetype" = tc_tile_border_linetype,
-    "intensity_by"= intensity_by,
+    "intensity_by" = intensity_by,
     "intensity_lims" = intensity_lims,
     "intensity_beyond_lims" = intensity_beyond_lims
   )
 }
 
 update_sum_tile_settings <- function(settings, defaults, initial_vals = NULL) {
-
   # If defaults not provided,
   # here are some reasonable backup defaults
   backup_defaults <-
@@ -380,8 +373,9 @@ update_sum_tile_settings <- function(settings, defaults, initial_vals = NULL) {
 }
 
 sort_palette <- function(palette) {
-  if (is.character(palette))
+  if (is.character(palette)) {
     return(sort(palette))
+  }
   palette[order(names(palette))]
 }
 
@@ -389,10 +383,12 @@ palettes_are_equal <- function(p1, p2) {
   p1 <- sort_palette(p1)
   p2 <- sort_palette(p2)
   if (is.list(p1)) {
-    if (!is.list(p2))
+    if (!is.list(p2)) {
       return(FALSE)
-    if (!all(names(p1) == names(p2)))
+    }
+    if (!all(names(p1) == names(p2))) {
       return(FALSE)
+    }
     return(identical(c(p1[["low"]], p1[["high"]]), c(p2[["low"]], p2[["high"]])))
   }
   p1 == p2
@@ -408,8 +404,9 @@ palettes_are_equal <- function(p1, p2) {
 get_figure_path <- function(fig_name, inst_dir = "images", pgk_name = "cvms") {
   dir_path <- system.file(inst_dir, package = pgk_name)
   fig_path <- paste0(dir_path, "/", fig_name)
-  if (file.exists(fig_path))
+  if (file.exists(fig_path)) {
     return(fig_path)
+  }
   warning("Could not find figure.")
   invisible()
 }
@@ -419,9 +416,9 @@ get_figure_path <- function(fig_name, inst_dir = "images", pgk_name = "cvms") {
 ##  Basics                                                                  ####
 
 
-calculate_normalized <- function(data){
+calculate_normalized <- function(data) {
   sum_ <- sum(data[["N"]])
-  if (sum_ == 0){
+  if (sum_ == 0) {
     sum_ <- 1
   }
   data[["Normalized"]] <- 100 * (data[["N"]] / sum_)
@@ -443,16 +440,15 @@ set_intensity <- function(data, intensity_by) {
     }
 
     data[["Intensity"]] <- counts
-
   } else if (intensity_by == "normalized") {
     data[["Intensity"]] <- data[["Normalized"]]
   } else if (intensity_by == "row_percentages") {
-    if (!("Prediction_Percentage" %in% colnames(data))){
+    if (!("Prediction_Percentage" %in% colnames(data))) {
       stop("Cannot set intensity by `row_percentages` when `add_row_percentages=FALSE`.")
     }
     data[["Intensity"]] <- data[["Prediction_Percentage"]]
   } else if (intensity_by == "col_percentages") {
-    if (!("Class_Percentage" %in% colnames(data))){
+    if (!("Class_Percentage" %in% colnames(data))) {
       stop("Cannot set intensity by `col_percentages` when `add_col_percentages=FALSE`.")
     }
     data[["Intensity"]] <- data[["Class_Percentage"]]
@@ -477,13 +473,15 @@ get_intensity_range <- function(data, intensity_by, intensity_lims) {
     max_intensity <- 100.
   }
   range_intensity <- max_intensity - min_intensity
-  list("min" = min_intensity,
-       "max" = max_intensity,
-       "range" = range_intensity)
+  list(
+    "min" = min_intensity,
+    "max" = max_intensity,
+    "range" = range_intensity
+  )
 }
 
-handle_beyond_intensity_limits <- function(intensities, intensity_range, intensity_beyond_lims){
-  if (intensity_beyond_lims == "truncate"){
+handle_beyond_intensity_limits <- function(intensities, intensity_range, intensity_beyond_lims) {
+  if (intensity_beyond_lims == "truncate") {
     dplyr::case_when(
       intensities > intensity_range[["max"]] ~ intensity_range[["max"]],
       intensities < intensity_range[["min"]] ~ intensity_range[["min"]],
@@ -498,23 +496,27 @@ handle_beyond_intensity_limits <- function(intensities, intensity_range, intensi
   }
 }
 
-get_color_limits <- function(intensity_measures, darkness){
+get_color_limits <- function(intensity_measures, darkness) {
   # To avoid the extremely dark colors
   # where the black font does not work that well
   # We add a bit to the range, so our max intensity
   # will not appear to be the extreme
-  c(intensity_measures[["min"]],
+  c(
+    intensity_measures[["min"]],
     intensity_measures[["max"]] + 10 * (1 - darkness) * (
-      intensity_measures[["range"]] / 5)
+      intensity_measures[["range"]] / 5
+    )
   )
 }
 
-update_settings_object <- function(settings, defaults, backup_defaults, initial_vals){
+update_settings_object <- function(settings, defaults, backup_defaults, initial_vals) {
   new_settings <- list()
   for (opt in names(backup_defaults)) {
     if (is.null(settings[[opt]])) {
-      if (opt %in% names(defaults) &&
-          !is.null(defaults[[opt]])) {
+      if (
+        opt %in% names(defaults) &&
+          !is.null(defaults[[opt]])
+      ) {
         new_settings[[opt]] <- defaults[[opt]]
       } else {
         new_settings[[opt]] <- backup_defaults[[opt]]
@@ -536,7 +538,6 @@ update_settings_object <- function(settings, defaults, backup_defaults, initial_
 # If setting is a function, call it on the values and the return the outputs
 # If setting is a values, return the value
 interpret_font_setting <- function(font_settings, arg_name, values) {
-
   if (!(arg_name %in% names(font_settings))) {
     stop(paste0("`", arg_name, "` not in the font settings."))
   }
@@ -553,7 +554,7 @@ interpret_font_setting <- function(font_settings, arg_name, values) {
 }
 
 interpret_all_font_settings <- function(font_settings, values) {
-  purrr::map(names(font_settings), .f =  ~ {
+  purrr::map(names(font_settings), .f = ~ {
     interpret_font_setting(
       font_settings = font_settings,
       arg_name = .x,
@@ -564,27 +565,27 @@ interpret_all_font_settings <- function(font_settings, values) {
 
 
 add_geom_text <- function(
-    pl,
-    data,
-    values_col,
-    values_label_col,
-    font_settings,
-    allowed_static_setting_names=c(
-      "size",
-      "alpha",
-      "nudge_x",
-      "nudge_y",
-      "angle",
-      "family",
-      "fontface",
-      "hjust",
-      "vjust",
-      "lineheight",
-      "color"
-    ),
-    add_settings = list(),
-    all_dynamic_font_color_settings=NULL,
-    dynamic_font_name=NULL
+  pl,
+  data,
+  values_col,
+  values_label_col,
+  font_settings,
+  allowed_static_setting_names = c(
+    "size",
+    "alpha",
+    "nudge_x",
+    "nudge_y",
+    "angle",
+    "family",
+    "fontface",
+    "hjust",
+    "vjust",
+    "lineheight",
+    "color"
+  ),
+  add_settings = list(),
+  all_dynamic_font_color_settings = NULL,
+  dynamic_font_name = NULL
 ) {
   # Interpret font settings for counts
   font_settings <- font_settings[names(font_settings) %in% allowed_static_setting_names]
@@ -593,32 +594,31 @@ add_geom_text <- function(
   # Get dynamic font color settings for this font
   if (!is.null(dynamic_font_name) &&
 
-      # Ensure it's not specified via `font_*`
-      # For sum tiles, we skip this check ("already_specified_for" is not in the list)
-      (!("already_specified_for" %in% names(all_dynamic_font_color_settings)) ||
+    # Ensure it's not specified via `font_*`
+    # For sum tiles, we skip this check ("already_specified_for" is not in the list)
+    (!("already_specified_for" %in% names(all_dynamic_font_color_settings)) ||
       !all_dynamic_font_color_settings[["already_specified_for"]][[dynamic_font_name]]) &&
 
-      # Colors must be specified for 'all' or the specific font
-      !(is.null(all_dynamic_font_color_settings[["all"]]) &&
-      is.null(all_dynamic_font_color_settings[[dynamic_font_name]]))){
-
+    # Colors must be specified for 'all' or the specific font
+    !(is.null(all_dynamic_font_color_settings[["all"]]) &&
+      is.null(all_dynamic_font_color_settings[[dynamic_font_name]]))
+  ) {
     # Get colors for either the specific font
-    if (!is.null(all_dynamic_font_color_settings[[dynamic_font_name]])){
+    if (!is.null(all_dynamic_font_color_settings[[dynamic_font_name]])) {
       font_interps[["color"]] <- create_dynamic_font_setting(
         all_dynamic_font_color_settings[[dynamic_font_name]][[1]],
         all_dynamic_font_color_settings[[dynamic_font_name]][[2]],
         threshold = all_dynamic_font_color_settings[["threshold"]]
       )(data[[all_dynamic_font_color_settings[["value_col"]]]])
 
-    # Or from 'all' specification
-    } else if (!(is.null(all_dynamic_font_color_settings[["all"]]))){
+      # Or from 'all' specification
+    } else if (!(is.null(all_dynamic_font_color_settings[["all"]]))) {
       font_interps[["color"]] <- create_dynamic_font_setting(
         all_dynamic_font_color_settings[["all"]][[1]],
         all_dynamic_font_color_settings[["all"]][[2]],
         threshold = all_dynamic_font_color_settings[["threshold"]]
       )(data[[all_dynamic_font_color_settings[["value_col"]]]])
     }
-
   }
 
   # Add count labels to middle of the regular tiles
@@ -632,16 +632,19 @@ add_geom_text <- function(
     )
 
   pl
-
 }
 
-add_3d_overlay_geom <- function(pl, num_rows, amount_3d_effect, use_ggimage){
-  if (isTRUE(use_ggimage) &&
-      amount_3d_effect > 0) {
-    overlay_size_subtract <- 0.043 / 2 ^ (num_rows - 2)
+add_3d_overlay_geom <- function(pl, num_rows, amount_3d_effect, use_ggimage) {
+  if (
+    isTRUE(use_ggimage) &&
+      amount_3d_effect > 0
+  ) {
+    overlay_size_subtract <- 0.043 / 2^(num_rows - 2)
     overlay_size_subtract <-
-      dplyr::case_when(num_rows >= 5 ~ overlay_size_subtract + 0.002,
-        TRUE ~ overlay_size_subtract)
+      dplyr::case_when(
+        num_rows >= 5 ~ overlay_size_subtract + 0.002,
+        TRUE ~ overlay_size_subtract
+      )
 
     pl <- pl + ggimage::geom_image(
       ggplot2::aes(image = .data$image_3d),
@@ -653,17 +656,19 @@ add_3d_overlay_geom <- function(pl, num_rows, amount_3d_effect, use_ggimage){
   pl
 }
 
-check_gg_image_packages <- function(add_arrows, add_zero_shading){
+check_gg_image_packages <- function(add_arrows, add_zero_shading) {
   # When 'rsvg', 'ggimage' or 'ggnewscale' is missing
   user_has_rsvg <- requireNamespace("rsvg", quietly = TRUE)
   user_has_ggimage <- requireNamespace("ggimage", quietly = TRUE)
   user_has_ggnewscale <- requireNamespace("ggnewscale", quietly = TRUE)
   use_ggimage <- all(user_has_rsvg, user_has_ggimage)
-  if (!isTRUE(use_ggimage)){
-    if (!isTRUE(user_has_ggimage))
+  if (!isTRUE(use_ggimage)) {
+    if (!isTRUE(user_has_ggimage)) {
       warning("'ggimage' is missing. Will not plot arrows and zero-shading.")
-    if (!isTRUE(user_has_rsvg))
+    }
+    if (!isTRUE(user_has_rsvg)) {
       warning("'rsvg' is missing. Will not plot arrows and zero-shading.")
+    }
     add_arrows <- FALSE
     add_zero_shading <- FALSE
   }
@@ -678,7 +683,7 @@ check_gg_image_packages <- function(add_arrows, add_zero_shading){
   )
 }
 
-make_arrow_paths <- function(arrow_color){
+make_arrow_paths <- function(arrow_color) {
   arrow_icons <- list(
     "up" = get_figure_path(paste0("caret_up_sharp_", arrow_color, ".svg")),
     "down" = get_figure_path(paste0("caret_down_sharp_", arrow_color, ".svg")),
@@ -688,12 +693,14 @@ make_arrow_paths <- function(arrow_color){
   arrow_icons
 }
 
-add_3d_path <- function(cm, use_ggimage, amount_3d_effect){
+add_3d_path <- function(cm, use_ggimage, amount_3d_effect) {
   # Assign 3D effect image
-  if (isTRUE(use_ggimage) &&
-      amount_3d_effect > 0){
+  if (
+    isTRUE(use_ggimage) &&
+      amount_3d_effect > 0
+  ) {
     # Add image path with slight 3D effect
-    if (FALSE){  # Debugging
+    if (FALSE) { # Debugging
       cm[["image_3d"]] <- get_figure_path("square_overlay_bordered.png")
     } else {
       cm[["image_3d"]] <- get_figure_path(paste0("square_overlay_", amount_3d_effect, ".png"))

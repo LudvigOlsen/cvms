@@ -1,4 +1,3 @@
-
 create_gaussian_baseline_evaluations <- function(train_data,
                                                  test_data,
                                                  dependent_col,
@@ -10,8 +9,6 @@ create_gaussian_baseline_evaluations <- function(train_data,
                                                  metrics = list(),
                                                  na.rm = TRUE,
                                                  parallel_ = FALSE) {
-
-
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
   checkmate::assert_flag(x = na.rm, add = assert_collection)
@@ -65,10 +62,8 @@ create_gaussian_baseline_evaluations <- function(train_data,
   test_data <- test_data %>%
     base_select(cols = model_variables)
 
-  # Get targets
-  test_targets <- test_data[[dependent_col]]
+  # Get train targets
   train_targets <- train_data[[dependent_col]]
-  n_test_targets <- length(test_targets)
   n_train_targets <- length(train_targets)
 
   # Sample probability of a row being included
@@ -79,7 +74,7 @@ create_gaussian_baseline_evaluations <- function(train_data,
       stringsAsFactors = FALSE
     ) %>%
     dplyr::group_by(.data$split_factor) %>%
-    dplyr::mutate(indices = 1:dplyr::n()) %>%
+    dplyr::mutate(indices = seq_len(dplyr::n())) %>%
     dplyr::ungroup()
 
   # Find the boundaries for sampling a threshold
@@ -87,13 +82,18 @@ create_gaussian_baseline_evaluations <- function(train_data,
   # and at least min_training_rows_left_out are not included
 
   sampling_boundaries <- train_set_inclusion_vals
-  sampling_boundaries <- sampling_boundaries[order(sampling_boundaries$split_factor,
-                            -sampling_boundaries$inclusion_probability,
-                            method = "radix"), ]
+  sampling_boundaries <- sampling_boundaries[
+    order(sampling_boundaries$split_factor,
+      -sampling_boundaries$inclusion_probability,
+      method = "radix"
+    ),
+  ]
   sampling_boundaries <- sampling_boundaries %>%
     dplyr::group_by(.data$split_factor) %>%
-    dplyr::slice(min_training_rows,
-                 n_train_targets - min_training_rows_left_out + 1) %>%
+    dplyr::slice(
+      min_training_rows,
+      n_train_targets - min_training_rows_left_out + 1
+    ) %>%
     dplyr::mutate(
       to_add = c(-0.001, 0.001),
       limits = .data$inclusion_probability + .data$to_add,
@@ -103,7 +103,10 @@ create_gaussian_baseline_evaluations <- function(train_data,
     tidyr::spread(key = "min_max", value = "limits") %>%
     dplyr::mutate(
       inclusion_probability_threshold = runif(
-        1, min = .data$min_, max = .data$max_)) %>%
+        1,
+        min = .data$min_, max = .data$max_
+      )
+    ) %>%
     base_deselect(cols = c("max_", "min_"))
 
   # Filter rows to get training set indices
@@ -144,7 +147,6 @@ create_gaussian_baseline_evaluations <- function(train_data,
   evaluations <- plyr::llply(1:(n_samplings + 1),
     .parallel = parallel_,
     function(evaluation) {
-
       # Get indices for this evaluation
       inds <- train_sets_indices[[evaluation]]
 
@@ -225,8 +227,7 @@ create_gaussian_baseline_evaluations <- function(train_data,
 
 # Remove the INFs from the NAs count
 subtract_inf_count_from_na_count <- function(summarized_metrics) {
-
-  if ("tbl_df" %ni% class(summarized_metrics)){
+  if ("tbl_df" %ni% class(summarized_metrics)) {
     summarized_metrics <- dplyr::as_tibble(summarized_metrics)
   }
 
@@ -234,15 +235,17 @@ subtract_inf_count_from_na_count <- function(summarized_metrics) {
   NAs_row_number <- which(summarized_metrics$Measure == "NAs")
   INFs_row_number <- which(summarized_metrics$Measure == "INFs")
 
-  measure_col <- summarized_metrics[,"Measure"]
+  measure_col <- summarized_metrics[, "Measure"]
   summarized_metrics[["Measure"]] <- NULL
 
   # Subtract the INF counts from the NA counts
-  summarized_metrics[NAs_row_number,] <- summarized_metrics[NAs_row_number,] -
-    summarized_metrics[INFs_row_number,]
+  summarized_metrics[NAs_row_number, ] <- summarized_metrics[NAs_row_number, ] -
+    summarized_metrics[INFs_row_number, ]
 
   summarized_metrics <- summarized_metrics %>%
-    tibble::add_column(Measure = measure_col[["Measure"]],
-                       .before = colnames(summarized_metrics)[[1]])
+    tibble::add_column(
+      Measure = measure_col[["Measure"]],
+      .before = colnames(summarized_metrics)[[1]]
+    )
   summarized_metrics
 }

@@ -1,5 +1,3 @@
-
-
 #   __________________ #< ccfcdb8c94c692518bdaf6f1509380e1 ># __________________
 #   Cross-validate lm lmer glm glmer                                        ####
 
@@ -323,7 +321,7 @@
 #'   data,
 #'   formulas = formulas,
 #'   family = "gaussian"
-#'   #, parallel = TRUE  # Uncomment
+#'   # , parallel = TRUE  # Uncomment
 #' )
 #' }
 #' @importFrom stats binomial gaussian glm lm
@@ -345,8 +343,8 @@ cross_validate <- function(
   verbose = FALSE,
   link = deprecated(),
   models = deprecated(),
-  model_verbose = deprecated()) {
-
+  model_verbose = deprecated()
+) {
   if (!rlang::is_missing(link)) {
     deprecate_stop("1.0.0", "cvms::cross_validate(link = )")
   }

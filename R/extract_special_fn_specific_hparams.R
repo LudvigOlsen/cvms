@@ -1,6 +1,5 @@
 extract_special_fn_specific_hparams <- function(hyperparameters) {
   if (!is.data.frame(hyperparameters) && is.list(hyperparameters)) {
-
     # When using validate() or cross_validate()
     # we need to extract a few hparams
     # Hyperparameters for REML, link, control, is_*validate
@@ -17,7 +16,6 @@ extract_special_fn_specific_hparams <- function(hyperparameters) {
   }
 
   if (isTRUE(is_special_fn)) {
-
     # Note that we do not fill in defaults here, as that would mean,
     # they could be different from their settings in the hyperparameters
     # which could lead to mistakes. They are instead filled in

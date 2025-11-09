@@ -1,5 +1,4 @@
 update_model_specifics <- function(model_specifics) {
-
   # Check required arguments
   check_argument_in_model_specifics("model_formula", model_specifics)
   check_argument_in_model_specifics("family", model_specifics)
@@ -42,8 +41,6 @@ update_model_specifics <- function(model_specifics) {
     stop_if_argument_is_not_function("preprocess_fn", model_specifics)
   }
 
-  family_ <- model_specifics[["family"]]
-
   # err=TRUE means that it throws an error and warns to pass as named arguments.
   # We don't use this right now, as arguments that wasn't passed (and should take default value) are NULL.
   model_specifics <- replace_argument_in_model_specifics_if_null("positive", model_specifics, 2, err = FALSE)
@@ -74,5 +71,5 @@ capture_fn <- function(fn) {
   if (!is.null(fn)) {
     return(paste0(utils::capture.output(fn), collapse = " \n "))
   }
-  return("NULL")
+  "NULL"
 }

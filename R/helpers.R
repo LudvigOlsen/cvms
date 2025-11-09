@@ -1,5 +1,3 @@
-
-
 #   __________________ #< 1f97b5a554f2c90b5fb34e9263640d1e ># __________________
 #   %c%                                                                     ####
 
@@ -16,7 +14,7 @@
 
 # Not in
 `%ni%` <- function(x, table) {
-  return(!(x %in% table))
+  !(x %in% table)
 }
 
 
@@ -44,7 +42,6 @@ default_link <- function(link, family) {
 
 default_control <- function(control, family, link) {
   if (is.null(control)) {
-
     # Note that gaussian models with alternative link functions are run with glmer
     if (family == "gaussian") {
       if (link == "identity") {
@@ -73,7 +70,7 @@ extract_y <- function(formula) {
   if (length(splits) < 2) {
     return(NULL)
   }
-  return(splits[1])
+  splits[1]
 }
 
 
@@ -97,8 +94,10 @@ count_convergence_warnings <- function(convergences) { # "Yes" or "No"
 
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
-  checkmate::assert_names(x = unique(convergences), subset.of = c("Yes", "No"),
-                           add = assert_collection)
+  checkmate::assert_names(
+    x = unique(convergences), subset.of = c("Yes", "No"),
+    add = assert_collection
+  )
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
 
@@ -107,7 +106,7 @@ count_convergence_warnings <- function(convergences) { # "Yes" or "No"
   if (is.na(conv_warns)) {
     conv_warns <- 0
   }
-  return(conv_warns)
+  conv_warns
 }
 
 
@@ -210,7 +209,6 @@ stop_if_argument_is_not_function <- function(var_name, model_specifics) {
 
 
 nest_results <- function(results) {
-
   # Make results into a tibble
   iter_results <- tibble::as_tibble(results)
   rownames(iter_results) <- NULL
@@ -244,7 +242,7 @@ nest_models <- function(model_coefs) {
 
 levels_as_characters <- function(col, drop_unused = TRUE, sort_levels = FALSE) {
   fcol <- factor(col)
-  if (isTRUE(drop_unused)){
+  if (isTRUE(drop_unused)) {
     fcol <- droplevels(fcol)
   }
   levs <- levels(fcol)
@@ -253,8 +251,9 @@ levels_as_characters <- function(col, drop_unused = TRUE, sort_levels = FALSE) {
     as.character(levs[i])
   }) %>% unlist()
 
-  if (isTRUE(sort_levels))
+  if (isTRUE(sort_levels)) {
     cat_levels <- sort(cat_levels)
+  }
 
   cat_levels
 }
@@ -288,7 +287,7 @@ remove_from_colnames <- function(data, pattern) {
     dplyr::mutate(colname = stringr::str_remove_all(.data$value, pattern)) %>%
     dplyr::pull(.data$colname)
 
-  return(data)
+  data
 }
 
 
@@ -298,11 +297,10 @@ remove_from_colnames <- function(data, pattern) {
 
 # Returns list with folds_map and n_folds
 create_folds_map <- function(data, fold_cols) {
-
   # Create a map of number of folds per fold column
   # The range tells what fold column a specific fold belongs to.
   folds_map <- plyr::llply(seq_len(length(fold_cols)), function(fold_column) {
-    nlevels(data[[ fold_cols[[fold_column]] ]])
+    nlevels(data[[fold_cols[[fold_column]]]])
   }) %>%
     unlist() %>%
     tibble::enframe(name = "fold_col", value = "num_folds")
@@ -311,7 +309,7 @@ create_folds_map <- function(data, fold_cols) {
   folds_map <- folds_map %>%
     dplyr::mutate(
       end_ = cumsum(.data$num_folds),
-      start_ = rearrr::roll_elements_vec(.data$end_, n=-1) + 1
+      start_ = rearrr::roll_elements_vec(.data$end_, n = -1) + 1
     )
   folds_map[1, "start_"] <- 1
 
@@ -321,7 +319,7 @@ create_folds_map <- function(data, fold_cols) {
   # Expand ranges to long format
   folds_map_expanded <-
     plyr::ldply(seq_len(length(fold_cols)), function(fold_column) {
-      current_fold_map <- folds_map[fold_column,] %>% unlist()
+      current_fold_map <- folds_map[fold_column, ] %>% unlist()
       data.frame(
         "fold_col_idx" = fold_column,
         "fold_col_name" = factor(fold_cols[[fold_column]]),
@@ -329,13 +327,13 @@ create_folds_map <- function(data, fold_cols) {
         rel_fold = seq_len(current_fold_map[["num_folds"]]),
         stringsAsFactors = FALSE
       )
-    }) %>% dplyr::as_tibble()
+    }) %>%
+    dplyr::as_tibble()
 
-  return(
-    list(
-      "folds_map" = folds_map_expanded,
-      "n_folds" = n_folds
-    )
+
+  list(
+    "folds_map" = folds_map_expanded,
+    "n_folds" = n_folds
   )
 }
 
@@ -401,13 +399,11 @@ skip_test_if_newer_R_version <- function(max_major, max_minor) {
 
 
 is_wholenumber_ <- function(n) {
-
   # If n is a whole number
   # .. return TRUE
   # else
   # .. return FALSE
-
-  return(floor(n) == n)
+  floor(n) == n
 }
 
 
@@ -416,7 +412,6 @@ is_wholenumber_ <- function(n) {
 
 
 arg_is_wholenumber_ <- function(n) {
-
   # Checks if n is a whole number of either
   # type integer or numeric
   # Returns TRUE if yes, else FALSE
@@ -448,15 +443,9 @@ arg_is_wholenumber_ <- function(n) {
 
 
 arg_is_number_ <- function(n) {
-
   # Checks if n is either an integer or a numeric
   # Returns TRUE if yes, FALSE if no
-
-  if (is.integer(n) || is.numeric(n)) {
-    return(TRUE)
-  } else {
-    return(FALSE)
-  }
+  is.integer(n) || is.numeric(n)
 }
 
 
@@ -465,9 +454,7 @@ arg_is_number_ <- function(n) {
 
 
 is_between_ <- function(x, a, b) {
-
   # Checks if x is between a and b
-
   x > a & x < b
 }
 
@@ -476,7 +463,7 @@ is_between_ <- function(x, a, b) {
 #   Check rows sum to                                                       ####
 
 
-rows_sum_to <- function(data, sum_to = 1, digits = 5){
+rows_sum_to <- function(data, sum_to = 1, digits = 5) {
   !any(round(rowSums(data), digits = digits) != 1)
 }
 
@@ -644,17 +631,15 @@ create_warnings_and_messages_tibble <- function(warnings, messages, fn) {
 }
 
 
-
 #   __________________ #< 440b147b963f8a7fd202661bfc3b068e ># __________________
 #   Create message for side effects                                         ####
 
-append_to_message <- function(msg, .var = NULL, .msg = NULL, ignore_var_null = TRUE, ignore_empty = TRUE){
-
-  if (is.null(.var) && isTRUE(ignore_var_null)){
+append_to_message <- function(msg, .var = NULL, .msg = NULL, ignore_var_null = TRUE, ignore_empty = TRUE) {
+  if (is.null(.var) && isTRUE(ignore_var_null)) {
     return(msg)
   }
 
-  if (checkmate::test_string(.var) && .var == "" && isTRUE(ignore_empty)){
+  if (checkmate::test_string(.var) && .var == "" && isTRUE(ignore_empty)) {
     return(msg)
   }
 
@@ -666,24 +651,25 @@ append_to_message <- function(msg, .var = NULL, .msg = NULL, ignore_var_null = T
 }
 
 create_message <- function(m, caller, formula = NULL, fold_col = NULL, fold = NULL,
-                           hyperparameters = NULL, note = NULL, why = NULL){
+                           hyperparameters = NULL, note = NULL, why = NULL) {
   msg <- paste(
     "---",
     paste0(caller, ": ", m),
-    sep = "\n")
+    sep = "\n"
+  )
 
   msg <- append_to_message(msg, .var = why, .msg = "Why: ")
   msg <- append_to_message(msg, .var = note, .msg = "Note: ")
 
-  if (!is.null(formula) || !is.null(fold_col) ||
-      !is.null(fold) || !is.null(hyperparameters)){
-
+  if (
+    !is.null(formula) || !is.null(fold_col) ||
+      !is.null(fold) || !is.null(hyperparameters)
+  ) {
     msg <- append_to_message(msg, .msg = "For:", ignore_var_null = FALSE)
     msg <- append_to_message(msg, .var = formula, .msg = "Formula: ")
     msg <- append_to_message(msg, .var = fold_col, .msg = "Fold column: ")
     msg <- append_to_message(msg, .var = fold, .msg = "Fold: ")
     msg <- append_to_message(msg, .var = paste_hparams(hyperparameters), .msg = "Hyperparameters: ")
-
   }
 
   msg <- append_to_message(msg, .msg = "", ignore_var_null = FALSE, ignore_empty = FALSE)
@@ -719,17 +705,17 @@ inform_once <- function(msg, id = msg) {
 }
 
 # From tidyselect
-paste_line <- function (...) {
+paste_line <- function(...) {
   paste(rlang::chr(...), collapse = "\n")
 }
 
 
-inform_about_positive_no_effect_on_probs <- function(positive){
+inform_about_positive_no_effect_on_probs <- function(positive) {
   inform_once(c(paste0("cvms::evaluate(type='binomial', positive='", positive, "', ):"), paste0(
     "Please be aware that setting the `positive` argument ",
     "does not change what the probabilities are of ",
     "(second class alphabetically), only the confusion matrix-based metrics."
-  )), id="evaluate: The `positive` argument does not affect probabilities.")
+  )), id = "evaluate: The `positive` argument does not affect probabilities.")
 }
 
 #   __________________ #< 71c73c7cedb289ef6c3dd17503736847 ># __________________
@@ -764,7 +750,6 @@ to_tibble <- function(x, x_name, caller = "") {
 base_rename <- function(data, before, after,
                         warn_at_overwrite = FALSE,
                         message_if_identical = FALSE) {
-
   #
   # Replaces name of column in data frame
   #
@@ -821,8 +806,9 @@ base_deselect <- function(data, cols) {
 
 # Col should be col name
 position_first <- function(data, col) {
-  if (!checkmate::test_string(x = col))
+  if (!checkmate::test_string(x = col)) {
     stop("col must be name")
+  }
 
   base_select(data = data, cols = c(col, setdiff(names(data), col)))
 }
@@ -845,18 +831,21 @@ position_last <- function(data, col) {
 
 # use_epsilon: Add epsilon to 0s and subtract epsilon from 1s
 one_hot_encode <- function(data, col, c_levels = NULL, use_epsilon = FALSE, epsilon = 1e-6) {
-
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
   checkmate::assert_data_frame(x = data, add = assert_collection)
   checkmate::assert_string(x = col, add = assert_collection)
-  checkmate::assert_character(x = c_levels, null.ok = TRUE,
-                              add = assert_collection)
+  checkmate::assert_character(
+    x = c_levels, null.ok = TRUE,
+    add = assert_collection
+  )
   checkmate::assert_flag(x = use_epsilon, add = assert_collection)
   checkmate::assert_number(x = epsilon, upper = 0.01, add = assert_collection)
   checkmate::reportAssertions(assert_collection)
-  checkmate::assert_names(x = colnames(data), must.include = col,
-                          add = assert_collection)
+  checkmate::assert_names(
+    x = colnames(data), must.include = col,
+    add = assert_collection
+  )
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
 
@@ -886,7 +875,7 @@ one_hot_encode <- function(data, col, c_levels = NULL, use_epsilon = FALSE, epsi
   tmp_colname <- create_tmp_name(data, ".__col__")
   initial_tbl[[tmp_colname]] <- data[[col]]
 
-  equal_int <- function(x1, x2) {
+  equal_int <- function(x1, x2) { # nolint: object_usage_linter.
     as.integer(x1 == x2)
   }
 
@@ -911,7 +900,6 @@ one_hot_encode <- function(data, col, c_levels = NULL, use_epsilon = FALSE, epsi
 
 
 create_tmp_name <- function(data, name = ".tmp_") {
-
   # Assert input
   # 'data' can be anything where names() can be used,
   # so we don't add assertions for that
@@ -940,8 +928,9 @@ create_tmp_name <- function(data, name = ".tmp_") {
 # whereas names() usually returns NULL for unnamed objects
 non_empty_names <- function(x, always_character = TRUE) {
   ns <- names(x)
-  if (is.null(ns) && isTRUE(always_character))
+  if (is.null(ns) && isTRUE(always_character)) {
     return(character(0))
+  }
   ns <- ns[!is.na(ns)]
   ns[nzchar(ns, keepNA = TRUE)]
 }
@@ -971,14 +960,15 @@ aapply <- function(fun, formula, ..., fixed = list()) {
 #   Set arrow icons for plot_confusion_matrix                               ####
 
 
-set_arrows <- function(cm,
+set_arrows <- function(
+  cm,
   col_names,
   place_x_axis_above,
   icons,
   arrow_color,
   all_dynamic_font_color_settings,
-  empty_path = get_figure_path("empty_square.svg")) {
-
+  empty_path = get_figure_path("empty_square.svg")
+) {
   # Get the extreme levels
   max_prediction_level <- tail(as.character(levels(cm[[col_names[[2]]]])), 1)
   min_prediction_level <- head(as.character(levels(cm[[col_names[[2]]]])), 1)
@@ -992,13 +982,14 @@ set_arrows <- function(cm,
   cm[["down_icon"]] <- icons[["down"]]
 
   # Whether to use white arrows (e.g., for dark backgrounds)
-  if(!is.null(all_dynamic_font_color_settings[["threshold"]]) &&
-     !is.null(all_dynamic_font_color_settings[["invert_arrows"]])){
-
+  if (
+    !is.null(all_dynamic_font_color_settings[["threshold"]]) &&
+      !is.null(all_dynamic_font_color_settings[["invert_arrows"]])
+  ) {
     inverted_color <- ifelse(arrow_color == "black", "white", "black")
 
     at_or_above_threshold <- cm[[all_dynamic_font_color_settings[["value_col"]]]] >= all_dynamic_font_color_settings[["threshold"]]
-    if (all_dynamic_font_color_settings[["invert_arrows"]] == "below"){
+    if (all_dynamic_font_color_settings[["invert_arrows"]] == "below") {
       color_name <- ifelse(!at_or_above_threshold, inverted_color, arrow_color)
     } else {
       color_name <- ifelse(at_or_above_threshold, inverted_color, arrow_color)
@@ -1015,7 +1006,6 @@ set_arrows <- function(cm,
         up_icon = stringr::str_replace_all(.data$up_icon, paste0(arrow_color, "\\.svg$"), paste0(color_name, ".svg")),
         down_icon = stringr::str_replace_all(.data$down_icon, paste0(arrow_color, "\\.svg$"), paste0(color_name, ".svg")),
       )
-
   }
 
   # Remove arrows where Prediction is extreme level
@@ -1023,7 +1013,7 @@ set_arrows <- function(cm,
   cm[cm[[col_names[[2]]]] == min_prediction_level, "down_icon"] <- empty_path
 
   # Remove arrows where Target is extreme level
-  if (isTRUE(place_x_axis_above)){
+  if (isTRUE(place_x_axis_above)) {
     cm[cm[[col_names[[1]]]] == max_target_level, "left_icon"] <- empty_path
     cm[cm[[col_names[[1]]]] == min_target_level, "right_icon"] <- empty_path
   } else {
@@ -1038,7 +1028,7 @@ set_arrows <- function(cm,
 #   __________________ #< dcca4b803d31b98d0906e28484ac92b8 ># __________________
 #   Empty percentages cols for confusion matrix plot                        ####
 
-empty_tile_percentages <- function(data){
+empty_tile_percentages <- function(data) {
   cols_to_make_invisible_img <- intersect(
     colnames(data),
     c("right_icon", "left_icon", "up_icon", "down_icon")
@@ -1075,26 +1065,33 @@ groupdata2_import_handler <- function() {
 }
 
 
-get_pkg_version <- function(pkg_name){
+get_pkg_version <- function(pkg_name) {
   vs <- unlist(packageVersion(pkg_name))
-  list("major" = vs[[1]],
-       "minor" = vs[[2]],
-       "patch" = vs[[3]],
-       "dev" = ifelse(length(vs) > 3, vs[[4]], integer(0)))
+  list(
+    "major" = vs[[1]],
+    "minor" = vs[[2]],
+    "patch" = vs[[3]],
+    "dev" = ifelse(length(vs) > 3, vs[[4]], integer(0))
+  )
 }
 
-is_tibble_v2 <- function(){
+is_tibble_v2 <- function() {
   get_pkg_version("tibble")$major == 2
 }
 
 # Currently, lme4 v 1.1.22+ is the newer versions
 # This can be updated later
-is_newer_lme4 <- function(){
+is_newer_lme4 <- function() {
   v <- get_pkg_version("lme4")
-  if (v$major < 1) out <- FALSE
-  else if (v$minor < 1) out <- FALSE
-  else if (v$patch < 22) out <- FALSE
-  else out <- TRUE
+  if (v$major < 1) {
+    out <- FALSE
+  } else if (v$minor < 1) {
+    out <- FALSE
+  } else if (v$patch < 22) {
+    out <- FALSE
+  } else {
+    out <- TRUE
+  }
   out
 }
 
@@ -1103,12 +1100,12 @@ is_dplyr_1 <- function() {
   v$major >= 1 || (v$minor == 8 && v$patch == 99 && v$dev >= 9003)
 }
 
-is_checkmate_v2_1 <- function(){
+is_checkmate_v2_1 <- function() {
   v <- get_pkg_version("checkmate")
   v$major >= 2 && v$minor >= 1
 }
 
-is_parameters_v0_15_or_above <- function(){
+is_parameters_v0_15_or_above <- function() {
   v <- get_pkg_version("parameters")
   v$major >= 1 || v$minor >= 15
 }
@@ -1119,8 +1116,9 @@ is_parameters_v0_15_or_above <- function(){
 get_vignette_data_path <- function(file_name, inst_dir = "vignette_data", pgk_name = "cvms") {
   dir_path <- system.file(inst_dir, package = pgk_name)
   file_path <- paste0(dir_path, "/", file_name)
-  if (file.exists(file_path))
+  if (file.exists(file_path)) {
     return(file_path)
+  }
   warning(paste0("Could not find file: ", file_path))
   invisible()
 }

@@ -56,8 +56,8 @@ evaluate_predictions_binomial <- function(data,
   if (!na_in_targets && !na_in_predictions) {
     if (is.null(cat_levels)) {
       # Find the levels in the categorical target variable
-      cat_levels <- levels_as_characters(data[[target_col]], sort_levels=TRUE)
-      if (length(cat_levels) < 2){
+      cat_levels <- levels_as_characters(data[[target_col]], sort_levels = TRUE)
+      if (length(cat_levels) < 2) {
         stop("found less than 2 levels in the target column.")
       }
     }
@@ -79,13 +79,12 @@ evaluate_predictions_binomial <- function(data,
     # Create a column with the predicted class based on the chosen cutoff
     # If it wasn't passed by parent function
     if (is.null(predicted_class_col)) {
-
       # One may believe that setting the `positive` argument to the name
       # of a class should mean that probabilities > `cutoff` would be
       # considered that class, but this is not the case, so we
       # make the user aware of this (once)
-      if (is.character(model_specifics[["positive"]]) && positive != cat_levels[[2]]){
-        inform_about_positive_no_effect_on_probs(positive=positive)
+      if (is.character(model_specifics[["positive"]]) && positive != cat_levels[[2]]) {
+        inform_about_positive_no_effect_on_probs(positive = positive)
       }
 
       predicted_class_col <- create_tmp_name(data, "predicted_class")
@@ -93,7 +92,6 @@ evaluate_predictions_binomial <- function(data,
         cat_levels[[1]], cat_levels[[2]]
       )
     }
-
 
 
     # Nest predictions and targets
@@ -197,11 +195,9 @@ binomial_eval_confusion_matrices <- function(data,
                                              group_info,
                                              include_fold_columns,
                                              metrics) {
-
   # Confusion matrices
 
   confusion_matrices <- plyr::llply(unique_fold_cols, function(fcol) {
-
     # Subset data
     fcol_data <- data[data[[fold_info_cols[["fold_column"]]]] == fcol, ]
 
@@ -243,7 +239,6 @@ binomial_eval_roc_curves <- function(data, target_col, prediction_col,
                                      unique_fold_cols, cat_levels,
                                      positive, fold_info_cols,
                                      include_fold_columns) {
-
   # ROC curves
 
   # Prepare roc_cat_levels order first
@@ -257,7 +252,6 @@ binomial_eval_roc_curves <- function(data, target_col, prediction_col,
   roc_direction <- ifelse(all(roc_cat_levels == rev(cat_levels)), ">", "<")
 
   roc_curves <- plyr::llply(unique_fold_cols, function(fcol) {
-
     # Subset data
     fcol_data <- data[data[[fold_info_cols[["fold_column"]]]] == fcol, ]
 
@@ -386,7 +380,7 @@ repeat_data_frame_if <- function(data, n, condition) {
   if (isTRUE(condition)) {
     data <- data %>%
       dplyr::slice(
-        rep(1:dplyr::n(), n)
+        rep(seq_len(dplyr::n()), n)
       )
   }
 
@@ -504,7 +498,6 @@ fit_confusion_matrix <- function(predicted_classes, targets,
 
 # levels must be ordered such that the positive class is last c(neg, pos)
 fit_roc_curve <- function(predicted_probabilities, targets, levels = c(0, 1), direction = "<") {
-
   # Try to fit a ROC curve on the data
   roc_curve <- tryCatch(
     {
@@ -516,8 +509,10 @@ fit_roc_curve <- function(predicted_probabilities, targets, levels = c(0, 1), di
       )
     },
     error = function(e) {
-      if (grepl("No control observation", as.character(e), ignore.case = TRUE) ||
-        grepl("No case observation", as.character(e), ignore.case = TRUE)) {
+      if (
+        grepl("No control observation", as.character(e), ignore.case = TRUE) ||
+          grepl("No case observation", as.character(e), ignore.case = TRUE)
+      ) {
         return(NULL)
       }
 
@@ -547,8 +542,6 @@ nest_confusion_matrices <- function(confusion_matrices,
 nest_multiclass_confusion_matrices <- function(confusion_matrices,
                                                fold_cols = ".folds",
                                                include_fold_columns = TRUE) {
-
-
   # TODO Test this works here as well
   tidy_confusion_matrices <- confusion_matrices %>%
     dplyr::bind_rows() %>%

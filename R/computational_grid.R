@@ -1,5 +1,3 @@
-
-
 #   __________________ #< 0a2b50ea95d93800a253c2d2d75280f0 ># __________________
 #   Create computation grid                                                 ####
 
@@ -7,13 +5,14 @@
 # test_fold: If we only want to test on a specific fold (e.g. in validate_fn())
 create_computation_grid <- function(data, hparams, formulas,
                                     fold_cols, test_fold = NULL) {
-
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
   checkmate::assert_data_frame(x = data, add = assert_collection)
-  if (!is.null(hparams) &&
+  if (
+    !is.null(hparams) &&
       !checkmate::test_data_frame(x = hparams, col.names = "unique") &&
-      !checkmate::test_list(x = hparams, names = "unique")) {
+      !checkmate::test_list(x = hparams, names = "unique")
+  ) {
     assert_collection$push("'hparams' must be either a data frame, a named list or 'NULL'. All names must be unique.")
   }
   checkmate::assert_character(
@@ -99,7 +98,6 @@ create_computation_grid <- function(data, hparams, formulas,
 
 
 create_hparams_grid <- function(hparams, n = NULL) {
-
   # Create grid of
   grid <- expand.grid(hparams, stringsAsFactors = FALSE) %>%
     dplyr::as_tibble()

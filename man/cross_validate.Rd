@@ -354,7 +354,7 @@ cross_validate(
   data,
   formulas = formulas,
   family = "gaussian"
-  #, parallel = TRUE  # Uncomment
+  # , parallel = TRUE  # Uncomment
 )
 }
 }

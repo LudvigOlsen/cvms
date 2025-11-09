@@ -7,20 +7,23 @@
 
 # axis : "r" for row-wise, "c" for column-wise
 softmax <- function(data, cols = NULL, axis = "r") {
-
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
   checkmate::assert_data_frame(x = data, add = assert_collection)
   checkmate::assert_choice(x = axis, choices = c("r", "c"), add = assert_collection)
   checkmate::reportAssertions(assert_collection)
-  if (!is.null(cols) && !is.numeric(cols)){
+  if (!is.null(cols) && !is.numeric(cols)) {
     checkmate::assert_character(x = cols, null.ok = TRUE, add = assert_collection)
-    checkmate::assert_names(x = colnames(data), must.include = cols,
-                            type = "unique", what = "colnames",
-                            add = assert_collection)
+    checkmate::assert_names(
+      x = colnames(data), must.include = cols,
+      type = "unique", what = "colnames",
+      add = assert_collection
+    )
   } else {
-    checkmate::assert_integerish(x = cols, lower = 1, upper = ncol(data),
-                                 null.ok = TRUE, add = assert_collection)
+    checkmate::assert_integerish(
+      x = cols, lower = 1, upper = ncol(data),
+      null.ok = TRUE, add = assert_collection
+    )
   }
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
@@ -32,7 +35,7 @@ softmax <- function(data, cols = NULL, axis = "r") {
   col_order <- colnames(data)
 
   # Set cols when not provided as character
-  if (is.null(cols)){
+  if (is.null(cols)) {
     cols <- col_order
   } else if (is.numeric(cols)) {
     cols <- col_order[cols]
@@ -47,7 +50,7 @@ softmax <- function(data, cols = NULL, axis = "r") {
     stop("softmax() only works on numeric columns.")
   }
 
-  if (axis == "r"){
+  if (axis == "r") {
     processed_data <- purrr::pmap_dfr(
       data_to_process,
       softmax_row
@@ -82,14 +85,13 @@ softmax_row <- function(...) {
   arg_names <- non_empty_names(c(...))
   x <- as.list(softmax_vector(...))
 
-  if (length(arg_names) == length(x)){
+  if (length(arg_names) == length(x)) {
     names(x) <- arg_names
   } else {
     names(x) <- paste0("V", seq_len(length(x)))
   }
 
   as.data.frame(x)
-
 }
 
 
@@ -101,5 +103,3 @@ softmax_vector <- function(...) {
   x <- unname(c(...))
   exp(x - logsumexp(x))
 }
-
-

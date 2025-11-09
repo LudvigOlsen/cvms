@@ -216,7 +216,6 @@ library(dplyr)
 #   probability_of = "prediction",
 #   xlim = c(0.5, 1)
 # )
-
 }
 }
 \seealso{

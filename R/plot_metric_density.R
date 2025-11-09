@@ -48,24 +48,24 @@
 #' bsl <- baseline_multinomial(
 #'   test_data = musicians,
 #'   dependent_col = "Class",
-#'   n = 20  # Normally 100
+#'   n = 20 # Normally 100
 #' )
 #'
 #' # Evaluate predictions grouped by classifier and fold column
 #' eval <- predicted.musicians %>%
 #'   dplyr::group_by(Classifier, `Fold Column`) %>%
 #'   evaluate(
-#'   target_col = "Target",
-#'   prediction_cols = c("A", "B", "C", "D"),
-#'   type = "multinomial"
-#' )
+#'     target_col = "Target",
+#'     prediction_cols = c("A", "B", "C", "D"),
+#'     type = "multinomial"
+#'   )
 #'
 #' # Plot density of the Overall Accuracy metric
 #' plot_metric_density(
 #'   results = eval,
 #'   baseline = bsl$random_evaluations,
 #'   metric = "Overall Accuracy",
-#'   xlim = c(0,1)
+#'   xlim = c(0, 1)
 #' )
 #'
 #' # The bulk of classifier results are much better than
@@ -78,39 +78,59 @@ plot_metric_density <- function(results = NULL,
                                 alpha = 0.6,
                                 theme_fn = ggplot2::theme_minimal,
                                 xlim = NULL) {
-
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
-  if (is.null(results) && is.null(baseline)){
+  if (is.null(results) && is.null(baseline)) {
     assert_collection$push(
-      "Either 'results' or 'baseline' must be a data frame. Both were 'NULL'.")
+      "Either 'results' or 'baseline' must be a data frame. Both were 'NULL'."
+    )
   }
-  checkmate::assert_data_frame(x = results, col.names = "unique", null.ok = TRUE,
-                               add = assert_collection)
-  checkmate::assert_data_frame(x = baseline, col.names = "unique", null.ok = TRUE,
-                               add = assert_collection)
-  checkmate::assert_string(x = metric, min.chars = 1,
-                           add = assert_collection)
-  checkmate::assert_character(x = fill, null.ok = TRUE, # TODO test NULL works?
-                           add = assert_collection)
-  checkmate::assert_number(x = alpha, lower = 0, upper = 1,
-                           add = assert_collection)
-  checkmate::assert_function(x = theme_fn,
-                             add = assert_collection)
-  checkmate::assert_numeric(x = xlim, null.ok = TRUE,
-                            add = assert_collection)
+  checkmate::assert_data_frame(
+    x = results, col.names = "unique", null.ok = TRUE,
+    add = assert_collection
+  )
+  checkmate::assert_data_frame(
+    x = baseline, col.names = "unique", null.ok = TRUE,
+    add = assert_collection
+  )
+  checkmate::assert_string(
+    x = metric, min.chars = 1,
+    add = assert_collection
+  )
+  checkmate::assert_character(
+    x = fill, null.ok = TRUE, # TODO test NULL works?
+    add = assert_collection
+  )
+  checkmate::assert_number(
+    x = alpha, lower = 0, upper = 1,
+    add = assert_collection
+  )
+  checkmate::assert_function(
+    x = theme_fn,
+    add = assert_collection
+  )
+  checkmate::assert_numeric(
+    x = xlim, null.ok = TRUE,
+    add = assert_collection
+  )
   checkmate::reportAssertions(assert_collection)
-  if (!is.null(results))
-    checkmate::assert_names(x = names(results), must.include = metric,
-                            add = assert_collection)
-  if (!is.null(baseline))
-    checkmate::assert_names(x = names(baseline), must.include = metric,
-                            add = assert_collection)
+  if (!is.null(results)) {
+    checkmate::assert_names(
+      x = names(results), must.include = metric,
+      add = assert_collection
+    )
+  }
+  if (!is.null(baseline)) {
+    checkmate::assert_names(
+      x = names(baseline), must.include = metric,
+      add = assert_collection
+    )
+  }
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
 
   # Simplify results
-  if (!is.null(results)){
+  if (!is.null(results)) {
     results <- results %>%
       base_select(cols = metric) %>%
       dplyr::mutate(dataset = "Results")

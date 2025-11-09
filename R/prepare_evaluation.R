@@ -11,7 +11,6 @@ prepare_id_level_evaluation <- function(data,
                                         apply_softmax = length(prediction_cols) > 1,
                                         new_prediction_col_name = "prediction",
                                         new_std_col_name = "std") {
-
   # Prepare data for id evaluation
 
   if (is.null(id_col)) {
@@ -72,12 +71,11 @@ prepare_id_level_evaluation <- function(data,
     # Combine
     data_for_id_evaluation <- data_for_id_evaluation_mean %>%
       dplyr::left_join(data_for_id_evaluation_std,
-                       by = c(groups_col, id_col)) %>%
+        by = c(groups_col, id_col)
+      ) %>%
       dplyr::left_join(id_classes, by = c(id_col, groups_col)) %>%
       dplyr::ungroup()
-
   } else if (id_method == "majority") {
-
     ## By majority vote
     # If multiple classes share the majority, they also share the probability! #mustShare!
 
@@ -171,10 +169,12 @@ prepare_id_level_evaluation <- function(data,
       new_std_col_name = new_std_col_name
     )
   } else {
-    if (id_method == "mean"){
+    if (id_method == "mean") {
       data_for_id_evaluation <- data_for_id_evaluation %>%
-        base_rename(before = paste0(prediction_cols, "_STD"),
-                    after = new_std_col_name)
+        base_rename(
+          before = paste0(prediction_cols, "_STD"),
+          after = new_std_col_name
+        )
     }
   }
 
@@ -187,7 +187,6 @@ prepare_multinomial_evaluation <- function(data,
                                            apply_softmax,
                                            new_prediction_col_name,
                                            new_std_col_name) {
-
   # Split data into probabilities and the rest
   col_split <- extract_and_remove_probability_cols(
     data = data,
@@ -203,7 +202,7 @@ prepare_multinomial_evaluation <- function(data,
 
   data[[new_prediction_col_name]] <- predicted_probabilities %>%
     nest_rowwise()
-  if (!is.null(standard_deviations)){
+  if (!is.null(standard_deviations)) {
     data[[new_std_col_name]] <- standard_deviations %>%
       nest_rowwise()
   }
@@ -226,7 +225,7 @@ extract_and_remove_probability_cols <- function(data, prediction_cols) {
     base_deselect(cols = prediction_cols)
 
   # Split data into standard deviations and the rest
-  if (paste0(prediction_cols[[1]], "_STD") %in% colnames(data)){
+  if (paste0(prediction_cols[[1]], "_STD") %in% colnames(data)) {
     standard_deviations <- data %>%
       base_select(cols = paste0(prediction_cols, "_STD"))
     data <- data %>%
@@ -267,7 +266,6 @@ extract_id_classes <- function(data, groups_col, id_col, target_col) {
 }
 
 check_constant_targets_within_ids <- function(distinct_data, groups_col, id_col) {
-
   # Checks that there's only one unique value for each ID (per group)
 
   counts <- distinct_data %>%
@@ -283,7 +281,7 @@ check_constant_targets_within_ids <- function(distinct_data, groups_col, id_col)
       "The targets must be constant within the IDs with the current ID method. ",
       "These IDs had more than one unique value in the target column: ",
       paste0(head(non_constant_ids, 5),
-      collapse = ", "
+        collapse = ", "
       ),
       ifelse(length(non_constant_ids) > 5, ", ...", ""),
       "."

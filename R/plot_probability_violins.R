@@ -1,5 +1,3 @@
-
-
 # str_wrap_class = TRUE, #  with the name mapping this can be done outside the function (Part of demo?)
 # str_wrap_width = 15,
 

@@ -1,5 +1,4 @@
 set_info_cols <- function(family, info_cols_list = NULL) {
-
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
   checkmate::assert_choice(
@@ -89,13 +88,11 @@ set_info_cols <- function(family, info_cols_list = NULL) {
 
   if (!is.null(info_cols_list)) {
     if (!is.list(info_cols_list) && info_cols_list == "all") {
-
       # Set all info_cols to TRUE
       for (info_col in seq_along(info_cols)) {
         info_cols[[info_col]] <- TRUE
       }
     } else if (length(info_cols_list) > 0) {
-
       # Check for unknown column names
       unknown_colnames <- setdiff(names(info_cols_list), names(info_cols))
       if (length(unknown_colnames) > 0) {

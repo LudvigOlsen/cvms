@@ -1,4 +1,3 @@
-
 validate_fold <- function(data,
                           fold_info,
                           fold_info_cols = fold_info_cols,
@@ -21,7 +20,6 @@ validate_fold <- function(data,
   }
 
   if (isTRUE(model_specifics[["preprocess_once"]])) {
-
     # The preprocessing will have happened in the parent function
     # so we simply need to extract it
 
@@ -35,7 +33,6 @@ validate_fold <- function(data,
     preprocess_warnings_and_messages <- train_test[["warnings_and_messages"]][[1]]
     preprocess_n_unknown_warnings <- train_test[["n_unknown_warnings"]][[1]]
   } else {
-
     # Subset and preprocess train/test split
     train_test <- prepare_train_test(
       data = data,
@@ -72,7 +69,6 @@ validate_fold <- function(data,
     dplyr::bind_rows(preprocess_warnings_and_messages)
 
   if (!isTRUE(include_fold_columns)) {
-
     # If required, remove fold columns from tibbles that go in the output
 
     warnings_and_messages <- warnings_and_messages %>%

@@ -1,26 +1,26 @@
-
-fit_predict_model_fn <- function(train_data,
-                                 test_data,
-                                 fold_info = list(
-                                   rel_fold = NULL,
-                                   abs_fold = NULL,
-                                   fold_column = NULL
-                                 ),
-                                 include_fold_columns = TRUE,
-                                 model_specifics = list(
-                                   model_formula = NULL,
-                                   family = NULL,
-                                   link = NULL,
-                                   control = NULL,
-                                   REML = NULL,
-                                   positive = 2,
-                                   cutoff = 0.5,
-                                   model_verbose = FALSE,
-                                   model_fn = NULL,
-                                   predict_fn = NULL,
-                                   caller = NULL
-                                 )) {
-
+fit_predict_model_fn <- function(
+  train_data,
+  test_data,
+  fold_info = list(
+    rel_fold = NULL,
+    abs_fold = NULL,
+    fold_column = NULL
+  ),
+  include_fold_columns = TRUE,
+  model_specifics = list(
+    model_formula = NULL,
+    family = NULL,
+    link = NULL,
+    control = NULL,
+    REML = NULL,
+    positive = 2,
+    cutoff = 0.5,
+    model_verbose = FALSE,
+    model_fn = NULL,
+    predict_fn = NULL,
+    caller = NULL
+  )
+) {
   # Make sure, a model function was actually passed
   if (is.null(model_specifics[["model_fn"]])) {
     stop("'model_fn' was NULL.")

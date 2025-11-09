@@ -1,8 +1,5 @@
-
-
 #   __________________ #< 5e5bf705e0a39e257a1c53917eeec836 ># __________________
 #   Plot probabilities ECDF                                                 ####
-
 
 
 ##  .................. #< 2fc0b5f9735b66cde5a1690750fa0e63 ># ..................
@@ -154,7 +151,6 @@
 #' #   probability_of = "prediction",
 #' #   xlim = c(0.5, 1)
 #' # )
-#'
 #' }
 plot_probabilities_ecdf <- function(data,
                                     target_col,
@@ -171,7 +167,6 @@ plot_probabilities_ecdf <- function(data,
                                     ecdf_settings = list(),
                                     facet_settings = list(),
                                     xlim = c(0, 1)) {
-
   call_plot_probabilities_ecdf_(
     data = data,
     target_col = target_col,
@@ -189,7 +184,6 @@ plot_probabilities_ecdf <- function(data,
     facet_settings = facet_settings,
     xlim = xlim
   )
-
 }
 
 
@@ -198,21 +192,20 @@ plot_probabilities_ecdf <- function(data,
 
 
 call_plot_probabilities_ecdf_ <- function(data,
-                                     target_col,
-                                     probability_cols,
-                                     predicted_class_col,
-                                     obs_id_col,
-                                     group_col,
-                                     probability_of,
-                                     positive,
-                                     theme_fn,
-                                     color_scale,
-                                     apply_facet,
-                                     add_caption,
-                                     ecdf_settings,
-                                     facet_settings,
-                                     xlim){
-
+                                          target_col,
+                                          probability_cols,
+                                          predicted_class_col,
+                                          obs_id_col,
+                                          group_col,
+                                          probability_of,
+                                          positive,
+                                          theme_fn,
+                                          color_scale,
+                                          apply_facet,
+                                          add_caption,
+                                          ecdf_settings,
+                                          facet_settings,
+                                          xlim) {
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
 
@@ -323,8 +316,10 @@ call_plot_probabilities_ecdf_ <- function(data,
   )
 
   # Check probabilities sum to 1
-  if (length(probability_cols)>1 &&
-      !rows_sum_to(data[, probability_cols], sum_to = 1, digits = 5)) {
+  if (
+    length(probability_cols) > 1 &&
+      !rows_sum_to(data[, probability_cols], sum_to = 1, digits = 5)
+  ) {
     assert_collection$push(
       paste0(
         "when 'probability_cols' has length > 1, probability columns m",
@@ -373,9 +368,10 @@ call_plot_probabilities_ecdf_ <- function(data,
   data <- dplyr::ungroup(data)
   data <- base_select(data, cols = c(
     group_col, obs_id_col, target_col,
-    probability_cols, predicted_class_col))
+    probability_cols, predicted_class_col
+  ))
 
-  if (is.null(obs_id_col)){
+  if (is.null(obs_id_col)) {
     obs_id_col <- create_tmp_name(data, "Observation")
     data <- data %>%
       dplyr::group_by_at(group_col) %>%
@@ -391,10 +387,10 @@ call_plot_probabilities_ecdf_ <- function(data,
   rank_col <- create_tmp_name(data, ".observation_rank")
 
   # Prepare extraction of probabilities
-  if (probability_of == "target"){
+  if (probability_of == "target") {
     of_col <- target_col
-    cat_levels <- levels_as_characters(data[[of_col]], drop_unused = TRUE, sort_levels=TRUE)
-  } else if (probability_of == "prediction"){
+    cat_levels <- levels_as_characters(data[[of_col]], drop_unused = TRUE, sort_levels = TRUE)
+  } else if (probability_of == "prediction") {
     of_col <- predicted_class_col
     # Make sure there are all the cat_levels for binomial case
     cat_levels <- sort(union(
@@ -409,7 +405,8 @@ call_plot_probabilities_ecdf_ <- function(data,
     probability_cols = probability_cols,
     of_col = of_col,
     cat_levels = cat_levels,
-    positive = positive)
+    positive = positive
+  )
 
   # Remove probability cols
   data <- base_deselect(data, cols = probability_cols)
@@ -429,7 +426,7 @@ call_plot_probabilities_ecdf_ <- function(data,
 
   # Create group_col if none (simplifies code a lot)
   remove_legend <- FALSE
-  if (is.null(group_col)){
+  if (is.null(group_col)) {
     group_col <- create_tmp_name(data, "Group")
     data[[group_col]] <- factor(".tmp")
     remove_legend <- TRUE
@@ -440,12 +437,13 @@ call_plot_probabilities_ecdf_ <- function(data,
   pl <- data %>%
     ggplot2::ggplot(
       mapping = ggplot2::aes_string(
-        x = avg_prob_col)
+        x = avg_prob_col
+      )
     ) +
     color_scale
 
   # Group plot
-  if (!is.null(group_col)){
+  if (!is.null(group_col)) {
     pl <- pl +
       ggplot2::aes_string(color = group_col, group = group_col)
   }
@@ -455,7 +453,7 @@ call_plot_probabilities_ecdf_ <- function(data,
     do.call(ggplot2::stat_ecdf, ecdf_settings)
 
   # Add faceting
-  if (isTRUE(apply_facet)){
+  if (isTRUE(apply_facet)) {
     pl <- pl +
       do.call(
         ggplot2::facet_wrap,
@@ -502,20 +500,24 @@ call_plot_probabilities_ecdf_ <- function(data,
   #   str_width = 70
   # )
 
-  caption <- paste0("Empirical Cumulative Distribution Function.\n",
-                    "The percentage of probabilities below or equal to x.")
+  caption <- paste0(
+    "Empirical Cumulative Distribution Function.\n",
+    "The percentage of probabilities below or equal to x."
+  )
 
   # Add labels to axes
   pl <- pl +
-    ggplot2::labs(x = paste0("Probability of ", y_lab_prob_of, " Class"),
-                  y = paste0("% less than or equal to"),
-                  caption = caption) +
+    ggplot2::labs(
+      x = paste0("Probability of ", y_lab_prob_of, " Class"),
+      y = paste0("% less than or equal to"),
+      caption = caption
+    ) +
     ggplot2::theme(plot.caption.position = "plot")
 
 
   # Remove legend if no groups
   # TODO What happens with only 1 group?
-  if (isTRUE(remove_legend)){
+  if (isTRUE(remove_legend)) {
     pl <- pl +
       ggplot2::theme(legend.position = "none")
   }

@@ -55,7 +55,6 @@ evaluate_model_object <- function(model,
   }
 
   if (!is.null(model)) {
-
     # Calculate model metrics
     model_metrics <- calculate_model_metrics(
       model = model, REML = REML, metrics = metrics

@@ -1,5 +1,3 @@
-
-
 #   __________________ #< e5efa5aa075de36169902b4bf6e14ce8 ># __________________
 #   Plot a confusion matrix                                                 ####
 
@@ -204,10 +202,14 @@
 #'
 #' # Create targets and predictions data frame
 #' data <- data.frame(
-#'   "target" = c("A", "B", "A", "B", "A", "B", "A", "B",
-#'                "A", "B", "A", "B", "A", "B", "A", "A"),
-#'   "prediction" = c("B", "B", "A", "A", "A", "B", "B", "B",
-#'                    "B", "B", "A", "B", "A", "A", "A", "A"),
+#'   "target" = c(
+#'     "A", "B", "A", "B", "A", "B", "A", "B",
+#'     "A", "B", "A", "B", "A", "B", "A", "A"
+#'   ),
+#'   "prediction" = c(
+#'     "B", "B", "A", "A", "A", "B", "B", "B",
+#'     "B", "B", "A", "B", "A", "A", "A", "A"
+#'   ),
 #'   stringsAsFactors = FALSE
 #' )
 #'
@@ -227,7 +229,6 @@
 #' plot_confusion_matrix(evaluation[["Confusion Matrix"]][[1]])
 #' # Plot first confusion matrix in evaluate() output
 #' plot_confusion_matrix(evaluation)
-#'
 #' }
 #' \dontrun{
 #' # Add sum tiles
@@ -239,9 +240,9 @@
 #' # This example assumes "B" is the positive class
 #' # but you could write anything as prefix to the percentages
 #' plot_confusion_matrix(
-#'     evaluation,
-#'     font_row_percentages = font(prefix=c("NPV = ", "", "", "PPV = ")),
-#'     font_col_percentages = font(prefix=c("Spec = ", "", "", "Sens = "))
+#'   evaluation,
+#'   font_row_percentages = font(prefix = c("NPV = ", "", "", "PPV = ")),
+#'   font_col_percentages = font(prefix = c("Spec = ", "", "", "Sens = "))
 #' )
 #'
 #' # Dynamic font colors when background becomes too dark
@@ -249,7 +250,7 @@
 #' plot_confusion_matrix(
 #'   evaluation[["Confusion Matrix"]][[1]],
 #'   # Black and white theme
-#'   palette = list("low"="#ffffff", "high"="#000000"),
+#'   palette = list("low" = "#ffffff", "high" = "#000000"),
 #'   # Increase contrast
 #'   darkness = 1.0,
 #'   # Specify colors below and above threshold
@@ -257,7 +258,7 @@
 #'     threshold = 30,
 #'     by = "normalized",
 #'     # Black at low values, white at high values
-#'     all = c('#000', '#fff'),
+#'     all = c("#000", "#fff"),
 #'     # White arrows above threshold
 #'     invert_arrows = "at_and_above"
 #'   )
@@ -267,10 +268,14 @@
 #'
 #' # Create targets and predictions data frame
 #' data <- data.frame(
-#'   "target" = c("A", "B", "C", "B", "A", "B", "C",
-#'                "B", "A", "B", "C", "B", "A"),
-#'   "prediction" = c("C", "B", "A", "C", "A", "B", "B",
-#'                    "C", "A", "B", "C", "A", "C"),
+#'   "target" = c(
+#'     "A", "B", "C", "B", "A", "B", "C",
+#'     "B", "A", "B", "C", "B", "A"
+#'   ),
+#'   "prediction" = c(
+#'     "C", "B", "A", "C", "A", "B", "B",
+#'     "C", "A", "B", "C", "A", "C"
+#'   ),
 #'   stringsAsFactors = FALSE
 #' )
 #'
@@ -290,7 +295,6 @@
 #' plot_confusion_matrix(evaluation[["Confusion Matrix"]][[1]])
 #' # Plot first confusion matrix in evaluate() output
 #' plot_confusion_matrix(evaluation)
-#'
 #' }
 #' \dontrun{
 #' # Add sum tiles
@@ -313,7 +317,6 @@
 #'   palette = "Greens",
 #'   theme_fn = ggplot2::theme_light
 #' )
-#'
 #' }
 #' \dontrun{
 #' # Change colors palette to custom gradient
@@ -344,11 +347,10 @@
 #'   "(8/9)", "(3/9)", "(1/9)",
 #'   "(3/9)", "(7/9)", "(4/9)",
 #'   "(1/9)", "(2/9)", "(8/9)"
-#'  )
+#' )
 #'
 #' # Now plot with the `sub_col` argument specified
-#' plot_confusion_matrix(cm, sub_col="Trials")
-#'
+#' plot_confusion_matrix(cm, sub_col = "Trials")
 #' }
 plot_confusion_matrix <- function(conf_matrix,
                                   target_col = "Target",
@@ -389,13 +391,16 @@ plot_confusion_matrix <- function(conf_matrix,
                                   tile_border_linetype = "solid",
                                   sums_settings = sum_tile_settings(),
                                   darkness = 0.8) {
-
-  if (length(intersect(class(conf_matrix), c("cfm_results", "eval_results"))) > 0 &&
+  if (
+    length(intersect(class(conf_matrix), c("cfm_results", "eval_results"))) > 0 &&
       "Confusion Matrix" %in% colnames(conf_matrix) &&
-      nrow(conf_matrix) > 0){
-    if (nrow(conf_matrix) > 1){
-      warning(paste0("'conf_matrix' has more than one row. Extracting first confu",
-                     "sion matrix with 'conf_matrix[['Confusion Matrix']][[1]]'."))
+      nrow(conf_matrix) > 0
+  ) {
+    if (nrow(conf_matrix) > 1) {
+      warning(paste0(
+        "'conf_matrix' has more than one row. Extracting first confu",
+        "sion matrix with 'conf_matrix[['Confusion Matrix']][[1]]'."
+      ))
     }
     conf_matrix <- conf_matrix[["Confusion Matrix"]][[1]]
   }
@@ -424,13 +429,13 @@ plot_confusion_matrix <- function(conf_matrix,
   checkmate::assert_string(x = sums_settings[["intensity_by"]], null.ok = TRUE, add = assert_collection)
   checkmate::assert_string(x = sums_settings[["intensity_beyond_lims"]], null.ok = TRUE, add = assert_collection)
   checkmate::assert_choice(x = sums_settings[["intensity_beyond_lims"]], choices = c("truncate", "grey"), null.ok = TRUE, add = assert_collection)
-  checkmate::assert_choice(x = arrow_color, choices = c("black", "white"),add = assert_collection)
+  checkmate::assert_choice(x = arrow_color, choices = c("black", "white"), add = assert_collection)
 
   checkmate::assert(
     checkmate::check_string(x = palette, na.ok = TRUE, null.ok = TRUE),
     checkmate::check_list(x = palette, types = "character", names = "unique")
   )
-  if (is.list(palette)){
+  if (is.list(palette)) {
     checkmate::assert_names(
       x = names(palette),
       must.include = c("high", "low"),
@@ -451,9 +456,11 @@ plot_confusion_matrix <- function(conf_matrix,
   checkmate::assert_flag(x = diag_percentages_only, add = assert_collection)
   checkmate::assert_flag(x = rm_zero_percentages, add = assert_collection)
   checkmate::assert_flag(x = rm_zero_text, add = assert_collection)
-  checkmate::assert_choice(x = amount_3d_effect,
-                           choices = 0:6,
-                           add = assert_collection)
+  checkmate::assert_choice(
+    x = amount_3d_effect,
+    choices = 0:6,
+    add = assert_collection
+  )
 
   # Function
   checkmate::assert_function(x = theme_fn, add = assert_collection)
@@ -521,7 +528,7 @@ plot_confusion_matrix <- function(conf_matrix,
     subset.of = c("counts", "normalized", "row_percentages", "col_percentages", "log counts", "log2 counts", "log10 counts", "arcsinh counts"),
     add = assert_collection
   )
-  if (!is.null(sums_settings[["intensity_by"]])){
+  if (!is.null(sums_settings[["intensity_by"]])) {
     checkmate::assert_names(
       x = sums_settings[["intensity_by"]],
       subset.of = c("counts", "normalized", "row_percentages", "col_percentages", "log counts", "log2 counts", "log10 counts", "arcsinh counts"),
@@ -534,16 +541,20 @@ plot_confusion_matrix <- function(conf_matrix,
       conf_matrix[[target_col]],
       conf_matrix[[prediction_col]]
     ))
-    if (length(classes_in_data) != length(class_order) ||
-        length(setdiff(classes_in_data, class_order)) != 0) {
+    if (
+      length(classes_in_data) != length(class_order) ||
+        length(setdiff(classes_in_data, class_order)) != 0
+    ) {
       assert_collection$push(
         "when 'class_order' is specified, it must contain the same levels as 'conf_matrix'."
       )
     }
   } else {
     class_order <- sort(unique(
-      c(conf_matrix[[target_col]],
-        conf_matrix[[prediction_col]])
+      c(
+        conf_matrix[[target_col]],
+        conf_matrix[[prediction_col]]
+      )
     ))
   }
 
@@ -568,7 +579,6 @@ plot_confusion_matrix <- function(conf_matrix,
     if (palettes_are_equal(palette, sums_settings[["palette"]])) {
       assert_collection$push("'palette' and 'sums_settings[['palette']]' cannot be the same palette.")
     }
-
   }
 
   # Check that N are (>= 0)
@@ -593,19 +603,21 @@ plot_confusion_matrix <- function(conf_matrix,
 
   # When 'rsvg', 'ggimage' or 'ggnewscale' is missing
   img_pkg_checks <- check_gg_image_packages(
-    add_arrows=add_arrows,
-    add_zero_shading=add_zero_shading
+    add_arrows = add_arrows,
+    add_zero_shading = add_zero_shading
   )
-  user_has_rsvg <- img_pkg_checks[["user_has_rsvg"]]
-  user_has_ggimage <- img_pkg_checks[["user_has_ggimage"]]
+  user_has_rsvg <- img_pkg_checks[["user_has_rsvg"]] # nolint: object_usage_linter.
+  user_has_ggimage <- img_pkg_checks[["user_has_ggimage"]] # nolint: object_usage_linter.
   user_has_ggnewscale <- img_pkg_checks[["user_has_ggnewscale"]]
   use_ggimage <- img_pkg_checks[["use_ggimage"]]
   add_arrows <- img_pkg_checks[["add_arrows"]]
   add_zero_shading <- img_pkg_checks[["add_zero_shading"]]
 
-  if (isTRUE(add_sums) &&
+  if (
+    isTRUE(add_sums) &&
       !isTRUE(user_has_ggnewscale) &&
-      is.null(sums_settings[["tile_fill"]])){
+      is.null(sums_settings[["tile_fill"]])
+  ) {
     warning("'ggnewscale' is missing. Will not use palette for sum tiles.")
     sums_settings[["tile_fill"]] <- "#F5F5F5"
   }
@@ -628,9 +640,11 @@ plot_confusion_matrix <- function(conf_matrix,
     ),
     initial_vals = list(
       "nudge_y" = function(x) {
-        x + dplyr::case_when(!isTRUE(counts_on_top) &&
-                               isTRUE(add_normalized) ~ -0.16,
-                             TRUE ~ 0)
+        x + dplyr::case_when(
+          !isTRUE(counts_on_top) &&
+            isTRUE(add_normalized) ~ -0.16,
+          TRUE ~ 0
+        )
       }
     )
   )
@@ -646,8 +660,10 @@ plot_confusion_matrix <- function(conf_matrix,
     ),
     initial_vals = list(
       "nudge_y" = function(x) {
-        x + dplyr::case_when(isTRUE(counts_on_top) &&
-                               isTRUE(add_counts) ~ -0.16, TRUE ~ 0)
+        x + dplyr::case_when(
+          isTRUE(counts_on_top) &&
+            isTRUE(add_counts) ~ -0.16, TRUE ~ 0
+        )
       }
     )
   )
@@ -696,10 +712,11 @@ plot_confusion_matrix <- function(conf_matrix,
   #### Update sum tile settings ####
 
   if (isTRUE(add_sums)) {
-
-    if (!is.list(palette) &&
+    if (
+      !is.list(palette) &&
         palette == "Greens" &&
-        is.null(sums_settings[["palette"]])) {
+        is.null(sums_settings[["palette"]])
+    ) {
       sums_settings[["palette"]] <- "Blues"
     }
 
@@ -708,7 +725,6 @@ plot_confusion_matrix <- function(conf_matrix,
       settings = sums_settings,
       defaults = list()
     )
-
   }
 
   #### Prepare dataset ####
@@ -791,7 +807,7 @@ plot_confusion_matrix <- function(conf_matrix,
 
   # Prepare dynamic font / arrow color settings
   all_dynamic_font_color_settings <- NULL
-  if (!is.null(dynamic_font_colors[["threshold"]])){
+  if (!is.null(dynamic_font_colors[["threshold"]])) {
     all_dynamic_font_color_settings <- c(
       dynamic_font_colors,
       value_col = ifelse(dynamic_font_colors[["by"]] == "counts", "N", "Normalized")
@@ -807,32 +823,34 @@ plot_confusion_matrix <- function(conf_matrix,
 
   # Add icons depending on where the tile will be in the image
   cm <- set_arrows(
-    cm=cm,
+    cm = cm,
     col_names = c("Target", "Prediction"),
     place_x_axis_above = place_x_axis_above,
     icons = arrow_icons,
-    arrow_color=arrow_color,
-    all_dynamic_font_color_settings=all_dynamic_font_color_settings
+    arrow_color = arrow_color,
+    all_dynamic_font_color_settings = all_dynamic_font_color_settings
   )
 
-  if (isTRUE(use_ggimage) &&
-      isTRUE(add_zero_shading)){
+  if (
+    isTRUE(use_ggimage) &&
+      isTRUE(add_zero_shading)
+  ) {
     # Add image path for skewed lines for when there's an N=0
     cm[["image_skewed_lines"]] <- ifelse(cm[["N"]] == 0,
-                                         get_figure_path("skewed_lines.svg"),
-                                         get_figure_path("empty_square.svg"))
+      get_figure_path("skewed_lines.svg"),
+      get_figure_path("empty_square.svg")
+    )
   }
 
   # Signal that current rows are not for the sum tiles
   cm[["is_sum"]] <- FALSE
 
   # Add sums
-  if (isTRUE(add_sums)){
-
+  if (isTRUE(add_sums)) {
     # Create data frame with data for
     # the sum column, sum row, and total counts tile
     column_sums[["Prediction"]] <- "Total"
-    row_sums[["Target"]] <-  "Total"
+    row_sums[["Target"]] <- "Total"
     column_sums <- dplyr::rename(column_sums, N = "Class_N")
     row_sums <- dplyr::rename(row_sums, N = "Prediction_N")
     column_sums <- calculate_normalized(column_sums)
@@ -856,7 +874,8 @@ plot_confusion_matrix <- function(conf_matrix,
       ""
     )
     sum_data[nrow(sum_data), "Normalized_text"] <- ifelse(
-      isTRUE(counts_on_top), "", paste0(sum_data[nrow(sum_data), "N"]))
+      isTRUE(counts_on_top), "", paste0(sum_data[nrow(sum_data), "N"])
+    )
 
     sums_intensity_by <- sums_settings[["intensity_by"]]
     if (is.null(sums_intensity_by)) sums_intensity_by <- intensity_by
@@ -888,8 +907,8 @@ plot_confusion_matrix <- function(conf_matrix,
     # Handle intensities outside of the allow range
     sum_data[1:(nrow(sum_data) - 1), "Intensity"] <- handle_beyond_intensity_limits(
       intensities = sum_data[1:(nrow(sum_data) - 1), "Intensity"]$Intensity,
-      intensity_range=sums_intensity_measures,
-      intensity_beyond_lims=sums_intensity_beyond_lims
+      intensity_range = sums_intensity_measures,
+      intensity_beyond_lims = sums_intensity_beyond_lims
     )
 
     # Get color limits
@@ -901,11 +920,12 @@ plot_confusion_matrix <- function(conf_matrix,
     sum_data[["is_sum"]] <- TRUE
 
     # Combine cm and sum_data
-    cm <-  dplyr::bind_rows(cm, sum_data)
+    cm <- dplyr::bind_rows(cm, sum_data)
 
     # Set arrow icons to empty square image
-    cm[cm[["Target"]] == "Total" | cm[["Prediction"]] == "Total",] <- empty_tile_percentages(
-      cm[cm[["Target"]] == "Total" | cm[["Prediction"]] == "Total",])
+    cm[cm[["Target"]] == "Total" | cm[["Prediction"]] == "Total", ] <- empty_tile_percentages(
+      cm[cm[["Target"]] == "Total" | cm[["Prediction"]] == "Total", ]
+    )
 
     # Set class order and labels
     if (isTRUE(place_x_axis_above)) {
@@ -932,9 +952,11 @@ plot_confusion_matrix <- function(conf_matrix,
   }
 
   # Assign 3D effect image
-  cm <- add_3d_path(cm = cm,
+  cm <- add_3d_path(
+    cm = cm,
     amount_3d_effect = amount_3d_effect,
-    use_ggimage = use_ggimage)
+    use_ggimage = use_ggimage
+  )
 
   # If sub column is specified
 
@@ -957,12 +979,13 @@ plot_confusion_matrix <- function(conf_matrix,
 
   # Remove percentages outside the diagonal
   if (isTRUE(diag_percentages_only)) {
-    cm[as.character(cm[["Target"]]) != as.character(cm[["Prediction"]]),] <- empty_tile_percentages(
-      cm[as.character(cm[["Target"]]) != as.character(cm[["Prediction"]]),])
+    cm[as.character(cm[["Target"]]) != as.character(cm[["Prediction"]]), ] <- empty_tile_percentages(
+      cm[as.character(cm[["Target"]]) != as.character(cm[["Prediction"]]), ]
+    )
   }
-  if (isTRUE(rm_zero_percentages)){
+  if (isTRUE(rm_zero_percentages)) {
     # Remove percentages when the count is 0
-    cm[cm[["N"]] == 0,] <- empty_tile_percentages(cm[cm[["N"]] == 0,])
+    cm[cm[["N"]] == 0, ] <- empty_tile_percentages(cm[cm[["N"]] == 0, ])
   }
 
   #### Prepare for plotting ####
@@ -1001,14 +1024,18 @@ plot_confusion_matrix <- function(conf_matrix,
   # Add fill colors that differ by N
   if (is.list(palette)) {
     pl <- pl +
-      ggplot2::scale_fill_gradient(low = palette[["low"]],
-                                   high = palette[["high"]],
-                                   limits = color_limits)
+      ggplot2::scale_fill_gradient(
+        low = palette[["low"]],
+        high = palette[["high"]],
+        limits = color_limits
+      )
   } else {
     pl <- pl +
-      ggplot2::scale_fill_distiller(palette = palette,
-                                    direction = 1,
-                                    limits = color_limits)
+      ggplot2::scale_fill_distiller(
+        palette = palette,
+        direction = 1,
+        limits = color_limits
+      )
   }
 
   pl <- pl +
@@ -1029,12 +1056,12 @@ plot_confusion_matrix <- function(conf_matrix,
 
   #### Add sum tiles ####
 
-  if (isTRUE(add_sums)){
-    if (is.null(sums_settings[["tile_fill"]])){
+  if (isTRUE(add_sums)) {
+    if (is.null(sums_settings[["tile_fill"]])) {
       pl <- pl +
         ggnewscale::new_scale_fill() +
         ggplot2::geom_tile(
-          data = cm[cm[["is_sum"]] & as.character(cm[["Target"]]) != as.character(cm[["Prediction"]]),],
+          data = cm[cm[["is_sum"]] & as.character(cm[["Target"]]) != as.character(cm[["Prediction"]]), ],
           mapping = ggplot2::aes(fill = .data$Intensity),
           colour = sums_settings[["tile_border_color"]],
           linewidth = sums_settings[["tile_border_size"]],
@@ -1044,20 +1071,23 @@ plot_confusion_matrix <- function(conf_matrix,
 
       if (is.list(sums_settings[["palette"]])) {
         pl <- pl +
-          ggplot2::scale_fill_gradient(low = sums_settings[["palette"]][["low"]],
-                                       high = sums_settings[["palette"]][["high"]],
-                                       limits = sums_color_limits)
+          ggplot2::scale_fill_gradient(
+            low = sums_settings[["palette"]][["low"]],
+            high = sums_settings[["palette"]][["high"]],
+            limits = sums_color_limits
+          )
       } else {
         pl <- pl +
-          ggplot2::scale_fill_distiller(palette = sums_settings[["palette"]],
-                                        direction = 1,
-                                        limits = sums_color_limits)
+          ggplot2::scale_fill_distiller(
+            palette = sums_settings[["palette"]],
+            direction = 1,
+            limits = sums_color_limits
+          )
       }
-
     } else {
       pl <- pl +
         ggplot2::geom_tile(
-          data = cm[cm[["is_sum"]] & as.character(cm[["Target"]]) !=as.character(cm[["Prediction"]]),],
+          data = cm[cm[["is_sum"]] & as.character(cm[["Target"]]) != as.character(cm[["Prediction"]]), ],
           fill = sums_settings[["tile_fill"]],
           colour = sums_settings[["tile_border_color"]],
           linewidth = sums_settings[["tile_border_size"]],
@@ -1069,7 +1099,7 @@ plot_confusion_matrix <- function(conf_matrix,
     # Add special total count tile
     pl <- pl +
       ggplot2::geom_tile(
-        data = cm[cm[["is_sum"]] & as.character(cm[["Target"]]) == as.character(cm[["Prediction"]]),],
+        data = cm[cm[["is_sum"]] & as.character(cm[["Target"]]) == as.character(cm[["Prediction"]]), ],
         colour = sums_settings[["tc_tile_border_color"]],
         linewidth = sums_settings[["tc_tile_border_size"]],
         linetype = sums_settings[["tc_tile_border_linetype"]],
@@ -1079,12 +1109,15 @@ plot_confusion_matrix <- function(conf_matrix,
 
   #### Add zero shading ####
 
-  if (isTRUE(use_ggimage) &&
+  if (
+    isTRUE(use_ggimage) &&
       isTRUE(add_zero_shading) &&
-      any(cm[["N"]] == 0)){
+      any(cm[["N"]] == 0)
+  ) {
     pl <- pl + ggimage::geom_image(
       ggplot2::aes(image = .data$image_skewed_lines),
-      by = "height", size = 0.90 / num_predict_classes)
+      by = "height", size = 0.90 / num_predict_classes
+    )
   }
 
   #### Add 3D effect ####
@@ -1099,26 +1132,24 @@ plot_confusion_matrix <- function(conf_matrix,
   #### Add numbers to plot ####
 
   if (isTRUE(add_counts)) {
-
     pl <- add_geom_text(
-      pl=pl,
-      data=cm[!cm[["is_sum"]], ],
-      values_col="N",
-      values_label_col="N_text",
-      font_settings=font_counts,
-      all_dynamic_font_color_settings=all_dynamic_font_color_settings,
-      dynamic_font_name="counts"
+      pl = pl,
+      data = cm[!cm[["is_sum"]], ],
+      values_col = "N",
+      values_label_col = "N_text",
+      font_settings = font_counts,
+      all_dynamic_font_color_settings = all_dynamic_font_color_settings,
+      dynamic_font_name = "counts"
     )
 
     # Add count labels to middle of the sum tiles
-    if (isTRUE(add_sums)){
-
+    if (isTRUE(add_sums)) {
       font_sums <- font_counts
       font_sums[["color"]] <- font_counts[["color"]]
       sums_all_dynamic_font_color_settings <- NULL
-      if (!is.null(sums_settings[["font_counts_color"]])){
+      if (!is.null(sums_settings[["font_counts_color"]])) {
         font_sums[["color"]] <- sums_settings[["font_counts_color"]]
-      } else if (!is.null(sums_settings[["dynamic_font_colors"]][["threshold"]])){
+      } else if (!is.null(sums_settings[["dynamic_font_colors"]][["threshold"]])) {
         sums_all_dynamic_font_color_settings <- sums_settings[["dynamic_font_colors"]]
         sums_all_dynamic_font_color_settings <- c(
           sums_all_dynamic_font_color_settings,
@@ -1132,13 +1163,13 @@ plot_confusion_matrix <- function(conf_matrix,
 
       # Add count labels to middle of sum tiles
       pl <- add_geom_text(
-        pl=pl,
-        data=cm[cm[["is_sum"]] & as.character(cm[["Target"]]) != as.character(cm[["Prediction"]]), ],
-        values_col="N",
-        values_label_col="N_text",
-        font_settings=font_sums,
-        all_dynamic_font_color_settings=sums_all_dynamic_font_color_settings,
-        dynamic_font_name="counts"
+        pl = pl,
+        data = cm[cm[["is_sum"]] & as.character(cm[["Target"]]) != as.character(cm[["Prediction"]]), ],
+        values_col = "N",
+        values_label_col = "N_text",
+        font_settings = font_sums,
+        all_dynamic_font_color_settings = sums_all_dynamic_font_color_settings,
+        dynamic_font_name = "counts"
       )
 
       font_sum_tc <- font_counts
@@ -1151,42 +1182,38 @@ plot_confusion_matrix <- function(conf_matrix,
       # Add count label to middle of total count tile
       # Add count labels to middle of sum tiles
       pl <- add_geom_text(
-        pl=pl,
+        pl = pl,
         data = cm[cm[["is_sum"]] & as.character(cm[["Target"]]) == as.character(cm[["Prediction"]]), ],
-        values_col="N",
-        values_label_col="N_text",
-        font_settings=font_sum_tc
+        values_col = "N",
+        values_label_col = "N_text",
+        font_settings = font_sum_tc
       )
-
     }
-
   }
 
   if (isTRUE(add_normalized)) {
-
     # Add percentage labels to middle of the regular tiles
     # Add count label to middle of total count tile
     # Add count labels to middle of sum tiles
     pl <- add_geom_text(
-      pl=pl,
+      pl = pl,
       data = cm[!cm[["is_sum"]], ],
-      values_col="Normalized",
-      values_label_col="Normalized_text",
-      font_settings=font_normalized,
-      all_dynamic_font_color_settings=all_dynamic_font_color_settings,
-      dynamic_font_name="normalized"
+      values_col = "Normalized",
+      values_label_col = "Normalized_text",
+      font_settings = font_normalized,
+      all_dynamic_font_color_settings = all_dynamic_font_color_settings,
+      dynamic_font_name = "normalized"
     )
 
-    if (isTRUE(add_sums)){
-
+    if (isTRUE(add_sums)) {
       # Get font color for sum tiles
       # If not set, we use the same as for the other tiles
       font_normalized_sums <- font_normalized
       font_normalized_sums[["color"]] <- font_normalized[["color"]]
       norm_sums_all_dynamic_font_color_settings <- NULL
-      if (!is.null(sums_settings[["font_normalized_color"]])){
+      if (!is.null(sums_settings[["font_normalized_color"]])) {
         font_sums[["color"]] <- sums_settings[["font_normalized_color"]]
-      } else if (!is.null(sums_settings[["dynamic_font_colors"]][["threshold"]])){
+      } else if (!is.null(sums_settings[["dynamic_font_colors"]][["threshold"]])) {
         norm_sums_all_dynamic_font_color_settings <- sums_settings[["dynamic_font_colors"]]
         norm_sums_all_dynamic_font_color_settings <- c(
           norm_sums_all_dynamic_font_color_settings,
@@ -1200,13 +1227,13 @@ plot_confusion_matrix <- function(conf_matrix,
 
       # Add percentage labels to middle of sum tiles
       pl <- add_geom_text(
-        pl=pl,
+        pl = pl,
         data = cm[cm[["is_sum"]] & as.character(cm[["Target"]]) != as.character(cm[["Prediction"]]), ],
-        values_col="Normalized",
-        values_label_col="Normalized_text",
-        font_settings=font_normalized_sums,
-        all_dynamic_font_color_settings=norm_sums_all_dynamic_font_color_settings,
-        dynamic_font_name="normalized"
+        values_col = "Normalized",
+        values_label_col = "Normalized_text",
+        font_settings = font_normalized_sums,
+        all_dynamic_font_color_settings = norm_sums_all_dynamic_font_color_settings,
+        dynamic_font_name = "normalized"
       )
 
       # Get font color for sum tiles
@@ -1220,13 +1247,12 @@ plot_confusion_matrix <- function(conf_matrix,
 
       # Add percentage label to middle of total count tile
       pl <- add_geom_text(
-        pl=pl,
+        pl = pl,
         data = cm[cm[["is_sum"]] & as.character(cm[["Target"]]) == as.character(cm[["Prediction"]]), ],
-        values_col="Normalized",
-        values_label_col="Normalized_text",
-        font_settings=font_normalized_tc
+        values_col = "Normalized",
+        values_label_col = "Normalized_text",
+        font_settings = font_normalized_tc
       )
-
     }
   }
 
@@ -1241,40 +1267,39 @@ plot_confusion_matrix <- function(conf_matrix,
 
   # Add row percentages
   if (isTRUE(add_row_percentages)) {
-
     # Add row percentage labels to tiles
     pl <- add_geom_text(
-      pl=pl,
-      data=cm,
-      values_col="Prediction_Percentage",
-      values_label_col="Prediction_Percentage_text",
-      font_settings=font_row_percentages,
-      all_dynamic_font_color_settings=all_dynamic_font_color_settings,
-      dynamic_font_name="row_percentages"
+      pl = pl,
+      data = cm,
+      values_col = "Prediction_Percentage",
+      values_label_col = "Prediction_Percentage_text",
+      font_settings = font_row_percentages,
+      all_dynamic_font_color_settings = all_dynamic_font_color_settings,
+      dynamic_font_name = "row_percentages"
     )
-
   }
 
   # Add column percentages
   if (isTRUE(add_col_percentages)) {
-
     # Add column percentage labels to tiles
     pl <- add_geom_text(
-      pl=pl,
-      data=cm,
-      values_col="Class_Percentage",
-      values_label_col="Class_Percentage_text",
-      font_settings=font_col_percentages,
-      all_dynamic_font_color_settings=all_dynamic_font_color_settings,
-      dynamic_font_name="col_percentages"
+      pl = pl,
+      data = cm,
+      values_col = "Class_Percentage",
+      values_label_col = "Class_Percentage_text",
+      font_settings = font_col_percentages,
+      all_dynamic_font_color_settings = all_dynamic_font_color_settings,
+      dynamic_font_name = "col_percentages"
     )
   }
 
   #### Add arrow icons ####
 
-  if (isTRUE(use_ggimage) &&
+  if (
+    isTRUE(use_ggimage) &&
       isTRUE(add_col_percentages) &&
-      isTRUE(add_arrows)){
+      isTRUE(add_arrows)
+  ) {
     pl <- pl +
       ggimage::geom_image(
         ggplot2::aes(image = .data$down_icon),
@@ -1289,13 +1314,15 @@ plot_confusion_matrix <- function(conf_matrix,
         size = arrow_size,
         nudge_x = font_col_percentages[["nudge_x"]],
         nudge_y = font_col_percentages[["nudge_y"]] +
-          arrow_nudge_from_text - (arrow_size/2)
+          arrow_nudge_from_text - (arrow_size / 2)
       )
   }
 
-  if (isTRUE(use_ggimage) &&
+  if (
+    isTRUE(use_ggimage) &&
       isTRUE(add_row_percentages) &&
-      isTRUE(add_arrows)){
+      isTRUE(add_arrows)
+  ) {
     pl <- pl +
       ggimage::geom_image(
         ggplot2::aes(image = .data$right_icon),

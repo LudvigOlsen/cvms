@@ -1,5 +1,3 @@
-
-
 #   __________________ #< 46cee5975e2599650854199c167237ea ># __________________
 #   Participant scores                                                      ####
 
@@ -121,19 +119,23 @@ NULL
 #' \donttest{
 #' # Evaluate each fold column
 #' predicted.musicians %>%
-#'   dplyr::group_by(Classifier, `Fold Column`) %>%
-#'   evaluate(target_col = "Target",
-#'            prediction_cols = c("A", "B", "C", "D"),
-#'            type = "multinomial")
+#'     dplyr::group_by(Classifier, `Fold Column`) %>%
+#'     evaluate(
+#'         target_col = "Target",
+#'         prediction_cols = c("A", "B", "C", "D"),
+#'         type = "multinomial"
+#'     )
 #'
 #' # Overall ID evaluation
 #' # I.e. if we average all 9 sets of predictions,
 #' # how well did we predict the targets?
 #' overall_id_eval <- predicted.musicians %>%
-#'   evaluate(target_col = "Target",
-#'            prediction_cols = c("A", "B", "C", "D"),
-#'            type = "multinomial",
-#'            id_col = "ID")
+#'     evaluate(
+#'         target_col = "Target",
+#'         prediction_cols = c("A", "B", "C", "D"),
+#'         type = "multinomial",
+#'         id_col = "ID"
+#'     )
 #' overall_id_eval
 #' # Plot the confusion matrix
 #' plot_confusion_matrix(overall_id_eval$`Confusion Matrix`[[1]])

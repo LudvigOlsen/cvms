@@ -55,7 +55,6 @@
 preprocess_functions <- function(name) {
   if (name == "standardize") {
     preprocess_fn <- function(train_data, test_data, formula, hyperparameters) {
-
       # Create simplified version of the formula
       # as recipe() does not like inline functions
       # like log() or random effect structures like (1|z)
@@ -65,7 +64,6 @@ preprocess_functions <- function(name) {
 
       # Create recipes object
       recipe_object <- recipes::recipe(
-
         # Note: If we hardcoded the formula instead of using the formula argument
         # we could preprocess the train/test splits once
         # instead of for every formula
@@ -73,13 +71,11 @@ preprocess_functions <- function(name) {
         formula = formula,
         data = train_data
       ) %>%
-
         # Add preprocessing steps
         # Note: We could add specific variables to each step
         # instead of just selecting all numeric predictors
         recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
         recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-
         # Find parameters from the training set
         recipes::prep(training = train_data)
 
@@ -103,7 +99,6 @@ preprocess_functions <- function(name) {
     }
   } else if (name == "scale") {
     preprocess_fn <- function(train_data, test_data, formula, hyperparameters) {
-
       # Create simplified version of the formula
       # as recipe() does not like inline functions
       # like log() or random effect structures like (1|z)
@@ -113,7 +108,6 @@ preprocess_functions <- function(name) {
 
       # Create recipes object
       recipe_object <- recipes::recipe(
-
         # Note: If we hardcoded the formula instead of using the formula argument
         # we could preprocess the train/test splits once
         # instead of for every formula
@@ -121,12 +115,10 @@ preprocess_functions <- function(name) {
         formula = formula,
         data = train_data
       ) %>%
-
         # Add preprocessing steps
         # Note: We could add specific variables to each step
         # instead of just selecting all numeric predictors
         recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-
         # Find parameters from the training set
         recipes::prep(training = train_data)
 
@@ -149,7 +141,6 @@ preprocess_functions <- function(name) {
     }
   } else if (name == "center") {
     preprocess_fn <- function(train_data, test_data, formula, hyperparameters) {
-
       # Create simplified version of the formula
       # as recipe() does not like inline functions
       # like log() or random effect structures like (1|z)
@@ -159,7 +150,6 @@ preprocess_functions <- function(name) {
 
       # Create recipes object
       recipe_object <- recipes::recipe(
-
         # Note: If we hardcoded the formula instead of using the formula argument
         # we could preprocess the train/test splits once
         # instead of for every formula
@@ -167,12 +157,10 @@ preprocess_functions <- function(name) {
         formula = formula,
         data = train_data
       ) %>%
-
         # Add preprocessing steps
         # Note: We could add specific variables to each step
         # instead of just selecting all numeric predictors
         recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) %>%
-
         # Find parameters from the training set
         recipes::prep(training = train_data)
 
@@ -195,7 +183,6 @@ preprocess_functions <- function(name) {
     }
   } else if (name == "range") {
     preprocess_fn <- function(train_data, test_data, formula, hyperparameters) {
-
       # Create simplified version of the formula
       # as recipe() does not like inline functions
       # like log() or random effect structures like (1|z)
@@ -205,7 +192,6 @@ preprocess_functions <- function(name) {
 
       # Create recipes object
       recipe_object <- recipes::recipe(
-
         # Note: If we hardcoded the formula instead of using the formula argument
         # we could preprocess the train/test splits once
         # instead of for every formula
@@ -213,14 +199,12 @@ preprocess_functions <- function(name) {
         formula = formula,
         data = train_data
       ) %>%
-
         # Add preprocessing steps
         # Note: We could add specific variables to each step
         # instead of just selecting all numeric variables
         recipes::step_range(recipes::all_numeric(), -recipes::all_outcomes(),
           min = 0.0, max = 1.0
         ) %>%
-
         # Find parameters from the training set
         recipes::prep(training = train_data)
 
@@ -243,7 +227,6 @@ preprocess_functions <- function(name) {
     }
   } else if (name == "warn") {
     preprocess_fn <- function(train_data, test_data, formula, hyperparameters) {
-
       # For testing that warnings and messages are caught
 
       # Throw a warning and a message

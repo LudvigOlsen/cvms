@@ -1,5 +1,3 @@
-
-
 #   __________________ #< c52208f58dea1e7a0b9da8e2ec9c59ac ># __________________
 #   Baseline                                                                ####
 
@@ -405,7 +403,7 @@
 #' baseline(
 #'   test_data = test_set, dependent_col = "diagnosis",
 #'   n = 4, family = "binomial"
-#'   #, parallel = TRUE   # Uncomment
+#'   # , parallel = TRUE   # Uncomment
 #' )
 #'
 #' # Gaussian
@@ -413,7 +411,7 @@
 #'   test_data = test_set, train_data = train_set,
 #'   dependent_col = "score", random_effects = "(1|session)",
 #'   n = 4, family = "gaussian"
-#'   #, parallel = TRUE   # Uncomment
+#'   # , parallel = TRUE   # Uncomment
 #' )
 #'
 #' # Multinomial
@@ -421,7 +419,7 @@
 #'   test_data = multiclass_data,
 #'   dependent_col = "target",
 #'   n = 6, family = "multinomial"
-#'   #, parallel = TRUE   # Uncomment
+#'   # , parallel = TRUE   # Uncomment
 #' ))
 #'
 #' # Inspect the summarized class level results
@@ -443,7 +441,7 @@
 #'   dependent_col = "target",
 #'   n = 6, family = "multinomial",
 #'   random_generator_fn = rcertain
-#'   #, parallel = TRUE  # Uncomment
+#'   # , parallel = TRUE  # Uncomment
 #' )
 #' }
 #' @importFrom stats runif rnorm terms IQR median predict sd reformulate
@@ -466,7 +464,6 @@ baseline <- function(test_data,
                      REML = FALSE,
                      # Parallelization
                      parallel = FALSE) {
-
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
 
@@ -593,7 +590,7 @@ baseline <- function(test_data,
     if (checkmate::test_string(x = metrics, pattern = "^all$")) {
       metrics <- list("all" = TRUE)
     }
-    metrics <- add_metric_if_not_specified(metrics, "Accuracy", value=TRUE, check_all=TRUE)
+    metrics <- add_metric_if_not_specified(metrics, "Accuracy", value = TRUE, check_all = TRUE)
 
     return(
       create_binomial_baseline_evaluations(

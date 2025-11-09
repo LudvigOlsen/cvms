@@ -459,48 +459,47 @@ evaluate(
 #
 
 # Only run if `nnet` is installed
-if (requireNamespace("nnet", quietly = TRUE)){
+if (requireNamespace("nnet", quietly = TRUE)) {
+  # Create a data frame with some predictors and a target column
+  class_names <- paste0("class_", 1:4)
+  data_for_nnet <- multiclass_probability_tibble(
+    num_classes = 3, # Here, number of predictors
+    num_observations = 30,
+    apply_softmax = FALSE,
+    FUN = rnorm,
+    class_name = "predictor_"
+  ) \%>\%
+    dplyr::mutate(Target = sample(
+      class_names,
+      size = 30,
+      replace = TRUE
+    ))
 
-# Create a data frame with some predictors and a target column
-class_names <- paste0("class_", 1:4)
-data_for_nnet <- multiclass_probability_tibble(
-  num_classes = 3, # Here, number of predictors
-  num_observations = 30,
-  apply_softmax = FALSE,
-  FUN = rnorm,
-  class_name = "predictor_"
-) \%>\%
-  dplyr::mutate(Target = sample(
-    class_names,
-    size = 30,
-    replace = TRUE
-  ))
+  # Train multinomial model using the nnet package
+  mn_model <- nnet::multinom(
+    "Target ~ predictor_1 + predictor_2 + predictor_3",
+    data = data_for_nnet
+  )
 
-# Train multinomial model using the nnet package
-mn_model <- nnet::multinom(
-  "Target ~ predictor_1 + predictor_2 + predictor_3",
-  data = data_for_nnet
-)
+  # Predict the targets in the dataset
+  # (we would usually use a test set instead)
+  predictions <- predict(
+    mn_model,
+    data_for_nnet,
+    type = "probs"
+  ) \%>\%
+    dplyr::as_tibble()
 
-# Predict the targets in the dataset
-# (we would usually use a test set instead)
-predictions <- predict(
-  mn_model,
-  data_for_nnet,
-  type = "probs"
-) \%>\%
-  dplyr::as_tibble()
+  # Add the targets
+  predictions[["Target"]] <- data_for_nnet[["Target"]]
 
-# Add the targets
-predictions[["Target"]] <- data_for_nnet[["Target"]]
-
-# Evaluate predictions
-evaluate(
-  data = predictions,
-  target_col = "Target",
-  prediction_cols = class_names,
-  type = "multinomial"
-)
+  # Evaluate predictions
+  evaluate(
+    data = predictions,
+    target_col = "Target",
+    prediction_cols = class_names,
+    type = "multinomial"
+  )
 }
 }
 }

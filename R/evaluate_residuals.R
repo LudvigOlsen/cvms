@@ -1,4 +1,3 @@
-
 #   __________________ #< f29ca547300fc1bd04428e6410ff2da3 ># __________________
 #   Evaluate residuals                                                      ####
 
@@ -126,7 +125,6 @@ call_evaluate_residuals <- function(data,
                                     metrics,
                                     allow_col_nas = TRUE,
                                     return_nas = FALSE) {
-
   # If the dataset is grouped, we need the indices and keys for the groups
   # so we can evaluate group wise
 
@@ -144,8 +142,6 @@ call_evaluate_residuals <- function(data,
   # Make sure, the grouping_keys and the dataset are in the same order
   # As we otherwise risk adding them in the wrong order later
   data <- dplyr::arrange(data, !!!rlang::syms(colnames(grouping_keys)))
-  # Get group indices
-  grouping_factor <- dplyr::group_indices(data)
 
   # Calculate metric per group
   metrics_per_group <- data %>%
@@ -252,7 +248,7 @@ residual_metrics <- function(predictions, targets, na.rm = TRUE, return_nas = FA
     # log error
     le <- tryCatch(log(1 + predictions) - log(1 + targets),
       warning = function(w) {
-        return(NaN)
+        NaN
       }
     )
     # mean squared log error

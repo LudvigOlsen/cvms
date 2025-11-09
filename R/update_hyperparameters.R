@@ -1,5 +1,3 @@
-
-
 #   __________________ #< 60cfc78f594e5611a6eaaf34a2b212ae ># __________________
 #   Update hyperparameters                                                  ####
 
@@ -54,7 +52,7 @@
 #'
 #' # 'cost' is required
 #' # throws error
-#' if (requireNamespace("xpectr", quietly = TRUE)){
+#' if (requireNamespace("xpectr", quietly = TRUE)) {
 #'   xpectr::capture_side_effects(
 #'     update_hyperparameters(
 #'       kernel = "linear",
@@ -64,13 +62,11 @@
 #'     )
 #'   )
 #' }
-#'
 #' }
-update_hyperparameters <- function(..., hyperparameters, .required = NULL){
-
+update_hyperparameters <- function(..., hyperparameters, .required = NULL) {
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
-  if (is.null(hyperparameters)){
+  if (is.null(hyperparameters)) {
     hyperparameters <- list()
   }
   checkmate::assert(
@@ -89,8 +85,10 @@ update_hyperparameters <- function(..., hyperparameters, .required = NULL){
   # End of argument checks ####
 
   # Check the required hyperparameters are present
-  if (!is.null(.required) &&
-      length(setdiff(.required, names(hyperparameters)))>0) {
+  if (
+    !is.null(.required) &&
+      length(setdiff(.required, names(hyperparameters))) > 0
+  ) {
     stop(paste0(
       "these hyperparameters are required but were not present: ",
       paste0(setdiff(.required, names(hyperparameters)), collapse = ", ")
@@ -99,15 +97,15 @@ update_hyperparameters <- function(..., hyperparameters, .required = NULL){
 
   # Update each key -> val pair
   key_val_pairs <- list(...)
-  if (length(key_val_pairs) > 0){
+  if (length(key_val_pairs) > 0) {
     keys <- non_empty_names(key_val_pairs)
-    if (length(keys) != length(key_val_pairs)){
+    if (length(keys) != length(key_val_pairs)) {
       stop("all arguments in '...' must be named.")
     }
     hp_keys <- non_empty_names(hyperparameters)
     all_keys <- union(keys, hp_keys)
-    hyperparameters <- plyr::llply(all_keys, function(k){
-      if (k %ni% hp_keys){
+    hyperparameters <- plyr::llply(all_keys, function(k) {
+      if (k %ni% hp_keys) {
         hp_val <- key_val_pairs[[k]]
       } else {
         hp_val <- hyperparameters[[k]]
@@ -117,5 +115,4 @@ update_hyperparameters <- function(..., hyperparameters, .required = NULL){
   }
 
   hyperparameters
-
 }

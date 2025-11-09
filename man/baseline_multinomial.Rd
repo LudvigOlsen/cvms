@@ -233,7 +233,7 @@ baseline_multinomial(
   test_data = multiclass_data,
   dependent_col = "target",
   n = 6
-  #, parallel = TRUE  # Uncomment
+  # , parallel = TRUE  # Uncomment
 ))
 
 # Inspect the summarized class level results
@@ -256,7 +256,7 @@ baseline_multinomial(
   dependent_col = "target",
   n = 6,
   random_generator_fn = rcertain
-  #, parallel = TRUE  # Uncomment
+  # , parallel = TRUE  # Uncomment
 )
 }
 }

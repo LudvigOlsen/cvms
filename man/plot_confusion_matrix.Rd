@@ -286,10 +286,14 @@ library(ggplot2)
 
 # Create targets and predictions data frame
 data <- data.frame(
-  "target" = c("A", "B", "A", "B", "A", "B", "A", "B",
-               "A", "B", "A", "B", "A", "B", "A", "A"),
-  "prediction" = c("B", "B", "A", "A", "A", "B", "B", "B",
-                   "B", "B", "A", "B", "A", "A", "A", "A"),
+  "target" = c(
+    "A", "B", "A", "B", "A", "B", "A", "B",
+    "A", "B", "A", "B", "A", "B", "A", "A"
+  ),
+  "prediction" = c(
+    "B", "B", "A", "A", "A", "B", "B", "B",
+    "B", "B", "A", "B", "A", "A", "A", "A"
+  ),
   stringsAsFactors = FALSE
 )
 
@@ -309,7 +313,6 @@ evaluation[["Confusion Matrix"]][[1]]
 plot_confusion_matrix(evaluation[["Confusion Matrix"]][[1]])
 # Plot first confusion matrix in evaluate() output
 plot_confusion_matrix(evaluation)
-
 }
 \dontrun{
 # Add sum tiles
@@ -321,9 +324,9 @@ plot_confusion_matrix(evaluation, add_sums = TRUE)
 # This example assumes "B" is the positive class
 # but you could write anything as prefix to the percentages
 plot_confusion_matrix(
-    evaluation,
-    font_row_percentages = font(prefix=c("NPV = ", "", "", "PPV = ")),
-    font_col_percentages = font(prefix=c("Spec = ", "", "", "Sens = "))
+  evaluation,
+  font_row_percentages = font(prefix = c("NPV = ", "", "", "PPV = ")),
+  font_col_percentages = font(prefix = c("Spec = ", "", "", "Sens = "))
 )
 
 # Dynamic font colors when background becomes too dark
@@ -331,7 +334,7 @@ plot_confusion_matrix(
 plot_confusion_matrix(
   evaluation[["Confusion Matrix"]][[1]],
   # Black and white theme
-  palette = list("low"="#ffffff", "high"="#000000"),
+  palette = list("low" = "#ffffff", "high" = "#000000"),
   # Increase contrast
   darkness = 1.0,
   # Specify colors below and above threshold
@@ -339,7 +342,7 @@ plot_confusion_matrix(
     threshold = 30,
     by = "normalized",
     # Black at low values, white at high values
-    all = c('#000', '#fff'),
+    all = c("#000", "#fff"),
     # White arrows above threshold
     invert_arrows = "at_and_above"
   )
@@ -349,10 +352,14 @@ plot_confusion_matrix(
 
 # Create targets and predictions data frame
 data <- data.frame(
-  "target" = c("A", "B", "C", "B", "A", "B", "C",
-               "B", "A", "B", "C", "B", "A"),
-  "prediction" = c("C", "B", "A", "C", "A", "B", "B",
-                   "C", "A", "B", "C", "A", "C"),
+  "target" = c(
+    "A", "B", "C", "B", "A", "B", "C",
+    "B", "A", "B", "C", "B", "A"
+  ),
+  "prediction" = c(
+    "C", "B", "A", "C", "A", "B", "B",
+    "C", "A", "B", "C", "A", "C"
+  ),
   stringsAsFactors = FALSE
 )
 
@@ -372,7 +379,6 @@ evaluation[["Confusion Matrix"]][[1]]
 plot_confusion_matrix(evaluation[["Confusion Matrix"]][[1]])
 # Plot first confusion matrix in evaluate() output
 plot_confusion_matrix(evaluation)
-
 }
 \dontrun{
 # Add sum tiles
@@ -395,7 +401,6 @@ plot_confusion_matrix(
   palette = "Greens",
   theme_fn = ggplot2::theme_light
 )
-
 }
 \dontrun{
 # Change colors palette to custom gradient
@@ -426,11 +431,10 @@ cm[["Trials"]] <- c(
   "(8/9)", "(3/9)", "(1/9)",
   "(3/9)", "(7/9)", "(4/9)",
   "(1/9)", "(2/9)", "(8/9)"
- )
+)
 
 # Now plot with the `sub_col` argument specified
-plot_confusion_matrix(cm, sub_col="Trials")
-
+plot_confusion_matrix(cm, sub_col = "Trials")
 }
 }
 \seealso{

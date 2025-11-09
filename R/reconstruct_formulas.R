@@ -1,5 +1,3 @@
-
-
 #' @title Reconstruct model formulas from results tibbles
 #' @description
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("maturing")}
@@ -21,7 +19,6 @@
 #'  the \code{"Random"} column should be included.
 #' @param topn Number of top rows to return. Simply applies \code{head()} to the results \code{tibble}.
 reconstruct_formulas <- function(results, topn = NULL) {
-
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
   checkmate::assert_data_frame(

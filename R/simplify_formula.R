@@ -1,4 +1,3 @@
-
 #' @title Simplify formula with inline functions
 #' @description
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
@@ -44,10 +43,9 @@
 #' simplify_formula(as.formula(f1))
 #' @importFrom stats as.formula
 simplify_formula <- function(formula, data = NULL, string_out = FALSE) {
-
   # Convert to formula object
   if (is.character(formula)) {
-    formula <- tryCatch(as.formula(formula), error = function(e){
+    formula <- tryCatch(as.formula(formula), error = function(e) {
       stop(paste0("Could not convert 'formula' to a formula object. Got error:\n  ", e))
     })
     envir <- globalenv()
@@ -56,7 +54,10 @@ simplify_formula <- function(formula, data = NULL, string_out = FALSE) {
     # we wish to keep that
     # Errors will be messaged later, so we just ignore them for now
     envir <- tryCatch(attributes(terms(formula, data = data))$.Environment,
-                      error = function(e){return(NULL)})
+      error = function(e) {
+        NULL
+      }
+    )
   }
 
   # Check arguments ####
@@ -68,11 +69,11 @@ simplify_formula <- function(formula, data = NULL, string_out = FALSE) {
   checkmate::assert_formula(x = formula, add = assert_collection)
   checkmate::assert_flag(x = string_out, add = assert_collection)
   checkmate::reportAssertions(assert_collection)
-  if (as.character(formula)[[1]] != "~"){
+  if (as.character(formula)[[1]] != "~") {
     assert_collection$push("'formula' did not contain '~'. This use case is not currently supported.")
   }
   checkmate::reportAssertions(assert_collection)
-  tryCatch(terms(formula, data = data), error = function(e){
+  tryCatch(terms(formula, data = data), error = function(e) {
     assert_collection$push(paste0(
       "Could not extract variables from 'formula': ", e
     ))
@@ -89,13 +90,14 @@ simplify_formula <- function(formula, data = NULL, string_out = FALSE) {
   formula_parts <- unlist(strsplit(deparse(formula), "~"))
   y <- get_vars_from_side(formula_parts[[1]])
   x <- get_vars_from_side(formula_parts[[2]])
-  if (length(x) == 0){
+  if (length(x) == 0) {
     stop("the rhs of 'formula' did not contain any variables or allowed values.")
   }
   if ("." %in% x) {
-    if (is.null(data))
+    if (is.null(data)) {
       stop("when 'formula' contains a '.', 'data' must be a data frame, not NULL.")
-    if (length(x) > 1){
+    }
+    if (length(x) > 1) {
       warning(paste0(
         "simplify_formula(): when a formula contains '.', ",
         "any other right-hand side terms will be ignored."
@@ -107,22 +109,24 @@ simplify_formula <- function(formula, data = NULL, string_out = FALSE) {
 
   # Create simplified formula
   form <- paste0(paste0(y, collapse = " + "), " ~ ", paste0(x, collapse = " + "))
-  if (!isTRUE(string_out))
+  if (!isTRUE(string_out)) {
     form <- as.formula(form, env = envir)
+  }
   form
 }
 
 # Get all vars from one side of a formula
-get_vars_from_side <- function(string){
+get_vars_from_side <- function(string) {
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
   checkmate::assert_string(x = string, add = assert_collection)
-  if (grepl("~", string))
+  if (grepl("~", string)) {
     assert_collection$push("'string' cannot contain '~'. Use on one side at a time only.")
+  }
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
 
-  if (trimws(string) %in% c("", "NULL", "1")){
+  if (trimws(string) %in% c("", "NULL", "1")) {
     return(trimws(string))
   }
   all.vars(as.formula(paste0("~", string)))

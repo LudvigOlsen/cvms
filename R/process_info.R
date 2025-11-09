@@ -1,5 +1,3 @@
-
-
 #   __________________ #< 4e68876e2e7c5f3f8233d3c5777dfc01 ># __________________
 #   Process information objects                                             ####
 
@@ -32,9 +30,9 @@
 #' @return List with relevant information.
 #' @export
 #' @author Ludvig Renbo Olsen, \email{r-pkgs@@ludvigolsen.dk}
-process_info_binomial <- function(data, target_col, prediction_cols, id_col, cat_levels, positive, cutoff, locale=NULL){
-  if (is.null(locale)) locale <- Sys.getlocale(category="LC_ALL")
-  target_summary <- describe_categorical(data[[target_col]], classes=cat_levels)
+process_info_binomial <- function(data, target_col, prediction_cols, id_col, cat_levels, positive, cutoff, locale = NULL) {
+  if (is.null(locale)) locale <- Sys.getlocale(category = "LC_ALL")
+  target_summary <- describe_categorical(data[[target_col]], classes = cat_levels)
   predictions_summary <- describe_numeric(data[[prediction_cols]])
   l <- list(
     "Target Column" = target_col,
@@ -54,13 +52,13 @@ process_info_binomial <- function(data, target_col, prediction_cols, id_col, cat
 
 #' @rdname process_info_binomial
 #' @export
-print.process_info_binomial <- function(x, ...){
+print.process_info_binomial <- function(x, ...) {
   cat(as.character(x), ...)
 }
 
 #' @rdname process_info_binomial
 #' @export
-as.character.process_info_binomial <- function(x, ...){
+as.character.process_info_binomial <- function(x, ...) {
   cat_levels <- x[["Classes"]]
   cutoff <- x[["Cutoff"]]
   paste0(
@@ -88,8 +86,8 @@ as.character.process_info_binomial <- function(x, ...){
 ##  .................. #< 2b0bd2c6fd20767770a15db54e22c6ec ># ..................
 ##  Multinomial                                                             ####
 
-#'@rdname process_info_binomial
-#'@export
+#' @rdname process_info_binomial
+#' @export
 process_info_multinomial <- function(
   data,
   target_col,
@@ -98,10 +96,11 @@ process_info_multinomial <- function(
   id_col,
   cat_levels,
   apply_softmax,
-  locale = NULL) {
-  if (is.null(locale)) locale <- Sys.getlocale(category="LC_ALL")
-  target_summary <- describe_categorical(data[[target_col]], classes=cat_levels)
-  predicted_class_summary <- describe_categorical(data[[pred_class_col]], classes=cat_levels)
+  locale = NULL
+) {
+  if (is.null(locale)) locale <- Sys.getlocale(category = "LC_ALL")
+  target_summary <- describe_categorical(data[[target_col]], classes = cat_levels)
+  predicted_class_summary <- describe_categorical(data[[pred_class_col]], classes = cat_levels)
   l <- list(
     "Target Column" = target_col,
     "Prediction Columns" = prediction_cols,
@@ -117,15 +116,15 @@ process_info_multinomial <- function(
   structure(l, class = "process_info_multinomial")
 }
 
-#'@rdname process_info_binomial
-#'@export
-print.process_info_multinomial <- function(x, ...){
+#' @rdname process_info_binomial
+#' @export
+print.process_info_multinomial <- function(x, ...) {
   cat(as.character(x), ...)
 }
 
-#'@rdname process_info_binomial
-#'@export
-as.character.process_info_multinomial <- function(x, ...){
+#' @rdname process_info_binomial
+#' @export
+as.character.process_info_multinomial <- function(x, ...) {
   # Collapse and shorten if necessary
   # E.g. in case of 100s of classes
   pred_cols_str <- paste0(x[["Prediction Columns"]], collapse = ", ")
@@ -143,10 +142,11 @@ as.character.process_info_multinomial <- function(x, ...){
     "\nFamily / type: ", x[["Family"]],
     "\nClasses: ", classes_str,
     ifelse(!is.null(x[["Softmax Applied"]]),
-           paste0("\nSoftmax: ", ifelse(isTRUE(x[["Softmax Applied"]]), "Applied", "Not applied")),
-           ""),
-    "\nTarget counts: ", categorical_description_as_character(x[["Target Summary"]], lim=59),
-    "\nPrediction counts: ", categorical_description_as_character(x[["Prediction Summary"]], lim=55),
+      paste0("\nSoftmax: ", ifelse(isTRUE(x[["Softmax Applied"]]), "Applied", "Not applied")),
+      ""
+    ),
+    "\nTarget counts: ", categorical_description_as_character(x[["Target Summary"]], lim = 59),
+    "\nPrediction counts: ", categorical_description_as_character(x[["Prediction Summary"]], lim = 55),
     "\nLocale (LC_ALL): \n  ", x[["Locale"]],
     "\n---"
   )
@@ -157,10 +157,10 @@ as.character.process_info_multinomial <- function(x, ...){
 ##  Gaussian                                                                ####
 
 
-#'@rdname process_info_binomial
-#'@export
-process_info_gaussian <- function(data, target_col, prediction_cols, id_col, locale=NULL){
-  if (is.null(locale)) locale <- Sys.getlocale(category="LC_ALL")
+#' @rdname process_info_binomial
+#' @export
+process_info_gaussian <- function(data, target_col, prediction_cols, id_col, locale = NULL) {
+  if (is.null(locale)) locale <- Sys.getlocale(category = "LC_ALL")
   target_summary <- describe_numeric(data[[target_col]])
   predictions_summary <- describe_numeric(data[[prediction_cols]])
   l <- list(
@@ -176,15 +176,15 @@ process_info_gaussian <- function(data, target_col, prediction_cols, id_col, loc
   structure(l, class = "process_info_gaussian")
 }
 
-#'@rdname process_info_binomial
-#'@export
-print.process_info_gaussian <- function(x, ...){
+#' @rdname process_info_binomial
+#' @export
+print.process_info_gaussian <- function(x, ...) {
   cat(as.character(x), ...)
 }
 
-#'@rdname process_info_binomial
-#'@export
-as.character.process_info_gaussian <- function(x, ...){
+#' @rdname process_info_binomial
+#' @export
+as.character.process_info_gaussian <- function(x, ...) {
   paste0(
     "---",
     "\nProcess Information",
@@ -205,22 +205,23 @@ as.character.process_info_gaussian <- function(x, ...){
 ##  Utilities                                                               ####
 
 
-shorten_string <- function(x, lim=60){
-  if (nchar(x) > lim)
-    paste0(substr(x, 1, lim-3), "...")
-  else
+shorten_string <- function(x, lim = 60) {
+  if (nchar(x) > lim) {
+    paste0(substr(x, 1, lim - 3), "...")
+  } else {
     x
+  }
 }
 
-describe_numeric <- function(v, na.rm=FALSE){
+describe_numeric <- function(v, na.rm = FALSE) {
   list(
-    "Mean" = mean(v, na.rm=na.rm),
-    "Median" = median(v, na.rm=na.rm),
-    "Range" = range(v, na.rm=na.rm),
-    "SD" = sd(v, na.rm=na.rm),
-    "IQR" = tryCatch(IQR(v, na.rm=na.rm), error = function(e){
+    "Mean" = mean(v, na.rm = na.rm),
+    "Median" = median(v, na.rm = na.rm),
+    "Range" = range(v, na.rm = na.rm),
+    "SD" = sd(v, na.rm = na.rm),
+    "IQR" = tryCatch(IQR(v, na.rm = na.rm), error = function(e) {
       # As the only one, IQR throws error on NAs
-      if (grep("missing values and NaN", as.character(e))){
+      if (grep("missing values and NaN", as.character(e))) {
         return(NA)
       } else {
         stop(e)
@@ -229,7 +230,7 @@ describe_numeric <- function(v, na.rm=FALSE){
   )
 }
 
-numeric_description_as_character <- function(x){
+numeric_description_as_character <- function(x) {
   paste0(
     "mean: ", round(x[["Mean"]], digits = 3),
     ", median: ", round(x[["Median"]], digits = 3),
@@ -239,7 +240,7 @@ numeric_description_as_character <- function(x){
   )
 }
 
-describe_categorical <- function(v, classes, na.rm=FALSE){
+describe_categorical <- function(v, classes, na.rm = FALSE) {
   # Count the classes in v
   class_counts <- table(v)
   available_classes <- names(class_counts)
@@ -260,15 +261,18 @@ describe_categorical <- function(v, classes, na.rm=FALSE){
   )
 }
 
-categorical_description_as_character <- function(x, lim=59){
+categorical_description_as_character <- function(x, lim = 59) {
   paste0(
     "total=",
-    shorten_string(paste0(
-      x[["Total"]], ", ",
+    shorten_string(
+      paste0(
+        x[["Total"]], ", ",
         paste0(names(x[["Class Counts"]]), "=",
-        unname(x[["Class Counts"]]),
-        collapse = ", ")
-     ),
-    lim = lim)
+          unname(x[["Class Counts"]]),
+          collapse = ", "
+        )
+      ),
+      lim = lim
+    )
   )
 }

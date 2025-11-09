@@ -1,5 +1,3 @@
-
-
 #   __________________ #< 1ee2f435e0cd344bcd4c561d5eb5542d ># __________________
 #   Evaluate                                                                ####
 
@@ -431,48 +429,47 @@
 #' #
 #'
 #' # Only run if `nnet` is installed
-#' if (requireNamespace("nnet", quietly = TRUE)){
+#' if (requireNamespace("nnet", quietly = TRUE)) {
+#'   # Create a data frame with some predictors and a target column
+#'   class_names <- paste0("class_", 1:4)
+#'   data_for_nnet <- multiclass_probability_tibble(
+#'     num_classes = 3, # Here, number of predictors
+#'     num_observations = 30,
+#'     apply_softmax = FALSE,
+#'     FUN = rnorm,
+#'     class_name = "predictor_"
+#'   ) %>%
+#'     dplyr::mutate(Target = sample(
+#'       class_names,
+#'       size = 30,
+#'       replace = TRUE
+#'     ))
 #'
-#' # Create a data frame with some predictors and a target column
-#' class_names <- paste0("class_", 1:4)
-#' data_for_nnet <- multiclass_probability_tibble(
-#'   num_classes = 3, # Here, number of predictors
-#'   num_observations = 30,
-#'   apply_softmax = FALSE,
-#'   FUN = rnorm,
-#'   class_name = "predictor_"
-#' ) %>%
-#'   dplyr::mutate(Target = sample(
-#'     class_names,
-#'     size = 30,
-#'     replace = TRUE
-#'   ))
+#'   # Train multinomial model using the nnet package
+#'   mn_model <- nnet::multinom(
+#'     "Target ~ predictor_1 + predictor_2 + predictor_3",
+#'     data = data_for_nnet
+#'   )
 #'
-#' # Train multinomial model using the nnet package
-#' mn_model <- nnet::multinom(
-#'   "Target ~ predictor_1 + predictor_2 + predictor_3",
-#'   data = data_for_nnet
-#' )
+#'   # Predict the targets in the dataset
+#'   # (we would usually use a test set instead)
+#'   predictions <- predict(
+#'     mn_model,
+#'     data_for_nnet,
+#'     type = "probs"
+#'   ) %>%
+#'     dplyr::as_tibble()
 #'
-#' # Predict the targets in the dataset
-#' # (we would usually use a test set instead)
-#' predictions <- predict(
-#'   mn_model,
-#'   data_for_nnet,
-#'   type = "probs"
-#' ) %>%
-#'   dplyr::as_tibble()
+#'   # Add the targets
+#'   predictions[["Target"]] <- data_for_nnet[["Target"]]
 #'
-#' # Add the targets
-#' predictions[["Target"]] <- data_for_nnet[["Target"]]
-#'
-#' # Evaluate predictions
-#' evaluate(
-#'   data = predictions,
-#'   target_col = "Target",
-#'   prediction_cols = class_names,
-#'   type = "multinomial"
-#' )
+#'   # Evaluate predictions
+#'   evaluate(
+#'     data = predictions,
+#'     target_col = "Target",
+#'     prediction_cols = class_names,
+#'     type = "multinomial"
+#'   )
 #' }
 #' }
 evaluate <- function(data,
@@ -533,7 +530,7 @@ evaluate <- function(data,
     assert_collection$push("'data' cannot be grouped by a prediction column.")
   }
 
-  if (!is.null(id_col)){
+  if (!is.null(id_col)) {
     if (id_col %in% prediction_cols) {
       assert_collection$push("'id_col' was in 'prediction_cols'.")
     }
@@ -545,7 +542,6 @@ evaluate <- function(data,
     if (id_col %in% group_columns) {
       assert_collection$push("'data' cannot be grouped by the 'id_col' column.")
     }
-
   }
 
   checkmate::reportAssertions(assert_collection)
@@ -715,8 +711,10 @@ run_evaluate <- function(data,
   checkmate::reportAssertions(assert_collection)
 
   # Need to report before, so type is not NULL
-  if (type != "multinomial" &&
-      length(prediction_cols) != 1){
+  if (
+    type != "multinomial" &&
+      length(prediction_cols) != 1
+  ) {
     assert_collection$push(
       paste0("When 'type' is '", type, "', 'prediction_cols' must have length 1.")
     )
@@ -743,7 +741,7 @@ run_evaluate <- function(data,
     preprocess_fn = NULL,
     preprocess_once = NULL,
     for_process = list(
-      apply_softmax=apply_softmax,
+      apply_softmax = apply_softmax,
       id_col = id_col
     ),
     hparams = NULL,
@@ -756,13 +754,15 @@ run_evaluate <- function(data,
   # One-hot encode predicted classes, if multinomial
   # and prediction_cols is one column with classes
   if (type == "multinomial" && length(prediction_cols) == 1) {
-
-    if (!is.character(data[[target_col]]) ||
-        !is.character(data[[prediction_cols]])){
+    if (
+      !is.character(data[[target_col]]) ||
+        !is.character(data[[prediction_cols]])
+    ) {
       assert_collection$push(paste0(
         "When 'type' is 'multinomial' and 'prediction_cols' has length",
         " 1, both 'data[[target_col]]' and 'data[[prediction_cols]]' must",
-        " have type character."))
+        " have type character."
+      ))
     }
     if (isTRUE(apply_softmax)) {
       assert_collection$push(paste0(
@@ -782,52 +782,64 @@ run_evaluate <- function(data,
     prediction_cols <- sort(c_levels)
   }
 
-  if (type == "binomial"){
-
-    if (!(is.numeric(data[[prediction_cols]]) ||
-          is.character(data[[prediction_cols]]))){
+  if (type == "binomial") {
+    if (
+      !(
+        is.numeric(data[[prediction_cols]]) ||
+          is.character(data[[prediction_cols]])
+      )
+    ) {
       assert_collection$push(
-        paste0("When 'type' is 'binomial', 'data[[prediction_cols]]' mus",
-               "t be either numeric or character."))
+        paste0(
+          "When 'type' is 'binomial', 'data[[prediction_cols]]' mus",
+          "t be either numeric or character."
+        )
+      )
     }
 
-    if (is.numeric(data[[prediction_cols]])){
-      if (max(data[[prediction_cols]]) > 1 ||
-          min(data[[prediction_cols]]) < 0) {
+    if (is.numeric(data[[prediction_cols]])) {
+      if (
+        max(data[[prediction_cols]]) > 1 ||
+          min(data[[prediction_cols]]) < 0
+      ) {
         assert_collection$push(
           paste0(
             "When 'type' is 'binomial' and 'data[[prediction_cols]]' ",
             "is numeric, the values in 'data[[prediction_cols]]' must be b",
             "etween 0 and 1."
-          ))
+          )
+        )
       }
 
       # One may believe that setting the `positive` argument to the name
       # of a class should mean that probabilities > `cutoff` would be
       # considered that class, but this is not the case, so we
       # make the user aware of this (once)
-      if (is.character(positive) && positive != sort(unique(as.character(data[[target_col]])))[[2]]){
-        inform_about_positive_no_effect_on_probs(positive=positive)
+      if (is.character(positive) && positive != sort(unique(as.character(data[[target_col]])))[[2]]) {
+        inform_about_positive_no_effect_on_probs(positive = positive)
       }
     }
     checkmate::reportAssertions(assert_collection)
 
-    if (is.character(data[[prediction_cols]])){
+    if (is.character(data[[prediction_cols]])) {
       c_levels <- sort(union(data[[target_col]], data[[prediction_cols]]))
-      if (length(c_levels) != 2){
-        assert_collection$push(paste0("When 'type' is 'binomial' and 'data[[prediction_cols]]' ",
-                                      "has type character, the target and prediction columns must h",
-                                      "ave exactly 2 unique values combined. ",
-                                      "Did you mean to use type='multinomial'?"))
+      if (length(c_levels) != 2) {
+        assert_collection$push(paste0(
+          "When 'type' is 'binomial' and 'data[[prediction_cols]]' ",
+          "has type character, the target and prediction columns must h",
+          "ave exactly 2 unique values combined. ",
+          "Did you mean to use type='multinomial'?"
+        ))
         checkmate::reportAssertions(assert_collection)
       }
       # Replace with probabilities (1.0 or 0.0)
       data[[prediction_cols]] <- ifelse(data[[prediction_cols]] == c_levels[[2]],
-                                        1.0, 0.0)
+        1.0, 0.0
+      )
     }
 
     # Enable Accuracy if not otherwise specified
-    metrics <- add_metric_if_not_specified(metrics, "Accuracy", value=TRUE, check_all=TRUE)
+    metrics <- add_metric_if_not_specified(metrics, "Accuracy", value = TRUE, check_all = TRUE)
   }
 
   # Find number of classes if classification
@@ -855,7 +867,7 @@ run_evaluate <- function(data,
 
   # Map for joining the grouping keys to the indices
   grouping_keys_with_indices <- grouping_keys %>%
-    dplyr::mutate(.group = 1:dplyr::n())
+    dplyr::mutate(.group = seq_len(dplyr::n()))
 
   if (!is.null(models) && length(unique(grouping_factor)) != length(models)) {
     stop(paste0(
@@ -877,12 +889,11 @@ run_evaluate <- function(data,
   local_tmp_std_col_var <- create_tmp_name(data, "tmp_std_col")
 
   if (!is.null(id_col)) {
-
     # ID level evaluation
 
     # Currently don't support model object metrics
     # in ID aggregation mode
-    if (!is.null(models)){
+    if (!is.null(models)) {
       stop("When aggregating by ID, 'models' should be NULL.")
     }
 
@@ -931,11 +942,9 @@ run_evaluate <- function(data,
       na.rm = na.rm
     )
   } else {
-
     # Regular evaluation
 
     if (family == "multinomial") {
-
       # Prepare data for multinomial evaluation
       data <- prepare_multinomial_evaluation(
         data = data,
@@ -1096,14 +1105,16 @@ run_internal_evaluate_wrapper <- function(data,
     base_deselect(".__grouping__")
 
   # Move Process last
-  if ("Process" %in% colnames(results)){
+  if ("Process" %in% colnames(results)) {
     results <- results %>%
       dplyr::relocate("Process", .after = dplyr::last_col())
   }
 
   # If na.rm != "both" and it contains the NAs_removed column
-  if ((!is.character(na.rm) || na.rm != "both") &&
-    "NAs_removed" %in% names(results)) {
+  if (
+    (!is.character(na.rm) || na.rm != "both") &&
+      "NAs_removed" %in% names(results)
+  ) {
     results[["NAs_removed"]] <- NULL
   }
 
@@ -1216,7 +1227,7 @@ internal_evaluate <- function(data,
   if (type == "multinomial") {
     ROCs <- output[["Results"]] %c% "ROC" %>%
       unlist(recursive = FALSE)
-    if ("mv.multiclass.roc" %ni% class(ROCs[[1]])){
+    if ("mv.multiclass.roc" %ni% class(ROCs[[1]])) {
       ROCs <- unlist(ROCs, recursive = FALSE)
     }
     output[["ROC"]] <- ROCs

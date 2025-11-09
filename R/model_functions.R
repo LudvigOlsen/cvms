@@ -40,7 +40,6 @@ model_functions <- function(name) {
     }
   } else if (name == "lmer") {
     model_fn <- function(train_data, formula, hyperparameters) {
-
       # Optional hyperparameters:
       #  - REML
 
@@ -72,9 +71,8 @@ model_functions <- function(name) {
       )
     }
   } else if (name == "svm_gaussian") {
-    if (requireNamespace("e1071", quietly = TRUE)){
+    if (requireNamespace("e1071", quietly = TRUE)) {
       model_fn <- function(train_data, formula, hyperparameters) {
-
         # Optional hyperparameters:
         #  - kernel (default: "radial")
         #  - cost   (default: 1)
@@ -102,9 +100,8 @@ model_functions <- function(name) {
       stop("The package `e1071` was not available.")
     }
   } else if (name %in% c("svm_binomial", "svm_multinomial")) {
-    if (requireNamespace("e1071", quietly = TRUE)){
+    if (requireNamespace("e1071", quietly = TRUE)) {
       model_fn <- function(train_data, formula, hyperparameters) {
-
         # Optional hyperparameters:
         #  - kernel (default: "radial")
         #  - cost   (default: 1)
@@ -133,9 +130,8 @@ model_functions <- function(name) {
       stop("The package `e1071` was not available.")
     }
   } else if (name == "naive_bayes") {
-    if (requireNamespace("e1071", quietly = TRUE)){
+    if (requireNamespace("e1071", quietly = TRUE)) {
       model_fn <- function(train_data, formula, hyperparameters) {
-
         # Optional hyperparameters:
         #  - laplace  (default: 0)
 

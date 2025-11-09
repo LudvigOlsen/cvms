@@ -1,4 +1,3 @@
-
 #' @title Examples of predict_fn functions
 #' @description
 #'  \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}

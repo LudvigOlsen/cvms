@@ -1,5 +1,3 @@
-
-
 #   __________________ #< 714f7a4cd397a84c2a8f5b22229c7ade ># __________________
 #   Multiclass probability tibble                                           ####
 
@@ -74,7 +72,6 @@ multiclass_probability_tibble <- function(num_classes,
                                           class_name = "class_",
                                           add_predicted_classes = FALSE,
                                           add_targets = FALSE) {
-
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
   checkmate::assert_count(x = num_classes, positive = TRUE, add = assert_collection)
@@ -97,10 +94,10 @@ multiclass_probability_tibble <- function(num_classes,
     }
   )
   # Check generated numbers
-  if (!is.numeric(random_numbers)){
+  if (!is.numeric(random_numbers)) {
     assert_collection$push("the output of 'FUN' was not numeric.")
   }
-  if (length(random_numbers) != num_classes * num_observations){
+  if (length(random_numbers) != num_classes * num_observations) {
     assert_collection$push("the output of 'FUN' did not have length 'num_classes' * 'num_observations'.")
   }
   checkmate::reportAssertions(assert_collection)
@@ -122,7 +119,7 @@ multiclass_probability_tibble <- function(num_classes,
   }
 
   # Add predicted classes
-  if (isTRUE(add_predicted_classes)){
+  if (isTRUE(add_predicted_classes)) {
     # Create a column with the predicted class
     predicted_class_indices <- argmax(probability_matrix)
     probability_matrix[["Predicted Class"]] <- purrr::map_chr(
@@ -134,11 +131,12 @@ multiclass_probability_tibble <- function(num_classes,
   }
 
   # Add targets
-  if (isTRUE(add_targets)){
+  if (isTRUE(add_targets)) {
     targ_col <- create_tmp_name(probability_matrix, "Target")
     probability_matrix[[targ_col]] <- sample(class_names,
-                                             size = num_observations,
-                                             replace = TRUE)
+      size = num_observations,
+      replace = TRUE
+    )
   }
 
   probability_matrix

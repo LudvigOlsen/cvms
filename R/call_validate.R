@@ -13,7 +13,6 @@ call_validate <- function(train_data,
                           rm_nc,
                           parallel,
                           verbose) {
-
   # Set default arguments
   link <- default_link(NULL, family = family)
   control <- default_control(control, family = family, link = link)
@@ -115,7 +114,6 @@ call_cross_validate <- function(data,
                                 rm_nc,
                                 parallel,
                                 verbose) {
-
   # Set default arguments
   link <- default_link(NULL, family = family)
   control <- default_control(control, family = family, link = link)
@@ -200,15 +198,16 @@ call_cross_validate <- function(data,
 ### Basics, shared between validate and cross_validate
 
 basics_update_metrics <- function(metrics, family) {
-
   # For cross_validate we expect AIC to be comparable
   # Although with REML = TRUE we might not be able to compare
   # models with and without random effects   TODO (add to documentation)
 
   if (family == "gaussian") {
     metric_names <- names(metrics)
-    if (is.list(metrics) &&
-      length(setdiff(c("AIC", "AICc", "BIC"), metric_names)) > 1) {
+    if (
+      is.list(metrics) &&
+        length(setdiff(c("AIC", "AICc", "BIC"), metric_names)) > 1
+    ) {
       if ("AIC" %ni% metric_names) {
         metrics[["AIC"]] <- TRUE
       }
@@ -235,7 +234,6 @@ basics_hparams <- function(REML, control, model_verbose, family) {
 }
 
 basics_model_fn <- function(train_data, formula, hyperparameters) {
-
   # Extract hyperparameters
   REML <- hyperparameters[["REML"]]
   control <- hyperparameters[["control"]][[1]]
@@ -300,11 +298,9 @@ basics_model_fn <- function(train_data, formula, hyperparameters) {
 }
 
 basics_predict_fn <- function(test_data, model, formula, hyperparameters, train_data) {
-
   # Extract family from hyperparameters
   family_ <- hyperparameters[["family"]]
   contains_random_effects <- rand_effects(formula)
-  link <- hyperparameters[["link"]]
 
   # Note: The same predict_fn can be used for (g)lm and (g)lmer
   # so this conditional selection is technically unnecessary

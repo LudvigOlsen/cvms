@@ -131,7 +131,8 @@ cross_validate_list <- function(data,
     identical.to = c("train_data", "formula", "hyperparameters"),
     what = "argument names",
     .var.name = "model_fn argument names",
-    add = assert_collection)
+    add = assert_collection
+  )
 
   checkmate::assert_names(
     x = names(formals(predict_fn)),
@@ -142,9 +143,10 @@ cross_validate_list <- function(data,
     ),
     what = "argument names",
     .var.name = "predict_fn argument names",
-    add = assert_collection)
+    add = assert_collection
+  )
 
-  if (!is.null(preprocess_fn)){
+  if (!is.null(preprocess_fn)) {
     checkmate::assert_names(
       x = names(formals(preprocess_fn)),
       identical.to = c(
@@ -153,14 +155,16 @@ cross_validate_list <- function(data,
       ),
       what = "argument names",
       .var.name = "preprocess_fn argument names",
-      add = assert_collection)
+      add = assert_collection
+    )
   }
 
   checkmate::reportAssertions(assert_collection)
-  if (length(setdiff(fold_cols, colnames(data))) > 0){
+  if (length(setdiff(fold_cols, colnames(data))) > 0) {
     assert_collection$push(
       paste0("the following 'fold_cols' columns were not in 'data': ", paste0(
-        setdiff(fold_cols, colnames(data)), collapse = ", "
+        setdiff(fold_cols, colnames(data)),
+        collapse = ", "
       ))
     )
   }
@@ -201,11 +205,10 @@ cross_validate_list <- function(data,
   data <- data %>% dplyr::mutate(dplyr::across(dplyr::all_of(fold_cols), ~ droplevels(.)))
 
   # When using cross_validate() we need to extract a few hparams
-  # Hyperparameters for REML, link, control, is_cross_validate
+  # Hyperparameters for REML, link, control
   special_hparams <- extract_special_fn_specific_hparams(
     hyperparameters = hyperparameters
   )
-  is_cross_validate <- special_hparams[["is_special_fn"]]
   REML <- special_hparams[["REML"]]
   link <- special_hparams[["link"]]
   control <- special_hparams[["control"]]
@@ -245,7 +248,7 @@ cross_validate_list <- function(data,
   n_folds <- length(unique(computation_grid[["abs_fold"]]))
 
   # TODO Perhaps add a progress bar?
-  if (isTRUE(verbose)){
+  if (isTRUE(verbose)) {
     message(
       paste0(
         "Will cross-validate ",
@@ -278,7 +281,6 @@ cross_validate_list <- function(data,
   validated_folds <- plyr::llply(seq_len(nrow(computation_grid)),
     .parallel = parallel_,
     .fun = function(r) {
-
       # Extract current row from computation grid
       to_compute <- computation_grid[r, ]
 
@@ -337,7 +339,6 @@ cross_validate_list <- function(data,
   cross_validations <- plyr::llply(seq_len(n_models),
     .parallel = parallel_,
     .fun = function(m) {
-
       # Extract grid for current model
       current_grid <- computation_grid[computation_grid[["model"]] == m, ]
 
@@ -412,7 +413,6 @@ cross_validate_list <- function(data,
       )
 
       if (family == "gaussian") {
-
         # Extract the prediction fold results tibble
         fold_results <- prediction_evaluation[["Results"]][[1]]
         prediction_evaluation[["Results"]] <- NULL
@@ -425,7 +425,6 @@ cross_validate_list <- function(data,
             )
           )
       } else if (family %in% c("binomial", "multinomial")) {
-
         # In classification, we evaluate the collected (all folds) predictions
         # per fold column. So if the Results column exists,
         # we will join them per
@@ -439,7 +438,6 @@ cross_validate_list <- function(data,
         model_metric_names <- intersect(names(current_model_metrics), metrics)
 
         if (length(model_metric_names) > 0) {
-
           # TODO The new tidyr::nest or chop() interface might be able to do this part
           # without the loop and stuff (kind of messy). Requires v1.0.0 though
           # so for now we will do it this way, and change it if profiling
@@ -526,7 +524,9 @@ cross_validate_list <- function(data,
     dplyr::slice(1)
   grid_first_rows <- grid_first_rows[
     order(grid_first_rows$model,
-          method = "radix"), ]
+      method = "radix"
+    ),
+  ]
 
   # Extract hparams from grid
   hparams <- grid_first_rows[["hparams"]]
@@ -578,7 +578,8 @@ cross_validate_list <- function(data,
   output <-
     original_formula_order %>%
     dplyr::left_join(output,
-                     by = names(original_formula_order)) %>%
+      by = names(original_formula_order)
+    ) %>%
     base_select(cols = new_col_order) %>%
     position_first("Fixed")
 
@@ -593,8 +594,10 @@ cross_validate_list <- function(data,
 
 
 extract_from_hparams_for_cross_validate <- function(hyperparameters, param) {
-  if (!is.null(hyperparameters) &&
-    param %in% names(hyperparameters)) {
+  if (
+    !is.null(hyperparameters) &&
+      param %in% names(hyperparameters)
+  ) {
     return(hyperparameters[[param]])
   }
   NULL

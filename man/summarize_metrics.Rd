@@ -34,9 +34,11 @@ summarize_metrics(data, cols = NULL, na.rm = TRUE, inf.rm = TRUE)
 library(cvms)
 library(dplyr)
 
-df <- data.frame("a" = c("a", "a", "a", "b", "b", "b", "c", "c", "c"),
-                 "b" = c(0.8, 0.6, 0.3, 0.2, 0.4, 0.5, 0.8, 0.1, 0.5),
-                 "c" = c(0.2, 0.3, 0.4, 0.6, 0.5, 0.8, 0.1, 0.8, 0.3))
+df <- data.frame(
+  "a" = c("a", "a", "a", "b", "b", "b", "c", "c", "c"),
+  "b" = c(0.8, 0.6, 0.3, 0.2, 0.4, 0.5, 0.8, 0.1, 0.5),
+  "c" = c(0.2, 0.3, 0.4, 0.6, 0.5, 0.8, 0.1, 0.8, 0.3)
+)
 
 # Summarize all numeric columns
 summarize_metrics(df)

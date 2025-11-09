@@ -68,24 +68,24 @@ set.seed(42)
 bsl <- baseline_multinomial(
   test_data = musicians,
   dependent_col = "Class",
-  n = 20  # Normally 100
+  n = 20 # Normally 100
 )
 
 # Evaluate predictions grouped by classifier and fold column
 eval <- predicted.musicians \%>\%
   dplyr::group_by(Classifier, `Fold Column`) \%>\%
   evaluate(
-  target_col = "Target",
-  prediction_cols = c("A", "B", "C", "D"),
-  type = "multinomial"
-)
+    target_col = "Target",
+    prediction_cols = c("A", "B", "C", "D"),
+    type = "multinomial"
+  )
 
 # Plot density of the Overall Accuracy metric
 plot_metric_density(
   results = eval,
   baseline = bsl$random_evaluations,
   metric = "Overall Accuracy",
-  xlim = c(0,1)
+  xlim = c(0, 1)
 )
 
 # The bulk of classifier results are much better than

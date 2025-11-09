@@ -59,7 +59,7 @@ update_hyperparameters(
 
 # 'cost' is required
 # throws error
-if (requireNamespace("xpectr", quietly = TRUE)){
+if (requireNamespace("xpectr", quietly = TRUE)) {
   xpectr::capture_side_effects(
     update_hyperparameters(
       kernel = "linear",
@@ -69,7 +69,6 @@ if (requireNamespace("xpectr", quietly = TRUE)){
     )
   )
 }
-
 }
 }
 \seealso{

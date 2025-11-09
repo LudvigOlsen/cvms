@@ -1,6 +1,3 @@
-
-
-
 #   __________________ #< f29c509f0bd4fbc8cd8ea8271ecb30ce ># __________________
 #   Specifying metrics list                                                 ####
 
@@ -152,7 +149,6 @@ gaussian_metrics <- function(all = NULL,
     "BIC" = bic
   ) %>%
     plyr::compact()
-
 }
 
 
@@ -276,7 +272,6 @@ binomial_metrics <- function(all = NULL,
     "BIC" = bic
   ) %>%
     plyr::compact()
-
 }
 
 
@@ -435,5 +430,4 @@ multinomial_metrics <- function(all = NULL,
     "BIC" = bic
   ) %>%
     plyr::compact()
-
 }

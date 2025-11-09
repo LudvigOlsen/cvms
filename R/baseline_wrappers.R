@@ -1,5 +1,3 @@
-
-
 #   __________________ #< f399ddb1c0983a2c6c10141a8d3dc0a4 ># __________________
 #   Baseline wrappers                                                       ####
 
@@ -168,7 +166,7 @@
 #'   dependent_col = "score",
 #'   random_effects = "(1|session)",
 #'   n = 4
-#'   #, parallel = TRUE  # Uncomment
+#'   # , parallel = TRUE  # Uncomment
 #' )
 #' }
 baseline_gaussian <- function(test_data,
@@ -369,7 +367,7 @@ baseline_gaussian <- function(test_data,
 #'   test_data = test_set,
 #'   dependent_col = "diagnosis",
 #'   n = 4
-#'   #, parallel = TRUE  # Uncomment
+#'   # , parallel = TRUE  # Uncomment
 #' )
 #' }
 baseline_binomial <- function(test_data,
@@ -611,7 +609,7 @@ baseline_binomial <- function(test_data,
 #'   test_data = multiclass_data,
 #'   dependent_col = "target",
 #'   n = 6
-#'   #, parallel = TRUE  # Uncomment
+#'   # , parallel = TRUE  # Uncomment
 #' ))
 #'
 #' # Inspect the summarized class level results
@@ -634,7 +632,7 @@ baseline_binomial <- function(test_data,
 #'   dependent_col = "target",
 #'   n = 6,
 #'   random_generator_fn = rcertain
-#'   #, parallel = TRUE  # Uncomment
+#'   # , parallel = TRUE  # Uncomment
 #' )
 #' }
 baseline_multinomial <- function(test_data,
@@ -643,7 +641,6 @@ baseline_multinomial <- function(test_data,
                                  metrics = list(),
                                  random_generator_fn = runif,
                                  parallel = FALSE) {
-
   baseline(
     test_data = test_data,
     dependent_col = dependent_col,
@@ -654,5 +651,3 @@ baseline_multinomial <- function(test_data,
     parallel = parallel
   )
 }
-
-

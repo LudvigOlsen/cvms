@@ -1,4 +1,3 @@
-
 #   __________________ #< d6eabafb9158df7c6175abd6bd32366c ># __________________
 #   Extract model effects                                                   ####
 
@@ -17,17 +16,14 @@ extract_model_effects <- function(model_list) {
   suppressWarnings((
     # Then we use tidyr() to create a pipeline
     mixed_effects <- mixed_effects %>%
-
       # First remove all whitespaces
       dplyr::mutate(model = gsub("\\s", "", .$model)) %>%
-
       # Seperate model into dependent variable and predictors
       tidyr::separate(
         .data$model,
         into = c("Dependent", "Predictors"),
         sep = "~"
       ) %>%
-
       # Then we separate the model by "("  - because: diagnosis + (1|subject)
       # The first part is placed in a column called "fixed"
       # the other part in a column called "random"
@@ -39,7 +35,6 @@ extract_model_effects <- function(model_list) {
         sep = "\\+\\(",
         extra = "merge"
       ) %>%
-
       # Then we clean up those strings a bit
       # From fixed we remove the last "+"
       dplyr::mutate(
@@ -55,5 +50,5 @@ extract_model_effects <- function(model_list) {
     mixed_effects$Random <- NULL
   }
 
-  return(mixed_effects)
+  mixed_effects
 }

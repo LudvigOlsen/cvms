@@ -1,8 +1,6 @@
-
 # Returns a list of metric names
 # With default values unless
 set_metrics <- function(family, metrics_list = NULL, include_model_object_metrics = FALSE) {
-
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
   checkmate::assert_choice(
@@ -11,8 +9,10 @@ set_metrics <- function(family, metrics_list = NULL, include_model_object_metric
     add = assert_collection
   )
 
-  if (!checkmate::test_string(x = metrics_list,
-                              pattern = "^all$")) {
+  if (!checkmate::test_string(
+    x = metrics_list,
+    pattern = "^all$"
+  )) {
     checkmate::assert_list(
       x = metrics_list,
       types = c("logical"),
@@ -22,8 +22,10 @@ set_metrics <- function(family, metrics_list = NULL, include_model_object_metric
       add = assert_collection
     )
   }
-  checkmate::assert_flag(x = include_model_object_metrics,
-                         add = assert_collection)
+  checkmate::assert_flag(
+    x = include_model_object_metrics,
+    add = assert_collection
+  )
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
 
@@ -134,7 +136,6 @@ set_metrics <- function(family, metrics_list = NULL, include_model_object_metric
         stop("'metrics' must be either a named list or 'all'.")
       }
     } else {
-
       # Check for duplicates
       if (length(unique(names(metrics_list))) != length(names(metrics_list))) {
         stop("'metrics' cannot contain duplicate names.")
@@ -179,7 +180,6 @@ set_metrics <- function(family, metrics_list = NULL, include_model_object_metric
   }
 
   if (!isTRUE(include_model_object_metrics)) {
-
     # Remove the metrics that require model objects
     if (family == "gaussian") {
       metrics[["r2m"]] <- FALSE
@@ -213,7 +213,7 @@ set_all <- function(metrics, to = TRUE) {
 # This let's us have a different default
 # for a specific function
 # metrics: list of flags
-add_metric_if_not_specified <- function(metrics, metric, value=TRUE, check_all=TRUE){
+add_metric_if_not_specified <- function(metrics, metric, value = TRUE, check_all = TRUE) {
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
   checkmate::assert_list(metrics, types = "logical", add = assert_collection)
@@ -223,9 +223,10 @@ add_metric_if_not_specified <- function(metrics, metric, value=TRUE, check_all=T
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
   skip <- metric %in% names(metrics) || (isTRUE(check_all) && "all" %in% names(metrics))
-  if (!isTRUE(skip)){
-    if (isTRUE(check_all))
-    metrics[[metric]] <- value
+  if (!isTRUE(skip)) {
+    if (isTRUE(check_all)) {
+      metrics[[metric]] <- value
+    }
   }
   metrics
 }

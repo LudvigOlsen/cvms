@@ -1,4 +1,3 @@
-
 # Metrics
 
 calculate_r2m <- function(model, raise_errors = FALSE) {
@@ -51,7 +50,6 @@ calculate_AIC <- function(model, raise_errors = FALSE) {
 
 calculate_AICc <- function(model, REML, raise_errors = FALSE) {
   model_metric_wrapper(model, metric_fn = function(model_) {
-
     # When fitting a glm (e.g. with different link function)
     # we shouldn't pass REML to AICc
     tryCatch(
@@ -93,15 +91,15 @@ model_metric_wrapper <- function(model,
     },
     warning = function(w) {
       warning(w)
-      return(NA)
+      NA
     },
     error = function(e) {
       if (raise_errors) stop(e)
-      if (grepl("no applicable method for", as.character(e), ignore.case = T)) {
+      if (grepl("no applicable method for", as.character(e), ignore.case = TRUE)) {
         return(NA)
       }
       warning(e)
-      return(NA)
+      NA
     }
   )
 }

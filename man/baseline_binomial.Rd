@@ -187,7 +187,7 @@ baseline_binomial(
   test_data = test_set,
   dependent_col = "diagnosis",
   n = 4
-  #, parallel = TRUE  # Uncomment
+  # , parallel = TRUE  # Uncomment
 )
 }
 }

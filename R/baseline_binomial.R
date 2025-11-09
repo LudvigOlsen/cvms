@@ -6,12 +6,11 @@ create_binomial_baseline_evaluations <- function(test_data,
                                                  metrics = list(),
                                                  na.rm = TRUE,
                                                  parallel_ = FALSE) {
-
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
-  if (is.character(positive)){
+  if (is.character(positive)) {
     checkmate::assert_string(x = positive, min.chars = 1, add = assert_collection)
-  } else if (is.numeric(positive)){
+  } else if (is.numeric(positive)) {
     checkmate::assert_count(x = positive, add = assert_collection)
     if (positive %ni% c(1, 2)) {
       assert_collection$push("When 'positive' is a number, it must be either 1 or 2.")
@@ -21,7 +20,7 @@ create_binomial_baseline_evaluations <- function(test_data,
   }
   checkmate::assert_flag(x = na.rm, add = assert_collection)
   checkmate::assert_number(x = cutoff, add = assert_collection)
-  if (!is_between_(cutoff, 0, 1)){
+  if (!is_between_(cutoff, 0, 1)) {
     assert_collection$push("'cutoff' must be between 0.0 and 1.0.")
   }
   checkmate::reportAssertions(assert_collection)
@@ -41,8 +40,7 @@ create_binomial_baseline_evaluations <- function(test_data,
         "The dependent column must maximally contain 2 levels.",
         " Did you specify the correct family?"
       ))
-    }
-    else {
+    } else {
       stop("The dependent column must maximally contain 2 levels.")
     }
   }
@@ -55,12 +53,13 @@ create_binomial_baseline_evaluations <- function(test_data,
   random_probabilities <- runif(n_targets * reps)
 
   # Collect the probability sets
-  probability_sets <- split(c(
-    random_probabilities,
-    all_0_probabilities,
-    all_1_probabilities
-  ),
-  f = factor(rep(1:(reps + 2), each = n_targets))
+  probability_sets <- split(
+    c(
+      random_probabilities,
+      all_0_probabilities,
+      all_1_probabilities
+    ),
+    f = factor(rep(1:(reps + 2), each = n_targets))
   )
 
   # Create temporary fold columns
@@ -94,7 +93,8 @@ create_binomial_baseline_evaluations <- function(test_data,
         caller = "baseline()"
       )
     }
-  ) %>% dplyr::bind_rows() %>% # Works with nested tibbles (ldply doesn't seem to)
+  ) %>%
+    dplyr::bind_rows() %>% # Works with nested tibbles (ldply doesn't seem to)
     dplyr::mutate(
       Dependent = dependent_col
     )

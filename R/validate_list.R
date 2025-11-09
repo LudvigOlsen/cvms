@@ -1,5 +1,3 @@
-
-
 #   __________________ #< 9d281822e7dafc7afc466a38db278b1e ># __________________
 #   Validate list                                                           ####
 
@@ -122,8 +120,10 @@ validate_list <- function(train_data,
   checkmate::assert_string(x = caller, add = assert_collection)
   checkmate::assert_string(x = partitions_col, add = assert_collection)
   checkmate::reportAssertions(assert_collection)
-  if (is.null(test_data) &&
-      partitions_col %ni% colnames(train_data)){
+  if (
+    is.null(test_data) &&
+      partitions_col %ni% colnames(train_data)
+  ) {
     assert_collection$push("Could not find 'partition_col' column in 'train_data'.")
   }
 
@@ -151,7 +151,8 @@ validate_list <- function(train_data,
     identical.to = c("train_data", "formula", "hyperparameters"),
     what = "argument names",
     .var.name = "model_fn argument names",
-    add = assert_collection)
+    add = assert_collection
+  )
 
   checkmate::assert_names(
     x = names(formals(predict_fn)),
@@ -162,9 +163,10 @@ validate_list <- function(train_data,
     ),
     what = "argument names",
     .var.name = "predict_fn argument names",
-    add = assert_collection)
+    add = assert_collection
+  )
 
-  if (!is.null(preprocess_fn)){
+  if (!is.null(preprocess_fn)) {
     checkmate::assert_names(
       x = names(formals(preprocess_fn)),
       identical.to = c(
@@ -173,7 +175,8 @@ validate_list <- function(train_data,
       ),
       what = "argument names",
       .var.name = "preprocess_fn argument names",
-      add = assert_collection)
+      add = assert_collection
+    )
   }
 
   checkmate::reportAssertions(assert_collection)
@@ -197,8 +200,10 @@ validate_list <- function(train_data,
       dplyr::bind_rows(test_data, .id = partitions_col) %>%
       dplyr::mutate(.partitions = as.factor(as.integer(.data$.partitions)))
   } else {
-    if (length(setdiff(as.character(train_data[[partitions_col]]), c("1", "2"))) > 0 ||
-      length(setdiff(c("1", "2"), as.character(train_data[[partitions_col]]))) > 0) {
+    if (
+      length(setdiff(as.character(train_data[[partitions_col]]), c("1", "2"))) > 0 ||
+        length(setdiff(c("1", "2"), as.character(train_data[[partitions_col]]))) > 0
+    ) {
       stop(paste0(
         "'partitions_col' must contain the values 1 and 2, ",
         "where 1 signals the training set and 2 signals the test set"
@@ -289,8 +294,8 @@ validate_list <- function(train_data,
   )
 
   n_models <- length(unique(computation_grid[["model"]]))
-  n_model_instances <- nrow(computation_grid)
-  n_folds <- length(unique(computation_grid[["abs_fold"]]))
+  # n_model_instances <- nrow(computation_grid)
+  # n_folds <- length(unique(computation_grid[["abs_fold"]]))
 
   if (isTRUE(verbose)) {
     # TODO Make better message here. It seems like a good idea
@@ -321,7 +326,6 @@ validate_list <- function(train_data,
   validations <- plyr::llply(seq_len(nrow(computation_grid)),
     .parallel = parallel_,
     .fun = function(r) {
-
       # Extract current row from computation grid
       to_compute <- computation_grid[r, ]
 
@@ -356,18 +360,18 @@ validate_list <- function(train_data,
 
       # Extract predictions and targets
       predictions_and_targets <- validated_folds[["predictions_and_targets"]]
-      nested_predictions_and_targets <- predictions_and_targets %>%
-        dplyr::group_nest() %>%
-        dplyr::pull(.data$data)
 
       # Temporary fold info
       predictions_and_targets <- predictions_and_targets
       predictions_and_targets[[
-      fold_info_cols[["fold_column"]]]] <- 1
+        fold_info_cols[["fold_column"]]
+      ]] <- 1
       predictions_and_targets[[
-      fold_info_cols[["rel_fold"]]]] <- 1
+        fold_info_cols[["rel_fold"]]
+      ]] <- 1
       predictions_and_targets[[
-      fold_info_cols[["abs_fold"]]]] <- 1
+        fold_info_cols[["abs_fold"]]
+      ]] <- 1
 
       # Extract model object metrics
       model_evaluation <- validated_folds[["model_evaluation"]]
@@ -381,9 +385,6 @@ validate_list <- function(train_data,
       nested_preprocess_params <- preprocess_params %>%
         dplyr::group_nest() %>%
         dplyr::pull(.data$data)
-
-      # Extract whether the model was NULL or not
-      model_was_null <- validated_folds[["model_was_null"]]
 
       # Evaluate the predictions
       prediction_evaluation <- internal_evaluate_predictions(

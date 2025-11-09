@@ -221,7 +221,7 @@
 #'
 #' # Subset the predicted.musicians
 #' binom_data <- predicted.musicians %>%
-#'   dplyr::filter(Target %in% c("A","B")) %>%
+#'   dplyr::filter(Target %in% c("A", "B")) %>%
 #'   dplyr::rename(Prediction = B)
 #'
 #' # Passing probabilities
@@ -294,7 +294,6 @@ most_challenging <- function(data,
                              threshold_is = "percentage",
                              metric = NULL,
                              cutoff = 0.5) {
-
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
   checkmate::assert_data_frame(
@@ -305,14 +304,16 @@ most_challenging <- function(data,
 
   checkmate::assert_string(x = obs_id_col, min.chars = 1, add = assert_collection)
   checkmate::assert_string(x = target_col, min.chars = 1, add = assert_collection)
-  checkmate::assert_character(x = prediction_cols,  min.chars = 1,
-                              min.len = 1, any.missing = FALSE,
-                              add = assert_collection)
+  checkmate::assert_character(
+    x = prediction_cols, min.chars = 1,
+    min.len = 1, any.missing = FALSE,
+    add = assert_collection
+  )
   checkmate::assert_choice(
     x = type, choices = c("gaussian", "binomial", "multinomial"),
     add = assert_collection
   )
-  if (type != "gaussian"){
+  if (type != "gaussian") {
     checkmate::assert_choice(
       x = metric, choices = c("Accuracy", "Cross Entropy", "MAE"),
       null.ok = TRUE,
@@ -337,8 +338,10 @@ most_challenging <- function(data,
     add = assert_collection
   )
   checkmate::assert_number(x = threshold, add = assert_collection)
-  if (threshold_is == "percentage" &&
-      !is_between_(threshold, 0.0, 1.0)) {
+  if (
+    threshold_is == "percentage" &&
+      !is_between_(threshold, 0.0, 1.0)
+  ) {
     assert_collection$push(
       "when 'threshold_is' a percentage, 'threshold' must be between 0 and 1."
     )
@@ -346,10 +349,13 @@ most_challenging <- function(data,
   checkmate::reportAssertions(assert_collection)
   checkmate::assert_names(
     x = names(data),
-    must.include = c(obs_id_col,
-                     target_col,
-                     prediction_cols),
-    add = assert_collection)
+    must.include = c(
+      obs_id_col,
+      target_col,
+      prediction_cols
+    ),
+    add = assert_collection
+  )
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
 
@@ -359,7 +365,7 @@ most_challenging <- function(data,
   grouping_keys <- dplyr::group_keys(data)
   data <- dplyr::ungroup(data)
 
-  if (obs_id_col %in% colnames(grouping_keys)){
+  if (obs_id_col %in% colnames(grouping_keys)) {
     assert_collection$push(
       "'data' cannot be grouped by the 'obs_id_col'. This is done internally."
     )
@@ -420,40 +426,49 @@ check_prediction_cols <- function(data,
                                   prediction_cols,
                                   target_col,
                                   type,
-                                  cutoff){
-
+                                  cutoff) {
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
   checkmate::assert_data_frame(x = data, min.cols = 2, add = assert_collection)
-  checkmate::assert_character(x = prediction_cols, any.missing = FALSE,
-                              min.len = 1, add = assert_collection)
+  checkmate::assert_character(
+    x = prediction_cols, any.missing = FALSE,
+    min.len = 1, add = assert_collection
+  )
   checkmate::assert_string(x = target_col, min.chars = 1, add = assert_collection)
   checkmate::assert_string(x = type, min.chars = 1, add = assert_collection)
   checkmate::assert_number(x = cutoff, lower = 0, upper = 1, add = assert_collection)
   checkmate::reportAssertions(assert_collection)
-  if (!checkmate::test_names(x = colnames(data),
-                           must.include = prediction_cols)){
+  if (!checkmate::test_names(
+    x = colnames(data),
+    must.include = prediction_cols
+  )) {
     assert_collection$push("'data' does not include all the prediction columns.")
   }
-  if (!checkmate::test_names(x = colnames(data),
-                            must.include = target_col)){
+  if (!checkmate::test_names(
+    x = colnames(data),
+    must.include = target_col
+  )) {
     assert_collection$push("'data' does not include the target column.")
   }
 
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
 
-  if (type == "gaussian" &&
-      !is.numeric(data[[target_col]])){
+  if (
+    type == "gaussian" &&
+      !is.numeric(data[[target_col]])
+  ) {
     assert_collection$push(paste0(
       "When 'type' is 'gaussian', 'data[[target_col]]' must be numeric."
     ))
     checkmate::reportAssertions(assert_collection)
   }
 
-  if (type != "gaussian" &&
+  if (
+    type != "gaussian" &&
       !(is.character(data[[target_col]]) ||
-        is.factor(data[[target_col]]))) {
+        is.factor(data[[target_col]]))
+  ) {
     assert_collection$push(paste0(
       "When 'type' is '",
       type,
@@ -463,60 +478,68 @@ check_prediction_cols <- function(data,
   }
 
   # Checks
-  if (length(prediction_cols) == 1){
-
-    if (type == "gaussian"){
-      if (!is.double(data[[prediction_cols]])){
+  if (length(prediction_cols) == 1) {
+    if (type == "gaussian") {
+      if (!is.double(data[[prediction_cols]])) {
         assert_collection$push(
-          "when 'type' is 'gaussian', 'data[[prediction_cols]]' must have type 'double'.")
+          "when 'type' is 'gaussian', 'data[[prediction_cols]]' must have type 'double'."
+        )
         checkmate::reportAssertions(assert_collection)
       }
-
     } else if (type == "binomial") {
-      if (!(is.double(data[[prediction_cols]]) ||
-            is.character(data[[prediction_cols]]))){
+      if (
+        !(is.double(data[[prediction_cols]]) ||
+          is.character(data[[prediction_cols]]))
+      ) {
         assert_collection$push(
-          paste0("when 'type' is 'binomial', 'data[[prediction_cols]]' must b",
-                 "e either of type 'double' (probability of positive class) or",
-                 " 'character' (predicted class)."))
+          paste0(
+            "when 'type' is 'binomial', 'data[[prediction_cols]]' must b",
+            "e either of type 'double' (probability of positive class) or",
+            " 'character' (predicted class)."
+          )
+        )
         checkmate::reportAssertions(assert_collection)
       }
-      if (is.numeric(data[[prediction_cols]]) &&
+      if (
+        is.numeric(data[[prediction_cols]]) &&
           !checkmate::test_numeric(data[[prediction_cols]],
-                                  lower = 0, upper = 1,
-                                  any.missing = FALSE)){
+            lower = 0, upper = 1,
+            any.missing = FALSE
+          )
+      ) {
         assert_collection$push(
           "when 'type' is 'binomial' and 'data[[prediction_cols]]' is 'numeric', it must have values between 0 and 1."
         )
         checkmate::reportAssertions(assert_collection)
       }
-      if (is.character(data[[target_col]]) &&
-          length(levels_as_characters(data[[target_col]])) > 2) {
+      if (
+        is.character(data[[target_col]]) &&
+          length(levels_as_characters(data[[target_col]])) > 2
+      ) {
         assert_collection$push("found more than two target classes.")
         checkmate::reportAssertions(assert_collection)
       }
-
-    } else if (type == "multinomial"){
-      if (!is.character(data[[prediction_cols]])){
+    } else if (type == "multinomial") {
+      if (!is.character(data[[prediction_cols]])) {
         assert_collection$push(
           "when 'type' is 'multinomial' and prediction_cols has length 1, 'data[[prediction_cols]]' must have type 'character'."
         )
         checkmate::reportAssertions(assert_collection)
       }
     }
-
   } else {
-
-    if (type != "multinomial"){
+    if (type != "multinomial") {
       assert_collection$push(
-        "'prediction_cols' can only have length > 1 when 'type' is 'multinomial'.")
+        "'prediction_cols' can only have length > 1 when 'type' is 'multinomial'."
+      )
       checkmate::reportAssertions(assert_collection)
     }
 
     data_preds <- data[, prediction_cols]
     if (any(!unlist(lapply(data_preds, is.numeric)))) {
       assert_collection$push(
-        "when 'prediction_cols' has length > 1, all prediction columns must be numeric.")
+        "when 'prediction_cols' has length > 1, all prediction columns must be numeric."
+      )
       checkmate::reportAssertions(assert_collection)
     }
     if (contains_na(data_preds)) {
@@ -525,21 +548,27 @@ check_prediction_cols <- function(data,
     }
     if (!rows_sum_to(data_preds, sum_to = 1, digits = 5)) {
       assert_collection$push(
-        paste0("when 'prediction_cols' has length > 1, prediction columns m",
-               "ust sum to 1 row-wise."))
+        paste0(
+          "when 'prediction_cols' has length > 1, prediction columns m",
+          "ust sum to 1 row-wise."
+        )
+      )
       checkmate::reportAssertions(assert_collection)
     }
 
-    if (length(setdiff(levels_as_characters(data[[target_col]]),
-                       prediction_cols)) > 0){
+    if (length(setdiff(
+      levels_as_characters(data[[target_col]]),
+      prediction_cols
+    )) > 0) {
       assert_collection$push(
-        paste0("when 'prediction_cols' has length > 1, all classes in 'data",
-               "[[target_col]]' must have a prediction column."))
+        paste0(
+          "when 'prediction_cols' has length > 1, all classes in 'data",
+          "[[target_col]]' must have a prediction column."
+        )
+      )
       checkmate::reportAssertions(assert_collection)
     }
-
   }
-
 }
 
 # Extract
@@ -548,7 +577,6 @@ prepare_predictions <- function(data,
                                 target_col,
                                 cutoff,
                                 type) {
-
   check_prediction_cols(
     data = data,
     prediction_cols = prediction_cols,
@@ -557,8 +585,8 @@ prepare_predictions <- function(data,
     cutoff
   )
 
-  if (type == "binomial"){
-    cat_levels <- levels_as_characters(data[[target_col]], drop_unused = TRUE, sort_levels=TRUE)
+  if (type == "binomial") {
+    cat_levels <- levels_as_characters(data[[target_col]], drop_unused = TRUE, sort_levels = TRUE)
     if (length(cat_levels) < 2) {
       stop(paste0("Found less than 2 levels in the target column."))
     }
@@ -579,7 +607,6 @@ prepare_predictions <- function(data,
   }
 
   if (length(prediction_cols) > 1) {
-
     # Extract predicted class
     data[["predicted_class_index"]] <-
       argmax(data[, prediction_cols])
@@ -604,48 +631,48 @@ prepare_predictions <- function(data,
     data[, prediction_cols] <- data[, prediction_cols] + .Machine$double.eps
     # Find probability of targets
     data[["probability_of_target"]] <- as.data.frame(data[, prediction_cols])[
-      cbind(seq_along(target_indices), target_indices)]
+      cbind(seq_along(target_indices), target_indices)
+    ]
 
     prediction_col <- NULL
     probability_of_target_col <- "probability_of_target"
     predicted_class_col <- "predicted_class"
-
   } else {
-
     # Extract probability of target
     if (is.numeric(data[[prediction_cols]])) {
-
-      if (type == "binomial"){
+      if (type == "binomial") {
         negative <- cat_levels[cat_levels != positive]
         # Find predicted classes
         data[["predicted_class"]] <-
           ifelse(data[[prediction_cols]] > cutoff,
-                 positive, negative)
+            positive, negative
+          )
         # Add + .Machine$double.eps to probabilities
         data[[prediction_cols]] <- data[[prediction_cols]] + .Machine$double.eps
         # Find probability of targets
         data[["probability_of_target"]] <-
           ifelse(data[[target_col]] == positive,
-                 data[[prediction_cols]],
-                 1 - data[[prediction_cols]])
+            data[[prediction_cols]],
+            1 - data[[prediction_cols]]
+          )
 
         prediction_col <- NULL
         probability_of_target_col <- "probability_of_target"
         predicted_class_col <- "predicted_class"
       }
-
     } else {
       probability_of_target_col <- NULL
       prediction_col <- NULL
       predicted_class_col <- prediction_cols
     }
-
   }
 
-  list("data" = data,
-       "prediction_col" = prediction_col,
-       "predicted_class_col" = predicted_class_col,
-       "probability_of_target_col" = probability_of_target_col)
+  list(
+    "data" = data,
+    "prediction_col" = prediction_col,
+    "predicted_class_col" = predicted_class_col,
+    "probability_of_target_col" = probability_of_target_col
+  )
 }
 
 
@@ -665,20 +692,23 @@ most_challenging_classification <- function(data,
   # Count correct and incorrect predictions
   data[["Correct"]] <- data[[predicted_class_col]] == data[[target_col]]
   data[["Incorrect"]] <- data[[predicted_class_col]] != data[[target_col]]
-  if (!is.null(probability_of_target_col)){
+  if (!is.null(probability_of_target_col)) {
     # Make sure we don't do log(0)
     data[[probability_of_target_col]] <- ifelse(
       data[[probability_of_target_col]] < 1e-20, 1e-20,
-      data[[probability_of_target_col]])
+      data[[probability_of_target_col]]
+    )
     data[["LogProbabilityOfTarget"]] <- log(data[[probability_of_target_col]])
     data[["ProbabilityOfTarget"]] <- data[[probability_of_target_col]]
-    if (is.null(metric))
+    if (is.null(metric)) {
       metric <- "MAE"
+    }
   } else {
     data[["LogProbabilityOfTarget"]] <- 1
     data[["ProbabilityOfTarget"]] <- 1
-    if (is.null(metric))
+    if (is.null(metric)) {
       metric <- "Accuracy"
+    }
   }
 
   # Calculate metrics per group
@@ -691,31 +721,34 @@ most_challenging_classification <- function(data,
       Accuracy = mean(.data$corr),
       MAE = mean(1 - .data$ProbabilityOfTarget),
       `Cross Entropy` = -mean(.data$LogProbabilityOfTarget)
-    ) %>% dplyr::ungroup()
+    ) %>%
+    dplyr::ungroup()
 
-  if (is.null(probability_of_target_col)){
+  if (is.null(probability_of_target_col)) {
     by_observation[["Cross Entropy"]] <- NULL
     by_observation[["MAE"]] <- NULL
   }
 
   # Find the observations that were the most difficult to predict
-  to_return <- exceeds_threshold(data = by_observation,
-                                 threshold = threshold,
-                                 threshold_is = threshold_is,
-                                 metric_name = metric,
-                                 maximize = metric == "Accuracy",
-                                 grouping_keys = grouping_keys)
+  to_return <- exceeds_threshold(
+    data = by_observation,
+    threshold = threshold,
+    threshold_is = threshold_is,
+    metric_name = metric,
+    maximize = metric == "Accuracy",
+    grouping_keys = grouping_keys
+  )
 
   to_return <- to_return %>%
     dplyr::rename(`<=` = "Threshold")
 
-  if (metric == "Accuracy"){
+  if (metric == "Accuracy") {
     to_return <- to_return %>%
       dplyr::arrange(
         !!!rlang::syms(colnames(grouping_keys)),
         .data$Accuracy
       )
-  } else if (metric == "MAE"){
+  } else if (metric == "MAE") {
     to_return <- to_return %>%
       dplyr::arrange(
         !!!rlang::syms(colnames(grouping_keys)),
@@ -723,7 +756,7 @@ most_challenging_classification <- function(data,
         dplyr::desc(.data$`Cross Entropy`),
         .data$Accuracy
       )
-  } else if (metric == "Cross Entropy"){
+  } else if (metric == "Cross Entropy") {
     to_return <- to_return %>%
       dplyr::arrange(
         !!!rlang::syms(colnames(grouping_keys)),
@@ -734,7 +767,6 @@ most_challenging_classification <- function(data,
   }
 
   to_return
-
 }
 
 
@@ -745,7 +777,6 @@ most_challenging_gaussian <- function(data,
                                       threshold,
                                       threshold_is,
                                       grouping_keys) {
-
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
   checkmate::assert_numeric(
@@ -776,15 +807,18 @@ most_challenging_gaussian <- function(data,
     dplyr::summarise(
       `MAE` = mean(abs(!!as.name(tmp_residual_var))),
       `RMSE` = root_mean_square(!!as.name(tmp_residual_var))
-    ) %>% dplyr::ungroup()
+    ) %>%
+    dplyr::ungroup()
 
   # Find the observations that were the most difficult to predict
-  to_return <- exceeds_threshold(data = by_observation,
-                                 threshold = threshold,
-                                 threshold_is = threshold_is,
-                                 metric_name = "RMSE",
-                                 maximize = FALSE,
-                                 grouping_keys = grouping_keys)
+  to_return <- exceeds_threshold(
+    data = by_observation,
+    threshold = threshold,
+    threshold_is = threshold_is,
+    metric_name = "RMSE",
+    maximize = FALSE,
+    grouping_keys = grouping_keys
+  )
 
   # Reorder and return
   to_return %>%
@@ -802,37 +836,43 @@ exceeds_threshold <- function(data,
                               metric_name,
                               maximize,
                               grouping_keys) {
-
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
   checkmate::assert_data_frame(x = data, add = assert_collection)
-  if (dplyr::is_grouped_df(data))
+  if (dplyr::is_grouped_df(data)) {
     assert_collection$push("'data' cannot be grouped at this stage.")
+  }
   checkmate::assert_data_frame(x = grouping_keys, add = assert_collection)
-  checkmate::assert_choice(x = threshold_is, choices = c("percentage", "score"),
-                           add = assert_collection)
+  checkmate::assert_choice(
+    x = threshold_is, choices = c("percentage", "score"),
+    add = assert_collection
+  )
   checkmate::assert_flag(x = maximize, add = assert_collection)
   checkmate::reportAssertions(assert_collection)
-  if (threshold_is == "percentage")
+  if (threshold_is == "percentage") {
     checkmate::assert_number(x = threshold, lower = 0, upper = 1, add = assert_collection)
-  else {
+  } else {
     checkmate::assert_number(x = threshold, add = assert_collection)
   }
-  checkmate::assert_names(x = colnames(data), must.include = c(colnames(grouping_keys), metric_name),
-                          what = "colnames", add = assert_collection)
+  checkmate::assert_names(
+    x = colnames(data), must.include = c(colnames(grouping_keys), metric_name),
+    what = "colnames", add = assert_collection
+  )
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
 
-  if (threshold_is == "percentage"){
+  if (threshold_is == "percentage") {
     # Calculate thresholds per grouping
     probs <- ifelse(isTRUE(maximize), threshold, 1 - threshold)
     thresholds <- data %>%
       dplyr::group_by_at(colnames(grouping_keys)) %>%
       dplyr::summarise(Threshold = stats::quantile(
-        !!as.name(metric_name), probs = probs)) %>%
+        !!as.name(metric_name),
+        probs = probs
+      )) %>%
       dplyr::mutate(Threshold = unname(.data$Threshold))
     # Add thresholds to data
-    if (ncol(grouping_keys) > 0){
+    if (ncol(grouping_keys) > 0) {
       data <- data %>%
         dplyr::left_join(thresholds, by = colnames(grouping_keys))
     } else {
@@ -844,12 +884,11 @@ exceeds_threshold <- function(data,
   }
 
   # Find the most difficult observations
-  if (isTRUE(maximize)){
-    to_return <- data[data[[metric_name]] <= data[["Threshold"]],]
+  if (isTRUE(maximize)) {
+    to_return <- data[data[[metric_name]] <= data[["Threshold"]], ]
   } else {
-    to_return <- data[data[[metric_name]] >= data[["Threshold"]],]
+    to_return <- data[data[[metric_name]] >= data[["Threshold"]], ]
   }
 
   to_return
 }
-

@@ -13,9 +13,10 @@ nest_predictions <- function(data,
                              group_info,
                              include_fold_columns,
                              include_predictions) {
-  if (!any(data[[model_was_null_col]]) &&
-    isTRUE(include_predictions)) {
-
+  if (
+    !any(data[[model_was_null_col]]) &&
+      isTRUE(include_predictions)
+  ) {
     # Nest predictions and targets
     predictions_nested <- nesting_predictions(
       data = data,
@@ -59,8 +60,9 @@ nesting_predictions <- function(data,
     "Prediction" = data[[prediction_col]]
   )
 
-  if (!is.null(stds_col))
+  if (!is.null(stds_col)) {
     predictions_for_nesting[["SD"]] <- data[[stds_col]]
+  }
 
   if (!is.null(group_info)) {
     predictions_for_nesting <- group_info %>%
@@ -87,7 +89,6 @@ nesting_predictions <- function(data,
 
     predictions_for_nesting[[id_col]] <- data[[id_col]]
     predictions_for_nesting[["id_method"]] <- id_method
-
   }
 
   if (!isTRUE(include_fold_columns)) {

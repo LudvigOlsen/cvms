@@ -1,5 +1,3 @@
-
-
 # TODO Add option to plot the distribution of class probabilities per observation and overall
 #  - start by arranging by each of the probability cols from A-D
 
@@ -277,7 +275,6 @@
 #' #   probability_of = "prediction",
 #' #   ylim = c(0.5, 1)
 #' # )
-#'
 #' }
 plot_probabilities <- function(data,
                                target_col,
@@ -302,7 +299,6 @@ plot_probabilities <- function(data,
                                hline_settings = list(),
                                facet_settings = list(),
                                ylim = c(0, 1)) {
-
   call_plot_probabilities_(
     data = data,
     target_col = target_col,
@@ -328,7 +324,6 @@ plot_probabilities <- function(data,
     facet_settings = facet_settings,
     ylim = ylim
   )
-
 }
 
 
@@ -358,8 +353,7 @@ call_plot_probabilities_ <- function(data,
                                      point_settings,
                                      hline_settings,
                                      facet_settings,
-                                     ylim){
-
+                                     ylim) {
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
 
@@ -483,8 +477,10 @@ call_plot_probabilities_ <- function(data,
   }
 
   # Check probabilities sum to 1
-  if (length(probability_cols)>1 &&
-      !rows_sum_to(data[, probability_cols], sum_to = 1, digits = 5)) {
+  if (
+    length(probability_cols) > 1 &&
+      !rows_sum_to(data[, probability_cols], sum_to = 1, digits = 5)
+  ) {
     assert_collection$push(
       paste0(
         "when 'probability_cols' has length > 1, probability columns m",
@@ -548,11 +544,12 @@ call_plot_probabilities_ <- function(data,
   data <- dplyr::ungroup(data)
   data <- base_select(data, cols = c(
     group_col, obs_id_col, target_col,
-    probability_cols, predicted_class_col))
+    probability_cols, predicted_class_col
+  ))
 
   # Record whether lines are averages for the caption
   lines_are_averages <- TRUE
-  if (is.null(obs_id_col)){
+  if (is.null(obs_id_col)) {
     obs_id_col <- create_tmp_name(data, "Observation")
     data <- data %>%
       dplyr::group_by_at(group_col) %>%
@@ -569,10 +566,10 @@ call_plot_probabilities_ <- function(data,
   rank_col <- create_tmp_name(data, ".observation_rank")
 
   # Prepare extraction of probabilities
-  if (probability_of == "target"){
+  if (probability_of == "target") {
     of_col <- target_col
-    cat_levels <- levels_as_characters(data[[of_col]], drop_unused = TRUE, sort_levels=TRUE)
-  } else if (probability_of == "prediction"){
+    cat_levels <- levels_as_characters(data[[of_col]], drop_unused = TRUE, sort_levels = TRUE)
+  } else if (probability_of == "prediction") {
     of_col <- predicted_class_col
     # Make sure there are all the cat_levels for binomial case
     cat_levels <- sort(union(
@@ -587,7 +584,8 @@ call_plot_probabilities_ <- function(data,
     probability_cols = probability_cols,
     of_col = of_col,
     cat_levels = cat_levels,
-    positive = positive)
+    positive = positive
+  )
 
   # Remove probability cols
   data <- base_deselect(data, cols = probability_cols)
@@ -607,7 +605,7 @@ call_plot_probabilities_ <- function(data,
 
   # Create group_col if none (simplifies code a lot)
   remove_legend <- FALSE
-  if (is.null(group_col)){
+  if (is.null(group_col)) {
     group_col <- create_tmp_name(data, "Group")
     data[[group_col]] <- factor(".tmp")
     remove_legend <- TRUE
@@ -618,7 +616,7 @@ call_plot_probabilities_ <- function(data,
   # When 'probability_of' is 'prediction', these are precisions
   # When 'apply_facet' is FALSE, these are accuracies
   if (isTRUE(add_hlines)) {
-    if (isTRUE(apply_facet)){
+    if (isTRUE(apply_facet)) {
       hline_by <- c(group_col, of_col)
     } else {
       hline_by <- group_col
@@ -639,20 +637,20 @@ call_plot_probabilities_ <- function(data,
   pl <- data %>%
     ggplot2::ggplot(
       mapping = ggplot2::aes_string(
-        x = rank_col, y = avg_prob_col)
+        x = rank_col, y = avg_prob_col
+      )
     ) +
     color_scale
 
   # Group plot
-  if (!is.null(group_col)){
+  if (!is.null(group_col)) {
     pl <- pl +
       ggplot2::aes_string(color = group_col, group = group_col)
   }
 
   # Add horizontal lines (recall or precision)
-  if (isTRUE(add_hlines)){
-
-    call_geom_hline <- function(...){
+  if (isTRUE(add_hlines)) {
+    call_geom_hline <- function(...) {
       ggplot2::geom_hline(ggplot2::aes_string(yintercept = "hline", color = group_col), ...)
     }
 
@@ -661,9 +659,8 @@ call_plot_probabilities_ <- function(data,
   }
 
   # Add points
-  if (isTRUE(add_points)){
-
-    call_geom_point <- function(...){
+  if (isTRUE(add_points)) {
+    call_geom_point <- function(...) {
       ggplot2::geom_point(ggplot2::aes_string(y = prob_of_col), ...)
     }
 
@@ -682,7 +679,7 @@ call_plot_probabilities_ <- function(data,
   }
 
   # Add faceting
-  if (isTRUE(apply_facet)){
+  if (isTRUE(apply_facet)) {
     pl <- pl +
       do.call(
         ggplot2::facet_wrap,
@@ -707,7 +704,7 @@ call_plot_probabilities_ <- function(data,
       panel.grid.major = ggplot2::element_line(size = 0.25)
     )
 
-  if (!isTRUE(show_x_scale)){
+  if (!isTRUE(show_x_scale)) {
     pl <- pl +
       ggplot2::theme(
         axis.text.x = ggplot2::element_blank(),
@@ -739,15 +736,17 @@ call_plot_probabilities_ <- function(data,
 
   # Add labels to axes
   pl <- pl +
-    ggplot2::labs(x = paste0("Observations (", order, ")"),
-                  y = paste0("Probability of ", y_lab_prob_of, " Class"),
-                  caption = caption) +
+    ggplot2::labs(
+      x = paste0("Observations (", order, ")"),
+      y = paste0("Probability of ", y_lab_prob_of, " Class"),
+      caption = caption
+    ) +
     ggplot2::theme(plot.caption.position = "plot")
 
 
   # Remove legend if no groups
   # TODO What happens with only 1 group?
-  if (isTRUE(remove_legend)){
+  if (isTRUE(remove_legend)) {
     pl <- pl +
       ggplot2::theme(legend.position = "none")
   }
@@ -758,7 +757,6 @@ call_plot_probabilities_ <- function(data,
 
 ##  ............................................................................
 ##  Helpers                                                                 ####
-
 
 
 # caption_probability_plot_(add_caption = T,
@@ -782,14 +780,11 @@ caption_probability_plot_ <- function(add_caption,
                                       lines_are_averages,
                                       smoothe,
                                       smoothe_settings,
-                                      str_width = 70
-                                      ){
-
+                                      str_width = 70) {
   # TODO Ensure the singulars/plurals work (e.g. line or lines)
 
   caption <- NULL
-  if (isTRUE(add_caption)){
-
+  if (isTRUE(add_caption)) {
     # Intro
     caption <- paste0(
       "The predicted probability of the ",
@@ -808,25 +803,28 @@ caption_probability_plot_ <- function(add_caption,
         isTRUE(lines_are_averages),
         paste0(
           ifelse(isTRUE(add_points),
-                 "Points are actual probabilities. ",
-                 ""),
+            "Points are actual probabilities. ",
+            ""
+          ),
           ifelse(
             isTRUE(smoothe),
-            paste0("Lines are smoothed averages",
-                   ifelse(
-                     isTRUE(smoothe_settings[["se"]]),
-                     paste0(" with a ", smoothe_settings[["level"]] *
-                              100, "% CI. "),
-                     ". "
-                   )),
+            paste0(
+              "Lines are smoothed averages",
+              ifelse(
+                isTRUE(smoothe_settings[["se"]]),
+                paste0(" with a ", smoothe_settings[["level"]] * 100, "% CI. "),
+                ". "
+              )
+            ),
             "Lines are observation averages. "
           )
         ),
         ifelse(isTRUE(smoothe), "Lines are smoothed. ", "")
-      ))
+      )
+    )
 
     # Horizontal lines
-    if (isTRUE(add_hlines)){
+    if (isTRUE(add_hlines)) {
       hlines_are <- dplyr::case_when(
         !isTRUE(apply_facet) ~ "accuracy scores",
         probability_of == "target" ~ "recall/sensitivity scores",
@@ -840,7 +838,6 @@ caption_probability_plot_ <- function(add_caption,
   }
 
   caption
-
 }
 
 
@@ -848,20 +845,27 @@ caption_probability_plot_ <- function(add_caption,
 # Perhaps this should be done as a data.table?
 add_id_aggregates <- function(data, group_col, obs_id_col, of_col, prob_of_col,
                               order, apply_facet, rank_col_name = ".observation_rank",
-                              avg_prob_col = ".avg_probability"){
-
+                              avg_prob_col = ".avg_probability") {
   if (order == "descending") {
-    arrange_fn <- function(data, col){dplyr::arrange(data, dplyr::desc(!!as.name(col)), .by_group = TRUE)}
+    arrange_fn <- function(data, col) {
+      dplyr::arrange(data, dplyr::desc(!!as.name(col)), .by_group = TRUE)
+    }
   } else if (order == "ascending") {
-    arrange_fn <- function(data, col){dplyr::arrange(data, !!as.name(col), .by_group = TRUE)}
+    arrange_fn <- function(data, col) {
+      dplyr::arrange(data, !!as.name(col), .by_group = TRUE)
+    }
   } else if (order == "centered") {
-    arrange_fn <- function(data, col){rearrr::center_max(data = data, col = col)}
+    arrange_fn <- function(data, col) {
+      rearrr::center_max(data = data, col = col)
+    }
   } else if (order == "identity") {
-    arrange_fn <- function(data, col){data %>% dplyr::ungroup()}
+    arrange_fn <- function(data, col) {
+      data %>% dplyr::ungroup()
+    }
   }
 
   # Order by IDs' average probability
-  if (isTRUE(apply_facet)){
+  if (isTRUE(apply_facet)) {
     by_cols <- c(group_col, of_col)
   } else {
     by_cols <- group_col
@@ -870,14 +874,15 @@ add_id_aggregates <- function(data, group_col, obs_id_col, of_col, prob_of_col,
   id_aggregates <- data %>%
     dplyr::group_by_at(c(by_cols, obs_id_col)) %>%
     dplyr::summarise(!!avg_prob_col := mean(!!as.name(prob_of_col)),
-                     .groups = "drop_last") %>%
+      .groups = "drop_last"
+    ) %>%
     arrange_fn(col = avg_prob_col) %>%
     dplyr::group_by_at(by_cols) %>%
     dplyr::mutate(!!rank_col_name := dplyr::row_number()) %>%
     dplyr::ungroup()
 
   # Add padding when centered
-  if (order == "centered" && isTRUE(apply_facet)){
+  if (order == "centered" && isTRUE(apply_facet)) {
     obs_per_group <- id_aggregates %>%
       dplyr::group_by_at(group_col) %>%
       dplyr::count(!!as.name(of_col))
@@ -896,18 +901,19 @@ add_id_aggregates <- function(data, group_col, obs_id_col, of_col, prob_of_col,
     obs_per_group <- obs_per_group %>%
       dplyr::left_join(max_val_indices_per_group, by = c(group_col, of_col)) %>%
       dplyr::ungroup() %>%
-      dplyr::mutate(!!tmp_max_ind := max(!!as.name(tmp_index)),
-                    !!tmp_pad_left := max(!!as.name(tmp_max_ind)) - !!as.name(tmp_index)) %>%
+      dplyr::mutate(
+        !!tmp_max_ind := max(!!as.name(tmp_index)),
+        !!tmp_pad_left := max(!!as.name(tmp_max_ind)) - !!as.name(tmp_index)
+      ) %>%
       base_select(cols = c(group_col, of_col, tmp_pad_left))
 
     id_aggregates <- id_aggregates %>%
       dplyr::left_join(obs_per_group, by = c(group_col, of_col)) %>%
       dplyr::mutate(!!rank_col_name := !!as.name(rank_col_name) + !!as.name(tmp_pad_left))
 
-    if (min(id_aggregates[[rank_col_name]]) > 0){
+    if (min(id_aggregates[[rank_col_name]]) > 0) {
       id_aggregates[[rank_col_name]] <- id_aggregates[[rank_col_name]] - min(id_aggregates[[rank_col_name]])
     }
-
   }
 
   # Add ranks and aggregates to 'data'
@@ -916,4 +922,3 @@ add_id_aggregates <- function(data, group_col, obs_id_col, of_col, prob_of_col,
 
   data
 }
-

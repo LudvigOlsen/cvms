@@ -1,5 +1,3 @@
-
-
 run_model_fitting <- function(model_fitting_fn, model_specifics, train_data,
                               warn_info = list(
                                 model_formula = NULL,
@@ -11,7 +9,6 @@ run_model_fitting <- function(model_fitting_fn, model_specifics, train_data,
                                 model_verbose = FALSE,
                                 caller = "cross_validate_fn()"
                               )) {
-
   # Tries to fit the given model with the given model_type
   # .. If it gives a warning
   # .... it checks if it's a convergence warning
@@ -28,12 +25,12 @@ run_model_fitting <- function(model_fitting_fn, model_specifics, train_data,
   }
 
   model_formula <- assign_if_not_null_named_lists(warn_info[["model_formula"]], "model_formula", "warn_info")
-  model_verbose <- assign_if_not_null_named_lists(warn_info[["model_verbose"]], "model_verbose", "warn_info")
+  # model_verbose <- assign_if_not_null_named_lists(warn_info[["model_verbose"]], "model_verbose", "warn_info")
   caller <- assign_if_not_null_named_lists(warn_info[["caller"]], "caller", "warn_info")
 
   fold_info <- assign_if_not_null_named_lists(warn_info[["fold_info"]], "fold_info", "warn_info")
   rel_fold <- assign_if_not_null_named_lists(fold_info[["rel_fold"]], "rel_fold", "fold_info")
-  abs_fold <- assign_if_not_null_named_lists(fold_info[["abs_fold"]], "abs_fold", "fold_info")
+  # abs_fold <- assign_if_not_null_named_lists(fold_info[["abs_fold"]], "abs_fold", "fold_info")
   fold_column <- assign_if_not_null_named_lists(fold_info[["fold_column"]], "fold_column", "fold_info")
 
   # We run the model fitting function once, but use map, so we can use the
@@ -63,7 +60,7 @@ run_model_fitting <- function(model_fitting_fn, model_specifics, train_data,
   messages <- fitted_model_process[[1]][["messages"]]
 
   # Check that model is not NULL
-  if (is.null(model)){
+  if (is.null(model)) {
     stop(
       create_message(
         m = "'model_fn' returned 'NULL'. Must return a fitted model object.",
@@ -73,7 +70,8 @@ run_model_fitting <- function(model_fitting_fn, model_specifics, train_data,
         fold = rel_fold,
         hyperparameters = extract_hparams(model_specifics),
         note = ifelse(caller %in% c("cross_validate()", "validate()"),
-                      "Boundary (Singular) Fit Message", "")
+          "Boundary (Singular) Fit Message", ""
+        )
       )
     )
   }
@@ -88,7 +86,6 @@ run_model_fitting <- function(model_fitting_fn, model_specifics, train_data,
   # We assume there will never be a lot of messages
   # and use a basic for loop
   for (m in messages) {
-
     # purrr::quietly adds \n to end of messages, which we're not interested in here
     m <- gsub("\\\n$", "", m)
 
@@ -102,7 +99,8 @@ run_model_fitting <- function(model_fitting_fn, model_specifics, train_data,
           fold = rel_fold,
           hyperparameters = extract_hparams(model_specifics),
           note = "Boundary (Singular) Fit Message"
-        ))
+        )
+      )
 
       threw_singular_message <- TRUE
     } else if (grepl("Model function: Used", as.character(m), ignore.case = TRUE)) {
@@ -118,22 +116,23 @@ run_model_fitting <- function(model_fitting_fn, model_specifics, train_data,
           fold_col = fold_column,
           fold = rel_fold,
           hyperparameters = extract_hparams(model_specifics)
-        ))
+        )
+      )
     }
   }
 
   # We assume only a few warnings will occur at once
   # why we use a basic for loop
   for (w in warnings) {
-
     # Check if the warning contains some words that would
     # indicate that it is a convergence warning
     # TODO This part could be improved upon, as it's currently only based on
     # the warnings that we got with a limited dataset and set of models
-    if (grepl("checkConv", as.character(w), ignore.case = TRUE) ||
-      grepl("convergence", as.character(w), ignore.case = TRUE) ||
-      grepl("converge", as.character(w), ignore.case = TRUE)) {
-
+    if (
+      grepl("checkConv", as.character(w), ignore.case = TRUE) ||
+        grepl("convergence", as.character(w), ignore.case = TRUE) ||
+        grepl("converge", as.character(w), ignore.case = TRUE)
+    ) {
       # If it seemed to be a convergence warning:
       # .. message the user of the failed model and fold
       # .. issue the warning
@@ -148,13 +147,13 @@ run_model_fitting <- function(model_fitting_fn, model_specifics, train_data,
           fold = rel_fold,
           hyperparameters = extract_hparams(model_specifics),
           note = "Convergence Warning"
-        ))
+        )
+      )
 
       threw_convergence_warning <- TRUE
       # We don't want to evaluate the non-converged models
       model <- NULL
     } else {
-
       # If it didn't seem to be a convergence warning
       # .. message the user of the failed model and fold
       # .. issue the warning
@@ -168,7 +167,8 @@ run_model_fitting <- function(model_fitting_fn, model_specifics, train_data,
           fold_col = fold_column,
           fold = rel_fold,
           hyperparameters = extract_hparams(model_specifics)
-        ))
+        )
+      )
 
       threw_unknown_warning <- TRUE
     }

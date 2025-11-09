@@ -1,22 +1,24 @@
-evaluate_predictions_gaussian <- function(data,
-                                          prediction_col,
-                                          target_col,
-                                          model_was_null_col,
-                                          id_col,
-                                          id_method,
-                                          fold_info_cols = list(
-                                            rel_fold = "rel_fold",
-                                            abs_fold = "abs_fold",
-                                            fold_column = "fold_column"
-                                          ),
-                                          fold_and_fold_col = NULL,
-                                          group_info = NULL,
-                                          stds_col = NULL,
-                                          model_specifics,
-                                          metrics,
-                                          include_fold_columns,
-                                          include_predictions,
-                                          na.rm = TRUE) {
+evaluate_predictions_gaussian <- function(
+  data,
+  prediction_col,
+  target_col,
+  model_was_null_col,
+  id_col,
+  id_method,
+  fold_info_cols = list(
+    rel_fold = "rel_fold",
+    abs_fold = "abs_fold",
+    fold_column = "fold_column"
+  ),
+  fold_and_fold_col = NULL,
+  group_info = NULL,
+  stds_col = NULL,
+  model_specifics,
+  metrics,
+  include_fold_columns,
+  include_predictions,
+  na.rm = TRUE
+) {
   if (is.null(fold_and_fold_col)) {
     # Map of fold column, abs_fold and rel_fold
     fold_and_fold_col <- create_fold_and_fold_column_map(data, fold_info_cols)
@@ -60,7 +62,6 @@ evaluate_predictions_gaussian <- function(data,
   )
 
   if (!is.null(results_per_fold)) {
-
     # Average metrics by first fold column then fold
     avg_results <- mean_residual_errors_by_fcol_fold(
       metrics_per_folds = results_per_fold,
@@ -79,7 +80,9 @@ evaluate_predictions_gaussian <- function(data,
       dplyr::ungroup()
     results_per_fold <- results_per_fold[
       order(results_per_fold[[fold_info_cols[["abs_fold"]]]],
-            method = "radix"), ]
+        method = "radix"
+      ),
+    ]
 
     # Remove abs_fold
     results_per_fold[[fold_info_cols[["abs_fold"]]]] <- NULL

@@ -1,27 +1,38 @@
 prepare_train_test <- function(data, fold_info, fold_cols, model_specifics) {
-
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
-  checkmate::assert_data_frame(x = data , add = assert_collection)
+  checkmate::assert_data_frame(x = data, add = assert_collection)
   checkmate::assert_character(x = fold_cols, add = assert_collection)
-  checkmate::assert_list(x = fold_info, types = c("character", "numeric"),
-                         add = assert_collection)
-  checkmate::assert_list(x = model_specifics,
-                         add = assert_collection)
+  checkmate::assert_list(
+    x = fold_info, types = c("character", "numeric"),
+    add = assert_collection
+  )
+  checkmate::assert_list(
+    x = model_specifics,
+    add = assert_collection
+  )
   checkmate::reportAssertions(assert_collection)
-  checkmate::assert_names(x = colnames(data),
-                          must.include = fold_cols,
-                          what = "colnames",
-                          add = assert_collection)
-  checkmate::assert_names(x = names(fold_info),
-                          must.include = c("fold_column", "rel_fold"),
-                          add = assert_collection)
-  checkmate::assert_names(x = names(model_specifics),
-                          must.include = c("preprocess_once",
-                                           "model_formula",
-                                           "preprocess_fn",
-                                           "caller"),
-                          add = assert_collection)
+  checkmate::assert_names(
+    x = colnames(data),
+    must.include = fold_cols,
+    what = "colnames",
+    add = assert_collection
+  )
+  checkmate::assert_names(
+    x = names(fold_info),
+    must.include = c("fold_column", "rel_fold"),
+    add = assert_collection
+  )
+  checkmate::assert_names(
+    x = names(model_specifics),
+    must.include = c(
+      "preprocess_once",
+      "model_formula",
+      "preprocess_fn",
+      "caller"
+    ),
+    add = assert_collection
+  )
   checkmate::reportAssertions(assert_collection)
   # End of argument checks ####
 
@@ -55,7 +66,6 @@ prepare_train_test <- function(data, fold_info, fold_cols, model_specifics) {
   preprocess_fn <- model_specifics[["preprocess_fn"]]
 
   if (!is.null(preprocess_fn)) {
-
     # Preprocess
     preprocess_process <- tryCatch(
       {
@@ -78,8 +88,9 @@ prepare_train_test <- function(data, fold_info, fold_cols, model_specifics) {
             fold = fold_info[["rel_fold"]],
             hyperparameters = current_hparams,
             why = ifelse(grepl("Must be a formula, not 'NULL'", e),
-                         "Possibly caused by 'preprocessing_once' being TRUE?",
-                         "")
+              "Possibly caused by 'preprocessing_once' being TRUE?",
+              ""
+            )
           )
         )
       }
@@ -168,7 +179,6 @@ prepare_train_test <- function(data, fold_info, fold_cols, model_specifics) {
 
   # Message the caught messages to the user
   for (m in messages) {
-
     # purrr::quietly adds \n to end of messages, which we're not interested in here
     m <- gsub("\\\n$", "", m)
 
@@ -217,7 +227,6 @@ run_preprocess_once <- function(data,
                                 computation_grid,
                                 model_specifics,
                                 fold_cols) {
-
   # Extract fold grid for model 1
   fold_grid_model_1 <- computation_grid[
     computation_grid[["model"]] == 1,
@@ -227,7 +236,6 @@ run_preprocess_once <- function(data,
   # Subset and preprocess each train/test split
   # Nest each split
   data <- plyr::ldply(fold_grid_model_1[["abs_fold"]], function(a_f) {
-
     # Extract current fold info
     current_fold_info <- fold_grid_model_1[
       fold_grid_model_1[["abs_fold"]] == a_f,
@@ -270,7 +278,6 @@ run_preprocess_once <- function(data,
 
 
 subset_data <- function(data, fold_info, fold_cols) {
-
   # Important to ensure colname is character instead of factor
   # As that will match the rel_fold with the level index column instead
   current_fold_column <- as.character(fold_info[["fold_column"]])

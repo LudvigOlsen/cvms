@@ -248,7 +248,7 @@ most_challenging(
 
 # Subset the predicted.musicians
 binom_data <- predicted.musicians \%>\%
-  dplyr::filter(Target \%in\% c("A","B")) \%>\%
+  dplyr::filter(Target \%in\% c("A", "B")) \%>\%
   dplyr::rename(Prediction = B)
 
 # Passing probabilities

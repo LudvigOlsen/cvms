@@ -186,7 +186,7 @@ baseline_gaussian(
   dependent_col = "score",
   random_effects = "(1|session)",
   n = 4
-  #, parallel = TRUE  # Uncomment
+  # , parallel = TRUE  # Uncomment
 )
 }
 }

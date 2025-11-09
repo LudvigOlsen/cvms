@@ -234,6 +234,15 @@ validate <- function(train_data,
     verbose <- model_verbose
   }
 
+  # This function does not accept 'multinomial'
+  checkmate::assert_choice(
+    x = family,
+    choices = c(
+      "gaussian",
+      "binomial"
+    )
+  )
+
   call_validate(
     train_data = train_data,
     test_data = test_data,

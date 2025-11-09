@@ -11,23 +11,14 @@ combine_predictors_prepare_args <- function(dependent,
                                             max_fixed_effects,
                                             max_interaction_size,
                                             max_effect_frequency) {
-
-  # Specify limits for max_interaction_size
-  # The other limits depends on whether interactions should be included
-  args_max_max_interaction_size__ <- 3 # max_interaction_size
-
   # Specify limits depending on whether we should include interactions or not
   if (max_interaction_size %in% c(0, 1)) {
     # Without interactions
-    args_max_num_fixed_effects__ <- 256 # Length of fixed_effects
     args_max_max_fixed_effects__ <- 256 # max_fixed_effects
-    args_min_max_fixed_effects__ <- 2 # max_fixed_effects
     args_max_max_effect_frequency__ <- 1
   } else {
     # With interactions
-    args_max_num_fixed_effects__ <- 8 # Length of fixed_effects
     args_max_max_fixed_effects__ <- 5 # max_fixed_effects
-    args_min_max_fixed_effects__ <- 2 # max_fixed_effects
     args_max_max_effect_frequency__ <- args_max_max_fixed_effects__
   }
 
@@ -39,7 +30,7 @@ combine_predictors_prepare_args <- function(dependent,
   }
 
   # Set max_effect_frequency if it is null
-  if (is.null(max_fixed_effects)) {
+  if (is.null(max_effect_frequency)) {
     max_effect_frequency <- min(max_fixed_effects, args_max_max_effect_frequency__)
   }
 
@@ -73,7 +64,7 @@ combine_predictors_prepare_args <- function(dependent,
   # Sort fixed effects
   fixed_effects <- sort(fixed_effects, decreasing = FALSE)
 
-  return(list(
+  list(
     "dependent" = dependent,
     "fixed_effects" = fixed_effects,
     "random_effects" = random_effects,
@@ -83,7 +74,7 @@ combine_predictors_prepare_args <- function(dependent,
     "n_fixed_effects" = n_fixed_effects,
     "should_contain_interactions" = should_contain_interactions,
     "interchangeable_effects_combinations" = interchangeable_effects_combinations
-  ))
+  )
 }
 
 
@@ -109,7 +100,6 @@ fetch_formulas <- function(n_fixed_effects,
                            max_interaction_size_,
                            max_fixed_effects_,
                            max_effect_frequency_) {
-
   # Filter the precomputed formulas table
   # Order by size of formula
   # Return formulas as tibble

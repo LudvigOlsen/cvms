@@ -1,7 +1,9 @@
 
-# cvms 1.9.0
+# cvms 1.9.0.9000
 
 * Fixes bug in all functions that takes `fold_cols`. When passing non-sequential fold indices (or sequential but not starting at 1), or string fold IDs, these were not properly matched with the fold index when extracting training and testing data for a cross-validation iteration. Now checks current iteration index against the fold ID's *level index* instead of its raw value. Fold column factor levels are reset to avoid levels with no observations. **NOTE**: Users of `groupdata2::fold` should **not** be affected by this, unless you sampled the already folded data and ended up with non-sequential (not `1:num_folds`) fold IDs.
+
+* `combine_predictors()` now handles when `max_effect_frequency` is `NULL`.
 
 # cvms 1.8.1
 

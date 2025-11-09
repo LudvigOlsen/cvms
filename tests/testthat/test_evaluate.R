@@ -3229,8 +3229,12 @@ test_that("binomial evaluation works in evaluate()", {
     apply_softmax = FALSE
   )
 
-  # TODO Add tests here that grouped dataframes work in binomial!
-
+  # Check both groups are present and equal
+  expect_equal(bn_eval_5$fold_, c(1, 2))
+  expect_equal(
+    bn_eval_5[1, 2:(ncol(bn_eval_5)-1)] %>% dplyr::select( dplyr::where(is.numeric)),
+    bn_eval_5[1, 2:(ncol(bn_eval_5)-1)] %>% dplyr::select( dplyr::where(is.numeric))
+  )
 
   # Errors
 

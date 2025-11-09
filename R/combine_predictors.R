@@ -1,5 +1,3 @@
-
-
 #   __________________ #< 4dfc02f9f16d691fdde16cc9a0024e9f ># __________________
 #   Combine predictors                                                      ####
 
@@ -88,7 +86,6 @@ combine_predictors <- function(dependent,
                                max_fixed_effects = 5,
                                max_interaction_size = 3,
                                max_effect_frequency = NULL) {
-
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
   checkmate::assert_string(
@@ -109,7 +106,7 @@ combine_predictors <- function(dependent,
     add = assert_collection
   )
 
-  # Ror range
+  # For range
   checkmate::assert_number(
     x = max_interaction_size,
     lower = 0, upper = 3,
@@ -127,6 +124,7 @@ combine_predictors <- function(dependent,
     add = assert_collection
   )
 
+  if (is.null(max_interaction_size)) max_interaction_size <- 3
   arg_max__max_interaction_size <- ifelse(max_interaction_size <= 1, 256, 8)
 
   checkmate::assert(
@@ -188,7 +186,6 @@ combine_predictors <- function(dependent,
   # Generate / fetch formulas
 
   if (!should_contain_interactions) {
-
     ## Effect combinations without interactions
 
     # Without interactions
@@ -202,7 +199,6 @@ combine_predictors <- function(dependent,
       dplyr::mutate(formula_ = purrr::pmap_chr(., paste_columns, collapse = " + ")) %>%
       base_select(cols = "formula_")
   } else {
-
     # Create the map between each fixed effect and its letter ("A"="efx1", etc.)
     pattern_replacement <- setNames(
       paste0(" ", fixed_effects),
@@ -252,8 +248,10 @@ combine_predictors <- function(dependent,
   formulas[["n_efxs"]] <- stringr::str_count(formulas[["formula_"]], "\\+|\\*")
   formulas <- formulas[
     order(formulas$n_efxs,
-          formulas$formula_,
-          method = "radix"),][["formula_"]]
+      formulas$formula_,
+      method = "radix"
+    ),
+  ][["formula_"]]
 
   if (is.null(random_effects)) {
     return(paste0(dependent, " ~ ", formulas))
@@ -335,7 +333,7 @@ contains_NA_left_of_value <- function(...) {
   if (rle_$values[length(rle_$values)] != "__NA__") {
     return(TRUE)
   }
-  return(FALSE)
+  FALSE
 }
 
 # Creates map of interchangeable effects and their combinations.
@@ -344,7 +342,6 @@ contains_NA_left_of_value <- function(...) {
 # and add versions with the combinations of interchangeable effects afterwards.
 # @param fixed_effects \code{vector} of fixed effects. (Character)
 create_interchangeable_effects_combinations <- function(fixed_effects) {
-
   # Check if any element is a list with more than one element
   contains_interchangeable_effects <- plyr::llply(fixed_effects, function(x) {
     is.list(x) && length(x) > 1
@@ -373,10 +370,10 @@ create_interchangeable_effects_combinations <- function(fixed_effects) {
     interchangeable_effects_combinations <- NULL
   }
 
-  return(list(
+  list(
     "fixed_effects" = fixed_effects,
     "interchangeable_effects_combinations" = interchangeable_effects_combinations
-  ))
+  )
 }
 
 # Get effects and all possible interactions

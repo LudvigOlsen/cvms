@@ -108,7 +108,6 @@
 #'
 #'  Remember to register a parallel backend first.
 #'  E.g. with \code{doParallel::registerDoParallel}.
-#' @param link,models,model_verbose Deprecated.
 #' @details
 #'
 #'  Packages used:
@@ -340,31 +339,8 @@ cross_validate <- function(
   preprocessing = NULL,
   rm_nc = FALSE,
   parallel = FALSE,
-  verbose = FALSE,
-  link = deprecated(),
-  models = deprecated(),
-  model_verbose = deprecated()
+  verbose = FALSE
 ) {
-  if (!rlang::is_missing(link)) {
-    deprecate_stop("1.0.0", "cvms::cross_validate(link = )")
-  }
-
-  if (!rlang::is_missing(models)) {
-    deprecate_warn(
-      "1.0.0", "cvms::cross_validate(models = )",
-      "cvms::cross_validate(formulas = )"
-    )
-    formulas <- models
-  }
-
-  if (!rlang::is_missing(model_verbose)) {
-    deprecate_warn(
-      "1.0.0", "cvms::cross_validate(model_verbose = )",
-      "cvms::cross_validate(verbose = )"
-    )
-    verbose <- model_verbose
-  }
-
   # This function does not accept 'multinomial'
   checkmate::assert_choice(
     x = family,

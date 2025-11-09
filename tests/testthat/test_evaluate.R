@@ -3329,16 +3329,6 @@ test_that("gaussian evaluations are correct in evaluate()", {
   eval_data <- participant.scores
   eval_data[["score_predictions"]] <- score_predictions
 
-  expect_error(evaluate(eval_data,
-    target_col = "score",
-    prediction_cols = "score_predictions",
-    models = list(score_model_1),
-    type = "gaussian",
-    metrics = "all"
-  ),
-  class = "lifecycle_error_deprecated"
-  )
-
   e1 <- evaluate(eval_data,
     target_col = "score",
     prediction_cols = "score_predictions",

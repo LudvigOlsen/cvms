@@ -19,10 +19,7 @@ validate(
   err_nc = FALSE,
   rm_nc = FALSE,
   parallel = FALSE,
-  verbose = FALSE,
-  link = deprecated(),
-  models = deprecated(),
-  model_verbose = deprecated()
+  verbose = FALSE
 )
 }
 \arguments{
@@ -137,8 +134,6 @@ validate(
 
 \item{verbose}{Whether to message process information
 like the number of model instances to fit and which model function was applied. (Logical)}
-
-\item{link, models, model_verbose}{Deprecated.}
 }
 \value{
 \code{tibble} with the results and model objects.

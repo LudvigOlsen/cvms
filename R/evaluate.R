@@ -171,7 +171,6 @@
 #'  \code{"multinomial"} for multiclass classification.
 #' @param include_predictions Whether to include the predictions
 #'  in the output as a nested \code{tibble}. (Logical)
-#' @param models Deprecated.
 #' @details
 #'
 #'  Packages used:
@@ -483,14 +482,7 @@ evaluate <- function(data,
                      positive = 2,
                      metrics = list(),
                      include_predictions = TRUE,
-                     parallel = FALSE,
-                     models = deprecated()) {
-  if (!rlang::is_missing(models)) {
-    deprecate_stop("1.0.0", "cvms::evaluate(models = )",
-      details = "Now only evaluates predictions."
-    )
-  }
-
+                     parallel = FALSE) {
   # Check arguments ####
   assert_collection <- checkmate::makeAssertCollection()
   checkmate::assert_data_frame(

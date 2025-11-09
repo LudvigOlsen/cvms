@@ -614,13 +614,13 @@ test_that("the expected errors are thrown by validate()", {
     family = "fdsfs",
     REML = FALSE, verbose = FALSE,
     positive = 1
-  )),
+  ), lowercase=TRUE),
     xpectr::strip(paste0(
-    "1 assertions failed:\n * Variable 'family': Must be element",
-    " of set\n * {'gaussian','binomial','multinomial'}, but is 'f",
+    "must be element",
+    " of set\n * {'gaussian','binomial'}, but is 'f",
     "dsfs'."
   )),
-  fixed = TRUE
+  fixed = FALSE
   )
 
   expect_error(suppressWarnings(

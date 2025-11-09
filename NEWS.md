@@ -5,6 +5,8 @@
 
 * `combine_predictors()` now handles when `max_effect_frequency` is `NULL`.
 
+* Removes deprecated arguments: `link`, `models`, `model_verbose`. These were deprecated in `v/1.0.0`.
+
 * Improves code formatting for readability.
 
 # cvms 1.8.1

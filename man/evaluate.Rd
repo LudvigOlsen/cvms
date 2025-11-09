@@ -16,8 +16,7 @@ evaluate(
   positive = 2,
   metrics = list(),
   include_predictions = TRUE,
-  parallel = FALSE,
-  models = deprecated()
+  parallel = FALSE
 )
 }
 \arguments{
@@ -190,8 +189,6 @@ in the output as a nested \code{tibble}. (Logical)}
 
 \item{parallel}{Whether to run evaluations in parallel,
 when \code{`data`} is grouped with \code{\link[dplyr:group_by]{group_by}}.}
-
-\item{models}{Deprecated.}
 }
 \value{
 ----------------------------------------------------------------

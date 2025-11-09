@@ -30,7 +30,6 @@
 #'
 #'  Remember to register a parallel backend first.
 #'  E.g. with \code{doParallel::registerDoParallel}.
-#' @param link,models,model_verbose Deprecated.
 #' @inherit cross_validate details
 #' @return \code{tibble} with the results and model objects.
 #'
@@ -210,30 +209,7 @@ validate <- function(train_data,
                      err_nc = FALSE,
                      rm_nc = FALSE,
                      parallel = FALSE,
-                     verbose = FALSE,
-                     link = deprecated(),
-                     models = deprecated(),
-                     model_verbose = deprecated()) {
-  if (!rlang::is_missing(link)) {
-    deprecate_stop("1.0.0", "cvms::validate(link = )")
-  }
-
-  if (!rlang::is_missing(models)) {
-    deprecate_warn(
-      "1.0.0", "cvms::validate(models = )",
-      "cvms::validate(formulas = )"
-    )
-    formulas <- models
-  }
-
-  if (!rlang::is_missing(model_verbose)) {
-    deprecate_warn(
-      "1.0.0", "cvms::validate(model_verbose = )",
-      "cvms::validate(verbose = )"
-    )
-    verbose <- model_verbose
-  }
-
+                     verbose = FALSE) {
   # This function does not accept 'multinomial'
   checkmate::assert_choice(
     x = family,

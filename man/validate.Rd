@@ -107,7 +107,7 @@ validate(
 
  Available preprocessings are:
 
- \tabular{rrr}{
+ \tabular{rr}{
   \strong{Name} \tab \strong{Description} \cr
   "standardize" \tab Centers and scales the numeric predictors.\cr
   "range" \tab Normalizes the numeric predictors to the \code{0}-\code{1} range.

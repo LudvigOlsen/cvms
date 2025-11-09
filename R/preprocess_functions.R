@@ -44,7 +44,7 @@
 #' @param name Name of preprocessing function
 #'  as it appears in the following list:
 #'
-#'  \tabular{rrr}{
+#'  \tabular{rr}{
 #'   \strong{Name} \tab \strong{Description} \cr
 #'   "standardize" \tab Centers and scales the numeric predictors\cr
 #'   "range" \tab Normalizes the numeric predictors to the 0-1 range\cr

@@ -20,7 +20,7 @@
 #'  The columns should have the name of their class,
 #'  as they are named in the target column. E.g.:
 #'
-#'  \tabular{rrrrr}{
+#'  \tabular{rrrr}{
 #'   \strong{class_1} \tab \strong{class_2} \tab
 #'   \strong{class_3} \tab \strong{target}\cr
 #'   0.269 \tab 0.528 \tab 0.203 \tab class_2\cr
@@ -32,7 +32,7 @@
 #'
 #'  A single column of type \code{character} with the predicted classes. E.g.:
 #'
-#'  \tabular{rrrrr}{
+#'  \tabular{rr}{
 #'   \strong{prediction} \tab \strong{target}\cr
 #'   class_2 \tab class_2\cr
 #'   class_1 \tab class_3\cr
@@ -49,7 +49,7 @@
 #'  the second class alphabetically}
 #'  ("dog" if classes are "cat" and "dog"). E.g.:
 #'
-#'  \tabular{rrrrr}{
+#'  \tabular{rr}{
 #'   \strong{prediction} \tab \strong{target}\cr
 #'   0.769 \tab "dog"\cr
 #'   0.368 \tab "dog"\cr
@@ -64,7 +64,7 @@
 #'
 #'  A single column of type \code{character} with the predicted classes. E.g.:
 #'
-#'  \tabular{rrrrr}{
+#'  \tabular{rr}{
 #'   \strong{prediction} \tab \strong{target}\cr
 #'   class_0 \tab class_1\cr
 #'   class_1 \tab class_1\cr
@@ -76,7 +76,7 @@
 #'  When \code{`type`} is \code{"gaussian"}, the predictions should be passed as
 #'  one column with the predicted values. E.g.:
 #'
-#'  \tabular{rrrrr}{
+#'  \tabular{rr}{
 #'   \strong{prediction} \tab \strong{target}\cr
 #'   28.9 \tab 30.2\cr
 #'   33.2 \tab 27.1\cr

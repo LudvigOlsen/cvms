@@ -8,3 +8,5 @@ revdep/library
 revdep/library\.noindex
 
 *.DS_Store
+
+revdep/

@@ -8,7 +8,7 @@
 
 ## Summary
 
-The codebase is generally well-structured and well-tested. However, this audit identified **4 confirmed bugs**, **several edge-case gaps that can produce silently incorrect results**, and **widespread use of deprecated dplyr/tidyr functions** that will cause breakage in future releases.
+The codebase is generally well-structured and well-tested. However, this audit identified **6 confirmed bugs**, **numerous edge-case gaps that can produce silently incorrect results**, and **widespread use of deprecated dplyr/tidyr functions** that will cause breakage in future releases.
 
 ---
 
@@ -96,6 +96,48 @@ sensitivity <- function(label_counts) {
 Unlike all other metric functions (`specificity`, `prevalence`, `pos_pred_value`, `neg_pred_value`, `detection_rate`, `detection_prevalence`, `threat_score`, `balanced_accuracy`, `accuracy`, `f_score`, `kappa`, `mcc`), `sensitivity()` does **not** call `check_label_counts()`. This also affects `false_neg_rate()` (line 788) which delegates to `sensitivity()`.
 
 **Fix:** Add `check_label_counts(label_counts)` as the first line of `sensitivity()`.
+
+---
+
+### 5. Binomial predict functions hardcode positive class column (HIGH)
+
+**File:** `R/predict_functions.R:82, 108, 134`
+
+```r
+# svm_binomial (line 82):
+probabilities[[2]]
+
+# naive_bayes (line 108):
+predict(..., type = "raw")[, 2]
+
+# randomForest_binomial (line 134):
+predict(..., type = "prob")[, 2]
+```
+
+All three binomial predict functions hardcode extraction of the **second** column from the probability matrix. This assumes the positive class is always the second alphabetical level (the package default `positive = 2`). If a user sets `positive = 1` (first alphabetical level as positive), these functions still return the probability for the *second* level, producing inverted probability estimates that silently yield wrong AUC, log loss, and all probability-derived metrics.
+
+**Fix:** Pass the `positive` level through to predict functions, or extract the column by name rather than position.
+
+---
+
+### 6. NRMSE, RAE, RSE, and MAPE divide by zero on constant/zero targets (HIGH)
+
+**File:** `R/evaluate_residuals.R:219-234`
+
+```r
+nrmse_iqr <- rmse / targets_iqr     # Inf when IQR = 0
+nrmse_rng <- rmse / targets_range   # Inf when range = 0
+nrmse_std <- rmse / targets_std     # Inf when sd = 0
+nrmse_avg <- rmse / targets_mean    # Inf when mean = 0
+rae <- tae / sum(abs_targets_centered)     # NaN when all targets identical
+rse <- tse / sum(square_targets_centered)  # NaN when all targets identical
+ape <- abs(residuals__ / targets)          # Inf when any target = 0
+mape <- mean(ape)                          # Inf
+```
+
+When target values are constant (all identical) or contain zeros, multiple normalized metrics produce `Inf` or `NaN` with no warning. These values then propagate through fold averaging. The test suite actually expects `NaN` for RMSLE (line 877 of `test_metrics.R`), confirming this is known but unhandled.
+
+**Fix:** Return `NA` with a warning when normalization denominators are zero.
 
 ---
 
@@ -199,7 +241,17 @@ error = function(e) {
 
 When `raise_errors = FALSE` (the default), model metric calculation errors are downgraded to warnings and `NA` is returned. Combined with the missing `na.rm` in averaging (Bug #2), this means: a metric calculation error in one fold silently produces `NaN` for the entire model's metrics.
 
-### 11. `r.squaredGLMM` warning handling is a no-op
+### 11. `weighted.mean()` with `na.rm=TRUE` does NOT exclude `NaN`
+
+**File:** `R/confusion_matrix.R:557`, `R/evaluate_predictions_multinomial.R:350`
+
+```r
+weighted.mean(., w = support, na.rm = na.rm)
+```
+
+R's `weighted.mean()` with `na.rm = TRUE` only removes `NA` values, **not** `NaN`. When metric functions produce `NaN` from division by zero (see Bug #5 and items 7-8), `na.rm = TRUE` does not save you. One `NaN` metric for any class contaminates the entire weighted average, producing `NaN` for the overall result.
+
+### 12. `r.squaredGLMM` warning handling is a no-op
 
 **File:** `R/metrics.R:3-22`
 
@@ -214,7 +266,26 @@ warning = function(w) {
 }
 ```
 
-Both branches of the warning handler call the exact same function that triggered the warning. The "special" branch for the "revised statistic" warning does nothing different from the default branch. The intent was likely to suppress the specific warning, but `return()` inside `warning()` doesn't suppress it - the warning was already emitted.
+Both branches of the warning handler call the exact same function that triggered the warning. The "special" branch for the "revised statistic" warning does nothing different from the default branch. The intent was likely to suppress the specific warning, but `return()` inside a `tryCatch` `warning` handler actually does suppress further propagation. However, both branches execute the same code, so the `if/else` is meaningless — it could be replaced with a single `return(MuMIn::r.squaredGLMM(model_)[1])`.
+
+### 13. `argmax` tie-breaking is silent and deterministic
+
+**File:** `R/evaluate_predictions_multinomial.R:492-499`
+
+```r
+argmax_row <- function(...) {
+  x <- unname(c(...))
+  which.max(x)  # Returns FIRST index on ties
+}
+```
+
+When two or more classes share the highest predicted probability, `which.max()` silently picks the first one (lowest column index, i.e., first alphabetically). No warning is issued. Users have no way to know that ties occurred or that results depend on class name ordering.
+
+### 14. No prediction range validation for binomial models
+
+**File:** `R/run_prediction_process.R:112-136`
+
+Predicted probabilities from custom model functions are never checked to be in `[0, 1]`. Values outside this range (e.g., from a misconfigured predict function returning log-odds instead of probabilities) silently produce nonsensical metrics.
 
 ---
 
@@ -225,13 +296,17 @@ Both branches of the warning handler call the exact same function that triggered
 2. Add `na.rm` parameter passthrough to `cross_validate_list.R` averaging
 3. Fix `tidy_confusion_matrix()` to handle tibble inputs
 4. Add `check_label_counts()` to `sensitivity()`
+5. Fix binomial predict functions to respect the `positive` parameter
+6. Add zero-denominator guards to NRMSE/RAE/RSE/MAPE calculations
 
 ### Short-term (correctness):
-5. Add division-by-zero guards or documentation to metric functions
-6. Warn on single-observation test folds
-7. Validate empty hyperparameter grids
+7. Add division-by-zero guards or documentation to all metric functions
+8. Handle `NaN` (not just `NA`) in `weighted.mean()` calls
+9. Warn on single-observation test folds
+10. Validate empty hyperparameter grids
+11. Validate prediction ranges for binomial models
 
 ### Medium-term (maintainability):
-8. Replace all deprecated `dplyr` scoped verbs (`*_all`, `*_at`, `*_if`) with `across()`
-9. Replace `tidyr::nest_legacy()` / `unnest_legacy()` with current API
-10. Address the 72 TODO/FIXME items, especially those noting potential correctness issues
+12. Replace all deprecated `dplyr` scoped verbs (`*_all`, `*_at`, `*_if`) with `across()`
+13. Replace `tidyr::nest_legacy()` / `unnest_legacy()` with current API
+14. Address the 72 TODO/FIXME items, especially those noting potential correctness issues

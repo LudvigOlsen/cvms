@@ -119,13 +119,13 @@ List of settings.
  NOTE: This is very experimental and will likely change.
 }
 \seealso{
-Other plotting functions: 
-\code{\link{dynamic_font_color_settings}()},
-\code{\link{font}()},
-\code{\link{plot_confusion_matrix}()},
-\code{\link{plot_metric_density}()},
-\code{\link{plot_probabilities}()},
-\code{\link{plot_probabilities_ecdf}()}
+Other plotting functions:
+\code{\link[=dynamic_font_color_settings]{dynamic_font_color_settings()}},
+\code{\link[=font]{font()}},
+\code{\link[=plot_confusion_matrix]{plot_confusion_matrix()}},
+\code{\link[=plot_metric_density]{plot_metric_density()}},
+\code{\link[=plot_probabilities]{plot_probabilities()}},
+\code{\link[=plot_probabilities_ecdf]{plot_probabilities_ecdf()}}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

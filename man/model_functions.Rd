@@ -43,10 +43,10 @@ A function with the following form:
  You can also specify required hyperparameters.
 }
 \seealso{
-Other example functions: 
-\code{\link{predict_functions}()},
-\code{\link{preprocess_functions}()},
-\code{\link{update_hyperparameters}()}
+Other example functions:
+\code{\link[=predict_functions]{predict_functions()}},
+\code{\link[=preprocess_functions]{preprocess_functions()}},
+\code{\link[=update_hyperparameters]{update_hyperparameters()}}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

@@ -493,10 +493,10 @@ baseline(
 }
 }
 \seealso{
-Other baseline functions: 
-\code{\link{baseline_binomial}()},
-\code{\link{baseline_gaussian}()},
-\code{\link{baseline_multinomial}()}
+Other baseline functions:
+\code{\link[=baseline_binomial]{baseline_binomial()}},
+\code{\link[=baseline_gaussian]{baseline_gaussian()}},
+\code{\link[=baseline_multinomial]{baseline_multinomial()}}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

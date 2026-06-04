@@ -219,13 +219,13 @@ library(dplyr)
 }
 }
 \seealso{
-Other plotting functions: 
-\code{\link{dynamic_font_color_settings}()},
-\code{\link{font}()},
-\code{\link{plot_confusion_matrix}()},
-\code{\link{plot_metric_density}()},
-\code{\link{plot_probabilities}()},
-\code{\link{sum_tile_settings}()}
+Other plotting functions:
+\code{\link[=dynamic_font_color_settings]{dynamic_font_color_settings()}},
+\code{\link[=font]{font()}},
+\code{\link[=plot_confusion_matrix]{plot_confusion_matrix()}},
+\code{\link[=plot_metric_density]{plot_metric_density()}},
+\code{\link[=plot_probabilities]{plot_probabilities()}},
+\code{\link[=sum_tile_settings]{sum_tile_settings()}}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

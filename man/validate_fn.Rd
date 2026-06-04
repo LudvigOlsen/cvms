@@ -613,10 +613,10 @@ validate_fn(
 }
 }
 \seealso{
-Other validation functions: 
-\code{\link{cross_validate}()},
-\code{\link{cross_validate_fn}()},
-\code{\link{validate}()}
+Other validation functions:
+\code{\link[=cross_validate]{cross_validate()}},
+\code{\link[=cross_validate_fn]{cross_validate_fn()}},
+\code{\link[=validate]{validate()}}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

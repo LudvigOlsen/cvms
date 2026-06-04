@@ -1,6 +1,15 @@
 library(cvms)
 context("validate()")
 
+# lme4 changes the printed structure of its control objects across versions.
+# These generated tests are about cvms' warning/message context, so compare the
+# stable text before the serialized lme4 control list.
+strip_lme4_control_details <- function(x, remove_numbers = FALSE) {
+  x <- gsub("\n  See \\?lme4::convergence and \\?lme4::troubleshooting\\.", "", x)
+  x <- xpectr::strip(x, remove_numbers = remove_numbers)
+  gsub("Hyperparameters.*$", "Hyperparameters", x)
+}
+
 # NOTICE:
 # Numbers tested are the results I got and not "what should be"
 # This will allow me to see if something changes, but it shouldn't give false confidence.
@@ -675,8 +684,8 @@ test_that("verbose reports the correct model functions in validate()", {
       xpectr::strip(character(0)),
       fixed = TRUE)
     expect_equal(
-      xpectr::strip(side_effects_12059[['messages']]),
-      xpectr::strip(c("Will validate 1 models.\n", "---\nvalidate(): cross_validate(): Used glm() to fit the model.'\nFor:\nFormula: diagnosis~score\nFold column: .partitions\nFold: 2\nHyperparameters: REML : FALSE, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), restart_edge = FALSE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, \n    relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list(), tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE)), model_verbose : TRUE, family : binomial, is_special_fn : TRUE\n")),
+      strip_lme4_control_details(side_effects_12059[['messages']]),
+      strip_lme4_control_details(c("Will validate 1 models.\n", "---\nvalidate(): cross_validate(): Used glm() to fit the model.'\nFor:\nFormula: diagnosis~score\nFold column: .partitions\nFold: 2\nHyperparameters: REML : FALSE, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), restart_edge = FALSE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, \n    relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list(), tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE)), model_verbose : TRUE, family : binomial, is_special_fn : TRUE\n")),
       fixed = TRUE)
     # Assigning output
     output_12059 <- xpectr::suppress_mw(validate(dat[[1]], dat[[2]],
@@ -833,8 +842,8 @@ test_that("verbose reports the correct model functions in validate()", {
         "ci.auc() of a ROC curve with AUC == 1 is always 1-1 and can be misleading.")),
       fixed = TRUE)
     expect_equal(
-      xpectr::strip(side_effects_19148[['messages']]),
-      xpectr::strip(c("Will validate 1 models.\n", "---\nvalidate(): cross_validate(): Used lme4::glmer() to fit the model.'\nFor:\nFormula: diagnosis~score+(1|session)\nFold column: .partitions\nFold: 2\nHyperparameters: REML : FALSE, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), restart_edge = FALSE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, \n    relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list(), tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE)), model_verbose : TRUE, family : binomial, is_special_fn : TRUE\n")),
+      strip_lme4_control_details(side_effects_19148[['messages']]),
+      strip_lme4_control_details(c("Will validate 1 models.\n", "---\nvalidate(): cross_validate(): Used lme4::glmer() to fit the model.'\nFor:\nFormula: diagnosis~score+(1|session)\nFold column: .partitions\nFold: 2\nHyperparameters: REML : FALSE, control : list(list(optimizer = c(\"bobyqa\", \"Nelder_Mead\"), restart_edge = FALSE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\", check.response.not.const = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, \n    relTol = NULL), check.conv.singular = list(action = \"message\", tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list(), tolPwrss = 1e-07, compDev = TRUE, nAGQ0initStep = TRUE)), model_verbose : TRUE, family : binomial, is_special_fn : TRUE\n")),
       fixed = TRUE)
     # Assigning output
     output_19148 <- xpectr::suppress_mw(validate(dat[[1]], dat[[2]],
@@ -996,8 +1005,8 @@ test_that("verbose reports the correct model functions in validate()", {
     xpectr::strip(character(0)),
     fixed = TRUE)
   expect_equal(
-    xpectr::strip(side_effects_19148[['messages']]),
-    xpectr::strip(c("Will validate 1 models.\n", "---\nvalidate(): cross_validate(): Used lm() to fit the model.'\nFor:\nFormula: score~diagnosis\nFold column: .partitions\nFold: 2\nHyperparameters: REML : FALSE, control : list(list(optimizer = \"nloptwrap\", restart_edge = TRUE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, relTol = NULL), check.conv.singular = list(action = \"message\", \n    tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : gaussian, is_special_fn : TRUE\n")),
+    strip_lme4_control_details(side_effects_19148[['messages']]),
+    strip_lme4_control_details(c("Will validate 1 models.\n", "---\nvalidate(): cross_validate(): Used lm() to fit the model.'\nFor:\nFormula: score~diagnosis\nFold column: .partitions\nFold: 2\nHyperparameters: REML : FALSE, control : list(list(optimizer = \"nloptwrap\", restart_edge = TRUE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, relTol = NULL), check.conv.singular = list(action = \"message\", \n    tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : gaussian, is_special_fn : TRUE\n")),
     fixed = TRUE)
   # Assigning output
   output_19148 <- xpectr::suppress_mw(validate(dat[[1]], dat[[2]],
@@ -1125,8 +1134,8 @@ test_that("verbose reports the correct model functions in validate()", {
     xpectr::strip(character(0)),
     fixed = TRUE)
   expect_equal(
-    xpectr::strip(side_effects_19148[['messages']]),
-    xpectr::strip(c("Will validate 1 models.\n", "---\nvalidate(): cross_validate(): Used lme4::lmer() to fit the model.'\nFor:\nFormula: score~diagnosis+(1|session)\nFold column: .partitions\nFold: 2\nHyperparameters: REML : FALSE, control : list(list(optimizer = \"nloptwrap\", restart_edge = TRUE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, relTol = NULL), check.conv.singular = list(action = \"message\", \n    tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : gaussian, is_special_fn : TRUE\n")),
+    strip_lme4_control_details(side_effects_19148[['messages']]),
+    strip_lme4_control_details(c("Will validate 1 models.\n", "---\nvalidate(): cross_validate(): Used lme4::lmer() to fit the model.'\nFor:\nFormula: score~diagnosis+(1|session)\nFold column: .partitions\nFold: 2\nHyperparameters: REML : FALSE, control : list(list(optimizer = \"nloptwrap\", restart_edge = TRUE, boundary.tol = 1e-05, calc.derivs = TRUE, use.last.params = FALSE, checkControl = list(check.nobs.vs.rankZ = \"ignore\", check.nobs.vs.nlev = \"stop\", check.nlev.gtreq.5 = \"ignore\", check.nlev.gtr.1 = \"stop\", check.nobs.vs.nRE = \"stop\", check.rankX = \"message+drop.cols\", check.scaleX = \"warning\", check.formula.LHS = \"stop\"), checkConv = list(check.conv.grad = list(action = \"warning\", tol = 0.002, relTol = NULL), check.conv.singular = list(action = \"message\", \n    tol = 1e-04), check.conv.hess = list(action = \"warning\", tol = 1e-06)), optCtrl = list())), model_verbose : TRUE, family : gaussian, is_special_fn : TRUE\n")),
     fixed = TRUE)
   # Assigning output
   output_19148 <- xpectr::suppress_mw(validate(dat[[1]], dat[[2]],

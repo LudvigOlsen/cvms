@@ -50,10 +50,10 @@ A function with the following form:
  They can either be used directly or be starting points.
 }
 \seealso{
-Other example functions: 
-\code{\link{model_functions}()},
-\code{\link{preprocess_functions}()},
-\code{\link{update_hyperparameters}()}
+Other example functions:
+\code{\link[=model_functions]{model_functions()}},
+\code{\link[=preprocess_functions]{preprocess_functions()}},
+\code{\link[=update_hyperparameters]{update_hyperparameters()}}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

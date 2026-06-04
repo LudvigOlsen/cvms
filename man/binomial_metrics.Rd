@@ -107,12 +107,12 @@ binomial_metrics(balanced_accuracy = FALSE)
 }
 }
 \seealso{
-Other evaluation functions: 
-\code{\link{confusion_matrix}()},
-\code{\link{evaluate}()},
-\code{\link{evaluate_residuals}()},
-\code{\link{gaussian_metrics}()},
-\code{\link{multinomial_metrics}()}
+Other evaluation functions:
+\code{\link[=confusion_matrix]{confusion_matrix()}},
+\code{\link[=evaluate]{evaluate()}},
+\code{\link[=evaluate_residuals]{evaluate_residuals()}},
+\code{\link[=gaussian_metrics]{gaussian_metrics()}},
+\code{\link[=multinomial_metrics]{multinomial_metrics()}}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

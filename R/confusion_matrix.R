@@ -646,6 +646,8 @@ create_confusion_matrix <- function(targets, predictions) {
 tidy_confusion_matrix <- function(conf_mat, c_levels = NULL) {
   if (!tibble::is_tibble(conf_mat)) {
     conf_mat_df <- dplyr::as_tibble(conf_mat)
+  } else {
+    conf_mat_df <- conf_mat
   }
 
   # If conf_mat was 2x2
@@ -735,6 +737,8 @@ total_label_count <- function(label_counts) {
 }
 
 sensitivity <- function(label_counts) {
+  check_label_counts(label_counts)
+  
   # TP / (TP + FN)
   label_counts[["TP"]] / (label_counts[["TP"]] + label_counts[["FN"]])
 }

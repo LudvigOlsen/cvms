@@ -82,7 +82,7 @@ extract_y <- function(formula) {
 # returns TRUE or FALSE
 rand_effects <- function(formula) {
   checkmate::assert_formula(x = formula)
-  length(lme4::findbars(as.formula(formula))) > 0
+  length(reformulas::findbars(as.formula(formula))) > 0
 }
 
 
@@ -758,7 +758,7 @@ base_rename <- function(data, before, after,
   if (!is.character(before) || !is.character(after)) {
     stop("'before' and 'after' must both be of type character.")
   }
-  if (length(before) != 1 || length(before) != 1) {
+  if (length(before) != 1 || length(after) != 1) {
     stop("'before' and 'after' must both have length 1.")
   }
 
@@ -1108,6 +1108,11 @@ is_checkmate_v2_1 <- function() {
 is_parameters_v0_15_or_above <- function() {
   v <- get_pkg_version("parameters")
   v$major >= 1 || v$minor >= 15
+}
+
+is_parameters_v0_29_1_or_above <- function() {
+  v <- get_pkg_version("parameters")
+  v$major > 0 || v$minor > 29 || v$minor == 29 && v$patch >= 1
 }
 
 #   __________________ #< c81899b8b0c5f3ca7b82357ec5cc52d2 ># __________________

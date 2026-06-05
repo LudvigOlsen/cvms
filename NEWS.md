@@ -1,4 +1,12 @@
 
+# cvms 2.0.1
+
+* Now extracts model coefficients with a suitable environment containing the training data. This restores extraction of `nnet::multinom` coefficients and coefficients from mixed models whose `parameters`/`insight` methods need access to the original model data.
+
+* Uses `reformulas::findbars()` for detecting random effects, following the move of `findbars()` from `lme4` to `reformulas`. Adds `reformulas` and `methods` as dependencies.
+
+* Fixes a few minor bugs with no real impact.
+
 # cvms 2.0.0
 
 * Breaking: Fixes bug in all functions that takes `fold_cols`. When passing *non-sequential* fold indices (or sequential but not starting at 1), or string fold IDs, these were not properly matched with the fold index when extracting training and testing data for a cross-validation iteration. Now checks current iteration index against the fold ID's *level index* instead of its raw value. Fold column factor levels are reset to avoid levels with no observations. **NOTE**: Users of `groupdata2::fold` should **not** be affected by this, unless you sampled the already folded data and ended up with non-sequential (i.e., not `1:num_folds`) fold IDs.

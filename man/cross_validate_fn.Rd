@@ -677,10 +677,10 @@ system.time({
 }
 }
 \seealso{
-Other validation functions: 
-\code{\link{cross_validate}()},
-\code{\link{validate}()},
-\code{\link{validate_fn}()}
+Other validation functions:
+\code{\link[=cross_validate]{cross_validate()}},
+\code{\link[=validate]{validate()}},
+\code{\link[=validate_fn]{validate_fn()}}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

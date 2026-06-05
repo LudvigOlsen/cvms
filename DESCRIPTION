@@ -1,6 +1,6 @@
 Package: cvms
 Title: Cross-Validation for Model Selection
-Version: 2.0.0
+Version: 2.0.1
 Authors@R: 
     c(person(given = "Ludvig Renbo",
              family = "Olsen",
@@ -40,6 +40,7 @@ Imports:
     groupdata2 (>= 2.0.5),
     lifecycle,
     lme4 (>= 1.1-23),
+    methods,
     MuMIn (>= 1.43.17),
     parameters (>= 0.15.0),
     plyr,
@@ -47,6 +48,7 @@ Imports:
     purrr,
     rearrr (>= 0.3.4),
     recipes (>= 0.1.13),
+    reformulas (>= 0.4.3.1),
     rlang (>= 0.4.7),
     stats,
     stringr,
@@ -74,4 +76,4 @@ RdMacros:
     lifecycle
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.3
+Config/roxygen2/version: 8.0.0

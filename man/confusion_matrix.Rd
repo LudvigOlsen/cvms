@@ -224,12 +224,12 @@ cm
 }
 }
 \seealso{
-Other evaluation functions: 
-\code{\link{binomial_metrics}()},
-\code{\link{evaluate}()},
-\code{\link{evaluate_residuals}()},
-\code{\link{gaussian_metrics}()},
-\code{\link{multinomial_metrics}()}
+Other evaluation functions:
+\code{\link[=binomial_metrics]{binomial_metrics()}},
+\code{\link[=evaluate]{evaluate()}},
+\code{\link[=evaluate_residuals]{evaluate_residuals()}},
+\code{\link[=gaussian_metrics]{gaussian_metrics()}},
+\code{\link[=multinomial_metrics]{multinomial_metrics()}}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

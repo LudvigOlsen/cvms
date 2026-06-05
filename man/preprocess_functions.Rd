@@ -62,10 +62,10 @@ A function with the following form:
  and \code{\link[cvms:validate_fn]{validate_fn()}} and save time.
 }
 \seealso{
-Other example functions: 
-\code{\link{model_functions}()},
-\code{\link{predict_functions}()},
-\code{\link{update_hyperparameters}()}
+Other example functions:
+\code{\link[=model_functions]{model_functions()}},
+\code{\link[=predict_functions]{predict_functions()}},
+\code{\link[=update_hyperparameters]{update_hyperparameters()}}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}

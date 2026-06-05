@@ -72,10 +72,10 @@ if (requireNamespace("xpectr", quietly = TRUE)) {
 }
 }
 \seealso{
-Other example functions: 
-\code{\link{model_functions}()},
-\code{\link{predict_functions}()},
-\code{\link{preprocess_functions}()}
+Other example functions:
+\code{\link[=model_functions]{model_functions()}},
+\code{\link[=predict_functions]{predict_functions()}},
+\code{\link[=preprocess_functions]{preprocess_functions()}}
 }
 \author{
 Ludvig Renbo Olsen, \email{r-pkgs@ludvigolsen.dk}
